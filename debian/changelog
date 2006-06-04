@@ -1,5 +1,7 @@
 amule (2.1.2-2) unstable; urgency=low
 
+  * The "Oooh, poor kiddo" release.
+
   * Overhaul debian/rules. Among other changes:
     + provide a binary-arch target that actually builds some .debs; this fixes
       recent FTBFS in buildds.  (Closes: #369995)
@@ -8,10 +10,9 @@ amule (2.1.2-2) unstable; urgency=low
       delete no longer used patches from the patches/ subdirectory as well.
     + build-depend on autotools-dev, to ensure that the config.{sub,guess}
       snippet actually makes us build against the latest version of these files.
-
-  * Various improvements to the install system:
-    + use debhelper *.install files instead of mv commands from debian/rules.
-    + remove unnecessary *.dirs files.
+    + use debhelper *.install files instead of mv commands from debian/rules;
+      while at it, remove *.dirs files, since they're not needed.
+    + use $builddir != $srcdir, to make the clean rule simpler.
 
   * Add to amule-utils missing Replaces: amule (<< 2.1.2-1) (closes: #370068).
     In amule 2.1.1-3, debian/rules called dh_link without -pamule-common, thus
@@ -21,6 +22,10 @@ amule (2.1.2-2) unstable; urgency=low
     ship the ones provided by upstream, which have actual content, are useful
     and translated to four languages.
 
+  * Add missing dpkg-divert --remove /usr/share/man/man1/ed2k.1.gz in
+    amule-utils.postrm. Will hopefully get totally rid of dpkg-divert in the
+    next upload.
+
   * Remove debian/amule.postinst and debian/amule-utils-gui.postinst, since
     they only contain the very same snippet dh_installmenu already installs.
 
@@ -29,13 +34,9 @@ amule (2.1.2-2) unstable; urgency=low
 
   * Fix debian/watch file; now the http://sf.net shortcut is used.
 
-  * Add missing dpkg-divert --remove /usr/share/man/man1/ed2k.1.gz in
-    amule-utils.postrm. Will hopefully get totally rid of dpkg-divert in the
-    next upload.
+  * Add myself as an uploader, and mutter something about #369995 traffic.
 
-  * Add myself as an uploader, see #369995 for reference.
-
- -- Adeodato Simó <dato@net.com.org.es>  Sun,  4 Jun 2006 18:43:09 +0200
+ -- Adeodato Simó <dato@net.com.org.es>  Mon,  5 Jun 2006 01:24:02 +0200
 
 amule (2.1.2-1.1) unstable; urgency=low
 
