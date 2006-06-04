@@ -73,6 +73,7 @@ clean:
 
 	# Remove build tree
 	rm -rf $(objdir)
+	rm -f po/*.gmo
 
 	dh_clean
 
