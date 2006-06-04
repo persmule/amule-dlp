@@ -1,3 +1,5 @@
 usr/bin/cas
 usr/bin/alcc
 usr/bin/amulecmd
+usr/bin/ed2k.amule
+../ed2k.wrapper	usr/bin

@@ -85,7 +85,8 @@ install-stamp:
 	dh_clean
 	dh_installdirs
 	cd $(objdir) && $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
-	dh_install --sourcedir=debian/tmp --list-missing
+	mv $(CURDIR)/debian/tmp/usr/bin/ed2k $(CURDIR)/debian/tmp/usr/bin/ed2k.amule
+	dh_install --sourcedir=debian/tmp
 
 	touch $@ 
 
