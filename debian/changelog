@@ -20,6 +20,9 @@ amule (2.1.2-2) unstable; urgency=low
     ship the ones provided by upstream, which have actual content, are useful
     and translated to four languages.
 
+  * Remove debian/amule.postinst, since dh_installmenu already inserts the
+    very same snippet.
+
   * Add myself as an uploader, see #369995 for reference.
 
  -- Adeodato Simó <dato@net.com.org.es>  Sun,  4 Jun 2006 18:43:09 +0200
