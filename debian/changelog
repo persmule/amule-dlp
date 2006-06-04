@@ -27,6 +27,8 @@ amule (2.1.2-2) unstable; urgency=low
   * Make amule-utils-gui.menu point to wxcas.xpm and alc.xpm instead of using
     amule.xpm for all three shipped binaries.
 
+  * Fix debian/watch file; now the http://sf.net shortcut is used.
+
   * Add myself as an uploader, see #369995 for reference.
 
  -- Adeodato Simó <dato@net.com.org.es>  Sun,  4 Jun 2006 18:43:09 +0200
