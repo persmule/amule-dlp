@@ -8,7 +8,7 @@ amule (2.1.2-2) unstable; urgency=low
     + build-depend on autotools-dev, to ensure that the config.{sub,guess}
       snippet actually makes us build agains the latest version of these files.
 
-  * Add myself as an Uploader, see #369995 for reference.
+  * Add myself as an uploader, see #369995 for reference.
 
  -- Adeodato Simó <dato@net.com.org.es>  Sun,  4 Jun 2006 18:43:09 +0200
 
