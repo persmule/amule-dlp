@@ -6,7 +6,7 @@ amule (2.1.2-2) unstable; urgency=low
     + do not call ./configure more times than needed. (Closes: #368381)
     + remove dpatch, since it is no longer used.
     + build-depend on autotools-dev, to ensure that the config.{sub,guess}
-      snippet actually makes us build agains the latest version of these files.
+      snippet actually makes us build against the latest version of these files.
 
   * Various improvements to the install system:
     + use debhelper *.install files instead of mv commands from debian/rules.
