@@ -12,6 +12,10 @@ amule (2.1.2-2) unstable; urgency=low
     + use debhelper *.install files instead of mv commands from debian/rules.
     + remove unnecessary *.dirs files.
 
+  * Add to amule-utils missing Replaces: amule (<< 2.1.2-1) (closes: #370068).
+    In amule 2.1.1-3, debian/rules called dh_link without -pamule-common, thus
+    shipping the symlinks in amule instead of amule-common.
+
   * Do not ship the placeholder manpages from the debian/mans directory, and
     ship the ones provided by upstream, which have actual content, are useful
     and translated to four languages.
