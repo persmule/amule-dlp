@@ -1,1 +1,2 @@
-debian/mans/amule.1
+./docs/man/amule.1
+./docs/man/amule.*.1

@@ -1,8 +1,8 @@
-debian/mans/amulecmd.1
-debian/mans/amulecmd.fr.1
-debian/mans/alcc.1
-debian/mans/cas.1
+docs/man/amulecmd.1
+docs/man/amulecmd.*.1
+src/utils/cas/docs/cas.1
+src/utils/cas/docs/cas.*.1
+src/utils/aLinkCreator/docs/alcc.1
+src/utils/aLinkCreator/docs/alcc.*.1
 debian/mans/ed2k.wrapper.fr.1
 debian/mans/ed2k.wrapper.1
-debian/mans/ed2k.amule.fr.1
-debian/mans/ed2k.amule.1

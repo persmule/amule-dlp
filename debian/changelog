@@ -8,9 +8,13 @@ amule (2.1.2-2) unstable; urgency=low
     + build-depend on autotools-dev, to ensure that the config.{sub,guess}
       snippet actually makes us build agains the latest version of these files.
 
-  * Various improvements to the install system.
+  * Various improvements to the install system:
     + use debhelper *.install files instead of mv commands from debian/rules.
     + remove unnecessary *.dirs files.
+
+  * Do not ship the placeholder manpages from the debian/mans directory, and
+    ship the ones provided by upstream, which have actual content, are useful
+    and translated to four languages.
 
   * Add myself as an uploader, see #369995 for reference.
 

@@ -1,2 +1,4 @@
-debian/mans/amuled.1
-debian/mans/amuleweb.1
+docs/man/amuled.1
+docs/man/amuled.*.1
+docs/man/amuleweb.1
+docs/man/amuleweb.*.1
