@@ -4,7 +4,8 @@ amule (2.1.2-2) unstable; urgency=low
     + provide a binary-arch target that actually builds some .debs; this fixes
       recent FTBFS in buildds.  (Closes: #369995)
     + do not call ./configure more times than needed. (Closes: #368381)
-    + remove dpatch, since it is no longer used.
+    + remove dpatch, since it is no longer used; drop build-dependency, and
+      delete no longer used patches from the patches/ subdirectory as well.
     + build-depend on autotools-dev, to ensure that the config.{sub,guess}
       snippet actually makes us build against the latest version of these files.
 
