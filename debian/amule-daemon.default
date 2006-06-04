@@ -1,0 +1,5 @@
+#RUN_AT_STARTUP="YES" will run amuled on startup
+#with the specified user
+
+AMULED_USER="youruser"
+RUN_AT_STARTUP="NO"

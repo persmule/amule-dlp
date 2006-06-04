@@ -1,0 +1,6 @@
+# watch control file for uscan for package aMule
+# to check for upstream updates and more.
+version=2
+
+# Site          Directory               Pattern                 Version  Script
+debian uupdatehttp://download.berlios.de/amule/aMule-(.*)\.tar\.gz debian uupdate

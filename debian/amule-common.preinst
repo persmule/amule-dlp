@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if [ "upgrade" = "$1" ]; then
+	dpkg-divert --remove --rename /usr/bin/ed2k > /dev/null 2>/dev/null
+fi
+
+if [ "install" = "$1" ] || [ "upgrade" = "$1" ]; then
+		dpkg-divert --package amule --add --rename \
+	    	--divert /usr/bin/ed2k.xmule /usr/bin/ed2k
+		dpkg-divert --package amule --add --rename \
+			--divert /usr/share/man/man1/ed2k.xmule.1.gz /usr/share/man/man1/ed2k.1.gz
+fi
+
+#DEBHELPER#

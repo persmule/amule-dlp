@@ -1,0 +1,4 @@
+How use amuled ?
+
+Be careful, you must have AcceptExternalConnections=1 in 
+your ~/.aMule/amule.conf to get amuled fully functionnal

@@ -1,0 +1,55 @@
+Source: amule
+Section: x11
+Priority: optional
+Maintainer: Julien Delange <julien@gunnm.org>
+Build-Depends: debhelper(>= 4.0.0), libglib2.0-dev, zlib1g-dev, libgd2-xpm-dev, libreadline5-dev, libcrypto++-dev, libwxgtk2.6-dev, wx2.6-i18n, wx2.6-headers, dpatch
+Standards-Version: 3.6.2
+
+
+Package: amule
+Architecture: any
+Recommends: amule-utils, amule-daemon
+Depends: ${shlibs:Depends}, ${misc:Depends}, amule-common (= ${Source-Version})
+Description: All-platform eMule P2P Client
+ aMule stands for another eMule file-sharing program. It is also
+ another fork of the xMule project. It connects to eDonkey2000
+ network, supports Linux, *BSD and MacOS X platforms, and has
+ a new vision of the GUI.
+
+Package: amule-common
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: amule-utils (<< 2.0.3-4)
+Description: common files for aMule
+ aMule is an eMule file-sharing program. This package contains
+ common files for aMule. It contains ed2k links handler too.
+
+Package: amule-utils
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, amule (= ${Source-Version}) | amule-daemon( = ${Source-Version} ), amule-common (= ${Source-Version})
+Description: utilities for amule
+ amule-utils is a set of tools to control amule.
+ .
+ "cas" is a replacement for the astats utility. "cas"
+ produces statistics on amule downloads.
+ .
+ amulecmd is a program which helps you drive amule
+ through a terminal.
+
+Package: amule-utils-gui
+Architecture: any
+Replaces: astats
+Depends: ${shlibs:Depends}, ${misc:Depends}, amule-common (= ${Source-Version})
+Description: User-friendly utilities for amule
+ amule-utils-gui is a set of tools to control amule.
+ .
+ This package contains useful programs using GUI to
+ control aMule.
+
+Package: amule-daemon
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, amule-common (= ${Source-Version})
+Description: aMule daemon
+ amule-daemon provides a small program to start amule
+ without gui
+
