@@ -1,3 +1,9 @@
+amule (2.1.2-2) unstable; urgency=low
+
+  * Add myself as an Uploader, see #369995 for reference.
+
+ -- Adeodato Simó <dato@net.com.org.es>  Sun,  4 Jun 2006 18:43:09 +0200
+
 amule (2.1.2-1.1) unstable; urgency=low
 
   * NMU to fix serious bug before dinstall, with maintainer's permission.
