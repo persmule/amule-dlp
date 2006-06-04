@@ -1,8 +1,8 @@
 amule (2.1.2-2) unstable; urgency=low
 
   * Overhaul debian/rules. Among other changes:
-    + provide a binary-arch target that actually builds some .debs, fix recent
-      FTBFS in buildds.  (Closes: #369995)
+    + provide a binary-arch target that actually builds some .debs; this fixes
+      recent FTBFS in buildds.  (Closes: #369995)
     + do not call ./configure more times than needed. (Closes: #368381)
     + remove dpatch, since it is no longer used.
     + build-depend on autotools-dev, to ensure that the config.{sub,guess}
