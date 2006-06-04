@@ -27,6 +27,7 @@ Description: common files for aMule
 Package: amule-utils
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, amule-common (= ${Source-Version})
+Replaces: amule-common (<< 2.1.2-1)
 Description: utilities for amule
  amule-utils is a set of tools to control amule.
  .

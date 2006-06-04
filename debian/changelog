@@ -1,3 +1,11 @@
+amule (2.1.2-1.1) unstable; urgency=low
+
+  * NMU to fix serious bug before dinstall, with maintainer's permission.
+  * Make amule-utils Replace: amule-common (<< 2.1.2-1), since ed2k.amule
+    and other files moved from there in the last upload. (Closes: #369959)
+
+ -- Adeodato Simó <dato@net.com.org.es>  Fri,  2 Jun 2006 18:13:38 +0200
+
 amule (2.1.2-1) unstable; urgency=low
 
   * New upstream release, youhou !
