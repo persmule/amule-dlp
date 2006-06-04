@@ -23,6 +23,9 @@ amule (2.1.2-2) unstable; urgency=low
   * Remove debian/amule.postinst and debian/amule-utils-gui.postinst, since
     they only contain the very same snippet dh_installmenu already installs.
 
+  * Make amule-utils-gui.menu point to wxcas.xpm and alc.xpm instead of using
+    amule.xpm for all three shipped binaries.
+
   * Add myself as an uploader, see #369995 for reference.
 
  -- Adeodato Simó <dato@net.com.org.es>  Sun,  4 Jun 2006 18:43:09 +0200

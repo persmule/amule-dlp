@@ -1,10 +1,10 @@
 ?package(amule-utils-gui):needs="X11" section="Apps/Net"\
   title="aMule Stats" command="/usr/bin/wxcas"\
-  icon="/usr/share/pixmaps/amule.xpm"
+  icon="/usr/share/pixmaps/wxcas.xpm"
 
 ?package(amule-utils-gui):needs="X11" section="Apps/Net"\
   title="aMule Link Creator (alc)" command="/usr/bin/alc"\
-  icon="/usr/share/pixmaps/amule.xpm"
+  icon="/usr/share/pixmaps/alc.xpm"
 
 ?package(amule-utils-gui):needs="X11" section="Apps/Net"\
   title="aMule GUI" command="/usr/bin/amulegui"\
