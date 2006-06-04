@@ -29,7 +29,7 @@ endif
 config.status: patch configure
 	dh_testdir
 	# Add here commands to configure the package.
-	CFLAGS="$(CFLAGS)" CXXFLAGS="-Os" ./configure --enable-amulecmd --enable-optimize --enable-gsocket --enable-alc --enable-alcc --enable-amule-daemon --enable-amulecmdgui --disable-debug --disable-embedded-crypto --enable-systray --enable-cas --enable-wxcas --with-ccache --enable-webserver --enable-webservergui --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-amule-gui
+	CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" ./configure --enable-amulecmd --enable-optimize --enable-gsocket --enable-alc --enable-alcc --enable-amule-daemon --enable-amulecmdgui --disable-debug --disable-embedded-crypto --enable-systray --enable-cas --enable-wxcas --with-ccache --enable-webserver --enable-webservergui --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-amule-gui
 
 
 build: build-stamp
@@ -55,6 +55,7 @@ clean-patched:
 	# Add here commands to clean up after the build process.
 	-$(MAKE) distclean
 	rm -f po/*.gmo
+	rm -f po/*.gmo
 ifneq "$(wildcard /usr/share/misc/config.sub)" ""
 	cp -f /usr/share/misc/config.sub config.sub
 endif
@@ -63,7 +64,7 @@ ifneq "$(wildcard /usr/share/misc/config.guess)" ""
 endif
 
 
-	dh_clean -a
+	dh_clean 
 
 patch: patch-stamp
 patch-stamp:
@@ -73,20 +74,16 @@ install: build
 	dh_testdir -a 
 	dh_testroot -a
 	dh_clean -a -k 
-	dh_installdirs -A -a -k -s
+#dh_installdirs -A -a -k -s
+	dh_installdirs -A
 
 	# Add here commands to install the package into debian/amule.
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 
 	#aMule common
 	mv $(CURDIR)/debian/tmp/usr/share/locale $(CURDIR)/debian/amule-common/usr/share/
-	mv $(CURDIR)/debian/tmp/usr/bin/ed2k $(CURDIR)/debian/amule-common/usr/bin/ed2k.amule
 	mv $(CURDIR)/debian/tmp/usr/share/cas/stat.png $(CURDIR)/debian/amule-common/usr/share/cas/
 	mv $(CURDIR)/debian/tmp/usr/share/cas/tmp.html $(CURDIR)/debian/amule-common/usr/share/cas/
-	install -m 755 debian/wrapper/wrapper $(CURDIR)/debian/amule-common/usr/bin/ed2k.wrapper
-	dh_link /usr/bin/ed2k.wrapper /usr/bin/ed2k
-	dh_link /usr/share/man/fr/man1/ed2k.wrapper.1.gz /usr/share/man/fr/man1/ed2k.1.gz
-	dh_link /usr/share/man/man1/ed2k.wrapper.1.gz /usr/share/man/man1/ed2k.1.gz
 
 	#aMule part
 	cp $(CURDIR)/debian/tmp/usr/share/pixmaps/amule.xpm $(CURDIR)/debian/amule/usr/share/pixmaps/amule.xpm
@@ -96,15 +93,16 @@ install: build
 
 
 	#aMule utils part
-	cp $(CURDIR)/debian/tmp/usr/bin/cas $(CURDIR)/debian/amule-utils/usr/bin
-	cp $(CURDIR)/debian/tmp/usr/bin/alcc $(CURDIR)/debian/amule-utils/usr/bin
-	cp $(CURDIR)/debian/tmp/usr/bin/amulecmd $(CURDIR)/debian/amule-utils/usr/bin
+	mv $(CURDIR)/debian/tmp/usr/bin/cas $(CURDIR)/debian/amule-utils/usr/bin/
+	mv $(CURDIR)/debian/tmp/usr/bin/alcc $(CURDIR)/debian/amule-utils/usr/bin/
+	mv $(CURDIR)/debian/tmp/usr/bin/amulecmd $(CURDIR)/debian/amule-utils/usr/bin/
+	mv $(CURDIR)/debian/tmp/usr/bin/ed2k $(CURDIR)/debian/amule-utils/usr/bin/ed2k.amule
+	install -m 755 debian/wrapper/wrapper $(CURDIR)/debian/amule-utils/usr/bin/ed2k.wrapper
+	dh_link -pamule-utils /usr/bin/ed2k.wrapper /usr/bin/ed2k
+	dh_link -pamule-utils /usr/share/man/fr/man1/ed2k.wrapper.1.gz /usr/share/man/fr/man1/ed2k.1.gz
+	dh_link -pamule-utils /usr/share/man/man1/ed2k.wrapper.1.gz /usr/share/man/man1/ed2k.1.gz
 
 	#aMule utils GUI
-#Remove amulecmdDLG, use amulegui now
-#Remove amulewebDLG too
-#	mv $(CURDIR)/debian/tmp/usr/bin/amulecmdDLG $(CURDIR)/debian/amule-utils-gui/usr/bin/
-#	mv $(CURDIR)/debian/tmp/usr/bin/amulewebDLG $(CURDIR)/debian/amule-utils-gui/usr/bin/
 	mv $(CURDIR)/debian/tmp/usr/bin/amulegui $(CURDIR)/debian/amule-utils-gui/usr/bin/
 	mv $(CURDIR)/debian/tmp/usr/bin/alc $(CURDIR)/debian/amule-utils-gui/usr/bin/
 	mv $(CURDIR)/debian/tmp/usr/bin/wxcas $(CURDIR)/debian/amule-utils-gui/usr/bin/
@@ -119,33 +117,50 @@ install: build
 	mv $(CURDIR)/debian/tmp/usr/bin/amuleweb $(CURDIR)/debian/amule-daemon/usr/bin/
 	mv $(CURDIR)/debian/tmp/usr/share/amule/webserver $(CURDIR)/debian/amule-daemon/usr/share/amule/
 
-#	mv $(CURDIR)/debian/tmp/usr/share/pixmaps/stat.png $(CURDIR)/debian/amule-utils/usr/share/pixmaps/stat.png
 
-
-# Build architecture-independent files here.
-binary-indep: install
-# We have nothing to do by default.
+binary-arch: build install
+binary-indep: build install
 
 # Build architecture-dependent files here.
-binary-arch: build install
-	dh_testdir -a
-	dh_testroot -a
+binary: build install
+	dh_testdir 
+	dh_testroot 
 	dh_installchangelogs docs/Changelog
-	dh_installdocs -a
-	dh_installexamples -a
-	dh_installmenu -a
-	dh_installdebconf -a
+	dh_installdocs 
+	dh_installexamples 
+	dh_installmenu 
+	dh_installdebconf 
 	dh_installinit
-	dh_installman -a
-	dh_link -a
-	dh_strip -a
-	dh_compress -a
-	dh_fixperms -a
-	dh_installdeb -a
-	dh_shlibdeps -a
-	dh_gencontrol -a
-	dh_md5sums -a
-	dh_builddeb -a
+	dh_installman 
+	dh_link 
+	dh_strip 
+	dh_compress 
+	dh_fixperms 
+	dh_installdeb
+	dh_shlibdeps 
+	dh_gencontrol 
+	dh_md5sums 
+	dh_builddeb 
 
-binary: binary-indep binary-arch
+#	dh_testdir -a
+#	dh_testroot -a
+#	dh_installchangelogs docs/Changelog
+#	dh_installdocs -a
+#	dh_installexamples -a
+#	dh_installmenu -a
+#	dh_installdebconf -a
+#	dh_installinit
+#	dh_installman -a
+#	dh_link -a
+#	dh_strip -a
+#	dh_compress -a
+#	dh_fixperms -a
+#	dh_installdeb -a
+#	dh_shlibdeps -a
+#	dh_gencontrol -a
+#	dh_md5sums -a
+#	dh_builddeb -a
+
+binary: binary-arch binary-indep
+
 .PHONY: build clean binary-indep binary-arch binary install 

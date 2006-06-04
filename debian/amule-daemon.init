@@ -10,7 +10,7 @@ if [ -f /etc/default/amule-daemon ]; then
 fi
 
 if [ -z "$RUN_AT_STARTUP" -o "$RUN_AT_STARTUP" != "YES" ]; then
-	echo "aMule daemon not starting, edit /etc/default/amule-daemon for start it"
+	echo "aMule daemon not starting, edit /etc/default/amule-daemon to start it"
 	exit 0
 fi
 

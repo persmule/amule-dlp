@@ -3,7 +3,7 @@ Section: x11
 Priority: optional
 Maintainer: Julien Delange <julien@gunnm.org>
 Build-Depends: debhelper(>= 4.0.0), libglib2.0-dev, zlib1g-dev, libgd2-xpm-dev, libreadline5-dev, libcrypto++-dev, libwxgtk2.6-dev, wx2.6-i18n, wx2.6-headers, dpatch
-Standards-Version: 3.6.2
+Standards-Version: 3.7.2
 
 
 Package: amule
@@ -17,7 +17,7 @@ Description: All-platform eMule P2P Client
  a new vision of the GUI.
 
 Package: amule-common
-Architecture: any
+Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Conflicts: amule-utils (<< 2.0.3-4)
 Description: common files for aMule
@@ -26,7 +26,7 @@ Description: common files for aMule
 
 Package: amule-utils
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, amule (= ${Source-Version}) | amule-daemon( = ${Source-Version} ), amule-common (= ${Source-Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, amule-common (= ${Source-Version})
 Description: utilities for amule
  amule-utils is a set of tools to control amule.
  .
