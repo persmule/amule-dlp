@@ -1,2 +1,3 @@
 - fix the horrible horrible horrible dpkg-divert mess.
 - look at #354326, and revise the init script carefully
+- consider moving /usr/share/amule/webserver to amule-common
