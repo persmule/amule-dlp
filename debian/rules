@@ -85,45 +85,7 @@ install-stamp:
 	dh_clean
 	dh_installdirs
 	cd $(objdir) && $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
-	dh_install --list-missing
-
-	# XXX Make this go away
-	#aMule common
-	mv $(CURDIR)/debian/tmp/usr/share/locale $(CURDIR)/debian/amule-common/usr/share/
-	mv $(CURDIR)/debian/tmp/usr/share/cas/stat.png $(CURDIR)/debian/amule-common/usr/share/cas/
-	mv $(CURDIR)/debian/tmp/usr/share/cas/tmp.html $(CURDIR)/debian/amule-common/usr/share/cas/
-
-	#aMule part
-	cp $(CURDIR)/debian/tmp/usr/share/pixmaps/amule.xpm $(CURDIR)/debian/amule/usr/share/pixmaps/amule.xpm
-	cp $(CURDIR)/debian/tmp/usr/bin/amule $(CURDIR)/debian/amule/usr/bin/
-	cp  $(CURDIR)/debian/tmp/usr/share/applications/amule.desktop $(CURDIR)/debian/amule/usr/share/applications/
-
-
-
-	#aMule utils part
-	mv $(CURDIR)/debian/tmp/usr/bin/cas $(CURDIR)/debian/amule-utils/usr/bin/
-	mv $(CURDIR)/debian/tmp/usr/bin/alcc $(CURDIR)/debian/amule-utils/usr/bin/
-	mv $(CURDIR)/debian/tmp/usr/bin/amulecmd $(CURDIR)/debian/amule-utils/usr/bin/
-	mv $(CURDIR)/debian/tmp/usr/bin/ed2k $(CURDIR)/debian/amule-utils/usr/bin/ed2k.amule
-	install -m 755 debian/wrapper/wrapper $(CURDIR)/debian/amule-utils/usr/bin/ed2k.wrapper
-	dh_link -pamule-utils /usr/bin/ed2k.wrapper /usr/bin/ed2k
-	dh_link -pamule-utils /usr/share/man/fr/man1/ed2k.wrapper.1.gz /usr/share/man/fr/man1/ed2k.1.gz
-	dh_link -pamule-utils /usr/share/man/man1/ed2k.wrapper.1.gz /usr/share/man/man1/ed2k.1.gz
-
-	#aMule utils GUI
-	mv $(CURDIR)/debian/tmp/usr/bin/amulegui $(CURDIR)/debian/amule-utils-gui/usr/bin/
-	mv $(CURDIR)/debian/tmp/usr/bin/alc $(CURDIR)/debian/amule-utils-gui/usr/bin/
-	mv $(CURDIR)/debian/tmp/usr/bin/wxcas $(CURDIR)/debian/amule-utils-gui/usr/bin/
-	mv $(CURDIR)/debian/tmp/usr/share/pixmaps/wxcas.xpm $(CURDIR)/debian/amule-utils-gui/usr/share/pixmaps
-	mv $(CURDIR)/debian/tmp/usr/share/pixmaps/alc.xpm $(CURDIR)/debian/amule-utils-gui/usr/share/pixmaps
-	mv $(CURDIR)/debian/tmp/usr/share/applications/alc.desktop $(CURDIR)/debian/amule-utils-gui/usr/share/applications
-	mv $(CURDIR)/debian/tmp/usr/share/applications/wxcas.desktop $(CURDIR)/debian/amule-utils-gui/usr/share/applications
-
-
-	#Amule daemon part
-	mv $(CURDIR)/debian/tmp/usr/bin/amuled $(CURDIR)/debian/amule-daemon/usr/bin/
-	mv $(CURDIR)/debian/tmp/usr/bin/amuleweb $(CURDIR)/debian/amule-daemon/usr/bin/
-	mv $(CURDIR)/debian/tmp/usr/share/amule/webserver $(CURDIR)/debian/amule-daemon/usr/share/amule/
+	dh_install --sourcedir=debian/tmp --list-missing
 
 	touch $@ 
 
