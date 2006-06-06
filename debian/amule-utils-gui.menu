@@ -8,5 +8,5 @@
 
 ?package(amule-utils-gui):needs="X11" section="Apps/Net"\
   title="aMule GUI" command="/usr/bin/amulegui"\
-  icon="/usr/share/pixmaps/amule.xpm"
+  icon="/usr/share/pixmaps/amulegui.xpm"
 

@@ -30,13 +30,14 @@ amule (2.1.2-2) unstable; urgency=low
     they only contain the very same snippet dh_installmenu already installs.
 
   * Make amule-utils-gui.menu point to wxcas.xpm and alc.xpm instead of using
-    amule.xpm for all three shipped binaries.
+    amule.xpm for all three shipped binaries, and ship a copy of amule.xpm as
+    amulegui.xpm since amule-utils-gui does not depend on amule (thx, lintian).
 
   * Fix debian/watch file; now the http://sf.net shortcut is used.
 
   * Add myself as an uploader, and mutter something about #369995 traffic.
 
- -- Adeodato Simó <dato@net.com.org.es>  Mon,  5 Jun 2006 01:24:02 +0200
+ -- Adeodato Simó <dato@net.com.org.es>  Mon,  5 Jun 2006 01:50:41 +0200
 
 amule (2.1.2-1.1) unstable; urgency=low
 
