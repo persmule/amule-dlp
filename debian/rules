@@ -58,7 +58,7 @@ configure-stamp:
 build: build-stamp
 build-stamp: configure-stamp
 	cd $(objdir) && \
-	$(MAKE)
+	$(MAKE) BFD_LIB= BFD_FLAGS=
 
 	touch $@
 

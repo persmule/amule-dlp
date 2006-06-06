@@ -1,3 +1,12 @@
+amule (2.1.2-3) unstable; urgency=low
+
+  * The build system detects the presence of bfd.h from binutils-dev and
+    unconditionally links against libbfd.so, introducing a dependency against
+    binutils in the packages. To fix this without the need of Build-Conflicts,
+    build the package with `$(MAKE) BFD_LIB= BFD_FLAGS=` from debian/rules.
+
+ -- Adeodato Simó <dato@net.com.org.es>  Tue,  6 Jun 2006 14:06:46 +0200
+
 amule (2.1.2-2) unstable; urgency=low
 
   * The "Oooh, poor kiddo" release.
