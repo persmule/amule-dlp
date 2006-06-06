@@ -11,6 +11,9 @@ amule (2.1.2-3) unstable; urgency=low
       suggest amule-utils-gui; make amule-daemon suggest amule-utils as well.
     + don't make amule-common conflict amule-utils, only replace it as adviced
       by Steve Langasek and myself in #343909 five months ago.
+    + rewrite all package descriptions, trying to follow the guidelines in
+      Dev-Ref. The amule-common no longer claims to include the ed2k link
+      handler, which closes: #370421.
 
   * The build system detects the presence of bfd.h from binutils-dev and
     unconditionally links against libbfd.so, introducing a dependency against

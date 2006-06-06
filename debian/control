@@ -12,50 +12,84 @@ Architecture: any
 Depends: amule-common (= ${Source-Version}), ${shlibs:Depends}, ${misc:Depends}
 Recommends: amule-utils
 Suggests: amule-utils-gui
-Description: All-platform eMule P2P Client
- aMule stands for another eMule file-sharing program. It is also
- another fork of the xMule project. It connects to eDonkey2000
- network, supports Linux, *BSD and MacOS X platforms, and has
- a new vision of the GUI.
+Description: client for the eD2k and Kad networks, like eMule
+ aMule is a peer-to-peer file sharing application, designed to connect
+ to the eDonkey and Kad networks. It has a wide range of features,
+ including many of the original eMule client, like:
+ .
+  * online signature, source exchange, compressed transfers, secure
+    identification, and IP filter support
+  * boolean search, which can be local, global, or in the Kad network
+  * checks against aggressive clients
+  * slot allocation, to decide the number of remote clients
+  * systray works well both in GNOME and KDE
+  * translations to many languages
+ .
+ A daemonized version of the application that does not need a graphic
+ environment to run is available in the amule-daemon package, and
+ various utilities of interest can be found in the amule-utils and
+ amule-utils-gui packages, including the ed2k link hander.
+ .
+  Homepage: http://www.amule.org
 
 Package: amule-common
 Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Replaces: amule-utils (<< 2.0.3-4), amule-daemon (<< 2.1.2-3)
-Description: common files for aMule
- aMule is an eMule file-sharing program. This package contains
- common files for aMule. It contains ed2k links handler too.
+Description: common files for the rest of aMule packages
+ This package contains localization files and webserver templates for
+ aMule. You probably don't want to install this package alone, but amule
+ or amule-daemon instead.
 
 Package: amule-utils
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: amule-common
 Replaces: amule-common (<< 2.1.2-3), amule (<< 2.1.2-1)
-Description: utilities for amule
- amule-utils is a set of tools to control amule.
+Description: utilities for aMule (command-line version)
+ This package contains a set of command-line utilities related to aMule,
+ the eD2k network client:
  .
- "cas" is a replacement for the astats utility. "cas"
- produces statistics on amule downloads.
+  * ed2k: handles ed2k:// links, queueing them into aMule
+  * cas: displays the contents of your aMule online signature
+  * alcc: computes ed2k:// links for the given input files
+  * amulecmd: text-based client to control aMule or the aMule daemon
  .
- amulecmd is a program which helps you drive amule
- through a terminal.
+ Some of these utilities have graphic versions, which can be found in
+ the amule-utils-gui package.
 
 Package: amule-utils-gui
 Architecture: any
 Replaces: astats
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: amule-common
-Description: User-friendly utilities for amule
- amule-utils-gui is a set of tools to control amule.
+Description: graphic utilities for aMule
+ This package contains a set of graphic utilities related to aMule, the
+ eD2k network client:
  .
- This package contains useful programs using GUI to
- control aMule.
+  * wxcas: displays the contents of your aMule online signature
+  * alc: computes ed2k:// links for the given input files
+  * amulegui (EXPERIMENTAL): graphic client to control aMule or the
+    aMule daemon
+ .
+ A command-line version of these utilities can be found in the
+ amule-utils package.
 
 Package: amule-daemon
 Architecture: any
 Depends: amule-common (= ${Source-Version}), ${shlibs:Depends}, ${misc:Depends}
 Recommends: amule-utils
-Description: aMule daemon
- amule-daemon provides a small program to start amule
- without gui
-
+Description: non-graphic version of aMule, a client for the eD2k and Kad networks
+ This package contains a daemonized version of aMule, amuled, that does
+ not need a graphic environment to run, and can run in the background as
+ well. It is normally used to be run in a machine 24/7, since the
+ application continues to run if the X11 session closes.
+ .
+ Included in the package is a webserver that provides an interface to
+ control the daemon. Remote connections are supported, and the daemon
+ can be configured to start the webserver automatically at startup. It
+ is also possible to control amuled via amulecmd, from the amule-utils
+ package, and amulegui, available in the amule-utils-gui package.
+ .
+ See the description of the amule package for a list of features, and
+ /usr/share/doc/amule-daemon/README.Debian for some basic usage notes.
