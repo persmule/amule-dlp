@@ -33,6 +33,11 @@ amule (2.1.2-3) unstable; urgency=low
     binutils in the packages. To fix this without the need of Build-Conflicts,
     build the package with `$(MAKE) BFD_LIB= BFD_FLAGS=` from debian/rules.
 
+  * Make the changes to amule.xpm that make it 32x32 as per the Menu Policy
+    keep the aspect ratio instead of just resizing. Also, ship the new icon in
+    debian/amule-32.xpm and replace it at runtime, instead of shipping changes
+    (which are three times bigger) in the .diff.gz.
+
   * Add a X-VCS-Bzr header to the source package, pointing to the repository
     where the packaging is kept.
 

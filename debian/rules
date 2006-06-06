@@ -50,6 +50,8 @@ configure-stamp:
 	ln -sf debian/patches
 	quilt --quiltrc /dev/null push -a || test $$? = 2
 
+	ln -sf debian/amule-32.xpm amule.xpm
+
 	-mkdir $(objdir)
 	cd $(objdir) && \
 	env CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" ../configure $(confflags)
@@ -81,6 +83,8 @@ clean:
 	# Remove build tree
 	rm -rf $(objdir)
 	rm -f po/*.gmo
+
+	rm -f amule.xpm
 
 	dh_clean
 
