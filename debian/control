@@ -21,8 +21,7 @@ Description: All-platform eMule P2P Client
 Package: amule-common
 Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Replaces: amule-daemon (<< 2.1.2-3)
-Conflicts: amule-utils (<< 2.0.3-4)
+Replaces: amule-utils (<< 2.0.3-4), amule-daemon (<< 2.1.2-3)
 Description: common files for aMule
  aMule is an eMule file-sharing program. This package contains
  common files for aMule. It contains ed2k links handler too.
