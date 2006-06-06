@@ -1,6 +1,2 @@
 - fix the horrible horrible horrible dpkg-divert mess.
 - look at #354326, and revise the init script carefully
-
-W: amule-utils: unneeded-explicit-linking usr/bin/alcc libwx_baseu_net-2.6.so.0
-W: amule-utils-gui: unneeded-explicit-linking usr/bin/alc libwx_baseu_net-2.6.so.0 libwx_gtk2u_adv-2.6.so.0
-W: amule-utils-gui: unneeded-explicit-linking usr/bin/wxcas libwx_gtk2u_adv-2.6.so.0
