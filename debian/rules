@@ -71,9 +71,9 @@ clean:
 	dh_testdir
 	dh_testroot
 
-        quilt --quiltrc /dev/null pop -a -R || test $$? = 2
-        rm -rf .pc
-        rm -f patches
+	quilt --quiltrc /dev/null pop -a -R || test $$? = 2
+	rm -rf .pc
+	rm -f patches
 
 	rm -f configure-stamp build-stamp install-stamp
 	rm -f config.guess config.sub
