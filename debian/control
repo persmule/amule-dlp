@@ -9,8 +9,9 @@ XS-X-VCS-Bzr: http://people.debian.org/~adeodato/code/packages/amule
 
 Package: amule
 Architecture: any
-Recommends: amule-utils, amule-daemon
-Depends: ${shlibs:Depends}, ${misc:Depends}, amule-common (= ${Source-Version})
+Depends: amule-common (= ${Source-Version}), ${shlibs:Depends}, ${misc:Depends}
+Recommends: amule-utils
+Suggests: amule-utils-gui
 Description: All-platform eMule P2P Client
  aMule stands for another eMule file-sharing program. It is also
  another fork of the xMule project. It connects to eDonkey2000
@@ -53,7 +54,8 @@ Description: User-friendly utilities for amule
 
 Package: amule-daemon
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, amule-common (= ${Source-Version})
+Depends: amule-common (= ${Source-Version}), ${shlibs:Depends}, ${misc:Depends}
+Recommends: amule-utils
 Description: aMule daemon
  amule-daemon provides a small program to start amule
  without gui
