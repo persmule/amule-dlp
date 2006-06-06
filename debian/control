@@ -2,7 +2,7 @@ Source: amule
 Section: x11
 Priority: optional
 Maintainer: Julien Delange <julien@gunnm.org>
-Build-Depends: autotools-dev, debhelper, libglib2.0-dev, zlib1g-dev, libgd2-xpm-dev, libreadline5-dev, libcrypto++-dev, libwxgtk2.6-dev, wx2.6-i18n
+Build-Depends: autotools-dev, debhelper, quilt, libglib2.0-dev, zlib1g-dev, libgd2-xpm-dev, libreadline5-dev, libcrypto++-dev, libwxgtk2.6-dev, wx2.6-i18n
 Standards-Version: 3.7.2
 Uploaders: Adeodato Simó <dato@net.com.org.es>
 XS-X-VCS-Bzr: http://people.debian.org/~adeodato/code/packages/amule
@@ -44,7 +44,7 @@ Description: common files for the rest of aMule packages
 Package: amule-utils
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Recommends: amule-common
+Recommends: amule-common, ttf-bitstream-vera
 Replaces: amule-common (<< 2.1.2-3), amule (<< 2.1.2-1)
 Description: utilities for aMule (command-line version)
  This package contains a set of command-line utilities related to aMule,

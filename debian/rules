@@ -47,6 +47,9 @@ configure-stamp:
 	ln -sf /usr/share/misc/config.sub .
 	ln -sf /usr/share/misc/config.guess .
 
+	ln -sf debian/patches
+	quilt --quiltrc /dev/null push -a || test $$? = 2
+
 	-mkdir $(objdir)
 	cd $(objdir) && \
 	env CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" ../configure $(confflags)
@@ -67,6 +70,10 @@ build-stamp: configure-stamp
 clean:
 	dh_testdir
 	dh_testroot
+
+        quilt --quiltrc /dev/null pop -a -R || test $$? = 2
+        rm -rf .pc
+        rm -f patches
 
 	rm -f configure-stamp build-stamp install-stamp
 	rm -f config.guess config.sub

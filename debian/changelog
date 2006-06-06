@@ -15,6 +15,14 @@ amule (2.1.2-3) unstable; urgency=low
       Dev-Ref. The amule-common no longer claims to include the ed2k link
       handler, which closes: #370421.
 
+  * New patches (handled with quilt, so modified debian/rules to invoke it,
+    and added it to Build-Depends):
+
+    + debian/patches/cas_configfile.c_good_default_paths.diff:
+      Make /usr/bin/cas write proper paths for stat.png and tmp.html to the
+      configfile it creates when one is not present, and make it use Bitstream
+      Vera by default (ttf-bitstream-vera added to Recommends).
+
   * The build system detects the presence of bfd.h from binutils-dev and
     unconditionally links against libbfd.so, introducing a dependency against
     binutils in the packages. To fix this without the need of Build-Conflicts,
