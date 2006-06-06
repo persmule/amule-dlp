@@ -1,6 +1,5 @@
 - fix the horrible horrible horrible dpkg-divert mess.
 - look at #354326, and revise the init script carefully
-- consider moving /usr/share/amule/webserver to amule-common
 
 W: amule-utils: unneeded-explicit-linking usr/bin/cas libz.so.1 libX11.so.6 libjpeg.so.62 libpng12.so.0 libfontconfig.so.1 libfreetype.so.6 libXpm.so.4
 W: amule-utils: unneeded-explicit-linking usr/bin/alcc libwx_baseu_net-2.6.so.0

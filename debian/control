@@ -19,6 +19,7 @@ Description: All-platform eMule P2P Client
 Package: amule-common
 Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Replaces: amule-daemon (<< 2.1.2-3)
 Conflicts: amule-utils (<< 2.0.3-4)
 Description: common files for aMule
  aMule is an eMule file-sharing program. This package contains
@@ -26,8 +27,9 @@ Description: common files for aMule
 
 Package: amule-utils
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, amule-common (= ${Source-Version})
-Replaces: amule-common (<< 2.1.2-1), amule (<< 2.1.2-1)
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: amule-common
+Replaces: amule-common (<< 2.1.2-3), amule (<< 2.1.2-1)
 Description: utilities for amule
  amule-utils is a set of tools to control amule.
  .
@@ -40,7 +42,8 @@ Description: utilities for amule
 Package: amule-utils-gui
 Architecture: any
 Replaces: astats
-Depends: ${shlibs:Depends}, ${misc:Depends}, amule-common (= ${Source-Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: amule-common
 Description: User-friendly utilities for amule
  amule-utils-gui is a set of tools to control amule.
  .

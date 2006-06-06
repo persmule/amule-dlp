@@ -1,5 +1,11 @@
 amule (2.1.2-3) unstable; urgency=low
 
+  * Move /usr/share/amule/webserver from amule-daemon to amule-common:
+    + introduce the appropriate Replaces.
+    + lower dependency on amule-common by amule-utils and amule-utils-gui
+      to a recommends, and move the tiny /usr/share/cas from amule-common
+      to amule-utils because of this.
+
   * The build system detects the presence of bfd.h from binutils-dev and
     unconditionally links against libbfd.so, introducing a dependency against
     binutils in the packages. To fix this without the need of Build-Conflicts,
