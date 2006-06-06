@@ -23,6 +23,11 @@ amule (2.1.2-3) unstable; urgency=low
       configfile it creates when one is not present, and make it use Bitstream
       Vera by default (ttf-bitstream-vera added to Recommends).
 
+    + debian/patches/configure_ignore_gdlib-config_garbage.diff:
+      Reintroduce patch by Steve Langasek to ignore the output of gdlib-config,
+      as to avoid linking against unneeded libraries. The patch was introduced
+      in amule 2.0.3-4 and dropped in 2.1.0-1 (?!).  (Closes: #340395)
+
   * The build system detects the presence of bfd.h from binutils-dev and
     unconditionally links against libbfd.so, introducing a dependency against
     binutils in the packages. To fix this without the need of Build-Conflicts,

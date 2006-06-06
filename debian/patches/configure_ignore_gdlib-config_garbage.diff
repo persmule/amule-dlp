@@ -1,0 +1,22 @@
+--- configure.in.orig
++++ configure.in
+@@ -133,7 +133,7 @@
+ 
+ case "$GDLIBFOUND" in
+ 1)	CAS_DEFS="-D__GD__"
+-	GDLIB_LIBS="$GDLIB_LIBS -lgd"
++	GDLIB_LIBS="-lgd"
+ 	;;
+ *)AC_MSG_NOTICE([
+ 	WARNING: gd-lib >= 2.0.0, or a functional gd.h (from gd-devel) not found.
+--- configure.orig
++++ configure
+@@ -6456,7 +6456,7 @@
+ 
+ case "$GDLIBFOUND" in
+ 1)	CAS_DEFS="-D__GD__"
+-	GDLIB_LIBS="$GDLIB_LIBS -lgd"
++	GDLIB_LIBS="-lgd"
+ 	;;
+ *){ echo "$as_me:$LINENO:
+ 	WARNING: gd-lib >= 2.0.0, or a functional gd.h (from gd-devel) not found.
