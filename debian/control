@@ -5,6 +5,7 @@ Maintainer: Julien Delange <julien@gunnm.org>
 Build-Depends: autotools-dev, debhelper, libglib2.0-dev, zlib1g-dev, libgd2-xpm-dev, libreadline5-dev, libcrypto++-dev, libwxgtk2.6-dev, wx2.6-i18n
 Standards-Version: 3.7.2
 Uploaders: Adeodato Simó <dato@net.com.org.es>
+XS-X-VCS-Bzr: http://people.debian.org/~adeodato/code/packages/amule
 
 Package: amule
 Architecture: any

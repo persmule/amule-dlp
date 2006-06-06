@@ -11,6 +11,9 @@ amule (2.1.2-3) unstable; urgency=low
     binutils in the packages. To fix this without the need of Build-Conflicts,
     build the package with `$(MAKE) BFD_LIB= BFD_FLAGS=` from debian/rules.
 
+  * Add a X-VCS-Bzr header to the source package, pointing to the repository
+    where the packaging is kept.
+
  -- Adeodato Simó <dato@net.com.org.es>  Tue,  6 Jun 2006 14:06:46 +0200
 
 amule (2.1.2-2) unstable; urgency=low
