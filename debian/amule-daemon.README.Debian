@@ -1,7 +1,7 @@
 Basic instructions to get amuled up and running
 ===============================================
 
-This document should guide you into succesfully running the aMule
+This document should guide you into successfully running the aMule
 daemon, amuled.
 
 Start with invoking the daemon once. From a terminal, write:
@@ -21,7 +21,7 @@ If you run the daemon now, it will complain like this:
 
     ERROR: A valid password is required to use external connections, and
     aMule daemon cannot be used without external connections. To run
-    aMule deamon, you must set the "ECPassword" field in the file
+    aMule daemon, you must set the "ECPassword" field in the file
     ~/.aMule/amule.conf with an appropriate value.
 
 The "ECPassword" needs an MD5 hash of your password, which can be
