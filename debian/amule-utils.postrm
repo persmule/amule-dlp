@@ -3,9 +3,8 @@
 set -e
 
 if [ "$1" = remove ]; then
-    dpkg-divert --package amule --rename --remove /usr/bin/ed2k
-    dpkg-divert --package amule --rename --remove /usr/share/man/man1/ed2k.1.gz
+    dpkg-divert --package amule-utils --rename --remove /usr/bin/ed2k
+    dpkg-divert --package amule-utils --rename --remove /usr/share/man/man1/ed2k.1.gz
 fi
-
 
 #DEBHELPER#

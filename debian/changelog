@@ -33,6 +33,11 @@ amule (2.1.2-3) unstable; urgency=low
     binutils in the packages. To fix this without the need of Build-Conflicts,
     build the package with `$(MAKE) BFD_LIB= BFD_FLAGS=` from debian/rules.
 
+  * Fix the dpkg-divert mess that happened with the move of ed2k out of the
+    amule package (binary was in amule-utils, but dpkg-divert was still called
+    with --package amule); see amule-utils.preinst. The plan is to get rid of
+    dpkg-divert as soon as I get something done about xmule (see #370524).
+
   * Make the changes to amule.xpm that make it 32x32 as per the Menu Policy
     keep the aspect ratio instead of just resizing. Also, ship the new icon in
     debian/amule-32.xpm and replace it at runtime, instead of shipping changes

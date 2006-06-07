@@ -1,2 +1,2 @@
-- fix the horrible horrible horrible dpkg-divert mess.
+- get rid of dpkg-divert
 - look at #354326, and revise the init script carefully

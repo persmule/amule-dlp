@@ -1,14 +1,20 @@
-#!/bin/sh
+#! /bin/sh
 
-if [ "upgrade" = "$1" ]; then
-	dpkg-divert --remove --rename /usr/bin/ed2k > /dev/null 2>/dev/null
-fi
+set -e
 
-if [ "install" = "$1" ] || [ "upgrade" = "$1" ]; then
-		dpkg-divert --package amule --add --rename \
-	    	--divert /usr/bin/ed2k.xmule /usr/bin/ed2k
-		dpkg-divert --package amule --add --rename \
-			--divert /usr/share/man/man1/ed2k.xmule.1.gz /usr/share/man/man1/ed2k.1.gz
+if [ "$1" = "install" ] || [ "$1" = "upgrade" ] && \
+    dpkg --compare-versions "$2" lt "2.1.2-3"; then
+
+    # exit status of --remove is 0 if diversion does not exist, so...
+    dpkg-divert --package amule --rename --remove /usr/bin/ed2k
+    dpkg-divert --package amule --rename --remove /usr/share/man/man1/ed2k.1.gz
+
+    # aaaand, dpkg seems to leave these behind. dios nos coja confesados.
+    rm -f /usr/bin/ed2k /usr/share/man/man1/ed2k.1.gz
+
+    dpkg-divert --package amule-utils --add --rename --divert /usr/bin/ed2k.xmule /usr/bin/ed2k
+    dpkg-divert --package amule-utils --add --rename --divert /usr/share/man/man1/ed2k.xmule.1.gz /usr/share/man/man1/ed2k.1.gz
+
 fi
 
 #DEBHELPER#
