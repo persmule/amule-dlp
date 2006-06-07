@@ -12,8 +12,8 @@ amule (2.1.2-3) unstable; urgency=low
     + don't make amule-common conflict amule-utils, only replace it as adviced
       by Steve Langasek and myself in #343909 five months ago.
     + rewrite all package descriptions, trying to follow the guidelines in
-      Dev-Ref. The amule-common no longer claims to include the ed2k link
-      handler, which closes: #370421.
+      Dev-Ref. amule-common no longer claims to include the ed2k link handler,
+      which closes: #370421.
 
   * New patches (handled with quilt, so modified debian/rules to invoke it,
     and added it to Build-Depends):
