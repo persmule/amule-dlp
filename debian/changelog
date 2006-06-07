@@ -38,6 +38,9 @@ amule (2.1.2-3) unstable; urgency=low
     debian/amule-32.xpm and replace it at runtime, instead of shipping changes
     (which are three times bigger) in the .diff.gz.
 
+  * Revamp the copyright file, with proper list of authors, copyright notices,
+    and license terms (GPLv2 or higher, not only v2).
+
   * Add a X-VCS-Bzr header to the source package, pointing to the repository
     where the packaging is kept.
 
