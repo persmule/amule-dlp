@@ -38,6 +38,9 @@ amule (2.1.2-3) unstable; urgency=low
     debian/amule-32.xpm and replace it at runtime, instead of shipping changes
     (which are three times bigger) in the .diff.gz.
 
+  * Drop not-really-useful README.Debian for amule-utils and amule, and write
+    basic instructions to run amuled in amule-daemon.README.Debian.
+
   * Revamp the copyright file, with proper list of authors, copyright notices,
     and license terms (GPLv2 or higher, not only v2).
 

@@ -1,4 +1,65 @@
-How use amuled ?
+Basic instructions to get amuled up and running
+===============================================
 
-Be careful, you must have AcceptExternalConnections=1 in 
-your ~/.aMule/amule.conf to get amuled fully functionnal
+This document should guide you into succesfully running the aMule
+daemon, amuled.
+
+Start with invoking the daemon once. From a terminal, write:
+
+    $ amuled
+
+It will create and populate an ~/.aMule directory if you don't have one,
+and will probably abort with an error like this:
+
+    ERROR: aMule daemon cannot be used when external connections are disabled.
+    To enable External Connections, use either a normal aMule or set the key
+    "AcceptExternalConnections" to 1 in the file ~/.aMule/amule.conf.
+
+So, with an editor, edit the ~/.aMule/amule.conf file, search for the
+line containing "AcceptExternalConnections", and change the 0 to 1.
+If you run the daemon now, it will complain like this:
+
+    ERROR: A valid password is required to use external connections, and
+    aMule daemon cannot be used without external connections. To run
+    aMule deamon, you must set the "ECPassword" field in the file
+    ~/.aMule/amule.conf with an appropriate value.
+
+The "ECPassword" needs an MD5 hash of your password, which can be
+computed with a simple procedure. For example, if you want your password
+to be "touche", you'd calculate the value for "ECPassword" like this:
+
+    $ echo -n "touche" | md5sum | awk '{print $1}'
+    75dfa1c8b9f1b1d8e599f2ed98f1ecd0
+
+Once you've edit ~/.aMule/amule.conf again to set ECPassword, you'll be
+able to run amuled. If you want it to go to the background, so that you
+can close the terminal, do:
+
+    $ amuled -f
+
+
+Controlling the daemon
+======================
+
+If all went well, the daemon will listen in port 4712 and will accept
+connections from external programs like amulecmd and amulegui. If no
+firewall blocks the connections, it should be possible to connect from
+remote hosts too.
+
+
+Using aMuleWeb
+==============
+
+The daemon can also be controlled via a web interface. To have it start
+automatically when the daemon starts, search in ~/.aMule/amule.conf the
+"[WebServer]" section and set "Enabled" to 1, and "Password" to the same
+as ECPassword above, or any other hash computed with the same method. It
+will listen on port 4711 by default, and can also be started by hand
+with the following command:
+    
+    $ amuleweb --amule-config-file=~/.aMule/amule.conf
+
+The address to access the page is http://localhost:4711 if accessing from
+the same computer, or http://IP_OR_REMOTE_NAME:4711 if not.
+
+ -- Adeodato Simó <dato@net.com.org.es>, 2006-06-07
