@@ -101,7 +101,7 @@ install-stamp:
 	cp -a $(CURDIR)/debian/tmp/usr/share/pixmaps/amule.xpm $(CURDIR)/debian/tmp/usr/share/pixmaps/amulegui.xpm
 	dh_install --sourcedir=debian/tmp
 
-	touch $@ 
+	touch $@
 
 #
 
@@ -114,25 +114,25 @@ binary-indep: build install
 	$(MAKE) -f debian/rules DH_OPTIONS=-i binary-common
 
 binary-common:
-	dh_testdir 
-	dh_testroot 
+	dh_testdir
+	dh_testroot
 	dh_installchangelogs docs/Changelog
-	dh_installdocs 
-	dh_installexamples 
+	dh_installdocs
+	dh_installexamples
 	dh_installmime
-	dh_installmenu 
-	dh_installdebconf 
+	dh_installmenu
+	dh_installdebconf
 	dh_installinit
-	dh_installman 
-	dh_link 
-	dh_strip 
-	dh_compress 
-	dh_fixperms 
+	dh_installman
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
 	dh_installdeb
-	dh_shlibdeps 
-	dh_gencontrol 
-	dh_md5sums 
-	dh_builddeb 
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
 
 #
 
