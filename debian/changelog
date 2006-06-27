@@ -1,3 +1,9 @@
+amule (2.1.3-1) UNRELEASED; urgency=low
+
+  * New upstream release packaged.
+
+ -- Adeodato Simó <dato@net.com.org.es>  Tue, 27 Jun 2006 20:35:39 +0200
+
 amule (2.1.2-3) unstable; urgency=low
 
   * The "Look at you now, young man" release.
