@@ -99,6 +99,14 @@ install-stamp:
 	cd $(objdir) && $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 	mv $(CURDIR)/debian/tmp/usr/bin/ed2k $(CURDIR)/debian/tmp/usr/bin/ed2k.amule
 	cp -a $(CURDIR)/debian/tmp/usr/share/pixmaps/amule.xpm $(CURDIR)/debian/tmp/usr/share/pixmaps/amulegui.xpm
+
+	@FILE=$(CURDIR)/debian/tmp/usr/share/applications/amulegui.desktop; \
+	if [ ! -e $$FILE ]; then \
+	    cp -a $(CURDIR)/debian/amulegui.desktop $$FILE; \
+	else \
+	    echo ">>>>>>>> Upstream started shipping amulegui.desktop"; \
+	fi
+
 	dh_install --sourcedir=debian/tmp
 
 	touch $@

@@ -3,6 +3,7 @@ usr/bin/amulegui
 usr/bin/wxcas
 usr/share/applications/wxcas.desktop
 usr/share/applications/alc.desktop
+usr/share/applications/amulegui.desktop
 usr/share/pixmaps/wxcas.xpm
 usr/share/pixmaps/alc.xpm
 usr/share/pixmaps/amulegui.xpm
