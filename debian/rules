@@ -40,8 +40,7 @@ endif
 
 ###
 
-configure: configure-stamp
-configure-stamp:
+$(objdir)/config.status: configure
 	dh_testdir
 
 	ln -sf /usr/share/misc/config.sub .
@@ -61,7 +60,9 @@ configure-stamp:
 #
 
 build: build-stamp
-build-stamp: configure-stamp
+build-stamp: $(objdir)/config.status
+	dh_testdir
+
 	cd $(objdir) && \
 	$(MAKE) BFD_LIB= BFD_FLAGS=
 
@@ -77,7 +78,7 @@ clean:
 	rm -rf .pc
 	rm -f patches
 
-	rm -f configure-stamp build-stamp install-stamp
+	rm -f build-stamp install-stamp
 	rm -f config.guess config.sub
 
 	# Remove build tree
@@ -144,4 +145,4 @@ binary-common:
 
 #
 
-.PHONY: configure build clean install binary binary-arch binary-indep binary-common
+.PHONY: build clean install binary binary-arch binary-indep binary-common
