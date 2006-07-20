@@ -1,0 +1,55 @@
+--- docs/man/ed2k.1.orig
++++ docs/man/ed2k.1
+@@ -1,7 +1,7 @@
+ .TH ED2K "1" "March 2005" "aMule ED2k link parser v1.1.0" "aMule utilities"
+ .SH NAME
+ ed2k \- aMule ED2k link parser
+-.SH SYNOPSYS
++.SH SYNOPSIS
+ .B ed2k
+ .I <ED2k_link>
+ .PP
+--- docs/man/ed2k.de.1.orig
++++ docs/man/ed2k.de.1
+@@ -1,7 +1,7 @@
+ .TH ED2K "1" "March 2005" "aMule ED2k link parser v1.1.0" "Nutzer Kommandos"
+ .SH NAME
+ ed2k \- aMule ED2k link parser
+-.SH SYNOPSYS
++.SH SYNOPSIS
+ .B ed2k
+ .I <ED2k_link>
+ .PP
+--- docs/man/ed2k.fr.1.orig
++++ docs/man/ed2k.fr.1
+@@ -1,7 +1,7 @@
+ .TH ED2K "1" "Mars 2005" "Prise en charge des liens ED2k d'aMule v1.1.0" "Outil pour aMule"
+ .SH NOM
+ ed2k \- prise en charge des liens ED2K d'aMule
+-.SH SYNOPSYS
++.SH SYNOPSIS
+ .B ed2k
+ .I <lien_ED2k>
+ .PP
+--- src/utils/aLinkCreator/docs/alcc.1.orig
++++ src/utils/aLinkCreator/docs/alcc.1
+@@ -1,7 +1,7 @@
+ .TH ALCC "1" "March 2005" "aMule ED2k links calculator" "aMule utilities"
+ .SH NAME
+ alcc \- text based ED2K links calculator for aMule
+-.SH SYNOPSYS
++.SH SYNOPSIS
+ .B alcc
+ .RB [ \-p ]
+ .RB [ \-v ]
+--- src/utils/aLinkCreator/docs/alcc.fr.1.orig
++++ src/utils/aLinkCreator/docs/alcc.fr.1
+@@ -1,7 +1,7 @@
+ .TH ALCC "1" "Mars 2005" "Calculatrice de liens ED2K pour aMule" "Outil pour aMule"
+ .SH NOM
+ alcc \- calculatrice en ligne de commande de liens ED2K pour aMule
+-.SH SYNOPSYS
++.SH SYNOPSIS
+ .B alcc
+ .RB [ \-p ]
+ .RB [ \-v ]
