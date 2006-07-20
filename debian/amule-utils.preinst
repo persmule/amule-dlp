@@ -11,10 +11,6 @@ if [ "$1" = "install" ] || [ "$1" = "upgrade" ] && \
 
     # aaaand, dpkg seems to leave these behind. dios nos coja confesados.
     rm -f /usr/bin/ed2k /usr/share/man/man1/ed2k.1.gz
-
-    dpkg-divert --package amule-utils --add --rename --divert /usr/bin/ed2k.xmule /usr/bin/ed2k
-    dpkg-divert --package amule-utils --add --rename --divert /usr/share/man/man1/ed2k.xmule.1.gz /usr/share/man/man1/ed2k.1.gz
-
 fi
 
 #DEBHELPER#

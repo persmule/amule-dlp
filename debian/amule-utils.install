@@ -1,7 +1,6 @@
 usr/bin/cas
 usr/share/cas
 
+usr/bin/ed2k
 usr/bin/alcc
 usr/bin/amulecmd
-usr/bin/ed2k.amule
-../ed2k.wrapper	usr/bin

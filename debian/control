@@ -46,6 +46,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: amule-common, ttf-bitstream-vera
 Replaces: amule-common (<< 2.1.2-3), amule (<< 2.1.2-1)
+Conflicts: xmule (<= 1.10.0b-1)
 Description: utilities for aMule (command-line version)
  This package contains a set of command-line utilities related to aMule,
  the eD2k network client:

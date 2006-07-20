@@ -6,5 +6,3 @@ src/utils/cas/docs/cas.1
 src/utils/cas/docs/cas.*.1
 src/utils/aLinkCreator/docs/alcc.1
 src/utils/aLinkCreator/docs/alcc.*.1
-debian/mans/ed2k.wrapper.fr.1
-debian/mans/ed2k.wrapper.1
