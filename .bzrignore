@@ -1,0 +1,10 @@
+debian/tmp
+debian/files
+debian/*.substvars
+debian/*.debhelper
+
+debian/amule
+debian/amule-common
+debian/amule-daemon
+debian/amule-utils
+debian/amule-utils-gui
