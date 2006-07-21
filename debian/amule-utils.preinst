@@ -1,16 +1,18 @@
 #! /bin/sh
 
-set -e
+set +e # yada yada
 
-if [ "$1" = "install" ] || [ "$1" = "upgrade" ] && \
-    dpkg --compare-versions "$2" lt "2.1.2-3"; then
+DIVERSIONS=`env LC_ALL=C /usr/sbin/dpkg-divert --list | grep -E 'by amule(-utils)?$'`
 
-    # exit status of --remove is 0 if diversion does not exist, so...
-    dpkg-divert --package amule --rename --remove /usr/bin/ed2k
-    dpkg-divert --package amule --rename --remove /usr/share/man/man1/ed2k.1.gz
+if [ -n "$DIVERSIONS" ]; then
+    echo "$DIVERSIONS" | while read diversion of FILE to DIVERTED by PACKAGE; do
+	dpkg-divert --package "$PACKAGE" --remove "$FILE"
+    done
 
-    # aaaand, dpkg seems to leave these behind. dios nos coja confesados.
-    rm -f /usr/bin/ed2k /usr/share/man/man1/ed2k.1.gz
+    for f in /usr/bin/ed2k* /usr/share/man/man1/ed2k*.1.gz; do
+    	echo "Deleting $f"
+	rm -f "$f"
+    done
 fi
 
 #DEBHELPER#

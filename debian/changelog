@@ -15,6 +15,10 @@ amule (2.1.3-1) UNRELEASED; urgency=low
 
     If xmule ever comes back, this will be handled with alternatives instead.
 
+  * Introduce code in amule-utils.preinst to clean up all the diversion mess
+    that previous versions left behind. Kudos to Steinar H. Gunderson for the
+    detailed analysis of the situation.  (Closes: #372279, #374806)
+
  -- Adeodato Simó <dato@net.com.org.es>  Tue, 27 Jun 2006 20:35:39 +0200
 
 amule (2.1.2-3) unstable; urgency=low
