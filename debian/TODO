@@ -1,2 +1,3 @@
-- get rid of dpkg-divert
+- make binNMUable
+- adjust section of !gui packages
 - look at #354326, and revise the init script carefully
