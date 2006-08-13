@@ -56,7 +56,7 @@ Upstream authors (from docs/AUTHORS in the tarball):
     |     Guest Coder and Good Friend:
     |     Alo Sarv         aka Madcat            <madcat_@users.sf.net>
 
-Copyright: 
+Copyright:
 
   - The aMule sources from src, src/kademlia, src/libs, and src/webserver are:
 
@@ -76,7 +76,7 @@ Copyright:
 
   - The wxcas and alc utilities from src/utils/wxCas and src/utils/aLinkCreator
     are:
-    
+
     | Copyright (C) 2004 by ThePolish <thepolish@vipmail.ru>
     | Copyright (C) 2004 by Phoenix
     | Copyright (C) 2004 by Madcat
@@ -105,7 +105,7 @@ Copyright:
   The full text of the GNU General Public License is available on Debian
   systems in /usr/share/common-licenses/GPL.
 
-  				 * * *
+				 * * *
 
   - src/CryptoPP.{h,cpp} are included from the Crypto++ library and are:
 
@@ -117,39 +117,39 @@ Copyright:
     | The following files are copyrighted by their respective original authors,
     | and their use is subject to additional licenses included in these files.
 
-  				 * * *
+				 * * *
 
   - src/SHA.{h,cpp} are:
 
     | Copyright (c) 2002, Dr Brian Gladman <brg@gladman.me.uk>, Worcester, UK.
     | All rights reserved.
-    | 
+    |
     | LICENSE TERMS
-    | 
+    |
     | The free distribution and use of this software in both source and binary
     | form is allowed (with or without changes) provided that:
-    | 
+    |
     |   1. distributions of this source code include the above copyright
     |      notice, this list of conditions and the following disclaimer;
-    | 
+    |
     |   2. distributions in binary form include the above copyright
     |      notice, this list of conditions and the following disclaimer
     |      in the documentation and/or other associated materials;
-    | 
+    |
     |   3. the copyright holder's name is not used to endorse products
     |      built using this software without specific written permission.
-    | 
+    |
     | ALTERNATIVELY, provided that this notice is retained in full, this product
     | may be distributed under the terms of the GNU General Public License (GPL),
     | in which case the provisions of the GPL apply INSTEAD OF those given above.
-    | 
+    |
     | DISCLAIMER
-    | 
+    |
     | This software is provided 'as is' with no explicit or implied warranties
     | in respect of its properties, including, but not limited to, correctness
     | and/or fitness for purpose.
 
-  				 * * *
+				 * * *
 
   - src/extern/listctrl.262.{h,cpp} are included from wxWidgets 2.6.2 and are:
 
