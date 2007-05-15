@@ -1,0 +1,16 @@
+--- src/SearchDlg.cpp.orig
++++ src/SearchDlg.cpp
+@@ -112,12 +112,7 @@
+ 	wxASSERT(CastChild( ID_SEARCHTYPE, wxChoice )->GetString(0) == _("Local Search"));
+ 	wxASSERT(CastChild( ID_SEARCHTYPE, wxChoice )->GetString(2) == _("Kad"));
+ 
+-	if (thePrefs::GetNetworkED2K()){
+-		CastChild( ID_SEARCHTYPE, wxChoice )->SetSelection(0);
+-	} else {
+-		CastChild( ID_SEARCHTYPE, wxChoice )->SetSelection(2);
+-	}
+-	
++	CastChild( ID_SEARCHTYPE, wxChoice )->SetSelection(2);
+ 	CastChild( IDC_TypeSearch, wxChoice )->SetSelection(0);
+ 	CastChild( IDC_SEARCHMINSIZE, wxChoice )->SetSelection(2);
+ 	CastChild( IDC_SEARCHMAXSIZE, wxChoice )->SetSelection(2);
