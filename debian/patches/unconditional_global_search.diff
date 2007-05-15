@@ -10,7 +10,7 @@
 -		CastChild( ID_SEARCHTYPE, wxChoice )->SetSelection(2);
 -	}
 -	
-+	CastChild( ID_SEARCHTYPE, wxChoice )->SetSelection(2);
++	CastChild( ID_SEARCHTYPE, wxChoice )->SetSelection(1);
  	CastChild( IDC_TypeSearch, wxChoice )->SetSelection(0);
  	CastChild( IDC_SEARCHMINSIZE, wxChoice )->SetSelection(2);
  	CastChild( IDC_SEARCHMAXSIZE, wxChoice )->SetSelection(2);
