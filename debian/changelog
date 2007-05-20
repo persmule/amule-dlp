@@ -1,3 +1,19 @@
+amule (2.1.3-3) unstable; urgency=low
+
+  * The "Let's pretend it never happened" release.
+
+  * Drop the just introduced patch unconditional_global_search.diff, because
+    upstream thinks it's a very bad idea.
+
+  * Patch acinclude.m4 to cope with libpng versions that are not X.Y.Z, like
+    the current 1.2.15beta5. This makes amule-daemon link against libpng12
+    again, enabling the generation of download progress bar images. Thanks to
+    Emilio Pozuelo Monfort for the heads-up. (Closes: #424774)
+
+  * Use quilt.make.
+
+ -- Adeodato Simó <dato@net.com.org.es>  Sun, 20 May 2007 12:32:45 +0200
+
 amule (2.1.3-2) unstable; urgency=low
 
   * The "Not only bureaucracy" release.
