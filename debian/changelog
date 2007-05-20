@@ -6,9 +6,9 @@ amule (2.1.3-3) unstable; urgency=low
     upstream thinks it's a very bad idea.
 
   * Patch acinclude.m4 to cope with libpng versions that are not X.Y.Z, like
-    the current 1.2.15beta5. This makes amule-daemon link against libpng12
-    again, enabling the generation of download progress bar images. Thanks to
-    Emilio Pozuelo Monfort for the heads-up. (Closes: #424774)
+    the current 1.2.15beta5. This makes amuleweb link against libpng12 again,
+    enabling the generation of download progress bar images. Thanks to Emilio
+    Pozuelo Monfort for the heads-up. (Closes: #424774)
 
   * Add libpng12-dev to Build-Depends.
 
