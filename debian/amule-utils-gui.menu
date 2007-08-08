@@ -1,12 +1,12 @@
-?package(amule-utils-gui):needs="X11" section="Apps/Net"\
+?package(amule-utils-gui):needs="X11" section="Applications/Network/File Transfer"\
   title="aMule Stats" command="/usr/bin/wxcas"\
   icon="/usr/share/pixmaps/wxcas.xpm"
 
-?package(amule-utils-gui):needs="X11" section="Apps/Net"\
+?package(amule-utils-gui):needs="X11" section="Applications/Network/File Transfer"\
   title="aMule Link Creator (alc)" command="/usr/bin/alc"\
   icon="/usr/share/pixmaps/alc.xpm"
 
-?package(amule-utils-gui):needs="X11" section="Apps/Net"\
+?package(amule-utils-gui):needs="X11" section="Applications/Network/File Transfer"\
   title="aMule GUI" command="/usr/bin/amulegui"\
   icon="/usr/share/pixmaps/amulegui.xpm"
 
