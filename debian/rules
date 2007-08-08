@@ -94,6 +94,7 @@ install-stamp:
 	dh_installdirs
 	cd $(objdir) && $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 	cp -a $(CURDIR)/debian/tmp/usr/share/pixmaps/amule.xpm $(CURDIR)/debian/tmp/usr/share/pixmaps/amulegui.xpm
+	chmod +x debian/amuled_home_wrapper.sh
 
 	@FILE=$(CURDIR)/debian/tmp/usr/share/applications/amulegui.desktop; \
 	if [ ! -e $$FILE ]; then \
