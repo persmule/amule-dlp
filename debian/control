@@ -27,7 +27,7 @@ Description: client for the eD2k and Kad networks, like eMule
  A daemonized version of the application that does not need a graphic
  environment to run is available in the amule-daemon package, and
  various utilities of interest can be found in the amule-utils and
- amule-utils-gui packages, including the ed2k link hander.
+ amule-utils-gui packages, including the ed2k link handler.
  .
   Homepage: http://www.amule.org
 

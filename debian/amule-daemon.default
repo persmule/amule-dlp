@@ -1,5 +1,10 @@
-#RUN_AT_STARTUP="YES" will run amuled on startup
-#with the specified user
+# Configuration for /etc/init.d/amule-daemon
 
-AMULED_USER="youruser"
-RUN_AT_STARTUP="NO"
+# The init.d script will only run if this variable non-empty.
+AMULED_USER=""
+
+# You can set this variable to make the daemon use an alternative HOME.
+# The daemon will use $AMULED_HOME/.aMule as the directory, so if you
+# want to have $AMULED_HOME the real root (with an Incoming and Temp
+# directories), you can do `ln -s . $AMULED_HOME/.aMule`.
+AMULED_HOME=""

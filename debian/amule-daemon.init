@@ -1,64 +1,99 @@
 #! /bin/sh
+### BEGIN INIT INFO
+# Provides:          amule-daemon
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:     $local_fs $remote_fs
+# Should-Start:      $network
+# Should-Stop:       $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Daemonized version of aMule.
+# Description:       Starts the aMule daemon with the user specified in
+#                    /etc/default/amule-daemon.
+### END INIT INFO
 
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
 
-PATH=/bin:/usr/bin:/usr/local/bin/:/sbin/:/usr/sbin/
+PROGNAME=amuled
+DESC="aMule daemon"
+PKGNAME="amule-daemon"
 DAEMON=/usr/bin/amuled
-WEBDAEMON=/usr/bin/amuleweb
+SCRIPTNAME=/etc/init.d/$PKGNAME
+WRAPPER=/usr/share/amule/amuled_home_wrapper.sh
 
-if [ -f /etc/default/amule-daemon ]; then
-	. /etc/default/amule-daemon
+[ -x "$DAEMON" ] || exit 0
+[ -r /etc/default/$PKGNAME ] && . /etc/default/$PKGNAME
+
+. /lib/init/vars.sh # has VERBOSE
+. /lib/lsb/init-functions
+
+if [ -z "$AMULED_USER" ]; then
+    log_warning_msg \
+	"Not starting $DESC, AMULED_USER not set in /etc/default/$PKGNAME."
+    exit 0
 fi
 
-if [ -z "$RUN_AT_STARTUP" -o "$RUN_AT_STARTUP" != "YES" ]; then
-	echo "aMule daemon not starting, edit /etc/default/amule-daemon to start it"
-	exit 0
-fi
-
-
-HOME=`getent passwd $AMULED_USER | awk -F: '{print $6}'`
-
-if [ -z "$HOME" ]; then
-	echo "aMule user does not exists or has no home folder. Check /etc/default/amule-daemon settings"
-	exit 0
-fi
-
-start ()
+do_start()
 {
-    echo -n "Starting aMule : amuled"
-    export HOME
-    start-stop-daemon --chuid $AMULED_USER --user $AMULED_USER --start --exec $DAEMON --background
-    echo "."
+	# Return
+	#   0 if daemon has been started
+	#   1 if daemon was already running
+	#   2 if daemon could not be started
+	start-stop-daemon --start --quiet --exec $DAEMON --user "$AMULED_USER" --chuid "$AMULED_USER" --test >/dev/null || {
+	    log_progress_msg "(already running)"
+	    return 1
+	}
+	start-stop-daemon --start --quiet --exec $WRAPPER --user "$AMULED_USER" --chuid "$AMULED_USER" >/dev/null || return 2
 }
 
-stop ()
+do_stop()
 {
-    echo -n "Stopping aMuleWeb : amuleweb"
-    export HOME
-    start-stop-daemon --stop --retry 5 --oknodo --quiet --chuid $AMULED_USER --user $AMULED_USER --exec $DAEMON
-    start-stop-daemon --stop --retry 5 --oknodo --quiet --chuid $AMULED_USER --user $AMULED_USER --exec $WEBDAEMON
-    echo "."
+	# Return
+	#   0 if daemon has been stopped
+	#   1 if daemon was already stopped
+	#   2 if daemon could not be stopped
+	start-stop-daemon --stop --quiet --retry="TERM/30/KILL/5" --exec $DAEMON --user "$AMULED_USER" --chuid "$AMULED_USER" 
+	return "$?"
 }
 
 
 case "$1" in
   start)
-  	start
-    ;;
+	[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$PROGNAME"
+	do_start
+	case "$?" in
+		0 | 1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+		2)     [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+	esac
+	;;
   stop)
-  	stop
-    ;;
-  reload)
-	  stop
-	  start
-    ;;
-  force-reload|restart)
-	stop
-	start
+	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$PROGNAME"
+	do_stop
+	case "$?" in
+		0 | 1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+		2)     [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+	esac
+	;;
+  restart|force-reload)
+	log_daemon_msg "Restarting $DESC" "$PROGNAME"
+	do_stop
+	case "$?" in
+	  0 | 1)
+		do_start
+		case "$?" in
+			0) log_end_msg 0 ;;
+			1) log_end_msg 1 ;; # Old process is still running
+			*) log_end_msg 1 ;; # Failed to start
+		esac
+		;;
+	  *)
+	  	# Failed to stop
+		log_end_msg 1
+		;;
+	esac
 	;;
   *)
-    echo "Usage: /etc/init.d/amule-daemon {start|stop|restart|force-reload|reload}"
-    exit 1
-    ;;
+	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+	exit 3
+	;;
 esac
-
-exit 0 
