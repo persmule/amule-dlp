@@ -6,6 +6,7 @@ Build-Depends: autotools-dev, debhelper, quilt, libglib2.0-dev, zlib1g-dev, libg
 Standards-Version: 3.7.2
 Vcs-Git: git://git.debian.org/git/collab-maint/amule.git
 Vcs-Browser: http://git.debian.org/?p=collab-maint/amule.git
+XS-X-Collab-Maint: commit-branch upload-10
 
 Package: amule
 Architecture: any
