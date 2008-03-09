@@ -1,3 +1,54 @@
+amule (2.2.0~20080309-1) UNRELEASED; urgency=low
+
+  * The "I Don't Believe in the Sun" release.
+
+  * Upload a snapshot of the upcoming 2.2.0 release to experimental.
+
+    + Upstream SVN repository doesn't seem to be public, note in
+      debian/copyright the URL this tarball was obtained from.
+
+    + Such tarballs ships a debian/ subdirectory, repack and rename it to
+      debian.upstream.
+
+    + In this version the crashes related to closing a search tab have
+      disappeared. (Closes: #419613, #430708, #464690)
+
+    + Patch by Bas Zoetekouw to avoid deleting the entropy pool also applied.
+      (Closes: #350396)
+
+  * Packaging changes needed (several come from the Ubuntu package, many
+    thanks to Emilio Pozuelo Monfort for his excellent work):
+
+    + build-depend on WxWidgets 2.8 instead of 2.6.
+    + add build-dependency on libgeoip-dev for GeoIP support, and pass
+      --enable-geoip to configure.
+
+    + install files from /usr/share/amule/skins.
+    + drop our debian/amulegui.desktop and debian/mans/amulegui.1, upstream
+      includes versions of these.
+    + stop shipping a copy of amule.xpm as amulegui.xpm in the packages, now
+      that upstream ships a amulegui.xpm themselves.
+
+  * Patches:
+
+    + drop superseded/applied upstream:
+      - for_upstream-manpage_typos.diff
+      - configure_proper_libpng_detection.diff
+
+    + update:
+      - configure_ignore_gdlib-config_garbage.diff
+
+    + cas_configfile.c_good_default_paths.diff:
+      - refresh, and use DejaVuSerif instead of Vera, which is going to be
+        removed. (Closes: #461249)
+      - make amule-utils recommend ttf-dejavu-core and not ttf-bitstream-vera.
+
+  * Bump Standards-Version to 3.7.3 (no changes needed).
+
+  * Move the Homepage from the description to its own field.
+
+ -- Adeodato Simó <dato@net.com.org.es>  Sun, 09 Mar 2008 18:47:00 +0100
+
 amule (2.1.3-5) unstable; urgency=medium
 
   * The "Absolutely Cuckoo" release.

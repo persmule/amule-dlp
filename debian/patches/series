@@ -1,4 +1,2 @@
 configure_ignore_gdlib-config_garbage.diff -p0
-configure_proper_libpng_detection.diff -p0
 cas_configfile.c_good_default_paths.diff -p0
-for_upstream-manpage_typos.diff -p0

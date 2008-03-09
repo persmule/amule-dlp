@@ -1,5 +1,6 @@
+docs/man/amulegui.1
+docs/man/amulegui.*.1
 src/utils/wxCas/docs/wxcas.1
 src/utils/wxCas/docs/wxcas.*.1
 src/utils/aLinkCreator/docs/alc.1
 src/utils/aLinkCreator/docs/alc.*.1
-debian/mans/amulegui.1
