@@ -4,7 +4,8 @@ Priority: optional
 Maintainer: Adeodato Simó <dato@net.com.org.es>
 Build-Depends: autotools-dev, debhelper, quilt, libglib2.0-dev, zlib1g-dev, libgd2-xpm-dev, libpng12-dev, libreadline5-dev, libcrypto++-dev, libwxgtk2.6-dev, wx2.6-i18n
 Standards-Version: 3.7.2
-Vcs-Bzr: http://people.debian.org/~adeodato/code/packages/amule
+Vcs-Git: git://git.debian.org/git/collab-maint/amule.git
+Vcs-Browser: http://git.debian.org/?p=collab-maint/amule.git
 
 Package: amule
 Architecture: any
