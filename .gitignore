@@ -5,6 +5,7 @@ debian/tmp
 debian/files
 debian/*.substvars
 debian/*.debhelper
+debian/stamp-patched
 
 debian/amule
 debian/amule-common
