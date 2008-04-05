@@ -1,3 +1,19 @@
+amule (2.2.0~20080309-2) experimental; urgency=low
+
+  * The "A Chicken With Its Head Cut Off" release.
+
+  * Enable uPnP support:
+
+    + pass --enable-upnp to configure.
+
+    + add a hard-coded dependency on libupnp2 to amule and amule-daemon, since
+      the library is dlopen'ed.
+
+    + no build-dependency on libupnp-dev necessary, upstream ships the two
+      needed header files under external/upnp.
+
+ -- Adeodato Simó <dato@net.com.org.es>  Sat, 05 Apr 2008 18:51:05 +0200
+
 amule (2.1.3-6) unstable; urgency=medium
 
   * The "All My Little Words" release.

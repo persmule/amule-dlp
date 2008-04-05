@@ -11,7 +11,7 @@ XS-X-Collab-Maint: commit-branch upload-10
 
 Package: amule
 Architecture: any
-Depends: amule-common (= ${source:Version}), ${shlibs:Depends}, ${misc:Depends}
+Depends: amule-common (= ${source:Version}), ${shlibs:Depends}, ${misc:Depends}, libupnp2
 Recommends: amule-utils
 Suggests: amule-utils-gui
 Description: client for the eD2k and Kad networks, like eMule
@@ -78,7 +78,7 @@ Description: graphic utilities for aMule
 
 Package: amule-daemon
 Architecture: any
-Depends: amule-common (= ${source:Version}), ${shlibs:Depends}, ${misc:Depends}
+Depends: amule-common (= ${source:Version}), ${shlibs:Depends}, ${misc:Depends}, libupnp2
 Recommends: amule-utils
 Description: non-graphic version of aMule, a client for the eD2k and Kad networks
  This package contains a daemonized version of aMule, amuled, that does
