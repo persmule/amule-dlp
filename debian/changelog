@@ -1,3 +1,12 @@
+amule (2.1.3-6) unstable; urgency=medium
+
+  * The "All My Little Words" release.
+
+  * Fix FTBFS with GCC 4.3, thanks to Maximiliano Curia for sending a patch.
+    (Closes: #417104)
+
+ -- Adeodato Simó <dato@net.com.org.es>  Sat, 05 Apr 2008 16:30:34 +0200
+
 amule (2.1.3-5) unstable; urgency=medium
 
   * The "Absolutely Cuckoo" release.
