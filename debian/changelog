@@ -2,9 +2,9 @@ amule (2.2.0~20080309-3) UNRELEASED; urgency=low
 
   * The "Reno Dakota" release.
 
-  * Depend on libupnp3 instead of libupnp2.
+  * Depend on libupnp3 instead of libupnp2. (Closes: #483935)
 
- -- Adeodato Simó <dato@net.com.org.es>  Mon, 14 Apr 2008 19:58:16 +0200
+ -- Adeodato Simó <dato@net.com.org.es>  Sat, 07 Jun 2008 22:49:39 +0200
 
 amule (2.2.0~20080309-2) experimental; urgency=low
 
