@@ -8,6 +8,11 @@ amule (2.2.0~20080608-1) experimental; urgency=low
 
   * Depend on libupnp3 instead of libupnp2. (Closes: #483935)
 
+  * Make the init script export $LANG from /etc/default/locale if not already
+    set. Amule 2.2 no longer assumes a Latin-1 charset, and refuses to handle
+    files with non-ASCII characters if the running locale does not support
+    them. (Closes: #475187, #475843)
+
  -- Adeodato Simó <dato@net.com.org.es>  Sun, 08 Jun 2008 15:18:21 +0200
 
 amule (2.2.0~20080309-2) experimental; urgency=low
