@@ -1,10 +1,14 @@
-amule (2.2.0~20080309-3) UNRELEASED; urgency=low
+amule (2.2.0~20080608-1) experimental; urgency=low
 
   * The "Reno Dakota" release.
 
+  * New upstream snapshot:
+    + fixes FTBFS with gcc-4.3. (Closes: #474592)
+    + update patch configure_ignore_gdlib-config_garbage.diff.
+
   * Depend on libupnp3 instead of libupnp2. (Closes: #483935)
 
- -- Adeodato Simó <dato@net.com.org.es>  Sat, 07 Jun 2008 22:49:39 +0200
+ -- Adeodato Simó <dato@net.com.org.es>  Sun, 08 Jun 2008 15:18:21 +0200
 
 amule (2.2.0~20080309-2) experimental; urgency=low
 

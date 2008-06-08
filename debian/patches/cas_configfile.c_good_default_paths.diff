@@ -1,5 +1,5 @@
---- src/utils/cas/configfile.c.orig
-+++ src/utils/cas/configfile.c
+--- a/src/utils/cas/configfile.c
++++ b/src/utils/cas/configfile.c
 @@ -44,9 +44,9 @@
  		"# font_size - size the font\n",
  		"# source_image - image where the text will be writen\n",

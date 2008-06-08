@@ -1,22 +1,22 @@
---- configure.in.orig
-+++ configure.in
-@@ -259,7 +259,7 @@
- AM_PATH_GDLIBCONFIG([2.0.0],
- [
- 	CAS_DEFS="-D__GD__"
--	GDLIB_LIBS="-lgd $GDLIB_LIBS"
-+	GDLIB_LIBS="-lgd"
- ], [
-     AC_MSG_NOTICE([
- 	WARNING: gd-lib >= 2.0.0, or a functional gd.h (from gd-devel) not found.
---- configure.orig
-+++ configure
-@@ -6336,7 +6336,7 @@
-         GDLIB_LIBS="`$GDLIB_CONFIG_WITH_ARGS --libs`"
+--- a/configure.in
++++ b/configure.in
+@@ -194,7 +194,7 @@
+ 	# Check for gd
+ 	MULE_CHECK_GDLIB([2.0.0], [
+ 		CAS_DEFS="-D__GD__"
+-		MULE_PREPEND([GDLIB_LIBS], [-lgd])
++		GDLIB_LIBS="-lgd"
+ 	], [CAS_DEFS=])
+ 	AS_IF([test -z "$CAS_DEFS"], [
+ 		AC_MSG_WARN([
+--- a/configure
++++ b/configure
+@@ -6334,7 +6334,7 @@
+ 	if test -n "$GDLIB_VERSION"; then
  
- 	CAS_DEFS="-D__GD__"
--	GDLIB_LIBS="-lgd $GDLIB_LIBS"
-+	GDLIB_LIBS="-lgd"
+ 		CAS_DEFS="-D__GD__"
+-		GDLIB_LIBS="-lgd $GDLIB_LIBS"
++		GDLIB_LIBS="-lgd"
  
-       else
-         GDLIB_VERSION=
+ else
+   CAS_DEFS=
