@@ -4,6 +4,8 @@ amule (2.2.1-1) unstable; urgency=low
 
   * New upstream release. (Closes: #486372)
   * Add calls to dh_icons and dh_desktop in debian/rules.
+  * Pass --with-denoise-level=0 to configure, so that the full g++ invocations
+    are printed, and not just "Compiling foo". Thanks, Werner Mahr.
 
  -- Adeodato Simó <dato@net.com.org.es>  Mon, 30 Jun 2008 19:17:20 +0200
 
