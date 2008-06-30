@@ -1,3 +1,12 @@
+amule (2.2.1-1) unstable; urgency=low
+
+  * The "I Don't Want to Get Over You" release.
+
+  * New upstream release. (Closes: #486372)
+  * Add calls to dh_icons and dh_desktop in debian/rules.
+
+ -- Adeodato Simó <dato@net.com.org.es>  Mon, 30 Jun 2008 19:17:20 +0200
+
 amule (2.2.0~20080608-1) experimental; urgency=low
 
   * The "Reno Dakota" release.
