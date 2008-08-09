@@ -1,0 +1,4 @@
+This package uses quilt as patch system, you can find some information
+about it at:
+
+    /usr/share/doc/quilt/README.source

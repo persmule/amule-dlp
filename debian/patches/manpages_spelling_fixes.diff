@@ -1,0 +1,369 @@
+Index: amule-2.2.2/docs/man/amulecmd.1
+===================================================================
+--- amule-2.2.2.orig/docs/man/amulecmd.1	2008-08-09 15:56:47.777270253 +0200
++++ amule-2.2.2/docs/man/amulecmd.1	2008-08-09 15:57:15.282837705 +0200
+@@ -1,4 +1,4 @@
+-.TH AMULECMD 1 "January 2007" "aMuleCmd v2.2.0" "aMule utilities"
++.TH AMULECMD 1 "August 2008" "aMuleCmd v2.2.2" "aMule utilities"
+ .SH NAME
+ amulecmd \- Console-based program to control aMule
+ .SH SYNOPSIS
+@@ -39,7 +39,7 @@
+ Default configuration file is \fI~/.aMule/remote.conf\fR
+ .TP
+ \fB\-q\fR, \fB\-\-quiet\fR
+-Ddo not print any output to stdout. This seems to be a very much useless option with \fBamulecmd\fR.
++Do not print any output to stdout. This seems to be a very much useless option with \fBamulecmd\fR.
+ .TP
+ \fB\-v\fR, \fB\-\-verbose\fR
+ Be verbose \- show also debug messages
+@@ -63,15 +63,15 @@
+ \fB\-\-version\fR
+ Displays the current version number.
+ .SH COMMANDS
+-All commands are case insensitive
++All commands are case insensitive.
+ .SS \fBAdd\fR <ed2k-link>
+-Adds an ed2k-linkto the core.
++Adds an ed2k-link to the core.
+ 
+ The ed2k link to be added can be:
+ .br
+-*) a file link (ed2k://|file|...), it will be added to the download queue,
++*) a file link (ed2k://|file|...), it will be added to the download queue;
+ .br
+-*) a server link (ed2k://|server|...), it will be added to the server list,
++*) a server link (ed2k://|server|...), it will be added to the server list;
+ .br
+ *) or a serverlist link, in which case all servers in the list will be added to the server list.
+ 
+@@ -91,10 +91,10 @@
+ When giving kad, it connects to Kad only.
+ .SS \fBDisconnect\fR (ed2k|kad)
+ 
+-Disconnect from all networks you are cionnected to, or just disconnect from the
++Disconnect from all networks you are connected to, or just disconnect from the
+ specified network.
+ .SS \fBDownload\fR num
+-Start downloading a file
++Start downloading a file.
+ 
+ The number of a file from the last search has to be given.
+ Example: 'download 12' will start to download the file with the number 12 of the
+@@ -106,7 +106,7 @@
+ .SS \fBGet\fR value
+ Get and display a preference value.
+ 
+-This command is incomplete, aviable values are listed below.
++This command is incomplete, available values are listed below.
+ 
+ Available values to get:
+ .br
+@@ -115,12 +115,12 @@
+ IPFilter	Get IPFilter preferences.
+ .SS \fBHelp\fR <command>
+ Get a short help.
+-If called without parameter, it shows a list of aviable commands.
++If called without parameter, it shows a list of available commands.
+ If called with <command>, it shows a short description of the given command.
+ .SS \fBPause\fR <hash>
+ Pauses the download specified by hash. To get the hash use \fIshow\fR.
+ .SS \fBProgress\fR
+-Shows the progress of an ongiong search.
++Shows the progress of an on\-going search.
+ 
+ This command can't have an argument.
+ .SS \fBQuit\fR
+@@ -130,7 +130,7 @@
+ .SS \fBReload\fR
+ Reloads a given object.
+ 
+-This command is incomplete, aviable values are listed below.
++This command is incomplete, available values are listed below.
+ 
+ Available values to get:
+ .br
+@@ -152,7 +152,7 @@
+ to do this.
+ \fIExample\fR 'search kad amule' performs a kad search for amule.
+ 
+-Aviable searchtypes:
++Available searchtypes:
+ .br
+ global	performs a global search
+ .br
+@@ -162,7 +162,7 @@
+ .SS \fBSet\fR <value>
+ Sets a given preferences value.
+ 
+-This command is incomplete, aviable values are listed below.
++This command is incomplete, available values are listed below.
+ 
+ Available values to get:
+ .br
+@@ -170,7 +170,7 @@
+ .br
+ IPFilter	Set IPFilter preferences.
+ .SS \fBShow\fR DL|Log|Servers|UL
+-Shows upload/download queue, server list or shared files list.
++Shows upload/download queue, servers list or shared files list.
+ 
+ This command must have an argument.
+ 
+Index: amule-2.2.2/docs/man/amule.1
+===================================================================
+--- amule-2.2.2.orig/docs/man/amule.1	2008-08-09 15:56:47.785270713 +0200
++++ amule-2.2.2/docs/man/amule.1	2008-08-09 15:57:15.286837933 +0200
+@@ -1,4 +1,4 @@
+-.TH AMULE 1 "January 2007" "aMule v2.2.0" "aMule"
++.TH AMULE 1 "August 2008" "aMule v2.2.2" "aMule"
+ .SH NAME
+ amule \- the all\-platform eMule p2p client
+ .SH SYNOPSIS
+@@ -29,7 +29,7 @@
+ Does not handle fatal exception.
+ .TP
+ \fB\-o\fR, \fB\-\-log\-stdout\fR
+-Print log messages to stdout.
++Prints log messages to stdout.
+ .TP
+ \fB\-r\fR, \fB\-\-reset\-config\fR
+ Resets config to default values.
+Index: amule-2.2.2/docs/man/amuled.1
+===================================================================
+--- amule-2.2.2.orig/docs/man/amuled.1	2008-08-09 15:56:47.789270939 +0200
++++ amule-2.2.2/docs/man/amuled.1	2008-08-09 16:35:38.462088412 +0200
+@@ -1,4 +1,4 @@
+-.TH AMULED 1 "January 2007" "aMule Daemon v2.2.0" "aMule Daemon"
++.TH AMULED 1 "August 2008" "aMule Daemon v2.2.2" "aMule Daemon"
+ .SH NAME
+ amuled \- the all\-platform eMule p2p client \- daemonized version
+ .SH SYNOPSIS
+@@ -8,6 +8,7 @@
+ .RB [ \-i ]
+ .RB [ \-f ]
+ .RB [ \-c " " \fI<dir> ]
++.RB [ \-e ]
+ .RB [ \-d ]
+ .RB [ \-o ]
+ .RB [ \-r ]
+@@ -24,16 +25,22 @@
+ Does not disable stdin.
+ .TP
+ \fB\-f\fR, \fB\-\-full\-daemon\fR
+-Fork to Background
++Forks to background.
+ .TP
+ \fB\-c\fR, \fB\-\-config\-dir\fR=\fI<dir>\fR
+-Read config from <dir> instead of home.
++Reads config from <dir> instead of home.
++.TP
++\fB\-e\fR, \fB\-\-ec\-config\fR
++Configures EC (External Connections).
+ .TP
+ \fB\-d\fR, \fB\-\-disable\-fatal\fR
+ Does not handle fatal exception.
+ .TP
+ \fB-o\fR, \fB\-\-log\-stdout\fR
+-Print log messages to stdout.
++Prints log messages to stdout.
++.TP
++\fB-r\fR, \fB\-\-reset\-config\fR
++Resets config to default values.
+ .SH FILES
+ ~/.aMule/*
+ .SH REPORTING BUGS
+Index: amule-2.2.2/docs/man/amulegui.1
+===================================================================
+--- amule-2.2.2.orig/docs/man/amulegui.1	2008-08-09 15:56:47.805271852 +0200
++++ amule-2.2.2/docs/man/amulegui.1	2008-08-09 16:42:32.481682045 +0200
+@@ -1,15 +1,21 @@
+-.TH AMULEGUI 1 "January 2007" "aMuleGUI v2.2.0" "aMuleGUI"
++.TH AMULEGUI 1 "August 2008" "aMuleGUI v2.2.2" "aMuleGUI"
+ .SH NAME
+ amulegui \- aMule control program with GUI
+ .SH SYNOPSIS
+ .B amulegui
++.RB [ \-h ]
++.RB [ \-\-verbose ]
+ .SH "DESCRIPTION"
+ .B amulegui
+-is a client program, and can be connected on amule or amuled via EC. You
+-can manage your amule program with it. It provides the almost same functionality
++is a client program, and can be connected to amule or amuled via EC. You
++can manage your amule program with it. It provides almost the same functionalities
+ as amule, even if the core works on another computer.
+-
+-This program doesn't take any arguments.
++.TP
++\fB\-h\fR, \fB\-\-help\fR
++Prints a short usage description.
++.TP
++\fB\-\-verbose\fR
++Be verbose.
+ .SH REPORTING BUGS
+ Please report bugs either on our forum (\fIhttp://forum.amule.org/\fR), or in our bugtracker (\fIhttp://bugs.amule.org/\fR).
+ Please do not report bugs in e-mail, neither to our mailing list nor directly to any team member.
+Index: amule-2.2.2/docs/man/amuleweb.1
+===================================================================
+--- amule-2.2.2.orig/docs/man/amuleweb.1	2008-08-09 15:56:47.809272079 +0200
++++ amule-2.2.2/docs/man/amuleweb.1	2008-08-09 16:49:43.854264568 +0200
+@@ -1,11 +1,11 @@
+-.TH AMULEWEB 1 "January 2007" "aMule webserver v2.2.0" "aMule utilities"
++.TH AMULEWEB 1 "August 2008" "aMule webserver v2.2.2" "aMule utilities"
+ .SH NAME
+ amuleweb \- aMule web server
+ .SH SYNOPSIS
+ .B amuleweb
+ .RB [ \-h " " \fI<host> ]
+ .RB [ \-p " " \fI<port> ]
+-.RB [ \-P " " \fI<pass> ]
++.RB [ \-P " " \fI<passwd> ]
+ .RB [ \-f " " \fI<path> ]
+ .RB [ \-q ]
+ .RB [ \-v ]
+@@ -13,6 +13,8 @@
+ .RB [ \-w ]
+ .RB [ \-t " " \fI<name> ]
+ .RB [ \-s " " \fI<port> ]
++.RB [ \-u ]
++.RB [ \-U ]
+ .RB [ \-z ]
+ .RB [ \-Z ]
+ .RB [ \-A " " \fI<pass> ]
+@@ -34,75 +36,81 @@
+ .PP
+ .B amuleweb \-\-no\-php
+ .SH DESCRIPTION
+-\fBamuleweb\fR manages your access to amule through a webbrowser.
++\fBamuleweb\fR manages your access to amule through a web browser.
+ You can start amuleweb together with \fBamule\fR(1), or separately, any time later.
+ Options can be specified via command-line or via config-file.
+ Command-line options take precedence over config-file options.
+ .TP
+ \fB\-h\fR, \fB\-\-host\fR=\fI<host>\fR
+ Host where aMule is running (default: \fIlocalhost\fR).
+-\fI<host>\fR might be an IP address or a DNS name
++\fI<host>\fR might be an IP address or a DNS name.
+ .TP
+ \fB\-p\fR, \fB\-\-port\fR=\fI<port>\fR
+-aMule's port for External Connections, as set in Preferences->Remote Controls (default: \fI4712\fR)
++aMule's port for External Connections, as set in Preferences->Remote Controls (default: \fI4712\fR).
+ .TP
+-\fB\-P\fR, \fB\-\-password\fR=\fI<passwd>\fR
+-External Connections password
++\fB\-P\fR, \fB\-\-password\fR=\fI<passwd>\fR.
++External Connections password.
+ .TP
+ \fB\-f\fR, \fB\-\-config\-file\fR=\fI<path>\fR
+-Use the given configuration file.
+-Default configuration file is \fI~/.aMule/remote.conf\fR
++Uses the given configuration file.
++Default configuration file is \fI~/.aMule/remote.conf\fR .
+ .TP
+ \fB\-q\fR, \fB\-\-quiet\fR
+-Do not print any output to stdout.
+-You may want to use \fB\-q\fR to daemonize the webserver, i.e. running as '\fBamuleweb \-q &\fR'
++Does not print any output to stdout.
++You may want to use \fB\-q\fR to daemonize the webserver, i.e. running as '\fBamuleweb \-q &\fR'.
+ .TP
+ \fB\-v\fR, \fB\-\-verbose\fR
+-Be verbose \- show also debug messages
++Be verbose \- show also debug messages.
+ .TP
+ \fB\-l\fR, \fB\-\-locale\fR=\fI<lang>\fR
+ Sets program locale (language).
+ See section \fBLANGUAGES\fR for the description of the \fI<lang>\fR parameter.
+ .TP
+ \fB\-w\fR, \fB\-\-write\-config\fR
+-Write command line options to config file and exit
++Writes command line options to config file and exit.
+ .TP
+ \fB\-\-create\-config\-from\fR=\fI<path>\fR
+-Create config file based upon \fI<path>\fR, which must point to a valid aMule config file, and then exit
++Creates config file based upon \fI<path>\fR, which must point to a valid aMule config file, and then exit.
+ .TP
+ \fB\-t\fR, \fB\-\-template\fR=\fI<name>\fR
+ Loads the template named \fI<name>\fR. See also the section
+-.B SKIN SUPPORT
++.B SKIN SUPPORT.
+ .TP
+ \fB\-s\fR, \fB\-\-server\-port\fR=\fI<port>\fR
+-Webserver's HTTP port. This is the port you can point your browser to (default: \fI4711\fR)
++Webserver's HTTP port. This is the port you can point your browser to (default: \fI4711\fR).
++.TP
++\fB\-z\fR, \fB\-\-enable\-upnp\fR
++Enables use of UPnP port forwarding on web server port.
++.TP
++\fB\-U\fR, \fB\-\-upnp\-port\fR
++UPnP port.
+ .TP
+ \fB\-z\fR, \fB\-\-enable\-gzip\fR
+-Enable using gzip compression in HTTP traffic to save bandwidth
++Enables using gzip compression in HTTP traffic to save bandwidth.
+ .TP
+ \fB\-Z\fR, \fB\-\-disable\-gzip\fR
+-Disable using gzip compression (this is the default)
++Disables using gzip compression (this is the default).
+ .TP
+ \fB\-A\fR, \fB\-\-admin\-pass\fR=\fI<passwd>\fR
+-Full access password for webserver
++Full access password for webserver.
+ .TP
+ \fB\-G\fR, \fB\-\-guest\-pass\fR=\fI<passwd>\fR
+-Guest password for webserver
++Guest password for webserver.
+ .TP
+ \fB\-a\fR, \fB\-\-allow\-guest\fR
+-Allow guest access
++Allows guest access.
+ .TP
+ \fB\-d\fR, \fB\-\-deny\-guest\fR
+-Deny guest access (default)
++Denies guest access (default).
+ .TP
+ \fB\-L\fR, \fB\-\-load\-settings\fR
+ Load/save webserver settings from/to remote aMule.
+ This causes amuleweb to ignore command-line and config-file settings, and load them from aMule.
+ When saving preferences none will be written to the config file, but to aMule.
+-(Of course, this works only for those settings, that can be set in aMule's Preferences->Remote Controls)
++(Of course, this works only for those settings that can be set in aMule's Preferences->Remote Controls.)
+ .TP
+ \fB\-N\fR, \fB\-\-no\-script\-cache\fR
+-Recompile PHP pages on each request
++Recompiles PHP pages on each request.
+ .TP
+ \fB\-\-amule\-config\-file\fR=\fI<path>\fR
+ aMule config file path.
+Index: amule-2.2.2/docs/man/ed2k.1
+===================================================================
+--- amule-2.2.2.orig/docs/man/ed2k.1	2008-08-09 15:56:47.825272990 +0200
++++ amule-2.2.2/docs/man/ed2k.1	2008-08-09 15:57:15.286837933 +0200
+@@ -1,4 +1,4 @@
+-.TH ED2K "1" "January 2007" "aMule ED2k link parser v1.2.0" "aMule utilities"
++.TH ED2K "1" "August 2008" "aMule ED2k link parser v1.4.1" "aMule utilities"
+ .SH NAME
+ ed2k \- aMule ED2k link parser
+ .SH SYNOPSIS
+@@ -8,9 +8,10 @@
+ .B ed2k
+ .RB [ \-\-help ]
+ .RB [ \-\-config\-dir, \-c ]
++.RB [ \-\-emulecollection, \-e ]
+ .RB [ \-\-version ]
+ .SH DESCRIPTION
+-aMule ED2k link parser v1.1.0.
++aMule ED2k link parser v1.4.1.
+ Sends the given \fI<ED2k_link>\fR to aMule, i.e. writes it to the file ~/.aMule/ED2KLinks, which will be checked by aMule every second for links.
+ \fBed2k\fR accepts file, server and serverlist links.
+ .SS "Usage:"
+@@ -21,6 +22,9 @@
+ \fB\-c\fR, \fB\-\-config\-dir\fR=\fI<dir>\fR 
+ Specifies the aMule configuration directory. This must be writeable by the user running \fBed2k\fR.
+ .TP
++\fB\-e\fR, \fB\-\-emulecollection \fI<file>\fR
++Loads all links of the emulecollection passed as parameter.
++.TP
+ \fB\-\-version\fR
+ Displays the current version number.
+ .SH FILES
