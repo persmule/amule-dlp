@@ -9,8 +9,10 @@ amule (2.2.2-1) UNRELEASED; urgency=low
     - added version to build-dep on debhelper due to use of dh_icons
   * debian/patches/manpages_spelling_fixes.diff
     - added to fix some spelling errors and add missing options
+  * debian/watch
+    - treat release candidate version less than the real release
 
- -- Sandro Tosi <matrixhasu@gmail.com>  Sat, 09 Aug 2008 17:27:34 +0200
+ -- Sandro Tosi <matrixhasu@gmail.com>  Sat, 09 Aug 2008 20:06:43 +0200
 
 amule (2.2.1-1) unstable; urgency=low
 
