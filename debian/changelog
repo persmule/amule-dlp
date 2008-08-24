@@ -1,7 +1,8 @@
-amule (2.2.2-1) UNRELEASED; urgency=low
+amule (2.2.2-1) experimental; urgency=low
 
-  * The "Similarity" release.
+  * The "Come Back from San Francisco" release.
 
+  [ Sandro Tosi ]
   * New upstream release
   * debian/control
     - bump Standards-Version to 3.8.0
@@ -12,7 +13,7 @@ amule (2.2.2-1) UNRELEASED; urgency=low
   * debian/watch
     - treat release candidate version less than the real release
 
- -- Sandro Tosi <matrixhasu@gmail.com>  Sat, 09 Aug 2008 20:06:43 +0200
+ -- Adeodato Simó <dato@net.com.org.es>  Sat, 16 Aug 2008 14:06:10 +0100
 
 amule (2.2.1-1) unstable; urgency=low
 

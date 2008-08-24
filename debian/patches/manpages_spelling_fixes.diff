@@ -1,7 +1,5 @@
-Index: amule-2.2.2/docs/man/amulecmd.1
-===================================================================
---- amule-2.2.2.orig/docs/man/amulecmd.1	2008-08-09 15:56:47.777270253 +0200
-+++ amule-2.2.2/docs/man/amulecmd.1	2008-08-09 15:57:15.282837705 +0200
+--- a/docs/man/amulecmd.1
++++ b/docs/man/amulecmd.1
 @@ -1,4 +1,4 @@
 -.TH AMULECMD 1 "January 2007" "aMuleCmd v2.2.0" "aMule utilities"
 +.TH AMULECMD 1 "August 2008" "aMuleCmd v2.2.2" "aMule utilities"
@@ -110,10 +108,8 @@ Index: amule-2.2.2/docs/man/amulecmd.1
  
  This command must have an argument.
  
-Index: amule-2.2.2/docs/man/amule.1
-===================================================================
---- amule-2.2.2.orig/docs/man/amule.1	2008-08-09 15:56:47.785270713 +0200
-+++ amule-2.2.2/docs/man/amule.1	2008-08-09 15:57:15.286837933 +0200
+--- a/docs/man/amule.1
++++ b/docs/man/amule.1
 @@ -1,4 +1,4 @@
 -.TH AMULE 1 "January 2007" "aMule v2.2.0" "aMule"
 +.TH AMULE 1 "August 2008" "aMule v2.2.2" "aMule"
@@ -129,10 +125,8 @@ Index: amule-2.2.2/docs/man/amule.1
  .TP
  \fB\-r\fR, \fB\-\-reset\-config\fR
  Resets config to default values.
-Index: amule-2.2.2/docs/man/amuled.1
-===================================================================
---- amule-2.2.2.orig/docs/man/amuled.1	2008-08-09 15:56:47.789270939 +0200
-+++ amule-2.2.2/docs/man/amuled.1	2008-08-09 16:35:38.462088412 +0200
+--- a/docs/man/amuled.1
++++ b/docs/man/amuled.1
 @@ -1,4 +1,4 @@
 -.TH AMULED 1 "January 2007" "aMule Daemon v2.2.0" "aMule Daemon"
 +.TH AMULED 1 "August 2008" "aMule Daemon v2.2.2" "aMule Daemon"
@@ -173,10 +167,8 @@ Index: amule-2.2.2/docs/man/amuled.1
  .SH FILES
  ~/.aMule/*
  .SH REPORTING BUGS
-Index: amule-2.2.2/docs/man/amulegui.1
-===================================================================
---- amule-2.2.2.orig/docs/man/amulegui.1	2008-08-09 15:56:47.805271852 +0200
-+++ amule-2.2.2/docs/man/amulegui.1	2008-08-09 16:42:32.481682045 +0200
+--- a/docs/man/amulegui.1
++++ b/docs/man/amulegui.1
 @@ -1,15 +1,21 @@
 -.TH AMULEGUI 1 "January 2007" "aMuleGUI v2.2.0" "aMuleGUI"
 +.TH AMULEGUI 1 "August 2008" "aMuleGUI v2.2.2" "aMuleGUI"
@@ -204,10 +196,8 @@ Index: amule-2.2.2/docs/man/amulegui.1
  .SH REPORTING BUGS
  Please report bugs either on our forum (\fIhttp://forum.amule.org/\fR), or in our bugtracker (\fIhttp://bugs.amule.org/\fR).
  Please do not report bugs in e-mail, neither to our mailing list nor directly to any team member.
-Index: amule-2.2.2/docs/man/amuleweb.1
-===================================================================
---- amule-2.2.2.orig/docs/man/amuleweb.1	2008-08-09 15:56:47.809272079 +0200
-+++ amule-2.2.2/docs/man/amuleweb.1	2008-08-09 16:49:43.854264568 +0200
+--- a/docs/man/amuleweb.1
++++ b/docs/man/amuleweb.1
 @@ -1,11 +1,11 @@
 -.TH AMULEWEB 1 "January 2007" "aMule webserver v2.2.0" "aMule utilities"
 +.TH AMULEWEB 1 "August 2008" "aMule webserver v2.2.2" "aMule utilities"
@@ -335,10 +325,8 @@ Index: amule-2.2.2/docs/man/amuleweb.1
  .TP
  \fB\-\-amule\-config\-file\fR=\fI<path>\fR
  aMule config file path.
-Index: amule-2.2.2/docs/man/ed2k.1
-===================================================================
---- amule-2.2.2.orig/docs/man/ed2k.1	2008-08-09 15:56:47.825272990 +0200
-+++ amule-2.2.2/docs/man/ed2k.1	2008-08-09 15:57:15.286837933 +0200
+--- a/docs/man/ed2k.1
++++ b/docs/man/ed2k.1
 @@ -1,4 +1,4 @@
 -.TH ED2K "1" "January 2007" "aMule ED2k link parser v1.2.0" "aMule utilities"
 +.TH ED2K "1" "August 2008" "aMule ED2k link parser v1.4.1" "aMule utilities"
