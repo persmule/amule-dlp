@@ -22,10 +22,6 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-// MP: This define needs to be kept here, before the .h include because wxWidgets will include the WinIoCtl.h 
-// file with a different value, and we'll never get the FSCTL_SET_SPARSE
-#define _WIN32_WINNT 0x0500
-
 #include "PlatformSpecific.h"
 
 #ifdef HAVE_CONFIG_H
@@ -37,10 +33,12 @@
 #include "common/Format.h"
 #include "Logger.h"
 #include <winbase.h>
-#ifdef __MINGW32__
-#	include <ddk/ntifs.h>
-#else
-#	include <winioctl.h>
+#include <winioctl.h>
+#ifndef FSCTL_SET_SPARSE
+#	define FSCTL_SET_SPARSE		CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 49, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
+#endif
+#ifndef FSCTL_SET_ZERO_DATA
+#	define FSCTL_SET_ZERO_DATA	CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 50, METHOD_BUFFERED, FILE_WRITE_DATA)
 #endif
 
 // Create a message from a Windows error code
@@ -181,7 +179,7 @@ static PlatformSpecific::EFSType doGetFilesystemType(const CPath& path)
 	return PlatformSpecific::fsOther;
 };
 
-#elif defined(HAVE_GETMNTENT)
+#elif defined(HAVE_GETMNTENT) && defined(HAVE_MNTENT_H)
 #include <stdio.h>
 #include <string.h>
 #include <mntent.h>
@@ -232,6 +230,50 @@ static PlatformSpecific::EFSType doGetFilesystemType(const CPath& path)
 	}
 	fclose(mnttab);
 	return retval;
+}
+#elif defined(HAVE_GETMNTENT) && defined(HAVE_SYS_MNTENT_H) && defined(HAVE_SYS_MNTTAB_H)
+#include <stdio.h>
+#include <string.h>
+#include <sys/mntent.h>
+#include <sys/mnttab.h>
+#ifndef MNTTAB
+#      define MNTTAB   "/etc/mnttab"
+#endif
+#include <common/StringFunctions.h>
+
+static PlatformSpecific::EFSType doGetFilesystemType(const CPath& path)
+{
+       struct mnttab *entry = NULL;
+       PlatformSpecific::EFSType retval = PlatformSpecific::fsOther;
+       FILE *mnttab = fopen(MNTTAB, "r");
+       unsigned bestPrefixLen = 0;
+
+       if (mnttab == NULL) {
+               return PlatformSpecific::fsOther;
+       }
+
+       while (getmntent(mnttab, entry) == 0) {
+               if (entry->mnt_mountp) {
+                       wxString dir = char2unicode(entry->mnt_mountp);
+                       if (dir == path.GetRaw().Mid(0, dir.Length())) {
+                               if (dir.Length() >= bestPrefixLen) {
+                                       if (entry->mnt_fstype == NULL) {
+                                               break;
+                                       } else if (!strcmp(entry->mnt_fstype, MNTTYPE_PCFS)) {
+                                               retval = PlatformSpecific::fsFAT;
+                                       } else if (hasmntopt(entry, MNTOPT_NOLARGEFILES)) {
+                                               // MINIX is a file system that can handle special chars but has no large files.
+                                               retval = PlatformSpecific::fsMINIX;
+                                       } else if (dir.Length() > bestPrefixLen) {
+                                               retval = PlatformSpecific::fsOther;
+                                       }
+                                       bestPrefixLen = dir.Length();
+                               }
+                       }
+               }
+       }
+       fclose(mnttab);
+       return retval;
 }
 
 #else

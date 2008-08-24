@@ -1,3 +1,20 @@
+amule (2.2.2-1) experimental; urgency=low
+
+  * The "Come Back from San Francisco" release.
+
+  [ Sandro Tosi ]
+  * New upstream release
+  * debian/control
+    - bump Standards-Version to 3.8.0
+      + debian/README.source added
+    - added version to build-dep on debhelper due to use of dh_icons
+  * debian/patches/manpages_spelling_fixes.diff
+    - added to fix some spelling errors and add missing options
+  * debian/watch
+    - treat release candidate version less than the real release
+
+ -- Adeodato Simó <dato@net.com.org.es>  Sat, 16 Aug 2008 14:06:10 +0100
+
 amule (2.2.1-1) unstable; urgency=low
 
   * The "I Don't Want to Get Over You" release.

@@ -71,7 +71,7 @@ function untar_distro {
 	    TARCMD="tar jxf"
 	    ;;
 	*.zip)
-	    TARCMD="unzip -o"
+	    TARCMD="unzip -ao"
 	    ;;
     esac
     $TARCMD $1
@@ -240,6 +240,7 @@ function build_amule {
 		--with-wx-config=${WXWIDGETS_INSTALL_DIR}/bin/wx-config \
 		--prefix=${AMULE_INSTALL_DIR} \
 		--with-crypto-prefix=${CRYPTOPP_INSTALL_DIR} \
+		--with-libupnp-prefix=${LIBUPNP_INSTALL_DIR} \
 		&& \
 		LD_LIBRARY_PATH=${WXWIDGETS_INSTALL_DIR}/lib make -j${JOBS} && \
 		LD_LIBRARY_PATH=${WXWIDGETS_INSTALL_DIR}/lib make install > /dev/null
