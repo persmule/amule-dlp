@@ -1,3 +1,12 @@
+amule (2.2.2-2) UNRELEASED; urgency=low
+
+  * The "The Luckiest Guy on the Lower East Side" release.
+
+  * Make amule Replace: old versions of amule-common as found in Ubuntu
+    (they used to ship the skins in amule-common for some time).
+
+ -- Adeodato Simó <dato@net.com.org.es>  Wed, 22 Oct 2008 23:12:59 +0200
+
 amule (2.2.2-1) experimental; urgency=low
 
   * The "Come Back from San Francisco" release.

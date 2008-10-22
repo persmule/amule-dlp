@@ -14,6 +14,7 @@ Architecture: any
 Depends: amule-common (= ${source:Version}), ${shlibs:Depends}, ${misc:Depends}, libupnp3
 Recommends: amule-utils
 Suggests: amule-utils-gui
+Replaces: amule-common (<< 2.2.0~svn20080525-1)
 Description: client for the eD2k and Kad networks, like eMule
  aMule is a peer-to-peer file sharing application, designed to connect
  to the eDonkey and Kad networks. It has a wide range of features,
