@@ -2,7 +2,20 @@ Source: amule
 Section: x11
 Priority: optional
 Maintainer: Adeodato Simó <dato@net.com.org.es>
-Build-Depends: autotools-dev, debhelper (>= 5.0.51~), quilt, libglib2.0-dev, zlib1g-dev, libgd2-xpm-dev, libgeoip-dev, libpng12-dev, libreadline5-dev, libcrypto++-dev, libwxgtk2.8-dev, wx2.8-i18n
+Build-Depends:
+ autotools-dev,
+ debhelper (>= 5.0.51~),
+ quilt,
+ ##
+ libcrypto++-dev,
+ libgd2-xpm-dev,
+ libgeoip-dev,
+ libglib2.0-dev,
+ libpng12-dev,
+ libreadline5-dev,
+ libwxgtk2.8-dev,
+ wx2.8-i18n,
+ zlib1g-dev,
 Standards-Version: 3.8.0
 Homepage: http://www.amule.org
 Vcs-Git: git://git.debian.org/git/collab-maint/amule.git
