@@ -13,6 +13,7 @@ Build-Depends:
  libglib2.0-dev,
  libpng12-dev,
  libreadline5-dev,
+ libupnp3-dev,
  libwxgtk2.8-dev,
  wx2.8-i18n,
  zlib1g-dev,
@@ -24,7 +25,7 @@ XS-X-Collab-Maint: commit-branch upload-10
 
 Package: amule
 Architecture: any
-Depends: amule-common (= ${source:Version}), ${shlibs:Depends}, ${misc:Depends}, libupnp3
+Depends: amule-common (= ${source:Version}), ${shlibs:Depends}, ${misc:Depends}
 Recommends: amule-utils
 Suggests: amule-utils-gui
 Replaces: amule-common (<< 2.2.0~svn20080525-1)
@@ -92,7 +93,7 @@ Description: graphic utilities for aMule
 
 Package: amule-daemon
 Architecture: any
-Depends: amule-common (= ${source:Version}), ${shlibs:Depends}, ${misc:Depends}, libupnp3
+Depends: amule-common (= ${source:Version}), ${shlibs:Depends}, ${misc:Depends}
 Recommends: amule-utils
 Description: non-graphic version of aMule, a client for the eD2k and Kad networks
  This package contains a daemonized version of aMule, amuled, that does
