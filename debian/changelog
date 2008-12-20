@@ -1,4 +1,4 @@
-amule (2.2.2-2) UNRELEASED; urgency=low
+amule (2.2.2-2) experimental; urgency=low
 
   * The "The Luckiest Guy on the Lower East Side" release.
 
@@ -9,7 +9,7 @@ amule (2.2.2-2) UNRELEASED; urgency=low
   * Make amule Replace: old versions of amule-common as found in Ubuntu
     (they used to ship the skins in amule-common for some time).
 
- -- Adeodato Simó <dato@net.com.org.es>  Wed, 22 Oct 2008 23:12:59 +0200
+ -- Adeodato Simó <dato@net.com.org.es>  Sat, 20 Dec 2008 21:19:45 +0100
 
 amule (2.2.2-1) experimental; urgency=low
 
