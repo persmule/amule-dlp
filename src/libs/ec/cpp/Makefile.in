@@ -45,13 +45,14 @@ DIST_COMMON = $(noinst_HEADERS) $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/build-tools.m4 \
 	$(top_srcdir)/m4/codeset.m4 $(top_srcdir)/m4/cryptopp.m4 \
-	$(top_srcdir)/m4/gdlib.m4 $(top_srcdir)/m4/gettext.m4 \
-	$(top_srcdir)/m4/glibc21.m4 $(top_srcdir)/m4/iconv.m4 \
-	$(top_srcdir)/m4/intdiv0.m4 $(top_srcdir)/m4/inttypes-pri.m4 \
-	$(top_srcdir)/m4/inttypes.m4 $(top_srcdir)/m4/inttypes_h.m4 \
-	$(top_srcdir)/m4/lcmessage.m4 $(top_srcdir)/m4/lib-ld.m4 \
-	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
-	$(top_srcdir)/m4/libpng.m4 $(top_srcdir)/m4/progtest.m4 \
+	$(top_srcdir)/m4/fallocate.m4 $(top_srcdir)/m4/gdlib.m4 \
+	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/glibc21.m4 \
+	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intdiv0.m4 \
+	$(top_srcdir)/m4/inttypes-pri.m4 $(top_srcdir)/m4/inttypes.m4 \
+	$(top_srcdir)/m4/inttypes_h.m4 $(top_srcdir)/m4/lcmessage.m4 \
+	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
+	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libpng.m4 \
+	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/progtest.m4 \
 	$(top_srcdir)/m4/readline.m4 $(top_srcdir)/m4/stdint_h.m4 \
 	$(top_srcdir)/m4/uintmax_t.m4 $(top_srcdir)/m4/ulonglong.m4 \
 	$(top_srcdir)/m4/wxwin.m4 $(top_srcdir)/m4/zlib.m4 \
@@ -65,10 +66,9 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 libec_a_AR = $(AR) $(ARFLAGS)
 libec_a_LIBADD =
-am_libec_a_OBJECTS = libec_a-ECTag.$(OBJEXT) \
-	libec_a-ECPacket.$(OBJEXT) libec_a-ECSocket.$(OBJEXT) \
-	libec_a-ECMuleSocket.$(OBJEXT) libec_a-RemoteConnect.$(OBJEXT) \
-	libec_a-ECSpecialTags.$(OBJEXT)
+am_libec_a_OBJECTS = ECTag.$(OBJEXT) ECPacket.$(OBJEXT) \
+	ECSocket.$(OBJEXT) ECMuleSocket.$(OBJEXT) \
+	RemoteConnect.$(OBJEXT) ECSpecialTags.$(OBJEXT)
 libec_a_OBJECTS = $(am_libec_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -108,8 +108,8 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BFD_FLAGS = @BFD_FLAGS@
-BFD_LIB = @BFD_LIB@
+BFD_CPPFLAGS = @BFD_CPPFLAGS@
+BFD_LIBS = @BFD_LIBS@
 BUILD_CC = @BUILD_CC@
 BUILD_CFLAGS = @BUILD_CFLAGS@
 BUILD_CPPFLAGS = @BUILD_CPPFLAGS@
@@ -122,7 +122,6 @@ CAS_MANPAGES = @CAS_MANPAGES@
 CAS_TRUE = @CAS_TRUE@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@
-CCACHE = @CCACHE@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 COMPILE_CMD_FALSE = @COMPILE_CMD_FALSE@
@@ -131,15 +130,9 @@ COMPILE_NLS_FALSE = @COMPILE_NLS_FALSE@
 COMPILE_NLS_TRUE = @COMPILE_NLS_TRUE@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CRYPTOLIBS = @CRYPTOLIBS@
-CRYPTO_PP_CXXFLAGS = @CRYPTO_PP_CXXFLAGS@
-CRYPTO_PP_INCLUDE_PREFIX = @CRYPTO_PP_INCLUDE_PREFIX@
-CRYPTO_PP_LDFLAGS = @CRYPTO_PP_LDFLAGS@
-CRYPTO_PP_LIB_NAME = @CRYPTO_PP_LIB_NAME@
-CRYPTO_PP_PREFIX = @CRYPTO_PP_PREFIX@
-CRYPTO_PP_STYLE = @CRYPTO_PP_STYLE@
-CRYPTO_PP_VERSION_NUMBER = @CRYPTO_PP_VERSION_NUMBER@
-CRYPTO_PP_VERSION_STRING = @CRYPTO_PP_VERSION_STRING@
+CRYPTOPP_CPPFLAGS = @CRYPTOPP_CPPFLAGS@
+CRYPTOPP_LDFLAGS = @CRYPTOPP_LDFLAGS@
+CRYPTOPP_LIBS = @CRYPTOPP_LIBS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -167,12 +160,12 @@ GDLIB_LIBS = @GDLIB_LIBS@
 GENCAT = @GENCAT@
 GENERATE_FLEX_HEADER_FALSE = @GENERATE_FLEX_HEADER_FALSE@
 GENERATE_FLEX_HEADER_TRUE = @GENERATE_FLEX_HEADER_TRUE@
-GEOIP_INCLUDE = @GEOIP_INCLUDE@
-GEOIP_LIB = @GEOIP_LIB@
+GEOIP_CPPFLAGS = @GEOIP_CPPFLAGS@
+GEOIP_LDFLAGS = @GEOIP_LDFLAGS@
+GEOIP_LIBS = @GEOIP_LIBS@
 GLIBC21 = @GLIBC21@
 GMSGFMT = @GMSGFMT@
-HAVE_FLEX_EXTENDED = @HAVE_FLEX_EXTENDED@
-HAVE_GETTEXT = @HAVE_GETTEXT@
+INCINTL = @INCINTL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -192,7 +185,6 @@ LIBINTL = @LIBINTL@
 LIBOBJS = @LIBOBJS@
 LIBPNG_CFLAGS = @LIBPNG_CFLAGS@
 LIBPNG_CONFIG_PATH = @LIBPNG_CONFIG_PATH@
-LIBPNG_CXXFLAGS = @LIBPNG_CXXFLAGS@
 LIBPNG_LDFLAGS = @LIBPNG_LDFLAGS@
 LIBPNG_LIBS = @LIBPNG_LIBS@
 LIBS = @LIBS@
@@ -209,6 +201,11 @@ MONOLITHIC_MANPAGES = @MONOLITHIC_MANPAGES@
 MONOLITHIC_TRUE = @MONOLITHIC_TRUE@
 MSGFMT = @MSGFMT@
 MSGMERGE = @MSGMERGE@
+MULECFLAGS = @MULECFLAGS@
+MULECPPFLAGS = @MULECPPFLAGS@
+MULECXXFLAGS = @MULECXXFLAGS@
+MULELDFLAGS = @MULELDFLAGS@
+MULERCFLAGS = @MULERCFLAGS@
 NEED_CORESERVICES_FALSE = @NEED_CORESERVICES_FALSE@
 NEED_CORESERVICES_TRUE = @NEED_CORESERVICES_TRUE@
 NEED_RC_FALSE = @NEED_RC_FALSE@
@@ -227,6 +224,7 @@ RANLIB = @RANLIB@
 RC = @RC@
 RCFLAGS = @RCFLAGS@
 READLINE_LIBS = @READLINE_LIBS@
+REGEX_LIBS = @REGEX_LIBS@
 RESOLV_LIB = @RESOLV_LIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -240,8 +238,7 @@ VERSION = @VERSION@
 WEB_FALSE = @WEB_FALSE@
 WEB_MANPAGES = @WEB_MANPAGES@
 WEB_TRUE = @WEB_TRUE@
-WXBASE_CFLAGS = @WXBASE_CFLAGS@
-WXBASE_CXXFLAGS = @WXBASE_CXXFLAGS@
+WXBASE_CPPFLAGS = @WXBASE_CPPFLAGS@
 WXBASE_LIBS = @WXBASE_LIBS@
 WXCAS_FALSE = @WXCAS_FALSE@
 WXCAS_MANPAGES = @WXCAS_MANPAGES@
@@ -265,6 +262,9 @@ WX_VERSION_MINOR = @WX_VERSION_MINOR@
 X11LIBS = @X11LIBS@
 XGETTEXT = @XGETTEXT@
 YACC = @YACC@
+ZLIB_CPPFLAGS = @ZLIB_CPPFLAGS@
+ZLIB_LDFLAGS = @ZLIB_LDFLAGS@
+ZLIB_LIBS = @ZLIB_LIBS@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_BUILD_CC = @ac_ct_BUILD_CC@
 ac_ct_CC = @ac_ct_CC@
@@ -288,8 +288,6 @@ build_alias = @build_alias@
 build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
-ccache = @ccache@
-ccache_prefix = @ccache_prefix@
 datadir = @datadir@
 docdir = @docdir@
 exec_prefix = @exec_prefix@
@@ -313,6 +311,8 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
+AM_CPPFLAGS = $(MULECPPFLAGS) -I$(top_srcdir)/src -I$(top_srcdir)/src/libs -I$(top_srcdir)/src/include $(WX_CPPFLAGS) $(ZLIB_CPPFLAGS)
+AM_CXXFLAGS = $(MULECXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
 EXTRA_DIST = gen_ECVersion
 
 # Sources
@@ -327,9 +327,6 @@ libec_a_SOURCES = \
 	RemoteConnect.cpp \
 	ECSpecialTags.cpp
 
-libec_a_CFLAGS = $(WX_CXXFLAGS) -I$(top_srcdir)/src -I$(top_srcdir)/src/libs -I$(top_srcdir)/src/include
-libec_a_CXXFLAGS = $(WX_CXXFLAGS) -I$(top_srcdir)/src -I$(top_srcdir)/src/libs -I$(top_srcdir)/src/include
-libec_noevt_a_CFLAGS = $(WX_CXXFLAGS) -I$(top_srcdir)/src -I$(top_srcdir)/src/libs -I$(top_srcdir)/src/include -DECSOCKET_USE_EVENTS=0
 noinst_HEADERS = \
 		ECTag.h \
 		ECSocket.h \
@@ -392,12 +389,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libec_a-ECMuleSocket.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libec_a-ECPacket.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libec_a-ECSocket.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libec_a-ECSpecialTags.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libec_a-ECTag.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libec_a-RemoteConnect.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ECMuleSocket.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ECPacket.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ECSocket.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ECSpecialTags.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ECTag.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RemoteConnect.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -412,90 +409,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-libec_a-ECTag.o: ECTag.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -MT libec_a-ECTag.o -MD -MP -MF "$(DEPDIR)/libec_a-ECTag.Tpo" -c -o libec_a-ECTag.o `test -f 'ECTag.cpp' || echo '$(srcdir)/'`ECTag.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libec_a-ECTag.Tpo" "$(DEPDIR)/libec_a-ECTag.Po"; else rm -f "$(DEPDIR)/libec_a-ECTag.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ECTag.cpp' object='libec_a-ECTag.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -c -o libec_a-ECTag.o `test -f 'ECTag.cpp' || echo '$(srcdir)/'`ECTag.cpp
-
-libec_a-ECTag.obj: ECTag.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -MT libec_a-ECTag.obj -MD -MP -MF "$(DEPDIR)/libec_a-ECTag.Tpo" -c -o libec_a-ECTag.obj `if test -f 'ECTag.cpp'; then $(CYGPATH_W) 'ECTag.cpp'; else $(CYGPATH_W) '$(srcdir)/ECTag.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libec_a-ECTag.Tpo" "$(DEPDIR)/libec_a-ECTag.Po"; else rm -f "$(DEPDIR)/libec_a-ECTag.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ECTag.cpp' object='libec_a-ECTag.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -c -o libec_a-ECTag.obj `if test -f 'ECTag.cpp'; then $(CYGPATH_W) 'ECTag.cpp'; else $(CYGPATH_W) '$(srcdir)/ECTag.cpp'; fi`
-
-libec_a-ECPacket.o: ECPacket.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -MT libec_a-ECPacket.o -MD -MP -MF "$(DEPDIR)/libec_a-ECPacket.Tpo" -c -o libec_a-ECPacket.o `test -f 'ECPacket.cpp' || echo '$(srcdir)/'`ECPacket.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libec_a-ECPacket.Tpo" "$(DEPDIR)/libec_a-ECPacket.Po"; else rm -f "$(DEPDIR)/libec_a-ECPacket.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ECPacket.cpp' object='libec_a-ECPacket.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -c -o libec_a-ECPacket.o `test -f 'ECPacket.cpp' || echo '$(srcdir)/'`ECPacket.cpp
-
-libec_a-ECPacket.obj: ECPacket.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -MT libec_a-ECPacket.obj -MD -MP -MF "$(DEPDIR)/libec_a-ECPacket.Tpo" -c -o libec_a-ECPacket.obj `if test -f 'ECPacket.cpp'; then $(CYGPATH_W) 'ECPacket.cpp'; else $(CYGPATH_W) '$(srcdir)/ECPacket.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libec_a-ECPacket.Tpo" "$(DEPDIR)/libec_a-ECPacket.Po"; else rm -f "$(DEPDIR)/libec_a-ECPacket.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ECPacket.cpp' object='libec_a-ECPacket.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -c -o libec_a-ECPacket.obj `if test -f 'ECPacket.cpp'; then $(CYGPATH_W) 'ECPacket.cpp'; else $(CYGPATH_W) '$(srcdir)/ECPacket.cpp'; fi`
-
-libec_a-ECSocket.o: ECSocket.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -MT libec_a-ECSocket.o -MD -MP -MF "$(DEPDIR)/libec_a-ECSocket.Tpo" -c -o libec_a-ECSocket.o `test -f 'ECSocket.cpp' || echo '$(srcdir)/'`ECSocket.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libec_a-ECSocket.Tpo" "$(DEPDIR)/libec_a-ECSocket.Po"; else rm -f "$(DEPDIR)/libec_a-ECSocket.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ECSocket.cpp' object='libec_a-ECSocket.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -c -o libec_a-ECSocket.o `test -f 'ECSocket.cpp' || echo '$(srcdir)/'`ECSocket.cpp
-
-libec_a-ECSocket.obj: ECSocket.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -MT libec_a-ECSocket.obj -MD -MP -MF "$(DEPDIR)/libec_a-ECSocket.Tpo" -c -o libec_a-ECSocket.obj `if test -f 'ECSocket.cpp'; then $(CYGPATH_W) 'ECSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/ECSocket.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libec_a-ECSocket.Tpo" "$(DEPDIR)/libec_a-ECSocket.Po"; else rm -f "$(DEPDIR)/libec_a-ECSocket.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ECSocket.cpp' object='libec_a-ECSocket.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -c -o libec_a-ECSocket.obj `if test -f 'ECSocket.cpp'; then $(CYGPATH_W) 'ECSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/ECSocket.cpp'; fi`
-
-libec_a-ECMuleSocket.o: ECMuleSocket.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -MT libec_a-ECMuleSocket.o -MD -MP -MF "$(DEPDIR)/libec_a-ECMuleSocket.Tpo" -c -o libec_a-ECMuleSocket.o `test -f 'ECMuleSocket.cpp' || echo '$(srcdir)/'`ECMuleSocket.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libec_a-ECMuleSocket.Tpo" "$(DEPDIR)/libec_a-ECMuleSocket.Po"; else rm -f "$(DEPDIR)/libec_a-ECMuleSocket.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ECMuleSocket.cpp' object='libec_a-ECMuleSocket.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -c -o libec_a-ECMuleSocket.o `test -f 'ECMuleSocket.cpp' || echo '$(srcdir)/'`ECMuleSocket.cpp
-
-libec_a-ECMuleSocket.obj: ECMuleSocket.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -MT libec_a-ECMuleSocket.obj -MD -MP -MF "$(DEPDIR)/libec_a-ECMuleSocket.Tpo" -c -o libec_a-ECMuleSocket.obj `if test -f 'ECMuleSocket.cpp'; then $(CYGPATH_W) 'ECMuleSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/ECMuleSocket.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libec_a-ECMuleSocket.Tpo" "$(DEPDIR)/libec_a-ECMuleSocket.Po"; else rm -f "$(DEPDIR)/libec_a-ECMuleSocket.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ECMuleSocket.cpp' object='libec_a-ECMuleSocket.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -c -o libec_a-ECMuleSocket.obj `if test -f 'ECMuleSocket.cpp'; then $(CYGPATH_W) 'ECMuleSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/ECMuleSocket.cpp'; fi`
-
-libec_a-RemoteConnect.o: RemoteConnect.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -MT libec_a-RemoteConnect.o -MD -MP -MF "$(DEPDIR)/libec_a-RemoteConnect.Tpo" -c -o libec_a-RemoteConnect.o `test -f 'RemoteConnect.cpp' || echo '$(srcdir)/'`RemoteConnect.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libec_a-RemoteConnect.Tpo" "$(DEPDIR)/libec_a-RemoteConnect.Po"; else rm -f "$(DEPDIR)/libec_a-RemoteConnect.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='RemoteConnect.cpp' object='libec_a-RemoteConnect.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -c -o libec_a-RemoteConnect.o `test -f 'RemoteConnect.cpp' || echo '$(srcdir)/'`RemoteConnect.cpp
-
-libec_a-RemoteConnect.obj: RemoteConnect.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -MT libec_a-RemoteConnect.obj -MD -MP -MF "$(DEPDIR)/libec_a-RemoteConnect.Tpo" -c -o libec_a-RemoteConnect.obj `if test -f 'RemoteConnect.cpp'; then $(CYGPATH_W) 'RemoteConnect.cpp'; else $(CYGPATH_W) '$(srcdir)/RemoteConnect.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libec_a-RemoteConnect.Tpo" "$(DEPDIR)/libec_a-RemoteConnect.Po"; else rm -f "$(DEPDIR)/libec_a-RemoteConnect.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='RemoteConnect.cpp' object='libec_a-RemoteConnect.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -c -o libec_a-RemoteConnect.obj `if test -f 'RemoteConnect.cpp'; then $(CYGPATH_W) 'RemoteConnect.cpp'; else $(CYGPATH_W) '$(srcdir)/RemoteConnect.cpp'; fi`
-
-libec_a-ECSpecialTags.o: ECSpecialTags.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -MT libec_a-ECSpecialTags.o -MD -MP -MF "$(DEPDIR)/libec_a-ECSpecialTags.Tpo" -c -o libec_a-ECSpecialTags.o `test -f 'ECSpecialTags.cpp' || echo '$(srcdir)/'`ECSpecialTags.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libec_a-ECSpecialTags.Tpo" "$(DEPDIR)/libec_a-ECSpecialTags.Po"; else rm -f "$(DEPDIR)/libec_a-ECSpecialTags.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ECSpecialTags.cpp' object='libec_a-ECSpecialTags.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -c -o libec_a-ECSpecialTags.o `test -f 'ECSpecialTags.cpp' || echo '$(srcdir)/'`ECSpecialTags.cpp
-
-libec_a-ECSpecialTags.obj: ECSpecialTags.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -MT libec_a-ECSpecialTags.obj -MD -MP -MF "$(DEPDIR)/libec_a-ECSpecialTags.Tpo" -c -o libec_a-ECSpecialTags.obj `if test -f 'ECSpecialTags.cpp'; then $(CYGPATH_W) 'ECSpecialTags.cpp'; else $(CYGPATH_W) '$(srcdir)/ECSpecialTags.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libec_a-ECSpecialTags.Tpo" "$(DEPDIR)/libec_a-ECSpecialTags.Po"; else rm -f "$(DEPDIR)/libec_a-ECSpecialTags.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ECSpecialTags.cpp' object='libec_a-ECSpecialTags.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libec_a_CXXFLAGS) $(CXXFLAGS) -c -o libec_a-ECSpecialTags.obj `if test -f 'ECSpecialTags.cpp'; then $(CYGPATH_W) 'ECSpecialTags.cpp'; else $(CYGPATH_W) '$(srcdir)/ECSpecialTags.cpp'; fi`
 uninstall-info-am:
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)

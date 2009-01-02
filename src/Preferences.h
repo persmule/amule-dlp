@@ -30,11 +30,11 @@
 #include "Color.h"			// Needed for COLORREF
 
 #include <wx/arrstr.h>			// Needed for wxArrayString
-#include <common/Path.h>	// Needed for CPath
 
 #include <map>
 
 #include "Proxy.h"
+#include "OtherStructs.h"
 
 class CPreferences;
 class wxConfigBase;
@@ -46,16 +46,6 @@ enum EViewSharedFilesAccess{
 	vsfaFriends = 1,
 	vsfaNobody = 2
 };
-
-struct Category_Struct
-{
-	CPath		path;
-	wxString	title;
-	wxString	comment;
-	uint32		color;
-	uint8		prio;
-};
-
 
 /**
  * Base-class for automatically loading and saving of preferences.
@@ -445,10 +435,8 @@ public:
 	static bool		ShowProgBar()			{ return s_ProgBar; }
 	static bool		ShowPercent()			{ return s_Percent; }	
 	
-	static bool		GetAllocFullPart()		{ return s_AllocFullPart; };
-	static void		SetAllocFullPart(bool val)	{ s_AllocFullPart = val; }
-	static bool		GetAllocFullChunk()		{ return s_AllocFullChunk; };
-	static void		SetAllocFullChunk(bool val)	{ s_AllocFullChunk = val; }
+	static bool		GetAllocFullFile()		{ return s_allocFullFile; };
+	static void		SetAllocFullFile(bool val)	{ s_allocFullFile = val; }
 
 	static wxString 	GetBrowser();
 	
@@ -715,8 +703,7 @@ protected:
 
 	static bool	s_ExtractMetaData;
 	
-	static bool	s_AllocFullPart;
-	static bool	s_AllocFullChunk;
+	static bool	s_allocFullFile;
 	
 	static uint16	s_Browser;
 	static wxString	s_CustomBrowser;

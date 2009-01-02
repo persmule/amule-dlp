@@ -3,7 +3,7 @@
 // Purpose:     Generic list control
 // Author:      Robert Roebling
 // Created:     01/02/97
-// RCS-ID:      $Id: listctrl.h 7897 2008-01-04 12:53:45Z xaignar $
+// RCS-ID:      $Id: listctrl.h 8318 2008-04-01 18:41:23Z gonosztopi $
 // Copyright:   (c) 1998 Robert Roebling and Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -32,20 +32,20 @@ namespace MuleExtern {
 // constants
 // ----------------------------------------------------------------------------
 
-extern WXDLLEXPORT_DATA(const wxChar) wxListCtrlNameStr[];
+extern const wxChar wxListCtrlNameStr[];
 
 //-----------------------------------------------------------------------------
 // internal classes
 //-----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxListHeaderWindow;
-class WXDLLEXPORT wxListMainWindow;
+class wxListHeaderWindow;
+class wxListMainWindow;
 
 //-----------------------------------------------------------------------------
 // wxListCtrl
 //-----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxGenericListCtrl: public wxControl
+class wxGenericListCtrl: public wxControl
 {
 public:
 
@@ -254,7 +254,7 @@ protected:
     virtual wxListItemAttr *OnGetItemAttr(long item) const;
 
     // it calls our OnGetXXX() functions
-    friend class WXDLLEXPORT wxListMainWindow;
+    friend class wxListMainWindow;
 
 private:
     // create the header window
@@ -276,7 +276,7 @@ private:
  * the run-time information.
  */
 
-class WXDLLEXPORT wxListCtrl: public wxGenericListCtrl
+class wxListCtrl: public wxGenericListCtrl
 {
 public:
     wxListCtrl() {}

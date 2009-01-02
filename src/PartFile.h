@@ -150,10 +150,10 @@ public:
 	double	GetPercentCompleted() const	{ return percentcompleted; }
 
 #ifndef CLIENT_GUI
-	uint16	GetSourceCount() const		{ return m_SrcList.size(); }
-	uint16	GetSrcA4AFCount() const		{ return m_A4AFsrclist.size(); }
+	uint16	GetSourceCount() const		{ return (uint16)m_SrcList.size(); }
+	uint16	GetSrcA4AFCount() const		{ return (uint16)m_A4AFsrclist.size(); }
 #else
-	uint16 m_source_count, m_a4af_source_count;
+	uint16	m_source_count, m_a4af_source_count;
 	uint16	GetSourceCount() const		{ return m_source_count; }
 	uint16	GetSrcA4AFCount() const		{ return m_a4af_source_count; }
 #endif
@@ -164,7 +164,7 @@ public:
 	
 	uint64	GetNeededSpace();
 	
-	wxString GetFeedback();
+	virtual wxString GetFeedback() const;
 	
 	wxString getPartfileStatus() const; //<<--9/21/02
 	sint32	getTimeRemaining() const; //<<--9/21/02
@@ -297,6 +297,7 @@ public:
 
 	const FileRatingList &GetRatingAndComments();
 
+	void	AllocationFinished();
 private:
 	//! A local list of sources that are invalid for this file.
 #ifndef CLIENT_GUI
@@ -399,7 +400,7 @@ public:
 	void SetLocalSrcRequestQueued(bool value) 	{ m_localSrcReqQueued = value; }
 
 	void AddA4AFSource(CUpDownClient* src)		{ m_A4AFsrclist.insert(src); }
-	bool RemoveA4AFSource(CUpDownClient* src)	{ return m_A4AFsrclist.erase(src); }
+	bool RemoveA4AFSource(CUpDownClient* src)	{ return (m_A4AFsrclist.erase(src) > 0); }
 
 	uint32 GetLastSearchTime() const			{ return m_lastsearchtime; }
 	void SetLastSearchTime(uint32 time)			{ m_lastsearchtime = time; }

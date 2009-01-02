@@ -261,10 +261,7 @@ wxString GetFiletypeDesc(FileType type, bool translated = true);
 wxString GetFiletypeByName(const CPath& filename, bool translated = true);
 
 
-// Returns the max number of connections the current OS can handle.
-// Currently anything but windows will return the default value (-1);
-int GetMaxConnections();
-// Returns the name assosiated with a category value.
+// Returns the name associated with a category value.
 wxString GetCatTitle(int catid);
 
 /* Other */
@@ -352,8 +349,6 @@ void DumpMem_DW(const uint32 *ptr, int count);
 #define IP_FROM_GUI_ID(x) (x >> 16)
 
 
-void MilliSleep(uint32 msecs);
-
 
 inline const long int make_full_ed2k_version(int a, int b, int c) {
 	return ((a << 17) | (b << 10) | (c << 7));
@@ -374,14 +369,6 @@ void InitCustomLanguages();
  * Initializes locale
  */
 void InitLocale(wxLocale& locale, int language);
-
-/**
- * Returns true when the locale could be set, false otherwise.
- *
- * Currently it doesn't check if the catalog for the locale
- * is installed, but I hope that's next.
- */
-bool IsLocaleAvailable(int id);
 
 /**
  * Converts a string locale definition to a wxLANGUAGE id.

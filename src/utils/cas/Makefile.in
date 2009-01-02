@@ -41,19 +41,21 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = cas$(EXEEXT)
+@NEED_CORESERVICES_TRUE@am__append_1 = -framework CoreServices
 subdir = src/utils/cas
 DIST_COMMON = README $(dist_cas_DATA) $(noinst_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/build-tools.m4 \
 	$(top_srcdir)/m4/codeset.m4 $(top_srcdir)/m4/cryptopp.m4 \
-	$(top_srcdir)/m4/gdlib.m4 $(top_srcdir)/m4/gettext.m4 \
-	$(top_srcdir)/m4/glibc21.m4 $(top_srcdir)/m4/iconv.m4 \
-	$(top_srcdir)/m4/intdiv0.m4 $(top_srcdir)/m4/inttypes-pri.m4 \
-	$(top_srcdir)/m4/inttypes.m4 $(top_srcdir)/m4/inttypes_h.m4 \
-	$(top_srcdir)/m4/lcmessage.m4 $(top_srcdir)/m4/lib-ld.m4 \
-	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
-	$(top_srcdir)/m4/libpng.m4 $(top_srcdir)/m4/progtest.m4 \
+	$(top_srcdir)/m4/fallocate.m4 $(top_srcdir)/m4/gdlib.m4 \
+	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/glibc21.m4 \
+	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intdiv0.m4 \
+	$(top_srcdir)/m4/inttypes-pri.m4 $(top_srcdir)/m4/inttypes.m4 \
+	$(top_srcdir)/m4/inttypes_h.m4 $(top_srcdir)/m4/lcmessage.m4 \
+	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
+	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libpng.m4 \
+	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/progtest.m4 \
 	$(top_srcdir)/m4/readline.m4 $(top_srcdir)/m4/stdint_h.m4 \
 	$(top_srcdir)/m4/uintmax_t.m4 $(top_srcdir)/m4/ulonglong.m4 \
 	$(top_srcdir)/m4/wxwin.m4 $(top_srcdir)/m4/zlib.m4 \
@@ -72,7 +74,7 @@ am_cas_OBJECTS = cas-cas.$(OBJEXT) cas-configfile.$(OBJEXT) \
 @NEED_RC_TRUE@nodist_cas_OBJECTS = cas-version.$(OBJEXT)
 cas_OBJECTS = $(am_cas_OBJECTS) $(nodist_cas_OBJECTS)
 am__DEPENDENCIES_1 =
-cas_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+cas_DEPENDENCIES = $(am__DEPENDENCIES_1)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -125,8 +127,8 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BFD_FLAGS = @BFD_FLAGS@
-BFD_LIB = @BFD_LIB@
+BFD_CPPFLAGS = @BFD_CPPFLAGS@
+BFD_LIBS = @BFD_LIBS@
 BUILD_CC = @BUILD_CC@
 BUILD_CFLAGS = @BUILD_CFLAGS@
 BUILD_CPPFLAGS = @BUILD_CPPFLAGS@
@@ -139,7 +141,6 @@ CAS_MANPAGES = @CAS_MANPAGES@
 CAS_TRUE = @CAS_TRUE@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@
-CCACHE = @CCACHE@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 COMPILE_CMD_FALSE = @COMPILE_CMD_FALSE@
@@ -148,15 +149,9 @@ COMPILE_NLS_FALSE = @COMPILE_NLS_FALSE@
 COMPILE_NLS_TRUE = @COMPILE_NLS_TRUE@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CRYPTOLIBS = @CRYPTOLIBS@
-CRYPTO_PP_CXXFLAGS = @CRYPTO_PP_CXXFLAGS@
-CRYPTO_PP_INCLUDE_PREFIX = @CRYPTO_PP_INCLUDE_PREFIX@
-CRYPTO_PP_LDFLAGS = @CRYPTO_PP_LDFLAGS@
-CRYPTO_PP_LIB_NAME = @CRYPTO_PP_LIB_NAME@
-CRYPTO_PP_PREFIX = @CRYPTO_PP_PREFIX@
-CRYPTO_PP_STYLE = @CRYPTO_PP_STYLE@
-CRYPTO_PP_VERSION_NUMBER = @CRYPTO_PP_VERSION_NUMBER@
-CRYPTO_PP_VERSION_STRING = @CRYPTO_PP_VERSION_STRING@
+CRYPTOPP_CPPFLAGS = @CRYPTOPP_CPPFLAGS@
+CRYPTOPP_LDFLAGS = @CRYPTOPP_LDFLAGS@
+CRYPTOPP_LIBS = @CRYPTOPP_LIBS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -184,12 +179,12 @@ GDLIB_LIBS = @GDLIB_LIBS@
 GENCAT = @GENCAT@
 GENERATE_FLEX_HEADER_FALSE = @GENERATE_FLEX_HEADER_FALSE@
 GENERATE_FLEX_HEADER_TRUE = @GENERATE_FLEX_HEADER_TRUE@
-GEOIP_INCLUDE = @GEOIP_INCLUDE@
-GEOIP_LIB = @GEOIP_LIB@
+GEOIP_CPPFLAGS = @GEOIP_CPPFLAGS@
+GEOIP_LDFLAGS = @GEOIP_LDFLAGS@
+GEOIP_LIBS = @GEOIP_LIBS@
 GLIBC21 = @GLIBC21@
 GMSGFMT = @GMSGFMT@
-HAVE_FLEX_EXTENDED = @HAVE_FLEX_EXTENDED@
-HAVE_GETTEXT = @HAVE_GETTEXT@
+INCINTL = @INCINTL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -209,7 +204,6 @@ LIBINTL = @LIBINTL@
 LIBOBJS = @LIBOBJS@
 LIBPNG_CFLAGS = @LIBPNG_CFLAGS@
 LIBPNG_CONFIG_PATH = @LIBPNG_CONFIG_PATH@
-LIBPNG_CXXFLAGS = @LIBPNG_CXXFLAGS@
 LIBPNG_LDFLAGS = @LIBPNG_LDFLAGS@
 LIBPNG_LIBS = @LIBPNG_LIBS@
 LIBS = @LIBS@
@@ -226,6 +220,11 @@ MONOLITHIC_MANPAGES = @MONOLITHIC_MANPAGES@
 MONOLITHIC_TRUE = @MONOLITHIC_TRUE@
 MSGFMT = @MSGFMT@
 MSGMERGE = @MSGMERGE@
+MULECFLAGS = @MULECFLAGS@
+MULECPPFLAGS = @MULECPPFLAGS@
+MULECXXFLAGS = @MULECXXFLAGS@
+MULELDFLAGS = @MULELDFLAGS@
+MULERCFLAGS = @MULERCFLAGS@
 NEED_CORESERVICES_FALSE = @NEED_CORESERVICES_FALSE@
 NEED_CORESERVICES_TRUE = @NEED_CORESERVICES_TRUE@
 NEED_RC_FALSE = @NEED_RC_FALSE@
@@ -244,6 +243,7 @@ RANLIB = @RANLIB@
 RC = @RC@
 RCFLAGS = @RCFLAGS@
 READLINE_LIBS = @READLINE_LIBS@
+REGEX_LIBS = @REGEX_LIBS@
 RESOLV_LIB = @RESOLV_LIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -257,8 +257,7 @@ VERSION = @VERSION@
 WEB_FALSE = @WEB_FALSE@
 WEB_MANPAGES = @WEB_MANPAGES@
 WEB_TRUE = @WEB_TRUE@
-WXBASE_CFLAGS = @WXBASE_CFLAGS@
-WXBASE_CXXFLAGS = @WXBASE_CXXFLAGS@
+WXBASE_CPPFLAGS = @WXBASE_CPPFLAGS@
 WXBASE_LIBS = @WXBASE_LIBS@
 WXCAS_FALSE = @WXCAS_FALSE@
 WXCAS_MANPAGES = @WXCAS_MANPAGES@
@@ -282,6 +281,9 @@ WX_VERSION_MINOR = @WX_VERSION_MINOR@
 X11LIBS = @X11LIBS@
 XGETTEXT = @XGETTEXT@
 YACC = @YACC@
+ZLIB_CPPFLAGS = @ZLIB_CPPFLAGS@
+ZLIB_LDFLAGS = @ZLIB_LDFLAGS@
+ZLIB_LIBS = @ZLIB_LIBS@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_BUILD_CC = @ac_ct_BUILD_CC@
 ac_ct_CC = @ac_ct_CC@
@@ -305,8 +307,6 @@ build_alias = @build_alias@
 build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
-ccache = @ccache@
-ccache_prefix = @ccache_prefix@
 datadir = @datadir@
 docdir = @docdir@
 exec_prefix = @exec_prefix@
@@ -348,9 +348,10 @@ noinst_HEADERS = configfile.h \
 	      lines.h \
 	      version.h
 
-cas_CFLAGS = $(GDLIB_CFLAGS) $(CAS_DEFS)
-cas_LDADD = $(GDLIB_LDFLAGS) $(GDLIB_LIBS) 
-@NEED_CORESERVICES_TRUE@cas_LDFLAGS = -framework CoreServices
+cas_CPPFLAGS = $(MULECPPFLAGS) $(CAS_DEFS) $(GDLIB_CPPFLAGS)
+cas_CFLAGS = $(MULECFLAGS) $(GDLIB_CFLAGS)
+cas_LDFLAGS = $(MULELDFLAGS) $(GDLIB_LDFLAGS) $(am__append_1)
+cas_LDADD = $(GDLIB_LIBS) 
 
 # Resources
 @NEED_RC_TRUE@SUFFIXES = .rc
@@ -445,88 +446,88 @@ distclean-compile:
 @am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
 
 cas-cas.o: cas.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-cas.o -MD -MP -MF "$(DEPDIR)/cas-cas.Tpo" -c -o cas-cas.o `test -f 'cas.c' || echo '$(srcdir)/'`cas.c; \
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-cas.o -MD -MP -MF "$(DEPDIR)/cas-cas.Tpo" -c -o cas-cas.o `test -f 'cas.c' || echo '$(srcdir)/'`cas.c; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/cas-cas.Tpo" "$(DEPDIR)/cas-cas.Po"; else rm -f "$(DEPDIR)/cas-cas.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='cas.c' object='cas-cas.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-cas.o `test -f 'cas.c' || echo '$(srcdir)/'`cas.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-cas.o `test -f 'cas.c' || echo '$(srcdir)/'`cas.c
 
 cas-cas.obj: cas.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-cas.obj -MD -MP -MF "$(DEPDIR)/cas-cas.Tpo" -c -o cas-cas.obj `if test -f 'cas.c'; then $(CYGPATH_W) 'cas.c'; else $(CYGPATH_W) '$(srcdir)/cas.c'; fi`; \
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-cas.obj -MD -MP -MF "$(DEPDIR)/cas-cas.Tpo" -c -o cas-cas.obj `if test -f 'cas.c'; then $(CYGPATH_W) 'cas.c'; else $(CYGPATH_W) '$(srcdir)/cas.c'; fi`; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/cas-cas.Tpo" "$(DEPDIR)/cas-cas.Po"; else rm -f "$(DEPDIR)/cas-cas.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='cas.c' object='cas-cas.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-cas.obj `if test -f 'cas.c'; then $(CYGPATH_W) 'cas.c'; else $(CYGPATH_W) '$(srcdir)/cas.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-cas.obj `if test -f 'cas.c'; then $(CYGPATH_W) 'cas.c'; else $(CYGPATH_W) '$(srcdir)/cas.c'; fi`
 
 cas-configfile.o: configfile.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-configfile.o -MD -MP -MF "$(DEPDIR)/cas-configfile.Tpo" -c -o cas-configfile.o `test -f 'configfile.c' || echo '$(srcdir)/'`configfile.c; \
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-configfile.o -MD -MP -MF "$(DEPDIR)/cas-configfile.Tpo" -c -o cas-configfile.o `test -f 'configfile.c' || echo '$(srcdir)/'`configfile.c; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/cas-configfile.Tpo" "$(DEPDIR)/cas-configfile.Po"; else rm -f "$(DEPDIR)/cas-configfile.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='configfile.c' object='cas-configfile.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-configfile.o `test -f 'configfile.c' || echo '$(srcdir)/'`configfile.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-configfile.o `test -f 'configfile.c' || echo '$(srcdir)/'`configfile.c
 
 cas-configfile.obj: configfile.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-configfile.obj -MD -MP -MF "$(DEPDIR)/cas-configfile.Tpo" -c -o cas-configfile.obj `if test -f 'configfile.c'; then $(CYGPATH_W) 'configfile.c'; else $(CYGPATH_W) '$(srcdir)/configfile.c'; fi`; \
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-configfile.obj -MD -MP -MF "$(DEPDIR)/cas-configfile.Tpo" -c -o cas-configfile.obj `if test -f 'configfile.c'; then $(CYGPATH_W) 'configfile.c'; else $(CYGPATH_W) '$(srcdir)/configfile.c'; fi`; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/cas-configfile.Tpo" "$(DEPDIR)/cas-configfile.Po"; else rm -f "$(DEPDIR)/cas-configfile.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='configfile.c' object='cas-configfile.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-configfile.obj `if test -f 'configfile.c'; then $(CYGPATH_W) 'configfile.c'; else $(CYGPATH_W) '$(srcdir)/configfile.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-configfile.obj `if test -f 'configfile.c'; then $(CYGPATH_W) 'configfile.c'; else $(CYGPATH_W) '$(srcdir)/configfile.c'; fi`
 
 cas-functions.o: functions.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-functions.o -MD -MP -MF "$(DEPDIR)/cas-functions.Tpo" -c -o cas-functions.o `test -f 'functions.c' || echo '$(srcdir)/'`functions.c; \
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-functions.o -MD -MP -MF "$(DEPDIR)/cas-functions.Tpo" -c -o cas-functions.o `test -f 'functions.c' || echo '$(srcdir)/'`functions.c; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/cas-functions.Tpo" "$(DEPDIR)/cas-functions.Po"; else rm -f "$(DEPDIR)/cas-functions.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='functions.c' object='cas-functions.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-functions.o `test -f 'functions.c' || echo '$(srcdir)/'`functions.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-functions.o `test -f 'functions.c' || echo '$(srcdir)/'`functions.c
 
 cas-functions.obj: functions.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-functions.obj -MD -MP -MF "$(DEPDIR)/cas-functions.Tpo" -c -o cas-functions.obj `if test -f 'functions.c'; then $(CYGPATH_W) 'functions.c'; else $(CYGPATH_W) '$(srcdir)/functions.c'; fi`; \
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-functions.obj -MD -MP -MF "$(DEPDIR)/cas-functions.Tpo" -c -o cas-functions.obj `if test -f 'functions.c'; then $(CYGPATH_W) 'functions.c'; else $(CYGPATH_W) '$(srcdir)/functions.c'; fi`; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/cas-functions.Tpo" "$(DEPDIR)/cas-functions.Po"; else rm -f "$(DEPDIR)/cas-functions.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='functions.c' object='cas-functions.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-functions.obj `if test -f 'functions.c'; then $(CYGPATH_W) 'functions.c'; else $(CYGPATH_W) '$(srcdir)/functions.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-functions.obj `if test -f 'functions.c'; then $(CYGPATH_W) 'functions.c'; else $(CYGPATH_W) '$(srcdir)/functions.c'; fi`
 
 cas-graphics.o: graphics.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-graphics.o -MD -MP -MF "$(DEPDIR)/cas-graphics.Tpo" -c -o cas-graphics.o `test -f 'graphics.c' || echo '$(srcdir)/'`graphics.c; \
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-graphics.o -MD -MP -MF "$(DEPDIR)/cas-graphics.Tpo" -c -o cas-graphics.o `test -f 'graphics.c' || echo '$(srcdir)/'`graphics.c; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/cas-graphics.Tpo" "$(DEPDIR)/cas-graphics.Po"; else rm -f "$(DEPDIR)/cas-graphics.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='graphics.c' object='cas-graphics.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-graphics.o `test -f 'graphics.c' || echo '$(srcdir)/'`graphics.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-graphics.o `test -f 'graphics.c' || echo '$(srcdir)/'`graphics.c
 
 cas-graphics.obj: graphics.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-graphics.obj -MD -MP -MF "$(DEPDIR)/cas-graphics.Tpo" -c -o cas-graphics.obj `if test -f 'graphics.c'; then $(CYGPATH_W) 'graphics.c'; else $(CYGPATH_W) '$(srcdir)/graphics.c'; fi`; \
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-graphics.obj -MD -MP -MF "$(DEPDIR)/cas-graphics.Tpo" -c -o cas-graphics.obj `if test -f 'graphics.c'; then $(CYGPATH_W) 'graphics.c'; else $(CYGPATH_W) '$(srcdir)/graphics.c'; fi`; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/cas-graphics.Tpo" "$(DEPDIR)/cas-graphics.Po"; else rm -f "$(DEPDIR)/cas-graphics.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='graphics.c' object='cas-graphics.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-graphics.obj `if test -f 'graphics.c'; then $(CYGPATH_W) 'graphics.c'; else $(CYGPATH_W) '$(srcdir)/graphics.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-graphics.obj `if test -f 'graphics.c'; then $(CYGPATH_W) 'graphics.c'; else $(CYGPATH_W) '$(srcdir)/graphics.c'; fi`
 
 cas-html.o: html.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-html.o -MD -MP -MF "$(DEPDIR)/cas-html.Tpo" -c -o cas-html.o `test -f 'html.c' || echo '$(srcdir)/'`html.c; \
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-html.o -MD -MP -MF "$(DEPDIR)/cas-html.Tpo" -c -o cas-html.o `test -f 'html.c' || echo '$(srcdir)/'`html.c; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/cas-html.Tpo" "$(DEPDIR)/cas-html.Po"; else rm -f "$(DEPDIR)/cas-html.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='html.c' object='cas-html.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-html.o `test -f 'html.c' || echo '$(srcdir)/'`html.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-html.o `test -f 'html.c' || echo '$(srcdir)/'`html.c
 
 cas-html.obj: html.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-html.obj -MD -MP -MF "$(DEPDIR)/cas-html.Tpo" -c -o cas-html.obj `if test -f 'html.c'; then $(CYGPATH_W) 'html.c'; else $(CYGPATH_W) '$(srcdir)/html.c'; fi`; \
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-html.obj -MD -MP -MF "$(DEPDIR)/cas-html.Tpo" -c -o cas-html.obj `if test -f 'html.c'; then $(CYGPATH_W) 'html.c'; else $(CYGPATH_W) '$(srcdir)/html.c'; fi`; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/cas-html.Tpo" "$(DEPDIR)/cas-html.Po"; else rm -f "$(DEPDIR)/cas-html.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='html.c' object='cas-html.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-html.obj `if test -f 'html.c'; then $(CYGPATH_W) 'html.c'; else $(CYGPATH_W) '$(srcdir)/html.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-html.obj `if test -f 'html.c'; then $(CYGPATH_W) 'html.c'; else $(CYGPATH_W) '$(srcdir)/html.c'; fi`
 
 cas-lines.o: lines.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-lines.o -MD -MP -MF "$(DEPDIR)/cas-lines.Tpo" -c -o cas-lines.o `test -f 'lines.c' || echo '$(srcdir)/'`lines.c; \
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-lines.o -MD -MP -MF "$(DEPDIR)/cas-lines.Tpo" -c -o cas-lines.o `test -f 'lines.c' || echo '$(srcdir)/'`lines.c; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/cas-lines.Tpo" "$(DEPDIR)/cas-lines.Po"; else rm -f "$(DEPDIR)/cas-lines.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='lines.c' object='cas-lines.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-lines.o `test -f 'lines.c' || echo '$(srcdir)/'`lines.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-lines.o `test -f 'lines.c' || echo '$(srcdir)/'`lines.c
 
 cas-lines.obj: lines.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-lines.obj -MD -MP -MF "$(DEPDIR)/cas-lines.Tpo" -c -o cas-lines.obj `if test -f 'lines.c'; then $(CYGPATH_W) 'lines.c'; else $(CYGPATH_W) '$(srcdir)/lines.c'; fi`; \
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -MT cas-lines.obj -MD -MP -MF "$(DEPDIR)/cas-lines.Tpo" -c -o cas-lines.obj `if test -f 'lines.c'; then $(CYGPATH_W) 'lines.c'; else $(CYGPATH_W) '$(srcdir)/lines.c'; fi`; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/cas-lines.Tpo" "$(DEPDIR)/cas-lines.Po"; else rm -f "$(DEPDIR)/cas-lines.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='lines.c' object='cas-lines.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-lines.obj `if test -f 'lines.c'; then $(CYGPATH_W) 'lines.c'; else $(CYGPATH_W) '$(srcdir)/lines.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cas_CPPFLAGS) $(CPPFLAGS) $(cas_CFLAGS) $(CFLAGS) -c -o cas-lines.obj `if test -f 'lines.c'; then $(CYGPATH_W) 'lines.c'; else $(CYGPATH_W) '$(srcdir)/lines.c'; fi`
 uninstall-info-am:
 install-dist_casDATA: $(dist_cas_DATA)
 	@$(NORMAL_INSTALL)
@@ -822,7 +823,7 @@ uninstall-info: uninstall-info-recursive
 
 
 @NEED_RC_TRUE@.rc.$(OBJEXT):
-@NEED_RC_TRUE@	$(RC) $(RCFLAGS) -I$(top_srcdir) -D__WIN95__ -D__WIN32__ -D__GNUWIN32__ -O COFF -i "$<" -o "$@"
+@NEED_RC_TRUE@	$(RC) $(MULERCFLAGS) -I$(top_srcdir) $(RCFLAGS) -O COFF -i "$<" -o "$@"
 
 @NEED_RC_TRUE@cas-version.rc: $(top_builddir)/version.rc
 @NEED_RC_TRUE@	@sed -e 's/VER_FILEDESCRIPTION_STR/"C aMule Statistics"/' \

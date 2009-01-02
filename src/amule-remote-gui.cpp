@@ -286,7 +286,7 @@ bool CamuleRemoteGuiApp::ShowConnectionDialog() {
 	if (!m_connect->ConnectToCore(dialog->Host(), dialog->Port(),
 		dialog->Login(), dialog->PassHash(),
 		wxT("amule-remote"), wxT("0x0001"))) {
-		wxMessageBox(_("Connection failed "),_("Error"),wxOK);
+		wxMessageBox(_("Connection failed "),_("ERROR"),wxOK);
 		
 		return false;
 	}
@@ -362,10 +362,7 @@ void CamuleRemoteGuiApp::Startup() {
 		wxT("Displays the current version number."));
 	cmdline.AddSwitch(wxT("h"), wxT("help"),
 		wxT("Displays this information."));
-	cmdline.AddOption(wxT("geometry"), wxEmptyString, wxT(
-		"Sets the geometry of the app.\n"
-		"\t\t\t<str> uses the same format as standard X11 apps:\n"
-		"\t\t\t[=][<width>{xX}<height>][{+-}<xoffset>{+-}<yoffset>]"));
+	cmdline.AddOption(wxT("geometry"), wxEmptyString, wxT("Sets the geometry of the app.\n\t\t\t<str> uses the same format as standard X11 apps:\n\t\t\t[=][<width>{xX}<height>][{+-}<xoffset>{+-}<yoffset>]"));
 	cmdline.Parse();
 	
 	bool geometry_enabled = false;
@@ -479,7 +476,7 @@ wxString CamuleRemoteGuiApp::CreateED2kLink(const CAbstractFile* f, bool add_sou
 		}
 		strURL << wxT("|/");
 	} else if (add_source) {
-		AddLogLineM(true, _("WARNING: You can't add yourself as a source for a ed2k link while being lowid."));
+		AddLogLineM(true, _("WARNING: You can't add yourself as a source for an eD2k link while having a lowid."));
 	}
 
 	// Result is "ed2k://|file|<filename>|<size>|<hash>|/|sources,[(<ip>|<hostname>):<port>[:cryptoptions[:hash]]]|/"

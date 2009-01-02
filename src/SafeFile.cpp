@@ -29,10 +29,9 @@
 #include "ScopedPtr.h"				// Needed for CScopedPtr and CScopedArray
 
 
-
 #define CHECK_BOM(size, x) ((size >= 3)  && (x[0] == (char)0xEF) && (x[1] == (char)0xBB) && (x[2] == (char)0xBF))
 
-const char BOMHeader[3] = {0xEF, 0xBB, 0xBF};
+const char BOMHeader[3] = { '\xEF', '\xBB', '\xBF'};
 
 
 CSafeIOException::CSafeIOException(const wxString& type, const wxString& desc)
@@ -159,13 +158,15 @@ uint64 CFileDataIO::ReadUInt64() const
 }
 
 
+// UInt128 values are stored a little weird way...
+// Four little-endian 32-bit numbers, stored in
+// big-endian order
 CUInt128 CFileDataIO::ReadUInt128() const
 {
 	CUInt128 value;
-	uint32* data = (uint32*)value.GetDataPtr();
-	for (int i = 0; i < (128/32); i++) {
+	for (int i = 0; i < 4; i++) {
 		// Four 32bits chunks
-		data[i] = ReadUInt32();
+		value.Set32BitChunk(i, ReadUInt32());
 	}
 
 	return value;
@@ -189,7 +190,7 @@ float CFileDataIO::ReadFloat() const
 }
 
 
-unsigned char* CFileDataIO::ReadBsob(uint8* puSize)
+unsigned char* CFileDataIO::ReadBsob(uint8* puSize) const
 {
 	MULE_VALIDATE_PARAMS(puSize, wxT("NULL pointer argument in ReadBsob"));
 
@@ -282,9 +283,12 @@ void CFileDataIO::WriteUInt64(uint64 value)
 }
 
 
+// UInt128 values are stored a little weird way...
+// Four little-endian 32-bit numbers, stored in
+// big-endian order
 void CFileDataIO::WriteUInt128(const Kademlia::CUInt128& value)
 {
-	for (int i = 0; i < (128/32); i++) {
+	for (int i = 0; i < 4; i++) {
 		// Four 32bits chunks
 		WriteUInt32(value.Get32BitChunk(i));
 	}
@@ -385,7 +389,7 @@ void CFileDataIO::WriteStringCore(const char *s, EUtf8Str eEncode, uint8 SizeLen
 }
 
 
-CTag *CFileDataIO::ReadTag(bool bOptACP)
+CTag *CFileDataIO::ReadTag(bool bOptACP) const
 {
 	CTag *retVal = NULL;
 	wxString name;
@@ -472,7 +476,7 @@ CTag *CFileDataIO::ReadTag(bool bOptACP)
 }
 
 
-void CFileDataIO::ReadTagPtrList(TagPtrList* taglist, bool bOptACP)
+void CFileDataIO::ReadTagPtrList(TagPtrList* taglist, bool bOptACP) const
 {
 	MULE_VALIDATE_PARAMS(taglist, wxT("NULL pointer argument in ReadTagPtrList"));
 
@@ -517,7 +521,6 @@ void CFileDataIO::WriteTag(const CTag& tag)
 				WriteFloat(tag.GetFloat());
 				break;
 			case TAGTYPE_BSOB:
-				// Used for uint128 on Kad now
 				WriteBsob(tag.GetBsob(), tag.GetBsobSize());
 				break;
 			case TAGTYPE_UINT16:

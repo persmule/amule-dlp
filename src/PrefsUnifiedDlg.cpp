@@ -87,13 +87,10 @@ BEGIN_EVENT_TABLE(PrefsUnifiedDlg,wxDialog)
 	EVT_CHECKBOX(IDC_ENFORCE_PO_INCOMING,	PrefsUnifiedDlg::OnCheckBoxChange)
 
 	EVT_BUTTON(ID_PREFS_OK_TOP,		PrefsUnifiedDlg::OnOk)
-	EVT_BUTTON(ID_OK,			PrefsUnifiedDlg::OnOk)
-
 	EVT_BUTTON(ID_PREFS_CANCEL_TOP,		PrefsUnifiedDlg::OnCancel)
 
 	// Browse buttons
 //	EVT_BUTTON(IDC_SELSKIN,		PrefsUnifiedDlg::OnButtonDir)
-	EVT_BUTTON(IDC_BTN_BROWSE_WAV,		PrefsUnifiedDlg::OnButtonBrowseWav)
 	EVT_BUTTON(IDC_BROWSEV,			PrefsUnifiedDlg::OnButtonBrowseApplication)
 	EVT_BUTTON(IDC_SELTEMPDIR,		PrefsUnifiedDlg::OnButtonDir)
 	EVT_BUTTON(IDC_SELINCDIR,		PrefsUnifiedDlg::OnButtonDir)
@@ -180,8 +177,6 @@ PrefsPage pages[] =
 	{ wxTRANSLATE("Directories"),		PreferencesDirectoriesTab,	17, NULL },
 	{ wxTRANSLATE("Statistics"),		PreferencesStatisticsTab,	10, NULL },
 	{ wxTRANSLATE("Security"),		PreferencesSecurityTab,		22, NULL },
-	//Notications are disabled since they havent been implemented
-	//{ wxTRANSLATE("Notifications"),	PreferencesNotifyTab,		18, NULL },
 	{ wxTRANSLATE("Gui Tweaks"),		PreferencesGuiTweaksTab,	19, NULL },
 	{ wxTRANSLATE("Core Tweaks"),		PreferencesaMuleTweaksTab,	12, NULL },
 	{ wxTRANSLATE("Events"),		PreferencesEventsTab,		5,  NULL }
@@ -268,8 +263,8 @@ wxDialog(parent, -1, _("Preferences"),
 			int count = CLogger::GetDebugCategoryCount();
 			wxCheckListBox* list = CastChild( ID_DEBUGCATS, wxCheckListBox );
 
-			for ( int i = 0; i < count; i++ ) {
-				list->Append( CLogger::GetDebugCategory( i ).GetName() );
+			for ( int j = 0; j < count; j++ ) {
+				list->Append( CLogger::GetDebugCategory( j ).GetName() );
 			}
 		}
 #endif
@@ -327,6 +322,9 @@ wxDialog(parent, -1, _("Preferences"),
 	#ifdef __WXMSW__
 		FindWindow(IDC_VERTTOOLBAR)->Enable(false);
 	#endif
+
+	// Position the dialog.
+	Center();
 }
 
 
@@ -417,7 +415,19 @@ bool PrefsUnifiedDlg::TransferToWindow()
 
 	FindWindow(IDC_MSGWORD)->Enable(CastChild(IDC_MSGFILTER_WORD, wxCheckBox)->IsChecked());
 	FindWindow(IDC_COMMENTWORD)->Enable(CastChild(IDC_FILTERCOMMENTS, wxCheckBox)->IsChecked());
-	
+
+	// Disable Upnp controls if libraries could not be loaded
+#ifdef ENABLE_UPNP
+		if (!theApp->m_upnp) {
+			FindWindow(IDC_UPNP_ENABLED)->Enable(false);
+			FindWindow(IDC_UPNPTCPPORT)->Enable(false);
+			FindWindow(IDC_UPNP_WEBSERVER_ENABLED)->Enable(false);
+			FindWindow(IDC_WEBUPNPTCPPORT)->Enable(false);
+			FindWindow(IDC_UPNP_EC_ENABLED)->Enable(false);
+			
+		}
+#endif
+
 	// Protocol obfuscation
 	::SendCheckBoxEvent(this, IDC_SUPPORT_PO);
 	::SendCheckBoxEvent(this, IDC_ENABLE_PO_OUTGOING);
@@ -518,7 +528,7 @@ void PrefsUnifiedDlg::OnOk(wxCommandEvent& WXUNUSED(event))
 	if ((CPath::GetFileSize(theApp->ConfigDir + wxT("addresses.dat")) == 0) && 
 		CastChild(IDC_AUTOSERVER, wxCheckBox)->IsChecked() ) {
 		thePrefs::UnsetAutoServerStart();
-		wxMessageBox(wxString::wxString( _("Your Auto-update servers list is in blank.\n'Auto-update serverlist at startup' will be disabled.")),
+		wxMessageBox(wxString::wxString( _("Your Auto-update server list is empty.\n'Auto-update server list at startup will be disabled.")),
 			_("Message"), wxOK | wxICON_INFORMATION, this);
 	}
 
@@ -609,12 +619,16 @@ void PrefsUnifiedDlg::OnOk(wxCommandEvent& WXUNUSED(event))
 
 	if (!thePrefs::GetNetworkED2K() && !thePrefs::GetNetworkKademlia()) {
 		wxMessageBox(wxString::wxString(
-			_("Both ED2K and Kad network are disabled.\nYou won't be able to connect until you enable at least one of them.")));
+			_("Both eD2k and Kad network are disabled.\nYou won't be able to connect until you enable at least one of them.")));
 	}	
 	
 	if (thePrefs::GetNetworkKademlia() && thePrefs::IsUDPDisabled()) {
 		wxMessageBox(_("Kad will not start if your UDP port is disabled.\nEnable UDP port or disable Kad."),
 			 _("Message"), wxOK | wxICON_INFORMATION, this);
+	}
+	
+	if (CfgChanged(IDC_NETWORKKAD) || CfgChanged(IDC_NETWORKED2K)) {
+		theApp->amuledlg->DoNetworkRearrange();
 	}
 	
 	if (restart_needed) {
@@ -873,20 +887,6 @@ void PrefsUnifiedDlg::OnButtonDir(wxCommandEvent& event)
 }
 
 
-void PrefsUnifiedDlg::OnButtonBrowseWav(wxCommandEvent& WXUNUSED(evt))
-{
-	wxString str = wxFileSelector( 
-		_("Browse wav"), wxEmptyString, wxEmptyString,
-		wxT("*.wav"), _("File wav (*.wav)|*.wav||"), 0, this );
-	
-	if ( !str.IsEmpty() ) {
-		wxTextCtrl* widget = CastChild( IDC_EDIT_TBN_WAVFILE, wxTextCtrl );
-
-		widget->SetValue( str );
-	}
-}
-
-
 void PrefsUnifiedDlg::OnButtonBrowseApplication(wxCommandEvent& event)
 {
 	wxString title;
@@ -925,7 +925,7 @@ void PrefsUnifiedDlg::OnButtonEditAddr(wxCommandEvent& WXUNUSED(evt))
 {
 	wxString fullpath( theApp->ConfigDir + wxT("addresses.dat") );
 
-	EditServerListDlg* test = new EditServerListDlg(this, _("Edit Serverlist"),
+	EditServerListDlg* test = new EditServerListDlg(this, _("Edit server list"),
 		_("Add here URL's to download server.met files.\nOnly one url on each line."),
 		fullpath );
 

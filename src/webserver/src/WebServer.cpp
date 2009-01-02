@@ -213,6 +213,11 @@ void CParsedUrl::ConvertParams(std::map<std::string, std::string> &dst)
 	}
 }
 
+BEGIN_EVENT_TABLE(CWebServerBase, wxEvtHandler)
+	EVT_SOCKET(ID_WEBLISTENSOCKET_EVENT, CWebServerBase::OnWebSocketServerEvent)
+	EVT_SOCKET(ID_WEBCLIENTSOCKET_ENENT, CWebServerBase::OnWebSocketEvent)
+END_EVENT_TABLE()
+
 CWebServerBase::CWebServerBase(CamulewebApp *webApp, const wxString& templateDir) :
 	m_ServersInfo(webApp), m_SharedFileInfo(webApp), m_DownloadFileInfo(webApp, &m_ImageLib),
 	m_UploadsInfo(webApp), m_SearchInfo(webApp), m_Stats(500, webApp),
@@ -232,6 +237,10 @@ CWebServerBase::CWebServerBase(CamulewebApp *webApp, const wxString& templateDir
 	m_ImageLib.AddImage(new CDynStatisticImage(200, false, m_Stats.KadCount()),
 		wxT("/amule_stats_kad.png"));
 #endif
+	
+	m_upnpEnabled = webInterface->m_UPnPWebServerEnabled;
+	m_upnpTCPPort = webInterface->m_UPnPTCPPort;
+
 }
 
 //sends output to web interface
@@ -240,45 +249,83 @@ void CWebServerBase::Print(const wxString &s)
 	webInterface->Show(s);
 }
 
-//returns web server listening port
-long CWebServerBase::GetWSPrefs(void)
+
+void CWebServerBase::StartServer()
 {
-	CECPacket req(EC_OP_GET_PREFERENCES);
-	req.AddTag(CECTag(EC_TAG_SELECT_PREFS, (uint32)EC_PREFS_REMOTECONTROLS));
-	const CECPacket *reply = webInterface->SendRecvMsg_v2(&req);
-	if (!reply) {
-		return -1;
+#ifdef ENABLE_UPNP
+	if (m_upnpEnabled) {
+		m_upnpMappings.resize(1);
+		m_upnpMappings[0] = CUPnPPortMapping(
+			webInterface->m_WebserverPort,
+			"TCP",
+			true,
+			"aMule TCP Webserver Socket");
+		m_upnp = new CUPnPControlPoint(m_upnpTCPPort);
+		m_upnp->AddPortMappings(m_upnpMappings);
 	}
-	// we have selected only the webserver preferences
-	const CECTag *wsprefs = reply->GetTagByIndexSafe(0);
-	const CECTag *tag = wsprefs->GetTagByName(EC_TAG_WEBSERVER_PORT);
-	long int wsport = tag ? (long int)tag->GetInt() : -1;
+#endif
 
-	if (webInterface->m_LoadSettingsFromAmule) {
-		webInterface->m_AdminPass = wsprefs->GetTagByNameSafe(EC_TAG_PASSWD_HASH)->GetMD4Data();
-
-		const CECTag *webserverGuest = wsprefs->GetTagByName(EC_TAG_WEBSERVER_GUEST);
-		if (webserverGuest) {
-			webInterface->m_AllowGuest = true;
-			webInterface->m_GuestPass = webserverGuest->GetTagByNameSafe(EC_TAG_PASSWD_HASH)->GetMD4Data();
-		} else {
-			webInterface->m_AllowGuest = false;
-		}
-
-		// we only need to check the presence of this tag
-		webInterface->m_UseGzip = wsprefs->GetTagByName(EC_TAG_WEBSERVER_USEGZIP) != NULL;
+	wxIPV4address addr;
+	addr.AnyAddress();
+	addr.Service(webInterface->m_WebserverPort);
 	
-		const CECTag *webserverRefresh = wsprefs->GetTagByName(EC_TAG_WEBSERVER_REFRESH);
-		if (webserverRefresh) {
-			webInterface->m_PageRefresh = webserverRefresh->GetInt();
-		} else {
-			webInterface->m_PageRefresh = 120;
-		}
+	m_webserver_socket = new wxSocketServer(addr, wxSOCKET_REUSEADDR);
+	m_webserver_socket->SetEventHandler(*this, ID_WEBLISTENSOCKET_EVENT);
+	m_webserver_socket->SetNotify(wxSOCKET_CONNECTION_FLAG);
+	m_webserver_socket->Notify(true);
+	if (!m_webserver_socket->Ok()) {
+		delete m_webserver_socket;
+		m_webserver_socket = 0;
 	}
 
-	delete reply;
+}
 
-	return wsport;
+void CWebServerBase::StopServer()
+{
+	if ( m_webserver_socket ) {
+		delete m_webserver_socket;
+	}
+#ifdef ENABLE_UPNP
+	if (m_upnpEnabled) {
+		m_upnp->DeletePortMappings(m_upnpMappings);
+		delete m_upnp;
+	}
+#endif
+}
+
+void CWebServerBase::OnWebSocketServerEvent(wxSocketEvent& WXUNUSED(event))
+{
+	CWebSocket *client = new CWebSocket(this);
+	
+    if ( m_webserver_socket->AcceptWith(*client, false) ) {
+    	webInterface->Show(_("web client connection accepted\n"));
+    } else {
+    	delete client;
+    	webInterface->Show(_("ERROR: can not accept web client connection\n"));
+    }
+}
+
+void CWebServerBase::OnWebSocketEvent(wxSocketEvent& event)
+{
+	CWebSocket *socket = dynamic_cast<CWebSocket *>(event.GetSocket());
+    wxCHECK_RET(socket, wxT("Socket event with a NULL socket!"));
+    switch(event.GetSocketEvent()) {
+    case wxSOCKET_LOST:
+        socket->OnLost();
+        break;
+    case wxSOCKET_INPUT:
+        socket->OnInput();
+        break;
+    case wxSOCKET_OUTPUT:
+        socket->OnOutput();
+        break;
+    case wxSOCKET_CONNECTION:
+        break;
+    default:
+        wxFAIL;
+        break;
+    }
+
 }
 
 void CScriptWebServer::ProcessImgFileReq(ThreadData Data)
@@ -1697,32 +1744,6 @@ CScriptWebServer::~CScriptWebServer()
 {
 }
 
-
-void CScriptWebServer::StartServer()
-{
-	if (!webInterface->m_LoadSettingsFromAmule) {
-		if (webInterface->m_configFile) {
-			webInterface->m_PageRefresh = webInterface->m_configFile->Read(wxT("/Webserver/PageRefreshTime"), 120l);
-		}
-	}
-
-	wsThread = new CWSThread(this);
-	if ( wsThread->Create() != wxTHREAD_NO_ERROR ) {
-		webInterface->Show(_("Can't create web socket thread\n"));
-	} else {
-		//...and run it
-		wsThread->Run();
- 
-		webInterface->Show(_("Web Server: Started\n"));
-	}
-}
-
-void CScriptWebServer::StopServer()
-{
-	wsThread->Delete();
-	wsThread->Wait();
-}
-
 char *CScriptWebServer::GetErrorPage(const char *message, long &size)
 {
 	char *buf = new char [1024];
@@ -1945,7 +1966,7 @@ void CNoTemplateWebServer::ProcessURL(ThreadData Data)
 	 * Since template has not been found, I suspect that installation is broken. Falling back
 	 * into hardcoded page as last resort.
 	 */
-	char *httpOut = ""
+	const char *httpOut = ""
 	"<html>"
 		"<head>"
 			"<title>aMuleWeb error page</title>"

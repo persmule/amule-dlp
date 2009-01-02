@@ -30,12 +30,14 @@
 #include "amule.h"			// Interface declarations.
 
 #include <csignal>
+#include <cstring>
 #include <wx/process.h>
 #include <wx/sstream.h>	
 
 #ifdef HAVE_CONFIG_H
 	#include "config.h"		// Needed for HAVE_GETRLIMIT, HAVE_SETRLIMIT,
-					//   HAVE_SYS_RESOURCE_H, HAVE_SYS_STATVFS_H and VERSION
+					//   HAVE_SYS_RESOURCE_H, HAVE_SYS_STATVFS_H, VERSION
+					//   and ENABLE_NLS
 #endif
 
 #include <common/ClientVersion.h>
@@ -210,6 +212,9 @@ CamuleApp::~CamuleApp()
 	// wxWidgets log-events are saved in it as well.
 	delete applog;
 	applog = NULL;
+
+	free(strFullMuleVersion);
+	free(strOSDescription);
 }
 
 int CamuleApp::OnExit()
@@ -414,7 +419,9 @@ bool CamuleApp::OnInit()
 #endif
 
 	// This can't be on constructor or wx2.4.2 doesn't set it.	
+	#if !wxCHECK_VERSION(2, 9, 0)
 	SetVendorName(wxT("TikuWarez"));
+	#endif
 	SetAppName(wxT("aMule"));
 	
 	wxString FullMuleVersion = GetFullMuleVersion();
@@ -624,8 +631,10 @@ bool CamuleApp::OnInit()
 	// Build the filenames for the two OS files
 	SetOSFiles(thePrefs::GetOSDir().GetRaw());
 
+#ifdef ENABLE_NLS
 	// Load localization settings
 	Localize_mule();
+#endif
 
 	// Configure EC for amuled when invoked with ec-config
 	if (ec_config) {
@@ -661,7 +670,7 @@ bool CamuleApp::OnInit()
 			wxT("and you are advised to run aMule as an normal\n")
 			wxT("user instead.");
 		
-		ShowAlert(msg, _("Warning"), wxCENTRE | wxOK | wxICON_ERROR);
+		ShowAlert(msg, _("WARNING"), wxCENTRE | wxOK | wxICON_ERROR);
 	
 		fprintf(stderr, "\n--------------------------------------------------\n");
 		fprintf(stderr, "%s", (const char*)unicode2UTF8(msg));
@@ -729,6 +738,16 @@ bool CamuleApp::OnInit()
 	// Create main dialog, or fork to background (daemon).
 	InitGui(geometry_enabled, geom_string);
 	
+#if !defined(__WXMAC__) && defined(AMULE_DAEMON)
+	// Need to refresh wxSingleInstanceChecker after the daemon fork() !
+	if (enable_daemon_fork) {
+        	//#warning TODO: fix wxSingleInstanceChecker for amuled on Mac (wx link problems)
+	        delete m_singleInstance;
+	        m_singleInstance = new wxSingleInstanceChecker(wxT("muleLock"), ConfigDir);
+		// No need to check IsAnotherRunning() - we've done it before.
+	}
+#endif
+
 	// Has to be created after the call to InitGui, as fork 
 	// (when using posix threads) only replicates the mainthread,
 	// and the UBT constructor creates a thread.
@@ -822,15 +841,15 @@ bool CamuleApp::OnInit()
 		webserver_pid = wxExecute(cmd, wxEXEC_ASYNC, p);
 		bool webserver_ok = webserver_pid > 0;
 		if (webserver_ok) {
-			AddLogLineM(true, CFormat(_("webserver running on pid %d")) % webserver_pid);
+			AddLogLineM(true, CFormat(_("web server running on pid %d")) % webserver_pid);
 		} else {
 			delete p;
 			ShowAlert(_(
-				"You requested to run webserver from startup, "
+				"You requested to run web server on startup, "
 				"but the amuleweb binary cannot be run. "
-				"Please install the package containing aMule webserver, "
+				"Please install the package containing aMule web server, "
 				"or compile aMule using --enable-webserver and run make install"),
-				_("Error"), wxOK | wxICON_ERROR);
+				_("ERROR"), wxOK | wxICON_ERROR);
 		}
 	}
 #endif /* ! __WXMSW__ */
@@ -951,7 +970,7 @@ bool CamuleApp::ReinitializeNetwork(wxString* msg)
 		err = CFormat(
 			_("Port %u is not available!\n\nThis means that you will be LOWID.\n\nCheck your network to make sure the port is open for output and input.")) % 
 			(unsigned int)(thePrefs::GetPort());
-		ShowAlert(err, _("Error"), wxOK | wxICON_ERROR);
+		ShowAlert(err, _("ERROR"), wxOK | wxICON_ERROR);
 	}
 
 	// Create the UDP socket.
@@ -1056,7 +1075,7 @@ wxString CamuleApp::CreateED2kLink(const CAbstractFile *f, bool add_source, bool
 		}
 		strURL << wxT("|/");
 	} else if (add_source) {
-		AddLogLineM(true, _("WARNING: You can't add yourself as a source for a ed2k link while being lowid."));
+		AddLogLineM(true, _("WARNING: You can't add yourself as a source for an eD2k link while having a lowid."));
 	}
 
 	// Result is "ed2k://|file|<filename>|<size>|<hash>|/|sources,[(<ip>|<hostname>):<port>[:cryptoptions[:hash]]]|/"
@@ -1317,7 +1336,7 @@ void CamuleApp::SetOSFiles(const wxString new_path)
 			m_emulesig_path = JoinPaths(new_path, wxT("onlinesig.dat"));
 			m_amulesig_path = JoinPaths(new_path, wxT("amulesig.dat"));
 		} else {
-			ShowAlert(_("The folder for Online Signature files you specified is INVALID!\n OnlineSignature will be DISABLED until you fix it on preferences."), _("Error"), wxOK | wxICON_ERROR);
+			ShowAlert(_("The folder for Online Signature files you specified is INVALID!\n OnlineSignature will be DISABLED until you fix it on preferences."), _("ERROR"), wxOK | wxICON_ERROR);
 			m_emulesig_path.Clear();
 			m_amulesig_path.Clear();
 		}
@@ -1588,6 +1607,27 @@ void CamuleApp::OnFinishedCompletion(CCompletionEvent& evt)
 	CUserEvents::ProcessEvent(CUserEvents::DownloadCompleted, completed);
 }
 
+void CamuleApp::OnFinishedAllocation(CAllocFinishedEvent& evt)
+{
+	CPartFile *file = evt.GetFile();
+	wxCHECK_RET(file, wxT("Allocation finished event sent for unspecified file"));
+	wxASSERT_MSG(downloadqueue->IsPartFile(file), wxT("CAllocFinishedEvent for unknown partfile"));
+
+	file->SetPartFileStatus(PS_EMPTY);
+
+	if (evt.Succeeded()) {
+		if (evt.IsPaused()) {
+			file->StopFile();
+		} else {
+			file->ResumeFile();
+		}
+	} else {
+		AddLogLineM(false, CFormat(_("Disk space preallocation for file '%s' failed: %s")) % file->GetFileName() % wxString(UTF82unicode(std::strerror(evt.GetResult()))));
+		file->StopFile();
+	}
+
+	file->AllocationFinished();
+};
 
 void CamuleApp::OnNotifyEvent(CMuleGUIEvent& evt)
 {
@@ -1978,10 +2018,21 @@ void CamuleApp::ShowUserCount() {
 	
 	theApp->serverlist->GetUserFileStatus( totaluser, totalfile );
 	
-	wxString buffer = 
-		CFormat(_("Users: E: %s K: %s | Files E: %s K: %s")) % CastItoIShort(totaluser) % 
-		CastItoIShort(Kademlia::CKademlia::GetKademliaUsers()) % CastItoIShort(totalfile) % CastItoIShort(Kademlia::CKademlia::GetKademliaFiles());
+	wxString buffer;
 	
+	static const wxString s_singlenetstatusformat = _("Users: %s | Files: %s");
+	static const wxString s_bothnetstatusformat = _("Users: E: %s K: %s | Files: E: %s K: %s");
+	
+	if (thePrefs::GetNetworkED2K() && thePrefs::GetNetworkKademlia()) {
+		buffer = CFormat(s_bothnetstatusformat) % CastItoIShort(totaluser) % CastItoIShort(Kademlia::CKademlia::GetKademliaUsers()) % CastItoIShort(totalfile) % CastItoIShort(Kademlia::CKademlia::GetKademliaFiles());
+	} else if (thePrefs::GetNetworkED2K()) {
+		buffer = CFormat(s_singlenetstatusformat) % CastItoIShort(totaluser) % CastItoIShort(totalfile);
+	} else if (thePrefs::GetNetworkKademlia()) {
+		buffer = CFormat(s_singlenetstatusformat) % CastItoIShort(Kademlia::CKademlia::GetKademliaUsers()) % CastItoIShort(Kademlia::CKademlia::GetKademliaFiles());
+	} else {
+		buffer = _("No networks selected");
+	}
+
 	Notify_ShowUserCount(buffer);
 }
 
@@ -2051,7 +2102,7 @@ void CamuleApp::ShowConnectionState()
 				if ( theApp->serverconnect->IsConnecting() ) {
 					AddLogLine(CFormat(_("Connecting to %s")) % connected_server);
 				} else {
-					AddLogLine(_("Disconnected from ED2K"));
+					AddLogLine(_("Disconnected from eD2k"));
 				}
 			}
 		}
@@ -2158,7 +2209,7 @@ void CamuleApp::BootstrapKad(uint32 ip, uint16 port)
 		theApp->ShowConnectionState();
 	}
 	
-	Kademlia::CKademlia::Bootstrap(ip, port);
+	Kademlia::CKademlia::Bootstrap(ip, port, true);
 }
 
 
@@ -2174,7 +2225,7 @@ void CamuleApp::UpdateNotesDat(const wxString& url)
 
 void CamuleApp::DisconnectED2K()
 {
-	// Stop Kad if it's running
+	// Stop ED2K if it's running
 	if (IsConnectedED2K()) {
 		serverconnect->Disconnect();
 	}

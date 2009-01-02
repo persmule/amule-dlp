@@ -159,19 +159,18 @@ void CSharedFilesCtrl::OnRightClick(wxListEvent& event)
 			m_menu->AppendSeparator();
 		}
 		m_menu->Append(MP_GETMAGNETLINK,_("Copy magnet &URI to clipboard"));
-		m_menu->Append(MP_GETED2KLINK,_("Copy ED2k &link to clipboard"));
-		m_menu->Append(MP_GETSOURCEED2KLINK,_("Copy ED2k link to clipboard (&Source)"));
-		m_menu->Append(MP_GETCRYPTSOURCEDED2KLINK,_("Copy ED2k link to clipboard (Source) (&With Crypt options)"));
-		m_menu->Append(MP_GETHOSTNAMESOURCEED2KLINK,_("Copy ED2k link to clipboard (&Hostname)"));
-		m_menu->Append(MP_GETHOSTNAMECRYPTSOURCEED2KLINK,_("Copy ED2k link to clipboard (Hostname) (With &Crypt options)"));		
-		m_menu->Append(MP_GETAICHED2KLINK,_("Copy ED2k link to clipboard (&AICH info)"));
+		m_menu->Append(MP_GETED2KLINK,_("Copy eD2k &link to clipboard"));
+		m_menu->Append(MP_GETSOURCEED2KLINK,_("Copy eD2k link to clipboard (&Source)"));
+		m_menu->Append(MP_GETCRYPTSOURCEDED2KLINK,_("Copy eD2k link to clipboard (Source) (&With Crypt options)"));
+		m_menu->Append(MP_GETHOSTNAMESOURCEED2KLINK,_("Copy eD2k link to clipboard (&Hostname)"));
+		m_menu->Append(MP_GETHOSTNAMECRYPTSOURCEED2KLINK,_("Copy eD2k link to clipboard (Hostname) (With &Crypt options)"));		
+		m_menu->Append(MP_GETAICHED2KLINK,_("Copy eD2k link to clipboard (&AICH info)"));
 		m_menu->Append(MP_WS,_("Copy feedback to clipboard"));
 		
 		m_menu->Enable(MP_GETAICHED2KLINK, file->HasProperAICHHashSet());
 		m_menu->Enable(MP_GETHOSTNAMESOURCEED2KLINK, !thePrefs::GetYourHostname().IsEmpty());
 		m_menu->Enable(MP_GETHOSTNAMECRYPTSOURCEED2KLINK, !thePrefs::GetYourHostname().IsEmpty());
 		m_menu->Enable(MP_RENAME, file->IsPartFile());
-		m_menu->Enable(MP_WS, file->IsPartFile());
 		
 		PopupMenu( m_menu, event.GetPoint() );
 
@@ -187,14 +186,15 @@ void CSharedFilesCtrl::OnGetFeedback(wxCommandEvent& WXUNUSED(event))
 	wxString feed;
 	long index = GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
 	while (index != -1) {
-		CKnownFile* file = (CKnownFile*)GetItemData(index);
-		
-		if (file->IsPartFile()) {
-			feed += dynamic_cast<CPartFile*>(file)->GetFeedback();
+		if (feed.IsEmpty()) {
+			feed = CFormat(_("Feedback from: %s (%s)\n\n")) % thePrefs::GetUserNick() % GetFullMuleVersion();
+		} else {
+			feed += wxT("\n");
 		}
-		
+		feed += ((CKnownFile*)GetItemData(index))->GetFeedback();
 		index = GetNextItem(index, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
 	}
+
 	if (!feed.IsEmpty()) {
 		theApp->CopyTextToClipboard(feed);
 	}
@@ -303,7 +303,7 @@ void CSharedFilesCtrl::OnCreateURI( wxCommandEvent& event )
 
 	if ( event.GetId() == MP_GETSOURCEED2KLINK || event.GetId() == MP_GETCRYPTSOURCEDED2KLINK) {
 		if ( !theApp->IsConnectedED2K() || theApp->serverconnect->IsLowID() ) {
-			wxMessageBox(_("You need a HighID to create a valid sourcelink"), _("Warning"), wxOK | wxICON_ERROR, this);
+			wxMessageBox(_("You need a HighID to create a valid sourcelink"), _("WARNING"), wxOK | wxICON_ERROR, this);
 
 			return;
 		}
@@ -353,7 +353,7 @@ int CSharedFilesCtrl::SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData)
 	CKnownFile* file2 = (CKnownFile*)item2;
 
 	int mod = (sortData & CMuleListCtrl::SORT_DES) ? -1 : 1;
-	bool altSorting = (sortData & CMuleListCtrl::SORT_ALT);
+	bool altSorting = (sortData & CMuleListCtrl::SORT_ALT) > 0;
 
 	switch (sortData & CMuleListCtrl::COLUMN_MASK) {
 		// Sort by filename.
@@ -649,21 +649,42 @@ void CSharedFilesCtrl::DrawAvailabilityBar(CKnownFile* file, wxDC* dc, const wxR
 	const ArrayOfUInts16& list = file->IsPartFile() ?
 		((CPartFile*)file)->m_SrcpartFrequency :
 		file->m_AvailPartFrequency;
+	wxPen   old_pen   = dc->GetPen();
+	wxBrush old_brush = dc->GetBrush();
+	bool bFlat = thePrefs::UseFlatBar();
+
+	wxRect barRect = rect;
+	if (!bFlat) { // round bar has a black border, the bar itself is 1 pixel less on each border
+		barRect.x ++;
+		barRect.y ++;
+		barRect.height -= 2;
+		barRect.width -= 2;
+	}
 	static CBarShader s_ChunkBar;
 	s_ChunkBar.SetFileSize( file->GetFileSize() );
-	s_ChunkBar.SetHeight( rect.GetHeight() );
-	s_ChunkBar.SetWidth( rect.GetWidth() );
+	s_ChunkBar.SetHeight( barRect.GetHeight() );
+	s_ChunkBar.SetWidth( barRect.GetWidth() );
 	s_ChunkBar.Set3dDepth( CPreferences::Get3DDepth() );
-	s_ChunkBar.Fill( RGB(255, 0, 0) );
+	uint64 end = 0;
 	for ( unsigned int i = 0; i < list.size(); ++i ) {
-		if ( list[i] ) {
-			COLORREF color = RGB(0, (210-(22*( list[i] - 1 ) ) < 0) ? 0 : 210-(22*( list[i] - 1 ) ), 255);
-			uint64 start = PARTSIZE * static_cast<uint64>(i);
-			uint64 end   = PARTSIZE * static_cast<uint64>(i + 1);
-			s_ChunkBar.FillRange(start, end, color);
-		}
+		COLORREF color = list[i] ? (RGB(0, (210-(22*( list[i] - 1 ) ) < 0) ? 0 : 210-(22*( list[i] - 1 ) ), 255))
+								 : RGB(255, 0, 0);
+		uint64 start = PARTSIZE * static_cast<uint64>(i);
+		       end   = PARTSIZE * static_cast<uint64>(i + 1);
+		s_ChunkBar.FillRange(start, end, color);
 	}
-   	s_ChunkBar.Draw(dc, rect.GetLeft(), rect.GetTop(), CPreferences::UseFlatBar() ); 
+	s_ChunkBar.FillRange(end + 1, file->GetFileSize() - 1, RGB(255, 0, 0));
+	s_ChunkBar.Draw(dc, barRect.x, barRect.y, bFlat); 
+
+	if (!bFlat) {
+		// Draw black border
+		dc->SetPen( *wxBLACK_PEN );
+		dc->SetBrush( *wxTRANSPARENT_BRUSH );
+		dc->DrawRectangle(rect);
+	}
+
+	dc->SetPen( old_pen );
+	dc->SetBrush( old_brush );
 }
 
 void CSharedFilesCtrl::OnGetRazorStats( wxCommandEvent& WXUNUSED(event) )

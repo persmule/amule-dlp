@@ -155,7 +155,7 @@ class CEC_Server_Tag : public CECTag {
  		wxString ServerDesc() { return GetTagByNameSafe(EC_TAG_SERVER_DESC)->GetStringData(); }
 
  		uint8 GetPrio() { return GetTagByNameSafe(EC_TAG_SERVER_PRIO)->GetInt(); }
- 		uint8 GetStatic() { return GetTagByNameSafe(EC_TAG_SERVER_STATIC)->GetInt(); }
+ 		bool GetStatic() { return (GetTagByNameSafe(EC_TAG_SERVER_STATIC)->GetInt() == 1); }
 
  		uint32 GetPing() { return GetTagByNameSafe(EC_TAG_SERVER_PING)->GetInt(); }
  		uint8 GetFailed() { return GetTagByNameSafe(EC_TAG_SERVER_FAILED)->GetInt(); }
@@ -178,11 +178,11 @@ class CEC_ConnState_Tag : public CECTag {
 		uint32	GetClientId()		{ return GetTagByNameSafe(EC_TAG_CLIENT_ID)->GetInt(); }
  		bool	HasLowID()		{ return GetEd2kId() < HIGHEST_LOWID_ED2K_KAD; }
  		bool	IsConnected()		const { return IsConnectedED2K() || IsConnectedKademlia(); }
- 		bool	IsConnectedED2K()	const { return (GetInt() & 0x01); }
- 		bool	IsConnectingED2K()	const { return (GetInt() & 0x02); }
-		bool	IsConnectedKademlia()	const { return (GetInt() & 0x04); }
-		bool	IsKadFirewalled()	const { return (GetInt() & 0x08); }
-		bool	IsKadRunning()	const { return (GetInt() & 0x10); }
+ 		bool	IsConnectedED2K()	const { return (GetInt() & 0x01) != 0; }
+ 		bool	IsConnectingED2K()	const { return (GetInt() & 0x02) != 0; }
+		bool	IsConnectedKademlia()	const { return (GetInt() & 0x04) != 0; }
+		bool	IsKadFirewalled()	const { return (GetInt() & 0x08) != 0; }
+		bool	IsKadRunning()	const { return (GetInt() & 0x10) != 0; }
 };
 
 class CEC_PartFile_Tag : public CECTag {

@@ -57,9 +57,12 @@
 #endif
 
 #include "RandomFunctions.h"
-#include "OtherFunctions.h"
+#ifndef CLIENT_GUI
+#include "PlatformSpecific.h"		// Needed for PlatformSpecific::GetMaxConnections()
+#endif
 
 #define DEFAULT_TCP_PORT 4662
+#define DEFAULT_UDP_PORT 4672
 
 // Static variables
 COLORREF		CPreferences::s_colors[cntStatColors];
@@ -174,10 +177,9 @@ bool		CPreferences::s_IPFilterServers;
 bool		CPreferences::s_UseSrcSeeds;
 bool		CPreferences::s_ProgBar;
 bool		CPreferences::s_Percent;
-bool           CPreferences::s_SecIdent;
+bool		CPreferences::s_SecIdent;
 bool		CPreferences::s_ExtractMetaData;
-bool		CPreferences::s_AllocFullPart;
-bool		CPreferences::s_AllocFullChunk;
+bool		CPreferences::s_allocFullFile;
 uint16		CPreferences::s_Browser;
 wxString	CPreferences::s_CustomBrowser;
 bool		CPreferences::s_BrowserTab;
@@ -610,8 +612,9 @@ protected:
 #ifndef AMULE_DAEMON
 
 typedef struct {
-	int	id;
-	bool available;
+	int	 id;
+	bool	 available;
+	wxString displayname;
 	wxString name;
 } LangInfo;
 
@@ -622,51 +625,43 @@ typedef struct {
  * Add new languages here, as this list overrides the one defined in muuli.wdr
  */
 static LangInfo aMuleLanguages[] = {
-	{ wxLANGUAGE_DEFAULT,				true,	wxTRANSLATE("System default") },
-	{ wxLANGUAGE_ARABIC,				true,	wxTRANSLATE("Arabic") },
-	{ wxLANGUAGE_BASQUE,				true,	wxTRANSLATE("Basque") },
-	{ wxLANGUAGE_BULGARIAN,				true,	wxTRANSLATE("Bulgarian") },
-	{ wxLANGUAGE_CATALAN,				true,	wxTRANSLATE("Catalan") },
-	{ wxLANGUAGE_CHINESE_SIMPLIFIED,	true,	wxTRANSLATE("Chinese (Simplified)") },
-	{ wxLANGUAGE_CHINESE_TRADITIONAL,	true,	wxTRANSLATE("Chinese (Traditional)") },
-	{ wxLANGUAGE_CROATIAN,				true,	wxTRANSLATE("Croatian") },
-	{ wxLANGUAGE_CZECH,				true,	wxTRANSLATE("Czech") },
-	{ wxLANGUAGE_DANISH,				true,	wxTRANSLATE("Danish") },
-	{ wxLANGUAGE_DUTCH,					true,	wxTRANSLATE("Dutch") },
-	{ wxLANGUAGE_ENGLISH_UK,			true,	wxTRANSLATE("English (U.K.)") },
-// Unmaintained language file: en_US.po
-//	{ wxLANGUAGE_ENGLISH_US,			true,	wxTRANSLATE("English (U.S.)") },
-	{ wxLANGUAGE_ESTONIAN,				true,	wxTRANSLATE("Estonian") },
-	{ wxLANGUAGE_FINNISH,				true,	wxTRANSLATE("Finnish") },
-	{ wxLANGUAGE_FRENCH,				true,	wxTRANSLATE("French") },
-	{ wxLANGUAGE_GALICIAN,				true,	wxTRANSLATE("Galician") },
-	{ wxLANGUAGE_GERMAN,				true,	wxTRANSLATE("German") },
-	{ wxLANGUAGE_GREEK,				true,	wxTRANSLATE("Greek") },
-	{ wxLANGUAGE_HUNGARIAN,				true,	wxTRANSLATE("Hungarian") },
-	{ wxLANGUAGE_ITALIAN,				true,	wxTRANSLATE("Italian") },
-	{ wxLANGUAGE_ITALIAN_SWISS,			true,	wxTRANSLATE("Italian (Swiss)") },
-	{ wxLANGUAGE_JAPANESE,				true,	wxTRANSLATE("Japanese") },
-	{ wxLANGUAGE_KOREAN,				true,	wxTRANSLATE("Korean") },
-	{ wxLANGUAGE_LITHUANIAN,			true,	wxTRANSLATE("Lithuanian") },
-	{ wxLANGUAGE_NORWEGIAN_NYNORSK,         true,   wxTRANSLATE("Norwegian (Nynorsk)") }, // nn_NO would be the full id
-	{ wxLANGUAGE_POLISH,				true,	wxTRANSLATE("Polish") },
-	{ wxLANGUAGE_PORTUGUESE,			true,	wxTRANSLATE("Portuguese") },
-	{ wxLANGUAGE_PORTUGUESE_BRAZILIAN,	true,	wxTRANSLATE("Portuguese (Brazilian)") },
-	{ wxLANGUAGE_RUSSIAN,				true,	wxTRANSLATE("Russian") },
-	{ wxLANGUAGE_SLOVENIAN,				true,	wxTRANSLATE("Slovenian") },
-	{ wxLANGUAGE_SPANISH,				true,	wxTRANSLATE("Spanish") },
-	{ wxLANGUAGE_SWEDISH,				true,	wxTRANSLATE("Swedish") },
-// Unmaintained language file: es_MX.po
-//	{ wxLANGUAGE_SPANISH_MEXICAN,           true,   wxTRANSLATE("Spanish (Mexican)") },
-	{ wxLANGUAGE_TURKISH,				true,	wxTRANSLATE("Turkish") },
-// Yet no real support for "custom"
-//	{ wxLANGUAGE_CUSTOM,				true,	wxTRANSLATE("Custom") },
+	{ wxLANGUAGE_DEFAULT,				true,	wxEmptyString,	wxTRANSLATE("System default") },
+	{ wxLANGUAGE_ALBANIAN,				true,	wxEmptyString,	wxTRANSLATE("Albanian") },
+	{ wxLANGUAGE_ARABIC,				true,	wxEmptyString,	wxTRANSLATE("Arabic") },
+	{ wxLANGUAGE_BASQUE,				true,	wxEmptyString,	wxTRANSLATE("Basque") },
+	{ wxLANGUAGE_BULGARIAN,				true,	wxEmptyString,	wxTRANSLATE("Bulgarian") },
+	{ wxLANGUAGE_CATALAN,				true,	wxEmptyString,	wxTRANSLATE("Catalan") },
+	{ wxLANGUAGE_CHINESE_SIMPLIFIED,		true,	wxEmptyString,	wxTRANSLATE("Chinese (Simplified)") },
+	{ wxLANGUAGE_CHINESE_TRADITIONAL,		true,	wxEmptyString,	wxTRANSLATE("Chinese (Traditional)") },
+	{ wxLANGUAGE_CROATIAN,				true,	wxEmptyString,	wxTRANSLATE("Croatian") },
+	{ wxLANGUAGE_CZECH,				true,	wxEmptyString,	wxTRANSLATE("Czech") },
+	{ wxLANGUAGE_DANISH,				true,	wxEmptyString,	wxTRANSLATE("Danish") },
+	{ wxLANGUAGE_DUTCH,				true,	wxEmptyString,	wxTRANSLATE("Dutch") },
+	{ wxLANGUAGE_ENGLISH_UK,			true,	wxEmptyString,	wxTRANSLATE("English (U.K.)") },
+	{ wxLANGUAGE_ESTONIAN,				true,	wxEmptyString,	wxTRANSLATE("Estonian") },
+	{ wxLANGUAGE_FINNISH,				true,	wxEmptyString,	wxTRANSLATE("Finnish") },
+	{ wxLANGUAGE_FRENCH,				true,	wxEmptyString,	wxTRANSLATE("French") },
+	{ wxLANGUAGE_GALICIAN,				true,	wxEmptyString,	wxTRANSLATE("Galician") },
+	{ wxLANGUAGE_GERMAN,				true,	wxEmptyString,	wxTRANSLATE("German") },
+	{ wxLANGUAGE_GREEK,				true,	wxEmptyString,	wxTRANSLATE("Greek") },
+	{ wxLANGUAGE_HEBREW,				true,	wxEmptyString,	wxTRANSLATE("Hebrew") },
+	{ wxLANGUAGE_HUNGARIAN,				true,	wxEmptyString,	wxTRANSLATE("Hungarian") },
+	{ wxLANGUAGE_ITALIAN,				true,	wxEmptyString,	wxTRANSLATE("Italian") },
+	{ wxLANGUAGE_ITALIAN_SWISS,			true,	wxEmptyString,	wxTRANSLATE("Italian (Swiss)") },
+	{ wxLANGUAGE_JAPANESE,				true,	wxEmptyString,	wxTRANSLATE("Japanese") },
+	{ wxLANGUAGE_KOREAN,				true,	wxEmptyString,	wxTRANSLATE("Korean") },
+	{ wxLANGUAGE_LITHUANIAN,			true,	wxEmptyString,	wxTRANSLATE("Lithuanian") },
+	{ wxLANGUAGE_NORWEGIAN_NYNORSK,			true,	wxEmptyString,	wxTRANSLATE("Norwegian (Nynorsk)") },
+	{ wxLANGUAGE_POLISH,				true,	wxEmptyString,	wxTRANSLATE("Polish") },
+	{ wxLANGUAGE_PORTUGUESE,			true,	wxEmptyString,	wxTRANSLATE("Portuguese") },
+	{ wxLANGUAGE_PORTUGUESE_BRAZILIAN,		true,	wxEmptyString,	wxTRANSLATE("Portuguese (Brazilian)") },
+	{ wxLANGUAGE_RUSSIAN,				true,	wxEmptyString,	wxTRANSLATE("Russian") },
+	{ wxLANGUAGE_SLOVENIAN,				true,	wxEmptyString,	wxTRANSLATE("Slovenian") },
+	{ wxLANGUAGE_SPANISH,				true,	wxEmptyString,	wxTRANSLATE("Spanish") },
+	{ wxLANGUAGE_SWEDISH,				true,	wxEmptyString,	wxTRANSLATE("Swedish") },
+	{ wxLANGUAGE_TURKISH,				true,	wxEmptyString,	wxTRANSLATE("Turkish") },
 };
 
-
-bool TranslatedSort( const LangInfo& a, const LangInfo& b ) {
-	return wxStricmp( wxGetTranslation( a.name ), wxGetTranslation( b.name) ) < 0;
-}
 
 typedef Cfg_Int<int> Cfg_PureInt;
 
@@ -707,11 +702,6 @@ public:
 
 	virtual bool TransferToWindow()
 	{
-		// Sort the list after the current locale
-		std::sort( aMuleLanguages + 1, // Dont include DEFAULT
-			   aMuleLanguages + itemsof(aMuleLanguages),
-			   TranslatedSort );
-
 		wxChoice *langSelector = dynamic_cast<wxChoice*>(m_widget);
 		// clear existing list
 		langSelector->Clear();
@@ -719,11 +709,26 @@ public:
 		m_selection = 0;
 		int wxId = StrLang2wx(thePrefs::GetLanguageID());
 
-		// Add all other languages in alphabetical order
-		// and find the index of the selected language.
+		// Find available languages and translate them
+		aMuleLanguages[0].displayname = wxGetTranslation(aMuleLanguages[0].name);
+		for (unsigned int i = 1; i < itemsof(aMuleLanguages); ++i)
+		{
+			// This supresses error-messages about invalid locales.
+			wxLogNull	logTarget;
+			wxLocale 	locale_to_check;
+
+			InitLocale(locale_to_check, aMuleLanguages[i].id);
+			if (locale_to_check.IsOk() && locale_to_check.IsLoaded(wxT(PACKAGE))) {
+				aMuleLanguages[i].displayname = wxString(wxGetTranslation(aMuleLanguages[i].name)) + wxT(" [") + aMuleLanguages[i].name + wxT("]");
+			} else {
+				aMuleLanguages[i].available = false;
+			}
+		}
+
+		// Add all available languages and find the index of the selected language.
 		for ( unsigned int i = 0, j = 0; i < itemsof(aMuleLanguages); i++) {
-			if ((aMuleLanguages[i].available = IsLocaleAvailable(aMuleLanguages[i].id)) == true) {
-				langSelector->Append( wxGetTranslation(aMuleLanguages[i].name) );
+			if (aMuleLanguages[i].available) {
+				langSelector->Append(aMuleLanguages[i].displayname);
 				if ( aMuleLanguages[i].id == wxId ) {
 					m_selection = j;
 				}
@@ -956,7 +961,7 @@ void CPreferences::BuildItemList( const wxString& appdir )
 	NewCfgItem(IDC_MAXDOWN,		(MkCfg_Int( wxT("/eMule/MaxDownload"), s_maxdownload, 0 )));
 	NewCfgItem(IDC_SLOTALLOC,	(MkCfg_Int( wxT("/eMule/SlotAllocation"), s_slotallocation, 2 )));
 	NewCfgItem(IDC_PORT,		(MkCfg_Int( wxT("/eMule/Port"), s_port, DEFAULT_TCP_PORT )));
-	NewCfgItem(IDC_UDPPORT,		(MkCfg_Int( wxT("/eMule/UDPPort"), s_udpport, 4672 )));
+	NewCfgItem(IDC_UDPPORT,		(MkCfg_Int( wxT("/eMule/UDPPort"), s_udpport, DEFAULT_UDP_PORT )));
 	NewCfgItem(IDC_UDPDISABLE,	(new Cfg_Bool( wxT("/eMule/UDPDisable"), s_UDPDisable, false )));
 	NewCfgItem(IDC_ADDRESS,		(new Cfg_Str( wxT("/eMule/Address"), s_Addr, wxEmptyString)));
 	NewCfgItem(IDC_AUTOCONNECT,	(new Cfg_Bool( wxT("/eMule/Autoconnect"), s_autoconnect, true )));
@@ -981,13 +986,13 @@ void CPreferences::BuildItemList( const wxString& appdir )
 	 * Servers
 	 **/ 
 	NewCfgItem(IDC_REMOVEDEAD,	(new Cfg_Bool( wxT("/eMule/RemoveDeadServer"), s_deadserver, 1 )));
-	NewCfgItem(IDC_SERVERRETRIES,	(MkCfg_Int( wxT("/eMule/DeadServerRetry"), s_deadserverretries, 2 )));
+	NewCfgItem(IDC_SERVERRETRIES,	(MkCfg_Int( wxT("/eMule/DeadServerRetry"), s_deadserverretries, 3 )));
 	NewCfgItem(IDC_SERVERKEEPALIVE,	(MkCfg_Int( wxT("/eMule/ServerKeepAliveTimeout"), s_dwServerKeepAliveTimeoutMins, 0 )));
 	NewCfgItem(IDC_RECONN,		(new Cfg_Bool( wxT("/eMule/Reconnect"), s_reconnect, true )));
 	NewCfgItem(IDC_SCORE,		(new Cfg_Bool( wxT("/eMule/Scoresystem"), s_scorsystem, true )));
 	NewCfgItem(IDC_AUTOSERVER,	(new Cfg_Bool( wxT("/eMule/Serverlist"), s_autoserverlist, false )));
-	NewCfgItem(IDC_UPDATESERVERCONNECT,	(new Cfg_Bool( wxT("/eMule/AddServersFromServer"), s_addserversfromserver, true)));
-	NewCfgItem(IDC_UPDATESERVERCLIENT,	(new Cfg_Bool( wxT("/eMule/AddServersFromClient"), s_addserversfromclient, true )));
+	NewCfgItem(IDC_UPDATESERVERCONNECT,	(new Cfg_Bool( wxT("/eMule/AddServerListFromServer"), s_addserversfromserver, false)));
+	NewCfgItem(IDC_UPDATESERVERCLIENT,	(new Cfg_Bool( wxT("/eMule/AddServerListFromClient"), s_addserversfromclient, false )));
 	NewCfgItem(IDC_SAFESERVERCONNECT,	(new Cfg_Bool( wxT("/eMule/SafeServerConnect"), s_safeServerConnect, false )));
 	NewCfgItem(IDC_AUTOCONNECTSTATICONLY,	(new Cfg_Bool( wxT("/eMule/AutoConnectStaticOnly"), s_autoconnectstaticonly, false )));
 	NewCfgItem(IDC_UPNP_ENABLED,	(new Cfg_Bool( wxT("/eMule/UPnPEnabled"), s_UPnPEnabled, false )));
@@ -1026,9 +1031,11 @@ void CPreferences::BuildItemList( const wxString& appdir )
 	NewCfgItem(IDC_FULLCHUNKTRANS,	(new Cfg_Bool( wxT("/eMule/FullChunkTransfers"), s_btransferfullchunks, true )));
 	NewCfgItem(IDC_STARTNEXTFILE,	(new Cfg_Bool( wxT("/eMule/StartNextFile"), s_bstartnextfile, false )));
 	NewCfgItem(IDC_STARTNEXTFILE_SAME,	(new Cfg_Bool( wxT("/eMule/StartNextFileSameCat"), s_bstartnextfilesame, false )));
+	NewCfgItem(IDC_SRCSEEDS,	(new Cfg_Bool( wxT("/ExternalConnect/UseSrcSeeds"), s_UseSrcSeeds, false )));
 	NewCfgItem(IDC_FILEBUFFERSIZE,	(MkCfg_Int( wxT("/eMule/FileBufferSizePref"), s_iFileBufferSize, 16 )));
 	NewCfgItem(IDC_DAP,		(new Cfg_Bool( wxT("/eMule/DAPPref"), s_bDAP, true )));
 	NewCfgItem(IDC_UAP,		(new Cfg_Bool( wxT("/eMule/UAPPref"), s_bUAP, true )));
+	NewCfgItem(IDC_ALLOCFULLFILE,	(new Cfg_Bool( wxT("/eMule/AllocateFullFile"), s_allocFullFile, false )));
 
 	/**
 	 * Web Server
@@ -1062,7 +1069,7 @@ void CPreferences::BuildItemList( const wxString& appdir )
 	 **/
 	NewCfgItem(IDC_ENABLETRAYICON,	(new Cfg_Bool( wxT("/eMule/EnableTrayIcon"), s_trayiconenabled, false )));
 	NewCfgItem(IDC_MINTRAY,		(new Cfg_Bool( wxT("/eMule/MinToTray"), s_mintotray, false )));
-	NewCfgItem(IDC_EXIT,		(new Cfg_Bool( wxT("/eMule/ConfirmExit"), s_confirmExit, false )));
+	NewCfgItem(IDC_EXIT,		(new Cfg_Bool( wxT("/eMule/ConfirmExit"), s_confirmExit, true )));
 	NewCfgItem(IDC_STARTMIN,	(new Cfg_Bool( wxT("/eMule/StartupMinimized"), s_startMinimized, false )));
 
 	/**
@@ -1071,10 +1078,10 @@ void CPreferences::BuildItemList( const wxString& appdir )
 	NewCfgItem(IDC_3DDEPTH,		(MkCfg_Int( wxT("/eMule/3DDepth"), s_depth3D, 10 )));
 	NewCfgItem(IDC_TOOLTIPDELAY,	(MkCfg_Int( wxT("/eMule/ToolTipDelay"), s_iToolDelayTime, 1 )));
 	NewCfgItem(IDC_SHOWOVERHEAD,	(new Cfg_Bool( wxT("/eMule/ShowOverhead"), s_bshowoverhead, false )));
-	NewCfgItem(IDC_EXTCATINFO,	(new Cfg_Bool( wxT("/eMule/ShowInfoOnCatTabs"), s_showCatTabInfos, false )));
+	NewCfgItem(IDC_EXTCATINFO,	(new Cfg_Bool( wxT("/eMule/ShowInfoOnCatTabs"), s_showCatTabInfos, true )));
 	NewCfgItem(IDC_FED2KLH,		(new Cfg_Bool( wxT("/Razor_Preferences/FastED2KLinksHandler"), s_FastED2KLinksHandler, true )));
 	NewCfgItem(IDC_PROGBAR,		(new Cfg_Bool( wxT("/ExternalConnect/ShowProgressBar"), s_ProgBar, true )));
-	NewCfgItem(IDC_PERCENT,		(new Cfg_Bool( wxT("/ExternalConnect/ShowPercent"), s_Percent, false )));
+	NewCfgItem(IDC_PERCENT,		(new Cfg_Bool( wxT("/ExternalConnect/ShowPercent"), s_Percent, true )));
 	NewCfgItem(IDC_USESKINFILES,	(new Cfg_Bool( wxT("/SkinGUIOptions/UseSkinFiles"), s_UseSkinFiles, false )));
 	NewCfgItem(IDC_SKIN,		(new Cfg_Skin(  wxT("/SkinGUIOptions/Skin"), s_Skin, wxEmptyString )));
 	NewCfgItem(IDC_SHOWRATEONTITLE,	(new Cfg_Bool( wxT("/eMule/ShowRatesOnTitle"), s_ShowRatesOnTitle, false )));
@@ -1092,8 +1099,8 @@ void CPreferences::BuildItemList( const wxString& appdir )
 	 **/
 	NewCfgItem(IDC_SLIDER,		(MkCfg_Int( wxT("/eMule/StatGraphsInterval"), s_trafficOMeterInterval, 3 )));
 	NewCfgItem(IDC_SLIDER2,		(MkCfg_Int( wxT("/eMule/statsInterval"), s_statsInterval, 30 )));
-	NewCfgItem(IDC_DOWNLOAD_CAP,	(MkCfg_Int( wxT("/eMule/DownloadCapacity"), s_maxGraphDownloadRate, 3 )));
-	NewCfgItem(IDC_UPLOAD_CAP,	(MkCfg_Int( wxT("/eMule/UploadCapacity"), s_maxGraphUploadRate, 3 )));
+	NewCfgItem(IDC_DOWNLOAD_CAP,	(MkCfg_Int( wxT("/eMule/DownloadCapacity"), s_maxGraphDownloadRate, 300 )));
+	NewCfgItem(IDC_UPLOAD_CAP,	(MkCfg_Int( wxT("/eMule/UploadCapacity"), s_maxGraphUploadRate, 100 )));
 	NewCfgItem(IDC_SLIDER3,		(MkCfg_Int( wxT("/eMule/StatsAverageMinutes"), s_statsAverageMinutes, 5 )));
 	NewCfgItem(IDC_SLIDER4,		(MkCfg_Int( wxT("/eMule/VariousStatisticsMaxValue"), s_statsMax, 100 )));
 	NewCfgItem(IDC_CLIENTVERSIONS,	(MkCfg_Int( wxT("/Statistics/MaxClientVersions"), s_maxClientVersions, 0 )));
@@ -1115,7 +1122,7 @@ void CPreferences::BuildItemList( const wxString& appdir )
 	/** 
 	 * Message Filter 
 	 **/
-	NewCfgItem(IDC_MSGFILTER,	(new Cfg_Bool( wxT("/eMule/FilterMessages"), s_MustFilterMessages, false )));
+	NewCfgItem(IDC_MSGFILTER,	(new Cfg_Bool( wxT("/eMule/FilterMessages"), s_MustFilterMessages, true )));
 	NewCfgItem(IDC_MSGFILTER_ALL,	(new Cfg_Bool( wxT("/eMule/FilterAllMessages"), s_FilterAllMessages, false )));
 	NewCfgItem(IDC_MSGFILTER_NONFRIENDS,	(new Cfg_Bool( wxT("/eMule/MessagesFromFriendsOnly"),	s_msgonlyfriends, false )));
 	NewCfgItem(IDC_MSGFILTER_NONSECURE,	(new Cfg_Bool( wxT("/eMule/MessageFromValidSourcesOnly"),	s_msgsecure, true )));
@@ -1138,7 +1145,7 @@ void CPreferences::BuildItemList( const wxString& appdir )
 	/**
 	 * Version check
 	 **/
-	 NewCfgItem(IDC_NEWVERSION,	(new Cfg_Bool( wxT("/eMule/NewVersionCheck"), s_NewVersionCheck, false )));
+	 NewCfgItem(IDC_NEWVERSION,	(new Cfg_Bool( wxT("/eMule/NewVersionCheck"), s_NewVersionCheck, true )));
 	 
 	 /**
 	  * Obfuscation
@@ -1382,7 +1389,8 @@ CPreferences::~CPreferences()
 
 int32 CPreferences::GetRecommendedMaxConnections()
 {
-	int iRealMax = ::GetMaxConnections();
+#ifndef CLIENT_GUI
+	int iRealMax = PlatformSpecific::GetMaxConnections();
 	if(iRealMax == -1 || iRealMax > 520) {
 		return 500;
 	}
@@ -1393,6 +1401,9 @@ int32 CPreferences::GetRecommendedMaxConnections()
 		return iRealMax - 10;
 	}
 	return iRealMax - 20;
+#else
+	return 500;
+#endif
 }
 
 
@@ -1429,7 +1440,7 @@ void CPreferences::SaveCats()
 			cfg->Write( wxT("Incoming"),	CPath::ToUniv(m_CatList[i]->path) );
 			cfg->Write( wxT("Comment"),	m_CatList[i]->comment );
 			cfg->Write( wxT("Color"),	wxString::Format(wxT("%u"), m_CatList[i]->color) );
-			cfg->Write( wxT("Priority"),	m_CatList[i]->prio );
+			cfg->Write( wxT("Priority"),	(int)m_CatList[i]->prio );
 		}
 		
 		cfg->Flush();

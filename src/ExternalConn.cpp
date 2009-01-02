@@ -218,7 +218,7 @@ void ExternalConn::OnServerEvent(wxSocketEvent& WXUNUSED(event))
 		AddLogLineM(false, _("New external connection accepted"));
 	} else {
 		delete sock;
-		AddLogLineM(false, _("Error: couldn't accept a new external connection"));
+		AddLogLineM(false, _("ERROR: couldn't accept a new external connection"));
 	}
 	
 }
@@ -553,7 +553,7 @@ CECPacket *Get_EC_Response_PartFile_Cmd(const CECPacket *request)
 	CECPacket *response = NULL;
 
 	// request can contain multiple files.
-	for (int i = 0; i < request->GetTagCount(); ++i) {
+	for (unsigned int i = 0; i < request->GetTagCount(); ++i) {
 		const CECTag *hashtag = request->GetTagByIndex(i);
 
 		wxASSERT(hashtag->GetTagName() == EC_TAG_PARTFILE);
@@ -564,7 +564,7 @@ CECPacket *Get_EC_Response_PartFile_Cmd(const CECPacket *request)
 		if ( !pfile ) {
 			AddLogLineM(false,CFormat(_("Remote PartFile command failed: FileHash not found: %s")) % hash.Encode());
 			response = new CECPacket(EC_OP_FAILED);
-			response->AddTag(CECTag(EC_TAG_STRING, CFormat(wxTRANSLATE("FileHash not found: %s")) % hash.Encode()));
+			response->AddTag(CECTag(EC_TAG_STRING, CFormat(wxString(wxTRANSLATE("FileHash not found: %s"))) % hash.Encode()));
 			//return response;
 			break;
 		}
@@ -675,7 +675,7 @@ CECPacket *Get_EC_Response_Server(const CECPacket *request)
 		if ( !srv ) {
 			response = new CECPacket(EC_OP_FAILED);
 			response->AddTag(CECTag(EC_TAG_STRING,
-						CFormat(wxTRANSLATE("server not found: %s")) % srv_tag->GetIPv4Data().StringIP()));
+						CFormat(wxString(wxTRANSLATE("server not found: %s"))) % srv_tag->GetIPv4Data().StringIP()));
 			return response;
 		}
 	}
@@ -705,7 +705,7 @@ CECPacket *Get_EC_Response_Server(const CECPacket *request)
 				}
 			} else {
 				response = new CECPacket(EC_OP_FAILED);
-				response->AddTag(CECTag(EC_TAG_STRING, wxTRANSLATE("ED2K is disabled in preferences.")));
+				response->AddTag(CECTag(EC_TAG_STRING, wxTRANSLATE("eD2k is disabled in preferences.")));
 			}
 			break;
 	}
@@ -754,7 +754,7 @@ CECPacket *Get_EC_Response_Search_Results(CObjTagMap &tagmap)
 CECPacket *Get_EC_Response_Search_Results_Download(const CECPacket *request)
 {
 	CECPacket *response = new CECPacket(EC_OP_STRINGS);
-	for (int i = 0;i < request->GetTagCount();i++) {
+	for (unsigned int i = 0;i < request->GetTagCount();i++) {
 		const CECTag *tag = request->GetTagByIndex(i);
 		CMD4Hash hash = tag->GetMD4Data();
 		uint8 category = tag->GetTagByIndexSafe(0)->GetInt();
@@ -820,7 +820,7 @@ CECPacket *Get_EC_Response_Search(const CECPacket *request)
 CECPacket *Get_EC_Response_Set_SharedFile_Prio(const CECPacket *request)
 {
 	CECPacket *response = new CECPacket(EC_OP_NOOP);
-	for (int i = 0;i < request->GetTagCount();i++) {
+	for (unsigned int i = 0;i < request->GetTagCount();i++) {
 		const CECTag *tag = request->GetTagByIndex(i);
 		CMD4Hash hash = tag->GetMD4Data();
 		uint8 prio = tag->GetTagByIndexSafe(0)->GetInt();
@@ -853,7 +853,7 @@ CECPacket *Get_EC_Response_Kad_Connect(const CECPacket *request)
 		if ( addrtag ) {
 			uint32 ip = addrtag->GetIPv4Data().IP();
 			uint16 port = addrtag->GetIPv4Data().m_port;
-			Kademlia::CKademlia::Bootstrap(ip, port);
+			Kademlia::CKademlia::Bootstrap(ip, port, true);
 		}
 	} else {
 		response = new CECPacket(EC_OP_FAILED);
@@ -1055,7 +1055,7 @@ CECPacket *ExternalConn::ProcessRequest2(const CECPacket *request,
 		case EC_OP_SHUTDOWN:
 			if (!theApp->IsOnShutDown()) {
 				response = new CECPacket(EC_OP_NOOP);
-				AddLogLineM(true, _("ExternalConn: shutdown requested"));
+				AddLogLineM(true, _("External Connection: shutdown requested"));
 #ifndef AMULE_DAEMON
 				{
 					wxCloseEvent evt;
@@ -1071,7 +1071,7 @@ CECPacket *ExternalConn::ProcessRequest2(const CECPacket *request,
 			}
 			break;
 		case EC_OP_ADD_LINK: 
-			for(int i = 0; i < request->GetTagCount();i++) {
+			for(unsigned int i = 0; i < request->GetTagCount();i++) {
 				const CECTag *tag = request->GetTagByIndex(i);
 				wxString link = tag->GetStringData();
 				int category = tag->GetTagByIndexSafe(0)->GetInt();
@@ -1403,10 +1403,10 @@ CECPacket *ExternalConn::ProcessRequest2(const CECPacket *request,
 			if (thePrefs::GetNetworkED2K()) {
 				response = new CECPacket(EC_OP_STRINGS);
 				if (theApp->IsConnectedED2K()) {
-					response->AddTag(CECTag(EC_TAG_STRING, wxTRANSLATE("Already connected to ED2K.")));
+					response->AddTag(CECTag(EC_TAG_STRING, wxTRANSLATE("Already connected to eD2k.")));
 				} else {
 					theApp->serverconnect->ConnectToAnyServer();
-					response->AddTag(CECTag(EC_TAG_STRING, wxTRANSLATE("Connecting to ED2K...")));
+					response->AddTag(CECTag(EC_TAG_STRING, wxTRANSLATE("Connecting to eD2k...")));
 				}
 			}
 			if (thePrefs::GetNetworkKademlia()) {
@@ -1430,7 +1430,7 @@ CECPacket *ExternalConn::ProcessRequest2(const CECPacket *request,
 				response = new CECPacket(EC_OP_STRINGS);
 				if (theApp->IsConnectedED2K()) {
 					theApp->serverconnect->Disconnect();
-					response->AddTag(CECTag(EC_TAG_STRING, wxTRANSLATE("Disconnected from ED2K.")));
+					response->AddTag(CECTag(EC_TAG_STRING, wxTRANSLATE("Disconnected from eD2k.")));
 				}
 				if (theApp->IsConnectedKad()) {
 					theApp->StopKad();
@@ -1442,7 +1442,7 @@ CECPacket *ExternalConn::ProcessRequest2(const CECPacket *request,
 			break;
 
 		default:
-			AddLogLineM(false, wxString::Format(_("ExternalConn: invalid opcode received: %#x"), request->GetOpCode()));
+			AddLogLineM(false, wxString::Format(_("External Connection: invalid opcode received: %#x"), request->GetOpCode()));
 			wxFAIL;
 			response = new CECPacket(EC_OP_FAILED);
 			response->AddTag(CECTag(EC_TAG_STRING, wxTRANSLATE("Invalid opcode (wrong protocol version?)")));

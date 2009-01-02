@@ -49,13 +49,14 @@ DIST_COMMON = $(noinst_HEADERS) $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/build-tools.m4 \
 	$(top_srcdir)/m4/codeset.m4 $(top_srcdir)/m4/cryptopp.m4 \
-	$(top_srcdir)/m4/gdlib.m4 $(top_srcdir)/m4/gettext.m4 \
-	$(top_srcdir)/m4/glibc21.m4 $(top_srcdir)/m4/iconv.m4 \
-	$(top_srcdir)/m4/intdiv0.m4 $(top_srcdir)/m4/inttypes-pri.m4 \
-	$(top_srcdir)/m4/inttypes.m4 $(top_srcdir)/m4/inttypes_h.m4 \
-	$(top_srcdir)/m4/lcmessage.m4 $(top_srcdir)/m4/lib-ld.m4 \
-	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
-	$(top_srcdir)/m4/libpng.m4 $(top_srcdir)/m4/progtest.m4 \
+	$(top_srcdir)/m4/fallocate.m4 $(top_srcdir)/m4/gdlib.m4 \
+	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/glibc21.m4 \
+	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intdiv0.m4 \
+	$(top_srcdir)/m4/inttypes-pri.m4 $(top_srcdir)/m4/inttypes.m4 \
+	$(top_srcdir)/m4/inttypes_h.m4 $(top_srcdir)/m4/lcmessage.m4 \
+	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
+	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libpng.m4 \
+	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/progtest.m4 \
 	$(top_srcdir)/m4/readline.m4 $(top_srcdir)/m4/stdint_h.m4 \
 	$(top_srcdir)/m4/uintmax_t.m4 $(top_srcdir)/m4/ulonglong.m4 \
 	$(top_srcdir)/m4/wxwin.m4 $(top_srcdir)/m4/zlib.m4 \
@@ -119,8 +120,8 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BFD_FLAGS = @BFD_FLAGS@
-BFD_LIB = @BFD_LIB@
+BFD_CPPFLAGS = @BFD_CPPFLAGS@
+BFD_LIBS = @BFD_LIBS@
 BUILD_CC = @BUILD_CC@
 BUILD_CFLAGS = @BUILD_CFLAGS@
 BUILD_CPPFLAGS = @BUILD_CPPFLAGS@
@@ -133,7 +134,6 @@ CAS_MANPAGES = @CAS_MANPAGES@
 CAS_TRUE = @CAS_TRUE@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@
-CCACHE = @CCACHE@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 COMPILE_CMD_FALSE = @COMPILE_CMD_FALSE@
@@ -142,15 +142,9 @@ COMPILE_NLS_FALSE = @COMPILE_NLS_FALSE@
 COMPILE_NLS_TRUE = @COMPILE_NLS_TRUE@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CRYPTOLIBS = @CRYPTOLIBS@
-CRYPTO_PP_CXXFLAGS = @CRYPTO_PP_CXXFLAGS@
-CRYPTO_PP_INCLUDE_PREFIX = @CRYPTO_PP_INCLUDE_PREFIX@
-CRYPTO_PP_LDFLAGS = @CRYPTO_PP_LDFLAGS@
-CRYPTO_PP_LIB_NAME = @CRYPTO_PP_LIB_NAME@
-CRYPTO_PP_PREFIX = @CRYPTO_PP_PREFIX@
-CRYPTO_PP_STYLE = @CRYPTO_PP_STYLE@
-CRYPTO_PP_VERSION_NUMBER = @CRYPTO_PP_VERSION_NUMBER@
-CRYPTO_PP_VERSION_STRING = @CRYPTO_PP_VERSION_STRING@
+CRYPTOPP_CPPFLAGS = @CRYPTOPP_CPPFLAGS@
+CRYPTOPP_LDFLAGS = @CRYPTOPP_LDFLAGS@
+CRYPTOPP_LIBS = @CRYPTOPP_LIBS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -178,12 +172,12 @@ GDLIB_LIBS = @GDLIB_LIBS@
 GENCAT = @GENCAT@
 GENERATE_FLEX_HEADER_FALSE = @GENERATE_FLEX_HEADER_FALSE@
 GENERATE_FLEX_HEADER_TRUE = @GENERATE_FLEX_HEADER_TRUE@
-GEOIP_INCLUDE = @GEOIP_INCLUDE@
-GEOIP_LIB = @GEOIP_LIB@
+GEOIP_CPPFLAGS = @GEOIP_CPPFLAGS@
+GEOIP_LDFLAGS = @GEOIP_LDFLAGS@
+GEOIP_LIBS = @GEOIP_LIBS@
 GLIBC21 = @GLIBC21@
 GMSGFMT = @GMSGFMT@
-HAVE_FLEX_EXTENDED = @HAVE_FLEX_EXTENDED@
-HAVE_GETTEXT = @HAVE_GETTEXT@
+INCINTL = @INCINTL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -203,7 +197,6 @@ LIBINTL = @LIBINTL@
 LIBOBJS = @LIBOBJS@
 LIBPNG_CFLAGS = @LIBPNG_CFLAGS@
 LIBPNG_CONFIG_PATH = @LIBPNG_CONFIG_PATH@
-LIBPNG_CXXFLAGS = @LIBPNG_CXXFLAGS@
 LIBPNG_LDFLAGS = @LIBPNG_LDFLAGS@
 LIBPNG_LIBS = @LIBPNG_LIBS@
 LIBS = @LIBS@
@@ -220,6 +213,11 @@ MONOLITHIC_MANPAGES = @MONOLITHIC_MANPAGES@
 MONOLITHIC_TRUE = @MONOLITHIC_TRUE@
 MSGFMT = @MSGFMT@
 MSGMERGE = @MSGMERGE@
+MULECFLAGS = @MULECFLAGS@
+MULECPPFLAGS = @MULECPPFLAGS@
+MULECXXFLAGS = @MULECXXFLAGS@
+MULELDFLAGS = @MULELDFLAGS@
+MULERCFLAGS = @MULERCFLAGS@
 NEED_CORESERVICES_FALSE = @NEED_CORESERVICES_FALSE@
 NEED_CORESERVICES_TRUE = @NEED_CORESERVICES_TRUE@
 NEED_RC_FALSE = @NEED_RC_FALSE@
@@ -238,6 +236,7 @@ RANLIB = @RANLIB@
 RC = @RC@
 RCFLAGS = @RCFLAGS@
 READLINE_LIBS = @READLINE_LIBS@
+REGEX_LIBS = @REGEX_LIBS@
 RESOLV_LIB = @RESOLV_LIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -251,8 +250,7 @@ VERSION = @VERSION@
 WEB_FALSE = @WEB_FALSE@
 WEB_MANPAGES = @WEB_MANPAGES@
 WEB_TRUE = @WEB_TRUE@
-WXBASE_CFLAGS = @WXBASE_CFLAGS@
-WXBASE_CXXFLAGS = @WXBASE_CXXFLAGS@
+WXBASE_CPPFLAGS = @WXBASE_CPPFLAGS@
 WXBASE_LIBS = @WXBASE_LIBS@
 WXCAS_FALSE = @WXCAS_FALSE@
 WXCAS_MANPAGES = @WXCAS_MANPAGES@
@@ -276,6 +274,9 @@ WX_VERSION_MINOR = @WX_VERSION_MINOR@
 X11LIBS = @X11LIBS@
 XGETTEXT = @XGETTEXT@
 YACC = @YACC@
+ZLIB_CPPFLAGS = @ZLIB_CPPFLAGS@
+ZLIB_LDFLAGS = @ZLIB_LDFLAGS@
+ZLIB_LIBS = @ZLIB_LIBS@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_BUILD_CC = @ac_ct_BUILD_CC@
 ac_ct_CC = @ac_ct_CC@
@@ -299,8 +300,6 @@ build_alias = @build_alias@
 build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
-ccache = @ccache@
-ccache_prefix = @ccache_prefix@
 datadir = @datadir@
 docdir = @docdir@
 exec_prefix = @exec_prefix@
@@ -324,6 +323,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
+AM_LDFLAGS = $(MULELDFLAGS)
 alc_SOURCES = alc.cpp \
 		alcframe.cpp \
 		ed2khash.cpp \
@@ -338,15 +338,15 @@ noinst_HEADERS = alc.h \
 		md4.h \
 		bithelp.h
 
-alc_CFLAGS = $(WX_CFLAGS)
-alc_CXXFLAGS = $(WX_CXXFLAGS)
+alc_CPPFLAGS = $(MULECPPFLAGS) $(WX_CPPFLAGS)
+alc_CXXFLAGS = $(MULECXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
 alc_LDADD = $(WX_LIBS) $(am__append_3)
 alcc_SOURCES = alcc.cpp \
 		ed2khash.cpp \
 		md4.cpp
 
-alcc_CFLAGS = $(WXBASE_CFLAGS)
-alcc_CXXFLAGS = $(WXBASE_CXXFLAGS)
+alcc_CPPFLAGS = $(MULECPPFLAGS) $(WXBASE_CPPFLAGS)
+alcc_CXXFLAGS = $(MULECXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
 alcc_LDADD = $(WXBASE_LIBS)
 
 # Resources
@@ -447,116 +447,116 @@ distclean-compile:
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 alc-alc.o: alc.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-alc.o -MD -MP -MF "$(DEPDIR)/alc-alc.Tpo" -c -o alc-alc.o `test -f 'alc.cpp' || echo '$(srcdir)/'`alc.cpp; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-alc.o -MD -MP -MF "$(DEPDIR)/alc-alc.Tpo" -c -o alc-alc.o `test -f 'alc.cpp' || echo '$(srcdir)/'`alc.cpp; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alc-alc.Tpo" "$(DEPDIR)/alc-alc.Po"; else rm -f "$(DEPDIR)/alc-alc.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='alc.cpp' object='alc-alc.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-alc.o `test -f 'alc.cpp' || echo '$(srcdir)/'`alc.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-alc.o `test -f 'alc.cpp' || echo '$(srcdir)/'`alc.cpp
 
 alc-alc.obj: alc.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-alc.obj -MD -MP -MF "$(DEPDIR)/alc-alc.Tpo" -c -o alc-alc.obj `if test -f 'alc.cpp'; then $(CYGPATH_W) 'alc.cpp'; else $(CYGPATH_W) '$(srcdir)/alc.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-alc.obj -MD -MP -MF "$(DEPDIR)/alc-alc.Tpo" -c -o alc-alc.obj `if test -f 'alc.cpp'; then $(CYGPATH_W) 'alc.cpp'; else $(CYGPATH_W) '$(srcdir)/alc.cpp'; fi`; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alc-alc.Tpo" "$(DEPDIR)/alc-alc.Po"; else rm -f "$(DEPDIR)/alc-alc.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='alc.cpp' object='alc-alc.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-alc.obj `if test -f 'alc.cpp'; then $(CYGPATH_W) 'alc.cpp'; else $(CYGPATH_W) '$(srcdir)/alc.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-alc.obj `if test -f 'alc.cpp'; then $(CYGPATH_W) 'alc.cpp'; else $(CYGPATH_W) '$(srcdir)/alc.cpp'; fi`
 
 alc-alcframe.o: alcframe.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-alcframe.o -MD -MP -MF "$(DEPDIR)/alc-alcframe.Tpo" -c -o alc-alcframe.o `test -f 'alcframe.cpp' || echo '$(srcdir)/'`alcframe.cpp; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-alcframe.o -MD -MP -MF "$(DEPDIR)/alc-alcframe.Tpo" -c -o alc-alcframe.o `test -f 'alcframe.cpp' || echo '$(srcdir)/'`alcframe.cpp; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alc-alcframe.Tpo" "$(DEPDIR)/alc-alcframe.Po"; else rm -f "$(DEPDIR)/alc-alcframe.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='alcframe.cpp' object='alc-alcframe.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-alcframe.o `test -f 'alcframe.cpp' || echo '$(srcdir)/'`alcframe.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-alcframe.o `test -f 'alcframe.cpp' || echo '$(srcdir)/'`alcframe.cpp
 
 alc-alcframe.obj: alcframe.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-alcframe.obj -MD -MP -MF "$(DEPDIR)/alc-alcframe.Tpo" -c -o alc-alcframe.obj `if test -f 'alcframe.cpp'; then $(CYGPATH_W) 'alcframe.cpp'; else $(CYGPATH_W) '$(srcdir)/alcframe.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-alcframe.obj -MD -MP -MF "$(DEPDIR)/alc-alcframe.Tpo" -c -o alc-alcframe.obj `if test -f 'alcframe.cpp'; then $(CYGPATH_W) 'alcframe.cpp'; else $(CYGPATH_W) '$(srcdir)/alcframe.cpp'; fi`; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alc-alcframe.Tpo" "$(DEPDIR)/alc-alcframe.Po"; else rm -f "$(DEPDIR)/alc-alcframe.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='alcframe.cpp' object='alc-alcframe.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-alcframe.obj `if test -f 'alcframe.cpp'; then $(CYGPATH_W) 'alcframe.cpp'; else $(CYGPATH_W) '$(srcdir)/alcframe.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-alcframe.obj `if test -f 'alcframe.cpp'; then $(CYGPATH_W) 'alcframe.cpp'; else $(CYGPATH_W) '$(srcdir)/alcframe.cpp'; fi`
 
 alc-ed2khash.o: ed2khash.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-ed2khash.o -MD -MP -MF "$(DEPDIR)/alc-ed2khash.Tpo" -c -o alc-ed2khash.o `test -f 'ed2khash.cpp' || echo '$(srcdir)/'`ed2khash.cpp; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-ed2khash.o -MD -MP -MF "$(DEPDIR)/alc-ed2khash.Tpo" -c -o alc-ed2khash.o `test -f 'ed2khash.cpp' || echo '$(srcdir)/'`ed2khash.cpp; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alc-ed2khash.Tpo" "$(DEPDIR)/alc-ed2khash.Po"; else rm -f "$(DEPDIR)/alc-ed2khash.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ed2khash.cpp' object='alc-ed2khash.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-ed2khash.o `test -f 'ed2khash.cpp' || echo '$(srcdir)/'`ed2khash.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-ed2khash.o `test -f 'ed2khash.cpp' || echo '$(srcdir)/'`ed2khash.cpp
 
 alc-ed2khash.obj: ed2khash.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-ed2khash.obj -MD -MP -MF "$(DEPDIR)/alc-ed2khash.Tpo" -c -o alc-ed2khash.obj `if test -f 'ed2khash.cpp'; then $(CYGPATH_W) 'ed2khash.cpp'; else $(CYGPATH_W) '$(srcdir)/ed2khash.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-ed2khash.obj -MD -MP -MF "$(DEPDIR)/alc-ed2khash.Tpo" -c -o alc-ed2khash.obj `if test -f 'ed2khash.cpp'; then $(CYGPATH_W) 'ed2khash.cpp'; else $(CYGPATH_W) '$(srcdir)/ed2khash.cpp'; fi`; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alc-ed2khash.Tpo" "$(DEPDIR)/alc-ed2khash.Po"; else rm -f "$(DEPDIR)/alc-ed2khash.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ed2khash.cpp' object='alc-ed2khash.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-ed2khash.obj `if test -f 'ed2khash.cpp'; then $(CYGPATH_W) 'ed2khash.cpp'; else $(CYGPATH_W) '$(srcdir)/ed2khash.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-ed2khash.obj `if test -f 'ed2khash.cpp'; then $(CYGPATH_W) 'ed2khash.cpp'; else $(CYGPATH_W) '$(srcdir)/ed2khash.cpp'; fi`
 
 alc-alcpix.o: alcpix.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-alcpix.o -MD -MP -MF "$(DEPDIR)/alc-alcpix.Tpo" -c -o alc-alcpix.o `test -f 'alcpix.cpp' || echo '$(srcdir)/'`alcpix.cpp; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-alcpix.o -MD -MP -MF "$(DEPDIR)/alc-alcpix.Tpo" -c -o alc-alcpix.o `test -f 'alcpix.cpp' || echo '$(srcdir)/'`alcpix.cpp; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alc-alcpix.Tpo" "$(DEPDIR)/alc-alcpix.Po"; else rm -f "$(DEPDIR)/alc-alcpix.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='alcpix.cpp' object='alc-alcpix.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-alcpix.o `test -f 'alcpix.cpp' || echo '$(srcdir)/'`alcpix.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-alcpix.o `test -f 'alcpix.cpp' || echo '$(srcdir)/'`alcpix.cpp
 
 alc-alcpix.obj: alcpix.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-alcpix.obj -MD -MP -MF "$(DEPDIR)/alc-alcpix.Tpo" -c -o alc-alcpix.obj `if test -f 'alcpix.cpp'; then $(CYGPATH_W) 'alcpix.cpp'; else $(CYGPATH_W) '$(srcdir)/alcpix.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-alcpix.obj -MD -MP -MF "$(DEPDIR)/alc-alcpix.Tpo" -c -o alc-alcpix.obj `if test -f 'alcpix.cpp'; then $(CYGPATH_W) 'alcpix.cpp'; else $(CYGPATH_W) '$(srcdir)/alcpix.cpp'; fi`; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alc-alcpix.Tpo" "$(DEPDIR)/alc-alcpix.Po"; else rm -f "$(DEPDIR)/alc-alcpix.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='alcpix.cpp' object='alc-alcpix.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-alcpix.obj `if test -f 'alcpix.cpp'; then $(CYGPATH_W) 'alcpix.cpp'; else $(CYGPATH_W) '$(srcdir)/alcpix.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-alcpix.obj `if test -f 'alcpix.cpp'; then $(CYGPATH_W) 'alcpix.cpp'; else $(CYGPATH_W) '$(srcdir)/alcpix.cpp'; fi`
 
 alc-md4.o: md4.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-md4.o -MD -MP -MF "$(DEPDIR)/alc-md4.Tpo" -c -o alc-md4.o `test -f 'md4.cpp' || echo '$(srcdir)/'`md4.cpp; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-md4.o -MD -MP -MF "$(DEPDIR)/alc-md4.Tpo" -c -o alc-md4.o `test -f 'md4.cpp' || echo '$(srcdir)/'`md4.cpp; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alc-md4.Tpo" "$(DEPDIR)/alc-md4.Po"; else rm -f "$(DEPDIR)/alc-md4.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='md4.cpp' object='alc-md4.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-md4.o `test -f 'md4.cpp' || echo '$(srcdir)/'`md4.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-md4.o `test -f 'md4.cpp' || echo '$(srcdir)/'`md4.cpp
 
 alc-md4.obj: md4.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-md4.obj -MD -MP -MF "$(DEPDIR)/alc-md4.Tpo" -c -o alc-md4.obj `if test -f 'md4.cpp'; then $(CYGPATH_W) 'md4.cpp'; else $(CYGPATH_W) '$(srcdir)/md4.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -MT alc-md4.obj -MD -MP -MF "$(DEPDIR)/alc-md4.Tpo" -c -o alc-md4.obj `if test -f 'md4.cpp'; then $(CYGPATH_W) 'md4.cpp'; else $(CYGPATH_W) '$(srcdir)/md4.cpp'; fi`; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alc-md4.Tpo" "$(DEPDIR)/alc-md4.Po"; else rm -f "$(DEPDIR)/alc-md4.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='md4.cpp' object='alc-md4.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-md4.obj `if test -f 'md4.cpp'; then $(CYGPATH_W) 'md4.cpp'; else $(CYGPATH_W) '$(srcdir)/md4.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alc_CPPFLAGS) $(CPPFLAGS) $(alc_CXXFLAGS) $(CXXFLAGS) -c -o alc-md4.obj `if test -f 'md4.cpp'; then $(CYGPATH_W) 'md4.cpp'; else $(CYGPATH_W) '$(srcdir)/md4.cpp'; fi`
 
 alcc-alcc.o: alcc.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -MT alcc-alcc.o -MD -MP -MF "$(DEPDIR)/alcc-alcc.Tpo" -c -o alcc-alcc.o `test -f 'alcc.cpp' || echo '$(srcdir)/'`alcc.cpp; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alcc_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -MT alcc-alcc.o -MD -MP -MF "$(DEPDIR)/alcc-alcc.Tpo" -c -o alcc-alcc.o `test -f 'alcc.cpp' || echo '$(srcdir)/'`alcc.cpp; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alcc-alcc.Tpo" "$(DEPDIR)/alcc-alcc.Po"; else rm -f "$(DEPDIR)/alcc-alcc.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='alcc.cpp' object='alcc-alcc.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -c -o alcc-alcc.o `test -f 'alcc.cpp' || echo '$(srcdir)/'`alcc.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alcc_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -c -o alcc-alcc.o `test -f 'alcc.cpp' || echo '$(srcdir)/'`alcc.cpp
 
 alcc-alcc.obj: alcc.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -MT alcc-alcc.obj -MD -MP -MF "$(DEPDIR)/alcc-alcc.Tpo" -c -o alcc-alcc.obj `if test -f 'alcc.cpp'; then $(CYGPATH_W) 'alcc.cpp'; else $(CYGPATH_W) '$(srcdir)/alcc.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alcc_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -MT alcc-alcc.obj -MD -MP -MF "$(DEPDIR)/alcc-alcc.Tpo" -c -o alcc-alcc.obj `if test -f 'alcc.cpp'; then $(CYGPATH_W) 'alcc.cpp'; else $(CYGPATH_W) '$(srcdir)/alcc.cpp'; fi`; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alcc-alcc.Tpo" "$(DEPDIR)/alcc-alcc.Po"; else rm -f "$(DEPDIR)/alcc-alcc.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='alcc.cpp' object='alcc-alcc.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -c -o alcc-alcc.obj `if test -f 'alcc.cpp'; then $(CYGPATH_W) 'alcc.cpp'; else $(CYGPATH_W) '$(srcdir)/alcc.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alcc_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -c -o alcc-alcc.obj `if test -f 'alcc.cpp'; then $(CYGPATH_W) 'alcc.cpp'; else $(CYGPATH_W) '$(srcdir)/alcc.cpp'; fi`
 
 alcc-ed2khash.o: ed2khash.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -MT alcc-ed2khash.o -MD -MP -MF "$(DEPDIR)/alcc-ed2khash.Tpo" -c -o alcc-ed2khash.o `test -f 'ed2khash.cpp' || echo '$(srcdir)/'`ed2khash.cpp; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alcc_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -MT alcc-ed2khash.o -MD -MP -MF "$(DEPDIR)/alcc-ed2khash.Tpo" -c -o alcc-ed2khash.o `test -f 'ed2khash.cpp' || echo '$(srcdir)/'`ed2khash.cpp; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alcc-ed2khash.Tpo" "$(DEPDIR)/alcc-ed2khash.Po"; else rm -f "$(DEPDIR)/alcc-ed2khash.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ed2khash.cpp' object='alcc-ed2khash.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -c -o alcc-ed2khash.o `test -f 'ed2khash.cpp' || echo '$(srcdir)/'`ed2khash.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alcc_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -c -o alcc-ed2khash.o `test -f 'ed2khash.cpp' || echo '$(srcdir)/'`ed2khash.cpp
 
 alcc-ed2khash.obj: ed2khash.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -MT alcc-ed2khash.obj -MD -MP -MF "$(DEPDIR)/alcc-ed2khash.Tpo" -c -o alcc-ed2khash.obj `if test -f 'ed2khash.cpp'; then $(CYGPATH_W) 'ed2khash.cpp'; else $(CYGPATH_W) '$(srcdir)/ed2khash.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alcc_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -MT alcc-ed2khash.obj -MD -MP -MF "$(DEPDIR)/alcc-ed2khash.Tpo" -c -o alcc-ed2khash.obj `if test -f 'ed2khash.cpp'; then $(CYGPATH_W) 'ed2khash.cpp'; else $(CYGPATH_W) '$(srcdir)/ed2khash.cpp'; fi`; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alcc-ed2khash.Tpo" "$(DEPDIR)/alcc-ed2khash.Po"; else rm -f "$(DEPDIR)/alcc-ed2khash.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ed2khash.cpp' object='alcc-ed2khash.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -c -o alcc-ed2khash.obj `if test -f 'ed2khash.cpp'; then $(CYGPATH_W) 'ed2khash.cpp'; else $(CYGPATH_W) '$(srcdir)/ed2khash.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alcc_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -c -o alcc-ed2khash.obj `if test -f 'ed2khash.cpp'; then $(CYGPATH_W) 'ed2khash.cpp'; else $(CYGPATH_W) '$(srcdir)/ed2khash.cpp'; fi`
 
 alcc-md4.o: md4.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -MT alcc-md4.o -MD -MP -MF "$(DEPDIR)/alcc-md4.Tpo" -c -o alcc-md4.o `test -f 'md4.cpp' || echo '$(srcdir)/'`md4.cpp; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alcc_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -MT alcc-md4.o -MD -MP -MF "$(DEPDIR)/alcc-md4.Tpo" -c -o alcc-md4.o `test -f 'md4.cpp' || echo '$(srcdir)/'`md4.cpp; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alcc-md4.Tpo" "$(DEPDIR)/alcc-md4.Po"; else rm -f "$(DEPDIR)/alcc-md4.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='md4.cpp' object='alcc-md4.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -c -o alcc-md4.o `test -f 'md4.cpp' || echo '$(srcdir)/'`md4.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alcc_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -c -o alcc-md4.o `test -f 'md4.cpp' || echo '$(srcdir)/'`md4.cpp
 
 alcc-md4.obj: md4.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -MT alcc-md4.obj -MD -MP -MF "$(DEPDIR)/alcc-md4.Tpo" -c -o alcc-md4.obj `if test -f 'md4.cpp'; then $(CYGPATH_W) 'md4.cpp'; else $(CYGPATH_W) '$(srcdir)/md4.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alcc_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -MT alcc-md4.obj -MD -MP -MF "$(DEPDIR)/alcc-md4.Tpo" -c -o alcc-md4.obj `if test -f 'md4.cpp'; then $(CYGPATH_W) 'md4.cpp'; else $(CYGPATH_W) '$(srcdir)/md4.cpp'; fi`; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/alcc-md4.Tpo" "$(DEPDIR)/alcc-md4.Po"; else rm -f "$(DEPDIR)/alcc-md4.Tpo"; exit 1; fi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='md4.cpp' object='alcc-md4.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -c -o alcc-md4.obj `if test -f 'md4.cpp'; then $(CYGPATH_W) 'md4.cpp'; else $(CYGPATH_W) '$(srcdir)/md4.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alcc_CPPFLAGS) $(CPPFLAGS) $(alcc_CXXFLAGS) $(CXXFLAGS) -c -o alcc-md4.obj `if test -f 'md4.cpp'; then $(CYGPATH_W) 'md4.cpp'; else $(CYGPATH_W) '$(srcdir)/md4.cpp'; fi`
 uninstall-info-am:
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
@@ -729,7 +729,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-info-am
 
 
 @NEED_RC_TRUE@.rc.$(OBJEXT):
-@NEED_RC_TRUE@	$(RC) $(RCFLAGS) -I$(top_srcdir) -D__WIN95__ -D__WIN32__ -D__GNUWIN32__ -O COFF -i "$<" -o "$@"
+@NEED_RC_TRUE@	$(RC) $(MULERCFLAGS) -I$(top_srcdir) $(RCFLAGS) -O COFF -i "$<" -o "$@"
 
 @NEED_RC_TRUE@alcrc.$(OBJEXT): $(srcdir)/../alc.rc alc-version.rc
 @NEED_RC_TRUE@	cat $^ | \
@@ -737,7 +737,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-info-am
 @NEED_RC_TRUE@		abs_builddir=`pwd` ; \
 @NEED_RC_TRUE@		abs_top_srcdir=`cd $(top_srcdir) ; pwd` ; \
 @NEED_RC_TRUE@		cd $(<D) ; \
-@NEED_RC_TRUE@		$(RC) $(RCFLAGS) -I$${abs_top_srcdir} -D__WIN95__ -D__WIN32__ -D__GNUWIN32__ -O COFF -o "$${abs_builddir}/$@" ; \
+@NEED_RC_TRUE@		$(RC) $(MULERCFLAGS) -I$${abs_top_srcdir} $(RCFLAGS) -O COFF -o "$${abs_builddir}/$@" ; \
 @NEED_RC_TRUE@	)
 
 @NEED_RC_TRUE@alc-version.rc: $(top_builddir)/version.rc

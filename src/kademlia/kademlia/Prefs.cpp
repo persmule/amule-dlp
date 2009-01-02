@@ -38,22 +38,16 @@ there client on the eMule forum..
 
 #include "Prefs.h"
 
-#include <protocol/kad/Constants.h>
-#include <common/Macros.h>
+#include <common/MD5Sum.h>
 
-#include "../kademlia/Kademlia.h"
-#include "../kademlia/Indexed.h"
-#include "../../Preferences.h"
+#include "Kademlia.h"
+#include "Indexed.h"
+#include "UDPFirewallTester.h"
 #include "../../amule.h"
 #include "../../CFile.h"
 #include "../../ServerList.h"
 #include "../../Logger.h"
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
+#include "../../ArchSpecific.h"
 
 
 ////////////////////////////////////////
@@ -86,14 +80,15 @@ void CPrefs::Init(const wxString& filename)
 	m_totalStoreNotes = 0;
 	m_Publish = false;
 	m_clientHash.SetValueBE(thePrefs::GetUserHash().GetHash());
-	m_ip			= 0;
-	m_ipLast		= 0;
-	m_firewalled	= 0;
-	m_findBuddy		= false;
+	m_ip = 0;
+	m_ipLast = 0;
+	m_findBuddy = false;
 	m_kademliaUsers	= 0;
 	m_kademliaFiles	= 0;
 	m_filename = filename;
 	m_lastFirewallState = true;
+	m_externKadPort = 0;
+	m_useExternKadPort = true;
 	ReadFile();
 }
 
@@ -107,6 +102,10 @@ void CPrefs::ReadFile()
 			m_ip = file.ReadUInt32();
 			file.ReadUInt16();
 			m_clientID = file.ReadUInt128();
+			// get rid of invalid kad IDs which may have been stored by older versions
+			if (m_clientID == 0)
+				m_clientID.SetValueRandom();
+			file.Close();
 		}
 	} catch (const CSafeIOException& e) {
 		AddDebugLogLineM(true, logKadPrefs, wxT("IO error while reading prefs: ") + e.what());
@@ -129,17 +128,17 @@ void CPrefs::WriteFile()
 	}
 }
 
-void CPrefs::SetIPAddress(uint32 val)
+void CPrefs::SetIPAddress(uint32_t val) throw()
 {
 	//This is our first check on connect, init our IP..
-	if( !val || !m_ipLast ) {
+	if ( !val || !m_ipLast ) {
 		m_ip = val;
 		m_ipLast = val;
 	}
 	//If the last check matches this one, reset our current IP.
 	//If the last check does not match, wait for our next incoming IP.
 	//This happens for two reasons.. We just changed our IP, or a client responsed with a bad IP.
-	if( val == m_ipLast ) {
+	if ( val == m_ipLast ) {
 		m_ip = val;
 	} else {
 		m_ipLast = val;
@@ -147,29 +146,13 @@ void CPrefs::SetIPAddress(uint32 val)
 }
 
 
-bool CPrefs::HasLostConnection() const
+bool CPrefs::GetFirewalled() const throw()
 {
-	if( m_lastContact ) {
-		return !((time(NULL) - m_lastContact) < KADEMLIADISCONNECTDELAY);
-	}
-	return false;
-}
-
-bool CPrefs::HasHadContact() const
-{
-	if( m_lastContact ) {
-		return ((time(NULL) - m_lastContact) < KADEMLIADISCONNECTDELAY);
-	}
-	return false;
-}
-
-bool CPrefs::GetFirewalled() const
-{
-	if( m_firewalled<2 ) {
+	if (m_firewalled < 2) {
 		//Not enough people have told us we are open but we may be doing a recheck
 		//at the moment which will give a false lowID.. Therefore we check to see
 		//if we are still rechecking and will report our last known state..
-		if(GetRecheckIP()) {
+		if (GetRecheckIP()) {
 			return m_lastFirewallState;
 		}
 		return true;
@@ -182,7 +165,7 @@ void CPrefs::SetFirewalled()
 {
 	//Are are checking our firewall state.. Let keep a snapshot of our
 	//current state to prevent false reports during the recheck..
-	m_lastFirewallState = (m_firewalled<2);
+	m_lastFirewallState = (m_firewalled < 2);
 	m_firewalled = 0;
 	theApp->ShowConnectionState();
 }
@@ -193,27 +176,18 @@ void CPrefs::IncFirewalled()
 	theApp->ShowConnectionState();
 }
 
-bool CPrefs::GetFindBuddy() /*const*/
-{
-	if( m_findBuddy ) {
-		m_findBuddy = false;
-		return true;
-	}
-	return false;
-}
-
 void CPrefs::SetKademliaFiles()
 {
 	//There is no real way to know how many files are in the Kad network..
 	//So we first try to see how many files per user are in the ED2K network..
 	//If that fails, we use a set value based on previous tests..
-	uint32 nServerAverage = theApp->serverlist->GetAvgFile();
-	uint32 nKadAverage = Kademlia::CKademlia::GetIndexed()->GetFileKeyCount();
+	uint32_t nServerAverage = theApp->serverlist->GetAvgFile();
+	uint32_t nKadAverage = Kademlia::CKademlia::GetIndexed()->GetFileKeyCount();
 
 #ifdef __DEBUG__
 	wxString method;
 #endif
-	if( nServerAverage > nKadAverage ) {
+	if (nServerAverage > nKadAverage) {
 #ifdef __DEBUG__
 		method = wxString::Format(wxT("Kad file estimate used Server avg(%u)"), nServerAverage);
 #endif
@@ -233,6 +207,30 @@ void CPrefs::SetKademliaFiles()
 #ifdef ___DEBUG__
 	AddDebugLogLineM(false, logKadPrefs, method);
 #endif
-	m_kademliaFiles = nKadAverage*m_kademliaUsers;
+	m_kademliaFiles = nKadAverage * m_kademliaUsers;
+}
+
+uint8_t CPrefs::GetMyConnectOptions(bool encryption, bool callback)
+{
+       // Connect options Tag
+       // 4 Reserved (!)
+       // 1 Direct Callback
+       // 1 CryptLayer Required
+       // 1 CryptLayer Requested
+       // 1 CryptLayer Supported
+
+       // direct callback is only possible if connected to kad, tcp firewalled and verified UDP open (for example on a full cone NAT)
+
+       return    (callback && theApp->IsFirewalled() && CKademlia::IsRunning() && !CUDPFirewallTester::IsFirewalledUDP(true) && CUDPFirewallTester::IsVerified()) ? 0x08 : 0
+	       | (thePrefs::IsClientCryptLayerRequired() && encryption) ? 0x04 : 0
+	       | (thePrefs::IsClientCryptLayerRequested() && encryption) ? 0x02 : 0
+	       | (thePrefs::IsClientCryptLayerSupported() && encryption) ? 0x01 : 0;
+}
+
+uint32_t CPrefs::GetUDPVerifyKey(uint32_t targetIP) throw()
+{
+	uint64_t buffer = (uint64_t)thePrefs::GetKadUDPKey() << 32 | targetIP;
+	MD5Sum md5((const uint8_t *)&buffer, 8);
+	return (uint32_t)(PeekUInt32(md5.GetRawHash()) ^ PeekUInt32(md5.GetRawHash() + 4) ^ PeekUInt32(md5.GetRawHash() + 8) ^ PeekUInt32(md5.GetRawHash() + 12)) % 0xFFFFFFFE + 1;
 }
 // File_checked_for_headers

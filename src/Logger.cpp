@@ -98,6 +98,9 @@ CDebugCategory g_debugcats[] = {
 	CDebugCategory( logMuleUDP,		wxT("MuleUDPSocket" ) ),
 	CDebugCategory( logThreads,		wxT("ThreadScheduler" ) ),
 	CDebugCategory( logUPnP,		wxT("Universal Plug and Play" ) ),
+	CDebugCategory( logKadUdpFwTester,	wxT("Kademlia UDP Firewall Tester") ),
+	CDebugCategory( logKadPacketTracking,	wxT("Kademlia Packet Tracking") ),
+	CDebugCategory( logKadEntryTracking,	wxT("Kademlia Entry Tracking") )
 };
 
 
@@ -209,7 +212,7 @@ void CLogger::AddLogLine(
 	const wxString &str)
 {
 	wxString msg;
-	msg << file.AfterLast(wxFileName::GetPathSeparator()) << wxT("(") << line << wxT("): ") << str;
+	msg << file.AfterLast(wxFileName::GetPathSeparator()).AfterLast(wxT('/')) << wxT("(") << line << wxT("): ") << str;
 	PushEntry(critical, msg);
 
 	if (wxThread::IsMain()) {
@@ -264,7 +267,7 @@ void CLoggerTarget::DoLogString(const wxChar* msg, time_t)
 	wxString str(msg);
 	
 	// This is much simpler than manually handling all wx log-types.
-	bool critical = str.StartsWith(_("Error: ")) || str.StartsWith(_("Warning: "));
+	bool critical = str.StartsWith(_("ERROR: ")) || str.StartsWith(_("WARNING: "));
 
 	CLogger::AddLogLine(__TFILE__, __LINE__, critical, str);
 }
