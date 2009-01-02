@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2004-2006 Marcelo Jimenez ( phoenix@amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Marcelo Jimenez ( phoenix@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -26,8 +26,7 @@
 #ifndef __PROXY_H__
 #define __PROXY_H__
 
-#include <wx/socket.h>		// For wxSocket*
-#include <wx/string.h>		// For wxString
+#include <wx/wx.h>
 
 #include "amuleIPV4Address.h"	// For amuleIPV4address
 #include "StateMachine.h"	// For CStateMachine
@@ -104,7 +103,7 @@ enum CProxyType {
 	PROXY_SOCKS5,
 	PROXY_SOCKS4,
 	PROXY_HTTP,
-	PROXY_SOCKS4a,
+	PROXY_SOCKS4a
 };
 
 
@@ -247,7 +246,7 @@ public:
 	t_sm_state	HandleEvent(t_sm_event event);
 	void		AddDummyEvent();
 	void		ReactivateSocket();
-	char 		*GetBuffer() const			{ return (char *)m_buffer; }
+	char 		*GetBuffer()				{ return m_buffer; }
 	wxIPaddress	&GetProxyBoundAddress(void) const	{ return *m_proxyBoundAddress; }
 	unsigned char	GetLastReply(void) const		{ return m_lastReply; }
 	bool		IsEndState() const			{ return GetState() == PROXY_STATE_END; }
@@ -473,7 +472,7 @@ public:
 	/* Interface */
 	void		SetProxyData(const CProxyData *proxyData);
 	bool		GetUseProxy() const	{ return m_useProxy; }
-	char 		*GetBuffer() const	{ return m_proxyStateMachine->GetBuffer(); }
+	char 		*GetBuffer()		{ return m_proxyStateMachine->GetBuffer(); }
 	wxIPaddress	&GetProxyBoundAddress(void) const
 						{ return m_proxyStateMachine->GetProxyBoundAddress(); }
 	bool Start(const wxIPaddress &peerAddress);
@@ -584,3 +583,4 @@ private:
 
 #endif /* __PROXY_H__ */
 
+// File_checked_for_headers

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (C) 2005-2006Froenchenko Leonid ( lfroen@amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2008 Froenchenko Leonid ( lfroen@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -23,24 +23,21 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <cstdio>
-#include <cstring>
-#include <cassert>
-#include <cstdarg>
-#include <inttypes.h>
 
-#include <list>
-#include <map>
-#include <vector>
-#include <string>
-#include <algorithm>
+#include <string> // Do_not_auto_remove (g++-4.0.1)
 
-#ifndef PHP_STANDALONE_EN
+#ifdef PHP_STANDALONE_EN
+	#include <map>
+	#include <list>
+	#include <stdarg.h>
+#else
 	#include "WebServer.h"
 #endif
 
+
 #include "php_syntree.h"
 #include "php_core_lib.h"
+
 
 PHP_SYN_NODE *g_syn_tree_top = 0;
 
@@ -403,7 +400,7 @@ void free_var_node(PHP_VAR_NODE *v)
  *  2. Lvalue-evaluate all by-ref params and adjust pointers
  */
 void func_scope_init(PHP_FUNC_PARAM_DEF *params, int param_count,
-	PHP_SCOPE_TABLE_TYPE *scope_map, PHP_VALUE_NODE *arg_array,
+	PHP_SCOPE_TABLE_TYPE * /*scope_map*/, PHP_VALUE_NODE *arg_array,
 	std::map<std::string, PHP_VAR_NODE *> &saved_vars)
 {
 	//
@@ -472,7 +469,7 @@ void func_scope_init(PHP_FUNC_PARAM_DEF *params, int param_count,
  *  2. Next call may be using same params by-value, so it need independent varnode
  */
 void func_scope_copy_back(PHP_FUNC_PARAM_DEF *params, int param_count,
-	PHP_SCOPE_TABLE_TYPE *scope_map, PHP_VALUE_NODE *arg_array,
+	PHP_SCOPE_TABLE_TYPE * /*scope_map*/, PHP_VALUE_NODE *arg_array,
 	std::map<std::string, PHP_VAR_NODE *> &saved_vars)
 {
 	/*
@@ -929,7 +926,7 @@ void cast_value_str(PHP_VALUE_NODE *val)
 	switch(val->type) {
 		case PHP_VAL_NONE: buff[0] = 0; break;
 		case PHP_VAL_BOOL:
-		case PHP_VAL_INT: snprintf(buff, sizeof(buff), "%lld", val->int_val); break;
+		case PHP_VAL_INT: snprintf(buff, sizeof(buff), "%"PRIu64, val->int_val); break;
 		case PHP_VAL_FLOAT: snprintf(buff, sizeof(buff), "%.02f", val->float_val); break;
 		case PHP_VAL_STRING: return;
 		case PHP_VAL_ARRAY: {
@@ -2001,10 +1998,10 @@ int main(int argc, char *argv[])
 	const char *filename = ( argc == 2 ) ? argv[1] : "test.php";
 
 	CWriteStrBuffer buffer;
+	
+	yydebug = 0;
 
 	CPhpFilter php_filter((CWebServerBase*)0, (CSession *)0,filename, &buffer);
-	
-	yydebug = 1;
 	
 	int size = buffer.Length();
 	char *buf = new char [size+1];
@@ -2016,3 +2013,4 @@ int main(int argc, char *argv[])
 }
 
 #endif
+// File_checked_for_headers

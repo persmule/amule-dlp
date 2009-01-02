@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -27,11 +27,9 @@
 #define ED2KLINK_H
 
 
-#include "Types.h"			// Needed for uint16 and uint32
 #include "MD4Hash.h"		// Needed for CMD4Hash
 #include "SHAHashSet.h"		// Needed for CAICHHash
 
-#include <deque>
 
 
 class CMemFile;
@@ -68,7 +66,7 @@ public:
 	virtual wxString GetLink() const;
 
 	wxString GetName() const;
-	uint32 GetSize() const;
+	uint64 GetSize() const;
 	const CMD4Hash& GetHashKey() const;
 
 	// AICH data
@@ -86,6 +84,10 @@ public:
 		wxString addr;
 		//! The source's TCP-port.
 		uint16 port;
+		//! Client hash for encryption
+		wxString hash;
+		//! Client cryptoptions
+		uint8 cryptoptions;		
 	};
 
 	typedef std::deque<SED2KLinkSource> CED2KLinkSourceList;	
@@ -97,7 +99,7 @@ private:
 	CED2KFileLink& operator=(const CED2KFileLink&); // Not defined
 
 	wxString	m_name;
-	uint32		m_size;
+	uint64		m_size;
 	CMD4Hash	m_hash;
 	bool		m_bAICHHashValid;
 	CAICHHash	m_AICHHash;
@@ -145,3 +147,4 @@ private:
 
 
 #endif
+// File_checked_for_headers

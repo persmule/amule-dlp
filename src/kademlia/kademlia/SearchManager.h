@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -39,10 +39,9 @@ there client on the eMule forum..
 #ifndef __SEARCHMANAGER_H__
 #define __SEARCHMANAGER_H__
 
-#include <map>
-#include <list>
 #include "../utils/UInt128.h"
 #include "../routing/Maps.h"
+#include "../../Tag.h"
 
 class CMemFile;
 
@@ -52,9 +51,6 @@ namespace Kademlia {
 
 class CSearch;
 class CRoutingZone;
-class CTag;
-typedef std::list<CTag*> TagList;
-void deleteTagListEntries(TagList* taglist);
 
 // If type is unknown it will be an empty string
 // If there are any properties about the file to report, there will follow LPCSTR key/value pairs.
@@ -77,41 +73,42 @@ class CSearchManager
 
 public:
 
-	static void stopSearch(uint32 searchID, bool delayDelete);
-	static void stopAllSearches(void);
+	static void StopSearch(uint32 searchID, bool delayDelete);
+	static void StopAllSearches(void);
 
 	// Search for a particular file
 	// Will return unique search id, returns zero if already searching for this file.
-	static CSearch* prepareLookup(uint32 type, bool start, const CUInt128 &id);
+	static CSearch* PrepareLookup(uint32 type, bool start, const CUInt128 &id);
 
 	// Will return unique search id, returns zero if already searching for this keyword.
-	static CSearch* prepareFindKeywords(const wxString& keyword, CMemFile* ed2k_packet, uint32 searchid);
+	static CSearch* PrepareFindKeywords(const wxString& keyword, CMemFile* ed2k_packet, uint32 searchid);
 
-	static bool startSearch(CSearch* pSearch);
-	static void deleteSearch(CSearch* pSearch);
+	static bool StartSearch(CSearch* pSearch);
+	static void DeleteSearch(CSearch* pSearch);
 
-	static void processResponse(const CUInt128 &target, uint32 fromIP, uint16 fromPort, ContactList *results);
-	static void processResult(const CUInt128 &target, uint32 fromIP, uint16 fromPort, const CUInt128 &answer, TagList *info);
-	static void processPublishResult(const CUInt128 &target, const uint8 load, const bool loadResponse);
+	static void ProcessResponse(const CUInt128 &target, uint32 fromIP, uint16 fromPort, ContactList *results);
+	static void ProcessResult(const CUInt128 &target, uint32 fromIP, uint16 fromPort, const CUInt128 &answer, TagPtrList *info);
+	static void ProcessPublishResult(const CUInt128 &target, const uint8 load, const bool loadResponse);
 
-	static void getWords(const wxString& str, WordList *words);
+	static void GetWords(const wxString& str, WordList *words);
 
-	static void updateStats(void);
+	static void UpdateStats(void);
 
-	static bool isNodeSearch(const CUInt128 &target);
+	static bool IsNodeSearch(const CUInt128 &target);
 
-	static bool alreadySearchingFor(const CUInt128 &target);
+	static bool AlreadySearchingFor(const CUInt128 &target);
 private:
 
-	static void findNode(const CUInt128 &id);
-	static void findNodeComplete(const CUInt128 &id);
+	static void FindNode(const CUInt128 &id);
+	static void FindNodeComplete(const CUInt128 &id);
 
 	static uint32 m_nextID;
 	static SearchMap m_searches;
 
-	static void jumpStart(void);
+	static void JumpStart(void);
 };
 
 } // End namespace
 
 #endif // __SEARCHMANAGER_H__
+// File_checked_for_headers

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -85,7 +85,7 @@ private:
 	wxGauge* m_bar_requests;
 	//! Pointer to the gauge used for showing accepted-requests ratio.
 	wxGauge* m_bar_accepted;
-	//! Pointer to the gauge used for showing the transfered ratio.
+	//! Pointer to the gauge used for showing the transferred ratio.
 	wxGauge* m_bar_transfer;
 
 	
@@ -93,3 +93,4 @@ private:
 };
 
 #endif
+// File_checked_for_headers

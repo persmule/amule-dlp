@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Angel Vidal Veiga - Kry (kry@amule.org)
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Angel Vidal Veiga - Kry (kry@amule.org)
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -112,7 +112,6 @@ const IPRange ranges[] = {
 //{ wxT("24.0.0.0"),       8, false }, // Cable Television Networks                 --
 { wxT("39.0.0.0"),       8, false }, // Reserved but subject
                                      //    to allocation                   [RFC1797]
-{ wxT("80.239.200.0"),   8, false },
 { wxT("127.0.0.0"),      8, false }, // Loopback                   [RFC1700, page 5]
 { wxT("128.0.0.0"),     16, false }, // Reserved but subject
                                      //    to allocation                          --
@@ -171,3 +170,4 @@ bool IsGoodIP(uint32 IP, bool filterLAN)
 
 	return true;
 }
+// File_checked_for_headers

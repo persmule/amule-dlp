@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Carlo Wood ( carlo@alinoe.com )
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Carlo Wood ( carlo@alinoe.com )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -26,12 +26,9 @@
 #ifndef AMULEIPV4ADDRESS_H
 #define AMULEIPV4ADDRESS_H
 
-#include <wx/defs.h>			// Needed before any other wx/*.h
 #include <wx/object.h>			// Needed by wx/sckaddr.h
-#include <wx/sckaddr.h>			// Needed for wxIPV4address
 
-#include "ArchSpecific.h"		// Needed for ENDIAN_SWAP_32
-#include "NetworkFunctions.h"	// Needed for unicode2char
+#include "NetworkFunctions.h"	// Needed for StringIPtoUint32
 
 
 // This is fscking hard to maintain. wxWidgets 2.5.2 has changed internal
@@ -66,3 +63,4 @@ public:
 };
 
 #endif // AMULEIPV4ADDRESS_H
+// File_checked_for_headers

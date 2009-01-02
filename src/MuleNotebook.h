@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Angel Vidal Veiga ( kry@users.sourceforge.net )
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Angel Vidal Veiga ( kry@users.sourceforge.net )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -29,14 +29,12 @@
 #include <wx/notebook.h>
 
 
-BEGIN_DECLARE_EVENT_TYPES()
-	DECLARE_LOCAL_EVENT_TYPE(wxEVT_COMMAND_MULENOTEBOOK_PAGE_CLOSED, 4804)
-	DECLARE_LOCAL_EVENT_TYPE(wxEVT_COMMAND_MULENOTEBOOK_ALL_PAGES_CLOSED, 4805)
-END_DECLARE_EVENT_TYPES()
+DECLARE_LOCAL_EVENT_TYPE(wxEVT_COMMAND_MULENOTEBOOK_PAGE_CLOSING, -1)
+DECLARE_LOCAL_EVENT_TYPE(wxEVT_COMMAND_MULENOTEBOOK_ALL_PAGES_CLOSED, -1)
 
-#define EVT_MULENOTEBOOK_PAGE_CLOSED(id, fn)						\
+#define EVT_MULENOTEBOOK_PAGE_CLOSING(id, fn)						\
 	DECLARE_EVENT_TABLE_ENTRY(							\
-		wxEVT_COMMAND_MULENOTEBOOK_PAGE_CLOSED,					\
+		wxEVT_COMMAND_MULENOTEBOOK_PAGE_CLOSING,					\
 		id,									\
 		-1,									\
 		(wxObjectEventFunction)(wxEventFunction)(wxNotebookEventFunction) &fn,  \
@@ -110,12 +108,6 @@ public:
 	void SetPopupHandler( wxWindow* widget );
 
 protected:
-	#if defined(__WXGTK12__)
-	// Madcat - closing engine
-	void CalculatePositions();   // Fills the widths/begins/ends arrays
-	wxArrayInt widths, begins, ends;       // Positions of tabs
-	#endif
-
 	void MouseClick(wxMouseEvent &event);  // Mouse clicks event handler
 	void MouseMotion(wxMouseEvent &event); // Mouse moving around
 	
@@ -149,3 +141,4 @@ protected:
 };
 
 #endif
+// File_checked_for_headers

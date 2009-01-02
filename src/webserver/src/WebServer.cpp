@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 Kry ( elkry@sourceforge.net / http://www.amule.org )
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 Kry ( elkry@sourceforge.net / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -24,44 +24,26 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#ifdef HAVE_CONFIG_H
-	#include "config.h"		// Needed for VERSION
-#endif
 
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
-#include <cctype>
-#include <cstdlib>
 #include <cmath> // Needed for cos, M_PI
-#include <string>
+#include <string> // Do_not_auto_remove (g++-4.0.1)
 
-#include "WebServer.h"
+#include <wx/datetime.h>
 
 //-------------------------------------------------------------------
 
-#include <wx/arrimpl.cpp>	// this is a magic incantation which must be done!
 #include <wx/tokenzr.h>		// for wxTokenizer
-#include <wx/txtstrm.h>
 #include <wx/wfstream.h>
-#include <wx/filename.h>
 
-#include <ec/ECFileConfig.h>	// Needed for CECFileConfig
-#include <ec/ECSpecialTags.h>
-#include <ec/ECCodes.h>
+#include <ec/cpp/ECFileConfig.h>	// Needed for CECFileConfig
+#include <ec/cpp/ECSpecialTags.h>
 #include <common/MD5Sum.h>
 #include <common/Format.h>		// Needed for CFormat
 
 //-------------------------------------------------------------------
 
-#include "GetTickCount.h"	// Needed for GetTickCount
-#include "OtherStructs.h"	// Needed for TransferredData
-#include "OtherFunctions.h"	// Needed for atoll, ED2KFT_*
-#include "NetworkFunctions.h"	// Needed for StringIPtoUint32
-#include "Types.h"
 #include "WebSocket.h"		// Needed for StopSockets()
 #include "Color.h"		// Needed for COLORREF and RGB()
-#include "ArchSpecific.h"	// Needed for ENDIAN_NTOHL()
 
 #include "php_syntree.h"
 #include "php_core_lib.h"
@@ -164,18 +146,24 @@ CUrlDecodeTable::CUrlDecodeTable()
 		snprintf(fromReplace, sizeof(fromReplace), "%%%02X", i);
 		m_enc_u_str[i] = char2unicode(fromReplace);
 
-		char toReplace[2] = {(char)i, 0};	// decode URL
-		m_dec_str[i] = char2unicode(toReplace);
+		m_dec_str[i] = wxString::Format(wxT("%c"), i);
 	}
 }
 
 void CUrlDecodeTable::DecodeString(wxString &str)
 {
 	str.Replace(wxT("+"), wxT(" "));
-	for (int i = 0 ; i < 256 ; i++) {
+	for (int i = 0 ; i < 256 ; ++i) {
 		str.Replace(m_enc_l_str[i], m_dec_str[i]);
 		str.Replace(m_enc_u_str[i], m_dec_str[i]);
 	}
+	size_t n = str.Len();
+	std::vector<char> buffer(n + 1);
+	for (size_t i = 0; i < n; ++i) {
+		buffer[i] = str[i];
+	}
+	buffer[n] = 0; // Mark the end of the string
+	str = UTF82unicode(&buffer[0]);
 }
 
 CUrlDecodeTable*	CUrlDecodeTable::ms_instance;
@@ -231,7 +219,6 @@ CWebServerBase::CWebServerBase(CamulewebApp *webApp, const wxString& templateDir
 	m_ImageLib(templateDir)
 {
 	webInterface = webApp;
-	m_mutexChildren = new wxMutex();
 	
 	//
 	// Init stat graphs
@@ -265,7 +252,7 @@ long CWebServerBase::GetWSPrefs(void)
 	// we have selected only the webserver preferences
 	const CECTag *wsprefs = reply->GetTagByIndexSafe(0);
 	const CECTag *tag = wsprefs->GetTagByName(EC_TAG_WEBSERVER_PORT);
-	long int wsport = tag ? (long int)tag->GetInt16Data() : -1;
+	long int wsport = tag ? (long int)tag->GetInt() : -1;
 
 	if (webInterface->m_LoadSettingsFromAmule) {
 		webInterface->m_AdminPass = wsprefs->GetTagByNameSafe(EC_TAG_PASSWD_HASH)->GetMD4Data();
@@ -283,7 +270,7 @@ long CWebServerBase::GetWSPrefs(void)
 	
 		const CECTag *webserverRefresh = wsprefs->GetTagByName(EC_TAG_WEBSERVER_REFRESH);
 		if (webserverRefresh) {
-			webInterface->m_PageRefresh = webserverRefresh->GetInt32Data();
+			webInterface->m_PageRefresh = webserverRefresh->GetInt();
 		} else {
 			webInterface->m_PageRefresh = 120;
 		}
@@ -297,16 +284,17 @@ long CWebServerBase::GetWSPrefs(void)
 void CScriptWebServer::ProcessImgFileReq(ThreadData Data)
 {
 	webInterface->DebugShow(wxT("**** imgrequest: ") + Data.sURL + wxT("\n"));
+	wxMutexLocker lock(m_mutexChildren);
 
 	const CSession* session = CheckLoggedin(Data);
 
 	// To prevent access to non-template images, we disallow use of paths in filenames.
-	wxString imgName = wxFileName::GetPathSeparator() + wxFileName(Data.sURL).GetFullName();
+	wxString imgName = wxFileName::GetPathSeparator() + wxFileName(Data.parsedURL.File()).GetFullName();
 	CAnyImage *img = m_ImageLib.GetImage(imgName);
 	
 	// Only static images are available to visitors, in order to prevent
 	// information leakage, but still allowing images on the login page.
-	if (session->m_loggedin or dynamic_cast<CFileImage*>(img)) {
+	if (img && (session->m_loggedin || dynamic_cast<CFileImage*>(img))) {
 		int img_size = 0;
 		unsigned char* img_data = img->RequestData(img_size);
 		// This unicode2char is ok.
@@ -484,7 +472,7 @@ void CWebServerBase::Send_Search_Cmd(wxString search, wxString extention, wxStri
 
 bool CWebServerBase::Send_DownloadEd2k_Cmd(wxString link, uint8 cat)
 {
-	CECPacket req(EC_OP_ED2K_LINK);
+	CECPacket req(EC_OP_ADD_LINK);
 	CECTag link_tag(EC_TAG_STRING, link);
 	link_tag.AddTag(CECTag(EC_TAG_PARTFILE_CAT, cat));
 	req.AddTag(link_tag);
@@ -515,7 +503,7 @@ int CWebServerBase::GzipCompress(Bytef *dest, uLongf *destLen, const Bytef *sour
 		Z_DEFLATED, 0 /*flags*/, 0,0,0,0 /*time*/, 0 /*xflags*/, 255);
 
 	// wire buffers
-	stream.next_in = (Bytef*) source ;
+	stream.next_in = const_cast<Bytef*>(source);
 	stream.avail_in = (uInt)sourceLen;
 	stream.next_out = ((Bytef*) dest) + 10;
 	stream.avail_out = *destLen - 18;
@@ -584,11 +572,11 @@ bool ServersInfo::ServersInfo::ReQuery()
 		Entry.nServerIP = tag->GetIPv4Data().IP();
 		Entry.nServerPort = tag->GetIPv4Data().m_port;
 		Entry.nServerUsers =
-			tag->GetTagByNameSafe(EC_TAG_SERVER_USERS)->GetInt32Data();
+			tag->GetTagByNameSafe(EC_TAG_SERVER_USERS)->GetInt();
 		Entry.nServerMaxUsers =
-			tag->GetTagByNameSafe(EC_TAG_SERVER_USERS_MAX)->GetInt32Data();
+			tag->GetTagByNameSafe(EC_TAG_SERVER_USERS_MAX)->GetInt();
 		Entry.nServerFiles =
-			tag->GetTagByNameSafe(EC_TAG_SERVER_FILES)->GetInt32Data();
+			tag->GetTagByNameSafe(EC_TAG_SERVER_FILES)->GetInt();
 		AddItem(Entry);
 	}
 	delete srv_reply;
@@ -658,6 +646,7 @@ DownloadFile::DownloadFile(CEC_PartFile_Tag *tag)
 	lFileTransferred = tag->SizeXfer();
 	lFileSpeed = tag->Speed();
 	fCompleted = (100.0*lFileCompleted) / lFileSize;
+	wxtLastSeenComplete = wxDateTime( tag->LastSeenComplete() );
 	
 	m_Encoder = PartFileEncoderData( (lFileSize + (PARTSIZE - 1)) / PARTSIZE, 10);
 
@@ -704,8 +693,8 @@ void DownloadFile::ProcessUpdate(CEC_PartFile_Tag *tag)
 		int reqcount = reqtag->GetTagDataLen() / sizeof(Gap_Struct);
 		m_ReqParts.resize(reqcount);
 		for (int i = 0; i < reqcount;i++) {
-			m_ReqParts[i].start = ENDIAN_NTOHL(reqparts[i].start);
-			m_ReqParts[i].end   = ENDIAN_NTOHL(reqparts[i].end);
+			m_ReqParts[i].start = ENDIAN_NTOHLL(reqparts[i].start);
+			m_ReqParts[i].end   = ENDIAN_NTOHLL(reqparts[i].end);
 		}
 	}
 }
@@ -955,7 +944,7 @@ CProgressImage::CProgressImage(int width, int height, wxString &tmpl, DownloadFi
 {
 	m_file = file;
 
-	m_gap_buf_size = m_gap_alloc_size = m_file->m_Encoder.m_gap_status.Size() / (2 * sizeof(uint32));
+	m_gap_buf_size = m_gap_alloc_size = m_file->m_Encoder.m_gap_status.Size() / (2 * sizeof(uint64));
 	m_gap_buf = new Gap_Struct[m_gap_alloc_size];
 	
 	m_ColorLine = new uint32[m_width];
@@ -969,7 +958,7 @@ CProgressImage::~CProgressImage()
 
 void CProgressImage::ReallocGapBuffer()
 {
-	int size = m_file->m_Encoder.m_gap_status.Size() / (2 * sizeof(uint32));
+	int size = m_file->m_Encoder.m_gap_status.Size() / (2 * sizeof(uint64));
 	if ( size == m_gap_alloc_size ) {
 		return;
 	}
@@ -986,17 +975,17 @@ void CProgressImage::InitSortedGaps()
 {
 	ReallocGapBuffer();
 
-	const uint32 *gap_info = (const uint32 *)m_file->m_Encoder.m_gap_status.Buffer();
-	m_gap_buf_size = m_file->m_Encoder.m_gap_status.Size() / (2 * sizeof(uint32));
+	const uint64 *gap_info = (const uint64 *)m_file->m_Encoder.m_gap_status.Buffer();
+	m_gap_buf_size = m_file->m_Encoder.m_gap_status.Size() / (2 * sizeof(uint64));
 	
 	//memcpy(m_gap_buf, gap_info, m_gap_buf_size*2*sizeof(uint32));
 	for (int j = 0; j < m_gap_buf_size;j++) {
-		uint32 gap_start = ENDIAN_NTOHL(gap_info[2*j]);
-		uint32 gap_end = ENDIAN_NTOHL(gap_info[2*j+1]);
+		uint64 gap_start = ENDIAN_NTOHLL(gap_info[2*j]);
+		uint64 gap_end = ENDIAN_NTOHLL(gap_info[2*j+1]);
 		m_gap_buf[j].start = gap_start;
 		m_gap_buf[j].end = gap_end;
 	}
-	qsort(m_gap_buf, m_gap_buf_size, 2*sizeof(uint32), compare_gaps);
+	qsort(m_gap_buf, m_gap_buf_size, 2*sizeof(uint64), compare_gaps);
 }
 
 void CProgressImage::CreateSpan()
@@ -1017,8 +1006,8 @@ void CProgressImage::CreateSpan()
 	colored_gaps[0].end = 0;
 	colored_gaps[0].color = 0xffffffff;
 	for (int j = 0; j < m_gap_buf_size;j++) {
-		uint32 gap_start = m_gap_buf[j].start;
-		uint32 gap_end = m_gap_buf[j].end;
+		uint64 gap_start = m_gap_buf[j].start;
+		uint64 gap_end = m_gap_buf[j].end;
 
 		uint32 start = gap_start / PARTSIZE;
 		uint32 end = (gap_end / PARTSIZE) + 1;
@@ -1347,9 +1336,9 @@ CDynStatisticImage::CDynStatisticImage(int height, bool scale1024, CStatsData *d
 	m_num_font_w_size = 8;
 	m_num_font_h_size = 16;
 	
-	// leave enough space for 3 digit number
+	// leave enough space for 4 digit number
 	int img_delta = m_num_font_w_size / 4;
-	m_left_margin = 3*(m_num_font_w_size + img_delta) + img_delta;
+	m_left_margin = 4*(m_num_font_w_size + img_delta) + img_delta;
 	// leave enough space for number height
 	m_bottom_margin = m_num_font_h_size;
 	
@@ -1455,7 +1444,7 @@ void CDynStatisticImage::DrawImage()
 	m_digits[0]->Apply(m_row_ptrs, 3*img_delta+2*m_num_font_w_size, m_y_axis_size-m_num_font_h_size-5);
 	
 	//
-	// When data is scaled down, axis are scaled UP and visa versa
+	// When data is scaled down, axis are scaled UP and viceversa
 	int y_axis_max = m_y_axis_size;
 	if ( m_scale_down != 1 ) {
 		y_axis_max *= m_scale_down;
@@ -1463,11 +1452,22 @@ void CDynStatisticImage::DrawImage()
 		y_axis_max /= m_scale_up;
 	}
 
-	if ( y_axis_max > 99 ) {
-		m_digits[y_axis_max / 100]->Apply(m_row_ptrs, img_delta, img_delta);
+	// X---
+	if ( y_axis_max > 999 ) {
+		m_digits[y_axis_max / 1000]->Apply(m_row_ptrs, img_delta, img_delta);
 	}
-	m_digits[(y_axis_max % 100) / 10]->Apply(m_row_ptrs, 2*img_delta+m_num_font_w_size, img_delta);
-	m_digits[y_axis_max % 10]->Apply(m_row_ptrs, 3*img_delta+2*m_num_font_w_size, img_delta);
+	// -X--
+	if ( y_axis_max > 99 ) {
+		m_digits[(y_axis_max % 1000) / 100]->Apply(m_row_ptrs,
+			2*img_delta+m_num_font_w_size, img_delta);
+	}
+	// --X-
+	if ( y_axis_max > 9 ) {
+		m_digits[(y_axis_max % 100) / 10]->Apply(m_row_ptrs, 
+			3*img_delta+2*m_num_font_w_size, img_delta);
+	}
+	// ---X
+	m_digits[y_axis_max % 10]->Apply(m_row_ptrs, 4*img_delta+3*m_num_font_w_size, img_delta);
 
 	int prev_data = m_data->GetFirst();
 	if ( m_scale_down != 1 ) {
@@ -1719,6 +1719,8 @@ void CScriptWebServer::StartServer()
 
 void CScriptWebServer::StopServer()
 {
+	wsThread->Delete();
+	wsThread->Wait();
 }
 
 char *CScriptWebServer::GetErrorPage(const char *message, long &size)
@@ -1756,7 +1758,7 @@ char *CScriptWebServer::ProcessHtmlRequest(const char *filename, long &size)
 	char *buf = new char [size+1];
 	rewind(f);
 	fread(buf, 1, size, f);
-	
+	buf[size] = 0;
 	fclose(f);
 	
 	return buf;
@@ -1819,7 +1821,7 @@ CSession *CScriptWebServer::CheckLoggedin(ThreadData &Data)
 
 void CScriptWebServer::ProcessURL(ThreadData Data)
 {
-	wxMutexLocker lock(*m_mutexChildren);
+	wxMutexLocker lock(m_mutexChildren);
 
 	long httpOutLen;
 	char *httpOut = 0;
@@ -1841,7 +1843,7 @@ void CScriptWebServer::ProcessURL(ThreadData Data)
 		
 		wxString PwStr(Data.parsedURL.Param(wxT("pass")));
 		if (webInterface->m_AdminPass.IsEmpty() and webInterface->m_GuestPass.IsEmpty()) {
-			session->m_vars["login_error"] = "No passwords specified, login impossible!";
+			session->m_vars["login_error"] = "No password specified, login will not be allowed.";
 		} else if ( PwStr.Length() ) {
 			Print(_("Checking password\n"));
 			session->m_loggedin = false;
@@ -1849,7 +1851,7 @@ void CScriptWebServer::ProcessURL(ThreadData Data)
 			CMD4Hash PwHash;
 			if (not PwHash.Decode(MD5Sum(PwStr).GetHash())) {
 				Print(_("Password hash invalid\n"));
-				session->m_vars["login_error"] = "Invalid password hash, please report!";
+				session->m_vars["login_error"] = "Invalid password hash, please report on http://forum.amule.org";
 			} else if ( PwHash == webInterface->m_AdminPass ) {
 				session->m_loggedin = true;
 				// m_vars is map<string, string> - so _() will not work here !
@@ -1868,7 +1870,7 @@ void CScriptWebServer::ProcessURL(ThreadData Data)
 				Print(_("Password bad\n"));
 			}
 		} else {
-			Print(_("Session is not logged and request have no password\n"));
+			Print(_("You did not enter any password. Blank password is not allowed.\n"));
 		}
 	} else {
 		//
@@ -1884,22 +1886,29 @@ void CScriptWebServer::ProcessURL(ThreadData Data)
 	Print(_("Processing request [redirected]: ") + filename + wxT("\n"));
 	
 	session->m_vars["auto_refresh"] = (const char *)unicode2char(
-		wxString::Format(_("%d"), webInterface->m_PageRefresh));
+		wxString::Format(wxT("%d"), webInterface->m_PageRefresh));
+	session->m_vars["content_type"] = "text/html";
 	
 	wxString req_file(wxFileName(m_wwwroot, filename).GetFullPath());
 	if ( req_file.Find(wxT(".html")) != -1 ) {
 		httpOut = ProcessHtmlRequest(unicode2char(req_file), httpOutLen);
 	} else if ( req_file.Find(wxT(".php")) != -1 ) {
 		httpOut = ProcessPhpRequest(unicode2char(req_file), session, httpOutLen);
+	} else if ( req_file.Find(wxT(".css")) != -1 ) {
+		session->m_vars["content_type"] = "text/css";
+		httpOut = ProcessHtmlRequest(unicode2char(req_file), httpOutLen);
+	} else if ( req_file.Find(wxT(".js")) != -1 ) {
+		session->m_vars["content_type"] = "text/javascript";
+		httpOut = ProcessHtmlRequest(unicode2char(req_file), httpOutLen);
 	} else {
-		httpOut = GetErrorPage("This file type amuleweb doesn't handle", httpOutLen);
+		httpOut = GetErrorPage("aMuleweb doesn't handle the requested file type ", httpOutLen);
 	}
 	
 	bool isUseGzip = webInterface->m_UseGzip;
 
 	if (isUseGzip)	{
 		bool bOk = false;
-		uLongf destLen = strlen(httpOut) + 1024;
+		uLongf destLen = httpOutLen + 1024;
 		char *gzipOut = new char[destLen];
 		if( GzipCompress((Bytef*)gzipOut, &destLen, 
 		   (const Bytef*)httpOut, httpOutLen, Z_DEFAULT_COMPRESSION) == Z_OK) {
@@ -1916,7 +1925,7 @@ void CScriptWebServer::ProcessURL(ThreadData Data)
 	}
 		
 	if ( httpOut ) {
-		Data.pSocket->SendHttpHeaders(isUseGzip, httpOutLen, Data.SessionID);
+		Data.pSocket->SendHttpHeaders(session->m_vars["content_type"].c_str(), isUseGzip, httpOutLen, Data.SessionID);
 		Data.pSocket->SendData(httpOut, httpOutLen);
 		delete [] httpOut;
 	}
@@ -1934,29 +1943,30 @@ void CNoTemplateWebServer::ProcessURL(ThreadData Data)
 {
 	/*
 	 * Since template has not been found, I suspect that installation is broken. Falling back
-	 * into hard-coded page as last resolt.
+	 * into hardcoded page as last resort.
 	 */
 	char *httpOut = ""
 	"<html>"
-	"<head>"
-		"<title>aMuleWeb error page</title>"
-		"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">"
-	"</head>"
-	"<body>"
-	"<p>You seeing this page instead of aMuleWeb page because valid template has not been found.</p>"
-	"<p>This means that there's problem with aMule installation </p>"
-	"<ul>"
-		"<li>Before installation please ensure that you uninstalled previous versions of amule</li>"
-	"<li>If you installing by recompiling from source, check configuration and run &quot;make install&quot; again </li>"
-		"<li>If you installing binary package, you may need to contact package maintainer </li>"
-	"</ul>"
-	"<p>For more information please visit</p>"
-	"<p><a href=\"http://www.amule.org\">aMule main site</a> <a href=\"http://forum.amule.org\">aMule forum</a></p>"
-	"</body>"
+		"<head>"
+			"<title>aMuleWeb error page</title>"
+			"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">"
+		"</head>"
+		"<body>"
+			"<p>You are seeing this page instead of aMuleWeb login page because a valid template has not been found.</p>"
+			"<p>This probably means that there's a problem with your aMule installation </p>"
+			"<ul>"
+				"<li>Before installing new versions, please ensure that you uninstalled older versions of aMule.</li>"
+				"<li>If you are installing by compiling from source, check configuration and run &quot;make&quot; and &quot;make install&quot; again </li>"
+				"<li>If you are installing by using a precompiled package, you may need to contact the package maintainer </li>"
+			"</ul>"
+			"<p>For more information please visit</p>"
+			"<p><a href=\"http://www.amule.org\">aMule main site</a> or <a href=\"http://forum.amule.org\">aMule forums</a></p>"
+		"</body>"
 	"</html>";
 
 	long httpOutLen = strlen(httpOut);
 
-	Data.pSocket->SendHttpHeaders(false, httpOutLen, 0);
+	Data.pSocket->SendHttpHeaders("text/html", false, httpOutLen, 0);
 	Data.pSocket->SendData(httpOut, httpOutLen);
 }
+// File_checked_for_headers

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 Kry ( elkry@users.sourceforge.net / http://www.amule.org )
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 Kry ( elkry@users.sourceforge.net / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -27,42 +27,17 @@
 #ifndef WEBSERVER_H
 #define WEBSERVER_H
 
-#ifdef __WXMSW__
-	#include <wx/msw/winundef.h>
-#endif
-
-#include <wx/wx.h>
-
-#ifdef __WXMSW__
-	#include <winsock.h>
-#else
-	#include <sys/types.h>
-	#include <sys/socket.h>
-	#include <netinet/in.h>
-	#include <arpa/inet.h>
-#endif
-#include <zlib.h>		// Needed for Bytef etc.
-
 #ifdef WITH_LIBPNG
 	#include <png.h>
 #endif
 
-#include <list>
-#include <map>
-#include <vector>
-
-#include <wx/filename.h>
-
-#include <ec/ECPacket.h>
-
-#include "Types.h"
-#include "OtherFunctions.h"
 #include "WebInterface.h"
 #include "KnownFile.h"
 #include "RLE.h"
 #include "OtherStructs.h"
 
-#include "kademlia/utils/UInt128.h" // Need for UInt128
+
+#include <wx/datetime.h>  // For DownloadFile::wxtLastSeenComplete
 
 //class TransferredData;
 class CWSThread;
@@ -104,6 +79,7 @@ class DownloadFile {
 		wxString	sFileHash;
 		wxString	sED2kLink;
 		uint8		nCat;
+		wxDateTime	wxtLastSeenComplete;
 
 		CMD4Hash	nHash;
 		
@@ -705,7 +681,7 @@ struct ThreadData {
 class CWebServerBase {
 	protected:
 		CWSThread *wsThread;
-		wxMutex *m_mutexChildren;
+		wxMutex m_mutexChildren;
 
 		ServersInfo m_ServersInfo;
 		SharedFileInfo m_SharedFileInfo;
@@ -812,3 +788,4 @@ class CNoTemplateWebServer : public CScriptWebServer {
 };
 
 #endif // WEBSERVER_H
+// File_checked_for_headers

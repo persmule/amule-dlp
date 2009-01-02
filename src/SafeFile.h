@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,12 +26,10 @@
 #ifndef SAFEFILE_H
 #define SAFEFILE_H
 
-#include <wx/filefn.h>			// Needed for wxSeekMode
 
+#include <wx/filename.h>			// Needed for wxFileName
 #include <common/MuleDebug.h>			// Needef for CMuleException
-#include <common/StringFunctions.h>	// Needed for the utf8 types.
-
-#include "Types.h"				// Needed for uint* types
+#include "Tag.h"
 
 namespace Kademlia {
 	class CUInt128;
@@ -130,11 +128,14 @@ public:
 	 * @see CSafeFileIO::Read
 	 */
 	//@{
-	virtual uint8		ReadUInt8() const;
-	virtual uint16		ReadUInt16() const;
-	virtual uint32		ReadUInt32() const;
-	virtual CUInt128	ReadUInt128() const;
-	virtual CMD4Hash	ReadHash() const;
+	virtual uint8			ReadUInt8() const;
+	virtual uint16			ReadUInt16() const;
+	virtual uint32			ReadUInt32() const;
+	virtual uint64			ReadUInt64() const;
+	virtual CUInt128		ReadUInt128() const;
+	virtual CMD4Hash		ReadHash() const;
+	virtual float			ReadFloat() const;
+	virtual unsigned char*	ReadBsob(uint8* size);	
 	//@}
 
 	/**
@@ -175,8 +176,11 @@ public:
 	virtual void WriteUInt8(uint8 value);
 	virtual void WriteUInt16(uint16 value);
 	virtual void WriteUInt32(uint32 value);
+	virtual void WriteUInt64(uint64 value);
 	virtual void WriteUInt128(const CUInt128& value);
 	virtual void WriteHash(const CMD4Hash& value);
+	virtual void WriteFloat(float value);
+	virtual void WriteBsob( const unsigned char* val, uint8 size);	
 	//@}
 	
 	/**
@@ -192,6 +196,24 @@ public:
 	 * @see CSafeFileIO::Write
 	 */
 	virtual void WriteString(const wxString& str, EUtf8Str encoding = utf8strNone, uint8 lenBytes = 2);
+
+/* Warning: Special Kad functions, needs documentation */
+
+	CTag*		ReadTag(bool bOptACP = false);
+	void		ReadTagPtrList(TagPtrList* taglist, bool bOptACP = false);
+
+	void		WriteTag(const CTag& tag);
+	void		WriteTagPtrList(const TagPtrList& tagList);
+
+/* Special ED2Kv2 function */
+	uint64		GetIntTagValue() const;
+
+/* Some functions I added for simplicity */
+	// Very obvious 
+	bool IsEmpty() { return (GetLength() == 0); }
+
+	// Appends to the end
+	void Append(const uint8* buffer, int n) { Seek(0, wxFromEnd); Write(buffer, n); }
 
 protected:
 	/**
@@ -235,7 +257,6 @@ private:
 	 * @param encoding The encoding of the string.
 	 * @param lenBytes The number of bytes used to store the string length.
 	 *
-	 * The 
 	 */
 	void WriteStringCore(const char* str, EUtf8Str encoding, uint8 lenBytes);
 };
@@ -278,3 +299,4 @@ struct CIOFailureException : public CSafeIOException {
 
 
 #endif // SAFEFILE_H
+// File_checked_for_headers

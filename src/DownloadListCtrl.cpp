@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,89 +23,105 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#ifdef HAVE_CONFIG_H
-	#include "config.h"		// Needed for VERSION
-#endif
+#include <protocol/ed2k/ClientSoftware.h>
+#include <common/MenuIDs.h>
 
-#include <cmath>		// Needed for floor
-
-#include <wx/dcmemory.h>
-#include <wx/datetime.h>
-#include <wx/stattext.h>
-#include <wx/menu.h>
-#include <wx/msgdlg.h>
-#include <wx/textdlg.h>
-#include <wx/filename.h>
-#include <wx/intl.h>		// Needed for wxGetTranslation()
-
-#include "DownloadListCtrl.h"	// Interface declarations
-#include "OtherFunctions.h"	// Needed for CheckShowItemInGivenCat
-#include "DataToText.h"		// Needed for PriorityToStr
+#include <common/Format.h>	// Needed for CFormat
 #include "amule.h"		// Needed for theApp
+#include "amuleDlg.h"		// Needed for CamuleDlg
+#include "BarShader.h"		// Needed for CBarShader
 #include "ClientDetailDialog.h"	// Needed for CClientDetailDialog
 #include "ChatWnd.h"		// Needed for CChatWnd
-#include "PartFile.h"		// Needed for CPartFile
 #include "CommentDialogLst.h"	// Needed for CCommentDialogLst
+#include "DownloadListCtrl.h"	// Interface declarations
+#include "DataToText.h"		// Needed for PriorityToStr
 #include "FileDetailDialog.h"	// Needed for CFileDetailDialog
-#include "updownclient.h"	// Needed for CUpDownClient
-#include "amuleDlg.h"		// Needed for CamuleDlg
-#include "muuli_wdr.h"		// Needed for ID_DLOADLIST
-#include "Color.h"		// Needed for BLEND and SYSCOLOR
-#include "BarShader.h"		// Needed for CBarShader
-#include "Preferences.h"
+#include "GuiEvents.h"		// Needed for CoreNotify_*
+#ifdef ENABLE_IP2COUNTRY
+	#include "IP2Country.h"	// Needed for IP2Country
+#endif
 #include "Logger.h"
-#include <common/Format.h>		// Needed for CFormat
-#include "SharedFileList.h"		// Needed for CSharedFileList
-
-#include <list>
-
+#include "muuli_wdr.h"		// Needed for ID_DLOADLIST
+#include "PartFile.h"		// Needed for CPartFile
+#include "Preferences.h"
+#include "SharedFileList.h"	// Needed for CSharedFileList
+#include "TerminationProcess.h"	// Needed for CTerminationProcess
+#include "updownclient.h"	// Needed for CUpDownClient
 
 
 class CPartFile;
 
 
-int CDownloadListCtrl::s_lastOrder;
-int CDownloadListCtrl::s_lastColumn;
-
 struct CtrlItem_Struct
 {
-	DownloadItemType	type;
-	CPartFile*	owner;
-	void*		value;
+	CtrlItem_Struct()
+		: dwUpdated(0),
+		  status(NULL),
+		  m_owner(NULL),
+		  m_fileValue(NULL),
+		  m_sourceValue(NULL),
+		  m_type(FILE_TYPE)
+	{ }
+	
+	~CtrlItem_Struct() {
+		delete status;
+	}
+
+	DownloadItemType GetType() const {
+		return m_type;
+	}
+
+	CPartFile* GetOwner() const {
+		return m_owner;
+	}
+
+	CPartFile* GetFile() const {
+		return m_fileValue;
+	}
+
+	CUpDownClient* GetSource() const {
+		return m_sourceValue;
+	}
+
+	void SetContents(CPartFile* file) {
+		m_owner = NULL;
+		m_fileValue = file;
+		m_sourceValue = NULL;
+		m_owner = NULL;
+		m_type = FILE_TYPE;
+	}
+
+	void SetContents(CPartFile* owner, CUpDownClient* source, DownloadItemType type) {
+		wxCHECK_RET(type != FILE_TYPE, wxT("Invalid type, not a source"));
+		
+		m_owner = owner;
+		m_fileValue = NULL;
+		m_sourceValue = source;
+		m_type = type;
+	}
+	
+	
 	uint32		dwUpdated;
 	wxBitmap*	status;
 
-	CtrlItem_Struct()
-		: type( FILE_TYPE ),
-		  owner( NULL ),
-		  value( NULL ),
-		  dwUpdated( 0 ),
-		  status( NULL )
-	{ }
-	
-	~CtrlItem_Struct()
-	{
-		delete status;
-	}
+private:
+	CPartFile*			m_owner;
+	CPartFile*			m_fileValue;
+	CUpDownClient*		m_sourceValue;
+	DownloadItemType	m_type;
 };
 
 
 
-#define m_ImageList theApp.amuledlg->imagelist
+#define m_ImageList theApp->amuledlg->m_imagelist
 
 
 BEGIN_EVENT_TABLE(CDownloadListCtrl, CMuleListCtrl)
-	EVT_LIST_COL_CLICK( -1, 		CDownloadListCtrl::OnColumnLClick)
 	EVT_LIST_ITEM_ACTIVATED(ID_DLOADLIST,	CDownloadListCtrl::OnItemActivated)
 	EVT_LIST_ITEM_RIGHT_CLICK(ID_DLOADLIST, CDownloadListCtrl::OnMouseRightClick)
 	EVT_LIST_ITEM_MIDDLE_CLICK(ID_DLOADLIST, CDownloadListCtrl::OnMouseMiddleClick)
 
 	EVT_CHAR( CDownloadListCtrl::OnKeyPressed )
-
-	EVT_MENU( MP_DROP_NO_NEEDED_SOURCES,	CDownloadListCtrl::OnCleanUpSources )
-	EVT_MENU( MP_DROP_FULL_QUEUE_SOURCES,	CDownloadListCtrl::OnCleanUpSources )
-	EVT_MENU( MP_DROP_HIGH_QUEUE_RATING_SOURCES,	CDownloadListCtrl::OnCleanUpSources )
-	EVT_MENU( MP_CLEAN_UP_SOURCES,		CDownloadListCtrl::OnCleanUpSources )
 
 	EVT_MENU( MP_CANCEL, 			CDownloadListCtrl::OnCancelFile )
 	
@@ -126,7 +142,8 @@ BEGIN_EVENT_TABLE(CDownloadListCtrl, CMuleListCtrl)
 
 	EVT_MENU( MP_CLEARCOMPLETED,		CDownloadListCtrl::OnClearCompleted )
 
-	EVT_MENU( MP_GETED2KLINK,		CDownloadListCtrl::OnGetED2KLink )
+	EVT_MENU( MP_GETMAGNETLINK,		CDownloadListCtrl::OnGetLink )
+	EVT_MENU( MP_GETED2KLINK,		CDownloadListCtrl::OnGetLink )
 
 	EVT_MENU( MP_METINFO,			CDownloadListCtrl::OnViewFileInfo )
 	EVT_MENU( MP_VIEW,			CDownloadListCtrl::OnPreviewFile )
@@ -186,9 +203,6 @@ CMuleListCtrl( parent, winid, pos, size, style | wxLC_OWNERDRAW, validator, name
 	m_completedFiles = 0;
 	m_filecount = 0;
 	LoadSettings();
-	
-	s_lastOrder  = (GetSortOrder() & CMuleListCtrl::SORT_DES) ? -1 : 1;
-	s_lastColumn = GetSortColumn();
 }
 
 
@@ -210,8 +224,7 @@ void CDownloadListCtrl::AddFile( CPartFile* file )
 	// Avoid duplicate entries of files
 	if ( m_ListItems.find( file ) == m_ListItems.end() ) {
 		CtrlItem_Struct* newitem = new CtrlItem_Struct;
-		newitem->type = FILE_TYPE;
-		newitem->value = file;
+		newitem->SetContents(file);
 	
 		m_ListItems.insert( ListItemsPair( file, newitem ) );
 		
@@ -225,8 +238,9 @@ void CDownloadListCtrl::AddFile( CPartFile* file )
 
 void CDownloadListCtrl::AddSource(CPartFile* owner, CUpDownClient* source, DownloadItemType type)
 {
-	wxASSERT( owner );
-	wxASSERT( source );
+	wxCHECK_RET(owner, wxT("NULL owner in CDownloadListCtrl::AddSource"));
+	wxCHECK_RET(source, wxT("NULL source in CDownloadListCtrl::AddSource"));
+	wxCHECK_RET(type != FILE_TYPE, wxT("Invalid type, not a source"));
 
 	// Update the other instances of this source
 	bool bFound = false;
@@ -235,14 +249,14 @@ void CDownloadListCtrl::AddSource(CPartFile* owner, CUpDownClient* source, Downl
 		CtrlItem_Struct* cur_item = it->second;
 
 		// Check if this source has been already added to this file => to be sure
-		if ( cur_item->owner == owner ) {
+		if ( cur_item->GetOwner() == owner ) {
 			// Update this instance with its new setting
-			cur_item->type = type;
+			cur_item->SetContents(owner, source, type);
 			cur_item->dwUpdated = 0;
 			bFound = true;
 		} else if ( type == AVAILABLE_SOURCE ) {
 			// The state 'Available' is exclusive
-			cur_item->type = A4AF_SOURCE;
+			cur_item->SetContents(cur_item->GetOwner(), source, A4AF_SOURCE);
 			cur_item->dwUpdated = 0;
 		}
 	}
@@ -253,9 +267,7 @@ void CDownloadListCtrl::AddSource(CPartFile* owner, CUpDownClient* source, Downl
 
 	if ( owner->ShowSources() ) {
 		CtrlItem_Struct* newitem = new CtrlItem_Struct;
-		newitem->owner = owner;
-		newitem->type = type;
-		newitem->value = source;
+		newitem->SetContents(owner, source, type);
 		
 		m_ListItems.insert( ListItemsPair(source, newitem) );
 
@@ -263,12 +275,12 @@ void CDownloadListCtrl::AddSource(CPartFile* owner, CUpDownClient* source, Downl
 		ListItems::iterator it = m_ListItems.find( owner );
 	
 		if ( it != m_ListItems.end() ) {
-			long item = FindItem( -1, (long)it->second );
+			long item = FindItem( -1, reinterpret_cast<wxUIntPtr>(it->second) );
 			
 			if ( item > -1 ) {
 				item = InsertItem( item + 1, wxEmptyString );
 				
-				SetItemData( item, (long)newitem );
+				SetItemPtrData( item, reinterpret_cast<wxUIntPtr>(newitem) );
 
 				// background.. this should be in a function
 				wxListItem listitem;
@@ -294,11 +306,11 @@ void CDownloadListCtrl::RemoveSource( const CUpDownClient* source, const CPartFi
 		ListItems::iterator tmp = it++;
 		
 		CtrlItem_Struct* item = tmp->second;
-		if ( owner == NULL || owner == item->owner ) {
+		if ( owner == NULL || owner == item->GetOwner() ) {
 			// Remove it from the m_ListItems
 			m_ListItems.erase( tmp );
 
-			long index = FindItem( -1, (long)item );
+			long index = FindItem( -1, reinterpret_cast<wxUIntPtr>(item) );
 			
 			if ( index > -1 ) {
 				DeleteItem( index );
@@ -347,11 +359,11 @@ void CDownloadListCtrl::UpdateItem(const void* toupdate)
 	for ( ListItems::iterator it = rangeIt.first; it != rangeIt.second; ++it ) {
 		CtrlItem_Struct* item = it->second;
 
-		long index = FindItem( -1, (long)item );
+		long index = FindItem( -1, reinterpret_cast<wxUIntPtr>(item) );
 
 		// Determine if the file should be shown in the current category
-		if ( item->type == FILE_TYPE ) {
-			CPartFile* file = (CPartFile*)item->value;
+		if ( item->GetType() == FILE_TYPE ) {
+			CPartFile* file = item->GetFile();
 		
 			bool show = file->CheckShowItemInGivenCat( m_category );
 	
@@ -403,11 +415,11 @@ void CDownloadListCtrl::ShowFile( CPartFile* file, bool show )
 	
 		if ( show ) {
 			// Check if the file is already being displayed
-			long index = FindItem( -1, (long)item );
+			long index = FindItem( -1, reinterpret_cast<wxUIntPtr>(item) );
 			if ( index == -1 ) {	
 				long newitem = InsertItem( GetItemCount(), wxEmptyString );
 				
-				SetItemData( newitem, (long)item );
+				SetItemPtrData( newitem, reinterpret_cast<wxUIntPtr>(item) );
 
 				wxListItem myitem;
 				myitem.m_itemId = newitem;
@@ -424,7 +436,7 @@ void CDownloadListCtrl::ShowFile( CPartFile* file, bool show )
 			ShowSources( file, false );
 
 			// Try to find the file and remove it
-			long index = FindItem( -1, (long)item );
+			long index = FindItem( -1, reinterpret_cast<wxUIntPtr>(item) );
 			if ( index > -1 ) {
 				DeleteItem( index );
 				ShowFilesCount( -1 );
@@ -450,7 +462,7 @@ void CDownloadListCtrl::ShowSources( CPartFile* file, bool show )
 		const CPartFile::SourceSet& a4afSources = file->GetA4AFList();
 			
 		// Adding normal sources
-		CPartFile::SourceSet::iterator it;
+		CPartFile::SourceSet::const_iterator it;
 		for ( it = normSources.begin(); it != normSources.end(); ++it ) {
 			switch ((*it)->GetDownloadState()) {
 				case DS_DOWNLOADING:
@@ -471,11 +483,11 @@ void CDownloadListCtrl::ShowSources( CPartFile* file, bool show )
 		for ( int i = GetItemCount() - 1; i >= 0; --i ) {
 			CtrlItem_Struct* item = (CtrlItem_Struct*)GetItemData(i);
 		
-			if ( item->type != FILE_TYPE && item->owner == file ) {
+			if ( item->GetType() != FILE_TYPE && item->GetOwner() == file ) {
 				// Remove from the grand list, this call doesn't remove the source
 				// from the listctrl, because ShowSources is now false. This also
 				// deletes the item.
-				RemoveSource( (CUpDownClient*)item->value, file );
+				RemoveSource(item->GetSource(), file);
 			}
 		}
 	}
@@ -492,8 +504,8 @@ void CDownloadListCtrl::ChangeCategory( int newCategory )
 	for (ListItems::const_iterator it = m_ListItems.begin(); it != m_ListItems.end(); it++) {
 		const CtrlItem_Struct *cur_item = it->second;
 		
-		if ( cur_item->type == FILE_TYPE ) {
-			CPartFile* file = (CPartFile*)cur_item->value;
+		if ( cur_item->GetType() == FILE_TYPE ) {
+			CPartFile* file = cur_item->GetFile();
 	
 			bool curVisibility = file->CheckShowItemInGivenCat( m_category );
 			bool newVisibility = file->CheckShowItemInGivenCat( newCategory );
@@ -543,8 +555,8 @@ ItemList GetSelectedItems( CDownloadListCtrl* list, int types )
 		CtrlItem_Struct* item = (CtrlItem_Struct*)list->GetItemData( index );
 
 		bool add = false;
-		add |= ( item->type == FILE_TYPE ) && ( types & itFILES );
-		add |= ( item->type != FILE_TYPE ) && ( types & itSOURCES );
+		add |= ( item->GetType() == FILE_TYPE ) && ( types & itFILES );
+		add |= ( item->GetType() != FILE_TYPE ) && ( types & itSOURCES );
 		
 		if ( add ) {
 			results.push_back( item );
@@ -557,51 +569,29 @@ ItemList GetSelectedItems( CDownloadListCtrl* list, int types )
 }
 
 
-void CDownloadListCtrl::OnCleanUpSources( wxCommandEvent& event )
-{
-	ItemList files = ::GetSelectedItems( this, itFILES );
-
-	for ( ItemList::iterator it = files.begin(); it != files.end(); ++it ) {
-		CPartFile* file = (CPartFile*)(*it)->value;
-		
-		switch ( event.GetId() ) {
-			case MP_DROP_NO_NEEDED_SOURCES:
-				CoreNotify_PartFile_RemoveNoNeeded( file );
-				break;
-				
-			case MP_DROP_FULL_QUEUE_SOURCES:
-				CoreNotify_PartFile_RemoveFullQueue( file );
-				break;
-				
-			case MP_DROP_HIGH_QUEUE_RATING_SOURCES:
-				CoreNotify_PartFile_RemoveHighQueue( file );
-				break;
-				
-			case MP_CLEAN_UP_SOURCES:
-				CoreNotify_PartFile_SourceCleanup( file );
-				break;
-		}
-	}
-}
-
-
 void CDownloadListCtrl::OnCancelFile(wxCommandEvent& WXUNUSED(event))
 {
 	ItemList files = ::GetSelectedItems(this, itFILES);
 	if (files.size()) {	
-		wxString question = 
-			_("Are you sure that you wish to delete the selected file(s)?");	
+		wxString question;
+		if (files.size() == 1) {
+			question = _("Are you sure that you wish to delete the selected file?");
+		} else {
+			question = _("Are you sure that you wish to delete the selected files?");
+		}
 		if (wxMessageBox( question, _("Cancel"), wxICON_QUESTION | wxYES_NO, this) == wxYES) {
 			for (ItemList::iterator it = files.begin(); it != files.end(); ++it) {
-				CPartFile* file = (CPartFile*)(*it)->value;		
-				switch (file->GetStatus()) {
-				case PS_WAITINGFORHASH:
-				case PS_HASHING:
-				case PS_COMPLETING:
-				case PS_COMPLETE:
-					break;
-				default:
-					CoreNotify_PartFile_Delete(file);
+				CPartFile* file = (*it)->GetFile();
+				if (file) {
+					switch (file->GetStatus()) {
+					case PS_WAITINGFORHASH:
+					case PS_HASHING:
+					case PS_COMPLETING:
+					case PS_COMPLETE:
+						break;
+					default:
+						CoreNotify_PartFile_Delete(file);
+					}
 				}
 			}
 		}
@@ -624,7 +614,7 @@ void CDownloadListCtrl::OnSetPriority( wxCommandEvent& event )
 	ItemList files = ::GetSelectedItems( this, itFILES );
 
 	for ( ItemList::iterator it = files.begin(); it != files.end(); ++it ) {
-		CPartFile* file = (CPartFile*)(*it)->value;
+		CPartFile* file = (*it)->GetFile();
 	
 		if ( priority == PR_AUTO ) {
 			CoreNotify_PartFile_PrioAuto( file, true );
@@ -642,7 +632,7 @@ void CDownloadListCtrl::OnSwapSources( wxCommandEvent& event )
 	ItemList files = ::GetSelectedItems( this, itFILES );
 
 	for ( ItemList::iterator it = files.begin(); it != files.end(); ++it ) {
-		CPartFile* file = (CPartFile*)(*it)->value;
+		CPartFile* file = (*it)->GetFile();
 
 		switch ( event.GetId() ) {
 			case MP_SWAP_A4AF_TO_THIS:
@@ -666,7 +656,7 @@ void CDownloadListCtrl::OnSetCategory( wxCommandEvent& event )
 	ItemList files = ::GetSelectedItems( this, itFILES );
 
 	for ( ItemList::iterator it = files.begin(); it != files.end(); ++it ) {
-		CPartFile* file = (CPartFile*)(*it)->value;
+		CPartFile* file = (*it)->GetFile();
 
 		CoreNotify_PartFile_SetCat( file, event.GetId() - MP_ASSIGNCAT );
 	}
@@ -680,7 +670,7 @@ void CDownloadListCtrl::OnSetStatus( wxCommandEvent& event )
 	ItemList files = ::GetSelectedItems( this, itFILES );
 
 	for ( ItemList::iterator it = files.begin(); it != files.end(); ++it ) {
-		CPartFile* file = (CPartFile*)(*it)->value;
+		CPartFile* file = (*it)->GetFile();
 
 		switch ( event.GetId() ) {	
 			case MP_PAUSE:
@@ -706,44 +696,38 @@ void CDownloadListCtrl::OnClearCompleted( wxCommandEvent& WXUNUSED(event) )
 }
 
 
-void CDownloadListCtrl::OnGetED2KLink(wxCommandEvent& WXUNUSED(event))
+void CDownloadListCtrl::OnGetLink(wxCommandEvent& event)
 {
 	ItemList files = ::GetSelectedItems( this, itFILES );
 
 	wxString URIs;
 
 	for ( ItemList::iterator it = files.begin(); it != files.end(); ++it ) {
-		CPartFile* file = (CPartFile*)(*it)->value;
+		CPartFile* file = (*it)->GetFile();
 
-		URIs += theApp.CreateED2kLink( file ) + wxT("\n");
+		if ( event.GetId() == MP_GETED2KLINK ) {
+			URIs += theApp->CreateED2kLink( file ) + wxT("\n");
+		} else {
+			URIs += theApp->CreateMagnetLink( file ) + wxT("\n");
+		}
 	}
 
 	if ( !URIs.IsEmpty() ) {
-		theApp.CopyTextToClipboard( URIs.BeforeLast(wxT('\n')) );
+		theApp->CopyTextToClipboard( URIs.BeforeLast(wxT('\n')) );
 	}
 }
 
 
-void CDownloadListCtrl::OnGetFeedback( wxCommandEvent& WXUNUSED(event) )
+void CDownloadListCtrl::OnGetFeedback(wxCommandEvent& WXUNUSED(event))
 {
-	ItemList files = ::GetSelectedItems( this, itFILES );
-
 	wxString feed;
-
-	for ( ItemList::iterator it = files.begin(); it != files.end(); ++it ) {
-		CPartFile* file = (CPartFile*)(*it)->value;
-	
-		feed += CFormat(_("Feedback from: %s")) % thePrefs::GetUserNick() + wxT("\n");
-		feed += CFormat(_("Client: aMule %s")) % wxT(VERSION) + wxT("\n");
-		feed += CFormat(_("File Name: %s")) % file->GetFileName() + wxT("\n");
-		feed += CFormat(_("File size: %s")) % CastItoXBytes(file->GetFileSize()) + wxT("\n");
-		feed += CFormat(_("Download: %s")) % CastItoXBytes(file->GetCompletedSize()) + wxT("\n");
-		feed += wxString::Format(_("Sources: %u"), file->GetSourceCount()) + wxT("\n");
-		feed += wxString::Format(_("Complete Sources: %u"), file->m_nCompleteSourcesCount) + wxT("\n");
+	ItemList files = ::GetSelectedItems(this, itFILES);
+	for (ItemList::iterator it = files.begin(); it != files.end(); ++it) {
+		CPartFile* file = (*it)->GetFile();
+		feed += file->GetFeedback();
 	}
-
-	if ( !feed.IsEmpty() ) {
-		theApp.CopyTextToClipboard( feed );
+	if (!feed.IsEmpty()) {
+		theApp->CopyTextToClipboard(feed);
 	}
 }
 
@@ -753,9 +737,9 @@ void CDownloadListCtrl::OnGetRazorStats( wxCommandEvent& WXUNUSED(event) )
 	ItemList files = ::GetSelectedItems( this, itFILES );
 
 	if ( files.size() == 1 ) {
-		CPartFile* file = (CPartFile*)files.front()->value;
+		CPartFile* file = files.front()->GetFile();
 
-		theApp.amuledlg->LaunchUrl(
+		theApp->amuledlg->LaunchUrl(
 			wxT("http://stats.razorback2.com/ed2khistory?ed2k=") +
 			file->GetFileHash().Encode());
 	}
@@ -767,7 +751,7 @@ void CDownloadListCtrl::OnViewFileInfo( wxCommandEvent& WXUNUSED(event) )
 	ItemList files = ::GetSelectedItems( this, itFILES );
 
 	if ( files.size() == 1 ) {
-		CPartFile* file = (CPartFile*)files.front()->value;
+		CPartFile* file = files.front()->GetFile();
 
 		CFileDetailDialog dialog( this, file );
 		dialog.ShowModal();
@@ -780,7 +764,7 @@ void CDownloadListCtrl::OnViewFileComments( wxCommandEvent& WXUNUSED(event) )
 	ItemList files = ::GetSelectedItems( this, itFILES );
 
 	if ( files.size() == 1 ) {
-		CPartFile* file = (CPartFile*)files.front()->value;
+		CPartFile* file = files.front()->GetFile();
 
 		CCommentDialogLst dialog( this, file );
 		dialog.ShowModal();
@@ -793,7 +777,7 @@ void CDownloadListCtrl::OnPreviewFile( wxCommandEvent& WXUNUSED(event) )
 	ItemList files = ::GetSelectedItems( this, itFILES );
 
 	if ( files.size() == 1 ) {
-		PreviewFile( (CPartFile*)files.front()->value );
+		PreviewFile(files.front()->GetFile());
 	}
 }
 
@@ -802,8 +786,8 @@ void CDownloadListCtrl::OnSwapSource( wxCommandEvent& WXUNUSED(event) )
 	ItemList sources = ::GetSelectedItems( this, itSOURCES );
 
 	for ( ItemList::iterator it = sources.begin(); it != sources.end(); ++it ) {
-		CPartFile* file = (CPartFile*)(*it)->owner;
-		CUpDownClient* source = (CUpDownClient*)(*it)->value;
+		CPartFile* file = (*it)->GetOwner();
+		CUpDownClient* source = (*it)->GetSource();
 
 		source->SwapToAnotherFile( true, false, false, file );
 	}
@@ -815,7 +799,7 @@ void CDownloadListCtrl::OnViewFiles( wxCommandEvent& WXUNUSED(event) )
 	ItemList sources = ::GetSelectedItems( this, itSOURCES );
 
 	if ( sources.size() == 1 ) {
-		CUpDownClient* source = (CUpDownClient*)sources.front()->value;
+		CUpDownClient* source = sources.front()->GetSource();
 		
 		source->RequestSharedFileList();
 	}
@@ -827,9 +811,12 @@ void CDownloadListCtrl::OnAddFriend( wxCommandEvent& WXUNUSED(event) )
 	ItemList sources = ::GetSelectedItems( this, itSOURCES );
 
 	for ( ItemList::iterator it = sources.begin(); it != sources.end(); ++it ) {
-		CUpDownClient* source = (CUpDownClient*)(*it)->value;
-
-		theApp.amuledlg->chatwnd->AddFriend( source );
+		CUpDownClient* client = (*it)->GetSource();
+		if (client->IsFriend()) {
+			theApp->amuledlg->m_chatwnd->RemoveFriend(client->GetUserHash(), client->GetIP(), client->GetUserPort());
+		} else {
+			theApp->amuledlg->m_chatwnd->AddFriend( client );
+		}
 	}
 }
 
@@ -839,7 +826,7 @@ void CDownloadListCtrl::OnSendMessage( wxCommandEvent& WXUNUSED(event) )
 	ItemList sources = ::GetSelectedItems( this, itSOURCES );
 
 	if ( sources.size() == 1 ) {
-		CUpDownClient* source = (CUpDownClient*)(sources.front())->value;
+		CUpDownClient* source = (sources.front())->GetSource();
 
 		// These values are cached, since calling wxGetTextFromUser will
 		// start an event-loop, in which the client may be deleted.
@@ -849,7 +836,7 @@ void CDownloadListCtrl::OnSendMessage( wxCommandEvent& WXUNUSED(event) )
 		wxString message = ::wxGetTextFromUser(_("Send message to user"),
 			_("Message to send:"));
 		if ( !message.IsEmpty() ) {
-			theApp.amuledlg->chatwnd->SendMessage(message, userName, userID);
+			theApp->amuledlg->m_chatwnd->SendMessage(message, userName, userID);
 		}
 	}
 }
@@ -860,7 +847,7 @@ void CDownloadListCtrl::OnViewClientInfo( wxCommandEvent& WXUNUSED(event) )
 	ItemList sources = ::GetSelectedItems( this, itSOURCES );
 
 	if ( sources.size() == 1 ) {
-		CUpDownClient* source = (CUpDownClient*)(sources.front())->value;
+		CUpDownClient* source = (sources.front())->GetSource();
 
 		CClientDetailDialog dialog( this, source );
 		dialog.ShowModal();
@@ -868,28 +855,12 @@ void CDownloadListCtrl::OnViewClientInfo( wxCommandEvent& WXUNUSED(event) )
 }
 
 
-void CDownloadListCtrl::OnColumnLClick(wxListEvent& evt)
-{
-	// Only change the last column if the sorted column has changed
-	if (GetSortColumn() != (unsigned)evt.GetColumn()) {
-		s_lastColumn = GetSortColumn();
-		s_lastOrder  = (GetSortOrder() & CMuleListCtrl::SORT_DES) ? -1 : 1;
-	} else {
-		// Reverse the last-column order to preserve the sorting
-		s_lastOrder *= -1;
-	}
-
-	// Let CMuleListCtrl handle the sorting
-	evt.Skip();
-}
-
-
 void CDownloadListCtrl::OnItemActivated( wxListEvent& evt )
 {
 	CtrlItem_Struct* content = (CtrlItem_Struct*)GetItemData( evt.GetIndex() );
 	
-	if ( content->type == FILE_TYPE ) {
-		CPartFile* file = (CPartFile*)content->value;
+	if ( content->GetType() == FILE_TYPE ) {
+		CPartFile* file = content->GetFile();
 
 		if ((!file->IsPartFile() || file->GetStatus() == PS_COMPLETE) && file->PreviewAvailable()) {
 			PreviewFile( file );
@@ -912,7 +883,7 @@ void CDownloadListCtrl::OnMouseRightClick(wxListEvent& evt)
 	m_menu = NULL;
 
 	CtrlItem_Struct* item = (CtrlItem_Struct*)GetItemData( index );
-	if (item->type == FILE_TYPE) {
+	if (item->GetType() == FILE_TYPE) {
 		m_menu = new wxMenu( _("Downloads") );
 
 		wxMenu* priomenu = new wxMenu();
@@ -941,22 +912,12 @@ void CDownloadListCtrl::OnMouseRightClick(wxListEvent& evt)
 		extendedmenu->Append(MP_SWAP_A4AF_TO_ANY_OTHER,
 			_("Swap every A4AF to any other file now"));
 		//-----------------------------------------------------
-		extendedmenu->AppendSeparator();
-		//-----------------------------------------------------
-		extendedmenu->Append(MP_DROP_NO_NEEDED_SOURCES,
-			_("Drop No Needed Sources now"));
-		extendedmenu->Append(MP_DROP_FULL_QUEUE_SOURCES,
-			_("Drop Full Queue Sources now"));
-		extendedmenu->Append(MP_DROP_HIGH_QUEUE_RATING_SOURCES,
-			_("Drop High Queue Rating Sources now"));
-		extendedmenu->Append(MP_CLEAN_UP_SOURCES,
-			_("Clean Up Sources now (NNS, FQS && HQRS)"));
 		m_menu->Append(MP_MENU_EXTD,
 			_("Extended Options"), extendedmenu);
 		//-----------------------------------------------------
 		m_menu->AppendSeparator();
 		//-----------------------------------------------------
-/* Commented out while it's gone
+/* Commented out till RB2 is back 
 		m_menu->Append( MP_RAZORSTATS,
 			_("Get Razorback 2's stats for this file"));
 		//-----------------------------------------------------
@@ -970,6 +931,8 @@ void CDownloadListCtrl::OnMouseRightClick(wxListEvent& evt)
 		//-----------------------------------------------------
 		m_menu->AppendSeparator();
 		//-----------------------------------------------------
+		m_menu->Append(MP_GETMAGNETLINK,
+			_("Copy magnet URI to clipboard"));
 		m_menu->Append(MP_GETED2KLINK,
 			_("Copy ED2k &link to clipboard"));
 		m_menu->Append(MP_WS,
@@ -979,57 +942,50 @@ void CDownloadListCtrl::OnMouseRightClick(wxListEvent& evt)
 		//-----------------------------------------------------	
 		// Add dinamic entries
 		wxMenu *cats = new wxMenu(_("Category"));
-		if (theApp.glob_prefs->GetCatCount() > 1) {
-			for (uint32 i = 0; i < theApp.glob_prefs->GetCatCount(); i++) {
+		if (theApp->glob_prefs->GetCatCount() > 1) {
+			for (uint32 i = 0; i < theApp->glob_prefs->GetCatCount(); i++) {
 				if ( i == 0 ) {
 					cats->Append( MP_ASSIGNCAT, _("unassign") );
 				} else {
 					cats->Append( MP_ASSIGNCAT + i,
-						theApp.glob_prefs->GetCategory(i)->title );
+						theApp->glob_prefs->GetCategory(i)->title );
 				}
 			}
 		}
 		m_menu->Append(MP_MENU_CATS, _("Assign to category"), cats);
-		m_menu->Enable(MP_MENU_CATS, (theApp.glob_prefs->GetCatCount() > 1) );
+		m_menu->Enable(MP_MENU_CATS, (theApp->glob_prefs->GetCatCount() > 1) );
 
-		CPartFile* file = (CPartFile*)item->value;
+		CPartFile* file = item->GetFile();
 		// then set state
-		bool fileReady =
-			(file->GetStatus() != PS_PAUSED) &&
-			(file->GetStatus() != PS_ERROR);
-		bool fileReady2 =
+		const bool canStop =
 			(file->GetStatus() != PS_ERROR) &&
-			(file->GetStatus() != PS_COMPLETE);
-		bool fileResumable =
+			(file->GetStatus() != PS_COMPLETE) &&
+			(file->IsStopped() != true);
+		const bool canPause =
+			(file->GetStatus() != PS_PAUSED) && canStop;
+		const bool fileResumable =
 			(file->GetStatus() == PS_PAUSED) ||
 			(file->GetStatus() == PS_ERROR) ||
 			(file->GetStatus() == PS_INSUFFICIENT);
 		
 		wxMenu* menu = m_menu;
 		menu->Enable( MP_CANCEL,	( file->GetStatus() != PS_COMPLETE ) );
-		menu->Enable( MP_PAUSE,		fileReady && fileReady2 );
-		menu->Enable( MP_STOP,		fileReady && fileReady2 );
+		menu->Enable( MP_PAUSE,		canPause );
+		menu->Enable( MP_STOP,		canStop );
 		menu->Enable( MP_RESUME, 	fileResumable );
 		menu->Enable( MP_CLEARCOMPLETED, m_completedFiles );
 
 		wxString view;
-		if (file->IsPartFile() && !(file->GetStatus() == PS_COMPLETE)) {
-			view << _("Preview") << wxT(" [") <<
-				file->GetPartMetFileName().BeforeLast(wxT('.')) <<
-				wxT("]");
+		if (file->IsPartFile() && (file->GetStatus() != PS_COMPLETE)) {
+			view << CFormat(wxT("%s [%s]")) % _("Preview")
+					% file->GetPartMetFileName().RemoveExt();
 		} else if ( file->GetStatus() == PS_COMPLETE ) {
 			view << _("&Open the file");
 		}
 		menu->SetLabel(MP_VIEW, view);
 		menu->Enable(MP_VIEW, file->PreviewAvailable() );
 
-		menu->Enable( MP_DROP_NO_NEEDED_SOURCES,	fileReady );
-		menu->Enable( MP_DROP_FULL_QUEUE_SOURCES,	fileReady );
-		menu->Enable( MP_DROP_HIGH_QUEUE_RATING_SOURCES,fileReady );
-		menu->Enable( MP_CLEAN_UP_SOURCES,		fileReady );
-		menu->Enable( MP_SWAP_A4AF_TO_THIS_AUTO,	fileReady );
 		menu->Check(  MP_SWAP_A4AF_TO_THIS_AUTO, 	file->IsA4AFAuto() );
-		menu->Enable( MP_SWAP_A4AF_TO_ANY_OTHER, 	fileReady );
 
 		int priority = file->IsAutoDownPriority() ?
 			PR_AUTO : file->GetDownPriority();
@@ -1039,26 +995,26 @@ void CDownloadListCtrl::OnMouseRightClick(wxListEvent& evt)
 		priomenu->Check( MP_PRIOLOW,	priority == PR_LOW );
 		priomenu->Check( MP_PRIOAUTO,	priority == PR_AUTO );
 
-		menu->Enable( MP_MENU_PRIO, fileReady2 );
-		menu->Enable( MP_MENU_EXTD, fileReady2 );
+		menu->Enable( MP_MENU_EXTD, canPause );
 	
 		PopupMenu(m_menu, evt.GetPoint());
 
 	} else {
-		CUpDownClient* client = (CUpDownClient*)item->value;
+		CUpDownClient* client = item->GetSource();
 		
 		m_menu = new wxMenu(wxT("Clients"));
 		m_menu->Append(MP_DETAIL, _("Show &Details"));
-		m_menu->Append(MP_ADDFRIEND, _("Add to Friends"));
+		m_menu->Append(MP_ADDFRIEND, client->IsFriend() ? _("Remove from friends") : _("Add to Friends"));
 		m_menu->Append(MP_SHOWLIST, _("View Files"));
 		m_menu->Append(MP_SENDMESSAGE, _("Send message"));
 		m_menu->Append(MP_CHANGE2FILE, _("Swap to this file"));
 		
 		// Only enable the Swap option for A4AF sources
-		m_menu->Enable(MP_CHANGE2FILE, (item->type == A4AF_SOURCE));
+		m_menu->Enable(MP_CHANGE2FILE, (item->GetType() == A4AF_SOURCE));
 		// We need a valid IP if we are to message the client
 		m_menu->Enable(MP_SENDMESSAGE, client->GetIP());
 		
+		m_menu->Enable(MP_SHOWLIST, !client->HasDisabledSharedFiles());
 		
 		PopupMenu(m_menu, evt.GetPoint());
 					
@@ -1080,10 +1036,10 @@ void CDownloadListCtrl::OnMouseMiddleClick(wxListEvent& evt)
 
 	CtrlItem_Struct* item = (CtrlItem_Struct*)GetItemData( index );
 	
-	if ( item->type == FILE_TYPE ) {
-		CFileDetailDialog(this, (CPartFile*)item->value).ShowModal();
+	if ( item->GetType() == FILE_TYPE ) {
+		CFileDetailDialog(this, item->GetFile()).ShowModal();
 	} else {
-		CClientDetailDialog(this, (CUpDownClient*)item->value).ShowModal();
+		CClientDetailDialog(this, item->GetSource()).ShowModal();
 	}
 }
 
@@ -1101,16 +1057,17 @@ void CDownloadListCtrl::OnKeyPressed( wxKeyEvent& event )
 		case WXK_F2: {
 			ItemList files = ::GetSelectedItems( this, itFILES );
 			if (files.size() == 1) {	
-				CPartFile* file = (CPartFile*)(*(files.begin()))->value;
+				CPartFile* file = files.front()->GetFile();
 				
 				// Currently renaming of completed files causes problem with kad
 				if (file->IsPartFile()) {
-					wxString newName = ::wxGetTextFromUser(
+					wxString strNewName = ::wxGetTextFromUser(
 						_("Enter new name for this file:"),
-						_("File rename"), file->GetFileName());
+						_("File rename"), file->GetFileName().GetPrintable());
 				
-					if (!newName.IsEmpty() and (newName != file->GetFileName())) {
-						theApp.sharedfiles->RenameFile(file, newName);
+					CPath newName = CPath(strNewName);
+					if (newName.IsOk() && (newName != file->GetFileName())) {
+						theApp->sharedfiles->RenameFile(file, newName);
 					}
 				}
 			}
@@ -1126,14 +1083,14 @@ void CDownloadListCtrl::OnDrawItem(
 	int item, wxDC* dc, const wxRect& rect, const wxRect& rectHL, bool highlighted)
 {
 	// Don't do any drawing if there's nobody to see it.
-	if ( !theApp.amuledlg->IsDialogVisible( CamuleDlg::TransferWnd ) ) {
+	if ( !theApp->amuledlg->IsDialogVisible( CamuleDlg::DT_TRANSFER_WND ) ) {
 		return;
 	}
 
 	CtrlItem_Struct* content = (CtrlItem_Struct *)GetItemData(item);
 
 	// Define text-color and background
-	if ((content->type == FILE_TYPE) && (highlighted)) {
+	if ((content->GetType() == FILE_TYPE) && (highlighted)) {
 		if (GetFocus()) {
 			dc->SetBackground(*m_hilightBrush);
 			dc->SetTextForeground(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
@@ -1151,7 +1108,7 @@ void CDownloadListCtrl::OnDrawItem(
 	// Define the border of the drawn area
 	if ( highlighted ) {
 		wxColour old;
-		if ( ( content->type == FILE_TYPE ) && !GetFocus() ) {
+		if ( ( content->GetType() == FILE_TYPE ) && !GetFocus() ) {
 			old = m_hilightUnfocusBrush->GetColour();
 		} else {
 			old = m_hilightBrush->GetColour();
@@ -1173,12 +1130,12 @@ void CDownloadListCtrl::OnDrawItem(
 
 	dc->SetPen(*wxTRANSPARENT_PEN);
 
-	if ( content->type == FILE_TYPE && ( !highlighted || !GetFocus() ) ) {
+	if ( content->GetType() == FILE_TYPE && ( !highlighted || !GetFocus() ) ) {
 		// If we have category, override textforeground with what category tells us.
-		CPartFile *file = (CPartFile *) content->value;
+		CPartFile *file = content->GetFile();
 		if ( file->GetCategory() ) {
 			dc->SetTextForeground(
-				WxColourFromCr(theApp.glob_prefs->GetCatColor(file->GetCategory())) );
+				WxColourFromCr(theApp->glob_prefs->GetCatColor(file->GetCategory())) );
 		}
 	}
 
@@ -1191,12 +1148,12 @@ void CDownloadListCtrl::OnDrawItem(
 	int tree_start = 0;
 	int tree_end = 0;
 
-	wxRect cur_rec( iOffset, 0, 0, rect.height );
+	wxRect cur_rec( iOffset, rect.y, 0, rect.height );
 	for (int i = 0; i < GetColumnCount(); i++) {
 		wxListItem listitem;
 		GetColumn(i, listitem);
 
-		if ( listitem.GetWidth() > 0 ) {
+		if (listitem.GetWidth() > 2*iOffset) {
 			cur_rec.width = listitem.GetWidth() - 2*iOffset;
 
 			// Make a copy of the current rectangle so we can apply specific tweaks
@@ -1216,15 +1173,15 @@ void CDownloadListCtrl::OnDrawItem(
 			}
 
 			// Draw the item
-			if ( content->type == FILE_TYPE ) {
+			if ( content->GetType() == FILE_TYPE ) {
 				DrawFileItem(dc, i, target_rec, content);
 			} else {
 				DrawSourceItem(dc, i, target_rec, content);
 			}
-
-			// Increment to the next column
-			cur_rec.x += listitem.GetWidth();
 		}
+		
+		// Increment to the next column
+		cur_rec.x += listitem.GetWidth();
 	}
 
 	// Draw tree last so it draws over selected and focus (looks better)
@@ -1233,15 +1190,15 @@ void CDownloadListCtrl::OnDrawItem(
 		const bool notLast = item + 1 != GetItemCount();
 		const bool notFirst = item != 0;
 		const bool hasNext = notLast &&
-			((CtrlItem_Struct*)GetItemData(item + 1))->type != FILE_TYPE;
-		const bool isOpenRoot = content->type == FILE_TYPE &&
-			((CPartFile*)content->value)->ShowSources() &&
-			(((CPartFile*)content->value)->GetStatus() != PS_COMPLETE);
-		const bool isChild = content->type != FILE_TYPE;
+			((CtrlItem_Struct*)GetItemData(item + 1))->GetType() != FILE_TYPE;
+		const bool isOpenRoot = content->GetType() == FILE_TYPE &&
+			(content->GetFile())->ShowSources() &&
+			((content->GetFile())->GetStatus() != PS_COMPLETE);
+		const bool isChild = content->GetType() != FILE_TYPE;
 
 		// Might as well calculate these now
 		const int treeCenter = tree_start + 3;
-		const int middle = ( cur_rec.height + 1 ) / 2;
+		const int middle = cur_rec.y + ( cur_rec.height + 1 ) / 2;
 
 		// Set up a new pen for drawing the tree
 		dc->SetPen( *(wxThePenList->FindOrCreatePen(dc->GetTextForeground(), 1, wxSOLID)) );
@@ -1252,12 +1209,12 @@ void CDownloadListCtrl::OnDrawItem(
 
 			// Draw the line to the child node
 			if (hasNext) {
-				dc->DrawLine(treeCenter, middle, treeCenter, cur_rec.height + 1);
+				dc->DrawLine(treeCenter, middle, treeCenter, cur_rec.y + cur_rec.height + 1);
 			}
 
 			// Draw the line back up to parent node
 			if (notFirst) {
-				dc->DrawLine(treeCenter, middle, treeCenter, -1);
+				dc->DrawLine(treeCenter, middle, treeCenter, cur_rec.y - 1);
 			}
 		} else if ( isOpenRoot ) {
 			// Draw empty circle
@@ -1267,7 +1224,7 @@ void CDownloadListCtrl::OnDrawItem(
 
 			// Draw the line to the child node if there are any children
 			if (hasNext) {
-				dc->DrawLine(treeCenter, middle + 3, treeCenter, cur_rec.height + 1);
+				dc->DrawLine(treeCenter, middle + 3, treeCenter, cur_rec.y + cur_rec.height + 1);
 			}
 		}
 
@@ -1277,10 +1234,9 @@ void CDownloadListCtrl::OnDrawItem(
 
 void CDownloadListCtrl::DrawFileItem( wxDC* dc, int nColumn, const wxRect& rect, CtrlItem_Struct* item ) const
 {
-	// force clipper (clip 2 px more than the rectangle from the right side)
-	wxDCClipper clipper( *dc, rect.GetX(), rect.GetY(), rect.GetWidth() - 2, rect.GetHeight() );
+	wxDCClipper clipper( *dc, rect.GetX(), rect.GetY(), rect.GetWidth(), rect.GetHeight() );
 
-	const CPartFile* file = (const CPartFile*)item->value;
+	const CPartFile* file = item->GetFile();
 
 	// Used to contain the contenst of cells that dont need any fancy drawing, just text.
 	wxString text;
@@ -1288,6 +1244,15 @@ void CDownloadListCtrl::DrawFileItem( wxDC* dc, int nColumn, const wxRect& rect,
 	switch (nColumn) {
 	// Filename
 	case 0: {
+		// show no. of partfile in filename column
+		wxString filename;
+		if (thePrefs::ShowPartFileNumber()) {
+			if (file->IsPartFile() && !(file->GetStatus() == PS_COMPLETE)) {
+				filename = CFormat(wxT("[%s] ")) % file->GetPartMetFileName().RemoveAllExt();
+			}
+		}
+		filename += file->GetFileName().GetPrintable();
+
 		if (file->HasRating() || file->HasComment()) {
 			int image = Client_CommentOnly_Smiley;
 			if (file->HasRating()) {
@@ -1297,17 +1262,14 @@ void CDownloadListCtrl::DrawFileItem( wxDC* dc, int nColumn, const wxRect& rect,
 			wxASSERT(image >= Client_InvalidRating_Smiley);
 			wxASSERT(image <= Client_CommentOnly_Smiley);
 			
-			int imgWidth = 8;
-			if (file->UserRating() <= 1 || file->UserRating() == 5 ) {
-				imgWidth = 16;
-			}
+			int imgWidth = 16;
 			
 			// it's already centered by OnDrawItem() ...
 			m_ImageList.Draw(image, *dc, rect.GetX(), rect.GetY() - 1,
 				wxIMAGELIST_DRAW_TRANSPARENT);
-			dc->DrawText( file->GetFileName(), rect.GetX() + imgWidth + 4, rect.GetY());
+			dc->DrawText(filename, rect.GetX() + imgWidth + 4, rect.GetY());
 		} else {
-			dc->DrawText( file->GetFileName(), rect.GetX(), rect.GetY());
+			dc->DrawText(filename, rect.GetX(), rect.GetY());
 		}
 	}
 	break;
@@ -1317,9 +1279,9 @@ void CDownloadListCtrl::DrawFileItem( wxDC* dc, int nColumn, const wxRect& rect,
 		text = CastItoXBytes( file->GetFileSize() );
 		break;
 
-	// Transfered
+	// Transferred
 	case 2:
-		text = CastItoXBytes( file->GetTransfered() );
+		text = CastItoXBytes( file->GetTransferred() );
 		break;
 	
 	// Completed
@@ -1345,9 +1307,7 @@ void CDownloadListCtrl::DrawFileItem( wxDC* dc, int nColumn, const wxRect& rect,
 			// DO NOT DRAW IT ALL THE TIME
 			uint32 dwTicks = GetTickCount();
 			
-			// It is marked static to avoid a memory-leak which occurs
-			// when GTK2 is used with wxWidgets versions before 2.6.2.
-			static wxMemoryDC cdcStatus;
+			wxMemoryDC cdcStatus;
 			
 			if ( item->dwUpdated < dwTicks || !item->status || iWidth != item->status->GetWidth() ) {
 				if ( item->status == NULL) {
@@ -1378,10 +1338,6 @@ void CDownloadListCtrl::DrawFileItem( wxDC* dc, int nColumn, const wxRect& rect,
 			}
 			
 			dc->Blit( rect.GetX(), rect.GetY() + 1, iWidth, iHeight, &cdcStatus, 0, 0);
-
-			// Due to a bug in wxMemoryDC, we musn't set Null values for both bitmap and brush.
-			cdcStatus.SetBrush( *wxTRANSPARENT_BRUSH );
-			cdcStatus.SelectObject(wxNullBitmap);
 		}
 		
 		if (thePrefs::ShowPercent()) {
@@ -1418,13 +1374,15 @@ void CDownloadListCtrl::DrawFileItem( wxDC* dc, int nColumn, const wxRect& rect,
 		} else {
 			text = wxString::Format( wxT("%i"), sc );
 		}
-		
+
 		if ( file->GetSrcA4AFCount() ) {
 			text += wxString::Format( wxT("+%i"), file->GetSrcA4AFCount() );
 		}
 
-		text += wxString::Format( wxT(" (%i)"), file->GetTransferingSrcCount() );
-		
+		if ( file->GetTransferingSrcCount() ) {
+			text += wxString::Format( wxT(" (%i)"), file->GetTransferingSrcCount() );
+		}
+
 		break;
 	}
 
@@ -1441,7 +1399,7 @@ void CDownloadListCtrl::DrawFileItem( wxDC* dc, int nColumn, const wxRect& rect,
 	// Remaining
 	case 9: {
 		if ((file->GetStatus() != PS_COMPLETING) && file->IsPartFile()) {
-			uint32 remainSize = file->GetFileSize() - file->GetCompletedSize();
+			uint64 remainSize = file->GetFileSize() - file->GetCompletedSize();
 			sint32 remainTime = file->getTimeRemaining();
 			
 			if (remainTime >= 0) {
@@ -1467,8 +1425,9 @@ void CDownloadListCtrl::DrawFileItem( wxDC* dc, int nColumn, const wxRect& rect,
 	
 	// Laste received
 	case 11: {
-		if ( file->GetLastChangeDatetime().IsValid() ) {
-			text = file->GetLastChangeDatetime().Format( _("%y/%m/%d %H:%M:%S") );
+		const time_t lastReceived = file->GetLastChangeDatetime();
+		if (lastReceived) {
+			text = wxDateTime(lastReceived).Format( _("%y/%m/%d %H:%M:%S") );
 		} else {
 			text = _("Unknown");
 		}
@@ -1484,11 +1443,10 @@ void CDownloadListCtrl::DrawFileItem( wxDC* dc, int nColumn, const wxRect& rect,
 void CDownloadListCtrl::DrawSourceItem(
 	wxDC* dc, int nColumn, const wxRect& rect, CtrlItem_Struct* item ) const
 {
-	// Force clipper (clip 2 px more than the rectangle from the right side)
-	wxDCClipper clipper( *dc, rect.GetX(), rect.GetY(), rect.GetWidth() - 2, rect.GetHeight() );
+	wxDCClipper clipper( *dc, rect.GetX(), rect.GetY(), rect.GetWidth(), rect.GetHeight() );
 	wxString buffer;
 	
-	const CUpDownClient* client = (const CUpDownClient*)item->value;
+	const CUpDownClient* client = item->GetSource();
 
 	switch (nColumn) {
 		// Client name + various icons
@@ -1498,7 +1456,7 @@ void CDownloadListCtrl::DrawSourceItem(
 			// Kry - eMule says +1, so I'm trusting it
 			wxPoint point( cur_rec.GetX(), cur_rec.GetY()+1 );
 
-			if (item->type != A4AF_SOURCE) {
+			if (item->GetType() != A4AF_SOURCE) {
 				uint8 image = 0;
 				
 				switch (client->GetDownloadState()) {
@@ -1601,24 +1559,42 @@ void CDownloadListCtrl::DrawSourceItem(
 						wxIMAGELIST_DRAW_TRANSPARENT);					
 				}
 							
-				if ( client->GetUserName().IsEmpty() ) {
-					dc->DrawText( wxT("?"), rect.GetX() + 40, rect.GetY() );
+				if (client->HasObfuscatedConnectionBeenEstablished()) {
+					// the "¿" except it's a key
+					m_ImageList.Draw(Client_Encryption_Smiley, *dc, point2.x, point.y,
+						wxIMAGELIST_DRAW_TRANSPARENT);					
+				}				
+				
+				wxString userName;
+#ifdef ENABLE_IP2COUNTRY
+				// Draw the flag
+				const CountryData& countrydata = theApp->amuledlg->m_IP2Country->GetCountryData(client->GetFullIP());
+				dc->DrawBitmap(countrydata.Flag,
+					rect.x + 40, rect.y + 5,
+					wxIMAGELIST_DRAW_TRANSPARENT);
+				
+				userName << countrydata.Name;
+				
+				userName << wxT(" - ");
+#endif // ENABLE_IP2COUNTRY
+				if (client->GetUserName().IsEmpty()) {
+					userName << wxT("?");
 				} else {
-					dc->DrawText( client->GetUserName(), rect.GetX() + 40,
-						rect.GetY());
+					userName << client->GetUserName();
 				}
+				dc->DrawText(userName, rect.GetX() + 60, rect.GetY());
 			}
 			break;
 
 		case 3:	// completed
-			if (item->type != A4AF_SOURCE && client->GetTransferedDown()) {
-				buffer = CastItoXBytes(client->GetTransferedDown());
+			if (item->GetType() != A4AF_SOURCE && client->GetTransferredDown()) {
+				buffer = CastItoXBytes(client->GetTransferredDown());
 				dc->DrawText(buffer, rect.GetX(), rect.GetY());
 			}
 			break;
 
 		case 4:	// speed
-			if (item->type != A4AF_SOURCE && client->GetKBpsDown() > 0.001) {
+			if (item->GetType() != A4AF_SOURCE && client->GetKBpsDown() > 0.001) {
 				buffer = wxString::Format(wxT("%.1f "),
 						client->GetKBpsDown()) + _("kB/s");
 				dc->DrawText(buffer, rect.GetX(), rect.GetY());
@@ -1630,12 +1606,10 @@ void CDownloadListCtrl::DrawSourceItem(
 				int iWidth = rect.GetWidth() - 2;
 				int iHeight = rect.GetHeight() - 2;
 			
-				if ( item->type != A4AF_SOURCE ) {
+				if ( item->GetType() != A4AF_SOURCE ) {
 					uint32 dwTicks = GetTickCount();
 					
-					// It is marked static to avoid a memory-leak which occurs
-					// when GTK2 is used with wxWidgets versions before 2.6.2.
-					static wxMemoryDC cdcStatus;
+					wxMemoryDC cdcStatus;
 
 					if ( item->dwUpdated < dwTicks || !item->status || 
 							iWidth != item->status->GetWidth() ) {
@@ -1669,10 +1643,6 @@ void CDownloadListCtrl::DrawSourceItem(
 					}
 
 					dc->Blit(rect.GetX(), rect.GetY() + 1, iWidth, iHeight, &cdcStatus, 0, 0);
-					
-					// Due to a bug in wxMemoryDC, we musn't set Null values for both bitmap and brush.
-					cdcStatus.SetBrush( *wxTRANSPARENT_BRUSH );
-					cdcStatus.SelectObject(wxNullBitmap);
 				} else {
 					buffer = _("A4AF");
 					
@@ -1702,7 +1672,7 @@ void CDownloadListCtrl::DrawSourceItem(
 
 		case 7:	// prio
 			// We only show priority for sources actually queued for that file
-			if (	item->type != A4AF_SOURCE &&
+			if (	item->GetType() != A4AF_SOURCE &&
 				client->GetDownloadState() == DS_ONQUEUE ) {
 				if (client->IsRemoteQueueFull()) {
 					buffer = _("Queue Full");
@@ -1734,16 +1704,15 @@ void CDownloadListCtrl::DrawSourceItem(
 			break;
 
 		case 8:	// status
-			if (item->type != A4AF_SOURCE) {
+			if (item->GetType() != A4AF_SOURCE) {
 				buffer = DownloadStateToStr( client->GetDownloadState(), 
 					client->IsRemoteQueueFull() );
 			} else {
 				buffer = _("Asked for another file");
 				if (	client->GetRequestFile() &&
-					!client->GetRequestFile()->GetFileName().IsEmpty()) {
-					buffer += wxT(" (") +
-						client->GetRequestFile()->GetFileName() +
-						wxT(")");
+					client->GetRequestFile()->GetFileName().IsOk()) {
+					buffer += CFormat(wxT(" (%s)")) 
+						% client->GetRequestFile()->GetFileName();
 				}
 			}
 			dc->DrawText(buffer, rect.GetX(), rect.GetY());
@@ -1762,17 +1731,17 @@ wxString CDownloadListCtrl::GetTTSText(unsigned item) const
 {
 	CtrlItem_Struct* content = (CtrlItem_Struct*)GetItemData(item);
 	
-	if (content->type == FILE_TYPE) {
-		CPartFile* file = (CPartFile*)content->value;
+	if (content->GetType() == FILE_TYPE) {
+		CPartFile* file = content->GetFile();
 
-		return file->GetFileName();
+		return file->GetFileName().GetPrintable();
 	}
 
 	return wxEmptyString;
 }
 
 
-int CDownloadListCtrl::SortProc(long param1, long param2, long sortData)
+int CDownloadListCtrl::SortProc(wxUIntPtr param1, wxUIntPtr param2, long sortData)
 {
 	CtrlItem_Struct* item1 = (CtrlItem_Struct*)param1;
 	CtrlItem_Struct* item2 = (CtrlItem_Struct*)param2;
@@ -1781,51 +1750,48 @@ int CDownloadListCtrl::SortProc(long param1, long param2, long sortData)
 	sortData &= CMuleListCtrl::COLUMN_MASK;
 	int comp = 0;
 
-	if ( item1->type == FILE_TYPE ) {
-		if ( item2->type == FILE_TYPE ) {
+	if ( item1->GetType() == FILE_TYPE ) {
+		if ( item2->GetType() == FILE_TYPE ) {
 			// Both are files, so we just compare them
-			comp = Compare( (CPartFile*)item1->value, (CPartFile*)item2->value, sortData);
+			comp = Compare( item1->GetFile(), item2->GetFile(), sortData);
 		} else {
 			// A file and a source, checking if they belong to each other
-			if ( item1->value == item2->owner ) {
+			if ( item1->GetFile() == item2->GetOwner() ) {
 				// A file should always be above its sources
 				// Returning directly to avoid the modifier
 				return -1;
 			} else {
 				// Source belongs to anther file, so we compare the files instead
-				comp = Compare( (CPartFile*)item1->value, item2->owner, sortData);
+				comp = Compare( item1->GetFile(), item2->GetOwner(), sortData);
 			}
 		}
 	} else {
-		if ( item2->type == FILE_TYPE ) {
+		if ( item2->GetType() == FILE_TYPE ) {
 			// A source and a file, checking if they belong to each other
-			if ( item1->owner == item2->value ) {
+			if ( item1->GetOwner() == item2->GetFile() ) {
 				// A source should always be below its file
 				// Returning directly to avoid the modifier
 				return 1;
 			} else {
 				// Source belongs to anther file, so we compare the files instead
-				comp = Compare( item1->owner, (CPartFile*)item2->value, sortData);
+				comp = Compare( item1->GetOwner(), item2->GetFile(), sortData);
 			}
 		} else {
 			// Two sources, some different possibilites
-			if ( item1->owner == item2->owner ) {
+			if ( item1->GetOwner() == item2->GetOwner() ) {
 				// Avilable sources first, if we have both an
 				// available and an unavailable
-				comp = ( item2->type - item1->type );
+				comp = ( item2->GetType() - item1->GetType() );
 
 				if (comp) {
 					// A4AF and non-A4AF. The order is fixed regardless of sort-order.
 					return comp;
 				} else {
-					comp = Compare(
-						(CUpDownClient*)item1->value,
-						(CUpDownClient*)item2->value,
-						sortData);
+					comp = Compare(item1->GetSource(), item2->GetSource(), sortData);
 				}
 			} else {
 				// Belongs to different files, so we compare the files
-				comp = Compare( item1->owner, item2->owner, sortData);
+				comp = Compare( item1->GetOwner(), item2->GetOwner(), sortData);
 			}
 		}
 	}
@@ -1854,11 +1820,11 @@ int CDownloadListCtrl::Compare( const CPartFile* file1, const CPartFile* file2, 
 			file2->GetFileSize() );
 		break;
 
-	// Sort by transfered
+	// Sort by transferred
 	case 2:
 		result = CmpAny(
-			file1->GetTransfered(),
-			file2->GetTransfered() );
+			file1->GetTransferred(),
+			file2->GetTransferred() );
 		break;
 
 	// Sort by completed
@@ -1931,33 +1897,10 @@ int CDownloadListCtrl::Compare( const CPartFile* file1, const CPartFile* file2, 
 
 	// Sort by last reception
 	case 11:
-		if (!file1->GetLastChangeDatetime().IsValid()) {			
-			result = -1;
-		} else if (!file2->GetLastChangeDatetime().IsValid()) {
-			result = 1;
-		} else {
-			result = CmpAny(
-				file1->GetLastChangeDatetime(),
-				file2->GetLastChangeDatetime() );
-		}
+		result = CmpAny(
+			file1->GetLastChangeDatetime(),
+			file2->GetLastChangeDatetime() );
 		break;
-	}
-
-
-	// We cannot have that two files are equal, since that will screw up
-	// the placement of sources. So if they are equal, we first try to use the
-	// last sort-type and then fall back on something that is bound to be unique
-	// and will give a consistant result: Their hashes.
-	if ( !result ) {
-		// Try to sort by the last column
-		if ( s_lastColumn != lParamSort ) {
-			result = s_lastOrder * Compare( file1, file2, s_lastColumn );
-		} else {
-			// If that failed as well, then we sort by hash
-			result = CmpAny(
-				file1->GetFileHash(),
-				file2->GetFileHash() );
-		}
 	}
 
 	return result;
@@ -1976,10 +1919,10 @@ int CDownloadListCtrl::Compare(
 		case 1:
 			return CmpAny( client1->GetDownloadState(), client2->GetDownloadState() );
 	
-		// Sort by transfered in the following fields
+		// Sort by transferred in the following fields
 		case 2:	
 		case 3:
-			return CmpAny( client1->GetTransferedDown(), client2->GetTransferedDown() );
+			return CmpAny( client1->GetTransferredDown(), client2->GetTransferredDown() );
 
 		// Sort by speed
 		case 4:
@@ -2073,8 +2016,8 @@ void CDownloadListCtrl::ClearCompleted()
 	for ( ListItems::iterator it = m_ListItems.begin(); it != m_ListItems.end(); ) {
 		CtrlItem_Struct* item = it->second; ++it;
 		
-		if ( item->type == FILE_TYPE ) {
-			CPartFile* file = (CPartFile*)item->value;
+		if ( item->GetType() == FILE_TYPE ) {
+			CPartFile* file = item->GetFile();
 			
 			if ( file->IsPartFile() == false ) {
 				RemoveFile(file);
@@ -2134,9 +2077,10 @@ void CDownloadListCtrl::DrawFileStatusBar(
 
 	
 	// Part availability ( of missing parts )
-	const CList<Gap_Struct*>& gaplist = file->GetGapList();
-	for ( POSITION pos = gaplist.GetHeadPosition(); pos; ) {
-		Gap_Struct* gap = gaplist.GetNext( pos );
+	const CPartFile::CGapPtrList& gaplist = file->GetGapList();
+	CPartFile::CGapPtrList::const_iterator it = gaplist.begin();
+	for (; it != gaplist.end(); ++it) {
+		Gap_Struct* gap = *it;
 
 		// Start position
 		uint32 start = ( gap->start / PARTSIZE );
@@ -2144,13 +2088,14 @@ void CDownloadListCtrl::DrawFileStatusBar(
 		uint32 end   = ( gap->end / PARTSIZE ) + 1;
 
 		// Avoid going past the filesize. Dunno if this can happen, but the old code did check.
-		if ( end > file->GetPartCount() )
+		if ( end > file->GetPartCount() ) {
 			end = file->GetPartCount();
+		}
 
 		// Place each gap, one PART at a time
-		for ( uint32 i = start; i < end; ++i ) {
+		for ( uint64 i = start; i < end; ++i ) {
 			COLORREF color;
-			if ( i < file->m_SrcpartFrequency.GetCount() && file->m_SrcpartFrequency[i]) {
+			if ( i < file->m_SrcpartFrequency.size() && file->m_SrcpartFrequency[i]) {
 				int blue = 210 - ( 22 * ( file->m_SrcpartFrequency[i] - 1 ) );
 				color = RGB( 0, ( blue < 0 ? 0 : blue ), 255 );
 			} else {
@@ -2161,8 +2106,8 @@ void CDownloadListCtrl::DrawFileStatusBar(
 				color = DarkenColour( color, 2 );
 			}
 			
-			uint32 gap_begin = ( i == start   ? gap->start : PARTSIZE * i );
-			uint32 gap_end   = ( i == end - 1 ? gap->end   : PARTSIZE * ( i + 1 ) );
+			uint64 gap_begin = ( i == start   ? gap->start : PARTSIZE * i );
+			uint64 gap_end   = ( i == end - 1 ? gap->end   : PARTSIZE * ( i + 1 ) );
 		
 			s_ChunkBar.FillRange( gap_begin, gap_end,  color);
 		}
@@ -2170,12 +2115,12 @@ void CDownloadListCtrl::DrawFileStatusBar(
 	
 	
 	// Pending parts
-	const CList<Requested_Block_Struct*>& requestedblocks_list = file->GetRequestedBlockList();
-	for ( POSITION pos = requestedblocks_list.GetHeadPosition(); pos; ) {
+	const CPartFile::CReqBlockPtrList& requestedblocks_list = file->GetRequestedBlockList();
+	CPartFile::CReqBlockPtrList::const_iterator it2 = requestedblocks_list.begin();
+	for (; it2 != requestedblocks_list.end(); ++it2) {
 		COLORREF color = ( file->IsStopped() ? DarkenColour( crPending, 2 ) : crPending );
 		
-		Requested_Block_Struct* block = requestedblocks_list.GetNext( pos );
-		s_ChunkBar.FillRange( block->StartOffset, block->EndOffset, color );
+		s_ChunkBar.FillRange( (*it2)->StartOffset, (*it2)->EndOffset, color );
 	}
 
 
@@ -2228,13 +2173,13 @@ void CDownloadListCtrl::DrawSourceStatusBar(
 
 	const BitVector& partStatus = source->GetPartStatus();
 
-	for ( uint32 i = 0; i < partStatus.size(); i++ ) {
+	for ( uint64 i = 0; i < partStatus.size(); i++ ) {
 		if ( partStatus[i]) {
-			uint32 uEnd;
-			if (PARTSIZE*(i+1) > reqfile->GetFileSize()) {
+			uint64 uEnd;
+			if (PARTSIZE*(i+1u) > reqfile->GetFileSize()) {
 				uEnd = reqfile->GetFileSize();
 			} else {
-				uEnd = PARTSIZE*(i+1);
+				uEnd = PARTSIZE*(i+1u);
 			}
 			
 			uint32 color = 0;
@@ -2261,6 +2206,11 @@ void CDownloadListCtrl::DrawSourceStatusBar(
 	s_StatusBar.Draw(dc, rect.x, rect.y, bFlat);
 }
 
+#ifdef __WXMSW__
+#	define QUOTE	wxT("\"")
+#else
+#	define QUOTE	wxT("\'")
+#endif
 
 void CDownloadListCtrl::PreviewFile(CPartFile* file)
 {
@@ -2269,29 +2219,46 @@ void CDownloadListCtrl::PreviewFile(CPartFile* file)
 	// And please, do a warning also :P
 	if (thePrefs::GetVideoPlayer().IsEmpty()) {
 		wxMessageBox(_(
-			"Please set your prefered video player on preferences.\n"
-			"Meanwhile, aMule will attempt to use mplayer"
-			" and you will get this warning on every preview"),
+			"Please set your preferred video player on preferences.\n"
+			"Meanwhile, aMule will attempt to use mplayer and you will get this warning on every preview"),
 			_("File preview"), wxOK, this);
 		// Since newer versions for some reason mplayer does not automatically
-		// select video output decivce and needs a parameter, go figure...
-		command = wxT("xterm -T \"aMule Preview\" -iconic -e mplayer");
+		// select video output device and needs a parameter, go figure...
+		command = wxT("xterm -T \"aMule Preview\" -iconic -e mplayer ") QUOTE wxT("$file") QUOTE;
 	} else {
 		command = thePrefs::GetVideoPlayer();
 	}
-	// Need to use quotes in case filename contains spaces.
-	command.Append(wxT(" \""));
-	command += file->GetFullName();
+
+	// Check if we are (pre)viewing a completed file or not
 	if (file->GetStatus() != PS_COMPLETE) {
-		// Remove the .met
-		command = command.BeforeLast( wxT('.') );
+		// Remove the .met and see if out video player specifiation uses the magic string
+		wxString fileWithoutMet = thePrefs::GetTempDir().JoinPaths(
+			file->GetPartMetFileName().RemoveExt()).GetRaw();
+		if (!command.Replace(wxT("$file"), fileWithoutMet)) {
+			// No magic string, so we just append the filename to the player command
+			// Need to use quotes in case filename contains spaces
+			command << wxT(" ") << QUOTE << fileWithoutMet << QUOTE;
+		}
+	} else {
+		// This is a complete file
+		// FIXME: This is probably not going to work if the filenames are mangled ...
+		wxString rawFileName = file->GetFullName().GetRaw();
+		if (!command.Replace(wxT("$file"), rawFileName)) {
+			// No magic string, so we just append the filename to the player command
+			// Need to use quotes in case filename contains spaces
+			command << wxT(" ") << QUOTE << rawFileName << QUOTE;
+		}
 	}
-	command += wxT("\"");
 
 	// We can't use wxShell here, it blocks the app
-	// <jacobo221> mplayer users (like me) should use xterm -T "aMule Preview" -iconic -e mplayer -idx
-	if (!wxExecute(command,wxEXEC_ASYNC)) {
-		AddLogLineM( true, _("ERROR: Failed to execute external media-player!") );
-		AddLogLineM( false, CFormat( _("Command: %s") ) % command );
+	CTerminationProcess *p = new CTerminationProcess(command);
+	int ret = wxExecute(command, wxEXEC_ASYNC, p);
+	bool ok = ret > 0;
+	if (!ok) {
+		delete p;
+		AddLogLineM( true,
+			CFormat( _("ERROR: Failed to execute external media-player! Command: `%s'") ) %
+			command );
 	}
 }
+// File_checked_for_headers

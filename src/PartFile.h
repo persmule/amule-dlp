@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,21 +26,14 @@
 #ifndef PARTFILE_H
 #define PARTFILE_H
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
-#include <wx/thread.h>		// Needed for wxMutex
-#include <wx/datetime.h>	// Needed for wxDateTime
 
-#include "Types.h"		// Needed for uint8
 #include "KnownFile.h"		// Needed for CKnownFile
 #include "CFile.h"		// Needed for CFile
 
 #include "OtherStructs.h"	// Needed for Gap_Struct
-#include "CTypedPtrList.h"
 #include "DeadSourceList.h"	// Needed for CDeadSourceList
 
 
-#include <set>
-#include <list>
 
 class CSearchFile;
 class CUpDownClient;
@@ -70,29 +63,52 @@ enum EPartFileFormat {
 struct PartFileBufferedData
 {
 	byte *data;						// Barry - This is the data to be written
-	uint32 start;					// Barry - This is the start offset of the data
-	uint32 end;						// Barry - This is the end offset of the data
+	uint64 start;					// Barry - This is the start offset of the data
+	uint64 end;						// Barry - This is the end offset of the data
 	Requested_Block_Struct *block;	// Barry - This is the requested block that this data relates to
 };
 
 
-struct SFileRating
+class SFileRating
 {
+public:
 	wxString UserName;
 	wxString FileName;
 	sint16   Rating;
 	wxString Comment;
+public:
+	SFileRating(const wxString &u, const wxString &f, sint16 r, const wxString &c);
+	SFileRating(const SFileRating &fr);
+	SFileRating(const CUpDownClient &client);
+	~SFileRating();
 };
 
-typedef std::list<SFileRating*> FileRatingList;
+typedef std::list<SFileRating> FileRatingList;
+
+class SourcenameItem
+{
+public:
+	wxString	name;
+	long		count;
+public:
+	SourcenameItem(const wxString &n, long c)
+	:
+	name(n), count(c) {}
+};
+
+typedef std::list<SourcenameItem> SourcenameItemList;
 
 class CPartFile : public CKnownFile {
 public:
+	typedef std::list<Gap_Struct*> CGapPtrList;
+	typedef std::list<Requested_Block_Struct*> CReqBlockPtrList;
+
+	
 	CPartFile();
 #ifdef CLIENT_GUI
 	CPartFile(CEC_PartFile_Tag *tag);
 #else 
-	virtual void	SetFileName(const wxString& strmakeFilename);
+	virtual void	SetFileName(const CPath& filename);
 #endif
 	CPartFile(CSearchFile* searchresult);  //used when downloading a new file
 	CPartFile(const CED2KFileLink* fileLink);
@@ -104,27 +120,22 @@ public:
 	bool	WriteToFile(CFileDataIO* WXUNUSED(file))	{ return false; }
 	bool	IsPartFile() const		{ return !(status == PS_COMPLETE); }
 	uint32	Process(uint32 reducedownload, uint8 m_icounter);
-	uint8	LoadPartFile(const wxString& in_directory, const wxString& filename, bool from_backup = false, bool getsizeonly = false);
+	uint8	LoadPartFile(const CPath& in_directory, const CPath& filename, bool from_backup = false, bool getsizeonly = false);
 	bool	SavePartFile(bool Initial = false);
 	void	PartFileHashFinished(CKnownFile* result);
 	bool	HashSinglePart(uint16 partnumber); // true = ok , false = corrupted
 	
 	bool    CheckShowItemInGivenCat(int inCategory);
-	void	AddGap(uint32 start, uint32 end);
-	void	FillGap(uint32 start, uint32 end);
 
-	bool	IsComplete(uint32 start, uint32 end);
-	bool	IsPureGap(uint32 start, uint32 end);
-	bool	IsCorruptedPart(uint16 partnumber);
-	uint32	GetTotalGapSizeInRange(uint32 uRangeStart, uint32 uRangeEnd) const;	
-	uint32	GetTotalGapSizeInPart(uint32 uPart) const;
+	bool	IsComplete(uint64 start, uint64 end);
+	
 	void	UpdateCompletedInfos();
 
 	bool	GetNextRequestedBlock(CUpDownClient* sender,Requested_Block_Struct** newblocks,uint16* count);
 	void	WritePartStatus(CMemFile* file);
 	void	WriteCompleteSourcesCount(CMemFile* file);
 	static bool 	CanAddSource(uint32 userid, uint16 port, uint32 serverip, uint16 serverport, uint8* pdebug_lowiddropped = NULL, bool ed2kID = true);
-	void	AddSources(CMemFile& sources, uint32 serverip, uint16 serverport, unsigned origin);
+	void	AddSources(CMemFile& sources, uint32 serverip, uint16 serverport, unsigned origin, bool bWithObfuscationAndHash);
 #ifdef CLIENT_GUI
 	uint8	GetStatus() const { return status; }
 	uint8	GetStatus(bool /*ignorepause = false*/) const { return status; }
@@ -132,25 +143,28 @@ public:
 	uint8	GetStatus(bool ignorepause = false) const;
 #endif
 	virtual void	UpdatePartsInfo();
-	const wxString& GetPartMetFileName() const { return m_partmetfilename; }
-	uint32	GetTransfered() const		{ return transfered; }
-	const wxString& GetFullName() const	{ return m_fullname; }
+	const CPath& GetPartMetFileName() const { return m_partmetfilename; }
+	uint64	GetTransferred() const		{ return transferred; }
+	const CPath& GetFullName() const	{ return m_fullname; }
 	float	GetKBpsDown() const		{ return kBpsDown; }
 	double	GetPercentCompleted() const	{ return percentcompleted; }
 
 #ifndef CLIENT_GUI
 	uint16	GetSourceCount() const		{ return m_SrcList.size(); }
-	uint16	GetSrcA4AFCount() const		{ return A4AFsrclist.size(); }
+	uint16	GetSrcA4AFCount() const		{ return m_A4AFsrclist.size(); }
 #else
 	uint16 m_source_count, m_a4af_source_count;
 	uint16	GetSourceCount() const		{ return m_source_count; }
 	uint16	GetSrcA4AFCount() const		{ return m_a4af_source_count; }
 #endif
 	uint16	GetTransferingSrcCount() const	{ return transferingsrc; }
-	uint32  	GetNotCurrentSourcesCount()	const	{ return m_notCurrentSources; };
-	uint32		GetValidSourcesCount()			const	{ return m_validSources; };
+	uint16  GetNotCurrentSourcesCount()	const	{ return m_notCurrentSources; };
+	void	SetNotCurrentSourcesCount(uint16 new_count)	{ m_notCurrentSources = new_count; };	
+	uint16	GetValidSourcesCount() const	{ return m_validSources; };
 	
-	uint32	GetNeededSpace();
+	uint64	GetNeededSpace();
+	
+	wxString GetFeedback();
 	
 	wxString getPartfileStatus() const; //<<--9/21/02
 	sint32	getTimeRemaining() const; //<<--9/21/02
@@ -158,7 +172,7 @@ public:
 	int	getPartfileStatusRang() const;
 
 	// Barry - Added as replacement for BlockReceived to buffer data before writing to disk
-	uint32	WriteToBuffer(uint32 transize, byte *data, uint32 start, uint32 end, Requested_Block_Struct *block);
+	uint32	WriteToBuffer(uint32 transize, byte *data, uint64 start, uint64 end, Requested_Block_Struct *block);
 	void	FlushBuffer(bool forcewait=false, bool bForceICH = false, bool bNoAICH = false);	
 
 	// Barry - Is archive recovery in progress
@@ -167,15 +181,15 @@ public:
 	// Barry - Added to prevent list containing deleted blocks on shutdown
 	void	RemoveAllRequestedBlocks(void);
 
-	void	RemoveBlockFromList(uint32 start,uint32 end);
+	void	RemoveBlockFromList(uint64 start,uint64 end);
 	void	RemoveAllSources(bool bTryToSwap);
 	void	Delete();
 	void	StopFile(bool bCancel = false);
 	void	PauseFile(bool bInsufficient = false);
 	void	ResumeFile();
 
-	virtual	CPacket* CreateSrcInfoPacket(const CUpDownClient* forClient);
-	void    AddClientSources(CMemFile* sources, uint8 sourceexchangeversion, unsigned nSourceFrom);
+	virtual	CPacket* CreateSrcInfoPacket(const CUpDownClient* forClient, uint8 byRequestedVersion, uint16 nRequestedOptions);
+	void    AddClientSources(CMemFile* sources, unsigned nSourceFrom, uint8 uClientSXVersion, bool bSourceExchange2, const CUpDownClient* pClient = NULL);
 
 	bool	PreviewAvailable();
 	uint8	GetAvailablePartCount() const	{ return m_availablePartsCount; }
@@ -185,14 +199,14 @@ public:
 	uint64	GetLostDueToCorruption() const	{ return m_iLostDueToCorruption; }
 	uint64	GetGainDueToCompression() const	{ return m_iGainDueToCompression; }
 	uint32	TotalPacketsSavedDueToICH()const{ return m_iTotalPacketsSavedDueToICH; }
-	bool	IsStopped() const		{ return m_stopped; }
+	bool	IsStopped() const		{ return this ? m_stopped : true; }
 	bool	IsPaused() const		{ return m_paused; }
 	void	UpdateFileRatingCommentAvail();
+	bool	m_CommentUpdated;
 
 	int	GetCommonFilePenalty();
 	void	UpdateDisplayedInfo(bool force = false);
 	
-	const wxDateTime& GetLastChangeDatetime() const { return m_lastDateChanged; }
 	uint8	GetCategory() const { return m_category; }
 	void	SetCategory(uint8 cat);
 
@@ -203,9 +217,11 @@ public:
 	void	SetAutoDownPriority(bool flag)	{ m_bAutoDownPriority = flag; }
 	void	UpdateAutoDownPriority();
 	uint8	GetDownPriority() const		{ return m_iDownPriority; }
+	void	SetActive(bool bActive);
+	uint32	GetDlActiveTime() const;
 	bool	GetInsufficient() const		{ return m_insufficient; }
 	
-	void	CompleteFileEnded(int completing_result, wxString* newname);	
+	void	CompleteFileEnded(bool errorOccured, const CPath& newname);	
 
 	bool	RemoveSource(CUpDownClient* toremove, bool updatewindow = true, bool bDoStatsUpdate = true);
 
@@ -250,10 +266,10 @@ public:
 	typedef std::set<CUpDownClient*> SourceSet;
 	
 	const SourceSet& GetSourceList()	const { return m_SrcList; }
-	const SourceSet& GetA4AFList()		const { return A4AFsrclist; }
+	const SourceSet& GetA4AFList()		const { return m_A4AFsrclist; }
 
-	const CList<Gap_Struct*>&	GetGapList() const	{ return gaplist; }
-	const CList<Requested_Block_Struct*>& GetRequestedBlockList() const { return requestedblocks_list; }
+	const CGapPtrList		GetGapList() const	{ return m_gaplist; }
+	const CReqBlockPtrList	GetRequestedBlockList() const { return m_requestedblocks_list; }
 
 
 	/**
@@ -279,93 +295,124 @@ public:
 	uint16	GetMaxSourcePerFileSoft() const;
 	uint16	GetMaxSourcePerFileUDP() const;		 
 
-	void GetRatingAndComments(FileRatingList& list);
+	const FileRatingList &GetRatingAndComments();
 
+private:
 	//! A local list of sources that are invalid for this file.
 #ifndef CLIENT_GUI
 	CDeadSourceList	m_deadSources;
 #endif
 
+	uint16	m_notCurrentSources;
+
 	bool	m_showSources;
 	
 	uint32	m_validSources;
-	uint32	m_notCurrentSources;
-	
+
+	void	AddGap(uint64 start, uint64 end);
+	void	FillGap(uint64 start, uint64 end);
 	bool	GetNextEmptyBlockInPart(uint16 partnumber,Requested_Block_Struct* result);
-	bool	IsAlreadyRequested(uint32 start, uint32 end);
+	bool	IsAlreadyRequested(uint64 start, uint64 end);
 	void	CompleteFile(bool hashingdone);
 	void	CreatePartFile();
 	void	Init();
 
 	bool	CheckFreeDiskSpace( uint32 neededSpace = 0 );
-private:
+	
+	bool	IsCorruptedPart(uint16 partnumber);
+	
+	uint64	GetTotalGapSizeInPart(uint32 uPart) const;
+
+	uint64	GetTotalGapSizeInRange(uint64 uRangeStart, uint64 uRangeEnd) const;	
+	
 	uint32	m_iLastPausePurge;
 	uint16	m_count;
 	uint16	m_anStates[STATES_COUNT];
 	uint16	transferingsrc;
-	uint32  completedsize;
+	uint64  completedsize;
+	uint64	transferred;
+	
 	uint64	m_iLostDueToCorruption;
 	uint64	m_iGainDueToCompression;
 	uint32  m_iTotalPacketsSavedDueToICH;
 	float 	kBpsDown;
-	wxString m_fullname;
-	wxString m_partmetfilename;
-	uint32	transfered;
+	CPath	m_fullname;
+	CPath	m_partmetfilename;
 	bool	m_paused;
 	bool	m_stopped;
 	bool	m_insufficient;
 	uint8   m_iDownPriority;
 	bool    m_bAutoDownPriority;
 	uint8	status;
-	bool	newdate;	// indicates if there was a writeaccess to the .part file
 	uint32	lastpurgetime;
 	uint32	m_LastNoNeededCheck;
-	CList<Gap_Struct*> gaplist;
-	CList<Requested_Block_Struct*> requestedblocks_list;
+	CGapPtrList m_gaplist;
+	CReqBlockPtrList m_requestedblocks_list;
 	double	percentcompleted;
-	CList<uint16, uint16> corrupted_list;
+	std::list<uint16> m_corrupted_list;
 	uint8	m_availablePartsCount;
 	uint32	m_ClientSrcAnswered;
-	uint32	m_nSavedReduceDownload;
 	bool	m_bPercentUpdated;
 
 	void	PerformFileComplete();
 
 	uint32		m_lastRefreshedDLDisplay;
-	wxDateTime	m_lastDateChanged;
 
 	// Barry - Buffered data to be written
-	CTypedPtrList<CPtrList, PartFileBufferedData*> m_BufferedData_list;
+	std::list<PartFileBufferedData*> m_BufferedData_list;
+	
 	uint32 m_nTotalBufferData;
 	uint32 m_nLastBufferFlushTime;
 
 	uint8	m_category;
+	uint32	m_nDlActiveTime;
+	time_t  m_tActivated;
 	bool	m_is_A4AF_auto;
 
-	uint32	m_LastSourceDropTime;
-
-public:
-	SourceSet m_SrcList;
-	SourceSet A4AFsrclist;
+	SourceSet	m_SrcList;
+	SourceSet	m_A4AFsrclist;
+	bool		m_hashsetneeded;
+	uint32		m_lastsearchtime;
+	bool		m_localSrcReqQueued;
 	
-	bool	hashsetneeded;
-	uint32  GetCompletedSize() const	{ return completedsize; }
+	FileRatingList m_FileRatingList;
+#ifdef CLIENT_GUI
+	SourcenameItemList m_SourcenameItem_list;
+public:
+	const SourcenameItemList &GetSourcenameItemList() { return m_SourcenameItem_list; }
+	void ClearSourcenameItemList() { m_SourcenameItem_list.clear(); }
+	void AddSourcenameItemList(const wxString &name, long count) { m_SourcenameItem_list.push_back(SourcenameItem(name, count)); }
+#endif
+public:
+	const FileRatingList &GetFileRatingList() { return m_FileRatingList; }
+	void ClearFileRatingList() { m_FileRatingList.clear(); }
+	void AddFileRatingList(const wxString & u, const wxString & f, sint16 r, const wxString & c) { 
+	       m_FileRatingList.push_back(SFileRating(u, f, r, c)); }
 
-	uint32	lastsearchtime;
-	bool	m_bLocalSrcReqQueued;
+	bool IsHashSetNeeded() const				{ return m_hashsetneeded; }
+	void SetHashSetNeeded(bool value)			{ m_hashsetneeded = value; }
+	
+	uint64  GetCompletedSize() const			{ return completedsize; }
+	void	SetCompletedSize(uint64 size)		{ completedsize = size; }	
 
-	/* CleanUpSources function */
-	void CleanUpSources( bool noNeeded, bool fullQueue = false, bool highQueue = false );
+	bool IsLocalSrcRequestQueued() const		{ return m_localSrcReqQueued; }
+	void SetLocalSrcRequestQueued(bool value) 	{ m_localSrcReqQueued = value; }
 
-	/* AddDownloadingSource function */
+	void AddA4AFSource(CUpDownClient* src)		{ m_A4AFsrclist.insert(src); }
+	bool RemoveA4AFSource(CUpDownClient* src)	{ return m_A4AFsrclist.erase(src); }
+
+	uint32 GetLastSearchTime() const			{ return m_lastsearchtime; }
+	void SetLastSearchTime(uint32 time)			{ m_lastsearchtime = time; }
+	
+
+//	void CleanUpSources( bool noNeeded, bool fullQueue = false, bool highQueue = false );
+
 	void AddDownloadingSource(CUpDownClient* client);
           
-	/* RemoveDownloadingSource function */
 	void RemoveDownloadingSource(CUpDownClient* client);
 	void SetStatus(uint8 in);
 	void StopPausedFile();
 
-	// void SetA4AFAuto(bool A4AFauto)
 	// [sivka / Tarod] Imported from eMule 0.30c (Creteil) ... 
 	void SetA4AFAuto(bool in)		{ m_is_A4AF_auto = in; }
 	bool IsA4AFAuto() const			{ return m_is_A4AF_auto; }
@@ -373,19 +420,22 @@ public:
 	// Kry -Sources seeds
 	void SaveSourceSeeds();
 	void LoadSourceSeeds();
+	
+	// Dropping slow sources
+	
+	CUpDownClient* GetSlowerDownloadingClient(uint32 speed, CUpDownClient* caller) ;
 
 private:
 	/* downloading sources list */
-	std::list<CUpDownClient *> m_downloadingSourcesList;
-	static	wxMutex m_FileCompleteMutex;
+	CClientPtrList m_downloadingSourcesList;
 
 	/* Kad Stuff */
 	uint32	m_LastSearchTimeKad;
 	uint8	m_TotalSearchesKad;
 
-friend class CPartFile_Encoder;
 friend class CDownQueueRem;
 friend class CPartFileConvert;
 };
 
 #endif // PARTFILE_H
+// File_checked_for_headers

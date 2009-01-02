@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,7 +26,6 @@
 #ifndef CLIENTCREDITS_H
 #define CLIENTCREDITS_H
 
-#include "Types.h"		// Needed for uint16 and uint32
 #include "MD4Hash.h"	// Needed for CMD4Hash
 
 #define	 MAXPUBKEYSIZE		80
@@ -35,20 +34,27 @@
 #define CRYPT_CIP_LOCALCLIENT	20
 #define CRYPT_CIP_NONECLIENT	30
 
+#ifdef _MSC_VER
+#pragma pack(1)
+#endif
 struct CreditStruct
 {
 	CreditStruct();
 	
 	CMD4Hash	key;
-	uint32		nUploadedLo;	// uploaded TO him
-	uint32		nDownloadedLo;	// downloaded from him
+	uint64		uploaded;		// uploaded TO him
+	uint64		downloaded;	// downloaded from him
 	uint32		nLastSeen;
-	uint32		nUploadedHi;	// upload high 32
-	uint32		nDownloadedHi;	// download high 32
 	uint16		nReserved3;
 	uint8		nKeySize;
 	byte		abySecureIdent[MAXPUBKEYSIZE];
-};
+}
+#ifdef _MSC_VER
+;
+#pragma pack()
+#else
+__attribute__((__packed__));
+#endif
 
 enum EIdentState{
 	IS_NOTAVAILABLE,
@@ -101,3 +107,4 @@ private:
 };
 
 #endif // CLIENTCREDITS_H
+// File_checked_for_headers

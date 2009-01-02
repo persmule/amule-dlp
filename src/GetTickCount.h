@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Alo Sarv <madcat_@users.sourceforge.net>
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Alo Sarv <madcat_@users.sourceforge.net>
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Timo Kujala <tiku@users.sourceforge.net>
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -30,14 +30,16 @@
 #include "Types.h"		// Needed for uint32
 
 #ifndef __WINDOWS__
-uint32 GetTickCount();
+	uint32 GetTickCount();
 #else
-#include <winbase.h>
+	#ifndef _MSC_VER
+		#include <winbase.h> // Do_not_auto_remove
+	#endif
 #endif
 
 // Ideally, same than GetTickCount.
 // However, on GUI, GetTickCount does only work in
-// 20 secs increment, and some classes need better.
+// 20 msecs increment, and some classes need better.
 
 uint32 GetTickCountFullRes(); 
 
@@ -50,3 +52,4 @@ void StartTickTimer();
 void StopTickTimer();
 
 #endif // GETTICKCOUNT_H
+// File_checked_for_headers

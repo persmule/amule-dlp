@@ -25,8 +25,6 @@
 /// 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// For compilers that support precompilation, includes "wx/wx.h"
-#include "wx/wxprec.h"
 
 #ifdef __BORLANDC__
     #pragma hdrstop
@@ -48,10 +46,12 @@ IMPLEMENT_APP (alc)
 
 bool alc::OnInit ()
 {
+#ifndef _MSC_VER
   // Used to tell wxCas to use aMule catalog
   m_locale.Init();
   m_locale.AddCatalog(wxT(PACKAGE));
-  
+#endif
+
   m_alcFrame = new AlcFrame (_("aLinkCreator, the aMule ed2k link creator"));
   m_alcFrame->Show (true);
   SetTopWindow (m_alcFrame);
@@ -62,3 +62,4 @@ AlcFrame *alc::GetMainFrame()
 {
   return (m_alcFrame);
 }
+// File_checked_for_headers

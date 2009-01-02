@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,31 +23,19 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
-#include <wx/intl.h>		// Needed for _
-#include <wx/datetime.h>	// Needed for wxDateTime
 #include <wx/tokenzr.h>
+#include <wx/imaglist.h>
 
 #include "pixmaps/chat.ico.xpm"
 #include "ChatSelector.h"	// Interface declarations
-#include "UploadQueue.h"	// Needed for CUploadQueue
-#include "Packet.h"		// Needed for CPacket
-#include "OPCodes.h"		// Needed for OP_MESSAGE
 #include "Preferences.h"	// Needed for CPreferences
-#include "ChatWnd.h"		// Needed for CChatWnd
-#ifdef __WXMSW__
-	#include <wx/msw/winundef.h> // Needed to be able to include wx headers
-#endif
 #include "amule.h"		// Needed for theApp
 #include "updownclient.h"	// Needed for CUpDownClient
-#include "Color.h"		// Needed for RGB
-#include "FriendListCtrl.h"	// Needed for CDlgFriend
 #include "OtherFunctions.h"
 #include "muuli_wdr.h"		// Needed for amuleSpecial
+#include "UserEvents.h"
 
-#warning Needed while not ported
-#include "Friend.h"
-#include "FriendList.h"
+//#warning Needed while not ported
 #include "ClientList.h"
 #include <common/Format.h>		// Needed for CFormat
 
@@ -69,9 +57,9 @@ CChatSession::CChatSession(wxWindow* parent, wxWindowID id, const wxString& valu
 
 CChatSession::~CChatSession()
 {
-	#warning EC NEEDED
+	//#warning EC NEEDED
 	#ifndef CLIENT_GUI
-	theApp.clientlist->SetChatState(m_client_id,MS_NONE);
+	theApp->clientlist->SetChatState(m_client_id,MS_NONE);
 	#endif
 }
 
@@ -122,7 +110,6 @@ CChatSelector::CChatSelector(wxWindow* parent, wxWindowID id, const wxPoint& pos
 
 CChatSession* CChatSelector::StartSession(uint64 client_id, const wxString& client_name, bool show) 
 {
-
 	// Check to see if we've already opened a session for this user
 	if ( GetPageByClientID( client_id ) ) {
 		if ( show ) {
@@ -133,7 +120,7 @@ CChatSession* CChatSelector::StartSession(uint64 client_id, const wxString& clie
 	}
 
 	CChatSession* chatsession = new CChatSession(this);
-	
+
 	chatsession->m_client_id = client_id;
 
 	wxString text;
@@ -146,7 +133,9 @@ CChatSession* CChatSelector::StartSession(uint64 client_id, const wxString& clie
 	
 	chatsession->AddText( text, COLOR_RED );
 	AddPage(chatsession, client_name, show, 0);
-	
+
+	CUserEvents::ProcessEvent(CUserEvents::NewChatSession, &client_name);
+
 	return chatsession;
 }
 
@@ -250,10 +239,10 @@ bool CChatSelector::SendMessage( const wxString& message, const wxString& client
 
 	ci->m_active = true;
 	
-	#warning EC needed here.
+	//#warning EC needed here.
 	
 	#ifndef CLIENT_GUI
-	if (theApp.clientlist->SendMessage(ci->m_client_id, message)) {
+	if (theApp->clientlist->SendMessage(ci->m_client_id, message)) {
 		ci->AddText( thePrefs::GetUserNick(), COLOR_GREEN, false );
 		ci->AddText( wxT(": ") + message, COLOR_BLACK );
 	} else {
@@ -266,7 +255,7 @@ bool CChatSelector::SendMessage( const wxString& message, const wxString& client
 
 //#warning Creteil?  I know you are here Creteil... follow the white rabbit.
 /* Madcat - knock knock ...
-	        ,-.,-.
+           ,-.,-.
             \ \\ \
              \ \\_\
              /     \
@@ -334,3 +323,4 @@ void CChatSelector::RefreshFriend(uint64 toupdate_id, const wxString& new_name)
 		// Nothing to be done here.
 	}
 }
+// File_checked_for_headers

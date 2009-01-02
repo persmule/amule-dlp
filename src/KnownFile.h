@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,26 +23,24 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
+
 #ifndef KNOWNFILE_H
 #define KNOWNFILE_H
 
+
 #include "MD4Hash.h"
 #include "SHAHashSet.h"
-#include <wx/defs.h>		// Needed before any other wx/*.h
-#include <wx/dynarray.h>
 
-#include <set>
+#include <protocol/ed2k/Constants.h>
+#include <common/Path.h>
 
-#include "CTypedPtrList.h"
-#include "Types.h"		// Needed for int8, uint8, uint16, uint32 and uint64
-#include "OPCodes.h"		// Needed for PARTSIZE
-
-#include "kademlia/kademlia/SearchManager.h"
 #include "kademlia/kademlia/Indexed.h"
 
+
 #ifdef CLIENT_GUI
-#include <ec/ECSpecialTags.h>
+#include <ec/cpp/ECSpecialTags.h>
 #endif
+
 
 #define	PS_READY			0
 #define	PS_EMPTY			1
@@ -55,30 +53,43 @@
 #define PS_COMPLETING			8
 #define PS_COMPLETE			9
 
-#define PR_VERYLOW			4 // I Had to change this because it didn't save negative number correctly.. Had to modify the sort function for this change..
+
+#define PR_VERYLOW			4 // I Had to change this because
+					  // it didn't save negative number
+					  // correctly.. Had to modify the
+					  // sort function for this change..
 #define PR_LOW				0 //*
-#define PR_NORMAL			1 // Don't change this - needed for edonkey clients and server!
-#define	PR_HIGH				2 //*
+#define PR_NORMAL			1 // Don't change this - needed for
+					  // edonkey clients and server!
+#define PR_HIGH				2 //*
 #define PR_VERYHIGH			3
 #define PR_AUTO				5
-#define PR_POWERSHARE                   6 //added for powershare (deltaHF)
+#define PR_POWERSHARE			6 //added for powershare (deltaHF)
+
 
 class CUpDownClient;
 class CFileDataIO;
 class CPacket;
 class CTag;
 
-namespace Kademlia{
+
+namespace Kademlia
+{
 	class CEntry;
-};
+}
 
-WX_DECLARE_OBJARRAY(CMD4Hash, ArrayOfCMD4Hash);
 
-WX_DECLARE_OBJARRAY(CTag*, ArrayOfCTag);
+typedef vector<CMD4Hash> ArrayOfCMD4Hash;
 
-class CFileStatistic {
+
+typedef vector<CTag> ArrayOfCTag;
+
+
+class CFileStatistic
+{
 	friend class CKnownFile;
 	friend class CSharedFilesRem;
+
 public:
 	CFileStatistic();
 	void	AddRequest();
@@ -86,18 +97,18 @@ public:
 	void    AddTransferred(uint64 bytes);
 	uint16	GetRequests() const			{return requested;}
 	uint16	GetAccepts() const			{return accepted;}
-	uint64  GetTransfered() const			{return transfered;}
-	uint32	GetAllTimeRequests() const	{return alltimerequested;}
-	void	SetAllTimeRequests(uint32 new_value) { alltimerequested = new_value; };
+	uint64  GetTransferred() const			{return transferred;}
+	uint32	GetAllTimeRequests() const		{return alltimerequested;}
+	void	SetAllTimeRequests(uint32 new_value)	{ alltimerequested = new_value; };
 	uint32	GetAllTimeAccepts() const		{return alltimeaccepted;}
-	void	SetAllTimeAccepts(uint32 new_value) { alltimeaccepted = new_value; };	
-	uint64	GetAllTimeTransfered() const	{return alltimetransferred;}
-	void	SetAllTimeTransfered(uint64 new_value) { alltimetransferred = new_value; };
+	void	SetAllTimeAccepts(uint32 new_value)	{ alltimeaccepted = new_value; };	
+	uint64	GetAllTimeTransferred() const		{return alltimetransferred;}
+	void	SetAllTimeTransferred(uint64 new_value)	{ alltimetransferred = new_value; };
 	CKnownFile* fileParent;
 	
 private:
 	uint16 requested;
-	uint64 transfered;
+	uint64 transferred;
 	uint16 accepted;
 	uint32 alltimerequested;
 	uint64 alltimetransferred;
@@ -105,39 +116,43 @@ private:
 };
 
 /*
-					   CPartFile
-					 /
-		  CKnownFile
-		/
-CAbstractFile 
-		\ 
-		  CSearchFile
+                             CPartFile
+                           /
+                CKnownFile
+              /
+CAbstractFile
+              \ 
+                CSearchFile
 */
 class CAbstractFile
 {
 public:
 	CAbstractFile();
-	virtual ~CAbstractFile() {};
+	explicit CAbstractFile(const CAbstractFile& other);
+	virtual ~CAbstractFile() {}
 
-	virtual const wxString&	GetFileName() const		{return m_strFileName;}
-	const CMD4Hash&	GetFileHash() const	{return m_abyFileHash;}
-	uint32	GetFileSize() const			{return m_nFileSize;}
-	virtual void SetFileSize(uint32 nFileSize) { m_nFileSize = nFileSize; }
-	
-	virtual void	SetFileName(const wxString& strmakeFilename);
+	const CPath&	GetFileName() const	{ return m_fileName; }
+	const CMD4Hash&	GetFileHash() const	{ return m_abyFileHash; }
+
+	uint64	GetFileSize() const	{ return m_nFileSize;}
+	bool	IsLargeFile() const	{ return m_nFileSize > (uint64)OLD_MAX_FILE_SIZE; }
+
+	virtual void SetFileSize(uint64 nFileSize)	{ m_nFileSize = nFileSize; }
+	virtual void SetFileName(const CPath& filename);
 
 	/* Tags and Notes handling */
 	uint32 GetIntTagValue(uint8 tagname) const;
-	uint32 GetIntTagValue(const char* tagname) const;
+	uint32 GetIntTagValue(const wxString& tagname) const;
 	bool GetIntTagValue(uint8 tagname, uint32& ruValue) const;
+	void SetIntTagValue(uint8 tagname, uint32 ruValue) const;
 	const wxString& GetStrTagValue(uint8 tagname) const;
-	const wxString& GetStrTagValue(const char* tagname) const;
-	CTag* GetTag(const char* tagname) const;	
-	CTag* GetTag(const char* tagname, uint8 tagtype) const;
-	CTag* GetTag(uint8 tagname) const;
-	CTag* GetTag(uint8 tagname, uint8 tagtype) const;	
-	void AddTagUnique(CTag* pTag);
-	const ArrayOfCTag& GetTags() const { return taglist; }
+	const wxString& GetStrTagValue(const wxString& tagname) const;
+	const CTag *GetTag(const wxString& tagname) const;	
+	const CTag *GetTag(const wxString& tagname, uint8 tagtype) const;
+	const CTag *GetTag(uint8 tagname) const;
+	const CTag *GetTag(uint8 tagname, uint8 tagtype) const;	
+	void AddTagUnique(const CTag &pTag);
+	const ArrayOfCTag& GetTags() const { return m_taglist; }
 	void AddNote(Kademlia::CEntry* pEntry);
 	const CKadEntryPtrList& getNotes() const { return m_kadNotes; }
 
@@ -152,48 +167,48 @@ public:
 	void	UpdateFileRatingCommentAvail();
 
 protected:
-	wxString	m_strFileName;
+	//! CAbstractFile is not assignable.
+	CAbstractFile& operator=(const CAbstractFile);
+	
 	CMD4Hash	m_abyFileHash;
-	uint32		m_nFileSize;
 	wxString	m_strComment;
 	int8		m_iRating;
 	bool		m_hasComment;
 	int8		m_iUserRating;
-	ArrayOfCTag taglist;
+	ArrayOfCTag	m_taglist;
 	CKadEntryPtrList m_kadNotes;
+
+private:
+	uint64		m_nFileSize;
+	CPath		m_fileName;
 };
+
+
+class CSearchFile;
 
 
 class CKnownFile : public CAbstractFile
 {
-friend class CAddFileThread;
+friend class CHashingTask;
 public:
 	CKnownFile();
-#ifdef CLIENT_GUI
-	CKnownFile(CEC_SharedFile_Tag *);
-	friend class CSharedFilesRem;
-#endif
+	explicit CKnownFile(const CSearchFile &searchFile);
 
 	virtual ~CKnownFile();
 
-	#ifndef CLIENT_GUI	
-	virtual void SetFileName(const wxString& strmakeFilename);
-	#endif
-		
-	void SetFilePath(const wxString& strFilePath);
-	const wxString& GetFilePath() const { return m_strFilePath; }
+	void SetFilePath(const CPath& filePath);
+	const CPath& GetFilePath() const { return m_filePath; }
 	
 	virtual	bool	IsPartFile() const	{return false;}
 	virtual bool	LoadFromFile(const CFileDataIO* file);	//load date, hashset and tags from a .met file
 	virtual uint8	GetStatus(bool WXUNUSED(ignorepause) = false) const { return PS_COMPLETE; }
 	bool	WriteToFile(CFileDataIO* file);	
-	uint32	GetFileDate() const	{return date;}
+	time_t GetLastChangeDatetime() const { return m_lastDateChanged; }
 
-		
-	virtual void SetFileSize(uint32 nFileSize);
+	virtual void SetFileSize(uint64 nFileSize);
 
 	// local available part hashs
-	uint16	GetHashCount() const	{return hashlist.GetCount();}
+	uint16	GetHashCount() const	{return m_hashlist.size();}
 	const CMD4Hash&	GetPartHash(uint16 part) const;
 
 	// nr. of part hashs according the file size wrt ED2K protocol
@@ -246,11 +261,10 @@ public:
 	uint32	GetMetaDataVer() const { return /*m_uMetaDataVer*/ 0; }
 	
 	// file sharing
-	virtual	CPacket*	CreateSrcInfoPacket(const CUpDownClient* forClient);
+	virtual	CPacket*	CreateSrcInfoPacket(const CUpDownClient* forClient, uint8 byRequestedVersion, uint16 nRequestedOptions);
 	
 	virtual void	UpdatePartsInfo();	
 
-	uint32	date;
 	
 	CFileStatistic statistic;
 	
@@ -264,10 +278,13 @@ public:
 	SourceSet m_ClientUploadList;
 	ArrayOfUInts16 m_AvailPartFrequency;
 	
-	bool	CreateAICHHashSetOnly();
-	// aich
-	CAICHHashSet*	GetAICHHashset() const							{return m_pAICHHashSet;}
-	void			SetAICHHashset(CAICHHashSet* val)				{m_pAICHHashSet = val;}		
+	/** 
+ 	 * Returns a base-16 encoding of the master hash, or
+ 	 * an empty string if no such hash exists.
+ 	 */
+	wxString GetAICHMasterHash() const;
+	/** Returns true if the AICH-Hashset is valid, and verified or complete. */
+	bool HasProperAICHHashSet() const;
 
 	/**
 	 * Updates the requency of uploading parts from with the data the client provides.
@@ -281,20 +298,40 @@ public:
 	 */
 	void UpdateUpPartsFrequency( CUpDownClient* client, bool increment );
 
-	void	CreateHashFromString(byte* in_string, uint32 Length, byte* Output, CAICHHashTree* pShaHashOut = NULL)	{CreateHashFromInput(NULL, Length,Output,in_string,pShaHashOut);}
+	static void CreateHashFromHashlist(const ArrayOfCMD4Hash& hashes, CMD4Hash* Output);
 	
 	void	ClearPriority();
 	
+	time_t	m_lastDateChanged;
+
+
+#ifdef CLIENT_GUI
+	CKnownFile(CEC_SharedFile_Tag *);
+	friend class CSharedFilesRem;
+
 protected:
+	//! The AICH master-hash, if it is known.
+	wxString	m_AICHMasterHash;
+#else
+	virtual void SetFileName(const CPath& filename);
+
+	// AICH
+	CAICHHashSet* GetAICHHashset() const		{ return m_pAICHHashSet; }
+	void SetAICHHashset(CAICHHashSet* val)		{ m_pAICHHashSet = val; }
+	
+protected:
+	CAICHHashSet*	m_pAICHHashSet;
+#endif
+
 	bool	LoadTagsFromFile(const CFileDataIO* file);
 	bool	LoadDateFromFile(const CFileDataIO* file);
-	void	CreateHashFromFile(CFileDataIO* file, uint32 Length, byte* Output, CAICHHashTree* pShaHashOut = NULL) const { CreateHashFromInput(file, Length, Output, NULL, pShaHashOut); }	
 	void	LoadComment();//comment
-	ArrayOfCMD4Hash hashlist;
-	wxString m_strFilePath;	
-	CAICHHashSet*			m_pAICHHashSet;
+	ArrayOfCMD4Hash m_hashlist;
+	CPath	m_filePath;	
 
-	void	CreateHashFromInput(CFileDataIO* file, uint32 Length, byte* Output, byte* in_string, CAICHHashTree* pShaHashOut) const;
+	static void CreateHashFromFile(CFileDataIO* file, uint32 Length, CMD4Hash* Output, CAICHHashTree* pShaHashOut);
+	static void CreateHashFromInput(const byte* input, uint32 Length, CMD4Hash* Output, CAICHHashTree* pShaHashOut);
+
 	bool	m_bCommentLoaded;
 	uint16	m_iPartCount;
 	uint16  m_iED2KPartCount;
@@ -302,7 +339,7 @@ protected:
 	uint8	m_iUpPriority;
 	bool	m_bAutoUpPriority;
 	bool	m_PublishedED2K;
-	
+
 	/* Kad stuff */
 	Kademlia::WordList wordlist;
 	uint32	kadFileSearchID;
@@ -316,3 +353,4 @@ private:
 };
 
 #endif // KNOWNFILE_H
+// File_checked_for_headers

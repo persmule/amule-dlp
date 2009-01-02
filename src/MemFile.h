@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,7 +26,6 @@
 #ifndef MEMFILE_H
 #define MEMFILE_H
 
-#include "Types.h"		// Needed for uint8, uint16, uint32
 #include "SafeFile.h"	// Needed for CFileDataIO
 
 
@@ -86,8 +85,11 @@ public:
 	 * the length.
 	 *
 	 * The buffer is _not_ freed by CMemFile upon destruction.
+	 *
+	 * If the buffer is a const byte*, the memfile is read-only.
 	 */
 	CMemFile(byte* buffer, size_t bufferSize);
+	CMemFile(const byte* buffer, size_t bufferSize);
 
 	/** Destructor. */
 	virtual ~CMemFile();
@@ -113,6 +115,24 @@ public:
 	 * operation.
 	 */
 	virtual void SetLength(size_t newLen);
+
+	/** 
+	 * Resets the memfile to the start.
+	 */
+	virtual void Reset() const { doSeek(0); }
+	
+	/**
+	 * Returns the bytes available to read before EOF
+	 */
+	virtual sint64 GetAvailable() const { return GetLength() - GetPosition(); }
+
+	/** 
+	 * Resets the memfile to the starting values.
+	 */
+	virtual void ResetData();
+
+	// Sometimes it's useful to get the buffer and do stuff with it.
+	byte* GetRawBuffer() const { return m_buffer; }
 	
 protected:
 	/** @see CFileDataIO::doRead */
@@ -123,7 +143,7 @@ protected:
 	
 	/** @see CFileDataIO::doSeek */
 	virtual sint64 doSeek(sint64 offset) const;
-	
+
 private:
 	//! A CMemFile is neither copyable nor assignable.
 	//@{
@@ -144,8 +164,11 @@ private:
 	size_t	m_fileSize;
 	//! If true, the buffer will be freed upon termination.
 	bool	m_delete;
+	//! read-only mark.
+	bool	m_readonly;
 	//! The actual buffer.
 	byte*	m_buffer;
 };
 
 #endif // MEMFILE_H
+// File_checked_for_headers

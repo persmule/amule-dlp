@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -61,18 +61,19 @@ public:
 private:
 
 	CRoutingBin();
-	bool add(CContact *contact, bool check = true);
-	void setAlive(uint32 ip, uint16 port);
-	void setTCPPort(uint32 ip, uint16 port, uint16 tcpPort);
-	void remove(CContact *contact);
-	CContact *getContact(const CUInt128 &id);
-	CContact *getOldest(void);
+	bool Add(CContact *contact, bool check = true);
+	void SetAlive(uint32 ip, uint16 port);
+	void SetTCPPort(uint32 ip, uint16 port, uint16 tcpPort);
+	void Remove(CContact *contact);
+	CContact *GetContact(const CUInt128 &id);
+	CContact *GetOldest(void);
 
-	uint32 getSize() const;
-	uint32 getRemaining(void) const;
-	void getEntries(ContactList *result, bool emptyFirst = true);
+	uint32 GetSize() const;
+	uint32 GetRemaining(void) const;
+	void GetEntries(ContactList *result, bool emptyFirst = true);
 
-	void getClosestTo(uint32 maxType, const CUInt128 &target, uint32 maxRequired, ContactMap *result, bool emptyFirst = true, bool setInUse = false);
+	void GetClosestTo(uint32 maxType, const CUInt128 &target, uint32 maxRequired, ContactMap *result, bool emptyFirst = true, bool 
+setInUse = false);
 
 	// Debug purposes.
 //	void dumpContents(void);
@@ -84,3 +85,4 @@ private:
 } // End namespace
 
 #endif // __ROUTING_BIN__
+// File_checked_for_headers

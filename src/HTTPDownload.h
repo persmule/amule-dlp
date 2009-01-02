@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Tiku & Hetfield ( hetfield@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,26 +26,27 @@
 #ifndef HTTPDOWNLOAD_H
 #define HTTPDOWNLOAD_H
 
-#include <wx/thread.h>	// Needed for wxThread
 #include "GuiEvents.h"	// Needed for HTTP_Download_File
-
+#include "MuleThread.h"	// Needed for CMuleThread
 
 class wxEvtHandler;
 class wxHTTP;
+class wxInputStream;
 
 
-class CHTTPDownloadThread : public wxThread
+class CHTTPDownloadThread : public CMuleThread
 {
 public:
-	CHTTPDownloadThread(const wxString& url, const wxString& filename, HTTP_Download_File file_id, bool showDialog = true);
+	/** Note: wxChar* is used to circument the thread-unsafe wxString reference counting. */
+	CHTTPDownloadThread(const wxChar* url, const wxChar* filename, HTTP_Download_File file_id, bool showDialog = true);
 
 private:
-	wxThread::ExitCode	Entry();
+	ExitCode		Entry();
 	virtual void 		OnExit();
 
-	wxString			m_url;
-	wxString			m_tempfile;
-	int					m_result;
+	wxString		m_url;
+	wxString		m_tempfile;
+	int			m_result;
 	HTTP_Download_File	m_file_id;
 	wxEvtHandler*		m_companion;
 
@@ -53,3 +54,4 @@ private:
 };
 
 #endif // HTTPDOWNLOAD_H
+// File_checked_for_headers

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 Kry ( elkry@users.sourceforge.net / http://www.amule.org )
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 Kry ( elkry@users.sourceforge.net / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -26,21 +26,13 @@
 #ifndef EXTERNALCONN_H
 #define EXTERNALCONN_H
 
-#include <wx/thread.h>		// For ExitCode
-#include <wx/event.h>		// For ExitCode
 
-#include <map>
-#include <set>
-#include <list>
-#include <vector>
 
-#include <ec/ECPacket.h>
-#include <ec/ECSpecialTags.h>
+#include <ec/cpp/ECSpecialTags.h>
 
 #include "amuleIPV4Address.h"	// for amuleIPV4Address
 #include "RLE.h"	// for RLE
 #include "DownloadQueue.h"
-#include "SharedFileList.h"
 
 class wxSocketServer;
 class wxSocketEvent;
@@ -104,7 +96,7 @@ class CPartFile_Encoder {
 		// This buffer only needed on core-side, where list is turned into array
 		// before passing to RLE. Decoder will just use RLE internal buffer
 		// Buffer can be static, since it is accessed with mutex locked
-		typedef std::vector<uint32> GapBuffer;
+		typedef std::vector<uint64> GapBuffer;
 		static GapBuffer m_gap_buffer;
 		
 		CPartFile *m_file;
@@ -162,11 +154,11 @@ class CKnownFile_Encoder {
 
 typedef CFileEncoderMap<CKnownFile , CKnownFile_Encoder, CSharedFileList> CKnownFile_Encoder_Map;
 
-template <class T, ec_opcode_t OP>
+template <class T, ec_tagname_t OP>
 class CTagSet : public std::set<T> {
 		void InSet(const CECTag *tag, uint32)
 		{
-			this->insert(tag->GetInt32Data());
+			this->insert(tag->GetInt());
 		}
 		void InSet(const CECTag *tag, CMD4Hash)
 		{
@@ -209,21 +201,39 @@ class CObjTagMap {
 		}
 };
 
-class ExternalConn : public wxEvtHandler {
-	public:
-		ExternalConn(amuleIPV4Address addr, wxString *msg);
-		~ExternalConn();
-	
-		static CECPacket *ProcessRequest2(const CECPacket *request,
-			CPartFile_Encoder_Map &, CKnownFile_Encoder_Map &, CObjTagMap &);
-	
-		static CECPacket *Authenticate(const CECPacket *);
-		wxSocketServer *m_ECServer;
 
-	private:
-		// event handlers (these functions should _not_ be virtual)
-		void OnServerEvent(wxSocketEvent& event);
-		DECLARE_EVENT_TABLE()
+class CECServerSocket;
+
+
+class ExternalConn : public wxEvtHandler
+{
+private:
+	typedef std::set<CECServerSocket *> SocketSet;
+	SocketSet socket_list;
+
+public:
+	ExternalConn(amuleIPV4Address addr, wxString *msg);
+	~ExternalConn();
+	
+	wxSocketServer *m_ECServer;
+
+	static CECPacket *ProcessRequest2(
+		const CECPacket *request,
+		CPartFile_Encoder_Map &,
+		CKnownFile_Encoder_Map &,
+		CObjTagMap &);
+	
+	static CECPacket *Authenticate(const CECPacket *);
+
+	void AddSocket(CECServerSocket *s);
+	void RemoveSocket(CECServerSocket *s);
+	void KillAllSockets();
+
+private:
+	// event handlers (these functions should _not_ be virtual)
+	void OnServerEvent(wxSocketEvent& event);
+	DECLARE_EVENT_TABLE()
 };
 
 #endif // EXTERNALCONN_H
+// File_checked_for_headers

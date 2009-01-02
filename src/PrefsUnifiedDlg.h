@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Original author: Emilio Sandoz
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -102,7 +102,6 @@ protected:
 	void OnClose(wxCloseEvent &event);
 
 	void OnButtonBrowseWav(wxCommandEvent &event);
-	void OnButtonBrowseSkin(wxCommandEvent &event);
 	void OnButtonBrowseApplication(wxCommandEvent &event);
 	void OnButtonDir(wxCommandEvent& event);
 	void OnButtonEditAddr(wxCommandEvent& event);
@@ -117,6 +116,8 @@ protected:
 	void OnScrollBarChange( wxScrollEvent& event );
 	void OnRateLimitChanged( wxSpinEvent& event );
 	void OnTCPClientPortChange(wxSpinEvent& event);
+	void OnUserEventSelected(wxListEvent& event);
+	void CreateEventPanels(const int idx, const wxString& vars, wxWindow* parent);
 
 	void OnInitDialog( wxInitDialogEvent& evt );
 
@@ -124,3 +125,4 @@ protected:
 };
 
 #endif
+// File_checked_for_headers

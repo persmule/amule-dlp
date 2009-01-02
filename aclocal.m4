@@ -1,4 +1,4 @@
-# generated automatically by aclocal 1.9.6 -*- Autoconf -*-
+# generated automatically by aclocal 1.9.5 -*- Autoconf -*-
 
 # Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
 # 2005  Free Software Foundation, Inc.
@@ -28,7 +28,7 @@ AC_DEFUN([AM_AUTOMAKE_VERSION], [am__api_version="1.9"])
 # Call AM_AUTOMAKE_VERSION so it can be traced.
 # This function is AC_REQUIREd by AC_INIT_AUTOMAKE.
 AC_DEFUN([AM_SET_CURRENT_AUTOMAKE_VERSION],
-	 [AM_AUTOMAKE_VERSION([1.9.6])])
+	 [AM_AUTOMAKE_VERSION([1.9.5])])
 
 # AM_AUX_DIR_EXPAND                                         -*- Autoconf -*-
 
@@ -889,7 +889,10 @@ AC_SUBST([am__tar])
 AC_SUBST([am__untar])
 ]) # _AM_PROG_TAR
 
+m4_include([m4/build-tools.m4])
 m4_include([m4/codeset.m4])
+m4_include([m4/cryptopp.m4])
+m4_include([m4/gdlib.m4])
 m4_include([m4/gettext.m4])
 m4_include([m4/glibc21.m4])
 m4_include([m4/iconv.m4])
@@ -901,10 +904,12 @@ m4_include([m4/lcmessage.m4])
 m4_include([m4/lib-ld.m4])
 m4_include([m4/lib-link.m4])
 m4_include([m4/lib-prefix.m4])
+m4_include([m4/libpng.m4])
 m4_include([m4/progtest.m4])
 m4_include([m4/readline.m4])
 m4_include([m4/stdint_h.m4])
 m4_include([m4/uintmax_t.m4])
 m4_include([m4/ulonglong.m4])
 m4_include([m4/wxwin.m4])
+m4_include([m4/zlib.m4])
 m4_include([acinclude.m4])

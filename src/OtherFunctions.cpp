@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,44 +26,33 @@
 // The backtrace functions contain modified code from libYaMa, (c) Venkatesha Murthy G.
 // You can check libYaMa at http://personal.pavanashree.org/libyama/
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
-#include <wx/intl.h>		// Needed for wxGetTranslation
+#include <tags/FileTags.h>
+
 #include <wx/utils.h>
-#include <wx/tokenzr.h>
-#include <wx/file.h>		// Needed for wxFile
-#include <wx/filename.h>	// Needed for wxFileName::GetPathSeparator()
-#include <wx/filefn.h>		// Needed for wxRemoveFile, wxMkdir, wxRmdir
-#include <wx/log.h>			// Needed for wxLogNull
+#include <wx/filename.h>	// Needed for wxFileName
+#include <wx/log.h>		// Needed for wxLogNull
 
 #ifdef __WXMSW__
-	#include <wx/msw/winundef.h>
-	#include <wx/msw/registry.h>
-	#if wxCHECK_VERSION_FULL(2,6,0,1)
-		#include <wx/stdpaths.h>
-	#endif
-#else
-	#include <wx/stdpaths.h>
-#endif
-
-#include <common/StringFunctions.h>
-#include <common/PlatformSpecific.h>	// Needed for GetUserDataDir()
-
-#ifndef EC_REMOTE
-	#include "FileFunctions.h"	// Needed for CDirIterator and CheckDirExists()
+	#include <wx/msw/registry.h> // Do_not_auto_remove
 #endif
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"		// Needed for a number of defines
 #endif
 
-#include "OtherFunctions.h"	// Interface declarations
-#include "OPCodes.h"
+#include <wx/stdpaths.h> // Do_not_auto_remove
+#include <common/StringFunctions.h>
+#include <common/ClientVersion.h>	
+#include <common/MD5Sum.h>
+#include <common/Path.h>
+#include "MD4Hash.h"
+#include "Logger.h"
 
-#include <cctype>
+#include "OtherFunctions.h"	// Interface declarations
+
 #include <map>
 
 #ifdef __WXBASE__
-	#include <ctime>
 	#include <cerrno>
 #else
 	#include <wx/utils.h>
@@ -72,6 +61,7 @@
 #if !defined(AMULE_DAEMON) && (!defined(EC_REMOTE) || defined(CLIENT_GUI))
 #include "amule.h"		// Needed for theApp
 #endif
+
 
 wxString GetMuleVersion()
 {
@@ -97,16 +87,12 @@ wxString GetMuleVersion()
 
 	ver += wxString::Format(wxT(" v%d.%d.%d"), wxMAJOR_VERSION, wxMINOR_VERSION, wxRELEASE_NUMBER );
 
-#if wxUSE_UNICODE && defined(__WXDEBUG__)
-	ver += wxT(" (Unicoded, Debugging)");
-#elif wxUSE_UNICODE
-	ver += wxT(" (Unicoded)");
-#elif defined(__WXDEBUG__)
+#if defined(__WXDEBUG__)
 	ver += wxT(" (Debugging)");
 #endif
 	
-#ifdef CVSDATE
-	ver += wxString::Format( wxT(" (Snapshot: %s)"), wxT(CVSDATE));
+#ifdef SVNDATE
+	ver += wxString::Format( wxT(" (Snapshot: %s)"), wxT(SVNDATE));
 #endif
 	
 	return ver;
@@ -132,7 +118,7 @@ wxString CastItoXBytes( uint64 count )
 {
 
 	if (count < 1024)
-		return wxString::Format( wxT("%.0f "), (float)(uint32)count) + _("bytes") ;
+		return wxString::Format( wxT("%.0f "), (float)(uint32)count) + wxPLURAL("byte", "bytes", count) ;
 	else if (count < 1048576)
 		return wxString::Format( wxT("%.0f "), (float)(uint32)count/1024) + _("kB") ;
 	else if (count < 1073741824)
@@ -167,7 +153,7 @@ wxString CastItoIShort(uint64 count)
 wxString CastItoSpeed(uint32 bytes)
 {
 	if (bytes < 1024)
-		return wxString::Format(wxT("%u "), bytes) + _("bytes/sec");
+		return wxString::Format(wxT("%u "), bytes) + wxPLURAL("byte/sec", "bytes/sec", bytes);
 	else if (bytes < 1048576)
 		return wxString::Format(wxT("%.2f "), bytes / 1024.0) + _("kB/s");
 	else
@@ -178,71 +164,60 @@ wxString CastItoSpeed(uint32 bytes)
 // Make a time value in seconds suitable for displaying
 wxString CastSecondsToHM(uint64 count, uint16 msecs)
 {
-	
 	if (count < 60) {
 		if (!msecs) {
-			return wxString::Format( wxT("%02") wxLongLongFmtSpec wxT("u "), count) + _("secs");
+			return wxString::Format(
+				wxT("%02") wxLongLongFmtSpec wxT("u "),
+				count) + _("secs");
 		} else {
-			return wxString::Format( wxT("%.3f"), (count + ((float)msecs/1000))) + _("secs");
+			return wxString::Format(
+				wxT("%.3f"),
+				(count + ((float)msecs/1000))) + _("secs");
 		}
-	} else if (count < 3600)
-		return wxString::Format( wxT("%") wxLongLongFmtSpec wxT("u:%02") wxLongLongFmtSpec wxT("u "), 
-			count/60, (count % 60)) + _("mins") ;
-	else if (count < 86400)
-		return wxString::Format( wxT("%") wxLongLongFmtSpec wxT("u:%02") wxLongLongFmtSpec wxT("u "),
-			count/3600, (count % 3600)/60) + _("hours") ;
-	else
-		return wxString::Format( wxT("%") wxLongLongFmtSpec wxT("u %s %02") wxLongLongFmtSpec wxT("u "), 
-			count/86400, _("Days") , (count % 86400) / 3600) + _("hours");
+	} else if (count < 3600) {
+		return wxString::Format(
+			wxT("%")
+			wxLongLongFmtSpec wxT("u:%02")
+			wxLongLongFmtSpec wxT("u "), 
+			count/60,
+			(count % 60)) + _("mins");
+	} else if (count < 86400) {
+		return wxString::Format(
+			wxT("%")
+			wxLongLongFmtSpec wxT("u:%02")
+			wxLongLongFmtSpec wxT("u "),
+			count/3600,
+			(count % 3600)/60) + _("hours");
+	} else {
+		return wxString::Format(
+			wxT("%")
+			wxLongLongFmtSpec wxT("u %s %02")
+			wxLongLongFmtSpec wxT("u:%02")
+			wxLongLongFmtSpec wxT("u "), 
+			count/86400,
+			_("Days"),
+			(count % 86400)/3600,
+			(count % 3600)/60) + _("hours");
+	}
 		
 	return _("Error");
 }
 
 
 // Examines a filename and determines the filetype
-FileType GetFiletype(const wxString& filename)
+FileType GetFiletype(const CPath& filename)
 {
-	if( filename.Find('.' ) == -1 )
-		return ftAny;
-
-	wxString ext = filename.AfterLast('.').MakeLower();
-
-	if ( ext==wxT("avi")  || ext==wxT("mpg")  || ext==wxT("mpeg") || ext==wxT("ogm")  ||
-		 ext==wxT("ram")  || ext==wxT("rm")   || ext==wxT("asf")  || ext==wxT("vob")  ||
-		 ext==wxT("divx") || ext==wxT("vivo") || ext==wxT("mov")  || ext==wxT("wmv")  ||
-		 ext==wxT("m2v")  || ext==wxT("swf")  || ext==wxT("qt")   || ext==wxT("mkv") )
-		 return ftVideo;
-		 
-	if ( ext==wxT("cue")  || ext==wxT("bin")  || ext==wxT("iso")  || ext==wxT("ccd")  ||
-		 ext==wxT("sub")  || ext==wxT("nrg")  || ext==wxT("img")  || ext==wxT("bwa")  ||
-		 ext==wxT("bwi")  || ext==wxT("bws")  || ext==wxT("bwt")  || ext==wxT("mds")  ||
-		 ext==wxT("mdf") )
-	  return ftCDImage;
-		
-	if ( ext==wxT("mpc")  || ext==wxT("mp4")  || ext==wxT("aac")  || ext==wxT("ape")  ||
-	     ext==wxT("mp3")  || ext==wxT("mp2")  || ext==wxT("wav")  || ext==wxT("au")   ||
-		 ext==wxT("ogg")  || ext==wxT("wma")  || ext==wxT("rma")  || ext==wxT("mid")  ||
-		 ext==wxT("m4a")  || ext==wxT("m4b")  || ext==wxT("m4p") )
-		 return ftAudio;
-
-	if ( ext==wxT("jpg")  || ext==wxT("jpeg") || ext==wxT("bmp")  || ext==wxT("gif")  ||
-	     ext==wxT("tiff") || ext==wxT("png")  || ext==wxT("rle")  || ext==wxT("psp")  ||
-		 ext==wxT("tga")  || ext==wxT("wmf")  || ext==wxT("xpm")  || ext==wxT("pcx") )
-		 return ftPicture;
-
-	if ( ext==wxT("rar")  || ext==wxT("zip")  || ext==wxT("ace")  || ext==wxT("gz")   ||
-	     ext==wxT("bz2")  || ext==wxT("tar")  || ext==wxT("arj")  || ext==wxT("lhz")  ||
-		 ext==wxT("bz") || ext==wxT("7z"))
-		return ftArchive;
-
-	if ( ext==wxT("exe")  || ext==wxT("com") )
-		return ftProgram;
-
-	if ( ext==wxT("txt")  || ext==wxT("html") || ext==wxT("htm")  || ext==wxT("doc")  ||
-	     ext==wxT("pdf")  || ext==wxT("ps")   || ext==wxT("sxw")  || ext==wxT("log") )
-		return ftText;
-
-	return ftAny;
+	// FIXME: WTF do we have two such functions in the first place?
+	switch (GetED2KFileTypeID(filename)) {
+		case ED2KFT_AUDIO:	return ftAudio;
+		case ED2KFT_VIDEO:	return ftVideo;
+		case ED2KFT_IMAGE:	return ftPicture;
+		case ED2KFT_PROGRAM:	return ftProgram;
+		case ED2KFT_DOCUMENT:	return ftText;
+		case ED2KFT_ARCHIVE:	return ftArchive;
+		case ED2KFT_CDIMAGE:	return ftCDImage;
+		default:		return ftAny;
+	}
 }
 
 
@@ -309,66 +284,48 @@ wxString GetFiletypeDesc(FileType type, bool translated)
 	}
 }
 
-
 // Returns the Typename, examining the extention of the given filename
-wxString GetFiletypeByName(const wxString& filename, bool translated)
+
+wxString GetFiletypeByName(const CPath& filename, bool translated)
 {
-	return GetFiletypeDesc( GetFiletype( filename ), translated );
+	return GetFiletypeDesc(GetFiletype(filename), translated);
 }
 
-/** 
- * Return a boolean meaning whether the file has contents or not (doesn't
- * matter if it exists)
- *
- * @param filename The filename of the file to evaluate (as a wxString)
- *
- * @return Boolean value TRUE when it has no contents (file doesn't exists
- * or it's size is 0bytes). Any othe case, FALSE
- */
-
-bool IsEmptyFile(const wxString& filename)
-{
-	if (wxFile::Exists(filename)) {
-		wxFile file(filename);
-		if (file.IsOpened()) {
-			return ( file.Length() == 0 );
-		}
-	}
-	return true;
-}
 
 // Get the max number of connections that the OS supports, or -1 for default
-int GetMaxConnections() {
-
+int GetMaxConnections()
+{
+	int maxconn = -1;
 #ifdef __WXMSW__
-
-	int os = wxGetOsVersion();
-		
 	// Try to get the max connection value in the registry
 	wxRegKey key( wxT("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\VxD\\MSTCP\\MaxConnections") );
-	
 	wxString value;
-	if ( key.Exists() )
+	if ( key.Exists() ) {
 		value = key.QueryDefaultValue();
-
+	}
 	if ( !value.IsEmpty() && value.IsNumber() ) {
-		long maxconn = -1;
-
-		value.ToLong( &maxconn );
-
-		return maxconn;		
+		long mc;
+		value.ToLong(&mc);
+		maxconn = (int)mc;
 	} else {
-		switch ( os ) {
-			case wxWIN95:		return 50;	// This includes all Win9x versions
-			case wxWINDOWS_NT:	return 500;	// This includes NT based windows
-			default:			return -1;	// Anything else. Let aMule decide...
+		switch (wxGetOsVersion()) {
+		case wxOS_WINDOWS_9X:
+			// This includes all Win9x versions
+			maxconn = 50;
+			break;
+		case wxOS_WINDOWS_NT:
+			// This includes NT based windows
+			maxconn = 500;
+			break;
+		default:
+			// Anything else. Let aMule decide...
+			break;
 		}
 	}
-
-#endif
-
+#else
 	// Any other OS can just use the default number of connections
-	return -1;
+#endif
+	return maxconn;
 }
 
 
@@ -379,12 +336,13 @@ wxString GetRateString(uint16 rate)
 		case 0: return _("Not rated");
 		case 1: return _("Invalid / Corrupt / Fake");
 		case 2: return _("Poor");
-		case 3: return _("Good");
-		case 4: return _("Fair");
+		case 3: return _("Fair");
+		case 4: return _("Good");
 		case 5: return _("Excellent");
 		default: return _("Not rated");
 	}
 }
+
 
 /**
  * Return the size in bytes of the given size-type
@@ -396,7 +354,6 @@ wxString GetRateString(uint16 rate)
  * Values over GB aren't handled since the amount of Bytes 1TB represents
  * is over the uint32 capacity
  */
-
 uint32 GetTypeSize(uint8 type)
 {
 	enum {Bytes, KB, MB, GB};
@@ -411,6 +368,7 @@ uint32 GetTypeSize(uint8 type)
 	}
 	return size;
 }
+
 
 // Base16 chars for encode an decode functions
 static wxChar base16Chars[17] = wxT("0123456789ABCDEF");
@@ -492,6 +450,7 @@ unsigned int DecodeBase16(const wxString &base16Buffer, unsigned int base16BufLe
 	return ret;
 }
 
+
 // Returns a BASE32 encoded byte array
 //
 // [In]
@@ -528,6 +487,7 @@ wxString EncodeBase32(const unsigned char* buffer, unsigned int bufLen)
 
 	return Base32Buff;
 }
+
 
 // Decodes a BASE32 string into a byte array
 //
@@ -580,13 +540,14 @@ unsigned int DecodeBase32(const wxString &base32Buffer, unsigned int base32BufLe
 	return nDecodeLen;
 }
 
+
 /*
  * base64.c
  *
  * Base64 encoding/decoding command line filter
  *
  * Copyright (c) 2002 Matthias Gaertner 29.06.2002
- * Adapted by (C) 2005-2006Phoenix to use wxWidgets.
+ * Adapted by (C) 2005-2008 Phoenix to use wxWidgets.
  *
  */
 static const wxString to_b64(
@@ -594,10 +555,12 @@ static const wxString to_b64(
 	/*   0123456789012345678901234567890123456789012345678901234567890123 */
 	wxT("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"));
 
+
 /* Option variables */
 static bool g_fUseCRLF = false;
 static unsigned int g_nCharsPerLine = 72;
 static wxString strHeaderLine;
+
 
 wxString EncodeBase64(const char *pbBufferIn, unsigned int bufLen)
 {
@@ -693,6 +656,7 @@ wxString EncodeBase64(const char *pbBufferIn, unsigned int bufLen)
 	return pbBufferOut;
 }
 
+
 unsigned int DecodeBase64(const wxString &base64Buffer, unsigned int base64BufLen, unsigned char *buffer)
 {
 	int z = 0;  // 0 Normal, 1 skip MIME separator (---) to end of line
@@ -773,6 +737,7 @@ unsigned int DecodeBase64(const wxString &base64Buffer, unsigned int base64BufLe
 	return i + nData;
 }
 
+
 // Returns the text assosiated with a category type
 wxString GetCatTitle(int catid)
 {
@@ -797,13 +762,11 @@ wxString GetCatTitle(int catid)
 	}
 }
 
-int wxCMPFUNC_CONV Uint16CompareValues(uint16* first, uint16* second) {
-	   return (((int)*first) - ((int)*second)) ;
-}	  
 
 typedef std::map<wxString, EED2KFileTypeClass> SED2KFileTypeMap;
 typedef SED2KFileTypeMap::value_type SED2KFileTypeMapElement;
 static SED2KFileTypeMap ED2KFileTypesMap;
+
 
 class CED2KFileTypes{
 public:
@@ -961,22 +924,25 @@ public:
 	}
 };
 
+
 // get the list initialized *before* any code is accessing it
 CED2KFileTypes theED2KFileTypes;
 
-EED2KFileType GetED2KFileTypeID(const wxString &strFileName)
+EED2KFileType GetED2KFileTypeID(const CPath& fileName)
 {
-	int i = strFileName.Find(wxT('.'),true/* from end*/);
-	if (i == -1) {
+	const wxString ext = fileName.GetExt().Lower();
+	if (ext.IsEmpty()) {
 		return ED2KFT_ANY;
 	}
 	
-	wxString strExt(strFileName.Mid(i));
-	strExt.MakeLower();
-	// If the extension is not in the map, this returns
-	// EED2KFileTypeClass(), which is ED2KFT_ANY
-	return ED2KFileTypesMap[strExt].GetType();
+	SED2KFileTypeMap::iterator it = ED2KFileTypesMap.find(wxT(".") + ext);
+	if (it != ED2KFileTypesMap.end()) {
+		return it->second.GetType();
+	} else {
+		return ED2KFT_ANY;
+	}
 }
+
 
 // Retuns the ed2k file type term which is to be used in server searches
 wxString GetED2KFileTypeSearchTerm(EED2KFileType iFileID)
@@ -993,10 +959,11 @@ wxString GetED2KFileTypeSearchTerm(EED2KFileType iFileID)
 	return wxEmptyString;
 }
 
+
 // Returns a file type which is used eMule internally only, examining the extention of the given filename
-wxString GetFileTypeByName(const wxString &strFileName)
+wxString GetFileTypeByName(const CPath& fileName)
 {
-	EED2KFileType iFileType = GetED2KFileTypeID(strFileName);
+	EED2KFileType iFileType = GetED2KFileTypeID(fileName);
 	switch (iFileType) {
 		case ED2KFT_AUDIO:	return ED2KFTSTR_AUDIO;
 		case ED2KFT_VIDEO:	return ED2KFTSTR_VIDEO;
@@ -1008,6 +975,8 @@ wxString GetFileTypeByName(const wxString &strFileName)
 		default:		return wxEmptyString;
 	}
 }
+
+
 // Retuns the ed2k file type integer ID which is to be used for publishing+searching
 EED2KFileType GetED2KFileTypeSearchID(EED2KFileType iFileID)
 {
@@ -1025,6 +994,7 @@ EED2KFileType GetED2KFileTypeSearchID(EED2KFileType iFileID)
 	}
 }
 
+
 /**
  * Dumps a buffer to a wxString
  */
@@ -1032,19 +1002,15 @@ wxString DumpMemToStr(const void *buff, int n, const wxString& msg, bool ok)
 {
 	const unsigned char *p = (const unsigned char *)buff;
 	int lines = (n + 15)/ 16;
-
 	
 	wxString result;
 	// Allocate aproximetly what is needed
 	result.Alloc( ( lines + 1 ) * 80 ); 
-	
-	
 	if ( !msg.IsEmpty() ) {
 		result += msg + wxT(" - ok=") + ( ok ? wxT("true, ") : wxT("false, ") );
 	}
 
 	result += wxString::Format( wxT("%d bytes\n"), n );
-	
 	for ( int i = 0; i < lines; ++i) {
 		// Show address
 		result += wxString::Format( wxT("%08x  "), i * 16 );
@@ -1060,12 +1026,9 @@ wxString DumpMemToStr(const void *buff, int n, const wxString& msg, bool ok)
 					result += wxT("   ");
 				}
 			}
-
 			result += wxT(" ");
 		}
-
 		result += wxT("|");
-	
 		// Show a column of ascii-values
 		for ( int k = 0; k < 16; ++k) {
 			int pos = 16 * i + k;
@@ -1082,10 +1045,8 @@ wxString DumpMemToStr(const void *buff, int n, const wxString& msg, bool ok)
 				result += wxT(" ");
 			}
 		}
-		
 		result += wxT("|\n");
 	}
-
 	result.Shrink();
 	
 	return result;
@@ -1099,6 +1060,7 @@ void DumpMem(const void *buff, int n, const wxString& msg, bool ok)
 {
 	printf("%s\n", (const char*)unicode2char(DumpMemToStr( buff, n, msg, ok )) );
 }
+
 
 //
 // Dump mem in dword format
@@ -1117,7 +1079,7 @@ void MilliSleep(uint32 msecs)
 	#ifdef __WXBASE__
 		#ifdef __WXMSW__
 			if (msecs) {
-				Sleep(msecs);
+				wxSleep(msecs);
 			}
 		#else
 			struct timespec waittime;
@@ -1136,166 +1098,31 @@ void MilliSleep(uint32 msecs)
 
 wxString GetConfigDir()
 {
-	return GetUserDataDir() + wxFileName::GetPathSeparator();
-}
+	// Cache the path.
+	static wxString configPath;
 
-
+	if (configPath.IsEmpty()) {
 #ifndef EC_REMOTE
-bool MoveFolder(const wxString& oldPath, const wxString& newPath, bool copy)
-{
-	if (oldPath != newPath) {
-		if (!CheckDirExists(oldPath)) {
-			return false;
-		}
-		if (!CheckDirExists(newPath)) {
-			wxMkdir(newPath);
-		}
-		// On a move, first try to move everything in a single step
-		if (!copy && UTF8_MoveFile(oldPath, newPath)) {
-			return true;
-		}
-		CDirIterator finder(oldPath);
-		wxString file = wxFileName(finder.GetFirstFile(CDirIterator::Dir, wxT("*"))).GetFullName();
-		while (!file.IsEmpty()) {
-			if (file != wxT(".") && file != wxT("..")) {
-				MoveFolder(JoinPaths(oldPath, file), JoinPaths(newPath, file), copy);
-			}
-			file = wxFileName(finder.GetNextFile()).GetFullName();
-		}
+		// "Portable aMule" - Use aMule from an external USB drive
+		// Check for ./config/amule.conf and use this configuration if found
+		const wxString configDir = JoinPaths(wxFileName::GetCwd(), wxT("config"));
+		const wxString configFile = JoinPaths(configDir, wxT("amule.conf"));
 
-		file = wxFileName(finder.GetFirstFile(CDirIterator::File, wxT("*"))).GetFullName();
-		while (!file.IsEmpty()) {
-			if (copy) {
-				UTF8_CopyFile(JoinPaths(oldPath, file), JoinPaths(newPath, file));
-			} else {
-				UTF8_MoveFile(JoinPaths(oldPath, file), JoinPaths(newPath, file));
-			}
-			
-			file = wxFileName(finder.GetNextFile()).GetFullName();
-		}
+		if (CPath::DirExists(configDir) && CPath::FileExists(configFile)) {
+			AddLogLineM(true, CFormat(wxT("Using configDir: %s")) % configDir);
 
-		if (!copy) {
-			wxRmdir(oldPath);
-		}
-	}
-	return true;
-}
-
-bool MoveConfigFile(const wxString& oldConfigName, const wxString& newConfigName, wxString oldConfigDir, wxString newConfigDir, bool copy)
-{
-	if (!CheckFileExists(oldConfigName)) {
-		return false;
-	}
-
-	if (oldConfigDir == newConfigDir) {
-		if (copy) {
-			return UTF8_CopyFile(oldConfigName, newConfigName);
+			configPath = configDir;
 		} else {
-			return UTF8_MoveFile(oldConfigName, newConfigName);
+			configPath = wxStandardPaths::Get().GetUserDataDir();
 		}
-	}
-
-	wxFile file(oldConfigName);
-	if (!file.IsOpened()) {
-		return false;
-	}
-	int len = file.Length();
-	if (len == 0) {
-		return false;
-	}
-	char *tmp_buffer = new char[len + 1];
-	file.Read(tmp_buffer, len);
-	file.Close();
-	tmp_buffer[len] = '\0';
-#if wxUSE_UNICODE
-	Char2UnicodeBuf tmp_buffer_unicode(char2unicode(tmp_buffer));
-	wxString str;
-	if (tmp_buffer_unicode)
-		str = tmp_buffer_unicode;
-	else
-		str = UTF82unicode(tmp_buffer);
 #else
-	wxString str(tmp_buffer);
-#endif
-	delete [] tmp_buffer;
-
-#if !defined(__unix__) && !defined(__linux__) 
-	const wxString pathSeparator = wxFileName::GetPathSeparator();
-	oldConfigDir.Replace(wxT("/"), pathSeparator);
-	newConfigDir.Replace(wxT("/"), pathSeparator);
-#ifdef __WINDOWS__ 
-	oldConfigDir.Replace(wxT("\\"), wxT("\\\\"));
-	newConfigDir.Replace(wxT("\\"), wxT("\\\\"));
-#endif
+		configPath = wxStandardPaths::Get().GetUserDataDir();
 #endif
 
-	str.Replace(wxT("=") + oldConfigDir, wxT("=") + newConfigDir);
-
-	file.Open(newConfigName, wxFile::write);
-	if (!file.IsOpened()) {
-		return false;
-	}
-	file.Write(str);
-	file.Close();
-	if (!copy) {
-		wxRemoveFile(oldConfigName);
-	}
-	return true;
-}
-
-bool RelocateConfiguration(const wxString& oldPath, const wxString& newPath, const wxString& oldConfigFile, bool copy)
-{
-	if (!CheckDirExists(oldPath)) {
-		return false;
+		configPath += wxFileName::GetPathSeparator();
 	}
 
-	return MoveConfigFile(oldConfigFile, JoinPaths(newPath, wxT("amule.conf")), copy ? wxString(wxEmptyString) : oldPath, copy ? wxString(wxEmptyString) : newPath, copy)
-		&& MoveFolder(oldPath, newPath, copy);
-}	
-
-bool CheckConfig()
-{
-	wxString configDir = GetConfigDir().BeforeLast(wxFileName::GetPathSeparator());
-	wxString homeDir = wxGetHomeDir() + wxFileName::GetPathSeparator();
-
-	if (CheckFileExists(JoinPaths(configDir, wxT("amule.conf")))) {
-		return false;
-	}
-
-	return RelocateConfiguration(homeDir + wxT(".aMule"), configDir, JoinPaths(JoinPaths(homeDir, wxT(".aMule")), wxT("amule.conf")), false)
-		|| RelocateConfiguration(homeDir + wxT(".aMule"), configDir, homeDir +
-#ifdef __APPLE__
-					 wxT("Library/Preferences/eMule Preferences"),
-#else
-					 wxT(".eMule"),
-#endif
-					 false)
-		|| RelocateConfiguration(homeDir + wxT(".lmule"), configDir, homeDir + wxT(".eMule"), false)
-		|| RelocateConfiguration(homeDir + wxT(".xmule"), configDir, homeDir + wxT(".eMule"), true);
-}
-#endif /* EC_REMOTE */
-
-
-wxString GetLocaleDir()
-{
-#ifdef __WXMAC__
-	return JoinPaths(wxStandardPaths::Get().GetDataDir(), wxT("locale"));
-#elif !( defined(__WXMSW__) && wxCHECK_VERSION_FULL(2,6,0,1) )
-	wxString localeDir(wxT(AMULE_LOCALEDIR));
-
-	// The GetInstallPrefix function is slightly fucked in <= v2.6.2 of wxWidgets,
-	// so only use it when we have to, and can patch the sources anyway.
-#ifdef AUTOPACKAGE
-	#warning Remember to patch GetInstallPrefix()
-	localeDir.Replace(wxT("${prefix}"), dynamic_cast<wxStandardPaths&>(wxStandardPaths::Get()).GetInstallPrefix());
-#else
-	localeDir.Replace(wxT("${prefix}"), wxT(AMULE_INSTALL_PREFIX));
-#endif
-	
-	return localeDir;
-#else
-	return JoinPaths(wxStandardPaths::Get().GetPluginsDir(), wxT("locale"));
-#endif
+	return configPath;
 }
 
 
@@ -1312,15 +1139,20 @@ void InitCustomLanguages()
 void InitLocale(wxLocale& locale, int language)
 {
 	int language_flags = 0;
-	if ((language != wxLANGUAGE_CUSTOM) && (language != wxLANGUAGE_ITALIAN_NAPOLITAN)) {
+	if (language != wxLANGUAGE_CUSTOM && language != wxLANGUAGE_ITALIAN_NAPOLITAN) {
 		language_flags = wxLOCALE_LOAD_DEFAULT | wxLOCALE_CONV_ENCODING;
 	}
 	
 	locale.Init(language,language_flags); 
 	
 	if (language != wxLANGUAGE_CUSTOM) {
-		locale.AddCatalogLookupPathPrefix(GetLocaleDir());
+
+#if defined(__WXMAC__)
+		wxStandardPathsBase &spb(wxStandardPaths::Get());
+		locale.AddCatalogLookupPathPrefix(JoinPaths(spb.GetDataDir(), wxT("locale")));
+#endif
 		locale.AddCatalog(wxT(PACKAGE));
+
 	} else {
 		locale.AddCatalogLookupPathPrefix(GetConfigDir());
 		locale.AddCatalog(wxT("custom"));
@@ -1360,15 +1192,41 @@ wxString wxLang2Str(const int lang)
 	}
 }
 
+wxString GetPassword() {
+wxString pass_plain;
+CMD4Hash password;
+		#ifndef __WXMSW__
+			pass_plain = char2unicode(getpass("Enter password for mule connection: "));
+		#else
+			//#warning This way, pass enter is not hidden on windows. Bad thing.
+			char temp_str[512];
+			fflush(stdin);
+			printf("Enter password for mule connection: \n");
+			fflush(stdout);
+			fgets(temp_str, 512, stdin);
+			temp_str[strlen(temp_str)-1] = '\0';
+			pass_plain = char2unicode(temp_str);
+		#endif
+		wxCHECK2(password.Decode(MD5Sum(pass_plain).GetHash()), /* Do nothing. */ );
+		// MD5 hash for an empty string, according to rfc1321.
+		if (password.Encode() == wxT("D41D8CD98F00B204E9800998ECF8427E")) {
+			printf("No empty password allowed.\n");
+			return GetPassword();
+		}
+
+
+return password.Encode();
+}
+
 #if !defined(AMULE_DAEMON) && (!defined(EC_REMOTE) || defined(CLIENT_GUI))
 
 bool IsLocaleAvailable(int id)
 {
 	// This supresses error-messages about invalid locales.
-	wxLogNull logTarget;
-	wxLocale locale_to_check;
+	wxLogNull	logTarget;
+	wxLocale 	locale_to_check;
 
-	if (id == wxLANGUAGE_DEFAULT || id == theApp.m_locale.GetLanguage())
+	if (id == wxLANGUAGE_DEFAULT || id == theApp->m_locale.GetLanguage())
 		return true;
 
 	InitLocale(locale_to_check, id);
@@ -1380,3 +1238,4 @@ bool IsLocaleAvailable(int id)
 }
 
 #endif /* !AMULE_DEAMON && (!EC_REMOTE || CLIENT_GUI) */
+// File_checked_for_headers

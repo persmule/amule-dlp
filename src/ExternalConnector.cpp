@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -22,24 +22,24 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
+#include "ExternalConnector.h"
+
 #ifdef HAVE_CONFIG_H
 	#include "config.h"	// Needed for VERSION and readline detection
 #endif
 
+#include <common/ClientVersion.h>
+
 #include <common/Format.h>		// Needed for CFormat
 
-#include <cstdio>		// Needed for fprintf(stderr, ...)
-#include <wx/filefn.h>
-#include <wx/intl.h>		// For _()
 #include <wx/tokenzr.h>		// For wxStringTokenizer
 
-#include <unistd.h>	// For getpass() and pause()
 // For readline
 #ifdef HAVE_LIBREADLINE
 	#if defined(HAVE_READLINE_READLINE_H)
-		#include <readline/readline.h>
+		#include <readline/readline.h>  // Do_not_auto_remove
 	#elif defined(HAVE_READLINE_H)
-		#include <readline.h>
+		#include <readline.h> // Do_not_auto_remove
 	#else /* !defined(HAVE_READLINE_H) */
 		extern "C" char *readline (const char*);
 	#endif /* !defined(HAVE_READLINE_H) */
@@ -50,9 +50,9 @@
 // For history
 #ifdef HAVE_READLINE_HISTORY
 	#if defined(HAVE_READLINE_HISTORY_H)
-		#include <readline/history.h>
+		#include <readline/history.h> // Do_not_auto_remove
 	#elif defined(HAVE_HISTORY_H)
-		#include <history.h>
+		#include <history.h> // Do_not_auto_remove
 	#else /* !defined(HAVE_HISTORY_H) */
 		extern "C" void add_history (const char*);
 	#endif /* defined(HAVE_READLINE_HISTORY_H) */
@@ -61,16 +61,9 @@
 #endif /* HAVE_READLINE_HISTORY */
 
 
-#include <ec/ECFileConfig.h>	// Needed for CECFileConfig
-#include <ec/ECPacket.h>		// Needed for CECPacket, CECTag
-#include <ec/ECCodes.h>		// Needed for OPcodes and TAGnames
+#include <ec/cpp/ECFileConfig.h>	// Needed for CECFileConfig
 
 #include <common/MD5Sum.h>
-#include <common/StringFunctions.h>
-
-#include "ExternalConnector.h"
-#include "OtherFunctions.h"
-
 
 //-------------------------------------------------------------------
 
@@ -192,8 +185,7 @@ void CCommandTree::PrintHelpFor(const wxString& command) const
 				}
 			}
 			if (!m_parent) {
-				m_app.Show(_("\nAll commands are case insensitive.\n"
-					   "Type 'help <command>' to get detailed info on <command>.\n"));
+				m_app.Show(CFormat(_("\nAll commands are case insensitive.\nType '%s <command>' to get detailed info on <command>.\n")) % wxT("help"));
 			}
 		}
 	}
@@ -225,8 +217,9 @@ void CaMuleExternalConnector::OnInitCommandSet()
 	m_commands.AddCommand(wxT("Quit"), CMD_ID_QUIT, wxTRANSLATE("Exits from the application."), wxEmptyString);
 	m_commands.AddCommand(wxT("Exit"), CMD_ID_QUIT, wxTRANSLATE("Exits from the application."), wxEmptyString);
 	m_commands.AddCommand(wxT("Help"), CMD_ID_HELP, wxTRANSLATE("Show help."),
-			      wxTRANSLATE("To get help on a command, type 'help <command>'.\n"
-					  "To get the full command list type 'help'.\n"));
+			      /* TRANSLATORS:
+				 Do not translate the word 'help', it is a command to the program! */
+			      wxTRANSLATE("To get help on a command, type 'help <command>'.\nTo get the full command list type 'help'.\n"));
 }
 
 void CaMuleExternalConnector::Show(const wxString &s)
@@ -310,15 +303,14 @@ void CaMuleExternalConnector::GetCommand(const wxString &prompt, char* buffer, s
 {
 	if( !m_KeepQuiet ) {
 #ifdef HAVE_LIBREADLINE
-		if (m_InputLine) {
-			free(m_InputLine);
-			m_InputLine = (char *)NULL;
+		char *text = readline(unicode2char(prompt + wxT("$ ")));
+		if (text && *text && 
+		    (m_InputLine == 0 || strcmp(text,m_InputLine) != 0)) {
+		  add_history (text);
 		}
-		m_InputLine = readline(unicode2char(prompt + wxT("$ ")));
-		if (m_InputLine && *m_InputLine) {
-			add_history (m_InputLine);
-		}
-		const char *text = m_InputLine;
+		if (m_InputLine)
+		  free(m_InputLine);
+		m_InputLine = text;
 #else
 		Show(prompt + wxT("$ "));
 		fflush(stdin);
@@ -349,7 +341,7 @@ void CaMuleExternalConnector::TextShell(const wxString &prompt)
 		GetCommand(prompt, buffer, 256);
 		buf = char2unicode(buffer);
 		The_End = Parse_Command(buf);
-	} while ((!The_End) && (m_ECClient->IsConnected()));
+	} while ((!The_End) && (m_ECClient->IsSocketConnected()));
 }
 
 void CaMuleExternalConnector::ConnectAndRun(const wxString &ProgName, const wxString& ProgVersion)
@@ -368,8 +360,8 @@ void CaMuleExternalConnector::ConnectAndRun(const wxString &ProgName, const wxSt
 		#endif
 	;
 
-	#ifdef CVSDATE
-		Show(CFormat(_("This is %s %s %s\n")) % appName % wxT(VERSION) % wxT(CVSDATE));
+	#ifdef SVNDATE
+		Show(CFormat(_("This is %s %s %s\n")) % appName % wxT(VERSION) % wxT(SVNDATE));
 	#else
 		Show(CFormat(_("This is %s %s\n")) % appName % wxT(VERSION));
 	#endif
@@ -380,7 +372,7 @@ void CaMuleExternalConnector::ConnectAndRun(const wxString &ProgName, const wxSt
 		#ifndef __WXMSW__
 			pass_plain = char2unicode(getpass("Enter password for mule connection: "));
 		#else
-			#warning This way, pass enter is not hidden on windows. Bad thing.
+			//#warning This way, pass enter is not hidden on windows. Bad thing.
 			char temp_str[512];
 			fflush(stdin);
 			printf("Enter password for mule connection: \n");
@@ -408,9 +400,9 @@ void CaMuleExternalConnector::ConnectAndRun(const wxString &ProgName, const wxSt
 		m_ECClient->ConnectToCore(m_host, m_port, wxT("foobar"), m_password.Encode(),
 								 ProgName, ProgVersion);
 		
-		m_ECClient->WaitOnConnect(10);
+		m_ECClient->WaitSocketConnect(10);
 
-		if (!m_ECClient->IsConnected()) {
+		if (!m_ECClient->IsSocketConnected()) {
 			// no connection => close gracefully
 			Show(_("Connection Failed. Unable to connect to the specified host\n"));
 		} else {
@@ -418,7 +410,7 @@ void CaMuleExternalConnector::ConnectAndRun(const wxString &ProgName, const wxSt
 			// ConnectToCore() already authenticated for us.
 			//m_ECClient->ConnectionEstablished();
 			Show(m_ECClient->GetServerReply()+wxT("\n"));
-			if (m_ECClient->IsConnected()) {
+			if (m_ECClient->IsSocketConnected()) {
 				ShowGreet();
 				Pre_Shell();
 				if (m_KeepQuiet) {
@@ -432,11 +424,11 @@ void CaMuleExternalConnector::ConnectAndRun(const wxString &ProgName, const wxSt
 				} else {
 					TextShell(ProgName);
 				}
-				Show(CFormat(_("\nOk, exiting %s...\n")) % ProgName);
 				Post_Shell();
+				Show(CFormat(_("\nOk, exiting %s...\n")) % ProgName);
 			}
 		}
-		m_ECClient->Destroy();
+		m_ECClient->DestroySocket();
 	} else {
 		Show(_("Cannot connect with an empty password.\nYou must specify a password either in config file\nor on command-line, or enter one when asked.\n\nExiting...\n"));
 	}
@@ -605,8 +597,8 @@ bool CaMuleExternalConnector::OnInit()
 
 #if !wxUSE_GUI && defined(__WXMAC__)
 
-#include <wx/apptrait.h>
-#include <wx/stdpaths.h>
+#include <wx/apptrait.h> // Do_not_auto_remove
+#include <wx/stdpaths.h> // Do_not_auto_remove
 
 class CaMuleExternalConnectorTraits : public wxConsoleAppTraits
 {
@@ -628,3 +620,4 @@ wxAppTraits* CaMuleExternalConnector::CreateTraits()
 }
 
 #endif
+// File_checked_for_headers

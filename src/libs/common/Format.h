@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (C) 2005-2006aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -25,8 +25,6 @@
 #ifndef FORMAT_H
 #define FORMAT_H
 
-#include <wx/string.h>
-#include <limits>
 
 #include "MuleDebug.h"
 
@@ -36,6 +34,31 @@
     /* Assume that other compilers don't have this bug */
     #define GCC_VERSION	99999
 #endif
+
+
+/**
+ * Classes that implement this interface are usable as
+ * arguments for %s format strings. This is needed because
+ * CFormat objects are typically created as temporary objects,
+ * which makes external declarations of operator% impossible,
+ * due to the fact that a non-const reference to a temporary
+ * object is prohibited, as in:
+ * 	CFormat& operator%(CFormat& fmt, ...)
+ *
+ * With this approch, it is possible to use CFormat as usual:
+ * 	CFormat(...) % <some CPrintable object>;
+ */
+class CPrintable
+{
+public:
+	/** Must return a "pretty" string representation of the object. */
+	virtual wxString GetPrintableString() const = 0;
+
+protected:
+	virtual ~CPrintable() {}
+};
+
+
 
 
 /**
@@ -70,13 +93,6 @@ public:
 	 */
 	CFormat(const wxChar* str);
 
-	
-	/**
-	 * Sets the format-string.
-	 */
-	void SetString(const wxChar* str);
-
-	
 	/**
 	 * Returns true if the resulting string is ready for use.
 	 *
@@ -90,9 +106,9 @@ public:
 	 * Feeds an value into the format-string.
 	 *
 	 * Passing an type that isn't compatible with the current format
-	 * field results in an illegal-argument exception. Passing any
-	 * type to an CFormat with no free fields results in an illegal-
-	 * state exception.
+	 * field results in field being skipped, and an exception is raised.
+	 * Passing any type to an CFormat with no free fields results an
+	 * assertion, and the argument being ignored.
 	 * 
 	 * Special rules apply to integers, see above.
 	 */
@@ -108,39 +124,33 @@ public:
 	CFormat& operator%(unsigned long long value);	
 	CFormat& operator%(double value);
 	CFormat& operator%(const wxChar* value);
+	CFormat& operator%(const wxString& value);
+	CFormat& operator%(const CPrintable& value);	
 	// \}
 
 
 	/**
 	 * Returns the resulting string, should only be used when all arguments have been given.
 	 */
-	const wxString& GetString() const;
-	
-	/**
-	 * Resets the resulting string, allowing the parser to be fed new values.
-	 */
-	void ResetString();
-
+	wxString GetString() const;
 	
 	/**
 	 * Implicit conversion to wxString.
 	 */
-#if GCC_VERSION > 30300
-	operator const wxString&() const	{ return GetString(); };
-#else
-	operator wxString() const			{ return GetString(); };
-#endif
+	operator wxString() const		{ return GetString(); };
 	 
 private:
 	/**
-	 * Returns the current format-field.
+	 * Sets the value of the current field, and locates
+	 * the next format field in the string.
 	 */
-	wxString	GetCurrentField();
+	void		SetCurrentField(const wxString& value);
 
 	/**
-	 * Replaces the current format-field with the specified string.
+ 	 * Returns the current format-field, or an empty 
+ 	 * string if no field was found.
 	 */
-	CFormat&	SetCurrentField(const wxString& value);
+	wxString	GetCurrentField();
 
 	/**
 	 * Returns the next field modified to fit the given integer type.
@@ -153,40 +163,13 @@ private:
 	 * of the integer value that has been passed to it.
 	 */
 	wxString	GetIntegerField(const wxChar* fieldType);
-	
 
-	//! Known type-modifiers. 
-	enum Modifiers
-	{
-		//! No modifier field.
-		modNone,
-		//! Argument is interpreted as short int (integer types).
-		modShort,
-		//! Argument is interpreted as long int (interger types).
-		modLong,
-		//! Two 'long' modifieres, arguments is interpreted as long long (integer types).
-		modLongLong,
-		//! Argument is interpreted as long double (floating point types). Not supported.
-		modLongDouble
-	};
-
-
-	/**
-	 * Extracts modifiers from the argument.
-	 *
-	 * @param str A format string.
-	 * @return The identified modifier.
-	 *
-	 * Note that this function will possibly return wrong results
-	 * for malformed format strings.
-	 */
-	Modifiers getModifier(const wxString& str);
-	
-	
-	//! Index to the current format-field.
-	unsigned int m_index;
-	//! Index to past the end of the current format-field.
-	unsigned int m_indexEnd;
+	//! Index to the current format field.
+	unsigned 	m_fieldStart;
+	//! Length of the current format field.
+	unsigned	m_fieldLength;
+	//! The number of fields to skip in GetCurrentField
+	unsigned	m_skipCount;
 
 	//! The format-string fed to the parser.
 	wxString	m_format;
@@ -198,52 +181,52 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
 inline CFormat& CFormat::operator%(signed short value)
 {
-	return SetCurrentField(wxString::Format(GetIntegerField(wxT("hi")), value));
+	return *this % (signed long long)value;
 }
 
 
 inline CFormat& CFormat::operator%(unsigned short value)
 {
-	return SetCurrentField(wxString::Format(GetIntegerField(wxT("hu")), value));
+	return *this % (unsigned long long)value;
 }
 
 
 inline CFormat& CFormat::operator%(signed int value)
 {
-	return SetCurrentField(wxString::Format(GetIntegerField(wxT("i")), value));
+	return *this % (signed long long)value;
 }
 
 
 inline CFormat& CFormat::operator%(unsigned int value)
 {
-	return SetCurrentField(wxString::Format(GetIntegerField(wxT("u")), value));
+	return *this % (unsigned long long)value;
 }
 
 
 inline CFormat& CFormat::operator%(signed long value)
 {
-	return SetCurrentField(wxString::Format(GetIntegerField(wxT("li")), value));
+	return *this % (signed long long)value;
 }
 
 
 inline CFormat& CFormat::operator%(unsigned long value)
 {
-	return SetCurrentField(wxString::Format(GetIntegerField(wxT("lu")), value));
+	return *this % (unsigned long long)value;
 }
 
 
-inline CFormat& CFormat::operator%(signed long long value)
+inline CFormat& CFormat::operator%(const wxChar* val)
 {
-	return SetCurrentField(wxString::Format(GetIntegerField(wxLongLongFmtSpec  wxT("i")), value));
+	return *this % wxString(val);
 }
 
-
-inline CFormat& CFormat::operator%(unsigned long long value)
+inline CFormat& CFormat::operator%(const CPrintable& value)
 {
-	return SetCurrentField(wxString::Format(GetIntegerField(wxLongLongFmtSpec wxT("u")), value));
+	return *this % value.GetPrintableString();
 }
+
 
 #endif
+// File_checked_for_headers

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -23,12 +23,10 @@
 //
 
 
-#include <wx/string.h>
 #include "StringFunctions.h"
 
 #include "MD5Sum.h"		// Interface declarations.
 
-#include <inttypes.h>
 
 typedef unsigned char *POINTER;
 typedef uint16_t UINT2;
@@ -53,14 +51,26 @@ MD5Sum::MD5Sum(const wxString& sSource)
 	Calculate(sSource);
 }
 
+MD5Sum::MD5Sum(const uint8* buffer, int len)
+{
+	Calculate(buffer, len);
+}
+
 wxString MD5Sum::Calculate(const wxString& sSource)
+{
+	return Calculate(
+		(const uint8*)(const char*)unicode2char(sSource),
+		sSource.Length());
+}
+
+wxString MD5Sum::Calculate(const uint8* buffer, int len)
 {
 	MD5_CTX context;
 	unsigned char digest[16];
 
 	MD5Init (&context);
 	// Nothing we can do against this unicode2char
-	MD5Update (&context, (const unsigned char*)(const char*)unicode2char(sSource), sSource.Length());
+	MD5Update (&context, buffer, len);
 	MD5Final (digest, &context);
 
 	m_sHash.Clear();
@@ -71,6 +81,8 @@ wxString MD5Sum::Calculate(const wxString& sSource)
 		m_sHash += sT;
 	}
 
+	memcpy(m_rawhash, digest, 16);
+	
 	return m_sHash;
 }
 
@@ -116,7 +128,7 @@ static unsigned char PADDING[64] = {
 #define I(x, y, z) ((y) ^ ((x) | (~z)))
 
 /* ROTATE_LEFT rotates x left n bits.
-	15-April-2003 Sony: use MSVC intrinsic to save some cycles
+	15-April-2003 Sony: use _MSC_VER intrinsic to save some cycles
  */
 #ifdef _MSC_VER
 #pragma intrinsic(_rotl)
@@ -343,3 +355,4 @@ static void MD5_memset (POINTER output, int value, unsigned int len)
   for (i = 0; i < len; i++)
  ((char *)output)[i] = (char)value;
 }
+// File_checked_for_headers

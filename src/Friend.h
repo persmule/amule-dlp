@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,9 +26,7 @@
 #ifndef FRIEND_H
 #define FRIEND_H
 
-#include <wx/string.h>		// Needed for wxString
 
-#include "Types.h"		// Needed for uint32
 #include "MD4Hash.h"
 
 class CUpDownClient;
@@ -78,3 +76,4 @@ private:
 };
 
 #endif
+// File_checked_for_headers

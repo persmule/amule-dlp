@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (C) 2005-2006Mikkel Schubert ( xaignar@users.sourceforge.net )
-// Copyright (C) 2005-2006aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2008 Mikkel Schubert ( xaignar@users.sourceforge.net )
+// Copyright (C) 2005-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -27,7 +27,6 @@
 #define MULEDEBUG_H
 
 #include <wx/defs.h>
-#include <wx/debug.h>
 #include <wx/string.h>
 
 /**
@@ -57,12 +56,9 @@ class CMuleException
 {
 public:
 	CMuleException(const wxString& type, const wxString& desc)
-		: m_what(type + wxT(": ") + desc)
-	{}
-
-	const wxString& what() const {
-		return m_what;
-	}
+		: m_what(type + wxT(": ") + desc) {}
+	virtual ~CMuleException() throw() {}
+	virtual const wxString& what() const throw() { return m_what; }
 
 private:
 	wxString m_what;
@@ -135,7 +131,6 @@ struct CInvalidPacket : public CMuleException
 #define MULE_CHECK_THROW(cond, cls, msg) \
 	_MULE_THROW((cond), cls, (msg))
 
-
 #define MULE_VALIDATE_STATE(cond, msg) \
 	MULE_CHECK_THROW((cond), CInvalidStateEx, (msg))
 
@@ -152,3 +147,4 @@ struct CInvalidPacket : public CMuleException
 #define MULE_CHECK_RET(cond, msg)       wxCHECK_RET((cond), (msg))
 
 #endif
+// File_checked_for_headers

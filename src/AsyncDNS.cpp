@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Angel Vidal Veiga - Kry (kry@amule.org)
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Angel Vidal Veiga - Kry (kry@amule.org)
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -28,17 +28,17 @@
 
 #include "InternalEvents.h"	// Needed for wxEVT_*
 #include "NetworkFunctions.h" // Needed for StringHosttoUint32
-#warning DEBUG! Remove!
-#include <common/StringFunctions.h>
 
-CAsyncDNS::CAsyncDNS(const wxString& ipName, DnsSolveType type, wxEvtHandler* handler, void* socket) : wxThread(wxTHREAD_DETACHED)
+
+CAsyncDNS::CAsyncDNS(const wxChar* ipName, DnsSolveType type, wxEvtHandler* handler, void* socket)
+	: wxThread(wxTHREAD_DETACHED)
 {
-	printf("Created async DNS checker for %s (type %i)\n",(const char*)unicode2char(ipName),type);
 	m_type = type;
 	m_ipName = ipName;
 	m_socket = socket;
 	m_handler = handler;
 }
+
 
 wxThread::ExitCode CAsyncDNS::Entry()
 {
@@ -72,3 +72,4 @@ wxThread::ExitCode CAsyncDNS::Entry()
 	
 	return NULL;
 }
+// File_checked_for_headers

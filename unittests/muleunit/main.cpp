@@ -1,5 +1,7 @@
 //
-// Copyright (C) 2005-2006Mikkel Schubert (Xaignar@amule.org)
+// MuleUnit: A minimalistic C++ Unit testing framework based on EasyUnit.
+//
+// Copyright (c) 2005-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (C) 2004 Barthelemy Dagenais (barthelemy@prologique.com)
 //
 // This library is free software; you can redistribute it and/or
@@ -19,7 +21,8 @@
 
 #include <wx/wx.h>
 #include "testregistry.h"
-#include "MuleDebug.h"
+#include "test.h"
+#include <common/MuleDebug.h>
 
 using namespace muleunit;
 
@@ -29,11 +32,32 @@ wxString GetFullMuleVersion()
 }
 
 
+unsigned s_disableAssertions = 0;
+
+
 class UnitTestApp : public wxAppConsole
 {
 public:
 	int OnRun() {
-		return TestRegistry::runAndPrint()->getFailures();
+		return (TestRegistry::runAndPrint() ? 0 : 1);
+	}
+
+	void OnAssertFailure(const wxChar* file, int line,  const wxChar* func, const wxChar* cond, const wxChar* msg)
+	{
+		if (s_disableAssertions) {
+			return;
+		}
+
+		wxString desc;
+		if (cond && msg) {
+			desc << cond << wxT(" -- ") << msg;
+		} else if (cond) {
+			desc << wxT("Assertion: ") << cond;
+		} else {
+			desc << msg;
+		}
+
+		throw CAssertFailureException(desc, file, line);
 	}
 
 	void OnUnhandledException() {
@@ -42,6 +66,4 @@ public:
 };
 
 
-DECLARE_APP(UnitTestApp);
 IMPLEMENT_APP(UnitTestApp);
-

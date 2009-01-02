@@ -30,8 +30,6 @@
 #ifndef _WXCASPREFS_H
 #define _WXCASPREFS_H
 
-// For compilers that support precompilation, includes "wx/wx.h"
-#include "wx/wxprec.h"
 
 #ifdef __BORLANDC__
  #pragma hdrstop
@@ -101,8 +99,7 @@ private:
 	    ID_AUTOSTATIMG_COMBO,
 	    ID_AUTOSTATIMG_BROWSE_BUTTON,
 	    ID_FTP_UPDATE_CHECK,
-	    ID_VALIDATE_BUTTON,
-	    ID_CANCEL_BUTTON
+	    ID_VALIDATE_BUTTON
 	};
 
 protected:
@@ -124,3 +121,4 @@ public:
 };
 
 #endif /* _WXCASPREFS_H */
+// File_checked_for_headers

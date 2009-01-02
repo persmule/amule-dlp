@@ -30,8 +30,6 @@
 #ifndef _WXCASFRAME_H
 #define _WXCASFRAME_H
 
-// For compilers that support precompilation, includes "wx/wx.h"
-#include "wx/wxprec.h"
 
 #ifdef __BORLANDC__
  #pragma hdrstop
@@ -90,6 +88,7 @@ private:
 	wxStaticText *m_statLine_4;
 	wxStaticText *m_statLine_5;
 	wxStaticText *m_statLine_6;
+	wxStaticText *m_statLine_7;
 
 	wxStaticText *m_absHitLine;
 	wxButton *m_absHitButton;
@@ -137,6 +136,7 @@ private:
 	wxString MakeStatLine_4() const;
 	wxString MakeStatLine_5() const;
 	wxString MakeStatLine_6() const;
+	wxString MakeStatLine_7() const;
 
 	// Constructing Hits_lines
 	wxString MakeHitsLine_1() const;
@@ -186,3 +186,4 @@ public:
 };
 
 #endif /* _WXCASFRAME_H */
+// File_checked_for_headers

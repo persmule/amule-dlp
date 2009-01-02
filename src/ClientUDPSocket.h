@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -37,8 +37,9 @@ protected:
 	void	OnReceive(int errorCode);
 	
 private:
-	void	OnPacketReceived(amuleIPV4Address& addr, byte* buffer, size_t length);
-	void	ProcessPacket(char* packet, int16 size, int8 opcode, uint32 host, uint16 port);
+	void	OnPacketReceived(const wxIPV4address& addr, byte* buffer, size_t length);
+	void	ProcessPacket(byte* packet, int16 size, int8 opcode, uint32 host, uint16 port);
 };
 
 #endif // CLIENTUDPSOCKET_H
+// File_checked_for_headers

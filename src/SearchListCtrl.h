@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,7 +26,6 @@
 #ifndef SEARCHLISTCTRL_H
 #define SEARCHLISTCTRL_H
 
-#include <list>				// Needed for std::list
 
 #include "wx/colour.h"		// Needed for wxColour
 #include <wx/regex.h>		// Needed for wxRegExp
@@ -72,7 +71,6 @@ public:
 	 */
 	virtual ~CSearchListCtrl();
 
-
 	/**
 	 * Adds ths specified file to the list.
 	 *
@@ -85,6 +83,11 @@ public:
 	 */
 	void	AddResult(CSearchFile* toshow);
 
+	/**
+	 * Removes the specified file from the list.
+	 */
+	void	RemoveResult(CSearchFile* toshow);
+	
 	/**
 	 * Updates the specified source.
 	 *
@@ -99,7 +102,6 @@ public:
 	 */
 	void	ShowResults( long ResultsId );
 
-
 	/**
 	 * Updates the colors of item at the specified index.
 	 *
@@ -110,17 +112,20 @@ public:
 	 *  - Known (shared/completed) files are marked in green.
 	 *  - New files are marked in blue depending on the number of sources.
 	 */
-	void	UpdateItemColor( long index );
+	void UpdateItemColor(long index);
 
+	/**
+	 * Updates the colors of all assosiated items, which means parents and/or siblings.
+	 */
+	void UpdateAllRelativesColor(CSearchFile *file, long index);
 
 	/**
 	 * Returns the current Search Id. 
 	 *
 	 * @return The Search Id of the displayed results (set through ShowResults()).
 	 */
-	long	GetSearchId();
+	wxUIntPtr	GetSearchId();
 	
-
 	/**
 	 * Sets the filter which decides which results should be shown.
 	 *
@@ -136,13 +141,11 @@ public:
 	 * Toggels the use of filtering on and off.
 	 */
 	void	EnableFiltering(bool enabled);
-
 	
 	/**
 	 * Returns the number of items hidden due to filtering.
 	 */
 	size_t	GetHiddenItemCount() const;
-
 	
 	/**
 	 * Attempts to download all selected items, updating color-scheme as needed.
@@ -172,12 +175,10 @@ protected:
 	//! Specifies if filtering should be used
 	bool		m_filterEnabled;
 
-
 	/**
 	 * Returns true if the filename is filtered.
 	 */
 	bool	IsFiltered(const CSearchFile* file);
-	
 	
 	/**
 	 * Sorter function used by wxListCtrl::SortItems function.
@@ -185,13 +186,13 @@ protected:
 	 * @see CMuleListCtrl::SetSortFunc
 	 * @see wxListCtrl::SortItems
 	 */
-	static int wxCALLBACK SortProc(long item1, long item2, long sortData);
+	static int wxCALLBACK SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData);
 
-	/**
-	 * Override default AltSortAllowed method . See CMuleListCtrl.cpp.
-	 */
+	/** @see CMuleListCtrl::AltSortAllowed */
 	virtual bool AltSortAllowed(unsigned column) const;
 
+	/** @see CMuleListCtrl::GetTTSText */
+	virtual wxString GetTTSText(unsigned item) const;
 
 	/**
 	 * Helper function which syncs two lists.
@@ -219,14 +220,20 @@ protected:
 	 * the src argument as the src argument of the SyncLists function.
 	 */
 	static void SyncOtherLists( CSearchListCtrl* src );
-
 	
 	//! This list contains pointers to all current instances of CSearchListCtrl.
 	static std::list<CSearchListCtrl*> s_lists;
 	
 	//! The ID of the search-results which the list is displaying or zero if unset. 
-	long	m_nResultsID;
+	wxUIntPtr m_nResultsID;
 
+	//! Custom drawing, needed to display children of search-results.
+	void OnDrawItem(int item, wxDC* dc, const wxRect& rect, const wxRect& rectHL, bool highlighted);
+
+	/**
+	 * Removes or adds child-entries for the given file.
+	 */
+	void ShowChildren(CSearchFile* file, bool show);
 
 	/**
 	 * Event handler for right mouse clicks.
@@ -251,7 +258,6 @@ protected:
 	 * This eventhandler takes care of sync'ing all the other lists with this one.
 	 */
 	void OnColumnResize( wxListEvent& event );
-
 	
 	/**
 	 * Event handler for get-url menu items.
@@ -264,6 +270,16 @@ protected:
 	void OnRazorStatsCheck( wxCommandEvent& event );
 
 	/**
+	 * Event handler for related search.
+	 */
+	void OnRelatedSearch( wxCommandEvent& event );
+
+	/**
+	 * Event handler for "mark as known".
+	 */
+	void OnMarkAsKnown( wxCommandEvent& event );
+
+	/**
 	 * Event handler for download-file(s) menu item.
 	 */
 	void OnPopupDownload( wxCommandEvent& event );
@@ -272,3 +288,4 @@ protected:
 };
 
 #endif // SEARCHLISTCTRL_H
+// File_checked_for_headers

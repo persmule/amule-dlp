@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -39,6 +39,8 @@
 #define	COLUMN_SERVER_FAILS	8
 #define	COLUMN_SERVER_STATIC	9
 #define	COLUMN_SERVER_VERSION 	10
+#define	COLUMN_SERVER_TCPFLAGS 	11
+#define	COLUMN_SERVER_UDPFLAGS 	12
 
 class CServer;
 class CServerList;
@@ -188,14 +190,15 @@ private:
 	 *
 	 * @see wxListCtrl::SortItems
 	 */
-	static int wxCALLBACK SortProc(long item1, long item2, long sortData);
+	static int wxCALLBACK SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData);
 
 
 	//! Used to keep track of the last high-lighted item.
-	long	m_connected;
+	wxUIntPtr m_connected;
 	
 	
 	DECLARE_EVENT_TABLE()
 };
 
 #endif
+// File_checked_for_headers

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (C) 2005-2006aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2004 Merkur ( devs@users.sourceforge.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -24,10 +24,10 @@
 //
 
 #include "DeadSourceList.h"
-#include "OPCodes.h"
-#include "updownclient.h"
-#include "NetworkFunctions.h"
 
+#include <common/Macros.h>
+
+#include "updownclient.h"
 
 #define	CLEANUPTIME			MIN2MS(60)
 
@@ -164,3 +164,4 @@ void CDeadSourceList::CleanUp()
 		}
 	}
 }
+// File_checked_for_headers

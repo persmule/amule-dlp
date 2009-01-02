@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,17 +26,15 @@
 #ifndef FILEDETAILDIALOG_H
 #define FILEDETAILDIALOG_H
 
-#include <wx/dialog.h>		// Needed for wxDialog
-#include <wx/timer.h>		// Needed for wxTimer
 
 class CPartFile;
 
 // CFileDetailDialog dialog
 
-class CFileDetailDialog : public wxDialog //CDialog
+class CFileDetailDialog : public wxDialog
 {
 public:
-	CFileDetailDialog(wxWindow* parent, CPartFile* file);   // standard constructor
+	CFileDetailDialog(wxWindow *parent, CPartFile *file);
 	virtual ~CFileDetailDialog();
 
 protected:
@@ -46,21 +44,24 @@ protected:
 private:
 	void UpdateData();
 	CPartFile* m_file;
-	struct SourcenameItem {
-		wxString	name;
-		long		count;
-	};
-	
 	wxTimer m_timer;
+	bool m_filenameChanged;
+	
 	void OnClosewnd(wxCommandEvent& evt);
 	void FillSourcenameList();
+	void setEnableForApplyButton();
+	void setValueForFilenameTextEdit(const wxString &s);
+	void resetValueForFilenameTextEdit();
 
 	void OnBnClickedButtonStrip(wxCommandEvent& evt);
 	void OnBnClickedShowComment(wxCommandEvent& evt);
 	void OnBnClickedTakeOver(wxCommandEvent& evt);
 	void OnListClickedTakeOver(wxListEvent& evt);
-	void OnBnClickedRename(wxCommandEvent& evt);
+	void OnTextFileNameChange(wxCommandEvent& evt);
+	void OnBnClickedOk(wxCommandEvent& evt);
+	void OnBnClickedApply(wxCommandEvent& evt);
 
 };
 
 #endif // FILEDETAILDIALOG_H
+// File_checked_for_headers

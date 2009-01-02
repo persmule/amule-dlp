@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Drager
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,10 +23,9 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
+#include <wx/dialog.h>		// Needed for wxDialog	// Do_not_auto_remove
 #include <wx/sizer.h>		// Needed for wxBoxSizer
 #include <wx/file.h>		// Needed for wxFile
-#include <wx/intl.h>		// Needed for _
 #include <wx/log.h>		// Needed for wxLogSysError
 #include <wx/textctrl.h>
 
@@ -36,14 +35,13 @@ BEGIN_EVENT_TABLE(EditServerListDlg, wxDialog)
     EVT_BUTTON(wxID_OK, EditServerListDlg::OnOK)
 END_EVENT_TABLE()
 
-IMPLEMENT_CLASS(EditServerListDlg, wxDialog)
 
 EditServerListDlg::EditServerListDlg(wxWindow *parent,
                                      const wxString& caption,
                                      const wxString& message,
 				     const wxString& filename) : wxDialog(parent, -1, caption, 
 					     			      wxDefaultPosition, wxSize(400,200),
-								      wxDEFAULT_DIALOG_STYLE | wxDIALOG_MODAL |wxRESIZE_BORDER)
+								      wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 {
   m_file = filename;
 
@@ -85,3 +83,4 @@ void EditServerListDlg::OnOK(wxCommandEvent& WXUNUSED(event) )
 	else
 		wxLogSysError(wxT("Can't write to file '") +  m_file + wxT("'"));
 }
+// File_checked_for_headers

@@ -150,6 +150,7 @@ top_statement_list:
 
 top_statement:
 		statement
+	|	START_SCRIPT top_statement_list END_SCRIPT { $$ = $2; }
 	|	function_decl_statement
 /*	|	class_decl_statement */
 ;

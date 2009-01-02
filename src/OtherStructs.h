@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,36 +26,70 @@
 #ifndef OTHERSTRUCTS_H
 #define OTHERSTRUCTS_H
 
-#include "Types.h"		// Needed for int8, int32, uint8, uint16 and uint32
 
 // Defined in <zlib.h>
 struct z_stream_s;
 
+
 //			SERVER TO CLIENT
+#ifdef _MSC_VER
+#pragma pack(1)
+#endif
 struct Header_Struct{
 	int8	eDonkeyID;
 	int32	packetlength;
 	int8	command;
-} __attribute__((__packed__));
+}
+#ifdef _MSC_VER
+;
+#pragma pack()
+#else
+__attribute__((__packed__));
+#endif
 
-struct UDP_Header_Struct{
+#ifdef _MSC_VER
+#pragma pack(1)
+#endif
+struct UDP_Header_Struct {
 	int8	eDonkeyID;
 	int8	command;
-} __attribute__((__packed__));
+}
+#ifdef _MSC_VER
+;
+#pragma pack()
+#else
+__attribute__((__packed__));
+#endif
 
+#ifdef _MSC_VER
+;
+#pragma pack(1)
+#endif
 struct Requested_Block_Struct{
-	uint32	StartOffset;
-	uint32	EndOffset;
+	uint64	StartOffset;
+	uint64	EndOffset;
 	uint32	packedsize;
 	unsigned char	FileID[16];
 	uint32  transferred; // Barry - This counts bytes completed
-} __attribute__((__packed__));
+}
+#ifdef _MSC_VER
+;
+#pragma pack()
+#else
+__attribute__((__packed__));
+#endif
 
 struct Requested_File_Struct{
 	unsigned char	  fileid[16];
 	uint32	  lastasked;
 	uint8	  badrequests;
-} __attribute__((__packed__));
+}
+#ifdef _MSC_VER
+;
+#pragma pack()
+#else
+__attribute__((__packed__));
+#endif
 
 struct Pending_Block_Struct{
 	Requested_Block_Struct*	block;
@@ -66,15 +100,24 @@ struct Pending_Block_Struct{
 };
 
 struct Gap_Struct{
-	uint32 start;
-	uint32 end;
+	uint64 start;
+	uint64 end;
 };
 
+#ifdef _MSC_VER
+#pragma pack(1)
+#endif
 struct ServerMet_Struct {
 	uint32	ip;
 	uint16	port;
 	uint32	tagcount;
-} __attribute__((__packed__));
+}
+#ifdef _MSC_VER
+;
+#pragma pack()
+#else
+__attribute__((__packed__));
+#endif
 
 struct TransferredData {
 	uint32	datalen;
@@ -84,14 +127,22 @@ struct TransferredData {
 
 //Kry import of 0.30d 
 // Maella -Enhanced Chunk Selection- (based on jicxicmic)
+#ifdef _MSC_VER
+#pragma pack(1)
+#endif
 struct Chunk {
 	uint16 part;      // Index of the chunk
 		union {
 			uint16 frequency; // Availability of the chunk
 			uint16 rank;      // Download priority factor (highest = 0, lowest = 0xffff)
 	};
-} __attribute__((__packed__));
-
-enum DownloadItemType { FILE_TYPE, A4AF_SOURCE, UNAVAILABLE_SOURCE, AVAILABLE_SOURCE };
+}
+#ifdef _MSC_VER
+;
+#pragma pack()
+#else
+__attribute__((__packed__));
+#endif
 
 #endif // OTHERSTRUCTS_H
+// File_checked_for_headers

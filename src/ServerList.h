@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,14 +26,6 @@
 #ifndef SERVERLIST_H
 #define SERVERLIST_H
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
-#include <wx/timer.h>		// Needed for wxTimer
-
-#include <list>
-#include <vector>
-
-#include "Types.h"		// Needed for int8, uint16 and uint32
-
 #include "ObservableQueue.h"
 
 class CServer;
@@ -51,15 +43,16 @@ public:
 	void		RemoveServer(CServer* in_server);
 	void		RemoveAllServers();
 	void		RemoveDeadServers();	
-	bool		LoadServerMet(const wxString& strFile);
+	bool		LoadServerMet(const CPath& path);
 	bool		SaveServerMet();
 	void		ServerStats();
 	void		ResetServerPos()	{m_serverpos = m_servers.begin();}
-	CServer*	GetNextServer();
+	CServer*	GetNextServer(bool bOnlyObfuscated = false);
 	uint32		GetServerCount()	{return m_servers.size();}
-	CServer*	GetServerByAddress(const wxString& address, uint16 port);
-	CServer*	GetServerByIP(uint32 nIP);
-	CServer*	GetServerByIP(uint32 nIP, uint16 nPort);	
+	CServer*	GetServerByAddress(const wxString& address, uint16 port) const;
+	CServer*	GetServerByIP(uint32 nIP) const;
+	CServer*	GetServerByIPTCP(uint32 nIP, uint16 nPort) const;
+	CServer*	GetServerByIPUDP(uint32 nIP, uint16 nUDPPort, bool bObfuscationPorts = true) const;
 	void		GetStatus(uint32 &failed, uint32 &user, uint32 &file, uint32 &tuser, uint32 &tfile, float &occ);
 	void		GetUserFileStatus( uint32 &user, uint32 &file);
 	void		Sort();
@@ -70,11 +63,16 @@ public:
 
 	std::vector<const CServer*> CopySnapshot() const;
 	
+	/** Refilters all servers though the IPFilter. */
+	void FilterServers();
+
+	void CheckForExpiredUDPKeys();
+	
 private:
 	virtual void 	ObserverAdded( ObserverType* );
 	void		AutoUpdate();
 	CServer*	GetNextStatServer();
-
+	
 	void		LoadStaticServers( const wxString& filename );
 	uint8		current_url_index;
 
@@ -89,3 +87,4 @@ private:
 };
 
 #endif // SERVERLIST_H
+// File_checked_for_headers

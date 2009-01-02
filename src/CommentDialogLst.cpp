@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,17 +23,14 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include "CommentDialogLst.h"	// Interface declarations
-#include "muuli_wdr.h"			// Needed for commentLstDlg
-#include "OtherFunctions.h"		// Needed for GetRateString
-#include "PartFile.h"			// Needed for CPartFile
-#include "updownclient.h"		// Needed for CUpDownClient
-#include <common/Format.h>				// Needed for CFormat
+#include "CommentDialogLst.h"           // Interface declarations
+#include "muuli_wdr.h"                  // Needed for commentLstDlg
+#include "PartFile.h"                   // Needed for CPartFile
+#include <common/Format.h>              // Needed for CFormat
 #include "MuleListCtrl.h"		// Needed for CMuleListCtrl
-#include "amule.h"				// Needed for theApp
-#include "DownloadQueue.h"		// Needed for CDownloadQueue
+#include "Preferences.h"
+#include "amule.h"                      // Needed for theApp
 
-#include <wx/sizer.h>			// Needed for wxSizer
 
 
 BEGIN_EVENT_TABLE(CCommentDialogLst,wxDialog)
@@ -41,12 +38,16 @@ BEGIN_EVENT_TABLE(CCommentDialogLst,wxDialog)
 	EVT_BUTTON(IDCREF,CCommentDialogLst::OnBnClickedRefresh)
 END_EVENT_TABLE()
 
+
+/*
+ * Constructor
+ */
 CCommentDialogLst::CCommentDialogLst(wxWindow*parent, CPartFile* file)
-	: wxDialog(parent, -1, wxString(_("File Comments")), 
-		wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+:
+wxDialog(parent, -1, wxString(_("File Comments")), 
+	wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
+m_file(file)
 {
-	m_file = file;
-	
 	wxSizer* content = commentLstDlg(this, true);
 	content->Show(this, true);
 
@@ -84,22 +85,23 @@ void CCommentDialogLst::UpdateList()
 	int count = 0;
 	ClearList();
  
-	FileRatingList list;
-	m_file->GetRatingAndComments(list);
-	for (FileRatingList::iterator it = list.begin(); it != list.end(); ++it) {
-		m_list->InsertItem(count, (*it)->UserName);
-		m_list->SetItem(count, 1, (*it)->FileName);
-		m_list->SetItem(count, 2, ((*it)->Rating != -1) ? GetRateString((*it)->Rating) : wxString(wxT("on")));
-		m_list->SetItem(count, 3, (*it)->Comment);
-		m_list->SetItemData(count, (long)(*it));
-		count++;
+	const FileRatingList &list = m_file->GetRatingAndComments();
+	for (FileRatingList::const_iterator it = list.begin(); it != list.end(); ++it) {
+		if (!thePrefs::IsCommentFiltered(it->Comment)) {
+			m_list->InsertItem(count, it->UserName);
+			m_list->SetItem(count, 1, it->FileName);
+			m_list->SetItem(count, 2, (it->Rating != -1) ? GetRateString(it->Rating) : wxString(wxT("on")));
+			m_list->SetItem(count, 3, it->Comment);
+			m_list->SetItemPtrData(count, reinterpret_cast<wxUIntPtr>(new SFileRating(*it)));
+			++count;
+		}
 	}
 
 	wxString info;
 	if (count == 0) {
 		info = _("No comments");
 	} else {
-		info = CFormat( _("%s comment(s)")) % CastItoIShort(count);
+		info = wxString::Format(wxPLURAL("%u comment", "%u comments", count), count);
 	}
 	
 	FindWindow(IDC_CMSTATUS)->SetLabel(info);
@@ -120,7 +122,7 @@ void CCommentDialogLst::ClearList()
 }
 
 
-int CCommentDialogLst::SortProc(long item1, long item2, long sortData)
+int CCommentDialogLst::SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData)
 {
 	SFileRating* file1 = (SFileRating*)item1;
 	SFileRating* file2 = (SFileRating*)item2;
@@ -136,3 +138,4 @@ int CCommentDialogLst::SortProc(long item1, long item2, long sortData)
 			return 0;
 	}
 }
+// File_checked_for_headers

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (C) 2005-2006Froenchenko Leonid ( lfroen@amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2008 Froenchenko Leonid ( lfroen@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -23,25 +23,28 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <cstdio>
-#include <cstring>
-#include <cassert>
-#include <cstdarg>
 
-#include <list>
-#include <vector>
-#include <map>
-#include <string>
-#include <algorithm>
+#include <string> // Do_not_auto_remove (g++-4.0.1)
+
+#include <sys/types.h>
+#include <regex.h>
 
 #ifndef PHP_STANDALONE_EN
+	#include "config.h"
 	#include "WebServer.h"
-	#include <ec/ECSpecialTags.h>
+	#include <ec/cpp/ECSpecialTags.h>
+#else
+	#define PACKAGE_VERSION "standalone"
+
+	#include <map>
+	#include <list>
+	#include <stdarg.h>
 #endif
 
 #include "php_syntree.h"
 #include "php_core_lib.h"
 
+#include <wx/datetime.h>
 
 /*
  * Built-in php functions. Those are both library and core internals.
@@ -61,9 +64,9 @@ void php_var_dump(PHP_VALUE_NODE *node, int ident, int ref)
 	if ( ref ) printf("&");
 	switch(node->type) {
 		case PHP_VAL_BOOL: printf("bool(%s)\n", node->int_val ? "true" : "false"); break;
-		case PHP_VAL_INT: printf("int(%lld)\n", node->int_val); break;
+		case PHP_VAL_INT: printf("int(%"PRIu64")\n", node->int_val); break;
 		case PHP_VAL_FLOAT: printf("float(%f)\n", node->float_val); break;
-		case PHP_VAL_STRING: printf("string(%d) \"%s\"\n", strlen(node->str_val), node->str_val); break;
+		case PHP_VAL_STRING: printf("string(%zd) \"%s\"\n", strlen(node->str_val), node->str_val); break;
 		case PHP_VAL_OBJECT: printf("Object(%s)\n", node->obj_val.class_name); break;
 		case PHP_VAL_ARRAY: {
 			int arr_size = array_get_size(node);
@@ -339,7 +342,7 @@ void php_native_add_server_cmd(PHP_VALUE_NODE *)
 
 #ifndef PHP_STANDALONE_EN
 	CPhPLibContext::g_curr_context->WebServer()->Send_AddServer_Cmd(wxString(char2unicode(addr)),
-		wxString::Format(_("%d"), port), wxString(char2unicode(name)));
+		wxString::Format(wxT("%d"), port), wxString(char2unicode(name)));
 #else
 	printf("php_native_add_server_cmd: addr=%s port=%04d name=%s\n", addr, port, name);
 #endif
@@ -419,7 +422,7 @@ void php_get_amule_stats(PHP_VALUE_NODE *result)
 			PHP_VAR_NODE *srv_users = array_get_by_str_key(result, "serv_users");
 			value_value_free(&srv_users->value);
 			srv_users->value.type = PHP_VAL_INT;
-			srv_users->value.int_val = susers->GetInt32Data();
+			srv_users->value.int_val = susers->GetInt();
 		}
 			
 	}
@@ -440,22 +443,22 @@ void php_get_amule_stats(PHP_VALUE_NODE *result)
 	speed = array_get_by_str_key(result, "speed_up");
 	value_value_free(&speed->value);
 	speed->value.type = PHP_VAL_INT;
-	speed->value.int_val = stats->GetTagByName(EC_TAG_STATS_UL_SPEED)->GetInt32Data();
+	speed->value.int_val = stats->GetTagByName(EC_TAG_STATS_UL_SPEED)->GetInt();
 	
 	speed = array_get_by_str_key(result, "speed_down");
 	value_value_free(&speed->value);
 	speed->value.type = PHP_VAL_INT;
-	speed->value.int_val = stats->GetTagByName(EC_TAG_STATS_DL_SPEED)->GetInt32Data();
+	speed->value.int_val = stats->GetTagByName(EC_TAG_STATS_DL_SPEED)->GetInt();
 
 	speed = array_get_by_str_key(result, "speed_limit_up");
 	value_value_free(&speed->value);
 	speed->value.type = PHP_VAL_INT;
-	speed->value.int_val = stats->GetTagByName(EC_TAG_STATS_UL_SPEED_LIMIT)->GetInt32Data();
+	speed->value.int_val = stats->GetTagByName(EC_TAG_STATS_UL_SPEED_LIMIT)->GetInt();
 	
 	speed = array_get_by_str_key(result, "speed_limit_down");
 	value_value_free(&speed->value);
 	speed->value.type = PHP_VAL_INT;
-	speed->value.int_val = stats->GetTagByName(EC_TAG_STATS_DL_SPEED_LIMIT)->GetInt32Data();
+	speed->value.int_val = stats->GetTagByName(EC_TAG_STATS_DL_SPEED_LIMIT)->GetInt();
 
 	delete stats;
 #else
@@ -507,7 +510,7 @@ void php_get_amule_categories(PHP_VALUE_NODE *result)
 
 typedef struct {
 	char *php_name;
-	ec_opcode_t tagname;
+	ECTagNames tagname;
 	int opsize;
 } PHP_2_EC_OPT_DEF;
 
@@ -520,7 +523,7 @@ PHP_2_EC_OPT_DEF g_connection_opt_defs[] = {
 	{ "max_file_src", EC_TAG_CONN_MAX_FILE_SOURCES, 2},
 	{ "max_conn_total", EC_TAG_CONN_MAX_CONN, 2}, 
 	{ "autoconn_en", EC_TAG_CONN_AUTOCONNECT, 0}, { "reconn_en", EC_TAG_CONN_RECONNECT, 0},
-	{0, 0, 0}
+	{0, (ECTagNames)0, 0}
 };
 
 PHP_2_EC_OPT_DEF g_file_opt_defs[] = {
@@ -540,18 +543,18 @@ PHP_2_EC_OPT_DEF g_file_opt_defs[] = {
 	{ "alloc_full", EC_TAG_FILES_ALLOC_FULL_SIZE, 0},
 	{ "check_free_space", EC_TAG_FILES_CHECK_FREE_SPACE, 0},
 	{ "min_free_space", EC_TAG_FILES_MIN_FREE_SPACE, 4},
-	{0, 0, 0}
+	{0, (ECTagNames)0, 0}
 };
 
 PHP_2_EC_OPT_DEF g_webserver_opt_defs[] = {
 	{ "use_gzip", EC_TAG_WEBSERVER_USEGZIP, 0},
 	{ "autorefresh_time", EC_TAG_WEBSERVER_REFRESH, 4},
-	{0, 0, 0}
+	{0, (ECTagNames)0, 0}
 };
 
 PHP_2_EC_OPT_DEF g_coretweak_opt_defs[] = {
 	{ "max_conn_5sec", EC_TAG_CORETW_MAX_CONN_PER_FIVE, 2},
-	{0, 0, 0}
+	{0, (ECTagNames)0, 0}
 };
 
 void set_array_int_val(PHP_VALUE_NODE *array, std::string arrkey, int value)
@@ -569,12 +572,13 @@ void ec_tag_2_php(const CECTag *cattag, PHP_2_EC_OPT_DEF *opts, PHP_VAR_NODE *ca
 		int val;
 		switch(def->opsize) {
 			case 0: val = cattag->GetTagByName(def->tagname) ? 1 : 0; break;
-			case 1: val = cattag->GetTagByNameSafe(def->tagname)->GetInt8Data(); break;
-			case 2: val = cattag->GetTagByNameSafe(def->tagname)->GetInt16Data(); break;
-			case 4: val = cattag->GetTagByNameSafe(def->tagname)->GetInt32Data(); break;
+			case 1: val = cattag->GetTagByNameSafe(def->tagname)->GetInt(); break;
+			case 2: val = cattag->GetTagByNameSafe(def->tagname)->GetInt(); break;
+			case 4: val = cattag->GetTagByNameSafe(def->tagname)->GetInt(); break;
 			default: val = -1;
 		}
 		wxASSERT(val != -1);
+		//printf("OPT_DEBUG: %s of size %d -> %d\n", def->php_name, def->opsize, val);
 		set_array_int_val(&catvar->value, def->php_name, val);
 	}
 }
@@ -759,15 +763,17 @@ void php_native_search_start_cmd(PHP_VALUE_NODE *)
 	}
 	cast_value_dnum(&si->var->value);
 
+#ifndef PHP_STANDALONE_EN
 	EC_SEARCH_TYPE search_type;
 	switch(si->var->value.int_val) {
 		case 0: search_type = EC_SEARCH_LOCAL; break;
 		case 1: search_type = EC_SEARCH_GLOBAL; break;
 		case 2: search_type = EC_SEARCH_KAD; break;
 		default: 
-			php_report_error(PHP_ERROR, "Invalid search type %d", si->var->value.int_val);
+			php_report_error(PHP_ERROR, "Invalid search type %"PRIu64, si->var->value.int_val);
 			return;
 	}
+#endif
 	if ( !(si = get_scope_item(g_current_scope, "__param_4")) ) {
 		php_report_error(PHP_ERROR, "Invalid or missing argument 5 (availability)");
 		return;
@@ -969,7 +975,7 @@ void php_native_substr(PHP_VALUE_NODE * /*result*/)
 	}
 	// 3-rd is optional
 	PHP_SCOPE_ITEM *si_end = get_scope_item(g_current_scope, "end");
-	PHP_VALUE_NODE end = { PHP_VAL_INT, 0 };
+	PHP_VALUE_NODE end = { PHP_VAL_INT, { 0 } };
 	if ( si_end ) {
 		end = si_end->var->value;
 	}
@@ -1219,6 +1225,8 @@ void amule_download_file_prop_get(void *ptr, char *prop_name, PHP_VALUE_NODE *re
 		result->int_val = obj->lFilePrio;
 	} else if ( strcmp(prop_name, "prio_auto") == 0 ) {
 		result->int_val = obj->bFileAutoPriority;
+	} else if ( strcmp(prop_name, "last_seen_complete") == 0 ) {
+		result->int_val = obj->wxtLastSeenComplete.GetTicks();
 	} else {
 		php_report_error(PHP_ERROR, "'DownloadFile' property [%s] is unknown", prop_name);
 	}
@@ -1424,6 +1432,101 @@ void amule_search_file_prop_get(void *obj, char *prop_name, PHP_VALUE_NODE *resu
 
 #endif
 
+void amule_version(PHP_VALUE_NODE *val)
+{
+	if ( !val ) {
+		return;
+	}
+	value_value_free(val);
+
+	val->type = PHP_VAL_STRING;
+	val->str_val = strdup(PACKAGE_VERSION);
+}
+
+void php_native_split(PHP_VALUE_NODE *result)
+{
+	if ( result ) {
+		cast_value_array(result);
+	} else {
+		return; 
+	}
+	PHP_VALUE_NODE *pattern, *string_to_split, *split_limit;
+	PHP_SCOPE_ITEM *si = get_scope_item(g_current_scope, "__param_0");
+	if ( si ) {
+		pattern = &si->var->value;
+		cast_value_str(pattern);
+	} else {
+		php_report_error(PHP_ERROR, "Invalid or missing argument: pattern");
+		return;
+	}
+	si = get_scope_item(g_current_scope, "__param_1");
+	if ( si ) {
+		string_to_split = &si->var->value;
+		cast_value_str(string_to_split);
+	} else {
+		php_report_error(PHP_ERROR, "Invalid or missing argument: string");
+		return;
+	}
+	si = get_scope_item(g_current_scope, "__param_2");
+	if ( si ) {
+		split_limit = &si->var->value;
+		cast_value_dnum(split_limit);
+	} else {
+		php_report_error(PHP_ERROR, "Invalid or missing argument: string");
+		return;		
+	}
+	regex_t preg;
+	char error_buff[256];
+	int reg_result = regcomp(&preg, pattern->str_val, REG_EXTENDED);
+	if ( reg_result ) {
+		regerror(reg_result, &preg, error_buff, sizeof(error_buff));
+		php_report_error(PHP_ERROR, "Failed in regcomp: %s", error_buff);
+		return;
+	}
+	size_t nmatch = strlen(string_to_split->str_val);
+	regmatch_t *pmatch = new regmatch_t[nmatch];
+	
+	char *str_2_match = string_to_split->str_val;
+	char *tmp_buff = new char[strlen(string_to_split->str_val)+1];
+	
+	while ( 1 ) {
+//		printf("matching: %s\n", str_2_match);
+		reg_result = regexec(&preg, str_2_match, nmatch, pmatch, 0);
+		if ( reg_result ) {
+			// no match
+			break;
+		}
+//		for(int i = 0; pmatch[i].rm_so >= 0; i++) {
+//			printf("match [%d] %d - %d\n", i, pmatch[i].rm_so, pmatch[i].rm_eo);
+//		}
+	
+		/*
+		 * I will use only first match, since I don't see any sense to have more
+		 * then 1 match in split() call
+		 */
+		for(int i = 0; i < pmatch[0].rm_so; i++) {
+			tmp_buff[i] = str_2_match[i];
+		}
+		tmp_buff[pmatch[0].rm_so] = 0;
+//		printf("Match added [%s]\n", tmp_buff);
+		
+		PHP_VAR_NODE *match_val = array_push_back(result);
+		match_val->value.type = PHP_VAL_STRING;
+		match_val->value.str_val = strdup(tmp_buff);
+
+		str_2_match += pmatch[0].rm_eo;
+	}
+
+	PHP_VAR_NODE *match_val = array_push_back(result);
+	match_val->value.type = PHP_VAL_STRING;
+	match_val->value.str_val = strdup(str_2_match);
+	
+	delete [] pmatch;
+	delete [] tmp_buff;
+	
+	regfree(&preg);
+}
+
 PHP_BLTIN_FUNC_DEF core_lib_funcs[] = {
 	{
 		"var_dump", 
@@ -1446,6 +1549,11 @@ PHP_BLTIN_FUNC_DEF core_lib_funcs[] = {
 		"usort",
 		2,
 		php_native_usort,
+	},
+	{
+		"split",
+		3,
+		php_native_split,
 	},
 	{
 		"amule_load_vars",
@@ -1513,6 +1621,10 @@ PHP_BLTIN_FUNC_DEF core_lib_funcs[] = {
 	{
 		"amule_get_serverinfo",
 		1, php_get_serverinfo,
+	},
+	{
+		"amule_get_version",
+		0, amule_version,
 	},
 	{ 0, 0, 0, },
 };
@@ -1660,7 +1772,6 @@ CPhpFilter::CPhpFilter(CWebServerBase *server, CSession *sess,
 		curr_code_end += 2; // include "?>" in buffer
 
 		int len = curr_code_end - scan_ptr;
-		yydebug = 0;
 
 		CPhPLibContext *context = new CPhPLibContext(server, scan_ptr, len);
 
@@ -1766,7 +1877,7 @@ void load_session_vars(char *target, std::map<std::string, std::string> &varmap)
 		PHP_VAR_NODE *curr_var = array_get_by_str_key(&sess_vars->value, i->first);
 		PHP_VALUE_NODE val;
 		val.type = PHP_VAL_STRING;
-		val.str_val = (char *)i->second.c_str();
+		val.str_val = const_cast<char *>(i->second.c_str());
 		value_value_assign(&curr_var->value, &val);
 	}
 }
@@ -1788,3 +1899,4 @@ void save_session_vars(std::map<std::string, std::string> &varmap)
 		varmap[s] = var->value.str_val;
 	}
 }
+// File_checked_for_headers

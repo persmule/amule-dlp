@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -25,12 +25,13 @@
 
 #include "ListenSocket.h"	// Interface declarations
 
+#include <common/EventIDs.h>
+
 #include "ClientTCPSocket.h"	// Needed for CClientRequestSocket
 #include "Logger.h"			// Needed for AddLogLineM
 #include "Statistics.h"		// Needed for theStats
 #include "Preferences.h"	// Needed for CPreferences
 #include "amule.h"		// Needed for theApp
-#include "OPCodes.h"		// Needed for LISTENSOCKET_HANDLER
 #include "ServerConnect.h"	// Needed for CServerConnect
 #include "updownclient.h"	// Needed for CUpDownClient
 
@@ -58,7 +59,7 @@ CSocketServerProxy(addr, wxSOCKET_NOWAIT|wxSOCKET_REUSEADDR, ProxyData)
 	averageconnections = 0.0;
 	// Set the listen socket event handler -- The handler is written in amule.cpp
 	if (Ok()) {
- 		SetEventHandler(theApp, LISTENSOCKET_HANDLER);
+ 		SetEventHandler(*theApp, ID_LISTENSOCKET_EVENT);
  		SetNotify(wxSOCKET_CONNECTION_FLAG);
  		Notify(true);
 
@@ -121,7 +122,7 @@ void CListenSocket::OnAccept(int nErrorCode)
 			wxASSERT(FALSE);
 			m_nPeningConnections = 1;
 		}
-		if (TooManySockets(true) && !theApp.serverconnect->IsConnecting()) {
+		if (TooManySockets(true) && !theApp->serverconnect->IsConnecting()) {
 			StopListening();
 			return;
 		} else if (bListening == false) {
@@ -140,13 +141,12 @@ void CListenSocket::OnAccept(int nErrorCode)
 			if (!AcceptWith(*newclient, false)) {
 				newclient->Safe_Delete();
 			} else {
-				wxASSERT(theApp.IsRunning());
-
-				#ifdef __DEBUG__
-				amuleIPV4Address addr;
-				newclient->GetPeer(addr);
-				AddDebugLogLineM(false, logClient, wxT("Accepted connection from ") + addr.IPAddress());
-				#endif
+				wxASSERT(theApp->IsRunning());
+				if (!newclient->InitNetworkData()) {
+					// IP or port were not returned correctly
+					// from the accepted address, or filtered.
+					newclient->Safe_Delete();
+				}
 			}
 		}
 	}
@@ -165,7 +165,7 @@ void CListenSocket::Process()
 	while ( it != socket_list.end() ) {
 		CClientTCPSocket* cur_socket = *it++;
 		if (!cur_socket->OnDestroy()) {
-			if (cur_socket->deletethis) {
+			if (cur_socket->ForDeletion()) {
 				cur_socket->Destroy();
 			} else {
 				cur_socket->CheckTimeOut();
@@ -173,7 +173,7 @@ void CListenSocket::Process()
 		}
 	}
 	
-	if ((GetOpenSockets()+5 < thePrefs::GetMaxConnections() || theApp.serverconnect->IsConnecting()) && !bListening) {
+	if ((GetOpenSockets()+5 < thePrefs::GetMaxConnections() || theApp->serverconnect->IsConnecting()) && !bListening) {
 		ReStartListening();
 	}
 }
@@ -247,7 +247,7 @@ bool CListenSocket::IsValidSocket(CClientTCPSocket* totest)
 void CListenSocket::UpdateConnectionsStatus()
 {
 	// 0.42e xcept for the khaos stats
-	if( theApp.IsConnected() ) {
+	if( theApp->IsConnected() ) {
 		totalconnectionchecks++;
 		float percent;
 		percent = (float)(totalconnectionchecks-1)/(float)totalconnectionchecks;
@@ -273,3 +273,4 @@ float CListenSocket::GetMaxConperFiveModifier()
 	
 	return 1.0f - (SpikeSize/SpikeTolerance);
 }
+// File_checked_for_headers

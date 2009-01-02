@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2004-2006 Carlo Wood <carlo@alinoe.com>
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Carlo Wood <carlo@alinoe.com>
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -26,11 +26,12 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include <wx/defs.h>		// Needed for wxUSE_GUI and possibly for COLORREF
-
 #if !defined(__WXPM__) && !defined(__WXMSW__)  // Otherwise already defined in wx/defs.h.
-#include <inttypes.h>		// Needed for uint32_t
-typedef uint32_t		COLORREF;
+#include <inttypes.h>	// Do_not_auto_remove (old gcc)
+typedef uint32_t COLORREF;
+#else
+#include "Types.h"	// Do_not_auto_remove (Needed for windows compilation)
+typedef unsigned long COLORREF;
 #endif
 
 
@@ -41,7 +42,7 @@ inline int G_BLEND(int a, int percentage)
 }
 
 
-#ifndef __WXMSW__
+#if !defined(__WXMSW__)
 inline COLORREF RGB(int a, int b, int c)
 {
 	COLORREF result;
@@ -109,3 +110,4 @@ inline COLORREF CrFromWxColour(wxColour col)
 
 
 #endif
+// File_checked_for_headers

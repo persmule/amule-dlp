@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,28 +23,22 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
-#include <wx/intl.h>		// Needed for _
-#include <wx/menu.h>		// Needed for wxMenu
-#include <wx/msgdlg.h>		// Needed for wxMessageBox
 
-#include "amule.h"			// Needed for theApp: let it first or fail under win32
-#include "amuleDlg.h"		// Needed for CamuleDlg
 #include "FriendListCtrl.h"	// Interface declarations
+
+#include <common/MenuIDs.h>
+
+#include "amule.h"		// Needed for theApp
+#include "amuleDlg.h"		// Needed for CamuleDlg
 #include "ClientDetailDialog.h"	// Needed for CClientDetailDialog
 #include "AddFriend.h"		// Needed for CAddFriend
-#include "ClientList.h"		// Needed for CClientList
 #include "ChatWnd.h"		// Needed for CChatWnd
-#include "OPCodes.h"		// Needed for MP_DETAIL
 #include "updownclient.h"	// Needed for CUpDownClient
 #include "Friend.h"		// Needed for CFriend
-#include "ArchSpecific.h"
-#include "OtherFunctions.h"
 #include "muuli_wdr.h"
 #include "SafeFile.h"
-#include "Logger.h"
 
-#warning REMOVE WHEN EC IS CODED!
+//#warning REMOVE WHEN EC IS CODED!
 #include "FriendList.h"		// Needed for the friends list
 
 BEGIN_EVENT_TABLE(CFriendListCtrl, CMuleListCtrl)
@@ -98,12 +92,12 @@ CFriendListCtrl::~CFriendListCtrl()
 void CFriendListCtrl::AddFriend(CDlgFriend* toadd, bool send_to_core)
 {
 	uint32 itemnr = InsertItem(GetItemCount(), toadd->m_name);
-	SetItemData(itemnr, (long)toadd);
+	SetItemPtrData(itemnr, reinterpret_cast<wxUIntPtr>(toadd));
 	
-	#warning CORE/GUI
+	//#warning CORE/GUI
 	if (send_to_core) {
 	#ifndef CLIENT_GUI
-		theApp.friendlist->AddFriend(toadd->m_hash, 0, toadd->m_ip, toadd->m_port, 0,toadd->m_name);
+		theApp->friendlist->AddFriend(toadd->m_hash, 0, toadd->m_ip, toadd->m_port, 0,toadd->m_name);
 	#endif		
 	}
 }
@@ -123,10 +117,10 @@ void CFriendListCtrl::AddFriend(CUpDownClient* toadd)
 		return;
 	}
 	
-	#warning CORE/GUI
+	//#warning CORE/GUI
 	// This links the friend to the client also
 	#ifndef CLIENT_GUI
-	theApp.friendlist->AddFriend(toadd);
+	theApp->friendlist->AddFriend(toadd);
 	#endif
 	
 	CDlgFriend* NewFriend = new CDlgFriend( toadd->GetUserHash(), toadd->GetUserName(), toadd->GetIP(), toadd->GetUserPort(), true, false);
@@ -137,14 +131,18 @@ void CFriendListCtrl::AddFriend(CUpDownClient* toadd)
 
 void CFriendListCtrl::RemoveFriend(CDlgFriend* toremove)
 {
-	sint32 itemnr = FindItem(-1, (long)toremove);
+	if (!toremove) {
+		return;
+	}
+	
+	sint32 itemnr = FindItem(-1, reinterpret_cast<wxUIntPtr>(toremove));
 	
 	if ( itemnr == -1 )
 		return;
 	
-	#warning CORE/GUI
+	//#warning CORE/GUI
 	#ifndef CLIENT_GUI
-	theApp.friendlist->RemoveFriend(toremove->m_hash, toremove->m_ip, toremove->m_port);
+	theApp->friendlist->RemoveFriend(toremove->m_hash, toremove->m_ip, toremove->m_port);
 	#endif
 	
 	DeleteItem(itemnr);
@@ -153,13 +151,13 @@ void CFriendListCtrl::RemoveFriend(CDlgFriend* toremove)
 
 void CFriendListCtrl::RefreshFriend(CDlgFriend* toupdate)
 {
-	sint32 itemnr = FindItem(-1, (long)toupdate);
+	sint32 itemnr = FindItem(-1, reinterpret_cast<wxUIntPtr>(toupdate));
 	if (itemnr != -1) {
 		SetItem(itemnr, 0, toupdate->m_name);
 	}	
-	#warning CORE/GUI
+	//#warning CORE/GUI
 	#ifndef CLIENT_GUI
-	theApp.friendlist->UpdateFriendName(toupdate->m_hash, toupdate->m_name, toupdate->m_ip, toupdate->m_port);
+	theApp->friendlist->UpdateFriendName(toupdate->m_hash, toupdate->m_name, toupdate->m_ip, toupdate->m_port);
 	#endif
 }
 
@@ -175,17 +173,17 @@ void CFriendListCtrl::OnItemActivated(wxListEvent& WXUNUSED(event))
 		return;
 	}
 
-	theApp.amuledlg->chatwnd->StartSession(cur_friend);
+	theApp->amuledlg->m_chatwnd->StartSession(cur_friend);
 	
 }
 
 
 void CFriendListCtrl::LoadList()
 {
-	#warning EC: ASK THE LIST TO CORE!
+	//#warning EC: ASK THE LIST TO CORE!
 	
 	#ifndef CLIENT_GUI
-	for(FriendList::iterator it = theApp.friendlist->m_FriendList.begin(); it != theApp.friendlist->m_FriendList.end(); ++it) {
+	for(FriendList::iterator it = theApp->friendlist->m_FriendList.begin(); it != theApp->friendlist->m_FriendList.end(); ++it) {
 		CFriend* core_friend = *it;
 		AddFriend(core_friend->GetUserHash(), core_friend->GetName(), core_friend->GetIP(), core_friend->GetPort(), core_friend->GetLinkedClient(), core_friend->HasFriendSlot(), false);
 	}
@@ -257,10 +255,10 @@ void CFriendListCtrl::OnSendMessage(wxCommandEvent& WXUNUSED(event)) {
 	
 	while( index != -1 ) {
 		CDlgFriend* cur_friend = (CDlgFriend*)GetItemData(index);
-		theApp.amuledlg->chatwnd->StartSession(cur_friend);			
-		#warning CORE/GUI!			
+		theApp->amuledlg->m_chatwnd->StartSession(cur_friend);			
+		//#warning CORE/GUI!			
 		#ifndef CLIENT_GUI
-		theApp.friendlist->StartChatSession(cur_friend->m_hash, cur_friend->m_ip, cur_friend->m_port);
+		theApp->friendlist->StartChatSession(cur_friend->m_hash, cur_friend->m_ip, cur_friend->m_port);
 		#endif		
 
 		index = GetNextItem( index, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED );
@@ -270,7 +268,13 @@ void CFriendListCtrl::OnSendMessage(wxCommandEvent& WXUNUSED(event)) {
 
 void CFriendListCtrl::OnRemoveFriend(wxCommandEvent& WXUNUSED(event))
 {
-	wxString question = _("Are you sure that you wish to delete the selected friend(s)?");
+	wxString question;
+	if (GetSelectedItemCount() == 1) {
+		question = _("Are you sure that you wish to delete the selected friend?");
+	} else {
+		question = _("Are you sure that you wish to delete the selected friends?");
+	}
+
 	if ( wxMessageBox( question, _("Cancel"), wxICON_QUESTION | wxYES_NO, this) == wxYES ) {
 		long index = GetNextItem( -1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED );
 	
@@ -297,12 +301,12 @@ void CFriendListCtrl::OnShowDetails(wxCommandEvent& WXUNUSED(event))
 	while( index != -1 ) {
 		CDlgFriend* cur_friend = (CDlgFriend*)GetItemData(index);
 		if (cur_friend->islinked) {
-			#warning EC: We need a reply packet with a full CUpDownClient
+			//#warning EC: We need a reply packet with a full CUpDownClient
 			#ifndef CLIENT_GUI
 			CClientDetailDialog
 				(
 				this,
-				theApp.friendlist->FindFriend
+				theApp->friendlist->FindFriend
 					(
 					cur_friend->m_hash,
 					cur_friend->m_ip,
@@ -322,10 +326,10 @@ void CFriendListCtrl::OnViewFiles(wxCommandEvent& WXUNUSED(event))
 	long index = GetNextItem( -1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED );
 	
 	while( index != -1 ) {
-		#warning CORE/GUI!
+		//#warning CORE/GUI!
 		#ifndef CLIENT_GUI
 			CDlgFriend* cur_friend = (CDlgFriend*)GetItemData(index);
-			theApp.friendlist->RequestSharedFileList(cur_friend->m_hash, cur_friend->m_ip, cur_friend->m_port);
+			theApp->friendlist->RequestSharedFileList(cur_friend->m_hash, cur_friend->m_ip, cur_friend->m_port);
 		#endif
 		index = GetNextItem( index, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED );
 	}	
@@ -344,11 +348,11 @@ void CFriendListCtrl::OnSetFriendslot(wxCommandEvent& event)
 	}
 	// Now set the proper one
 	index = GetNextItem( -1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED );
-	#warning CORE/GUI!
+	//#warning CORE/GUI!
 	#ifndef CLIENT_GUI
 		CDlgFriend* cur_friend = (CDlgFriend*)GetItemData(index);	
 		cur_friend->hasfriendslot = event.IsChecked();
-		theApp.friendlist->SetFriendSlot(cur_friend->m_hash, cur_friend->m_ip, cur_friend->m_port, cur_friend->hasfriendslot);
+		theApp->friendlist->SetFriendSlot(cur_friend->m_hash, cur_friend->m_ip, cur_friend->m_port, cur_friend->hasfriendslot);
 	#endif
 	index = GetNextItem( index, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED );
 	if (index != -1) {
@@ -370,7 +374,7 @@ void CFriendListCtrl::SetLinked(const CMD4Hash& userhash, uint32 dwIP, uint16 nP
 void CFriendListCtrl::OnKeyPressed(wxKeyEvent& event)
 {
 	// Check if delete was pressed
-	if ((event.GetKeyCode() == WXK_DELETE) or (event.GetKeyCode() == WXK_NUMPAD_DELETE)) {
+	if ((event.GetKeyCode() == WXK_DELETE) || (event.GetKeyCode() == WXK_NUMPAD_DELETE)) {
 		if (GetItemCount()) {
 			wxCommandEvent evt;
 			evt.SetId( MP_REMOVEFRIEND );
@@ -380,3 +384,4 @@ void CFriendListCtrl::OnKeyPressed(wxKeyEvent& event)
 		event.Skip();
 	}
 }
+// File_checked_for_headers

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 Angel Vidal (Kry) ( kry@amule.org / http://www.amule.org )
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 Angel Vidal (Kry) ( kry@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -29,39 +29,40 @@
 #endif
 
 #ifndef __WXMSW__
-	#include <unistd.h>
+	#include <unistd.h> // Do_not_auto_remove
 #endif
 
 #include "TextClient.h"
 
 //-------------------------------------------------------------------
 
-#include <wx/intl.h>			// For _()
-#include <list>
 
 //-------------------------------------------------------------------
 
-#include <ec/ECCodes.h>
-#include <ec/ECPacket.h>
-#include <ec/ECSpecialTags.h>
+#include <ec/cpp/ECSpecialTags.h>
+
+#include <wx/tokenzr.h>
 
 #include <common/Format.h>		// Needed for CFormat
-
 #include "OtherFunctions.h"
-
+#include "KnownFile.h"			// Needed for Priority Levels
+#include "DataToText.cpp"		// Needed for PriorityToStr
 
 #define APP_INIT_SIZE_X 640
 #define APP_INIT_SIZE_Y 480
 
 #define theApp (*((CamulecmdApp*)wxTheApp))
 
-#include <map>
 //-------------------------------------------------------------------
 
 enum {
 	CMD_ID_STATUS,
 	CMD_ID_RESUME,
 	CMD_ID_PAUSE,
+	CMD_ID_PRIORITY_LOW,
+	CMD_ID_PRIORITY_NORMAL,
+	CMD_ID_PRIORITY_HIGH,
+	CMD_ID_PRIORITY_AUTO,
 	CMD_ID_CANCEL,
 	CMD_ID_CONNECT,
 	CMD_ID_CONNECT_ED2K,
@@ -71,11 +72,17 @@ enum {
 	CMD_ID_DISCONNECT_KAD,
 	CMD_ID_RELOAD_SHARED,
 	CMD_ID_RELOAD_IPFILTER,
- 	CMD_ID_SET_IPFILTER_ON,
+	CMD_ID_SET_IPFILTER_ON,
 	CMD_ID_SET_IPFILTER_OFF,
+ 	CMD_ID_SET_IPFILTER_CLIENTS_ON,
+	CMD_ID_SET_IPFILTER_CLIENTS_OFF,
+ 	CMD_ID_SET_IPFILTER_SERVERS_ON,
+	CMD_ID_SET_IPFILTER_SERVERS_OFF,
 	CMD_ID_SET_IPFILTER_LEVEL,
  	CMD_ID_GET_IPFILTER,
  	CMD_ID_GET_IPFILTER_STATE,
+	CMD_ID_GET_IPFILTER_STATE_CLIENTS,
+	CMD_ID_GET_IPFILTER_STATE_SERVERS,
  	CMD_ID_GET_IPFILTER_LEVEL,
 	CMD_ID_SHOW_UL,
 	CMD_ID_SHOW_DL,
@@ -144,7 +151,7 @@ int CamulecmdApp::ProcessCommand(int CmdId)
 	CECPacket *request = 0;
 	std::list<CECPacket *> request_list;
 	int tmp_int = 0;
-	EC_SEARCH_TYPE search_type;
+	EC_SEARCH_TYPE search_type = EC_SEARCH_KAD;
 
 	// Implementation of the deprecated command 'SetIPFilter'.
 	if (CmdId == CMD_ID_SET_IPFILTER) {
@@ -234,18 +241,36 @@ int CamulecmdApp::ProcessCommand(int CmdId)
 			break;
 
 		case CMD_ID_SET_IPFILTER_ON:
+		case CMD_ID_SET_IPFILTER_CLIENTS_ON:
+		case CMD_ID_SET_IPFILTER_SERVERS_ON:
 			tmp_int = 1;
 		case CMD_ID_SET_IPFILTER_OFF:
+		case CMD_ID_SET_IPFILTER_CLIENTS_OFF:
+		case CMD_ID_SET_IPFILTER_SERVERS_OFF:
 			{
+				if (CmdId == CMD_ID_SET_IPFILTER_CLIENTS_ON | CmdId == CMD_ID_SET_IPFILTER_CLIENTS_OFF) {
+					CmdId = CMD_ID_GET_IPFILTER_STATE_CLIENTS;
+				} else if (CmdId == CMD_ID_SET_IPFILTER_SERVERS_ON || CmdId == CMD_ID_SET_IPFILTER_SERVERS_OFF) {
+					CmdId = CMD_ID_GET_IPFILTER_STATE_SERVERS;
+				} else {
+					CmdId = CMD_ID_GET_IPFILTER_STATE;
+				}
+
 				request = new CECPacket(EC_OP_SET_PREFERENCES);
 				CECEmptyTag prefs(EC_TAG_PREFS_SECURITY);
-				prefs.AddTag(CECTag(EC_TAG_IPFILTER_ENABLED, (uint8)tmp_int));
+				if (CmdId != CMD_ID_GET_IPFILTER_STATE_SERVERS) {
+					prefs.AddTag(CECTag(EC_TAG_IPFILTER_CLIENTS, (uint8)tmp_int));
+				}
+				if (CmdId != CMD_ID_GET_IPFILTER_STATE_CLIENTS) {
+					prefs.AddTag(CECTag(EC_TAG_IPFILTER_SERVERS, (uint8)tmp_int));
+				}
 				request->AddTag(prefs);
 				request_list.push_back(request);
 			}
-			CmdId = CMD_ID_GET_IPFILTER_STATE;
 		case CMD_ID_GET_IPFILTER:
 		case CMD_ID_GET_IPFILTER_STATE:
+		case CMD_ID_GET_IPFILTER_STATE_CLIENTS:
+		case CMD_ID_GET_IPFILTER_STATE_SERVERS:
 			request = new CECPacket(EC_OP_GET_PREFERENCES);
 			request->AddTag(CECTag(EC_TAG_SELECT_PREFS, (uint32)EC_PREFS_SECURITY));
 			request_list.push_back(request);
@@ -275,46 +300,108 @@ int CamulecmdApp::ProcessCommand(int CmdId)
 		case CMD_ID_PAUSE:
 		case CMD_ID_CANCEL:
 		case CMD_ID_RESUME:
+		{
 			if ( args.IsEmpty() ) {
-				Show(_("This command requieres an argument. Valid arguments: 'all' or a number.\n"));
+				Show(_("This command requires an argument. Valid arguments: 'all', filename, or a number.\n"));
 				return 0;
-			} else if ( args.Left(3) == wxT("all") ) {
+			} else {
+				wxStringTokenizer argsTokenizer(args);
+				wxString token;
+				CMD4Hash hash;
+
+				// Grab the entire dl queue right away
 				CECPacket request_all(EC_OP_GET_DLOAD_QUEUE, EC_DETAIL_CMD);
 				const CECPacket *reply_all = SendRecvMsg_v2(&request_all);
-				if (reply_all) {
-					switch(CmdId) {
-						case CMD_ID_PAUSE:
-							request = new CECPacket(EC_OP_PARTFILE_PAUSE); break;
-						case CMD_ID_CANCEL:
-							request = new CECPacket(EC_OP_PARTFILE_DELETE); break;
-						case CMD_ID_RESUME:
-							request = new CECPacket(EC_OP_PARTFILE_RESUME); break;
-						default: wxASSERT(0);
-					}
-					
-					for(int i = 0;i < reply_all->GetTagCount();i++) {
-						const CECTag *tag = reply_all->GetTagByIndex(i);
-						if (tag) {
-							request->AddTag(CECTag(EC_TAG_PARTFILE, tag->GetMD4Data()));
-						}
-					}
-					request_list.push_back(request);
-					delete reply_all;
-				}
+
+				if (reply_all) { 
+                                        switch(CmdId) {
+                                                case CMD_ID_PAUSE:
+                                                        request = new CECPacket(EC_OP_PARTFILE_PAUSE); break;
+                                                case CMD_ID_CANCEL:
+                                                        request = new CECPacket(EC_OP_PARTFILE_DELETE); break;
+                                                case CMD_ID_RESUME:
+                                                        request = new CECPacket(EC_OP_PARTFILE_RESUME); break;
+                                                default: wxASSERT(0);
+                                        }
+
+					// We loop through all the arguments
+					while(argsTokenizer.HasMoreTokens()) {
+						token=argsTokenizer.GetNextToken();
+						
+						// If the user requested all, then we select all files and exit the loop
+						// since there is little point to add anything more to "everything"
+						if( token == wxT("all") ) {
+							for(int i = 0;i < reply_all->GetTagCount();i++) {
+	                                                	const CECTag *tag = reply_all->GetTagByIndex(i);
+	                                                	if (tag) {
+	                                                        	request->AddTag(CECTag(EC_TAG_PARTFILE, tag->GetMD4Data()));
+	                                                	}
+								break;
+							}
+	                                        } else if ( hash.Decode(token.Trim(false).Trim(true)) ) {
+							if ( !hash.IsEmpty() ) {
+								Show(_("Processing by hash: "+token+wxT("\n")));
+								request->AddTag(CECTag(EC_TAG_PARTFILE, hash));
+							}
+						} else {
+							 // Go through the dl queue and look at each filename
+							for(int i = 0; i < reply_all->GetTagCount(); i++) {
+								CEC_PartFile_Tag *tag = (CEC_PartFile_Tag *)reply_all->GetTagByIndex(i);
+								if (tag) {
+									wxString partmetname = tag->PartMetName();
+
+									// We check for filename, XXX.pat.met, XXX.part, XXX
+									if( tag->FileName() == token ||
+									partmetname == token ||
+									partmetname.Truncate(partmetname.Len()-4) == token ||
+									partmetname.Truncate(partmetname.Len()-5) == token) {
+										Show(_("Processing by filename: "+token+wxT("\n")));
+										request->AddTag(CECTag(EC_TAG_PARTFILE, tag->GetMD4Data()));
+									}	
+								}		
+							}	
+						} // End of filename check else	
+					} // End of argument token loop
+
+				request_list.push_back(request);
+
+				delete reply_all;
+
+				} // End of dl queue processing
+
+			} // end of command processing
+			break;
+		}
+
+		case CMD_ID_PRIORITY_LOW:
+		case CMD_ID_PRIORITY_NORMAL:
+		case CMD_ID_PRIORITY_HIGH:
+		case CMD_ID_PRIORITY_AUTO:
+			if ( args.IsEmpty() ) {
+				Show(_("This command requires an argument. Valid arguments: a file hash.\n"));
+				return 0;
 			} else {
 				CMD4Hash hash;
 				if (hash.Decode(args.Trim(false).Trim(true))) {
 					if (!hash.IsEmpty()) {
+						request = new CECPacket(EC_OP_PARTFILE_PRIO_SET);
+						CECTag hashtag(EC_TAG_PARTFILE, hash);
 						switch(CmdId) {
-							case CMD_ID_PAUSE:
-								request = new CECPacket(EC_OP_PARTFILE_PAUSE); break;
-							case CMD_ID_CANCEL:
-								request = new CECPacket(EC_OP_PARTFILE_DELETE); break;
-							case CMD_ID_RESUME:
-								request = new CECPacket(EC_OP_PARTFILE_RESUME); break;
+							case CMD_ID_PRIORITY_LOW:
+								hashtag.AddTag(CECTag(EC_TAG_PARTFILE_PRIO, (uint8)PR_LOW));
+								break;
+							case CMD_ID_PRIORITY_NORMAL:
+								hashtag.AddTag(CECTag(EC_TAG_PARTFILE_PRIO, (uint8)PR_NORMAL));
+								break;
+							case CMD_ID_PRIORITY_HIGH:
+								hashtag.AddTag(CECTag(EC_TAG_PARTFILE_PRIO, (uint8)PR_HIGH));
+								break;
+							case CMD_ID_PRIORITY_AUTO:
+								hashtag.AddTag(CECTag(EC_TAG_PARTFILE_PRIO, (uint8)PR_AUTO));
+								break;
 							default: wxASSERT(0);
 						}
-						request->AddTag(CECTag(EC_TAG_PARTFILE, hash));
+						request->AddTag(hashtag);
 						request_list.push_back(request);
 					} else {
 						Show(_("Not a valid number\n"));
@@ -348,11 +435,13 @@ int CamulecmdApp::ProcessCommand(int CmdId)
 			break;
 
 		case CMD_ID_ADDLINK:
-			//aMule doesn't like AICH links without |/| in front of h=
-			if (args.Find(wxT("|h=")) > -1 && args.Find(wxT("|/|h=")) == -1) {
-				args.Replace(wxT("|h="),wxT("|/|h="));
+			if (args.compare(0, 7, wxT("ed2k://")) == 0) {
+				//aMule doesn't like AICH links without |/| in front of h=
+				if (args.Find(wxT("|h=")) > -1 && args.Find(wxT("|/|h=")) == -1) {
+					args.Replace(wxT("|h="),wxT("|/|h="));
+				}
 			}
-			request = new CECPacket(EC_OP_ED2K_LINK);
+			request = new CECPacket(EC_OP_ADD_LINK);
 			request->AddTag(CECTag(EC_TAG_STRING, args));
 			request_list.push_back(request);
 			break;
@@ -501,8 +590,8 @@ void CamulecmdApp::ShowResults(CResultMap results_map)
 		
 		output.Printf(wxT("%i.      "), id);		
 		output = output.SubString(0, nr_max).Append(file->sFileName).Append(' ', name_max);		
-		mb.Printf(_("     %d"), file->lFileSize/1024/1024);
-		kb.Printf(_(".%d"), file->lFileSize/1024%1024);
+		mb.Printf(wxT("     %d"), file->lFileSize/1024/1024);
+		kb.Printf(wxT(".%d"), file->lFileSize/1024%1024);
 		output = output.SubString(0, nr_max + name_max + mb_max - mb.Length() ).Append(mb).Append(kb);	
 		printf("%s     %ld\n",(const char*)unicode2char(output), file->lSourceCount );
  	}
@@ -555,14 +644,21 @@ void CamulecmdApp::Process_Answer_v2(const CECPacket *response)
 				const CECTag *ipfilterLevel = tab->GetTagByName(EC_TAG_IPFILTER_LEVEL);
 				if (ipfilterLevel) {
 					if (m_last_cmd_id == CMD_ID_GET_IPFILTER ||
-					    m_last_cmd_id == CMD_ID_GET_IPFILTER_STATE) {
-						s << wxString::Format(_("IPFilter is %s.\n"),
-								      (tab->GetTagByName(EC_TAG_IPFILTER_ENABLED) == NULL) ? _("OFF") : _("ON"));
+					    m_last_cmd_id == CMD_ID_GET_IPFILTER_STATE ||
+					    m_last_cmd_id == CMD_ID_GET_IPFILTER_STATE_CLIENTS) {
+						s << wxString::Format(_("IP filtering for clients is %s.\n"),
+								      (tab->GetTagByName(EC_TAG_IPFILTER_CLIENTS) == NULL) ? _("OFF") : _("ON"));
+					}
+					if (m_last_cmd_id == CMD_ID_GET_IPFILTER ||
+					    m_last_cmd_id == CMD_ID_GET_IPFILTER_STATE ||
+					    m_last_cmd_id == CMD_ID_GET_IPFILTER_STATE_SERVERS) {
+						s << wxString::Format(_("IP filtering for servers is %s.\n"),
+								      (tab->GetTagByName(EC_TAG_IPFILTER_SERVERS) == NULL) ? _("OFF") : _("ON"));
 					}
 					if (m_last_cmd_id == CMD_ID_GET_IPFILTER ||
 					    m_last_cmd_id == CMD_ID_GET_IPFILTER_LEVEL) {
 						s << wxString::Format(_("Current IPFilter Level is %d.\n"),
-								      ipfilterLevel->GetInt8Data());
+								      ipfilterLevel->GetInt());
 					}
 				}
 				tab = response->GetTagByNameSafe(EC_TAG_PREFS_CONNECTIONS);
@@ -570,8 +666,8 @@ void CamulecmdApp::Process_Answer_v2(const CECPacket *response)
 				const CECTag *connMaxDL = tab->GetTagByName(EC_TAG_CONN_MAX_DL);
 				if (connMaxUL && connMaxDL) {
 					s << wxString::Format(_("Bandwidth Limits: Up: %u kB/s, Down: %u kB/s.\n"),
-						connMaxUL->GetInt16Data(),
-						connMaxDL->GetInt16Data());
+						(uint16)connMaxUL->GetInt(),
+						(uint16)connMaxDL->GetInt());
 				}
 			}
 			break;
@@ -622,16 +718,16 @@ void CamulecmdApp::Process_Answer_v2(const CECPacket *response)
 			}
 			const CECTag *tmpTag;
 			if ((tmpTag = response->GetTagByName(EC_TAG_STATS_DL_SPEED)) != 0) {
-				s <<	CFormat(_("\nDownload:\t%s")) % CastItoSpeed(tmpTag->GetInt32Data());
+				s <<	CFormat(_("\nDownload:\t%s")) % CastItoSpeed(tmpTag->GetInt());
 			}
 			if ((tmpTag = response->GetTagByName(EC_TAG_STATS_UL_SPEED)) != 0) {
-				s <<	CFormat(_("\nUpload:\t%s")) % CastItoSpeed(tmpTag->GetInt32Data());
+				s <<	CFormat(_("\nUpload:\t%s")) % CastItoSpeed(tmpTag->GetInt());
 			}
 			if ((tmpTag = response->GetTagByName(EC_TAG_STATS_UL_QUEUE_LEN)) != 0) {
-				s << 	wxString::Format(_("\nClients in queue:\t%d\n"), tmpTag->GetInt32Data());
+				s << 	wxString::Format(_("\nClients in queue:\t%d\n"), tmpTag->GetInt());
 			}
 			if ((tmpTag = response->GetTagByName(EC_TAG_STATS_TOTAL_SRC_COUNT)) != 0) {
-				s << 	wxString::Format(_("\nTotal sources:\t%d\n"), tmpTag->GetInt32Data());
+				s << 	wxString::Format(_("\nTotal sources:\t%d\n"), tmpTag->GetInt());
 			}
 			break;
 		}
@@ -640,18 +736,26 @@ void CamulecmdApp::Process_Answer_v2(const CECPacket *response)
 				CEC_PartFile_Tag *tag =
 					(CEC_PartFile_Tag *)response->GetTagByIndex(i);
 				if (tag) {
-					unsigned long filesize, donesize;
+					uint64 filesize, donesize;
 					filesize = tag->SizeFull();
 					donesize = tag->SizeDone();
 					s <<	tag->FileHashString() << wxT(" ") <<
 						tag->FileName() <<
-						wxString::Format(wxT("\t [%.1f%%] %i/%i - "),
+						wxString::Format(wxT("\n\t [%.1f%%] %4i/%4i "),
 							((float)donesize) / ((float)filesize)*100.0,
-							(int)tag->SourceXferCount(),
+							(int)tag->SourceCount() - (int)tag->SourceNotCurrCount(),
 							(int)tag->SourceCount()) <<
+							((int)tag->SourceCountA4AF() ? wxString::Format(wxT("+%2.2i "),(int)tag->SourceCountA4AF()) : wxString(wxT("    "))) <<
+							((int)tag->SourceXferCount() ? wxString::Format(wxT("(%2.2i) - "),(int)tag->SourceXferCount()) : wxString(wxT("     - "))) <<
 						tag->GetFileStatusString();
+						s << wxT(" - ") << tag->PartMetName();
+                                                if (tag->Prio() < 10) {
+                                                        s << wxT(" - ") << PriorityToStr((int)tag->Prio(), 0);
+                                                } else {
+                                                        s << wxT(" - ") << PriorityToStr((tag->Prio() - 10), 1);
+                                                }
 						if ( tag->SourceXferCount() > 0) {
-							s << wxT(" ") + CastItoSpeed(tag->Speed());
+							s << wxT(" - ") + CastItoSpeed(tag->Speed());
 						}
 					s << wxT("\n");
 				}
@@ -666,11 +770,11 @@ void CamulecmdApp::Process_Answer_v2(const CECPacket *response)
 				const CECTag *partfileSpeed = tag ? tag->GetTagByName(EC_TAG_CLIENT_UP_SPEED) : NULL;
 				if (tag && clientName && partfileName && partfileSizeXfer && partfileSpeed) {
 					s <<	wxT("\n") <<
-						wxString::Format(wxT("%10u "), tag->GetInt32Data()) <<
+						wxString::Format(wxT("%10u "), tag->GetInt()) <<
 						clientName->GetStringData() << wxT(" ") <<
 						partfileName->GetStringData() << wxT(" ") <<
-						CastItoXBytes(partfileSizeXfer->GetInt32Data()) << wxT(" ") <<
-						CastItoSpeed(partfileSpeed->GetInt32Data());
+						CastItoXBytes(partfileSizeXfer->GetInt()) << wxT(" ") <<
+						CastItoSpeed(partfileSpeed->GetInt());
 				}
 			}
 			break;
@@ -728,6 +832,7 @@ void CamulecmdApp::OnInitCommandSet()
 {
 	CCommandTree *tmp;
 	CCommandTree *tmp2;
+	CCommandTree *tmp3;
 
 	CaMuleExternalConnector::OnInitCommandSet();
 
@@ -763,20 +868,27 @@ void CamulecmdApp::OnInitCommandSet()
 	tmp->AddCommand(wxT("ED2K"), CMD_ID_DISCONNECT_ED2K, wxTRANSLATE("Disconnect from ED2K only."), wxEmptyString, CMD_PARAM_NEVER);
 	tmp->AddCommand(wxT("Kad"), CMD_ID_DISCONNECT_KAD, wxTRANSLATE("Disconnect from Kad only."), wxEmptyString, CMD_PARAM_NEVER);
 
- 	m_commands.AddCommand(wxT("Add"), CMD_ID_ADDLINK, wxTRANSLATE("Adds an ed2k link to core."),
+ 	m_commands.AddCommand(wxT("Add"), CMD_ID_ADDLINK, wxTRANSLATE("Adds an ed2k or magnet link to core."),
 			      wxTRANSLATE("The ed2k link to be added can be:\n"
 					  "*) a file link (ed2k://|file|...), it will be added to the download queue,\n"
 					  "*) a server link (ed2k://|server|...), it will be added to the server list,\n"
 					  "*) or a serverlist link, in which case all servers in the list will be added to the\n"
-					  "   server list.\n"), CMD_PARAM_ALWAYS);
+					  "   server list.\n"
+					  "\n"
+					  "The magnet link must contain the ed2k hash and file length.\n"), CMD_PARAM_ALWAYS);
 
 	tmp = m_commands.AddCommand(wxT("Set"), CMD_ERR_INCOMPLETE, wxTRANSLATE("Set a preference value."),
 				    wxEmptyString, CMD_PARAM_NEVER);
 
-	tmp2 = tmp->AddCommand(wxT("IPFilter"), CMD_ERR_INCOMPLETE, wxTRANSLATE("Set IPFilter preferences."),
-			       wxEmptyString, CMD_PARAM_NEVER);
-	tmp2->AddCommand(wxT("On"), CMD_ID_SET_IPFILTER_ON, wxTRANSLATE("Turn IP filtering on."), wxEmptyString, CMD_PARAM_NEVER);
-	tmp2->AddCommand(wxT("Off"), CMD_ID_SET_IPFILTER_OFF, wxTRANSLATE("Turn IP filtering off."), wxEmptyString, CMD_PARAM_NEVER);
+	tmp2 = tmp->AddCommand(wxT("IPFilter"), CMD_ERR_INCOMPLETE, wxTRANSLATE("Set IPFilter preferences."), wxEmptyString, CMD_PARAM_NEVER);
+	tmp2->AddCommand(wxT("On"), CMD_ID_SET_IPFILTER_ON, wxTRANSLATE("Turn IP filtering on for both clients and servers."), wxEmptyString, CMD_PARAM_NEVER);
+	tmp2->AddCommand(wxT("Off"), CMD_ID_SET_IPFILTER_OFF, wxTRANSLATE("Turn IP filtering off for both clients and servers."), wxEmptyString, CMD_PARAM_NEVER);
+	tmp3 = tmp2->AddCommand(wxT("Clients"), CMD_ERR_INCOMPLETE, wxTRANSLATE("Enable/Disable IP filtering for clients."), wxEmptyString, CMD_PARAM_NEVER);
+	tmp3->AddCommand(wxT("On"), CMD_ID_SET_IPFILTER_CLIENTS_ON, wxTRANSLATE("Turn IP filtering on for clients."), wxEmptyString, CMD_PARAM_NEVER);
+	tmp3->AddCommand(wxT("Off"), CMD_ID_SET_IPFILTER_CLIENTS_OFF, wxTRANSLATE("Turn IP filtering off for clients."), wxEmptyString, CMD_PARAM_NEVER);
+	tmp3 = tmp2->AddCommand(wxT("Servers"), CMD_ERR_INCOMPLETE, wxTRANSLATE("Enable/Disable IP filtering for servers."), wxEmptyString, CMD_PARAM_NEVER);
+	tmp3->AddCommand(wxT("On"), CMD_ID_SET_IPFILTER_SERVERS_ON, wxTRANSLATE("Turn IP filtering on for servers."), wxEmptyString, CMD_PARAM_NEVER);
+	tmp3->AddCommand(wxT("Off"), CMD_ID_SET_IPFILTER_SERVERS_OFF, wxTRANSLATE("Turn IP filtering off for servers."), wxEmptyString, CMD_PARAM_NEVER);
 	tmp2->AddCommand(wxT("Level"), CMD_ID_SET_IPFILTER_LEVEL, wxTRANSLATE("Select IP filtering level."),
 			 wxTRANSLATE("Valid filtering levels are in the range 0-255, and it's default (initial)\n"
 				     "value is 127.\n"), CMD_PARAM_ALWAYS);
@@ -791,9 +903,10 @@ void CamulecmdApp::OnInitCommandSet()
 	tmp = m_commands.AddCommand(wxT("Get"), CMD_ERR_INCOMPLETE, wxTRANSLATE("Get and display a preference value."),
 				    wxEmptyString, CMD_PARAM_NEVER);
 
-	tmp2 = tmp->AddCommand(wxT("IPFilter"), CMD_ID_GET_IPFILTER, wxTRANSLATE("Get IPFilter preferences."),
-			       wxEmptyString, CMD_PARAM_NEVER);
-	tmp2->AddCommand(wxT("State"), CMD_ID_GET_IPFILTER_STATE, wxTRANSLATE("Get IPFilter state."), wxEmptyString, CMD_PARAM_NEVER);
+	tmp2 = tmp->AddCommand(wxT("IPFilter"), CMD_ID_GET_IPFILTER, wxTRANSLATE("Get IPFilter preferences."), wxEmptyString, CMD_PARAM_NEVER);
+	tmp3 = tmp2->AddCommand(wxT("State"), CMD_ID_GET_IPFILTER_STATE, wxTRANSLATE("Get IPFilter state for both clients and servers."), wxEmptyString, CMD_PARAM_NEVER);
+	tmp3->AddCommand(wxT("Clients"), CMD_ID_GET_IPFILTER_STATE_CLIENTS, wxTRANSLATE("Get IPFilter state for clients only."), wxEmptyString, CMD_PARAM_NEVER);
+	tmp3->AddCommand(wxT("Servers"), CMD_ID_GET_IPFILTER_STATE_SERVERS, wxTRANSLATE("Get IPFilter state for servers only."), wxEmptyString, CMD_PARAM_NEVER);
 	tmp2->AddCommand(wxT("Level"), CMD_ID_GET_IPFILTER_LEVEL, wxTRANSLATE("Get IPFilter level."), wxEmptyString, CMD_PARAM_NEVER);
 
 	tmp->AddCommand(wxT("BwLimits"), CMD_ID_GET_BWLIMITS, wxTRANSLATE("Get bandwidth limits."), wxEmptyString, CMD_PARAM_NEVER);
@@ -811,12 +924,12 @@ void CamulecmdApp::OnInitCommandSet()
 	m_commands.AddCommand(wxT("Results"), CMD_ID_SEARCH_RESULTS, wxTRANSLATE("Shows the results of the last search."),
 			      wxTRANSLATE("Returns the results of the previous search.\n"), CMD_PARAM_NEVER);
 
-	m_commands.AddCommand(wxT("Progress"), CMD_ID_SEARCH_PROGRESS, wxTRANSLATE("Shows the process of a search."),
-			      wxTRANSLATE("Shows the process of a search..\n"), CMD_PARAM_NEVER);
+	m_commands.AddCommand(wxT("Progress"), CMD_ID_SEARCH_PROGRESS, wxTRANSLATE("Shows the progress of a search."),
+			      wxTRANSLATE("Shows the progress of a search.\n"), CMD_PARAM_NEVER);
 
 	m_commands.AddCommand(wxT("Download"), CMD_ID_DOWNLOAD, wxTRANSLATE("Start downloading a file"),
 			      wxTRANSLATE("The number of a file from the last search has to be given.\n"
-					  "Example: 'download 12' will start to download the file with the number 12 of the prvious search.\n"), CMD_PARAM_ALWAYS);
+					  "Example: 'download 12' will start to download the file with the number 12 of the previous search.\n"), CMD_PARAM_ALWAYS);
 
 
 	//
@@ -832,6 +945,13 @@ void CamulecmdApp::OnInitCommandSet()
    	m_commands.AddCommand(wxT("Cancel"), CMD_ID_CANCEL, wxTRANSLATE("Cancel download."),
   			      wxEmptyString, CMD_PARAM_ALWAYS);
 
+	tmp = m_commands.AddCommand(wxT("Priority"), CMD_ERR_INCOMPLETE, wxTRANSLATE("Set download priority."),
+				    wxTRANSLATE("Set priority of a download to Low, Normal, High or Auto.\n"), CMD_PARAM_ALWAYS);
+	tmp->AddCommand(wxT("Low"), CMD_ID_PRIORITY_LOW, wxTRANSLATE("Set priority to low."), wxEmptyString, CMD_PARAM_ALWAYS);
+	tmp->AddCommand(wxT("Normal"), CMD_ID_PRIORITY_NORMAL, wxTRANSLATE("Set priority to normal."), wxEmptyString, CMD_PARAM_ALWAYS);
+	tmp->AddCommand(wxT("High"), CMD_ID_PRIORITY_HIGH, wxTRANSLATE("Set priority to high."), wxEmptyString, CMD_PARAM_ALWAYS);
+	tmp->AddCommand(wxT("Auto"), CMD_ID_PRIORITY_AUTO, wxTRANSLATE("Set priority to auto."), wxEmptyString, CMD_PARAM_ALWAYS);
+				  
 	tmp = m_commands.AddCommand(wxT("Show"), CMD_ERR_INCOMPLETE, wxTRANSLATE("Show queues/lists."),
 				    wxTRANSLATE("Shows upload/download queue, server list or shared files list.\n"), CMD_PARAM_NEVER);
 	tmp->AddCommand(wxT("UL"), CMD_ID_SHOW_UL, wxTRANSLATE("Show upload queue."), wxEmptyString, CMD_PARAM_NEVER);
@@ -846,41 +966,20 @@ void CamulecmdApp::OnInitCommandSet()
 	// Deprecated commands, kept for backwards compatibility only.
 	//
 
-	m_commands.AddCommand(wxT("Stats"), CMD_ID_STATUS | CMD_DEPRECATED, wxTRANSLATE("Deprecated command, now 'Status'."),
-			      wxTRANSLATE("This is a deprecated command, and may be removed in the future.\n"
-					  "Use 'Status' instead.\n"), CMD_PARAM_NEVER);
+#define DEPRECATED(OLDCMD, ID, NEWCMD, PARAM) \
+	m_commands.AddCommand(wxT(OLDCMD), CMD_ID_##ID | CMD_DEPRECATED, CFormat(wxTRANSLATE("Deprecated command, now '%s'.")) % wxT(NEWCMD), \
+			      CFormat(wxTRANSLATE("This is a deprecated command, and may be removed in the future.\n" \
+					  "Use '%s' instead.\n")) % wxT(NEWCMD), CMD_PARAM_##PARAM)
 
-	m_commands.AddCommand(wxT("SetIPFilter"), CMD_ID_SET_IPFILTER | CMD_DEPRECATED, wxTRANSLATE("Deprecated command, now 'Set IPFilter'."),
-			      wxTRANSLATE("This is a deprecated command, and may be removed in the future.\n"
-					  "Use 'Set IPFilter' instead.\n"), CMD_PARAM_OPTIONAL);
-
-	m_commands.AddCommand(wxT("GetIPLevel"), CMD_ID_GET_IPFILTER_LEVEL | CMD_DEPRECATED, wxTRANSLATE("Deprecated command, now 'Get IPFilter Level'."),
-			      wxTRANSLATE("This is a deprecated command, and may be removed in the future.\n"
-					  "Use 'Get IPFilter Level' instead.\n"), CMD_PARAM_NEVER);
-
-	m_commands.AddCommand(wxT("SetIPLevel"), CMD_ID_SET_IPFILTER_LEVEL | CMD_DEPRECATED, wxTRANSLATE("Deprecated command, now 'Set IPFilter Level'."),
-			      wxTRANSLATE("This is a deprecated command, and may be removed in the future.\n"
-					  "Use 'Set IPFilter Level' instead.\n"), CMD_PARAM_ALWAYS);
-
-	m_commands.AddCommand(wxT("IPLevel"), CMD_ID_SET_IPFILTER_LEVEL | CMD_DEPRECATED, wxTRANSLATE("Deprecated command, now 'Get/Set IPFilter Level'."),
-			      wxTRANSLATE("This is a deprecated command, and may be removed in the future.\n"
-					  "Use 'Get/Set IPFilter Level' instead.\n"), CMD_PARAM_OPTIONAL);
-
-	m_commands.AddCommand(wxT("Servers"), CMD_ID_SHOW_SERVERS | CMD_DEPRECATED, wxTRANSLATE("Deprecated command, now 'Show Servers'."),
-			      wxTRANSLATE("This is a deprecated command, and may be removed in the future.\n"
-					  "Use 'Show Servers' instead.\n"), CMD_PARAM_NEVER);
-
-	m_commands.AddCommand(wxT("GetBWLimits"), CMD_ID_GET_BWLIMITS | CMD_DEPRECATED, wxTRANSLATE("Deprecated command, now 'Get BwLimits'."),
-			      wxTRANSLATE("This is a deprecated command, and may be removed in the future.\n"
-					  "Use 'Get BwLimits' instead.\n"), CMD_PARAM_NEVER);
-
-	m_commands.AddCommand(wxT("SetUpBWLimit"), CMD_ID_SET_BWLIMIT_UP | CMD_DEPRECATED, wxTRANSLATE("Deprecated command, now 'Set BwLimit Up'."),
-			      wxTRANSLATE("This is a deprecated command, and may be removed in the future.\n"
-					  "Use 'Set BwLimit Up' instead.\n"), CMD_PARAM_ALWAYS);
-
-	m_commands.AddCommand(wxT("SetDownBWLimit"), CMD_ID_SET_BWLIMIT_DOWN | CMD_DEPRECATED, wxTRANSLATE("Deprecated command, now 'Set BwLimit Down'."),
-			      wxTRANSLATE("This is a deprecated command, and may be removed in the future.\n"
-					  "Use 'Set BwLimit Down' instead.\n"), CMD_PARAM_ALWAYS);
+	DEPRECATED("Stats", STATUS, "Status", NEVER);
+	DEPRECATED("SetIPFilter", SET_IPFILTER, "Set IPFilter", OPTIONAL);
+	DEPRECATED("GetIPLevel", GET_IPFILTER_LEVEL, "Get IPFilter Level", NEVER);
+	DEPRECATED("SetIPLevel", SET_IPFILTER_LEVEL, "Set IPFilter Level", ALWAYS);
+	DEPRECATED("IPLevel", SET_IPFILTER_LEVEL, "Get/Set IPFilter Level", OPTIONAL);
+	DEPRECATED("Servers", SHOW_SERVERS, "Show Servers", NEVER);
+	DEPRECATED("GetBWLimits", GET_BWLIMITS, "Get BwLimits", NEVER);
+	DEPRECATED("SetUpBWLimit", SET_BWLIMIT_UP, "Set BwLimit Up", ALWAYS);
+	DEPRECATED("SetDownBWLimit", SET_BWLIMIT_DOWN, "Set BwLimit Down", ALWAYS);
 }
 
 int CamulecmdApp::OnRun()
@@ -888,3 +987,4 @@ int CamulecmdApp::OnRun()
 	ConnectAndRun(wxT("aMulecmd"), wxT(VERSION));
 	return 0;
 }
+// File_checked_for_headers

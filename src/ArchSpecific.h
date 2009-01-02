@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -33,7 +33,7 @@
 #define ENDIAN_SWAP_32(x) (wxUINT32_SWAP_ON_BE(x))
 #define ENDIAN_SWAP_I_32(x) x = wxUINT32_SWAP_ON_BE(x)
 
-#if defined __GNUC__ && __GNUC__ >= 2
+#if ((defined __GNUC__) && __GNUC__ >= 2) || defined (_MSC_VER)
 	#define ENDIAN_SWAP_64(x) (wxUINT64_SWAP_ON_BE(x))
 	#define ENDIAN_SWAP_I_64(x) x = wxUINT64_SWAP_ON_BE(x)
 #endif
@@ -42,10 +42,15 @@
 #define ENDIAN_NTOHS(x) ( wxUINT16_SWAP_ON_LE(x) )
 // ntohl
 #define ENDIAN_NTOHL(x) ( wxUINT32_SWAP_ON_LE(x) )
+// new
+#define ENDIAN_NTOHLL(x) ( wxUINT64_SWAP_ON_LE(x) )	
 // htons
 #define ENDIAN_HTONS(x) ( wxUINT16_SWAP_ON_LE(x) )
 // htonl
 #define ENDIAN_HTONL(x) ( wxUINT32_SWAP_ON_LE(x) )	
+// new
+#define ENDIAN_HTONLL(x) ( wxUINT64_SWAP_ON_LE(x) )	
+
 
 /**
  * Returns the value in the given bytestream.
@@ -81,6 +86,7 @@ inline void RawPokeUInt64(void* p, uint64 nVal);
 inline uint8 PeekUInt8(const void* p);
 inline uint16 PeekUInt16(const void* p);
 inline uint32 PeekUInt32(const void* p);
+inline uint64 PeekUInt64(const void* p);
 // \}
 
 
@@ -93,10 +99,11 @@ inline uint32 PeekUInt32(const void* p);
 inline void PokeUInt8(void* p, uint8 nVal);
 inline void PokeUInt16(void* p, uint16 nVal);
 inline void PokeUInt32(void* p, uint32 nVal);
+inline void PokeUInt64(void* p, uint64 nVal);
 // \}
 
 
-#if defined(__arm__) or defined(__sparc__)
+#if defined(__arm__) || defined(__sparc__)
 	#define ARM_OR_SPARC
 #endif
 
@@ -157,6 +164,10 @@ inline uint32 PeekUInt32(const void* p)
 	return ENDIAN_SWAP_32( RawPeekUInt32( p ) );
 }
 
+inline uint64 PeekUInt64(const void* p)
+{
+	return ENDIAN_SWAP_64( RawPeekUInt64( p ) );
+}
 
 
 
@@ -211,5 +222,10 @@ inline void PokeUInt32(void* p, uint32 nVal)
 	RawPokeUInt32( p, ENDIAN_SWAP_32( nVal ) );
 }
 
+inline void PokeUInt64(void* p, uint64 nVal)
+{
+	RawPokeUInt64( p, ENDIAN_SWAP_64( nVal ) );
+}
 
 #endif
+// File_checked_for_headers

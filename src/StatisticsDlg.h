@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -28,8 +28,10 @@
 
 #include <wx/panel.h>		// Needed for wxPanel
 
-#include "Types.h"		// Needed for uint32 and uint64
-#include "Color.h"		// Needed for COLORREF
+#include <set>			// Needed for std::set
+
+typedef std::set<uint32_t>	NodeIdSet;
+
 
 class COScopeCtrl;
 class CStatistics;
@@ -55,7 +57,8 @@ public:
 	void ResetAveragingTime();
 	void ShowStatistics(bool init = false);
 	void SetARange(bool SetDownload, int maxValue);
-	void FillTree(CStatTreeItemBase* statssubtree, wxTreeItemId& StatsGUITree);
+	void FillTree(CStatTreeItemBase* statssubtree, wxTreeItemId& StatsGUITree, const NodeIdSet& expandednodes);
+	void GetExpandedNodes(NodeIdSet& nodeset, const wxTreeItemId& root);
 	void Init();
 	void InitTree();
 	void InitGraphs();
@@ -72,3 +75,4 @@ protected:
 };
 
 #endif // STATISTICSDLG_H
+// File_checked_for_headers

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,12 +26,9 @@
 #ifndef CHATSELECTOR_H
 #define CHATSELECTOR_H
 
-#include <wx/defs.h>			// Needed before any other wx/*.h
-#include <wx/imaglist.h>		// Needed for wxImageList (at least on wx2.5)
 #include "MuleTextCtrl.h" 
 #include "MuleNotebook.h"
 #include "Types.h"				// Needed for uint16
-#include "Color.h"				// Needed for COLORREF
 
 class CUpDownClient;
 class CFriend;
@@ -81,3 +78,4 @@ public:
 };
 
 #endif
+// File_checked_for_headers

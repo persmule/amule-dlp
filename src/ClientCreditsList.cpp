@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -25,25 +25,26 @@
 
 #include "ClientCreditsList.h"	// Interface declarations
 
-#include <cmath>
-#include <ctime>
-#include <wx/utils.h>
-#include <wx/intl.h>		// Needed for _
-#include <wx/textfile.h>
+
+#include <protocol/ed2k/Constants.h>
+#include <common/Macros.h>
+#include <common/DataFileVersion.h>
+#include <common/FileFunctions.h>	// Needed for GetFileSize
+
 
 #include "GetTickCount.h"	// Needed for GetTickCount
 #include "Preferences.h"	// Needed for thePrefs
 #include "ClientCredits.h"	// Needed for CClientCredits
-#include "OPCodes.h"		// Needed for CREDITFILE_VERSION
-#include "amule.h"			// Needed for theApp
-#include "CFile.h"			// Needed for CFile
-#include "Logger.h"			// Needed for Add(Debug)LogLine
-#include "FileFunctions.h"	// Needed for GetFileSize
+#include "amule.h"		// Needed for theApp
+#include "CFile.h"		// Needed for CFile
+#include "Logger.h"		// Needed for Add(Debug)LogLine
 #include "CryptoPP_Inc.h"	// Needed for Crypto functions
+
 
 #define CLIENTS_MET_FILENAME		wxT("clients.met")
 #define CLIENTS_MET_BAK_FILENAME	wxT("clients.met.BAK")
-#define CRYPTKEY_FILENAME			wxT("cryptkey.dat")
+#define CRYPTKEY_FILENAME		wxT("cryptkey.dat")
+
 
 CClientCreditsList::CClientCreditsList()
 {
@@ -53,62 +54,65 @@ CClientCreditsList::CClientCreditsList()
 	InitalizeCrypting();
 }
 
+
 CClientCreditsList::~CClientCreditsList()
 {
-	
 	ClientMap::iterator it = m_mapClients.begin();
 	for ( ; it != m_mapClients.end(); ++it ){
 		delete it->second;
 	}
 	m_mapClients.clear();
-	if (m_pSignkey){
-		delete (CryptoPP::RSASSA_PKCS1v15_SHA_Signer*)m_pSignkey;
-		m_pSignkey = NULL;
-	}
+	delete static_cast<CryptoPP::RSASSA_PKCS1v15_SHA_Signer *>(m_pSignkey);
 }
+
 
 void CClientCreditsList::LoadList()
 {
 	CFile file;
-	wxString strFileName(theApp.ConfigDir + CLIENTS_MET_FILENAME);
-	if (!::wxFileExists(strFileName)) {
-		AddDebugLogLineM( true, logCredits, wxT("Failed to load creditfile"));
+	CPath fileName = CPath(theApp->ConfigDir + CLIENTS_MET_FILENAME);
+
+	if (!fileName.FileExists()) {
 		return;
 	}	
 	
 	try {
-		file.Open(strFileName, CFile::read);
+		file.Open(fileName, CFile::read);
 	
 		if (file.ReadUInt8() != CREDITFILE_VERSION) {
-			AddDebugLogLineM( true, logCredits, wxT("Creditfile is out of date and will be replaced") );
+			AddDebugLogLineM( true, logCredits,
+				wxT("Creditfile is out of date and will be replaced") );
 			file.Close();
 			return;
 		}
 
 		// everything is ok, lets see if the backup exist...
-		wxString strBakFileName(theApp.ConfigDir + CLIENTS_MET_BAK_FILENAME);
+		CPath bakFileName = CPath(theApp->ConfigDir + CLIENTS_MET_BAK_FILENAME);
 	
 		bool bCreateBackup = TRUE;
-		if (wxFileExists(strBakFileName)) {
+		if (bakFileName.FileExists()) {
 			// Ok, the backup exist, get the size
-			CFile hBakFile(strBakFileName);
+			CFile hBakFile(bakFileName);
 			if ( hBakFile.GetLength() > file.GetLength()) {
-				// the size of the backup was larger then the org. file, something is wrong here, don't overwrite old backup..
+				// the size of the backup was larger then the
+				// org. file, something is wrong here, don't
+				// overwrite old backup..
 				bCreateBackup = FALSE;
 			}
-			// else: backup is smaller or the same size as org. file, proceed with copying of file
+			// else: backup is smaller or the same size as org.
+			// file, proceed with copying of file
 		}
 	
 		//else: the backup doesn't exist, create it
 		if (bCreateBackup) {
 			file.Close(); // close the file before copying
-			// safe? you bet it is
-			if (!wxCopyFile(strFileName,strBakFileName)) {
-				AddDebugLogLineM( true, logCredits, wxT("Could not create backup file ") + strFileName );
+			if (!CPath::CloneFile(fileName, bakFileName, true)) {
+				AddDebugLogLineM(true, logCredits,
+					CFormat(wxT("Could not create backup file '%s'")) % fileName);
 			}
 			// reopen file
-			if (!file.Open(strFileName, CFile::read)) {
-				AddDebugLogLineM( true, logCredits, wxT("Failed to load creditfile") );
+			if (!file.Open(fileName, CFile::read)) {
+				AddDebugLogLineM( true, logCredits,
+					wxT("Failed to load creditfile") );
 				return;
 			}
 
@@ -124,11 +128,11 @@ void CClientCreditsList::LoadList()
 			CreditStruct* newcstruct = new CreditStruct();
 
 			newcstruct->key					= file.ReadHash();
-			newcstruct->nUploadedLo         = file.ReadUInt32();
-			newcstruct->nDownloadedLo       = file.ReadUInt32();
+			newcstruct->uploaded            = file.ReadUInt32();
+			newcstruct->downloaded          = file.ReadUInt32();
 			newcstruct->nLastSeen           = file.ReadUInt32();
-			newcstruct->nUploadedHi         = file.ReadUInt32();
-			newcstruct->nDownloadedHi       = file.ReadUInt32();
+			newcstruct->uploaded            += static_cast<uint64>(file.ReadUInt32()) << 32;
+			newcstruct->downloaded          += static_cast<uint64>(file.ReadUInt32()) << 32;
 			newcstruct->nReserved3          = file.ReadUInt16();
 			newcstruct->nKeySize            = file.ReadUInt8();
 			file.Read(newcstruct->abySecureIdent, MAXPUBKEYSIZE);
@@ -146,7 +150,8 @@ void CClientCreditsList::LoadList()
 				}
 				m_mapClients.clear();
 				
-				AddDebugLogLineM( true, logCredits, wxT("WARNING: Corruptions found while reading Creditfile!") );
+				AddDebugLogLineM( true, logCredits,
+					wxT("WARNING: Corruptions found while reading Creditfile!") );
 				return;	
 			}
 		
@@ -160,13 +165,13 @@ void CClientCreditsList::LoadList()
 			m_mapClients[newcredits->GetKey()] = newcredits;
 		}
 
-		AddLogLineM(false, wxString::Format(_("Creditfile loaded, %u clients are known"),count-cDeleted) );
+		AddLogLineM(false, wxString::Format(wxPLURAL("Creditfile loaded, %u client is known", "Creditfile loaded, %u clients are known", count - cDeleted), count - cDeleted));
 	
 		if (cDeleted) {
-			AddLogLineM(false, wxString::Format(_(" - Credits expired for %u clients!"),cDeleted));
+			AddLogLineM(false, wxString::Format(wxPLURAL(" - Credits expired for %u client!", " - Credits expired for %u clients!", cDeleted), cDeleted));
 		}
 	} catch (const CSafeIOException& e) {
-		AddDebugLogLineM(true, logCredits, wxT("IO erro while loading clients.met file: ") + e.what());
+		AddDebugLogLineM(true, logCredits, wxT("IO error while loading clients.met file: ") + e.what());
 	}
 }
 
@@ -176,7 +181,7 @@ void CClientCreditsList::SaveList()
 	AddDebugLogLineM( false, logCredits, wxT("Saved Credit list"));
 	m_nLastSaved = ::GetTickCount();
 
-	wxString name(theApp.ConfigDir + CLIENTS_MET_FILENAME);
+	wxString name(theApp->ConfigDir + CLIENTS_MET_FILENAME);
 	CFile file;
 
 	if ( !file.Create(name, true) ) {
@@ -199,11 +204,11 @@ void CClientCreditsList::SaveList()
 				if ( cur_credit->GetUploadedTotal() || cur_credit->GetDownloadedTotal() ) {
 					const CreditStruct* const cstruct = cur_credit->GetDataStruct();
 					file.WriteHash(cstruct->key);
-					file.WriteUInt32(cstruct->nUploadedLo);
-					file.WriteUInt32(cstruct->nDownloadedLo);
+					file.WriteUInt32(static_cast<uint32>(cstruct->uploaded));
+					file.WriteUInt32(static_cast<uint32>(cstruct->downloaded));
 					file.WriteUInt32(cstruct->nLastSeen);
-					file.WriteUInt32(cstruct->nUploadedHi);
-					file.WriteUInt32(cstruct->nDownloadedHi);
+					file.WriteUInt32(static_cast<uint32>(cstruct->uploaded >> 32));
+					file.WriteUInt32(static_cast<uint32>(cstruct->downloaded >> 32));
 					file.WriteUInt16(cstruct->nReserved3);
 					file.WriteUInt8(cstruct->nKeySize);
 					// Doesn't matter if this saves garbage, will be fixed on load.
@@ -243,29 +248,39 @@ CClientCredits* CClientCreditsList::GetCredit(const CMD4Hash& key)
 	return result;
 }
 
+
 void CClientCreditsList::Process()
 {
 	if (::GetTickCount() - m_nLastSaved > MIN2MS(13))
 		SaveList();
 }
 
+
 bool CClientCreditsList::CreateKeyPair()
 {
 	try{
-		CryptoPP::AutoSeededRandomPool rng;
+		CryptoPP::AutoSeededX917RNG<CryptoPP::DES_EDE3> rng;
 		CryptoPP::InvertibleRSAFunction privkey;
-		privkey.Initialize(rng,RSAKEYSIZE);
+		privkey.Initialize(rng, RSAKEYSIZE);
 
-		// Nothing we can do against this unicode2char :/
-		CryptoPP::Base64Encoder privkeysink(new CryptoPP::FileSink(unicode2char(theApp.ConfigDir + CRYPTKEY_FILENAME)));
-		
-		privkey.DEREncode(privkeysink);
-		
-		privkeysink.MessageEnd();
+		// Nothing we can do against this filename2char :/
+		wxCharBuffer filename = filename2char(theApp->ConfigDir + CRYPTKEY_FILENAME);
+		CryptoPP::FileSink *fileSink = new CryptoPP::FileSink(filename);
+		CryptoPP::Base64Encoder *privkeysink = new CryptoPP::Base64Encoder(fileSink);
+		privkey.DEREncode(*privkeysink);
+		privkeysink->MessageEnd();
+
+		// Do not delete these pointers or it will blow in your face.
+		// cryptopp semantics is giving ownership of these objects.
+		//
+		// delete privkeysink;
+		// delete fileSink;
 
 		AddDebugLogLineM( true, logCredits, wxT("Created new RSA keypair"));
 	} catch(const CryptoPP::Exception& e) {
-		AddDebugLogLineM(true, logCredits, wxString(wxT("Failed to create new RSA keypair: ")) + char2unicode(e.what()));
+		AddDebugLogLineM(true, logCredits,
+			wxString(wxT("Failed to create new RSA keypair: ")) +
+			char2unicode(e.what()));
 		wxASSERT(false);
  		return false;
  	}
@@ -284,13 +299,12 @@ void CClientCreditsList::InitalizeCrypting()
 		return;
 	}
 
- 
 	try {
 		// check if keyfile is there
- 		if (wxFileExists(theApp.ConfigDir + CRYPTKEY_FILENAME)) {
-			off_t keySize = GetFileSize(theApp.ConfigDir + CRYPTKEY_FILENAME);
+ 		if (wxFileExists(theApp->ConfigDir + CRYPTKEY_FILENAME)) {
+			off_t keySize = CPath::GetFileSize(theApp->ConfigDir + CRYPTKEY_FILENAME);
 			
-			if (keySize < 0) {
+			if (keySize == wxInvalidOffset) {
 				AddDebugLogLineM(true, logCredits, wxT("Cannot access 'cryptkey.dat', please check permissions."));
 				return;
 			} else if (keySize == 0) {
@@ -303,29 +317,35 @@ void CClientCreditsList::InitalizeCrypting()
  		}
 			
  		// load private key
- 		CryptoPP::FileSource filesource(unicode2char(theApp.ConfigDir + CRYPTKEY_FILENAME), true,new CryptoPP::Base64Decoder);
- 		m_pSignkey = new CryptoPP::RSASSA_PKCS1v15_SHA_Signer(filesource);
+ 		CryptoPP::FileSource *filesource = new CryptoPP::FileSource(
+			filename2char(theApp->ConfigDir + CRYPTKEY_FILENAME),
+			true, new CryptoPP::Base64Decoder);
+ 		m_pSignkey = new CryptoPP::RSASSA_PKCS1v15_SHA_Signer(*filesource);
  		// calculate and store public key
-		CryptoPP::RSASSA_PKCS1v15_SHA_Verifier pubkey(*((CryptoPP::RSASSA_PKCS1v15_SHA_Signer*)m_pSignkey));
-		CryptoPP::ArraySink asink(m_abyMyPublicKey, 80);
- 		pubkey.DEREncode(asink);
- 		m_nMyPublicKeyLen = asink.TotalPutLength();
- 		asink.MessageEnd();
+		CryptoPP::RSASSA_PKCS1v15_SHA_Verifier pubkey(
+			*static_cast<CryptoPP::RSASSA_PKCS1v15_SHA_Signer *>(m_pSignkey));
+		CryptoPP::ArraySink *asink = new CryptoPP::ArraySink(m_abyMyPublicKey, 80);
+ 		pubkey.DEREncode(*asink);
+ 		m_nMyPublicKeyLen = asink->TotalPutLength();
+ 		asink->MessageEnd();
 	} catch (const CryptoPP::Exception& e) {
-		delete (CryptoPP::RSASSA_PKCS1v15_SHA_Signer*)m_pSignkey;
+		delete static_cast<CryptoPP::RSASSA_PKCS1v15_SHA_Signer *>(m_pSignkey);
 		m_pSignkey = NULL;
 		
-		AddDebugLogLineM(true, logCredits, wxString(wxT("Error while initializing encryption keys: ")) + char2unicode(e.what()));
+		AddDebugLogLineM(true, logCredits,
+			wxString(wxT("Error while initializing encryption keys: ")) +
+			char2unicode(e.what()));
  	}
 }
 
 
 uint8 CClientCreditsList::CreateSignature(CClientCredits* pTarget, byte* pachOutput, uint8 nMaxSize, uint32 ChallengeIP, uint8 byChaIPKind, void* sigkey)
 {	
-	CryptoPP::RSASSA_PKCS1v15_SHA_Signer* signer = (CryptoPP::RSASSA_PKCS1v15_SHA_Signer*)sigkey;
+	CryptoPP::RSASSA_PKCS1v15_SHA_Signer* signer =
+		static_cast<CryptoPP::RSASSA_PKCS1v15_SHA_Signer *>(sigkey);
 	// signer param is used for debug only
 	if (signer == NULL)
-		signer = (CryptoPP::RSASSA_PKCS1v15_SHA_Signer*)m_pSignkey;
+		signer = static_cast<CryptoPP::RSASSA_PKCS1v15_SHA_Signer *>(m_pSignkey);
 
 	// create a signature of the public key from pTarget
 	wxASSERT( pTarget );
@@ -337,7 +357,7 @@ uint8 CClientCreditsList::CreateSignature(CClientCredits* pTarget, byte* pachOut
 	
 	try {		
 		CryptoPP::SecByteBlock sbbSignature(signer->SignatureLength());
-		CryptoPP::AutoSeededRandomPool rng;
+		CryptoPP::AutoSeededX917RNG<CryptoPP::DES_EDE3> rng;
 		byte abyBuffer[MAXPUBKEYSIZE+9];
 		uint32 keylen = pTarget->GetSecIDKeyLen();
 		memcpy(abyBuffer,pTarget->GetSecureIdent(),keylen);
@@ -396,16 +416,16 @@ bool CClientCreditsList::VerifyIdent(CClientCredits* pTarget, const byte* pachSi
 					break;
 				case CRYPT_CIP_REMOTECLIENT:
 					// Ignore local ip...
-					if (!theApp.GetPublicIP(true)) {
-						if (::IsLowID(theApp.GetED2KID())){
+					if (!theApp->GetPublicIP(true)) {
+						if (::IsLowID(theApp->GetED2KID())){
 							AddDebugLogLineM( false, logCredits, wxT("Warning: Maybe SecureHash Ident fails because LocalIP is unknown"));
 							// Fallback to local ip...
-							ChallengeIP = theApp.GetPublicIP();
+							ChallengeIP = theApp->GetPublicIP();
 						} else {
-							ChallengeIP = theApp.GetED2KID();
+							ChallengeIP = theApp->GetED2KID();
 						}
 					} else {
-						ChallengeIP = theApp.GetPublicIP();
+						ChallengeIP = theApp->GetPublicIP();
 					}
 					break;
 				case CRYPT_CIP_NONECLIENT: // maybe not supported in future versions
@@ -436,20 +456,20 @@ bool CClientCreditsList::VerifyIdent(CClientCredits* pTarget, const byte* pachSi
 
 bool CClientCreditsList::CryptoAvailable() const
 {
-	return (m_nMyPublicKeyLen > 0 && m_pSignkey != 0 && thePrefs::IsSecureIdentEnabled());
+	return m_nMyPublicKeyLen > 0 && m_pSignkey != NULL;
 }
 
 
 #ifdef _DEBUG
 bool CClientCreditsList::Debug_CheckCrypting(){
 	// create random key
-	CryptoPP::AutoSeededRandomPool rng;
+	CryptoPP::AutoSeededX917RNG<CryptoPP::DES_EDE3> rng;
 
 	CryptoPP::RSASSA_PKCS1v15_SHA_Signer priv(rng, 384);
 	CryptoPP::RSASSA_PKCS1v15_SHA_Verifier pub(priv);
 
 	byte abyPublicKey[80];
-	ArraySink asink(abyPublicKey, 80);
+	CryptoPP::ArraySink asink(abyPublicKey, 80);
 	pub.DEREncode(asink);
 	int8 PublicKeyLen = asink.TotalPutLength();
 	asink.MessageEnd();
@@ -461,7 +481,7 @@ bool CClientCreditsList::Debug_CheckCrypting(){
 	newcredits.m_dwCryptRndChallengeFrom = challenge;
 	// create signature with fake priv key
 	byte pachSignature[200];
-	memset(pachSignature,200,0);
+	memset(pachSignature,0,200);
 	uint8 sigsize = CreateSignature(&newcredits,pachSignature,200,0,false, &priv);
 
 
@@ -481,3 +501,4 @@ bool CClientCreditsList::Debug_CheckCrypting(){
 	return VerifyIdent(&newcredits2,pachSignature,sigsize,0,0);
 }
 #endif
+// File_checked_for_headers

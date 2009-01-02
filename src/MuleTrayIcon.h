@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -28,7 +28,6 @@
 
 #ifndef AMULE_DAEMON
 
-#include <wx/defs.h>	// Needed before any other wx/*.h
 
 enum TaskbarNotifier
 {
@@ -55,62 +54,64 @@ enum {
 	TRAY_ICON_HIGHID
 };
 
+
 /**
  * The mule tray icon class is responsible for drawing the mule systray icon 
  * and reacting to the user input on it.
  */
-class CMuleTrayIcon : public wxTaskBarIcon {
+class CMuleTrayIcon : public wxTaskBarIcon
+{
+public:
+	/**
+	 * Contructor.
+	 */
+	CMuleTrayIcon();
 
-	public:
-		/**
-		 * Contructor.
-		 */
-		CMuleTrayIcon();
-	
-		/**
-		 * Destructor.
-		 */
-		~CMuleTrayIcon();
-	
-		/**
-		 * Set the Tray icon. 
-		 * @param Icon The wxIcon object with the new tray icon
-		 */
-		void SetTrayIcon(int Icon, uint32 percent);
-		
-		/**
-		 * Set the Tray tooltip
-		 * @param Tip The wxString object with the new tray tooltip
-		 */
-		void SetTrayToolTip(const wxString& Tip);
-		
-	private:
+	/**
+	 * Destructor.
+	 */
+	~CMuleTrayIcon();
 
-		virtual wxMenu* CreatePopupMenu();
+	/**
+	 * Set the Tray icon. 
+	 * @param Icon The wxIcon object with the new tray icon
+	 */
+	void SetTrayIcon(int Icon, uint32 percent);
 	
-		void UpdateTray();
+	/**
+	 * Set the Tray tooltip
+	 * @param Tip The wxString object with the new tray tooltip
+	 */
+	void SetTrayToolTip(const wxString& Tip);
 	
-		void SwitchShow(wxTaskBarIconEvent&);
-		void SetUploadSpeed(wxCommandEvent&);
-		void SetDownloadSpeed(wxCommandEvent&);
-		void ServerConnection(wxCommandEvent&);
-		void ShowHide(wxCommandEvent&);
-		void Close(wxCommandEvent&);
-		
-		int Old_Icon;
-		int Old_SpeedSize;
+private:
+
+	virtual wxMenu* CreatePopupMenu();
+
+	void UpdateTray();
+
+	void SwitchShow(wxTaskBarIconEvent&);
+	void SetUploadSpeed(wxCommandEvent&);
+	void SetDownloadSpeed(wxCommandEvent&);
+	void ServerConnection(wxCommandEvent&);
+	void ShowHide(wxCommandEvent&);
+	void Close(wxCommandEvent&);
 	
-		int Disconnected_Icon_size;
-		int LowId_Icon_size;
-		int HighId_Icon_size;
-	
-		wxIcon CurrentIcon;
-		wxMemoryDC IconWithSpeed;
-		wxString CurrentTip;
-	
-		DECLARE_EVENT_TABLE()
+	int Old_Icon;
+	int Old_SpeedSize;
+
+	int Disconnected_Icon_size;
+	int LowId_Icon_size;
+	int HighId_Icon_size;
+
+	wxIcon CurrentIcon;
+	wxMemoryDC IconWithSpeed;
+	wxString CurrentTip;
+
+	DECLARE_EVENT_TABLE()
 };
 
 #endif // DAEMON
 
 #endif //MULETRAYICON_H
+// File_checked_for_headers

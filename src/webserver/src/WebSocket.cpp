@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //  
-// Copyright (c) 2004-2006 shakraw ( shakraw@users.sourceforge.net )
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 shakraw ( shakraw@users.sourceforge.net )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -24,54 +24,77 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <wx/thread.h>
 
 #include "WebSocket.h"
 
-#include <wx/arrimpl.cpp>	// this is a magic incantation which must be done!
+
+#include "UPnP.h"
 
 
+typedef std::vector<CWCThread *> ArrayOfCWCThread;
 
-WX_DEFINE_ARRAY(CWCThread*, ArrayOfCWCThread);
 
 ArrayOfCWCThread s_wcThreads;
-static wxMutex *s_mutex_wcThreads;
+static wxMutex s_mutex_wcThreads;
 
 /*** CWSThread ***/
-CWSThread::CWSThread(CWebServerBase *webserver) {
+CWSThread::CWSThread(CWebServerBase *webserver)
+:
+wxThread(wxTHREAD_JOINABLE)
+{
 	ws = webserver;
 	
 	//retrieve web server listening port
-	wsport = ws->webInterface->m_WebserverPort;
-	if (wsport == -1) {
-		wsport = ws->GetWSPrefs();
+	m_wsport = ws->webInterface->m_WebserverPort;
+	m_upnpEnabled = ws->webInterface->m_UPnPWebServerEnabled;
+	m_upnpTCPPort = ws->webInterface->m_UPnPTCPPort;
+	if (m_wsport == -1) {
+		m_wsport = ws->GetWSPrefs();
 	}
-	if (wsport == -1) {
-		wsport = 4711;
-		ws->Print(wxT("WSThread: Could not get web server port -- using default value.\n"));
+	if (m_wsport == -1) {
+		m_wsport = 4711;
+		ws->Print(wxT("WSThread: Could not get web server port"
+			" -- using default value.\n"));
 	}
 }
 
+
+CWSThread::~CWSThread()
+{
+}
+
+	
 // thread execution starts here
 void *CWSThread::Entry() {
 	ws->Print(wxT("\nWSThread: Thread started\n"));
 	// Create the address - listen on localhost:ECPort
 	wxIPV4address addr;
 	addr.AnyAddress();
-	addr.Service(wsport);
+	addr.Service(m_wsport);
 	// Create the socket
 	m_WSSocket = new wxSocketServer(addr, wxSOCKET_REUSEADDR);
-	wxString msg = addr.Hostname() + wxString::Format(wxT(":%d\n"), addr.Service());
+	wxString msg = addr.Hostname() +
+		wxString::Format(wxT(":%d\n"), addr.Service());
 	// We use Ok() here to see if the server is really listening
 	if (! m_WSSocket->Ok()) {
 		ws->Print(wxT("WSThread: could not create socket on ") + msg);	
 	} else {
 		ws->Print(wxT("WSThread: created socket listening on ") + msg);	
-
-		s_mutex_wcThreads = new wxMutex();
-
+#ifdef ENABLE_UPNP
+		if (m_upnpEnabled) {
+			m_upnpMappings.resize(1);
+			m_upnpMappings[0] = CUPnPPortMapping(
+				m_wsport,
+				"TCP",
+				true,
+				"aMule TCP Webserver Socket");
+			m_upnp = new CUPnPControlPoint(m_upnpTCPPort);
+			m_upnp->AddPortMappings(m_upnpMappings);
+		}
+#endif
 		while (!TestDestroy()) {
-			bool connection_pending	= m_WSSocket->WaitForAccept(1, 0);	// 1 sec
+			// 1 second timeout
+			bool connection_pending	= m_WSSocket->WaitForAccept(1, 0);
 			wxSocketBase* sock;
 			if (connection_pending) {
 				// Accept incoming connection
@@ -83,32 +106,35 @@ void *CWSThread::Entry() {
 				// If there was a connection, create new CWCThread
 				CWCThread *wct = new CWCThread(ws, sock);
 
-				wxMutexLocker lock(*s_mutex_wcThreads);
-				s_wcThreads.Add(wct);
+				wxMutexLocker lock(s_mutex_wcThreads);
+				s_wcThreads.push_back(wct);
 				
-				if ( s_wcThreads.Last()->Create() != wxTHREAD_NO_ERROR ) {
+				ArrayOfCWCThread::reverse_iterator rit = s_wcThreads.rbegin();
+				if ( (*rit)->Create() != wxTHREAD_NO_ERROR ) {
 					ws->Print(wxT("WSThread: Can't create web client socket thread\n"));
 					// destroy the socket
 					sock->Destroy();
 				} else {
 					// ...and run it
-					s_wcThreads.Last()->Run();
+					(*rit)->Run();
 				}
 			}
 		}
+#ifdef ENABLE_UPNP
+		if (m_upnpEnabled) {
+			m_upnp->DeletePortMappings(m_upnpMappings);
+			delete m_upnp;
+		}
+#endif
 		ws->Print(wxT("WSThread: Waiting for WCThreads to be terminated..."));
 		bool should_wait = true;
 		while (should_wait) {
-			wxMutexLocker lock(*s_mutex_wcThreads);
-			should_wait = (s_wcThreads.GetCount() != 0);
+			wxMutexLocker lock(s_mutex_wcThreads);
+			should_wait = (!s_wcThreads.empty());
 		}
 
-		// by this time, all threads are dead
-		delete s_mutex_wcThreads;
-
 		// frees the memory allocated to the array
-		s_wcThreads.Clear();
-
+		s_wcThreads.clear();
 		ws->Print(wxT("done.\n"));
 	}
 
@@ -122,21 +148,23 @@ void *CWSThread::Entry() {
 
 /*** CWCThread ***/
 CWCThread::CWCThread(CWebServerBase *ws, wxSocketBase *sock) {
-    stWebSocket.m_pParent = ws;
-    stWebSocket.m_hSocket = sock;
-    stWebSocket.m_hSocket->SetTimeout(10);
-    stWebSocket.m_pHead = NULL;
-    stWebSocket.m_pTail = NULL;
-    stWebSocket.m_pBuf = new char [4096];
-    stWebSocket.m_dwBufSize = 4096;
-    stWebSocket.m_dwRecv = 0;
-    stWebSocket.m_bValid = true;
-    stWebSocket.m_bCanRecv = true;
-    stWebSocket.m_bCanSend = true;
-    stWebSocket.m_dwHttpHeaderLen = 0;
-    stWebSocket.m_dwHttpContentLen = 0;
+	stWebSocket.m_pParent = ws;
+	stWebSocket.m_hSocket = sock;
+	stWebSocket.m_hSocket->SetTimeout(10);
+	stWebSocket.m_pHead = NULL;
+	stWebSocket.m_pTail = NULL;
+	stWebSocket.m_pBuf = new char [4096];
+	stWebSocket.m_dwBufSize = 4096;
+	stWebSocket.m_dwRecv = 0;
+	stWebSocket.m_bValid = true;
+	stWebSocket.m_bCanRecv = true;
+	stWebSocket.m_bCanSend = true;
+	stWebSocket.m_dwHttpHeaderLen = 0;
+	stWebSocket.m_dwHttpContentLen = 0;
 	stWebSocket.m_Cookie = 0;
 }
+
+
 CWCThread::~CWCThread()
 {
 	delete [] stWebSocket.m_pBuf;
@@ -285,8 +313,8 @@ void *CWCThread::Entry() {
 	stWebSocket.m_pParent->Print(wxT("WCThread: exited [WebSocket closed]\n"));
 #endif
 	// remove ourself from threads array
-	wxMutexLocker lock(*s_mutex_wcThreads);
-	s_wcThreads.Remove(this);
+	wxMutexLocker lock(s_mutex_wcThreads);
+	s_wcThreads.erase(find(s_wcThreads.begin(), s_wcThreads.end(), this));
 
 	// Kry - WTF to return here?
 	// shakraw - it must return NULL. it is correct now.
@@ -327,18 +355,19 @@ void CWebSocket::OnRequestReceived(char* pHeader, char* pData, uint32 dwDataLen)
 	int sessid = 0;
 	char *current_cookie = strstr(pHeader, "Cookie: ");
 	if ( current_cookie ) {
-		current_cookie += strlen("Cookie: ");
-		char *value = strchr(current_cookie, '=');
-		if ( value ) {
-			*value++ = 0;
-		}
-		if ( !strcmp(current_cookie, "SESSID") ) {
-			sessid = atoi(value);
+		current_cookie = strstr(current_cookie, "amuleweb_session_id");
+		if ( current_cookie ) {
+			char *value = strchr(current_cookie, '=');
+			if ( value ) {
+				sessid = atoi(++value);
+			}			
 		}
 	}
 	ThreadData Data = { CParsedUrl(sURL), sURL, sessid, this };
-	if (sURL.Length() > 4 ) {
-		wxString url_ext = sURL.Right( sURL.Length() - sURL.Find('.', true) ).MakeLower();
+
+	wxString sFile = Data.parsedURL.File();
+	if (sFile.Length() > 4 ) {
+		wxString url_ext = sFile.Right( sFile.Length() - sFile.Find('.', true) ).MakeLower();
 		if ( (url_ext==wxT(".gif")) || (url_ext==wxT(".jpg")) || (url_ext==wxT(".ico")) ||
 			(url_ext==wxT(".png")) || (url_ext==wxT(".bmp")) || (url_ext==wxT(".jpeg")) ) {
 			m_pParent->ProcessImgFileReq(Data);
@@ -358,13 +387,13 @@ void CWebSocket::SendContent(const char* szStdResponse, const void* pContent, ui
 	SendData(pContent, dwContentSize);
 }
 
-void CWebSocket::SendHttpHeaders(bool use_gzip, uint32 content_len, int session_id)
+void CWebSocket::SendHttpHeaders(const char* szType, bool use_gzip, uint32 content_len, int session_id)
 {
 	char szBuf[0x1000];
 
 	char cookie[256];
 	if ( session_id ) {
-		snprintf(cookie, sizeof(cookie), "Set-Cookie: SESSID=%d\r\n", session_id);
+		snprintf(cookie, sizeof(cookie), "Set-Cookie: amuleweb_session_id=%d\r\n", session_id);
 	} else {
 		cookie[0] = 0;
 	}
@@ -372,9 +401,9 @@ void CWebSocket::SendHttpHeaders(bool use_gzip, uint32 content_len, int session_
 	snprintf(szBuf, sizeof(szBuf), "HTTP/1.1 200 OK\r\nServer: aMule\r\nPragma: no-cache\r\nExpires: 0\r\n"
 		"Cache-Control: no-cache, no-store, must-revalidate\r\n"
 		"%s"
-		"Connection: close\r\nContent-Type: text/html\r\n"
+		"Connection: close\r\nContent-Type: %s\r\n"
 		"Content-Length: %d\r\n%s\r\n",
-		 cookie, content_len, (use_gzip ? "Content-Encoding: gzip\r\n" : ""));
+		 cookie, szType, content_len, (use_gzip ? "Content-Encoding: gzip\r\n" : ""));
 
 	SendData(szBuf, strlen(szBuf));
 }
@@ -412,3 +441,4 @@ void CWebSocket::SendData(const void* pData, uint32 dwDataSize) {
 		}
 	}
 }
+// File_checked_for_headers

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -39,13 +39,8 @@ there client on the eMule forum..
 #ifndef __INDEXED_H__
 #define __INDEXED_H__
 
-#include <list>
-#include <map>
 
-#include "../../Types.h"
 #include "SearchManager.h"
-#include "../routing/Maps.h"
-#include "../utils/UInt128.h"
 #include "Entry.h"
 
 class wxArrayString;
@@ -100,7 +95,7 @@ struct SSearchTerm
 		OpNotEqual
 	} type;
 	
-	Kademlia::CTag* tag;
+	CTag* tag;
 	wxArrayString* astr;
 
 	SSearchTerm* left;
@@ -144,10 +139,11 @@ private:
 	static wxString m_sfilename;
 	static wxString m_kfilename;
 	static wxString m_loadfilename;
-	void readFile(void);
-	void clean(void);
+	void ReadFile(void);
+	void Clean(void);
 };
 
 } // End namespace
 
 #endif //__INDEXED_H__
+// File_checked_for_headers

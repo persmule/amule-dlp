@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,33 +23,29 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
+#include "updownclient.h"	// Interface
+
+#include <protocol/Protocols.h>
+#include <protocol/ed2k/Client2Client/TCP.h>
+
 #include <zlib.h>
-#include <cmath>		// Needed for std::exp
 
-#include "OtherFunctions.h"	// Needed for nstrdup
-
-#include "ClientUDPSocket.h"	// Needed for CClientUDPSocket
 #include "ClientCredits.h"	// Needed for CClientCredits
 #include "Packet.h"		// Needed for CPacket
 #include "MemFile.h"		// Needed for CMemFile
 #include "UploadQueue.h"	// Needed for CUploadQueue
 #include "DownloadQueue.h"	// Needed for CDownloadQueue
-#include "Preferences.h"	// Needed for CPreferences
-#include "OtherStructs.h"	// Needed for Requested_Block_Struct
-#include "ServerConnect.h"		// Needed for CServerConnect
 #include "PartFile.h"		// Needed for PR_POWERSHARE
-#include "KnownFile.h"		// Needed for CKnownFile
-#include "KnownFileList.h"		// Needed for CKnownFileLists
 #include "ClientTCPSocket.h"	// Needed for CClientTCPSocket
 #include "SharedFileList.h"	// Needed for CSharedFileList
 #include "amule.h"		// Needed for theApp
-#include "OPCodes.h"		// Needed for PARTSIZE
-#include "BarShader.h"		// Needed for CBarShader
-#include "updownclient.h"	// Needed for CUpDownClient
 #include "ClientList.h"
 #include "Statistics.h"		// Needed for theStats
 #include "Logger.h"
 #include <common/Format.h>
+#include "ScopedPtr.h"		// Needed for CScopedArray
+#include "GuiEvents.h"		// Needed for Notify_*
+
 
 //	members of CUpDownClient
 //	which are mainly used for uploading functions 
@@ -61,7 +57,7 @@ void CUpDownClient::SetUploadState(uint8 eNewState)
 			// Reset upload data rate computation
 			m_nUpDatarate = 0;
 			m_nSumForAvgUpDataRate = 0;
-			m_AvarageUDR_list.RemoveAll();
+			m_AvarageUDR_list.clear();
 		}
 		if (eNewState == US_UPLOADING) {
 			m_fSentOutOfPartReqs = 0;
@@ -175,17 +171,17 @@ bool CUpDownClient::IsDifferentPartBlock() const // [Tarod 12/22/2002]
 	bool different_part = false;
 	
 	// Check if we have good lists and proceed to check for different chunks
-	if (!m_BlockRequests_queue.IsEmpty() && !m_DoneBlocks_list.IsEmpty())
+	if ((!m_BlockRequests_queue.empty()) && !m_DoneBlocks_list.empty())
 	{
 		Requested_Block_Struct* last_done_block = NULL;
 		Requested_Block_Struct* next_requested_block = NULL;
-		uint32 last_done_part = 0xffffffff;
-		uint32 next_requested_part = 0xffffffff;
+		uint64 last_done_part = 0xffffffff;
+		uint64 next_requested_part = 0xffffffff;
 			
 			
 		// Get last block and next pending
-		last_done_block = (Requested_Block_Struct*)m_DoneBlocks_list.GetHead();
-		next_requested_block = (Requested_Block_Struct*)m_BlockRequests_queue.GetHead(); 
+		last_done_block = m_DoneBlocks_list.front();
+		next_requested_block = m_BlockRequests_queue.front();
 			
 		// Calculate corresponding parts to blocks
 		last_done_part = last_done_block->StartOffset / PARTSIZE;
@@ -209,29 +205,28 @@ bool CUpDownClient::IsDifferentPartBlock() const // [Tarod 12/22/2002]
 
 void CUpDownClient::CreateNextBlockPackage()
 {
-    // See if we can do an early return. There may be no new blocks to load from disk and add to buffer, or buffer may be large enough allready.
-    if(m_BlockRequests_queue.IsEmpty() || // There are no new blocks requested
-       m_addedPayloadQueueSession > GetQueueSessionPayloadUp() && m_addedPayloadQueueSession-GetQueueSessionPayloadUp() > 50*1024) { // the buffered data is large enough allready
-        return;
-    }
+	// See if we can do an early return. There may be no new blocks to load from disk and add to buffer, or buffer may be large enough allready.
+	if(m_BlockRequests_queue.empty() || // There are no new blocks requested
+		m_addedPayloadQueueSession > GetQueueSessionPayloadUp() && m_addedPayloadQueueSession-GetQueueSessionPayloadUp() > 50*1024) { // the buffered data is large enough allready
+		return;
+	}
 
-    CFile file;
-	byte* filedata = 0;
-	wxString fullname;
+	CFile file;
+	CPath fullname;
 	try {
-        // Buffer new data if current buffer is less than 100 KBytes
-        while (!m_BlockRequests_queue.IsEmpty() &&
-               (m_addedPayloadQueueSession <= GetQueueSessionPayloadUp() || m_addedPayloadQueueSession-GetQueueSessionPayloadUp() < 100*1024)) {
+	// Buffer new data if current buffer is less than 100 KBytes
+	while ((!m_BlockRequests_queue.empty()) &&
+		(m_addedPayloadQueueSession <= GetQueueSessionPayloadUp() || m_addedPayloadQueueSession-GetQueueSessionPayloadUp() < 100*1024)) {
 
-			Requested_Block_Struct* currentblock = m_BlockRequests_queue.GetHead();
-			CKnownFile* srcfile = theApp.sharedfiles->GetFileByID(CMD4Hash(currentblock->FileID));
+			Requested_Block_Struct* currentblock = m_BlockRequests_queue.front();
+			CKnownFile* srcfile = theApp->sharedfiles->GetFileByID(CMD4Hash(currentblock->FileID));
 			
 			if (!srcfile) {
 				throw wxString(wxT("requested file not found"));
 			}
 
 			if (srcfile->IsPartFile() && ((CPartFile*)srcfile)->GetStatus() != PS_COMPLETE) {
-				#warning This seems a good idea from eMule. We must import this.
+				//#warning This seems a good idea from eMule. We must import this.
 				#if 0
 				// Do not access a part file, if it is currently moved into the incoming directory.
 				// Because the moving of part file into the incoming directory may take a noticable 
@@ -245,13 +240,13 @@ void CUpDownClient::CreateNextBlockPackage()
 				// the incoming directory.
 				#endif
 
-				fullname = ((CPartFile*)srcfile)->GetFullName();
-				fullname.Truncate(fullname.Length()-4);
+				// Get the full path to the '.part' file
+				fullname = dynamic_cast<CPartFile*>(srcfile)->GetFullName().RemoveExt();
 			} else {
-				fullname = JoinPaths(srcfile->GetFilePath(), srcfile->GetFileName());
+				fullname = srcfile->GetFilePath().JoinPaths(srcfile->GetFileName());
 			}
 		
-			uint32 togo;
+			uint64 togo;
 			if (currentblock->StartOffset > currentblock->EndOffset){
 				togo = currentblock->EndOffset + (srcfile->GetFileSize() - currentblock->StartOffset);
 			} else {
@@ -265,32 +260,33 @@ void CUpDownClient::CreateNextBlockPackage()
 			if (togo > EMBLOCKSIZE * 3) {
 				throw wxString(wxT("Client requested too large of a block."));
 			}
-			
+		
+			CScopedArray<byte> filedata(NULL);	
 			if (!srcfile->IsPartFile()){
-				if ( !file.Open(fullname,CFile::read) ) {
+				if ( !file.Open(fullname, CFile::read) ) {
 					// The file was most likely moved/deleted. However it is likely that the
 					// same is true for other files, so we recheck all shared files. 
 					AddLogLineM( false, CFormat( _("Failed to open file (%s), removing from list of shared files.") ) % srcfile->GetFileName() );
-					theApp.sharedfiles->RemoveFile(srcfile);
+					theApp->sharedfiles->RemoveFile(srcfile);
 					
 					throw wxString(wxT("Failed to open requested file: Removing from list of shared files!"));
 				}			
 			
 				file.Seek(currentblock->StartOffset, wxFromStart);
 				
-				filedata = new byte[togo+500];
-				file.Read(filedata, togo);
+				filedata.reset(new byte[togo + 500]);
+				file.Read(filedata.get(), togo);
 				file.Close();
 			} else {
 				CPartFile* partfile = (CPartFile*)srcfile;
 				partfile->m_hpartfile.Seek(currentblock->StartOffset);
 				
-				filedata = new byte[togo+500];
-				partfile->m_hpartfile.Read(filedata, togo); 
+				filedata.reset(new byte[togo + 500]);
+				partfile->m_hpartfile.Read(filedata.get(), togo); 
 				// Partfile should NOT be closed!!!
 			}
 
-			#warning Part of the above import.
+			//#warning Part of the above import.
 			#if 0
 			if (lockFile.m_pObject){
 				lockFile.m_pObject->Unlock(); // Unlock the (part) file as soon as we are done with accessing it.
@@ -302,19 +298,20 @@ void CUpDownClient::CreateNextBlockPackage()
 
 			// check extention to decide whether to compress or not
 			if (m_byDataCompVer == 1 && GetFiletype(srcfile->GetFileName()) != ftArchive) {
-				CreatePackedPackets(filedata,togo,currentblock);
+				CreatePackedPackets(filedata.get(), togo,currentblock);
 			} else {
-				CreateStandartPackets(filedata,togo,currentblock);
+				CreateStandartPackets(filedata.get(), togo,currentblock);
 			}
 			
 			// file statistic
 			srcfile->statistic.AddTransferred(togo);
 
-            m_addedPayloadQueueSession += togo;
+			m_addedPayloadQueueSession += togo;
 
-			m_DoneBlocks_list.AddHead(m_BlockRequests_queue.RemoveHead());
-			delete[] filedata;
-			filedata = NULL;
+			Requested_Block_Struct* block = m_BlockRequests_queue.front();
+			
+			m_BlockRequests_queue.pop_front();			
+			m_DoneBlocks_list.push_front(block);
 		}
 
 		return;
@@ -327,8 +324,7 @@ void CUpDownClient::CreateNextBlockPackage()
 	}
 	
 	// Error occured.	
-	theApp.uploadqueue->RemoveFromUploadQueue(this);
-	delete[] filedata;
+	theApp->uploadqueue->RemoveFromUploadQueue(this);
 }
 
 
@@ -336,13 +332,13 @@ void CUpDownClient::CreateStandartPackets(const byte* buffer, uint32 togo, Reque
 {
 	uint32 nPacketSize;
 
-	CMemFile memfile((byte*)buffer, togo);
+	CMemFile memfile(buffer, togo);
 	if (togo > 10240) {
 		nPacketSize = togo/(uint32)(togo/10240);
 	} else {
 		nPacketSize = togo;
 	}
-
+	
 	while (togo){
 		if (togo < nPacketSize*2) {
 			nPacketSize = togo;
@@ -351,18 +347,28 @@ void CUpDownClient::CreateStandartPackets(const byte* buffer, uint32 togo, Reque
 		wxASSERT(nPacketSize);
 		togo -= nPacketSize;
 		
-		CMemFile data(nPacketSize+24);
+		uint64 endpos = (currentblock->EndOffset - togo);
+		uint64 startpos = endpos - nPacketSize;
+		
+		bool bLargeBlocks = (startpos > 0xFFFFFFFF) || (endpos > 0xFFFFFFFF);
+		
+		CMemFile data(nPacketSize + 16 + 2 * (bLargeBlocks ? 8 :4));
 		data.WriteHash(GetUploadFileID());
-		data.WriteUInt32((currentblock->EndOffset - togo) - nPacketSize);
-		data.WriteUInt32((currentblock->EndOffset - togo));
+		if (bLargeBlocks) {
+			data.WriteUInt64(startpos);
+			data.WriteUInt64(endpos);
+		} else {
+			data.WriteUInt32(startpos);
+			data.WriteUInt32(endpos);
+		}
 		char *tempbuf = new char[nPacketSize];
 		memfile.Read(tempbuf, nPacketSize);
 		data.Write(tempbuf, nPacketSize);
 		delete [] tempbuf;
-		CPacket* packet = new CPacket(&data,OP_EDONKEYPROT,OP_SENDINGPART);
-	
-		theStats::AddUpOverheadFileRequest(24);
+		CPacket* packet = new CPacket(data, (bLargeBlocks ? OP_EMULEPROT : OP_EDONKEYPROT), (bLargeBlocks ? (uint8)OP_SENDINGPART_I64 : (uint8)OP_SENDINGPART));	
+		theStats::AddUpOverheadFileRequest(16 + 2 * (bLargeBlocks ? 8 :4));
 		theStats::AddUploadToSoft(GetClientSoft(), nPacketSize);
+		AddDebugLogLineM( false, logLocalClient, wxString::Format(wxT("Local Client: %s to "),(bLargeBlocks ? wxT("OP_SENDINGPART_I64") : wxT("OP_SENDINGPART"))) + GetFullIP() );
 		m_socket->SendPacket(packet,true,false, nPacketSize);
 	}
 }
@@ -397,15 +403,21 @@ void CUpDownClient::CreatePackedPackets(const byte* buffer, uint32 togo, Request
 		}
 		togo -= nPacketSize;
 
-		CMemFile data(nPacketSize+24);
+		bool isLargeBlock = (currentblock->StartOffset > 0xFFFFFFFF) || (currentblock->EndOffset > 0xFFFFFFFF);
+		
+		CMemFile data(nPacketSize + 16 + (isLargeBlock ? 12 : 8));
 		data.WriteHash(GetUploadFileID());
-		data.WriteUInt32(currentblock->StartOffset);
+		if (isLargeBlock) {
+			data.WriteUInt64(currentblock->StartOffset);
+		} else {
+			data.WriteUInt32(currentblock->StartOffset);
+		}
 		data.WriteUInt32(newsize);			
 		char *tempbuf = new char[nPacketSize];
 		memfile.Read(tempbuf, nPacketSize);
 		data.Write(tempbuf,nPacketSize);
 		delete [] tempbuf;
-		CPacket* packet = new CPacket(&data, OP_EMULEPROT, OP_COMPRESSEDPART);
+		CPacket* packet = new CPacket(data, OP_EMULEPROT, (isLargeBlock ? OP_COMPRESSEDPART_I64 : OP_COMPRESSEDPART));
 	
 		// approximate payload size
 		uint32 payloadSize = nPacketSize*oldSize/newsize;
@@ -419,6 +431,7 @@ void CUpDownClient::CreatePackedPackets(const byte* buffer, uint32 togo, Request
 		// put packet directly on socket
 		theStats::AddUpOverheadFileRequest(24);
 		theStats::AddUploadToSoft(GetClientSoft(), nPacketSize);
+		AddDebugLogLineM( false, logLocalClient, wxString::Format(wxT("Local Client: %s to "), (isLargeBlock ? wxT("OP_COMPRESSEDPART_I64") : wxT("OP_COMPRESSEDPART"))) + GetFullIP() );
 		m_socket->SendPacket(packet,true,false, payloadSize);			
 	}
 	delete[] output;
@@ -532,21 +545,29 @@ void CUpDownClient::AddReqBlock(Requested_Block_Struct* reqblock)
 		return;
 	}
 	
-	for (POSITION pos = m_DoneBlocks_list.GetHeadPosition();pos != 0;m_DoneBlocks_list.GetNext(pos)){
-		if (reqblock->StartOffset == m_DoneBlocks_list.GetAt(pos)->StartOffset && reqblock->EndOffset == m_DoneBlocks_list.GetAt(pos)->EndOffset){
-			delete reqblock;
-			return;
+	{
+		std::list<Requested_Block_Struct*>::iterator it = m_DoneBlocks_list.begin();
+		for (; it != m_DoneBlocks_list.end(); ++it) {
+			if (reqblock->StartOffset == (*it)->StartOffset && reqblock->EndOffset == (*it)->EndOffset) {
+				delete reqblock;
+				return;
+			}
 		}
 	}
-	for (POSITION pos = m_BlockRequests_queue.GetHeadPosition();pos != 0;m_BlockRequests_queue.GetNext(pos)){
-		if (reqblock->StartOffset == m_BlockRequests_queue.GetAt(pos)->StartOffset && reqblock->EndOffset == m_BlockRequests_queue.GetAt(pos)->EndOffset){
-			delete reqblock;
-			return;
-		}
-	}
-	m_BlockRequests_queue.AddTail(reqblock);
 
+	{
+		std::list<Requested_Block_Struct*>::iterator it = m_BlockRequests_queue.begin();
+		for (; it != m_BlockRequests_queue.end(); ++it) {
+			if (reqblock->StartOffset == (*it)->StartOffset && reqblock->EndOffset == (*it)->EndOffset) {
+				delete reqblock;
+				return;
+			}
+		}
+	}
+	
+	m_BlockRequests_queue.push_back(reqblock);
 }
+
 
 uint32 CUpDownClient::GetWaitStartTime() const
 {
@@ -600,13 +621,13 @@ uint32 CUpDownClient::SendBlockData()
 //		thePrefs.Add2SessionTransferData(GetClientSoft(), uUpStatsPort, true, true, sentBytesPartFile, (IsFriend() && GetFriendSlot()));
 
 		m_nTransferredUp += sentBytesCompleteFile + sentBytesPartFile;
-        credits->AddUploaded(sentBytesCompleteFile + sentBytesPartFile, GetIP(), theApp.CryptoAvailable());
+        credits->AddUploaded(sentBytesCompleteFile + sentBytesPartFile, GetIP(), theApp->CryptoAvailable());
 
         sentBytesPayload = s->GetSentPayloadSinceLastCallAndReset();
         m_nCurQueueSessionPayloadUp += sentBytesPayload;
 
-        if (theApp.uploadqueue->CheckForTimeOver(this)) {
-            theApp.uploadqueue->RemoveFromUploadQueue(this, true);
+        if (theApp->uploadqueue->CheckForTimeOver(this)) {
+            theApp->uploadqueue->RemoveFromUploadQueue(this, true);
 			SendOutOfPartReqsAndAddToWaitingQueue();
         } else {
             // read blocks from file and put on socket
@@ -615,24 +636,25 @@ uint32 CUpDownClient::SendBlockData()
     }
 
     if(sentBytesCompleteFile + sentBytesPartFile > 0 ||
-        m_AvarageUDR_list.GetCount() == 0 || (curTick - m_AvarageUDR_list.GetTail().timestamp) > 1*1000) {
+        m_AvarageUDR_list.empty() || (curTick - m_AvarageUDR_list.back().timestamp) > 1*1000) {
         // Store how much data we've transferred this round,
         // to be able to calculate average speed later
         // keep sum of all values in list up to date
         TransferredData newitem = {sentBytesCompleteFile + sentBytesPartFile, curTick};
-        m_AvarageUDR_list.AddTail(newitem);
+        m_AvarageUDR_list.push_back(newitem);
         m_nSumForAvgUpDataRate += sentBytesCompleteFile + sentBytesPartFile;
     }
 
     // remove to old values in list
-    while (m_AvarageUDR_list.GetCount() > 0 && (curTick - m_AvarageUDR_list.GetHead().timestamp) > 10*1000) {
+    while ((!m_AvarageUDR_list.empty()) && (curTick - m_AvarageUDR_list.front().timestamp) > 10*1000) {
         // keep sum of all values in list up to date
-        m_nSumForAvgUpDataRate -= m_AvarageUDR_list.RemoveHead().datalen;
+        m_nSumForAvgUpDataRate -= m_AvarageUDR_list.front().datalen;
+		m_AvarageUDR_list.pop_front();
     }
 
     // Calculate average speed for this slot
-    if(m_AvarageUDR_list.GetCount() > 0 && (curTick - m_AvarageUDR_list.GetHead().timestamp) > 0 && GetUpStartTimeDelay() > 2*1000) {
-        m_nUpDatarate = ((uint64)m_nSumForAvgUpDataRate*1000) / (curTick-m_AvarageUDR_list.GetHead().timestamp);
+    if ((!m_AvarageUDR_list.empty()) && (curTick - m_AvarageUDR_list.front().timestamp) > 0 && GetUpStartTimeDelay() > 2*1000) {
+        m_nUpDatarate = ((uint64)m_nSumForAvgUpDataRate*1000) / (curTick-m_AvarageUDR_list.front().timestamp);
     } else {
         // not enough values to calculate trustworthy speed. Use -1 to tell this
         m_nUpDatarate = 0; //-1;
@@ -660,14 +682,13 @@ void CUpDownClient::SendOutOfPartReqsAndAddToWaitingQueue()
 	//the downloader didn't send any request blocks. Then the connection times out..
 	//I did some tests with eDonkey also and it seems to work well with them also..
 	
-	AddDebugLogLineM(false, logLocalClient, wxT("Local Client: Sending OP_OUTOFPARTREQS"));
-	
 	// Send this inmediately, don't queue.
-	CPacket* pPacket = new CPacket(OP_OUTOFPARTREQS, 0);
+	CPacket* pPacket = new CPacket(OP_OUTOFPARTREQS, 0, OP_EDONKEYPROT);
 	theStats::AddUpOverheadFileRequest(pPacket->GetPacketSize());
+	AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_OUTOFPARTREQS to ") + GetFullIP() );
 	SendPacket(pPacket, true, true);
 	
-	theApp.uploadqueue->AddClientToQueue(this);
+	theApp->uploadqueue->AddClientToQueue(this);
 }
 
 
@@ -685,11 +706,11 @@ void CUpDownClient::FlushSendBlocks()
 
 void CUpDownClient::SendHashsetPacket(const CMD4Hash& forfileid)
 {
-	CKnownFile* file = theApp.sharedfiles->GetFileByID( forfileid );
+	CKnownFile* file = theApp->sharedfiles->GetFileByID( forfileid );
 	bool from_dq = false;
 	if ( !file ) {
 		from_dq = true;
-		if ((file = theApp.downloadqueue->GetFileByID(forfileid)) == NULL) {
+		if ((file = theApp->downloadqueue->GetFileByID(forfileid)) == NULL) {
 			AddLogLineM(false, CFormat( _("Hashset requested for unknown file: %s") ) % forfileid.Encode() );
 		
 			return;
@@ -701,7 +722,7 @@ void CUpDownClient::SendHashsetPacket(const CMD4Hash& forfileid)
 			AddDebugLogLineM(false, logRemoteClient, wxT("Requested hashset could not be found"));	
 			return;
 		} else {
-			file = theApp.downloadqueue->GetFileByID(forfileid);
+			file = theApp->downloadqueue->GetFileByID(forfileid);
 			if (!(file && file->GetHashCount())) {
 				AddDebugLogLineM(false, logRemoteClient, wxT("Requested hashset could not be found"));	
 				return;				
@@ -716,9 +737,9 @@ void CUpDownClient::SendHashsetPacket(const CMD4Hash& forfileid)
 	for (int i = 0; i != parts; i++) {
 		data.WriteHash(file->GetPartHash(i));
 	}
-	CPacket* packet = new CPacket(&data);	
-	packet->SetOpCode(OP_HASHSETANSWER);
+	CPacket* packet = new CPacket(data, OP_EDONKEYPROT, OP_HASHSETANSWER);	
 	theStats::AddUpOverheadFileRequest(packet->GetPacketSize());
+	AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_HASHSETANSWER to ") + GetFullIP());
 	SendPacket(packet,true,true);
 }
 
@@ -726,15 +747,8 @@ void CUpDownClient::SendHashsetPacket(const CMD4Hash& forfileid)
 void CUpDownClient::ClearUploadBlockRequests()
 {
 	FlushSendBlocks();
-	for (POSITION pos = m_BlockRequests_queue.GetHeadPosition();pos != 0; ) {
-		delete m_BlockRequests_queue.GetNext(pos);
-	}
-	m_BlockRequests_queue.RemoveAll();
-	
-	for (POSITION pos = m_DoneBlocks_list.GetHeadPosition();pos != 0; ) {
-		delete m_DoneBlocks_list.GetNext(pos);
-	}
-	m_DoneBlocks_list.RemoveAll();
+	DeleteContents(m_BlockRequests_queue);
+	DeleteContents(m_DoneBlocks_list);
 }
 
 
@@ -743,7 +757,7 @@ void CUpDownClient::SendRankingInfo(){
 		return;
 	}
 
-	uint16 nRank = theApp.uploadqueue->GetWaitingPosition(this);
+	uint16 nRank = theApp->uploadqueue->GetWaitingPosition(this);
 	if (!nRank) {
 		return;
 	}
@@ -753,11 +767,9 @@ void CUpDownClient::SendRankingInfo(){
 	// Kry: what are these zero bytes for. are they really correct?
 	// Kry - Well, eMule does like that. I guess they're ok.
 	data.WriteUInt32(0); data.WriteUInt32(0); data.WriteUInt16(0);
-	AddDebugLogLineM(false, logLocalClient, wxT("Local Client: OP_QUEUERANKING "));
-	CPacket* packet = new CPacket(&data,OP_EMULEPROT);
-	packet->SetOpCode(OP_QUEUERANKING);
-	
+	CPacket* packet = new CPacket(data, OP_EMULEPROT, OP_QUEUERANKING);
 	theStats::AddUpOverheadOther(packet->GetPacketSize());
+	AddDebugLogLineM(false, logLocalClient, wxT("Local Client: OP_QUEUERANKING to ") + GetFullIP());
 	SendPacket(packet,true,true);
 }
 
@@ -769,8 +781,8 @@ void CUpDownClient::SendCommentInfo(CKnownFile* file)
 	}
 	m_bCommentDirty = false;
 
-	// We used to limit the comment to 50 before, now we do not anymore.
-	const wxString& desc = file->GetFileComment();
+	// Truncate to max len.
+	wxString desc = file->GetFileComment().Left(MAXFILECOMMENTLEN);
 	uint8 rating = file->GetFileRating();
 	
 	if ( file->GetFileRating() == 0 && desc.IsEmpty() ) {
@@ -781,18 +793,17 @@ void CUpDownClient::SendCommentInfo(CKnownFile* file)
 	data.WriteUInt8(rating);
 	data.WriteString(desc, GetUnicodeSupport(), 4 /* size it's uint32 */);
 	
-	AddDebugLogLineM(false, logLocalClient, wxT("Local Client: OP_FILEDESC"));	
-	CPacket* packet = new CPacket(&data,OP_EMULEPROT);
-	packet->SetOpCode(OP_FILEDESC);
+	CPacket* packet = new CPacket(data, OP_EMULEPROT, OP_FILEDESC);
 	theStats::AddUpOverheadOther(packet->GetPacketSize());
+	AddDebugLogLineM(false, logLocalClient, wxT("Local Client: OP_FILEDESC to ") + GetFullIP());	
 	SendPacket(packet,true);
 }
 
 void  CUpDownClient::UnBan(){
 	m_Aggressiveness = 0;
 	
-	theApp.clientlist->AddTrackClient(this);
-	theApp.clientlist->RemoveBannedClient( GetIP() );
+	theApp->clientlist->AddTrackClient(this);
+	theApp->clientlist->RemoveBannedClient( GetIP() );
 	SetUploadState(US_NONE);
 	ClearWaitStartTime();
 	
@@ -800,8 +811,8 @@ void  CUpDownClient::UnBan(){
 }
 
 void CUpDownClient::Ban(){
-	theApp.clientlist->AddTrackClient(this);
-	theApp.clientlist->AddBannedClient( GetIP() );
+	theApp->clientlist->AddTrackClient(this);
+	theApp->clientlist->AddBannedClient( GetIP() );
 	
 	AddDebugLogLineM( false, logClient, wxT("Client '") + GetUserName() + wxT("' seems to be an aggressive client and is banned from the uploadqueue"));
 	
@@ -813,7 +824,7 @@ void CUpDownClient::Ban(){
 
 bool CUpDownClient::IsBanned() const
 {
-	return ( (theApp.clientlist->IsBannedClient(GetIP()) ) && m_nDownloadState != DS_DOWNLOADING);
+	return ( (theApp->clientlist->IsBannedClient(GetIP()) ) && m_nDownloadState != DS_DOWNLOADING);
 }
 
 void CUpDownClient::CheckForAggressive()
@@ -852,10 +863,90 @@ void CUpDownClient::CheckForAggressive()
 void CUpDownClient::SetUploadFileID(const CMD4Hash& new_id)
 {
 	// Update the uploading file found 
-	CKnownFile* uploadingfile = theApp.sharedfiles->GetFileByID(new_id);
+	CKnownFile* uploadingfile = theApp->sharedfiles->GetFileByID(new_id);
 	if ( !uploadingfile ) {
 		// Can this really happen?
-		uploadingfile = theApp.downloadqueue->GetFileByID(new_id);
+		uploadingfile = theApp->downloadqueue->GetFileByID(new_id);
 	}
 	SetUploadFileID(uploadingfile); // This will update queue count on old and new file.
 }
+
+void CUpDownClient::ProcessRequestPartsPacket(const byte* pachPacket, uint32 nSize, bool largeblocks) {
+	
+	CMemFile data(pachPacket, nSize);
+	
+	CMD4Hash reqfilehash = data.ReadHash();
+	
+	uint64 auStartOffsets[3];
+	uint64 auEndOffsets[3];
+	
+	if (largeblocks) {
+		auStartOffsets[0] = data.ReadUInt64();
+		auStartOffsets[1] = data.ReadUInt64();
+		auStartOffsets[2] = data.ReadUInt64();
+		
+		auEndOffsets[0] = data.ReadUInt64();
+		auEndOffsets[1] = data.ReadUInt64();
+		auEndOffsets[2] = data.ReadUInt64();
+	} else {
+		auStartOffsets[0] = data.ReadUInt32();
+		auStartOffsets[1] = data.ReadUInt32();
+		auStartOffsets[2] = data.ReadUInt32();
+		
+		auEndOffsets[0] = data.ReadUInt32();
+		auEndOffsets[1] = data.ReadUInt32();
+		auEndOffsets[2] = data.ReadUInt32();		
+	}
+	
+	for (unsigned int i = 0; i < itemsof(auStartOffsets); i++) {
+		AddDebugLogLineM(false, logClient,
+			wxString::Format(wxT("Client requests %u"), i)
+			+ wxT(" ") + wxString::Format(wxT("File block %u-%u (%d bytes):"), auStartOffsets[i], auEndOffsets[i], auEndOffsets[i] - auStartOffsets[i])
+			+ wxT(" ") + GetFullIP());
+		if (auEndOffsets[i] > auStartOffsets[i]) {
+			Requested_Block_Struct* reqblock = new Requested_Block_Struct;
+			reqblock->StartOffset = auStartOffsets[i];
+			reqblock->EndOffset = auEndOffsets[i];
+			md4cpy(reqblock->FileID, reqfilehash.GetHash());
+			reqblock->transferred = 0;
+			AddReqBlock(reqblock);
+		} else {
+			if (auEndOffsets[i] != 0 || auStartOffsets[i] != 0) {
+				AddDebugLogLineM(false, logClient, wxT("Client request is invalid!"));
+			}
+		}
+	}	
+}
+
+void CUpDownClient::ProcessRequestPartsPacketv2(const CMemFile& data) {
+	
+	CMD4Hash reqfilehash = data.ReadHash();
+	
+	uint8 numblocks = data.ReadUInt8();
+	
+	for (int i = 0; i < numblocks; i++) {		
+		Requested_Block_Struct* reqblock = new Requested_Block_Struct;
+		try {
+			reqblock->StartOffset = data.GetIntTagValue();
+			// We have to do +1, because the block matching uses that.
+			reqblock->EndOffset = data.GetIntTagValue() + 1;
+			if ((reqblock->StartOffset || reqblock->EndOffset) && (reqblock->StartOffset > reqblock->EndOffset)) {
+				AddDebugLogLineM(false, logClient, wxString::Format(wxT("Client request is invalid! %i / %i"),reqblock->StartOffset, reqblock->EndOffset));
+				throw wxString(wxT("Client request is invalid!"));
+			}
+			
+			AddDebugLogLineM(false, logClient,
+				wxString::Format(wxT("Client requests %u"), i)
+				+ wxT(" ") + wxString::Format(wxT("File block %u-%u (%d bytes):"),reqblock->StartOffset, reqblock->EndOffset, reqblock->EndOffset - reqblock->StartOffset)
+				+= wxT(" ") + GetFullIP());
+			
+			md4cpy(reqblock->FileID, reqfilehash.GetHash());
+			reqblock->transferred = 0;
+			AddReqBlock(reqblock);
+		} catch (...) {
+			delete reqblock;
+			throw;
+		}
+	}
+}
+// File_checked_for_headers

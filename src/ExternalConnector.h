@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -35,16 +35,9 @@
 
 #include <wx/app.h>			// For wxApp
 #include <wx/cmdline.h>		// For wxCmdLineEntryDesc
-#include <wx/intl.h>		// For wxLocale
-#include <wx/string.h>		// For wxString
+#include <ec/cpp/RemoteConnect.h>
 
-#include <ec/RemoteConnect.h>
-#include <ec/ECPacket.h>
-#include <ec/ECCodes.h>
-
-#include "MD4Hash.h"
-
-#include <list>
+#include <wx/intl.h>
 
 #define CMD_DEPRECATED		0x1000
 #define CMD_OK			 0
@@ -143,7 +136,7 @@ public:
 	bool Parse_Command(const wxString& buffer);
 	void GetCommand(const wxString &prompt, char* buffer, size_t buffer_size);
 	const CECPacket *SendRecvMsg_v2(const CECPacket *request) { return m_ECClient->SendRecvPacket(request); }
-	void ConnectAndRun(const wxString &ProgName, const wxString& ProgName);
+	void ConnectAndRun(const wxString &ProgName, const wxString& ProgVersion);
 	void ShowGreet();
 
 	//
@@ -178,3 +171,4 @@ private:
 };
 
 #endif // __EXTERNALCONNECTOR_H__
+// File_checked_for_headers

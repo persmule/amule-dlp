@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -39,10 +39,8 @@ there client on the eMule forum..
 #ifndef __KAD_ENTRY_H__
 #define __KAD_ENTRY_H__
 
-#include <ctime>
 
 #include "../utils/UInt128.h"
-#include "../kademlia/Tag.h"
 
 ////////////////////////////////////////
 namespace Kademlia {
@@ -53,28 +51,28 @@ class CEntry
 public:
 	CEntry()
 	{
-		ip = 0;
-		tcpport = 0;
-		udpport = 0;
-		size = 0;
-		lifetime = time(NULL);
-		source = false;
+		m_iIP = 0;
+		m_iTCPport = 0;
+		m_iUDPport = 0;
+		m_iSize = 0;
+		m_tLifeTime = time(NULL);
+		m_bSource = false;
 	}
 	~CEntry()
 	{
-		TagList::const_iterator it;
-		for (it = taglist.begin(); it != taglist.end(); ++it) {
+		TagPtrList::const_iterator it;
+		for (it = m_lTagList.begin(); it != m_lTagList.end(); ++it) {
 			delete *it;
 		}
 	}
 	
 	uint32 GetIntTagValue(const wxString& tagname) const
 	{
-		TagList::const_iterator it;
-		Kademlia::CTag* tag;
-		for (it = taglist.begin(); it != taglist.end(); ++it) {
+		TagPtrList::const_iterator it;
+		CTag* tag;
+		for (it = m_lTagList.begin(); it != m_lTagList.end(); ++it) {
 			tag = *it;
-			if (!tag->m_name.Cmp(tagname) && tag->IsInt()) {
+			if ((tag->GetName() == tagname) && tag->IsInt()) {
 				return tag->GetInt();
 			}
 		}
@@ -83,29 +81,30 @@ public:
 
 	wxString GetStrTagValue(const wxString& tagname) const
 	{
-		TagList::const_iterator it;
-		Kademlia::CTag* tag;
-		for (it = taglist.begin(); it != taglist.end(); ++it) {
+		TagPtrList::const_iterator it;
+		CTag* tag;
+		for (it = m_lTagList.begin(); it != m_lTagList.end(); ++it) {
 			tag = *it;
-			if (!tag->m_name.Cmp(tagname)&& tag->IsStr()) {
+			if ((tag->GetName() == tagname) && tag->IsStr()) {
 				return tag->GetStr();
 			}
 		}
 		return wxEmptyString;
 	}	
 	
-	uint32 ip;
-	uint16 tcpport;
-	uint16 udpport;
-	CUInt128 keyID;
-	CUInt128 sourceID;
-	CTagValueString fileName; // NOTE: this always holds the string in LOWERCASE!!!
-	uint32	size;
-	TagList taglist;
-	time_t lifetime;
-	bool source;
+	uint32 m_iIP;
+	uint16 m_iTCPport;
+	uint16 m_iUDPport;
+	CUInt128 m_iKeyID;
+	CUInt128 m_iSourceID;
+	wxString m_sFileName; // NOTE: this always holds the string in LOWERCASE!!!
+	uint32	m_iSize;
+	TagPtrList m_lTagList;
+	time_t m_tLifeTime;
+	bool m_bSource;
 };
 
 }
 
 #endif // __KAD_ENTRY_H__
+// File_checked_for_headers

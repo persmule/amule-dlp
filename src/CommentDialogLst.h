@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,7 +26,7 @@
 #ifndef COMMENTDIALOGLST_H
 #define COMMENTDIALOGLST_H
 
-#include <wx/dialog.h>		// Needed for wxDialog
+#include <wx/dialog.h>		// Needed for wxDialog	// Do_not_auto_remove
 #include <wx/sizer.h>
 
 class CMuleListCtrl;
@@ -45,7 +45,7 @@ public:
 	/**
 	 * Sorter function for the CMuleListCtrl used to contain the lists.
 	 */
-	static int wxCALLBACK SortProc(long item1, long item2, long sortData);
+	static int wxCALLBACK SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData);
 
 private:
 	void OnBnClickedApply(wxCommandEvent& evt); 
@@ -72,3 +72,4 @@ private:
 };
 
 #endif // COMMENTDIALOGLST_H
+// File_checked_for_headers

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Angel Vidal Veiga - Kry (kry@amule.org)
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Angel Vidal Veiga - Kry (kry@amule.org)
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -23,13 +23,15 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <cctype>
 
-#include <wx/filename.h>
-#include <wx/url.h>
+#define STRINGFUNCTIONS_CPP
+
 
 #include "StringFunctions.h"
+#include "Path.h"
 
+#include <wx/filename.h>	// Needed for wxFileName
+#include <wx/uri.h>		// Needed for wxURI
 
 // Implementation of the non-inlines
 static byte base16Chars[17] = "0123456789ABCDEF";
@@ -57,13 +59,13 @@ wxString URLEncode(const wxString& sIn)
 	return sOut;
 }
 
-wxString TruncateFilename(const wxString& filename, size_t length, bool isFilePath)
+wxString TruncateFilename(const CPath& filename, size_t length, bool isFilePath)
 {
+	wxString file = filename.GetPrintable();
+
 	// Check if there's anything to do
-	if ( filename.Length() <= length )
-		return filename;
-	
-	wxString file = filename;
+	if (file.Length() <= length)
+		return file;
 	
 	// If the filename is a path, then prefer to remove from the path, rather than the filename
 	if ( isFilePath ) {
@@ -75,7 +77,7 @@ wxString TruncateFilename(const wxString& filename, size_t length, bool isFilePa
 		} else if ( file.Length() >= length ) {
 			path.Clear();
 		} else {
-			// Minus 6 for "[...]" + seperator
+			// Minus 6 for "[...]" + separator
 			int pathlen = length - file.Length() - 6;
 			
 			if ( pathlen > 0 ) {
@@ -100,52 +102,11 @@ wxString TruncateFilename(const wxString& filename, size_t length, bool isFilePa
 	return file;
 }
 
-// Strips specific chars to ensure legal filenames
-wxString CleanupFilename(const wxString& filename, bool keepSpaces, bool fat32)
-{
-#ifdef __WXMSW__
-	fat32 = true;
-#endif
-	wxString result;
-
-	for ( unsigned int i = 0; i < filename.Length(); i++ ) {
-		switch ( filename[ i ] ) {
-			case wxT('/'):
-				continue;
-				
-			case wxT('\"'):
-			case wxT('*'):
-			case wxT('<'):
-			case wxT('>'):
-			case wxT('?'):
-			case wxT('|'):
-			case wxT('\\'):
-			case wxT(':'):
-				if (fat32) {
-					continue;
-				}
-				
-			case wxT(' '):
-				if ( !keepSpaces ) {
-					result += wxT('_');
-					continue;
-				}
-				
-			default:
-				// Many illegal for filenames in windows below the 32th char (which is space).
-				if ( (wxUChar) filename[i] > 31 ) {
-						result += filename[i];
-				}
-		}
-	}
-
-	return result;
-}
 
 
 wxString StripSeparators(wxString path, wxString::stripType type)
 {
-	wxASSERT((type == wxString::leading) or (type == wxString::trailing));
+	wxASSERT((type == wxString::leading) || (type == wxString::trailing));
 	const wxString seps = wxFileName::GetPathSeparators();
 
 	while (!path.IsEmpty()) {
@@ -233,6 +194,83 @@ wxString validateURI(const wxString& url)
 }
 
 
+enum ECharType {
+	ECTInteger,
+	ECTText,
+	ECTNone
+};
+
+inline wxString GetNextField(const wxString& str, size_t& cookie)
+{
+	// These are taken to seperate "fields"
+	static const wxChar* s_delims = wxT("\t\n\x0b\x0c\r !\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~");
+	
+	wxString field;
+	ECharType curType = ECTNone;
+	for (; cookie < str.Length(); ++cookie) {
+		wxChar c = str[cookie];
+
+		if ((c >= wxT('0')) && (c <= wxT('9'))) {
+			if (curType == ECTText) {
+				break;
+			}
+
+			curType = ECTInteger;
+			field += c;
+		} else if (wxStrchr(s_delims, c)) {
+			if (curType == ECTNone) {
+				continue;
+			} else {
+				break;
+			}
+		} else {
+			if (curType == ECTInteger) {
+				break;
+			}
+
+			curType = ECTText;
+			field += c;
+		}
+	}
+
+	return field;
+}
+
+
+int FuzzyStrCmp(const wxString& a, const wxString& b)
+{
+	size_t aCookie = 0, bCookie = 0;
+	wxString aField, bField;
+
+	do {
+		aField = GetNextField(a, aCookie);
+		bField = GetNextField(b, bCookie);
+
+		if (aField.IsNumber() && bField.IsNumber()) {
+			unsigned long aInteger = StrToULong(aField);
+			unsigned long bInteger = StrToULong(bField);
+			
+			if (aInteger < bInteger) {
+				return -1;
+			} else if (aInteger > bInteger) {
+				return  1;
+			}
+		} else if (aField < bField) {
+			return -1;
+		} else if (aField > bField) {
+			return  1;
+		}
+	} while (!aField.IsEmpty() && !bField.IsEmpty());
+
+	return 0;
+}
+
+
+int FuzzyStrCaseCmp(const wxString& a, const wxString& b)
+{
+	return FuzzyStrCmp(a.Lower(), b.Lower());
+}
+
 
 	
 CSimpleTokenizer::CSimpleTokenizer(const wxString& str, wxChar token)
@@ -273,3 +311,4 @@ size_t CSimpleTokenizer::tokenCount() const
 }
 
 
+// File_checked_for_headers

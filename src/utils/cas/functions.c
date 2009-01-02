@@ -64,7 +64,8 @@
 /* try (hard) to get correct path for aMule signature
  * !! it's caller's responsibility to free return value
  */
-char *get_path(char *file)
+
+char *get_path(const char *file)
 {
 	char *ret;	/* caller should free return value */
 	static char *saved_home = NULL;
@@ -178,6 +179,33 @@ char *get_path(char *file)
 	return ret;
 }
 
+char *get_amule_path(const char *file, int force_directory, const char *cmdline_path)
+{
+	char *path;
+
+	if (!cmdline_path) {
+		return get_path(file);
+	}
+
+	if ((path = malloc(strlen(cmdline_path) + strlen(file) + 2)) == NULL) {
+		return NULL;
+	}
+
+	strcpy(path, cmdline_path);
+	if (force_directory) {
+		if (path[strlen(path) - 1] != CAS_DIR_SEPARATOR[0]) {
+			strcat(path, CAS_DIR_SEPARATOR);
+		}
+		strcat(path, file);
+	} else {
+		if (path[strlen(path) - 1] == CAS_DIR_SEPARATOR[0]) {
+			strcat(path, file);
+		}
+	}	
+
+	return path;
+}
+
 /*
  * this function is used to convert bytes to any other unit
  * nicer to the eye.
@@ -186,7 +214,7 @@ char *get_path(char *file)
  */
 char *convbytes(char *input)
 {
-	char *units[] = { "bytes", "Kb", "Mb", "Gb", "Tb", "Pb" };
+	char *units[] = { "Bytes", "KB", "MB", "GB", "TB", "PB" };
 	char *endptr;
 	static char output[50];
 	float bytes;
@@ -216,14 +244,14 @@ char *convbytes(char *input)
 	return output;
 }
 
-void replace(char *tmpl, const char *search, const char *replace)
+void replace(char *tmpl, const char *search, const char *to_replace)
 {
 	char *dest   = NULL;
 	char *retStr = NULL;
 	int	befLen,srchLen,repLen,totLen;
 
 	/* returning the 'tmpl' if 'search' is NULL */
-  if (NULL == tmpl || NULL == search) /* || NULL == replace) */
+  if (NULL == tmpl || NULL == search) /* || NULL == to_replace) */
   {
 		return;
 	}
@@ -240,7 +268,7 @@ void replace(char *tmpl, const char *search, const char *replace)
 		totLen	= strlen(tmpl);
 		befLen	= (int)(retStr - tmpl);
 		srchLen = strlen(search);
-		repLen	= strlen(replace);
+		repLen	= strlen(to_replace);
 
 		/* dynamic buffer creation... */
 		dest = (char*)malloc(totLen + 1 + repLen - srchLen);
@@ -250,7 +278,7 @@ void replace(char *tmpl, const char *search, const char *replace)
 		/* copy the before buffer */
 		strncpy(dest, tmpl, befLen);
 		/* copy the replace string */
-		memcpy((dest+befLen), replace, repLen); /* strcat(dest, replace); */
+		memcpy((dest+befLen), to_replace, repLen); /* strcat(dest, to_replace); */
 		/* copy the after buffer */
 		memcpy((dest+befLen+repLen), &tmpl[befLen + srchLen], strlen(&tmpl[befLen + srchLen])); /*strcat(dest, &tmpl[befLen + repLen]); */
 

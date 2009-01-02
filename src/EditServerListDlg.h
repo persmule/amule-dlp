@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Drager
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,8 +26,6 @@
 #ifndef EDITSERVERLISTDLG_H
 #define EDITSERVERLISTDLG_H
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
-#include <wx/dialog.h>		// Needed for wxDialog
 
 class wxTextCtrl;
 
@@ -49,7 +47,7 @@ protected:
 
 private:
     DECLARE_EVENT_TABLE()
-    DECLARE_DYNAMIC_CLASS(EditServerListDlg)
 };
 
 #endif // EDITSERVERLISTDLG_H
+// File_checked_for_headers

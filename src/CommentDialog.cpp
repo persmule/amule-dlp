@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,15 +23,10 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
-#include <wx/intl.h>		// Needed for _
-#include <wx/settings.h>
 
 #include "CommentDialog.h"	// Interface declarations
 #include "KnownFile.h"		// Needed for CKnownFile
 #include "muuli_wdr.h"		// Needed for commentDlg
-#include <wx/sizer.h>
-#include <wx/textctrl.h>
 // CommentDialog dialog 
 
 //IMPLEMENT_DYNAMIC(CCommentDialog, CDialog)
@@ -81,7 +76,8 @@ void CCommentDialog::OnBnClickedCancel(wxCommandEvent& WXUNUSED(evt))
 bool CCommentDialog::OnInitDialog()
 {
 	CastChild(IDC_CMT_TEXT, wxTextCtrl)->SetValue(m_file->GetFileComment());
-	CastChild(IDC_CMT_TEXT, wxTextCtrl)->SetMaxLength(50);
+	CastChild(IDC_CMT_TEXT, wxTextCtrl)->SetMaxLength(MAXFILECOMMENTLEN);
 	ratebox->SetSelection(m_file->GetFileRating());
 	return TRUE;
 }
+// File_checked_for_headers

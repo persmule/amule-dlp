@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -22,71 +22,42 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <unistd.h>           // Needed for close(2) and sleep(3)
-#include <wx/defs.h>
+
+#include "amule.h"			// Interface declarations.
+
+#include <include/common/EventIDs.h>
 
 #ifdef HAVE_CONFIG_H
 	#include "config.h"		// Needed for HAVE_SYS_RESOURCE_H
 #endif
 
-#include <wx/filefn.h>
-#include <wx/ffile.h>
-#include <wx/file.h>
-#include <wx/log.h>
-#include <wx/timer.h>
-#include <wx/config.h>
-#include <wx/socket.h>			// Needed for wxSocket
 #include <wx/utils.h>
-#include <wx/ipc.h>
-#include <wx/intl.h>			// Needed for i18n
-#include <wx/mimetype.h>		// For launching default browser
-#include <wx/textfile.h>		// Needed for wxTextFile
-#include <wx/cmdline.h>			// Needed for wxCmdLineParser
-#include <wx/tokenzr.h>			// Needed for wxStringTokenizer
-#include <wx/url.h>
-#include <wx/stdpaths.h>
 
-#include "amule.h"			// Interface declarations.
-#include "GetTickCount.h"		// Needed for GetTickCount
-#include "Server.h"			// Needed for GetListName
-#include "OtherFunctions.h"		// Needed for GetTickCount
-#include "UploadQueue.h"		// Needed for CUploadQueue
-#include "DownloadQueue.h"		// Needed for CDownloadQueue
-#include "ClientCredits.h"		// Needed for CClientCreditsList
-#include "ClientUDPSocket.h"		// Needed for CClientUDPSocket
-#include "SharedFileList.h"		// Needed for CSharedFileList
-#include "ServerConnect.h"		// Needed for CServerConnect
-#include "ServerList.h"			// Needed for CServerList
-#include "KnownFileList.h"		// Needed for CKnownFileList
-#include "SearchList.h"			// Needed for CSearchList
-#include "ClientList.h"			// Needed for CClientList
 #include "Preferences.h"		// Needed for CPreferences
-#include "ListenSocket.h"		// Needed for CListenSocket
-#include "ExternalConn.h"		// Needed for ExternalConn & MuleConnection
-#include "ServerSocket.h"		// Needed for CServerSocket
-#include "ServerUDPSocket.h"		// Needed for CServerUDPSocket
 #include "PartFile.h"			// Needed for CPartFile
-#include "AddFileThread.h"		// Needed for CAddFileThread
-#include "FriendList.h"			// Needed for CFriendList
-#include "Packet.h"
-#include "AICHSyncThread.h"
-#include "Statistics.h"
 #include "Logger.h"
 #include <common/Format.h>
 #include "InternalEvents.h"		// Needed for wxEVT_*
+#include "ThreadTasks.h"
+#include "GuiEvents.h"			// Needed for EVT_MULE_NOTIFY
+#include "Timer.h"			// Needed for EVT_MULE_TIMER
 
+#include "ClientUDPSocket.h"		// Do_not_auto_remove (forward declaration not enough)
+#include "ListenSocket.h"		// Do_not_auto_remove (forward declaration not enough)
+
+
+#include <errno.h>
 #ifdef HAVE_SYS_RESOURCE_H
-#include <sys/resource.h>
+#include <sys/resource.h> // Do_not_auto_remove
 #endif
 
 #ifndef __WXMSW__
 	#ifdef  HAVE_SYS_WAIT_H
-		#include <sys/wait.h>
+		#include <sys/wait.h> // Do_not_auto_remove 
 	#endif
 
 	#include <wx/unix/execute.h>
 #endif
-
 
 BEGIN_EVENT_TABLE(CamuleDaemonApp, wxAppConsole)
 	//
@@ -94,20 +65,21 @@ BEGIN_EVENT_TABLE(CamuleDaemonApp, wxAppConsole)
 	//
 	
 	// Listen Socket
-	EVT_SOCKET(LISTENSOCKET_HANDLER, CamuleDaemonApp::ListenSocketHandler)
+	EVT_SOCKET(ID_LISTENSOCKET_EVENT, CamuleDaemonApp::ListenSocketHandler)
 
 	// UDP Socket (servers)
-	EVT_SOCKET(SERVERUDPSOCKET_HANDLER, CamuleDaemonApp::UDPSocketHandler)
+	EVT_SOCKET(ID_SERVERUDPSOCKET_EVENT, CamuleDaemonApp::UDPSocketHandler)
 	// UDP Socket (clients)
-	EVT_SOCKET(CLIENTUDPSOCKET_HANDLER, CamuleDaemonApp::UDPSocketHandler)
+	EVT_SOCKET(ID_CLIENTUDPSOCKET_EVENT, CamuleDaemonApp::UDPSocketHandler)
 
-	// Socket timers (TCP + UDO)
-	EVT_MULE_INTERNAL(wxEVT_AMULE_TIMER, TM_TCPSOCKET, CamuleDaemonApp::OnTCPTimer)
+	// Socket timer (TCP)
+	EVT_MULE_TIMER(ID_SERVER_RETRY_TIMER_EVENT, CamuleDaemonApp::OnTCPTimer)
 
 	// Core timer
-	EVT_MULE_INTERNAL(wxEVT_AMULE_TIMER, ID_CORETIMER, CamuleDaemonApp::OnCoreTimer)
+	EVT_MULE_TIMER(ID_CORE_TIMER_EVENT, CamuleDaemonApp::OnCoreTimer)
 
-	EVT_CUSTOM(wxEVT_MULE_NOTIFY_EVENT, -1, CamuleDaemonApp::OnNotifyEvent)
+	EVT_MULE_NOTIFY(CamuleDaemonApp::OnNotifyEvent)
+	EVT_MULE_LOGGING(CamuleDaemonApp::OnLoggingEvent)
 
 	// Async dns handling
 	EVT_MULE_INTERNAL(wxEVT_CORE_UDP_DNS_DONE, -1, CamuleDaemonApp::OnUDPDnsDone)
@@ -117,13 +89,11 @@ BEGIN_EVENT_TABLE(CamuleDaemonApp, wxAppConsole)
 	EVT_MULE_INTERNAL(wxEVT_CORE_SERVER_DNS_DONE, -1, CamuleDaemonApp::OnServerDnsDone)
 
 	// Hash ended notifier
-	EVT_MULE_INTERNAL(wxEVT_CORE_FILE_HASHING_FINISHED, -1, CamuleDaemonApp::OnFinishedHashing)
-
-	// Hashing thread finished and dead
-	EVT_MULE_INTERNAL(wxEVT_CORE_FILE_HASHING_SHUTDOWN, -1, CamuleDaemonApp::OnHashingShutdown)
-
+	EVT_MULE_HASHING(CamuleDaemonApp::OnFinishedHashing)
+	EVT_MULE_AICH_HASHING(CamuleDaemonApp::OnFinishedAICHHashing)
+	
 	// File completion ended notifier
-	EVT_MULE_INTERNAL(wxEVT_CORE_FINISHED_FILE_COMPLETION, -1, CamuleDaemonApp::OnFinishedCompletion)
+	EVT_MULE_FILE_COMPLETED(CamuleDaemonApp::OnFinishedCompletion)
 
 	// HTTPDownload finished
 	EVT_MULE_INTERNAL(wxEVT_CORE_FINISHED_HTTP_DOWNLOAD, -1, CamuleDaemonApp::OnFinishedHTTPDownload)
@@ -137,8 +107,8 @@ IMPLEMENT_APP(CamuleDaemonApp)
  */
 class CSocketSet {
 		int m_count;
-		int m_fds[1024], m_fd_idx[1024];
-		GSocket *m_gsocks[1024];
+		int m_fds[FD_SETSIZE], m_fd_idx[FD_SETSIZE];
+		GSocket *m_gsocks[FD_SETSIZE];
 
 		fd_set m_set;
 	public:
@@ -155,7 +125,7 @@ class CSocketSet {
 CSocketSet::CSocketSet()
 {
 	m_count = 0;
-	for(int i = 0; i < 1024; i++) {
+	for(int i = 0; i < FD_SETSIZE; i++) {
 		m_fds[i] = 0;
 		m_fd_idx[i] = 0xffff;
 		m_gsocks[i] = 0;
@@ -269,7 +239,7 @@ void CAmuledGSocketFuncTable::RunSelect()
 	m_in_set->FillSet(max_fd);
 	m_out_set->FillSet(max_fd);
 
-    struct timeval tv;
+	struct timeval tv;
 	tv.tv_sec = 0;
 	tv.tv_usec = 10000; // 10ms
 	
@@ -335,12 +305,19 @@ void CAmuledGSocketFuncTable::Disable_Events(GSocket *socket)
 	Uninstall_Callback(socket, GSOCK_OUTPUT);
 }
 
-CDaemonAppTraits::CDaemonAppTraits(CAmuledGSocketFuncTable *table) : m_lock(wxMUTEX_RECURSIVE)
-{
-	m_table = table;
 
+CDaemonAppTraits::CDaemonAppTraits(CAmuledGSocketFuncTable *table)
+:
+wxConsoleAppTraits(),
+m_table(table),
+m_lock(wxMUTEX_RECURSIVE),
+m_sched_delete(),
+m_oldSignalChildAction(),
+m_newSignalChildAction()
+{
 	m_lock.Unlock();
 }
+
 
 void CDaemonAppTraits::ScheduleForDestroy(wxObject *object)
 {
@@ -376,35 +353,8 @@ void CDaemonAppTraits::DeletePending()
 }
 
 
-#ifndef __WXMSW__
-int CDaemonAppTraits::WaitForChild(wxExecuteData& execData)
-{
-    if (execData.flags & wxEXEC_SYNC) {
-	    int exitcode = 0;
-    	if ( waitpid(execData.pid, &exitcode, 0) == -1 || !WIFEXITED(exitcode) ) {
-        	wxLogSysError(_("Waiting for subprocess termination failed"));
-	    }	
-
-    	return exitcode;
-	} else /** wxEXEC_ASYNC */ {
-		// Give the process a chance to start or forked child to exit
-		// 1 second is enough time to fail on "path not found"
-		wxSleep(1);
-
-		int status = 0, result = 0; 
-		if ( (result = waitpid(execData.pid, &status, WNOHANG)) == -1) {
-			printf("ERROR: waitpid call failed\n");
-		} else if (WIFSIGNALED(status) || (WIFEXITED(status) && WEXITSTATUS(status))) {
-			return 0;
-		}
-		
-		return execData.pid;
-	}
-}
-#endif
-
-
 #ifdef __WXMAC__
+#include <wx/stdpaths.h> // Do_not_auto_remove (guess)
 static wxStandardPathsCF gs_stdPaths;
 wxStandardPathsBase& CDaemonAppTraits::GetStandardPaths()
 {
@@ -414,43 +364,216 @@ wxStandardPathsBase& CDaemonAppTraits::GetStandardPaths()
 
 
 CamuleDaemonApp::CamuleDaemonApp()
+:
+m_Exit(false),
+m_table(new CAmuledGSocketFuncTable())
 {
 	wxPendingEventsLocker = new wxCriticalSection;
-
-	m_table = new CAmuledGSocketFuncTable();
-	
-	m_Exit = false;
 }
+
 
 wxAppTraits *CamuleDaemonApp::CreateTraits()
 {
 	return new CDaemonAppTraits(m_table);
 }
 
+
+#ifndef __WXMSW__
+
+
+static EndProcessDataMap endProcDataMap;
+
+
+int CDaemonAppTraits::WaitForChild(wxExecuteData &execData)
+{
+	int status = 0;
+	pid_t result = 0;
+	// Build the log message
+	wxString msg;
+	msg << wxT("WaitForChild() has been called for child process with pid `") <<
+		execData.pid <<
+		wxT("'. ");
+
+	if (execData.flags & wxEXEC_SYNC) {
+		result = AmuleWaitPid(execData.pid, &status, 0, &msg);
+		if (result == -1 || (!WIFEXITED(status) && !WIFSIGNALED(status))) {
+			msg << wxT(" Waiting for subprocess termination failed.");
+			AddDebugLogLineM(false, logGeneral, msg);			
+		}	
+	} else {
+		/** wxEXEC_ASYNC */
+		// Give the process a chance to start or forked child to exit
+		// 1 second is enough time to fail on "path not found"
+		wxSleep(1);
+		result = AmuleWaitPid(execData.pid, &status, WNOHANG, &msg);
+		if (result == 0) {
+			// Add a WxEndProcessData entry to the map, so that we can
+			// support process termination
+			wxEndProcessData *endProcData = new wxEndProcessData();
+			endProcData->pid = execData.pid;
+			endProcData->process = execData.process;
+			endProcData->tag = 0;
+			endProcDataMap[execData.pid] = endProcData;
+
+			status = execData.pid;
+		} else {
+			// if result != 0, then either waitpid() failed (result == -1)
+			// and there is nothing we can do, or the child has changed 
+			// status, which means it is probably dead.
+			status = 0;
+		}
+	}
+
+	// Log our passage here
+	AddDebugLogLineM(false, logGeneral, msg);
+
+	return status;
+}
+
+
+void OnSignalChildHandler(int /*signal*/, siginfo_t *siginfo, void * /*ucontext*/)
+{
+	// Build the log message
+	wxString msg;
+	msg << wxT("OnSignalChildHandler() has been called for child process with pid `") <<
+		siginfo->si_pid <<
+		wxT("'. ");
+	// Make sure we leave no zombies by calling waitpid()
+	int status = 0;
+	pid_t result = AmuleWaitPid(siginfo->si_pid, &status, WNOHANG, &msg);
+	if (result != 1 && result != 0 && (WIFEXITED(status) || WIFSIGNALED(status))) {
+		// Fetch the wxEndProcessData structure corresponding to this pid
+		EndProcessDataMap::iterator it = endProcDataMap.find(siginfo->si_pid);
+		if (it != endProcDataMap.end()) {
+			wxEndProcessData *endProcData = it->second;
+			// Remove this entry from the process map
+			endProcDataMap.erase(siginfo->si_pid);
+			// Save the exit code for the wxProcess object to read later
+			endProcData->exitcode = result != -1 && WIFEXITED(status) ?
+				WEXITSTATUS(status) : -1;
+			// Make things work as in wxGUI
+			wxHandleProcessTermination(endProcData);
+
+			// wxHandleProcessTermination() will "delete endProcData;"
+			// So we do not delete it again, ok? Do not uncomment this line.
+			//delete endProcData;
+		} else {
+			msg << wxT(" Error: the child process pid is not on the pid map.");
+		}
+	}
+
+	// Log our passage here
+	AddDebugLogLineM(false, logGeneral, msg);
+}
+
+
+pid_t AmuleWaitPid(pid_t pid, int *status, int options, wxString *msg)
+{
+	// strerror_r() buffer
+	const int ERROR_BUFFER_LEN = 256;
+	char errorBuffer[ERROR_BUFFER_LEN];
+
+	*status = 0;
+	pid_t result = waitpid(pid, status, options);
+	if (result == -1) {
+		strerror_r(errno, errorBuffer, ERROR_BUFFER_LEN);
+		*msg << wxT("Error: waitpid() call failed: ") <<
+			char2unicode(errorBuffer) <<
+			wxT(".");
+	} else if (result == 0) {
+		if (options & WNOHANG)  {
+			*msg << wxT("The child is alive.");
+		} else {
+			*msg << wxT("Error: waitpid() call returned 0 but "
+				"WNOHANG was not specified in options.");
+		}
+	} else {
+		if (WIFEXITED(*status)) {
+			*msg << wxT("Child has terminated with status code `") <<
+				WEXITSTATUS(*status) <<
+				wxT("'.");
+		} else if (WIFSIGNALED(*status)) {
+			*msg << wxT("Child was killed by signal `") <<
+				WTERMSIG(*status) <<
+				wxT("'.");
+			if (WCOREDUMP(*status)) {
+				*msg << wxT(" A core file has been dumped.");
+			}
+		} else if (WIFSTOPPED(*status)) {
+			*msg << wxT("Child has been stopped by signal `") <<
+				WSTOPSIG(*status) <<
+				wxT("'.");
+#ifdef WIFCONTINUED /* Only found in recent kernels. */
+		} else if (WIFCONTINUED(*status)) {
+			*msg << wxT("Child has received `SIGCONT' and has continued execution.");
+#endif
+		} else {
+			*msg << wxT("The program was not able to determine why the child has signaled.");
+		}
+	}
+
+	return result;
+}
+
+
+#endif // __WXMSW__
+
+
 int CamuleDaemonApp::OnRun()
 {
-	AddDebugLogLineM( true, logGeneral, wxT("CamuleDaemonApp::OnRun()"));
-	
 	if (!thePrefs::AcceptExternalConnections()) {
 		wxString warning = _("ERROR: aMule daemon cannot be used when external connections are disabled. "
-			"To enable External Connections, use either a normal aMule or set the key"
+			"To enable External Connections, use either a normal aMule, start amuled with the option --ec-config or set the key"
 			"\"AcceptExternalConnections\" to 1 in the file ~/.aMule/amule.conf");
 		
 		AddLogLineM(true, warning);
 		printf("\n%s\n\n", (const char*)unicode2char(warning));
+		
 		return 0;
 	} else if (thePrefs::ECPassword().IsEmpty()) {
 		wxString warning = wxT("ERROR: A valid password is required to use "
 			"external connections, and aMule daemon cannot be used without "
 			"external connections. To run aMule deamon, you must set the "
 			"\"ECPassword\" field in the file ~/.aMule/amule.conf with an "
-			"appropriate value. More information can be found at "
+			"appropriate value. Execute amuled with the flag --ec-config to set the password. More information can be found at "
 			"http://wiki.amule.org");
 	
 		AddLogLineM(true, warning);
 		printf("\n%s\n\n", (const char*)unicode2char(warning));
+		
 		return 0;
 	}
+
+#ifndef __WXMSW__
+	// strerror_r() buffer
+	const int ERROR_BUFFER_LEN = 256;
+	char errorBuffer[ERROR_BUFFER_LEN];
+	wxString msg;
+
+	// Process the return code of dead children so that we do not create 
+	// zombies. wxBase does not implement wxProcess callbacks, so no one
+	// actualy calls wxHandleProcessTermination() in console applications.
+	// We do our best here.
+	int ret = 0;
+	ret = sigaction(SIGCHLD, NULL, &m_oldSignalChildAction);
+	m_newSignalChildAction = m_oldSignalChildAction;
+	m_newSignalChildAction.sa_sigaction = OnSignalChildHandler;
+	m_newSignalChildAction.sa_flags |=  SA_SIGINFO;
+	m_newSignalChildAction.sa_flags &= ~SA_RESETHAND;
+	ret = sigaction(SIGCHLD, &m_newSignalChildAction, NULL);
+	if (ret == -1) {
+		strerror_r(errno, errorBuffer, ERROR_BUFFER_LEN);
+		msg << wxT("CamuleDaemonApp::OnRun(): "
+			"Installation of SIGCHLD callback with sigaction() failed: ") <<
+			char2unicode(errorBuffer) <<
+			wxT(".");
+		AddLogLineM(true, msg);
+	} else {
+		msg << wxT("CamuleDaemonApp::OnRun(): Installation of SIGCHLD "
+			"callback with sigaction() succeeded.");
+		AddDebugLogLineM(false, logGeneral, msg);
+	}
+#endif // __WXMSW__
 	
 	while ( !m_Exit ) {
 		m_table->RunSelect();
@@ -458,7 +581,24 @@ int CamuleDaemonApp::OnRun()
 		((CDaemonAppTraits *)GetTraits())->DeletePending();
 	}
 	
+	// ShutDown is beeing called twice. Once here and again in OnExit().
 	ShutDown();
+
+#ifndef __WXMSW__
+	msg.Empty();
+	ret = sigaction(SIGCHLD, &m_oldSignalChildAction, NULL);
+	if (ret == -1) {
+		strerror_r(errno, errorBuffer, ERROR_BUFFER_LEN);
+		msg << wxT("CamuleDaemonApp::OnRun(): second sigaction() failed: ") <<
+			char2unicode(errorBuffer) <<
+			wxT(".");
+		AddLogLineM(true, msg);
+	} else {
+		msg << wxT("CamuleDaemonApp::OnRun(): Uninstallation of SIGCHLD "
+			"callback with sigaction() succeeded.");
+		AddDebugLogLineM(false, logGeneral, msg);
+	}
+#endif // __WXMSW__
 
 	return 0;
 }
@@ -469,19 +609,17 @@ bool CamuleDaemonApp::OnInit()
 	if ( !CamuleApp::OnInit() ) {
 		return false;
 	}
-	core_timer = new CTimer(this,ID_CORETIMER);
-	
+	core_timer = new CTimer(this,ID_CORE_TIMER_EVENT);
 	core_timer->Start(300);
-	
 	glob_prefs->GetCategory(0)->title = GetCatTitle(thePrefs::GetAllcatType());
-	glob_prefs->GetCategory(0)->incomingpath = thePrefs::GetIncomingDir();
+	glob_prefs->GetCategory(0)->path = thePrefs::GetIncomingDir();
 	
 	return true;
 }
 
 int CamuleDaemonApp::InitGui(bool ,wxString &)
 {
-	#ifndef __WXMSW__
+#ifndef __WXMSW__
 	if ( !enable_daemon_fork ) {
 		return 0;
 	}
@@ -506,7 +644,7 @@ int CamuleDaemonApp::InitGui(bool ,wxString &)
 		setsid();
   	}
   	
-	#endif
+#endif
 	return 0;
 }
 
@@ -545,41 +683,16 @@ void CamuleDaemonApp::ShowAlert(wxString msg, wxString title, int flags)
 	
 	// Ensure that alerts are always visible on the console (when possible).
 	if ((not enable_stdout_log) and (not enable_daemon_fork)) {
-		printf("%s\n", (const char*)unicode2UTF8(title + wxT(" ") + msg));
+		printf("%s\n", unicode2UTF8(title + wxT(" ") + msg).data());
 	}
 	
 	AddLogLineM(true, title + wxT(" ") + msg);
 }
 
 
-void CamuleDaemonApp::NotifyEvent(const GUIEvent& event)
+void CamuleDaemonApp::OnLoggingEvent(CLoggingEvent& evt)
 {
-	switch (event.ID) {
-		// GUI->CORE events
-		// it's daemon, so gui isn't here, but macros can be used as function calls
-		case SEARCH_ADD_TO_DLOAD:
-			downloadqueue->AddSearchToDownload((CSearchFile *)event.ptr_value, event.byte_value);
-			break;
-
-		case SHAREDFILES_SHOW_ITEM:
-			//printf("SHAREDFILES_SHOW_ITEM: %p\n", event.ptr_value);
-			break;
-			
-		case DOWNLOAD_CTRL_ADD_SOURCE:
-		/*
-		printf("ADD_SOURCE: adding source %p to partfile %s\n",
-		       event.ptr_aux_value, ((CPartFile*)event.ptr_value)->GetFullName().c_str());
-		*/
-			break;
-
-		case ADDLOGLINE:
-			AddLogLine(event.string_value);
-			break;
-		case ADDDEBUGLOGLINE:
-			//printf("DEBUGLOG: %s\n", event.string_value.c_str());
-			break;
-		default:
-			//printf("WARNING: event %d in daemon should not happen\n", event.ID);
-			break;
-	}
+	CamuleApp::AddLogLine(evt.Message());
 }
+
+// File_checked_for_headers

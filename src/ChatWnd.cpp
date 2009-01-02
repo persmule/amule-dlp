@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,22 +23,15 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
+#include <wx/app.h>
 
-#include <wx/settings.h>	// Needed for wxSYS_COLOUR_WINDOW
-#include <wx/sizer.h>
-#include <wx/menu.h>
-#include <wx/accel.h>
-#include "ChatWnd.h"		// Interface declarations.
+#include "ChatWnd.h"		// Interface declarations
+
 #include "amule.h"		// Needed for theApp
 #include "amuleDlg.h"		// Needed for CamuleDlg
 #include "FriendListCtrl.h"	// Needed for CFriendListCtrl
-#include "updownclient.h"	// Needed for CUpDownClient
 #include "ChatSelector.h"	// Needed for CChatSelector
 #include "muuli_wdr.h"		// Needed for messagePage
-#include "Color.h"		// Needed for GetColour
-#include "MuleNotebook.h"	// Needed for MULENOTEBOOK events
-#include "OPCodes.h"
 #include "OtherFunctions.h"
 
 BEGIN_EVENT_TABLE(CChatWnd, wxPanel)
@@ -64,7 +57,7 @@ void CChatWnd::StartSession(CDlgFriend* friend_client, bool setfocus)
 
 	if ( !friend_client->m_name.IsEmpty() ) {
 		if (setfocus) {
-			theApp.amuledlg->SetActiveDialog(CamuleDlg::ChatWnd, this);
+			theApp->amuledlg->SetActiveDialog(CamuleDlg::DT_CHAT_WND, this);
 		}
 		chatselector->StartSession(GUI_ID(friend_client->m_ip, friend_client->m_port), friend_client->m_name, true);
 	}
@@ -113,6 +106,10 @@ void CChatWnd::AddFriend(const CMD4Hash& userhash, const wxString& name, uint32 
 	friendlistctrl->AddFriend( userhash, name, lastUsedIP, lastUsedPort);
 }
 
+void CChatWnd::RemoveFriend(const CMD4Hash& userhash, uint32 lastUsedIP, uint32 lastUsedPort)
+{
+	friendlistctrl->RemoveFriend(friendlistctrl->FindFriend(userhash, lastUsedIP, lastUsedPort));
+}
 
 void CChatWnd::RefreshFriend(const CMD4Hash& userhash, const wxString& name, uint32 lastUsedIP, uint32 lastUsedPort)
 {
@@ -131,8 +128,8 @@ void CChatWnd::RefreshFriend(const CMD4Hash& userhash, const wxString& name, uin
 
 void CChatWnd::ProcessMessage(uint64 sender, const wxString& message)
 {
-	if ( !theApp.amuledlg->IsDialogVisible( CamuleDlg::ChatWnd ) ) {
-		theApp.amuledlg->SetMessageBlink(true);
+	if ( !theApp->amuledlg->IsDialogVisible(CamuleDlg::DT_CHAT_WND) ) {
+		theApp->amuledlg->SetMessageBlink(true);
 	}
 	if (chatselector->ProcessMessage(sender, message)) {
 		// Check to enable the window controls if needed
@@ -178,3 +175,4 @@ void CChatWnd::CheckNewButtonsState() {
 				break;
 	}
 }
+// File_checked_for_headers

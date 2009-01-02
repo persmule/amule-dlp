@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,43 +23,34 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include "Types.h"
+#include <wx/wx.h>
 
-#include <wx/defs.h>			// Needed before any other wx/*.h
-#ifdef __WXMSW__
-	#include <wx/msw/winundef.h>
-#endif
+#include "ServerList.h"			// Interface declarations.
+
+#include <protocol/Protocols.h>
+#include <protocol/ed2k/Constants.h>
+#include <common/DataFileVersion.h>
+#include <tags/ServerTags.h>
 
 #include <wx/txtstrm.h>
 #include <wx/wfstream.h>
-#include <wx/filename.h>		// Needed for wxFileName
 #include <wx/url.h>			// Needed for wxURL
 #include <wx/tokenzr.h>
 
-#include "ServerList.h"			// Interface declarations.
-#include "ListenSocket.h"		// Needed for CListenSocket
 #include "DownloadQueue.h"		// Needed for CDownloadQueue
 #include "ServerConnect.h"		// Needed for CServerConnect
 #include "Server.h"			// Needed for CServer and SRV_PR_*
 #include "OtherStructs.h"		// Needed for ServerMet_Struct
-#include "OPCodes.h"			// Needed for MET_HEADER
 #include "CFile.h"			// Needed for CFile
 #include "HTTPDownload.h"		// Needed for HTTPThread
 #include "Preferences.h"		// Needed for thePrefs
 #include "amule.h"			// Needed for theApp
-#include "GetTickCount.h"		// Needed for GetTickCount
-#include "NetworkFunctions.h"		// Needed for StringIPtoUint32
 #include "Statistics.h"			// Needed for theStats
-#include <common/StringFunctions.h>		// Needed for unicode2char 
-#include "Tag.h"			// Needed for CTag
 #include "Packet.h"			// Neeed for CPacket
 #include "Logger.h"
 #include <common/Format.h>
 #include "IPFilter.h"
-#include "FileFunctions.h"		// Needed for UnpackArchive
-
-#include <algorithm>			// Needed for std::find
-
+#include <common/FileFunctions.h>	// Needed for UnpackArchive
 
 CServerList::CServerList()
 {
@@ -72,13 +63,10 @@ CServerList::CServerList()
 bool CServerList::Init()
 {
 	// Load Metfile
-	wxString strTempFilename;
-	strTempFilename = theApp.ConfigDir + wxT("server.met");
-	bool bRes = LoadServerMet(strTempFilename);
+	bool bRes = LoadServerMet(CPath(theApp->ConfigDir + wxT("server.met")));
 
 	// insert static servers from textfile
-	strTempFilename=  theApp.ConfigDir + wxT("staticservers.dat");
-	LoadStaticServers( strTempFilename );
+	LoadStaticServers(theApp->ConfigDir + wxT("staticservers.dat"));
 	
 	// Send the auto-update of server.met via HTTPThread requests
 	current_url_index = 0;
@@ -90,26 +78,26 @@ bool CServerList::Init()
 }
 
 
-bool CServerList::LoadServerMet(const wxString& strFile)
+bool CServerList::LoadServerMet(const CPath& path)
 {
-	AddLogLineM( false, CFormat( _("Loading server.met file: %s") ) % strFile );
+	AddLogLineM(false, CFormat(_("Loading server.met file: %s")) % path);
 	
 	bool merge = !m_servers.empty();
 	
-	if ( !wxFileExists(strFile) ) {
-		AddLogLineM( false, _("Server.met file not found!") );
+	if (!path.FileExists()) {
+		AddLogLineM(false, _("Server.met file not found!"));
 		return false;
 	}
 
 	// Try to unpack the file, might be an archive
 	const wxChar* mets[] = { wxT("server.met"), NULL };
 	// Try to unpack the file, might be an archive
-	if (UnpackArchive(strFile, mets).second != EFT_Met) {
-		AddLogLineM(true, CFormat(_("Failed to load server.met file '%s', unknown format encountered.")) % strFile);
+	if (UnpackArchive(path, mets).second != EFT_Met) {
+		AddLogLineM(true, CFormat(_("Failed to load server.met file '%s', unknown format encountered.")) % path);
 		return false;
 	}	
 
-	CFile servermet( strFile,CFile::read );
+	CFile servermet(path, CFile::read);
 	if ( !servermet.IsOpened() ){ 
 		AddLogLineM( false, _("Failed to open server.met!") );
 		return false;
@@ -158,7 +146,7 @@ bool CServerList::LoadServerMet(const wxString& strFile)
 			}
 			
 			
-			if ( !theApp.AddServer(newserver) ) {
+			if ( !theApp->AddServer(newserver) ) {
 				CServer* update = GetServerByAddress(newserver->GetAddress(), newserver->GetPort());
 				if(update) {
 					update->SetListName( newserver->GetListName());
@@ -177,9 +165,9 @@ bool CServerList::LoadServerMet(const wxString& strFile)
 		Notify_ServerThaw();
     
 		if (!merge) {
-			AddLogLineM(true, wxString::Format(_("%i servers in server.met found"),fservercount));
+			AddLogLineM(true, wxString::Format(wxPLURAL("%i server in server.met found", "%i servers in server.met found", fservercount), fservercount));
 		} else {
-			AddLogLineM(true, wxString::Format(_("%d servers added"), iAddCount));
+			AddLogLineM(true, wxString::Format(wxPLURAL("%d server added", "%d servers added", iAddCount), iAddCount));
 		}
 	} catch (const CInvalidPacket& err) {
 		AddLogLineM(true, wxT("Error: the file server.met is corrupted: ") + err.what());
@@ -211,7 +199,7 @@ bool CServerList::AddServer(CServer* in_server, bool fromUser)
 				!in_server->HasDynIP() &&
 				(
 					!IsGoodIP( in_server->GetIP(), thePrefs::FilterLanIPs() ) ||
-					theApp.ipfilter->IsFiltered( in_server->GetIP(), true )
+					theApp->ipfilter->IsFiltered( in_server->GetIP(), true )
 				)
 	          ) {
 		if ( fromUser ) {
@@ -226,7 +214,13 @@ bool CServerList::AddServer(CServer* in_server, bool fromUser)
 	}
 	
 	CServer* test_server = GetServerByAddress(in_server->GetAddress(), in_server->GetPort());
-
+	// Avoid duplicate (dynIP) servers: If the server which is to be added, is a dynIP-server
+	// but we don't know yet it's DN, we need to search for an already available server with
+	// that IP.
+	if (test_server == NULL && in_server->GetIP() != 0) {
+		test_server = GetServerByIPTCP(in_server->GetIP(), in_server->GetPort());
+	}
+	
 	if (test_server) {
 		if ( fromUser ) {
 			AddLogLineM( true,
@@ -263,50 +257,79 @@ bool CServerList::AddServer(CServer* in_server, bool fromUser)
 
 void CServerList::ServerStats()
 {
+	uint32 tNow = ::GetTickCount();
 
-	if(theApp.IsConnectedED2K() && m_servers.size() > 0) {
+	if (theApp->IsConnectedED2K() && m_servers.size() > 0) {
 		CServer* ping_server = GetNextStatServer();
 		CServer* test = ping_server;
-		if(!ping_server) {
+		if (!ping_server) {
 			return;
 		}
 
-		while(ping_server->GetLastPinged() != 0 && (::GetTickCount() - ping_server->GetLastPinged()) < UDPSERVSTATREASKTIME) {
+		while (ping_server->GetLastPingedTime() && (tNow - ping_server->GetLastPingedTime()) < UDPSERVSTATREASKTIME) {
 			ping_server = GetNextStatServer();
-			if(ping_server == test) {
+			if (ping_server == test) {
 				return;
 			}
 		}
-		if(ping_server->GetFailedCount() >= thePrefs::GetDeadserverRetries() && thePrefs::DeadServer() && !ping_server->IsStaticMember()) {
+		
+		if (ping_server->GetFailedCount() >= thePrefs::GetDeadserverRetries() && thePrefs::DeadServer() && !ping_server->IsStaticMember()) {
 			RemoveServer(ping_server);
 			return;
 		}
 				
-		CPacket* packet = new CPacket(OP_GLOBSERVSTATREQ, 4);
 		srand((unsigned)time(NULL));
-		uint32 challenge = 0x55AA0000 + (uint16)rand();
-		ping_server->SetChallenge(challenge);
-		packet->CopyUInt32ToDataBuffer(challenge);
-		ping_server->SetLastPinged(::GetTickCount());
-		ping_server->AddFailedCount();
-		Notify_ServerRefresh(ping_server);
-		theStats::AddUpOverheadServer(packet->GetPacketSize());
-		theApp.serverconnect->SendUDPPacket(packet, ping_server, true);
-		
-		ping_server->SetLastDescPingedCount(false);
-		if(ping_server->GetLastDescPingedCount() < 2) {
-			// eserver 16.45+ supports a new OP_SERVER_DESC_RES answer, if the OP_SERVER_DESC_REQ contains a uint32
-			// challenge, the server returns additional info with OP_SERVER_DESC_RES. To properly distinguish the
-			// old and new OP_SERVER_DESC_RES answer, the challenge has to be selected carefully. The first 2 bytes 
-			// of the challenge (in network byte order) MUST NOT be a valid string-len-int16!
-			uint32 randomness = 1 + (int) (((float)(0xFFFF))*rand()/(RAND_MAX+1.0));
-			uint32 uDescReqChallenge = ((uint32)randomness << 16) + INV_SERV_DESC_LEN; // 0xF0FF = an 'invalid' string length.
-			packet = new CPacket( OP_SERVER_DESC_REQ,4);
-			packet->CopyUInt32ToDataBuffer(uDescReqChallenge);
+		ping_server->SetRealLastPingedTime(tNow); // this is not used to calcualte the next ping, but only to ensure a minimum delay for premature pings		
+		if (!ping_server->GetCryptPingReplyPending() && (!ping_server->GetLastPingedTime() || (tNow - ping_server->GetLastPingedTime()) >= UDPSERVSTATREASKTIME) && theApp->GetPublicIP() && thePrefs::IsServerCryptLayerUDPEnabled()) {
+			// We try a obfsucation ping first and wait 20 seconds for an answer
+			// if it doesn't get responsed, we don't count it as error but continue with a normal ping
+			ping_server->SetCryptPingReplyPending(true);
+			uint32 nPacketLen = 4 + (uint8)(rand() % 16); // max padding 16 bytes
+			byte* pRawPacket = new byte[nPacketLen];
+			uint32 dwChallenge = (rand() << 17) | (rand() << 2) | (rand() & 0x03);
+			if (dwChallenge == 0) {
+				dwChallenge++;
+			}
+			
+			memcpy(pRawPacket, &dwChallenge, sizeof(uint32));
+			for (uint32 i = 4; i < nPacketLen; i++) { // fillng up the remaining bytes with random data
+				pRawPacket[i] = (uint8)rand();
+			}
+
+			ping_server->SetChallenge(dwChallenge);
+			ping_server->SetLastPinged(tNow);
+			ping_server->SetLastPingedTime((tNow - (uint32)UDPSERVSTATREASKTIME) + 20); // give it 20 seconds to respond
+			
+			AddDebugLogLineM(false, logServerUDP, CFormat(wxT(">> Sending OP__GlobServStatReq (obfuscated) to server %s:%u")) % ping_server->GetAddress() % ping_server->GetPort());
+
+			CPacket* packet = new CPacket(pRawPacket[1], nPacketLen - 2, pRawPacket[0]);
+			packet->CopyToDataBuffer(0, pRawPacket + 2, nPacketLen - 2);
+			
 			theStats::AddUpOverheadServer(packet->GetPacketSize());
-			theApp.serverconnect->SendUDPPacket(packet, ping_server, true);
+			theApp->serverconnect->SendUDPPacket(packet, ping_server, true, true /*raw packet*/, 12 /* Port offset is 12 for obfuscated encryption*/);
+		} else if (ping_server->GetCryptPingReplyPending() || theApp->GetPublicIP() == 0 || !thePrefs::IsServerCryptLayerUDPEnabled()){
+			// our obfsucation ping request was not answered, so probably the server doesn'T supports obfuscation
+			// continue with a normal request
+			if (ping_server->GetCryptPingReplyPending() && thePrefs::IsServerCryptLayerUDPEnabled()) {
+				AddDebugLogLineM(false, logServerUDP, wxT("CryptPing failed for server ") + ping_server->GetListName());
+			} else if (thePrefs::IsServerCryptLayerUDPEnabled()) {
+				AddDebugLogLineM(false, logServerUDP, wxT("CryptPing skipped because our public IP is unknown for server ") + ping_server->GetListName());
+			}
+			
+			ping_server->SetCryptPingReplyPending(false);			
+			
+			CPacket* packet = new CPacket(OP_GLOBSERVSTATREQ, 4, OP_EDONKEYPROT);
+			uint32 challenge = 0x55AA0000 + (uint16)rand();
+			ping_server->SetChallenge(challenge);
+			packet->CopyUInt32ToDataBuffer(challenge);
+			ping_server->SetLastPinged(tNow);
+			ping_server->SetLastPingedTime(tNow - (rand() % HR2S(1)));
+			ping_server->AddFailedCount();
+			Notify_ServerRefresh(ping_server);
+			theStats::AddUpOverheadServer(packet->GetPacketSize());
+			theApp->serverconnect->SendUDPPacket(packet, ping_server, true);
 		} else {
-			ping_server->SetLastDescPingedCount(true);
+			wxASSERT( false );
 		}
 	}
 }
@@ -314,13 +337,13 @@ void CServerList::ServerStats()
 
 void CServerList::RemoveServer(CServer* in_server)
 {
-	if (in_server == theApp.serverconnect->GetCurrentServer()) {
-		theApp.ShowAlert(_("You are connected to the server you are trying to delete. please disconnect first."), _("Info"), wxOK);	
+	if (in_server == theApp->serverconnect->GetCurrentServer()) {
+		theApp->ShowAlert(_("You are connected to the server you are trying to delete. please disconnect first."), _("Info"), wxOK);	
 	} else {
 		CInternalList::iterator it = std::find(m_servers.begin(), m_servers.end(), in_server);
 		if ( it != m_servers.end() ) {
-			if (theApp.downloadqueue->GetUDPServer() == in_server) {
-				theApp.downloadqueue->SetUDPServer( 0 );
+			if (theApp->downloadqueue->GetUDPServer() == in_server) {
+				theApp->downloadqueue->SetUDPServer( 0 );
 			}	
 			
 			NotifyObservers( EventType( EventType::REMOVED, in_server ) );
@@ -415,7 +438,7 @@ CServerList::~CServerList()
 
 void CServerList::LoadStaticServers( const wxString& filename )
 {
-	if ( !wxFileName::FileExists( filename ) ) {
+	if ( !CPath::FileExists( filename ) ) {
 		return;
 	}
 	
@@ -467,7 +490,7 @@ void CServerList::LoadStaticServers( const wxString& filename )
 
 		
 		// Try to add the server to the list
-		if ( !theApp.AddServer( server ) ) {
+		if ( !theApp->AddServer( server ) ) {
 			delete server;
 			CServer* existing = GetServerByAddress( host, StrToULong( port ) );
 			if ( existing) {
@@ -518,13 +541,21 @@ void CServerList::Sort()
 }
 
 
-CServer* CServerList::GetNextServer()
+CServer* CServerList::GetNextServer(bool bOnlyObfuscated)
 {
+	while (bOnlyObfuscated && (m_serverpos != m_servers.end()) && !((*m_serverpos)->SupportsObfuscationTCP() || (*m_serverpos)->SupportsObfuscationUDP())) {
+		wxASSERT(*m_serverpos != NULL);			
+		++m_serverpos;
+	}
+		
 	if (m_serverpos == m_servers.end()) {
 		return 0;
 	} else {
-		wxASSERT(*m_serverpos != NULL);
-		return *m_serverpos++;
+		if (*m_serverpos) {
+			return *m_serverpos++;
+		} else {
+			return 0;
+		}
 	}
 }
 
@@ -544,7 +575,7 @@ CServer* CServerList::GetNextStatServer()
 }
 
 
-CServer* CServerList::GetServerByAddress(const wxString& address, uint16 port)
+CServer* CServerList::GetServerByAddress(const wxString& address, uint16 port) const
 {
 	for (CInternalList::const_iterator it = m_servers.begin(); it != m_servers.end(); ++it) {
 		CServer* const s = *it;
@@ -556,7 +587,8 @@ CServer* CServerList::GetServerByAddress(const wxString& address, uint16 port)
 }
 
 
-CServer* CServerList::GetServerByIP(uint32 nIP){
+CServer* CServerList::GetServerByIP(uint32 nIP) const
+{
 	for (CInternalList::const_iterator it = m_servers.begin(); it != m_servers.end(); ++it){
         CServer* const s = *it;
 		if (s->GetIP() == nIP)
@@ -566,7 +598,8 @@ CServer* CServerList::GetServerByIP(uint32 nIP){
 }
 
 
-CServer* CServerList::GetServerByIP(uint32 nIP, uint16 nPort){
+CServer* CServerList::GetServerByIPTCP(uint32 nIP, uint16 nPort) const
+{
 	for (CInternalList::const_iterator it = m_servers.begin(); it != m_servers.end(); ++it){
         CServer* const s = *it;
 		if (s->GetIP() == nIP && s->GetPort() == nPort)
@@ -575,10 +608,20 @@ CServer* CServerList::GetServerByIP(uint32 nIP, uint16 nPort){
 	return NULL;
 }
 
+CServer* CServerList::GetServerByIPUDP(uint32 nIP, uint16 nUDPPort, bool bObfuscationPorts) const
+{
+	for (CInternalList::const_iterator it = m_servers.begin(); it != m_servers.end(); ++it){
+        CServer* const s =*it;
+		if (s->GetIP() == nIP && (s->GetPort() == nUDPPort-4 ||
+			(bObfuscationPorts && (s->GetObfuscationPortUDP() == nUDPPort) || (s->GetPort() == nUDPPort - 12))))
+			return s;
+	}
+	return NULL;
+}
 
 bool CServerList::SaveServerMet()
 {
-	wxString newservermet = theApp.ConfigDir + wxT("server.met.new");
+	CPath newservermet = CPath(theApp->ConfigDir + wxT("server.met.new"));
 	
 	CFile servermet( newservermet, CFile::write );
 	if (!servermet.IsOpened()) {
@@ -595,11 +638,19 @@ bool CServerList::SaveServerMet()
 			const CServer* const server = *it;
 
 			uint16 tagcount = 12;
-			if ( !server->GetListName().IsEmpty() ) 			++tagcount;
-			if ( !server->GetDynIP().IsEmpty() )				++tagcount;
-			if ( !server->GetDescription().IsEmpty() )			++tagcount;
-			if ( server->GetConnPort() != server->GetPort() )	++tagcount;		
-			#if wxUSE_UNICODE
+			if (!server->GetListName().IsEmpty()) {
+				++tagcount;
+			}
+			if (!server->GetDynIP().IsEmpty()) {
+				++tagcount;
+			}
+			if (!server->GetDescription().IsEmpty()) {
+				++tagcount;
+			}
+			if (server->GetConnPort() != server->GetPort()) {
+				++tagcount;
+			}
+
 			// For unicoded name, description, and dynip
 			if ( !server->GetListName().IsEmpty() ) {
 				++tagcount;
@@ -610,61 +661,84 @@ bool CServerList::SaveServerMet()
 			if ( !server->GetDescription().IsEmpty() ) {
 				++tagcount;
 			}
-			if (!server->GetVersion().IsEmpty()){
+			if (!server->GetVersion().IsEmpty()) {
 				++tagcount;
 			}
-			#endif
 			
+			if (server->GetServerKeyUDP(true)) {
+				++tagcount;
+			}
+
+			if (server->GetServerKeyUDPIP()) {
+				++tagcount;
+			}
+
+			if (server->GetObfuscationPortTCP()) {
+				++tagcount;
+			}
+
+			if (server->GetObfuscationPortUDP()) {
+				++tagcount;
+			}
 			
 			servermet.WriteUInt32(server->GetIP());
 			servermet.WriteUInt16(server->GetPort());
 			servermet.WriteUInt32(tagcount);
 						
 			if ( !server->GetListName().IsEmpty() ) {
-				#if wxUSE_UNICODE
 				// This is BOM to keep eMule compatibility
-				CTag( ST_SERVERNAME,	server->GetListName()		).WriteTagToFile( &servermet,  utf8strOptBOM);
-				#endif
-				CTag( ST_SERVERNAME,	server->GetListName()		).WriteTagToFile( &servermet );
+				CTagString( ST_SERVERNAME, server->GetListName()).WriteTagToFile( &servermet,  utf8strOptBOM);
+				CTagString( ST_SERVERNAME, server->GetListName()).WriteTagToFile( &servermet );
 			}
 			
 			if ( !server->GetDynIP().IsEmpty() ) {
-				#if wxUSE_UNICODE
 				// This is BOM to keep eMule compatibility
-				CTag( ST_DYNIP,			server->GetDynIP()			).WriteTagToFile( &servermet, utf8strOptBOM );
-				#endif			
-				CTag( ST_DYNIP,			server->GetDynIP()			).WriteTagToFile( &servermet );
+				CTagString( ST_DYNIP, server->GetDynIP()).WriteTagToFile( &servermet, utf8strOptBOM );
+				CTagString( ST_DYNIP, server->GetDynIP()).WriteTagToFile( &servermet );
 			}
 			
 			if ( !server->GetDescription().IsEmpty() ) {
-				#if wxUSE_UNICODE
 				// This is BOM to keep eMule compatibility
-				CTag( ST_DESCRIPTION,	server->GetDescription()	).WriteTagToFile( &servermet, utf8strOptBOM );
-				#endif			
-				CTag( ST_DESCRIPTION,	server->GetDescription()	).WriteTagToFile( &servermet );
+				CTagString( ST_DESCRIPTION, server->GetDescription()).WriteTagToFile( &servermet, utf8strOptBOM );
+				CTagString( ST_DESCRIPTION, server->GetDescription()).WriteTagToFile( &servermet );
 			}
 			
 			if ( server->GetConnPort() != server->GetPort() ) {
-				CTag( ST_AUXPORTSLIST,	server->GetAuxPortsList()	).WriteTagToFile( &servermet );
+				CTagString( ST_AUXPORTSLIST,	server->GetAuxPortsList()	).WriteTagToFile( &servermet );
 			}
 			
-			CTag( ST_FAIL,			server->GetFailedCount()	).WriteTagToFile( &servermet );
-			CTag( ST_PREFERENCE,	server->GetPreferences()	).WriteTagToFile( &servermet );
-			CTag( "users",			server->GetUsers()			).WriteTagToFile( &servermet );
-			CTag( "files",			server->GetFiles()			).WriteTagToFile( &servermet );
-			CTag( ST_PING,			server->GetPing()			).WriteTagToFile( &servermet );
-			CTag( ST_LASTPING,		server->GetLastPinged()		).WriteTagToFile( &servermet );
-			CTag( ST_MAXUSERS,		server->GetMaxUsers()		).WriteTagToFile( &servermet );
-			CTag( ST_SOFTFILES,		server->GetSoftFiles()		).WriteTagToFile( &servermet );
-			CTag( ST_HARDFILES,		server->GetHardFiles()		).WriteTagToFile( &servermet );
+			CTagInt32( ST_FAIL,       server->GetFailedCount()   ).WriteTagToFile( &servermet );
+			CTagInt32( ST_PREFERENCE, server->GetPreferences()   ).WriteTagToFile( &servermet );
+			CTagInt32( wxT("users"),  server->GetUsers()         ).WriteTagToFile( &servermet );
+			CTagInt32( wxT("files"),  server->GetFiles()         ).WriteTagToFile( &servermet );
+			CTagInt32( ST_PING,       server->GetPing()          ).WriteTagToFile( &servermet );
+			CTagInt32( ST_LASTPING,   server->GetLastPingedTime()).WriteTagToFile( &servermet );
+			CTagInt32( ST_MAXUSERS,   server->GetMaxUsers()      ).WriteTagToFile( &servermet );
+			CTagInt32( ST_SOFTFILES,  server->GetSoftFiles()     ).WriteTagToFile( &servermet );
+			CTagInt32( ST_HARDFILES,  server->GetHardFiles()     ).WriteTagToFile( &servermet );
 			if (!server->GetVersion().IsEmpty()){
-				#if wxUSE_UNICODE			
-				CTag( ST_VERSION,		server->GetVersion()		).WriteTagToFile( &servermet, utf8strOptBOM );
-				#endif
-				CTag( ST_VERSION,		server->GetVersion()		).WriteTagToFile( &servermet );
+				CTagString( ST_VERSION,	server->GetVersion() ).WriteTagToFile( &servermet, utf8strOptBOM );
+				CTagString( ST_VERSION,	server->GetVersion() ).WriteTagToFile( &servermet );
 			}
-			CTag( ST_UDPFLAGS,		server->GetUDPFlags()		).WriteTagToFile( &servermet );
-			CTag( ST_LOWIDUSERS,	server->GetLowIDUsers()		).WriteTagToFile( &servermet );
+			CTagInt32( ST_UDPFLAGS,   server->GetUDPFlags()      ).WriteTagToFile( &servermet );
+			CTagInt32( ST_LOWIDUSERS, server->GetLowIDUsers()    ).WriteTagToFile( &servermet );
+			
+			if (server->GetServerKeyUDP(true)) {
+				CTagInt32(ST_UDPKEY, server->GetServerKeyUDP(true)).WriteTagToFile( &servermet );;
+			}
+
+			if (server->GetServerKeyUDPIP()) {
+				CTagInt32(ST_UDPKEYIP, server->GetServerKeyUDPIP()).WriteTagToFile( &servermet );;;
+			}
+
+			if (server->GetObfuscationPortTCP()) {
+				CTagInt16(ST_TCPPORTOBFUSCATION, server->GetObfuscationPortTCP()).WriteTagToFile( &servermet );;;
+			}
+
+			if (server->GetObfuscationPortUDP()) {
+				CTagInt16(ST_UDPPORTOBFUSCATION, server->GetObfuscationPortUDP()).WriteTagToFile( &servermet );;;
+			}
+			
 		}
 	} catch (const CIOFailureException& e) {
 		AddLogLineM(true, wxT("IO failure while writing 'server.met': ") + e.what());
@@ -672,18 +746,18 @@ bool CServerList::SaveServerMet()
 	}
 	
 	servermet.Close();
-	wxString curservermet = theApp.ConfigDir + wxT("server.met");
-	wxString oldservermet = theApp.ConfigDir + wxT("server_met.old");
+	const CPath curservermet = CPath(theApp->ConfigDir + wxT("server.met"));
+	const CPath oldservermet = CPath(theApp->ConfigDir + wxT("server_met.old"));
 	
-	if ( wxFileExists(oldservermet) ) {
-		wxRemoveFile(oldservermet);
+	if (oldservermet.FileExists()) {
+		CPath::RemoveFile(oldservermet);
 	}
 	
-	if ( wxFileExists(curservermet) ) {
-		wxRenameFile(curservermet, oldservermet);
+	if (curservermet.FileExists()) {
+		CPath::RenameFile(curservermet, oldservermet);
 	}
 	
-	wxRenameFile(newservermet, curservermet);
+	CPath::RenameFile(newservermet, curservermet);
 	
 	return true;
 }
@@ -708,21 +782,26 @@ void CServerList::UpdateServerMetFromURL(const wxString& strURL)
 		return;
 	}
 	URLUpdate = strURL;
-	wxString strTempFilename(theApp.ConfigDir + wxT("server.met.download"));
+	wxString strTempFilename(theApp->ConfigDir + wxT("server.met.download"));
 	CHTTPDownloadThread *downloader = new CHTTPDownloadThread(strURL,strTempFilename, HTTP_ServerMet);
 	downloader->Create();
 	downloader->Run();
 }
 
+
 void CServerList::DownloadFinished(uint32 result) 
 {
-	if(result==1) {
-		wxString strTempFilename(theApp.ConfigDir + wxT("server.met.download"));
+	if(result == 1) {
+		const CPath tempFilename = CPath(theApp->ConfigDir + wxT("server.met.download"));
+
 		// curl succeeded. proceed with server.met loading
-		LoadServerMet(strTempFilename);
+		LoadServerMet(tempFilename);
 		SaveServerMet();
+
 		// So, file is loaded and merged, and also saved
-		wxRemoveFile(strTempFilename);
+		CPath::RemoveFile(tempFilename);
+		AddLogLineM(true, CFormat(
+			_("Finished to download the server list from %s")) % URLUpdate);
 	} else {
 		AddLogLineM(true, CFormat( _("Failed to download the server list from %s") ) % URLUpdate);
 	}
@@ -732,38 +811,35 @@ void CServerList::DownloadFinished(uint32 result)
 void CServerList::AutoUpdate() 
 {
 	
-	uint8 url_count = theApp.glob_prefs->adresses_list.GetCount();
+	uint8 url_count = theApp->glob_prefs->adresses_list.GetCount();
 	
 	if (!url_count) {
 		AddLogLineM(true, _("No serverlist address entry in 'addresses.dat' found. Please paste a valid serverlist address into this file in order to auto-update your serverlist"));
 		return;
 	}
-	
-	wxString strURLToDownload; 
-	wxString strTempFilename;
-
 	// Do current URL. Callback function will take care of the others.
 	while ( current_url_index < url_count ) {
-		wxString URI = theApp.glob_prefs->adresses_list[current_url_index];
-
+		wxString URI = theApp->glob_prefs->adresses_list[current_url_index];
 		// We use wxURL to validate the URI
 		if ( wxURL( URI ).GetError() == wxURL_NOERR ) {
 			// Ok, got a valid URI
-			URLAutoUpdate = strURLToDownload;
-			strTempFilename =  theApp.ConfigDir + wxT("server_auto.met");
-		
-			CHTTPDownloadThread *downloader = new CHTTPDownloadThread(strURLToDownload,strTempFilename, HTTP_ServerMetAuto);
+			URLAutoUpdate = URI;
+			wxString strTempFilename =
+				theApp->ConfigDir + wxT("server_auto.met");
+			AddLogLineM(true, CFormat(
+				_("Start downloading server list from %s")) % URI);
+			CHTTPDownloadThread *downloader = new CHTTPDownloadThread(
+				URI, strTempFilename, HTTP_ServerMetAuto);
 			downloader->Create();
 			downloader->Run();
 		
 			return;
 		} else {
-			AddLogLineM(true, CFormat( _("Warning, invalid URL specified for auto-updating of servers: %s") ) % URI);
+			AddLogLineM(true, CFormat(
+				_("Warning, invalid URL specified for auto-updating of servers: %s") ) % URI);
 		}
-		
 		current_url_index++;
 	}
-
 	AddLogLineM(true, _("No valid server.met auto-download url on addresses.dat"));
 }
 
@@ -771,13 +847,15 @@ void CServerList::AutoUpdate()
 void CServerList::AutoDownloadFinished(uint32 result) 
 {
 	
-	if(result==1) {
-		wxString strTempFilename(theApp.ConfigDir + wxT("server_auto.met"));
+	if (result == 1) {
+		CPath tempFilename = CPath(theApp->ConfigDir + wxT("server_auto.met"));
+		
 		// curl succeeded. proceed with server.met loading
-		LoadServerMet(strTempFilename);
+		LoadServerMet(tempFilename);
 		SaveServerMet();
+		
 		// So, file is loaded and merged, and also saved
-		wxRemoveFile(strTempFilename);
+		CPath::RemoveFile(tempFilename);
 	} else {
 		AddLogLineM(true, CFormat(_("Failed to download the server list from %s") ) % URLUpdate);
 	}
@@ -785,7 +863,7 @@ void CServerList::AutoDownloadFinished(uint32 result)
 	++current_url_index;
 	
 
-	if (current_url_index < theApp.glob_prefs->adresses_list.GetCount()) {		
+	if (current_url_index < theApp->glob_prefs->adresses_list.GetCount()) {		
 		// Next!	
 		AutoUpdate();
 	}
@@ -841,3 +919,59 @@ std::vector<const CServer*> CServerList::CopySnapshot() const
 	result.assign(m_servers.begin(), m_servers.end());
 	return result;
 }
+
+
+void CServerList::FilterServers()
+{
+	CInternalList::iterator it = m_servers.begin();
+	while (it != m_servers.end()) {
+		CServer* server = *it++;
+
+		if (server->HasDynIP()) {
+			continue;
+		}
+		
+		if (theApp->ipfilter->IsFiltered(server->GetIP(), true)) {
+			if (server == theApp->serverconnect->GetCurrentServer()) {
+				AddLogLineM(true, _("Local server is filtered by the IPFilters, reconnecting to a different server!"));
+				theApp->serverconnect->Disconnect();
+				RemoveServer(server);
+				theApp->serverconnect->ConnectToAnyServer();
+			} else {
+				RemoveServer(server);
+			}			
+		}
+	}
+}
+
+void CServerList::CheckForExpiredUDPKeys() {
+	
+	if (!thePrefs::IsServerCryptLayerUDPEnabled()) {
+		return;
+	}
+
+	uint32 cKeysTotal = 0;
+	uint32 cKeysExpired = 0;
+	uint32 cPingDelayed = 0;
+	const uint32 dwIP = theApp->GetPublicIP();
+	const uint32 tNow = ::GetTickCount();
+	wxASSERT( dwIP != 0 );
+	
+	for (CInternalList::const_iterator it = m_servers.begin(); it != m_servers.end(); ++it) {
+        CServer* pServer = *it;
+		if (pServer->SupportsObfuscationUDP() && pServer->GetServerKeyUDP(true) != 0 && pServer->GetServerKeyUDPIP() != dwIP){
+			cKeysTotal++;
+			cKeysExpired++;
+			if (tNow - pServer->GetRealLastPingedTime() < UDPSERVSTATMINREASKTIME){
+				cPingDelayed++;
+				// next ping: Now + (MinimumDelay - already elapsed time)
+				pServer->SetLastPingedTime((tNow - (uint32)UDPSERVSTATREASKTIME) + (UDPSERVSTATMINREASKTIME - (tNow - pServer->GetRealLastPingedTime())));
+			} else {
+				pServer->SetLastPingedTime(0);
+			}
+		} else if (pServer->SupportsObfuscationUDP() && pServer->GetServerKeyUDP(false) != 0) {
+			cKeysTotal++;
+		}
+	}
+}
+// File_checked_for_headers

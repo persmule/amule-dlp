@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 /// Name:         MD4 Class
 ///
 /// Purpose:      aMule ed2k link creator
@@ -33,10 +33,8 @@
 /// along with this program; if not, write to the
 /// Free Software Foundation, Inc.,
 /// 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-// For compilers that support precompilation, includes "wx/wx.h"
-#include "wx/wxprec.h"
 
 #ifdef __BORLANDC__
     #pragma hdrstop
@@ -311,12 +309,10 @@ wxString MD4::calcMd4FromString(const wxString &buf)
   unsigned char ret[MD4_HASHLEN_BYTE];
 
   MD4Init(&hdc);
-  MD4Update(&hdc, reinterpret_cast<unsigned char const *>(buf.c_str()),
-            buf.length());
+  MD4Update(&hdc, (const unsigned char*)buf.c_str(), buf.length());
   MD4Final(&hdc, ret);
 
-  return charToHex(reinterpret_cast<const char *>(ret),
-                   MD4_HASHLEN_BYTE);
+  return charToHex((const char*)ret, MD4_HASHLEN_BYTE);
 }
 
 /// Get Md4 hash from a file
@@ -328,11 +324,7 @@ wxString MD4::calcMd4FromFile(const wxString &filename, MD4Hook hook)
 
   // Open file and let wxFFile destructor close the file
   // Closing it explicitly may crash on Win32 ...
-#if wxCHECK_VERSION(2,5,1)
   wxFFile file(filename, wxT("rbS"));
-#else
-  wxFFile file(filename, "rbS");
-#endif
   if (! file.IsOpened())
     {
       return wxEmptyString;
@@ -364,7 +356,7 @@ wxString MD4::calcMd4FromFile(const wxString &filename, MD4Hook hook)
             }
           else
             {
-              return (_("Canceled !"));
+              return (_("Cancelled !"));
             }
         }
       MD4Final(&hdc, ret);
@@ -407,3 +399,4 @@ size_t MD4::calcBufSize(size_t filesize)
 
   return (filesize);
 }
+// File_checked_for_headers

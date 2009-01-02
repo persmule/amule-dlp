@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (C) 2005-2006Dévai Tamás ( gonosztopi@amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2008 Dévai Tamás ( gonosztopi@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -25,37 +25,47 @@
 
 #include "StatTree.h"
 
+#include <wx/intl.h>
+#include "OtherFunctions.h"
+
 #ifndef EC_REMOTE
 
-#include <wx/intl.h>		// Needed for wxGetTranslation(), _() / wxTRANSLATE()
-
 #ifndef AMULE_DAEMON
-#include <common/Format.h>		// Needed for CFormat
-#include "OtherFunctions.h"	// Needed for CastIto* functions
+#include <common/Format.h>			// Needed for CFormat
 
-#define a_brackets_b(a,b)	(a + wxT(" (") + b + wxT(")"))
+#define a_brackets_b(a,b) (a + wxT(" (") + b + wxT(")"))
 
 #endif /* !AMULE_DAEMON */
 
 #endif /* !EC_REMOTE */
 
-#include <ec/ECCodes.h>		// Needed for EC tag names
-#include <ec/ECPacket.h>		// Needed for CECTag
+#include <ec/cpp/ECTag.h>			// Needed for CECTag
 
 #ifdef EC_REMOTE
-	#include <ec/ECSpecialTags.h>	// Needed for CEC_StatTree_Node_Tag
+	#include <ec/cpp/ECSpecialTags.h>	// Needed for CEC_StatTree_Node_Tag
+#endif
+
+
+#ifndef EC_REMOTE
+uint32_t NewStatTreeItemId()
+{
+	static uint32_t lastid = 0;
+
+	return ++lastid;
+}
 #endif
 
 /* CStatTreeItemBase */
 
 #ifdef EC_REMOTE
-CStatTreeItemBase::CStatTreeItemBase(const CECTag* tag)
+CStatTreeItemBase::CStatTreeItemBase(const CECTag *tag)
 	: m_label(((CEC_StatTree_Node_Tag*)tag)->GetDisplayString())
+	  , m_uniqueid(tag->GetTagByNameSafe(EC_TAG_STATTREE_NODEID)->GetInt())
 {
 	wxASSERT(tag->GetTagName() == EC_TAG_STATTREE_NODE);
 
 	for (int i = 0; i < tag->GetTagCount(); ++i) {
-		const CECTag* tmp = tag->GetTagByIndex(i);
+		const CECTag *tmp = tag->GetTagByIndex(i);
 		if (tmp->GetTagName() == EC_TAG_STATTREE_NODE) {
 			m_children.push_back(new CStatTreeItemBase(tmp));
 		}
@@ -65,14 +75,18 @@ CStatTreeItemBase::CStatTreeItemBase(const CECTag* tag)
 
 CStatTreeItemBase::~CStatTreeItemBase()
 {
-	for (std::list<CStatTreeItemBase*>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
+	for (std::list<CStatTreeItemBase*>::iterator it = m_children.begin();
+	     it != m_children.end(); ++it) {
 		delete *it;
 	}
 	m_children.clear();
 }
 
 #ifndef EC_REMOTE
-CStatTreeItemBase* CStatTreeItemBase::AddChild(CStatTreeItemBase* child, uint32_t id, bool skipOneLevel)
+CStatTreeItemBase* CStatTreeItemBase::AddChild(
+	CStatTreeItemBase* child,
+	uint32_t id,
+	bool skipOneLevel)
 {
 	wxMutexLocker lock(m_lock);
 
@@ -100,7 +114,8 @@ bool CStatTreeItemBase::HasVisibleChildren()
 {
 	wxMutexLocker lock(m_lock);
 
-	for (std::list<CStatTreeItemBase*>::const_iterator it = m_children.begin(); it != m_children.end(); ++it) {
+	for (std::list<CStatTreeItemBase*>::const_iterator it = m_children.begin();
+	     it != m_children.end(); ++it) {
 		if ((*it)->IsVisible()) {
 			return true;
 		}
@@ -113,7 +128,8 @@ bool CStatTreeItemBase::HasChildWithId(uint32_t id)
 {
 	wxMutexLocker lock(m_lock);
 
-	for (std::list<CStatTreeItemBase*>::const_iterator it = m_children.begin(); it != m_children.end(); ++it) {
+	for (std::list<CStatTreeItemBase*>::const_iterator it = m_children.begin();
+	     it != m_children.end(); ++it) {
 		if ((*it)->m_id == id) {
 			return true;
 		}
@@ -125,7 +141,8 @@ CStatTreeItemBase* CStatTreeItemBase::GetChildById(uint32_t id)
 {
 	wxMutexLocker lock(m_lock);
 
-	for (std::list<CStatTreeItemBase*>::const_iterator it = m_children.begin(); it != m_children.end(); ++it) {
+	for (std::list<CStatTreeItemBase*>::const_iterator it = m_children.begin();
+	     it != m_children.end(); ++it) {
 		if ((*it)->m_id == id) {
 			return *it;
 		}
@@ -180,15 +197,17 @@ wxString CStatTreeItemBase::GetDisplayString() const
 }
 #endif
 
-CECTag* CStatTreeItemBase::CreateECTag(uint32_t max_children)
+CECTag *CStatTreeItemBase::CreateECTag(uint32_t max_children)
 {
 	if (IsVisible()) {
 		wxMutexLocker lock(m_lock);
-		CECTag* tag = new CECTag(EC_TAG_STATTREE_NODE, m_label);
+		CECTag *tag = new CECTag(EC_TAG_STATTREE_NODE, m_label);
+		tag->AddTag(CECTag(EC_TAG_STATTREE_NODEID, m_uniqueid));
 		AddECValues(tag);
 		m_visible_counter = max_children - 1;
-		for (std::list<CStatTreeItemBase*>::const_iterator it = m_children.begin(); it != m_children.end(); ++it) {
-			CECTag* tmp = (*it)->CreateECTag(max_children);
+		for (std::list<CStatTreeItemBase*>::const_iterator it = m_children.begin();
+		     it != m_children.end(); ++it) {
+			CECTag *tmp = (*it)->CreateECTag(max_children);
 			if (tmp) {
 				tag->AddTag(*tmp);
 				delete tmp;
@@ -240,7 +259,7 @@ bool CStatTreeItemSimple::IsVisible() const
 	return true;
 }
 
-void CStatTreeItemSimple::AddECValues(CECTag* tag) const
+void CStatTreeItemSimple::AddECValues(CECTag *tag) const
 {
 	switch (m_valuetype) {
 		case vtInteger: {
@@ -275,16 +294,19 @@ void CStatTreeItemSimple::AddECValues(CECTag* tag) const
 }
 
 
-/* CStatTreeItemCounter */
+/* CStatTreeItemCounterTmpl */
 
 #ifndef AMULE_DAEMON
-wxString CStatTreeItemCounter::GetDisplayString() const
+template<typename _Tp>
+wxString CStatTreeItemCounterTmpl<_Tp>::GetDisplayString() const
 {
 	wxString my_label = wxGetTranslation(m_label);
 	// This is needed for client names, for example
 	if (my_label == m_label) {
 		if (m_label.Right(4) == wxT(": %s")) {
-			my_label = wxGetTranslation(m_label.Mid(0, m_label.Length() - 4)) + wxString(wxT(": %s"));
+			my_label = wxGetTranslation(
+				m_label.Mid(0, m_label.Length() - 4)) +
+				wxString(wxT(": %s"));
 		}
 	}
 	CFormat label(my_label);
@@ -293,14 +315,16 @@ wxString CStatTreeItemCounter::GetDisplayString() const
 	} else {
 		wxString result = CFormat(wxT("%u")) % m_value;
 		if ((m_flags & stShowPercent) && m_parent) {
-			result.append(wxString::Format(wxT(" (%.2f%%)"), ((double)m_value / ((CStatTreeItemCounter*)m_parent)->m_value) * 100.0));
+			result.append(wxString::Format(wxT(" (%.2f%%)"),
+				((double)m_value / ((CStatTreeItemCounterTmpl<_Tp>*)m_parent)->m_value) * 100.0));
 		}
 		return label % result;
 	}
 }
 #endif
 
-void CStatTreeItemCounter::AddECValues(CECTag* tag) const
+template<typename _Tp>
+void CStatTreeItemCounterTmpl<_Tp>::AddECValues(CECTag *tag) const
 {
 	CECTag value(EC_TAG_STAT_NODE_VALUE, (uint64)m_value);
 	if (m_displaymode == dmBytes) {
@@ -308,68 +332,26 @@ void CStatTreeItemCounter::AddECValues(CECTag* tag) const
 	} else {
 		value.AddTag(CECTag(EC_TAG_STAT_VALUE_TYPE, (uint8)EC_VALUE_ISTRING));
 		if ((m_flags & stShowPercent) && m_parent) {
-			CECTag tmp(EC_TAG_STAT_NODE_VALUE, ((double)m_value / ((CStatTreeItemCounter*)m_parent)->m_value) * 100.0);
+			CECTag tmp(EC_TAG_STAT_NODE_VALUE,
+				((double)m_value / ((CStatTreeItemCounterTmpl<_Tp>*)m_parent)->m_value) * 100.0);
 			tmp.AddTag(CECTag(EC_TAG_STAT_VALUE_TYPE, (uint8)EC_VALUE_DOUBLE));
 			value.AddTag(tmp);
 		}
 	}
 	tag->AddTag(value);
 }
-
-
-#ifndef USE_64BIT_ARCH
-/* CStatTreeItemNativeCounter */
-
-#ifndef AMULE_DAEMON
-wxString CStatTreeItemNativeCounter::GetDisplayString() const
-{
-	wxString my_label = wxGetTranslation(m_label);
-	if (my_label == m_label) {
-		if (m_label.Right(4) == wxT(": %s")) {
-			my_label = wxGetTranslation(m_label.Mid(0, m_label.Length() - 4)) + wxString(wxT(": %s"));
-		}
-	}
-	CFormat label(my_label);
-	if (m_displaymode == dmBytes) {
-		return label % CastItoXBytes(m_value);
-	} else {
-		wxString result = CFormat(wxT("%u")) % m_value;
-		if ((m_flags & stShowPercent) && m_parent) {
-			result.append(wxString::Format(wxT(" (%.2f%%)"), ((double)m_value / ((CStatTreeItemNativeCounter*)m_parent)->m_value) * 100.0));
-		}
-		return label % result;
-	}
-}
-#endif
-
-void CStatTreeItemNativeCounter::AddECValues(CECTag* tag) const
-{
-	CECTag value(EC_TAG_STAT_NODE_VALUE, (uint64)m_value);
-	if (m_displaymode == dmBytes) {
-		value.AddTag(CECTag(EC_TAG_STAT_VALUE_TYPE, (uint8)EC_VALUE_BYTES));
-	} else {
-		value.AddTag(CECTag(EC_TAG_STAT_VALUE_TYPE, (uint8)EC_VALUE_ISTRING));
-		if ((m_flags & stShowPercent) && m_parent) {
-			CECTag tmp(EC_TAG_STAT_NODE_VALUE, ((double)m_value / ((CStatTreeItemNativeCounter*)m_parent)->m_value) * 100.0);
-			tmp.AddTag(CECTag(EC_TAG_STAT_VALUE_TYPE, (uint8)EC_VALUE_DOUBLE));
-			value.AddTag(tmp);
-		}
-	}
-	tag->AddTag(value);
-}
-#endif /* USE_64BIT_ARCH */
-
 
 /* CStatTreeItemUlDlCounter */
 
 #ifndef AMULE_DAEMON
 wxString CStatTreeItemUlDlCounter::GetDisplayString() const
 {
-	return CFormat(wxGetTranslation(m_label)) % a_brackets_b(CastItoXBytes(m_value), CastItoXBytes(m_value + m_totalfunc()));
-};
+	return CFormat(wxGetTranslation(m_label)) %
+		a_brackets_b(CastItoXBytes(m_value), CastItoXBytes(m_value + m_totalfunc()));
+}
 #endif
 
-void CStatTreeItemUlDlCounter::AddECValues(CECTag* tag) const
+void CStatTreeItemUlDlCounter::AddECValues(CECTag *tag) const
 {
 	CECTag value(EC_TAG_STAT_NODE_VALUE, m_value);
 	value.AddTag(CECTag(EC_TAG_STAT_VALUE_TYPE, (uint8)EC_VALUE_BYTES));
@@ -389,7 +371,7 @@ wxString CStatTreeItemCounterMax::GetDisplayString() const
 }
 #endif
 
-void CStatTreeItemCounterMax::AddECValues(CECTag* tag) const
+void CStatTreeItemCounterMax::AddECValues(CECTag *tag) const
 {
 	tag->AddTag(CECTag(EC_TAG_STAT_NODE_VALUE, (uint64)m_value));
 }
@@ -400,11 +382,12 @@ void CStatTreeItemCounterMax::AddECValues(CECTag* tag) const
 #ifndef AMULE_DAEMON
 wxString CStatTreeItemPackets::GetDisplayString() const
 {
-	return CFormat(wxGetTranslation(m_label)) % a_brackets_b(CastItoXBytes(m_bytes), CastItoIShort(m_packets));
+	return CFormat(wxGetTranslation(m_label)) %
+		a_brackets_b(CastItoXBytes(m_bytes), CastItoIShort(m_packets));
 }
 #endif
 
-void CStatTreeItemPackets::AddECValues(CECTag* tag) const
+void CStatTreeItemPackets::AddECValues(CECTag *tag) const
 {
 	CECTag value(EC_TAG_STAT_NODE_VALUE, m_bytes);
 	value.AddTag(CECTag(EC_TAG_STAT_VALUE_TYPE, (uint8)EC_VALUE_BYTES));
@@ -422,21 +405,23 @@ wxString CStatTreeItemPacketTotals::GetDisplayString() const
 {
 	uint32_t tmp_packets = m_packets;
 	uint64_t tmp_bytes = m_bytes;
-
-	for (std::vector<CStatTreeItemPackets*>::const_iterator it = m_counters.begin(); it != m_counters.end(); ++it) {
+	for (std::vector<CStatTreeItemPackets*>::const_iterator it = m_counters.begin();
+	     it != m_counters.end(); ++it) {
 		tmp_packets += (*it)->m_packets;
 		tmp_bytes += (*it)->m_bytes;
 	}
-	return CFormat(wxGetTranslation(m_label)) % a_brackets_b(CastItoXBytes(tmp_bytes), CastItoIShort(tmp_packets));
+
+	return CFormat(wxGetTranslation(m_label)) %
+		a_brackets_b(CastItoXBytes(tmp_bytes), CastItoIShort(tmp_packets));
 }
 #endif
 
-void CStatTreeItemPacketTotals::AddECValues(CECTag* tag) const
+void CStatTreeItemPacketTotals::AddECValues(CECTag *tag) const
 {
 	uint32_t tmp_packets = m_packets;
 	uint64_t tmp_bytes = m_bytes;
-
-	for (std::vector<CStatTreeItemPackets*>::const_iterator it = m_counters.begin(); it != m_counters.end(); ++it) {
+	for (std::vector<CStatTreeItemPackets*>::const_iterator it = m_counters.begin();
+	     it != m_counters.end(); ++it) {
 		tmp_packets += (*it)->m_packets;
 		tmp_bytes += (*it)->m_bytes;
 	}
@@ -455,13 +440,15 @@ void CStatTreeItemPacketTotals::AddECValues(CECTag* tag) const
 #ifndef AMULE_DAEMON
 wxString CStatTreeItemTimer::GetDisplayString() const
 {
-	return CFormat(wxGetTranslation(m_label)) % CastSecondsToHM(m_value ? GetTimerSeconds() : 0);
+	return CFormat(wxGetTranslation(m_label)) %
+		CastSecondsToHM(m_value ? GetTimerSeconds() : 0);
 }
 #endif
 
-void CStatTreeItemTimer::AddECValues(CECTag* tag) const
+void CStatTreeItemTimer::AddECValues(CECTag *tag) const
 {
-	CECTag value(EC_TAG_STAT_NODE_VALUE, m_value ? (uint32)GetTimerSeconds() : (uint32)0);
+	CECTag value(EC_TAG_STAT_NODE_VALUE,
+		m_value ? (uint32)GetTimerSeconds() : (uint32)0);
 	value.AddTag(CECTag(EC_TAG_STAT_VALUE_TYPE, (uint8)EC_VALUE_TIME));
 	tag->AddTag(value);
 }
@@ -474,9 +461,15 @@ wxString CStatTreeItemAverage::GetDisplayString() const
 {
 	if ((*m_divisor) != 0) {
 		switch (m_displaymode) {
-			case dmBytes:	return CFormat(wxGetTranslation(m_label)) % CastItoXBytes((*m_dividend)/(*m_divisor));
-			case dmTime:	return CFormat(wxGetTranslation(m_label)) % CastSecondsToHM((*m_dividend)/(*m_divisor));
-			default:	return CFormat(wxGetTranslation(m_label)) % (CFormat(wxT("%u")) % ((uint64)(*m_dividend)/(*m_divisor))).GetString();
+			case dmBytes:
+				return CFormat(wxGetTranslation(m_label)) %
+					CastItoXBytes((*m_dividend)/(*m_divisor));
+			case dmTime:
+				return CFormat(wxGetTranslation(m_label)) %
+					CastSecondsToHM((*m_dividend)/(*m_divisor));
+			default:
+				return CFormat(wxGetTranslation(m_label)) %
+					(CFormat(wxT("%u")) % ((uint64)(*m_dividend)/(*m_divisor))).GetString();
 		}
 	} else {
 		return CFormat(wxGetTranslation(m_label)) % wxT("-");
@@ -484,7 +477,7 @@ wxString CStatTreeItemAverage::GetDisplayString() const
 }
 #endif
 
-void CStatTreeItemAverage::AddECValues(CECTag* tag) const
+void CStatTreeItemAverage::AddECValues(CECTag *tag) const
 {
 	if ((*m_divisor) != 0) {
 		uint64 data = (*m_dividend)/(*m_divisor);
@@ -521,7 +514,7 @@ wxString CStatTreeItemAverageSpeed::GetDisplayString() const
 }
 #endif
 
-void CStatTreeItemAverageSpeed::AddECValues(CECTag* tag) const
+void CStatTreeItemAverageSpeed::AddECValues(CECTag *tag) const
 {
 	uint64 time = m_timer->GetTimerSeconds();
 	if (time) {
@@ -543,9 +536,13 @@ wxString CStatTreeItemRatio::GetDisplayString() const
 {
 	if (m_counter1->GetValue() && m_counter2->GetValue()) {
 		if ((*m_counter2) < (*m_counter1)) {
-			return CFormat(wxGetTranslation(m_label)) % wxString::Format(wxT("%.2f : 1"), (float)(*m_counter1)/(*m_counter2));
+			return CFormat(wxGetTranslation(m_label)) %
+				wxString::Format(wxT("%.2f : 1"),
+					(float)(*m_counter1)/(*m_counter2));
 		} else {
-			return CFormat(wxGetTranslation(m_label)) % wxString::Format(wxT("1 : %.2f"), (float)(*m_counter2)/(*m_counter1));
+			return CFormat(wxGetTranslation(m_label)) %
+				wxString::Format(wxT("1 : %.2f"),
+					(float)(*m_counter2)/(*m_counter1));
 		}
 	} else {
 		return CFormat(wxGetTranslation(m_label)) % _("Not available");
@@ -553,7 +550,7 @@ wxString CStatTreeItemRatio::GetDisplayString() const
 }
 #endif
 
-void CStatTreeItemRatio::AddECValues(CECTag* tag) const
+void CStatTreeItemRatio::AddECValues(CECTag *tag) const
 {
 	wxString result;
 	if (m_counter1->GetValue() && m_counter2->GetValue()) {
@@ -581,9 +578,10 @@ wxString CStatTreeItemReconnects::GetDisplayString() const
 }
 #endif
 
-void CStatTreeItemReconnects::AddECValues(CECTag* tag) const
+void CStatTreeItemReconnects::AddECValues(CECTag *tag) const
 {
-	tag->AddTag(CECTag(EC_TAG_STAT_NODE_VALUE, m_value ? (uint64)(m_value - 1) : (uint64)0));
+	tag->AddTag(CECTag(EC_TAG_STAT_NODE_VALUE,
+		m_value ? (uint64)(m_value - 1) : (uint64)0));
 }
 
 /* CStatTreeItemMaxConnLimitReached */
@@ -592,7 +590,11 @@ void CStatTreeItemReconnects::AddECValues(CECTag* tag) const
 wxString CStatTreeItemMaxConnLimitReached::GetDisplayString() const
 {
 	if (m_count) {
-		return CFormat(wxGetTranslation(m_label)) % (wxString::Format(wxT("%i : "), m_count) + m_time.FormatISODate() + wxT(" ") + m_time.FormatISOTime());
+		return CFormat(wxGetTranslation(m_label)) %
+			(wxString::Format(wxT("%i : "), m_count) +
+				m_time.FormatISODate() +
+				wxT(" ") +
+				m_time.FormatISOTime());
 	} else {
 		return CFormat(wxGetTranslation(m_label)) % _("Never");
 	}
@@ -603,11 +605,13 @@ void CStatTreeItemMaxConnLimitReached::AddECValues(CECTag *tag) const
 {
 	wxString result;
 	if (m_count) {
-		result = wxString::Format(wxT("%i : "), m_count) + m_time.FormatISODate() + wxT(" ") + m_time.FormatISOTime();
+		result = wxString::Format(wxT("%i : "), m_count) +
+			m_time.FormatISODate() +
+			wxT(" ") +
+			m_time.FormatISOTime();
 	} else {
 		result = wxTRANSLATE("Never");
 	}
-
 	CECTag value(EC_TAG_STAT_NODE_VALUE, result);
 	value.AddTag(CECTag(EC_TAG_STAT_VALUE_TYPE, (uint8)EC_VALUE_STRING));
 	tag->AddTag(value);
@@ -618,16 +622,21 @@ void CStatTreeItemMaxConnLimitReached::AddECValues(CECTag *tag) const
 #ifndef AMULE_DAEMON
 wxString CStatTreeItemTotalClients::GetDisplayString() const
 {
-	return CFormat(wxGetTranslation(m_label)) % (m_known->GetValue() + m_unknown->GetValue()) % m_known->GetValue();
+	return CFormat(wxGetTranslation(m_label)) %
+		(m_known->GetValue() + m_unknown->GetValue()) %
+		m_known->GetValue();
 }
 #endif
 
-void CStatTreeItemTotalClients::AddECValues(CECTag* tag) const
+void CStatTreeItemTotalClients::AddECValues(CECTag *tag) const
 {
-	CECTag value1(EC_TAG_STAT_NODE_VALUE, (uint64)(m_known->GetValue() + m_unknown->GetValue()));
+	CECTag value1(EC_TAG_STAT_NODE_VALUE,
+		(uint64)(m_known->GetValue() + m_unknown->GetValue()));
 	tag->AddTag(value1);
-	CECTag value2(EC_TAG_STAT_NODE_VALUE, (uint64)m_known->GetValue());
+	CECTag value2(EC_TAG_STAT_NODE_VALUE,
+		(uint64)m_known->GetValue());
 	tag->AddTag(value2);
 }
 
 #endif /* !EC_REMOTE */
+// File_checked_for_headers

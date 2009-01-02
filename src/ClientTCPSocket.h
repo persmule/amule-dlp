@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -30,10 +30,7 @@
 #ifndef CLIENTTCPSOCKET_H
 #define CLIENTTCPSOCKET_H
 
-#include "Types.h"		// Needed for uint8, uint16, uint32 and uint64
 #include "EMSocket.h"		// Needed for CEMSocket
-
-#include <wx/dynarray.h>
 
 class CProxyData;
 
@@ -41,27 +38,25 @@ class CProxyData;
 // CClientTCPSocket
 //------------------------------------------------------------------------------
 
-WX_DECLARE_OBJARRAY(wxString, ArrayOfwxStrings);
-
 class CUpDownClient;
 class CPacket;
 class CTimerWnd;
 
 class CClientTCPSocket : public CEMSocket
 {
-	DECLARE_DYNAMIC_CLASS(CClientTCPSocket)
 public:
-	CClientTCPSocket(CUpDownClient* in_client = 0, const CProxyData *ProxyData = NULL);	
+	CClientTCPSocket(CUpDownClient* in_client = NULL, const CProxyData *ProxyData = NULL);	
 	virtual ~CClientTCPSocket();
 	
 	void		Disconnect(const wxString& strReason);
 
-	void		ResetTimeOutTimer();
+	bool		InitNetworkData();
+
 	bool		CheckTimeOut();
 
 	void		Safe_Delete();
 
-	bool		deletethis; // 0.30c (Creteil), set as bool
+	bool		ForDeletion() const { return m_ForDeletion; }
 
 	void		OnConnect(int nErrorCode);
 	void		OnSend(int nErrorCode);
@@ -70,9 +65,8 @@ public:
 	void		OnClose(int nErrorCode);
 	void		OnError(int nErrorCode);
 	
-	uint32		timeout_timer;
-
-	void		SetClient(CUpDownClient* client);
+	uint32		GetRemoteIP() const { return m_remoteip; }
+		
 	CUpDownClient* GetClient() { return m_client; }
 	
 	virtual void SendPacket(CPacket* packet, bool delpacket = true, bool controlpacket = true, uint32 actualPayloadSize = 0);
@@ -85,11 +79,17 @@ protected:
 private:
 	CUpDownClient*	m_client;
 
-//	void	Delete_Timed();
-	bool	ProcessPacket(const char *packet, uint32 size, uint8 opcode);
-	bool	ProcessExtPacket(const char *packet, uint32 size, uint8 opcode);
+	bool	ProcessPacket(const byte* packet, uint32 size, uint8 opcode);
+	bool	ProcessExtPacket(const byte* packet, uint32 size, uint8 opcode);
+	bool	ProcessED2Kv2Packet(const byte* packet, uint32 size, uint8 opcode);
 	bool	IsMessageFiltered(const wxString& Message, CUpDownClient* client);
+	void	ResetTimeOutTimer();
+	void	SetClient(CUpDownClient* client);
 
+	bool	m_ForDeletion; // 0.30c (Creteil), set as bool
+	uint32	timeout_timer;
+	uint32	m_remoteip;
 };
 
 #endif // CLIENTTCPSOCKET_H
+// File_checked_for_headers

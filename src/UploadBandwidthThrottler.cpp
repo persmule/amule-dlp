@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 // 
-// Copyright (C) 2005-2006aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,10 +23,14 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <cmath>
 #include "UploadBandwidthThrottler.h"
-#include "EMSocket.h"
-#include "OPCodes.h"
+
+#include <protocol/ed2k/Constants.h>
+#include <common/Macros.h>
+#include <common/Constants.h>
+
+#include <cmath>
+#include <limits> // Do_not_auto_remove (NetBSD)
 #include "OtherFunctions.h"
 #include "ThrottledSocket.h"
 #include "Logger.h"
@@ -34,8 +38,7 @@
 #include "amule.h"
 #include "Statistics.h"
 
-#include <algorithm>
-#include <limits>
+#ifndef _MSC_VER
 
 #ifdef _UI64_MAX
 #undef _UI64_MAX
@@ -50,6 +53,8 @@ const sint32 _I32_MAX = std::numeric_limits<sint32>::max();
 const uint64 _UI64_MAX = std::numeric_limits<uint64>::max();
 const sint64 _I64_MAX = std::numeric_limits<sint64>::max();
 
+#endif
+
 /////////////////////////////////////
 
 
@@ -61,7 +66,6 @@ UploadBandwidthThrottler::UploadBandwidthThrottler()
 {
 	m_SentBytesSinceLastCall = 0;
 	m_SentBytesSinceLastCallOverhead = 0;
-	m_highestNumberOfFullyActivatedSlots = 0;
 
 	m_doRun = true;
 
@@ -110,32 +114,6 @@ uint64 UploadBandwidthThrottler::GetNumberOfSentBytesOverheadSinceLastCallAndRes
 
 	return numberOfSentBytesSinceLastCall;
 }
-
-
-/**
- * Find out the highest number of slots that has been fed data in the normal standard loop
- * of the thread since the last call of this method. This means all slots that haven't
- * been in the trickle state during the entire time since the last call.
- *
- * @return the highest number of fully activated slots during any loop since last call
- */
-uint32 UploadBandwidthThrottler::GetHighestNumberOfFullyActivatedSlotsSinceLastCallAndReset()
-{
-	wxMutexLocker lock( m_sendLocker );
-	
-	uint32 highestNumberOfFullyActivatedSlots = m_highestNumberOfFullyActivatedSlots;
-	m_highestNumberOfFullyActivatedSlots = 0;
-
-	return highestNumberOfFullyActivatedSlots;
-}
-
-
-uint32 UploadBandwidthThrottler::GetStandardListSize()
-{
-	wxMutexLocker lock( m_sendLocker );
-	
-	return m_StandardOrder_list.size();
-};
 
 
 /**
@@ -197,14 +175,7 @@ bool UploadBandwidthThrottler::RemoveFromStandardList(ThrottledFileSocket* socke
  */
 bool UploadBandwidthThrottler::RemoveFromStandardListNoLock(ThrottledFileSocket* socket)
 {
-	// Find the slot
-	bool foundSocket = EraseFirstValue( m_StandardOrder_list, socket );
-
-	if ( foundSocket && m_highestNumberOfFullyActivatedSlots > m_StandardOrder_list.size()) {
-		m_highestNumberOfFullyActivatedSlots = m_StandardOrder_list.size();
-	}
-
-	return foundSocket;
+	return EraseFirstValue( m_StandardOrder_list, socket );
 }
 
 
@@ -314,7 +285,6 @@ void* UploadBandwidthThrottler::Entry()
 	sint64 realBytesToSpend = 0;
 	uint32 allowedDataRate = 0;
 	uint32 rememberedSlotCounter = 0;
-	uint32 lastTickReachedBandwidth = ::GetTickCountFullRes();
 	uint32 extraSleepTime = TIME_BETWEEN_UPLOAD_LOOPS;
 	
 	while (m_doRun) {
@@ -323,7 +293,7 @@ void* UploadBandwidthThrottler::Entry()
 		// Get current speed from UploadSpeedSense
 		if (thePrefs::GetMaxUpload() == UNLIMITED) {
 			// Try to increase the upload rate
-			if (theApp.uploadqueue) {
+			if (theApp->uploadqueue) {
 				allowedDataRate = (uint32)theStats::GetUploadRate() + 5 * 1024;
 			} else {
 				// App not created yet or already destroyed.
@@ -347,7 +317,7 @@ void* UploadBandwidthThrottler::Entry()
 			sleepTime = extraSleepTime;
 		} else {
 			// sleep for just as long as we need to get back to having one byte to send
-			sleepTime = std::max((uint32)ceil((double)(-realBytesToSpend + 1000)/allowedDataRate), TIME_BETWEEN_UPLOAD_LOOPS);
+			sleepTime = std::max((uint32)ceil((double)(-realBytesToSpend + 1000)/allowedDataRate), extraSleepTime);
 		}
 
 		if(timeSinceLastLoop < sleepTime) {
@@ -443,10 +413,6 @@ void* UploadBandwidthThrottler::Entry()
 							uint32 lastSpentBytes = socketSentBytes.sentBytesControlPackets + socketSentBytes.sentBytesStandardPackets;
 							spentBytes += lastSpentBytes;
 							spentOverhead += socketSentBytes.sentBytesControlPackets;
-
-							if(lastSpentBytes > 0 && slotCounter < m_highestNumberOfFullyActivatedSlots) {
-								m_highestNumberOfFullyActivatedSlots = slotCounter;
-							}
 						}
 					}
 				} else {
@@ -458,10 +424,6 @@ void* UploadBandwidthThrottler::Entry()
 			uint32 maxSlot = m_StandardOrder_list.size();
 			if(maxSlot > 0 && allowedDataRate/maxSlot < UPLOAD_CLIENT_DATARATE) {
 				maxSlot = allowedDataRate/UPLOAD_CLIENT_DATARATE;
-			}
-
-			if(maxSlot > m_highestNumberOfFullyActivatedSlots) {
-				m_highestNumberOfFullyActivatedSlots = maxSlot;
 			}
 
 			for(uint32 maxCounter = 0; maxCounter < std::min(maxSlot, (uint32)m_StandardOrder_list.size()) && bytesToSpend > 0 && spentBytes < (uint64)bytesToSpend; maxCounter++) {
@@ -495,10 +457,6 @@ void* UploadBandwidthThrottler::Entry()
 					uint32 lastSpentBytes = socketSentBytes.sentBytesControlPackets + socketSentBytes.sentBytesStandardPackets;
 					spentBytes += lastSpentBytes;
 					spentOverhead += socketSentBytes.sentBytesControlPackets;
-
-					if(slotCounter+1 > m_highestNumberOfFullyActivatedSlots && (lastSpentBytes < bytesToSpendTemp || lastSpentBytes >= doubleSendSize)) { 
-						m_highestNumberOfFullyActivatedSlots = slotCounter+1;
-					}
 				} else {
 					AddDebugLogLineM( false, logGeneral, wxString::Format( wxT("There was a NULL socket in the UploadBandwidthThrottler Standard list (fully activated)! Prevented usage. Index: %i Size: %i"), slotCounter, m_StandardOrder_list.size()));
 				}
@@ -509,26 +467,18 @@ void* UploadBandwidthThrottler::Entry()
 				sint64 newRealBytesToSpend = -(((sint64)m_StandardOrder_list.size()+1)*minFragSize)*1000;
 	
 				realBytesToSpend = newRealBytesToSpend;
-				lastTickReachedBandwidth = thisLoopTick;
 			} else {
 				uint64 bandwidthSavedTolerance = m_StandardOrder_list.size()*512*1000;
 				if(realBytesToSpend > 0 && (uint64)realBytesToSpend > 999+bandwidthSavedTolerance) {
 					sint64 newRealBytesToSpend = 999+bandwidthSavedTolerance;
 					realBytesToSpend = newRealBytesToSpend;
-
-					if(thisLoopTick-lastTickReachedBandwidth > std::max((uint32)1000, (uint32)timeSinceLastLoop*2)) {
-						m_highestNumberOfFullyActivatedSlots = m_StandardOrder_list.size()+1;
-						lastTickReachedBandwidth = thisLoopTick;
-					}
-				} else {
-					lastTickReachedBandwidth = thisLoopTick;
 				}
 			}
 			
 			m_SentBytesSinceLastCall += spentBytes;
 			m_SentBytesSinceLastCallOverhead += spentOverhead;
 
-			if ((spentBytes == 0) and (spentOverhead == 0)) {
+			if ((spentBytes == 0) && (spentOverhead == 0)) {
 				extraSleepTime = std::min<uint32>(extraSleepTime * 5, 1000); // 1s at most
 			} else {
 				extraSleepTime = TIME_BETWEEN_UPLOAD_LOOPS;
@@ -548,3 +498,4 @@ void* UploadBandwidthThrottler::Entry()
 
 	return 0;
 }
+// File_checked_for_headers

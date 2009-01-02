@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -27,7 +27,6 @@
 #define PACKET_H
 
 #include "Types.h"		// Needed for int8, int32, uint8 and uint32
-#include "OPCodes.h"		// Needed for OP_EDONKEYPROT
 
 class CMemFile;
 class wxString;
@@ -40,19 +39,19 @@ class wxString;
 class CPacket {
 public:
 	CPacket(CPacket &p);
-	CPacket(uint8 protocol = OP_EDONKEYPROT);
-	CPacket(char* header); // only used for receiving packets
-	CPacket(CMemFile* datafile, uint8 protocol = OP_EDONKEYPROT, uint8 ucOpcode = 0x00);
-	CPacket(int8 in_opcode, uint32 in_size, uint8 protocol = OP_EDONKEYPROT, bool bFromPF = true);
-	CPacket(char* pPacketPart, uint32 nSize, bool bLast, bool bFromPF = true); // only used for splitted packets!
+	CPacket(uint8 protocol);
+	CPacket(byte* header); // only used for receiving packets
+	CPacket(const CMemFile& datafile, uint8 protocol, uint8 ucOpcode);
+	CPacket(int8 in_opcode, uint32 in_size, uint8 protocol, bool bFromPF = true);
+	CPacket(byte* pPacketPart, uint32 nSize, bool bLast, bool bFromPF = true); // only used for splitted packets!
 
 	~CPacket();
 	
 	void 			AllocDataBuffer();	
-	char*			GetHeader();
-	char*			GetUDPHeader();
-	char*			GetPacket();
-	char*			DetachPacket();
+	byte*			GetHeader();
+	byte*			GetUDPHeader();
+	byte*			GetPacket();
+	byte*			DetachPacket();
 	uint32 			GetRealPacketSize() const	{ return size + 6; }
 	bool			IsSplitted()		{ return m_bSplitted; }
 	bool			IsLastSplitted()	{ return m_bLastSplitted; }
@@ -66,9 +65,9 @@ public:
 	uint32			GetPacketSize() const	{ return size; }
 	uint8			GetProtocol() const	{ return prot; }
 	void			SetProtocol(uint8 p)	{ prot = p; }
-	const char* 	GetDataBuffer(void) const { return pBuffer; }
+	const byte* 	GetDataBuffer(void) const { return pBuffer; }
 	void 			Copy16ToDataBuffer(const void* data);
-	void 			CopyToDataBuffer(unsigned int offset, const char *data, unsigned int n);
+	void 			CopyToDataBuffer(unsigned int offset, const byte* data, unsigned int n);
 	void			CopyUInt32ToDataBuffer(uint32 data, unsigned int offset = 0);
 	
 private:
@@ -82,10 +81,11 @@ private:
 	bool		m_bLastSplitted;
 	bool		m_bPacked;
 	bool		m_bFromPF;
-	char		head[6];
-	char 		*tempbuffer;
-	char 		*completebuffer;
-	char		*pBuffer;
+	byte		head[6];
+	byte*		tempbuffer;
+	byte*		completebuffer;
+	byte*		pBuffer;
 };
 
 #endif // PACKET_H
+// File_checked_for_headers

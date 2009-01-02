@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (C) 2005-2006Mikkel Schubert ( xaignar@users.sourceforge.net )
-// Copyright (C) 2005-2006aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2008 Mikkel Schubert ( xaignar@users.sourceforge.net )
+// Copyright (C) 2005-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -23,32 +23,31 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <exception>			// Needed for std::exception
-#include <cxxabi.h>				// Needed for __cxxabiv1::
 #include <csignal>				// Needed for raise()
-#include <cstdio>
-#include <cwchar>				// Needed for fwprintf
 
 #include "MuleDebug.h"			// Interface declaration
 #include "StringFunctions.h"	// Needed for unicode2char
 
 #ifdef __LINUX__
 	#include <execinfo.h>
-	#include <cxxabi.h>
-	#include <wx/thread.h>
-	#include <unistd.h> // Seems to be needed at least on Creteil's box
 #endif
 
+#ifndef _MSC_VER
+	#include <cxxabi.h>
+#endif
+
+#include <wx/thread.h> // Do_not_auto_remove (Old wx < 2.7)
+#include <wx/utils.h> // Do_not_auto_remove (Old wx < 2.7)
 
 #if wxUSE_STACKWALKER && defined(__WXMSW__)
-	#include <wx/stackwalk.h>
-#elif HAVE_BFD
-	#include <ansidecl.h>
-	#include <bfd.h>
+	#include <wx/stackwalk.h> // Do_not_auto_remove
+#elif defined(HAVE_BFD)
+	#include <ansidecl.h> // Do_not_auto_remove
+	#include <bfd.h> // Do_not_auto_remove
 #endif
 
-#include <wx/arrstr.h>
-#include <wx/utils.h>
+#include <vector>
+
 
 /**
  * This functions displays a verbose description of 
@@ -57,34 +56,48 @@
  */
 void OnUnhandledException()
 {
+	// Revert to the original exception handler, to avoid
+	// infinate recursion, in case something goes wrong in
+	// this function.
+	std::set_terminate(std::abort);	
+
+#ifndef _MSC_VER
 	std::type_info *t = __cxxabiv1::__cxa_current_exception_type();
+	FILE* output = stderr;
+#else 
+	FILE* output = stdout;
+	bool t = true;
+#endif
 	if (t) {
-		// Note that "name" is the mangled name.
-		char const *name = t->name();
 		int status = -1;
 		char *dem = 0;
+#ifndef _MSC_VER
+		// Note that "name" is the mangled name.
+		char const *name = t->name();
 
 		dem = __cxxabiv1::__cxa_demangle(name, 0, 0, &status);
-		fprintf(stderr, "\nTerminated after throwing an instance of '%s'\n", (status ? name : dem));
+#else
+		const char* name = "Unknown";
+#endif
+		fprintf(output, "\nTerminated after throwing an instance of '%s'\n", (status ? name : dem));
 		free(dem);
 
 		try {
 			throw;
 		} catch (const std::exception& e) {
-			fprintf(stderr, "\twhat(): %s\n", e.what());
+			fprintf(output, "\twhat(): %s\n", e.what());
 		} catch (const CMuleException& e) {
-			fprintf(stderr, "\twhat(): %s\n", (const char*)unicode2char(e.what()));
+			fprintf(output, "\twhat(): %s\n", (const char*)unicode2char(e.what()));
 		} catch (const wxString& e) {
-			fprintf(stderr, "\twhat(): %s\n", (const char*)unicode2char(e));
+			fprintf(output, "\twhat(): %s\n", (const char*)unicode2char(e));
 		} catch (...) {
 			// Unable to retrieve cause of exception
 		}
 
-		fprintf(stderr, "\tbacktrace:\n%s\n", (const char*)unicode2char(get_backtrace(1)));
+		fprintf(output, "\tbacktrace:\n%s\n", (const char*)unicode2char(get_backtrace(1)));
 	}
-
 	raise(SIGABRT);
-};
+}
 
 
 void InstallMuleExceptionHandler()
@@ -114,11 +127,11 @@ public:
 		if (!filename.IsEmpty()) {
 			btLine += filename + wxT(" (") +
 #if TOO_VERBOSE_BACKTRACE
-			          frame.GetModule()
+			        frame.GetModule()
 #else
-					  frame.GetModule().AfterLast(wxT('/'))
+				frame.GetModule().AfterLast(wxT('/'))
 #endif
-			          + wxT(")");
+			        + wxT(")");
 		} else {
 			btLine += wxString::Format(wxT("0x%lx"), frame.GetAddress());
 		}
@@ -126,11 +139,11 @@ public:
 		if (frame.HasSourceLocation()) {
 			btLine += wxT(" at ") +
 #if TOO_VERBOSE_BACKTRACE
-			          frame.GetFileName()
+			        frame.GetFileName()
 #else
-					  frame.GetFileName().AfterLast(wxT('/'))
+				frame.GetFileName().AfterLast(wxT('/'))
 #endif
-			          + wxString::Format(wxT(":%u"),frame.GetLine());
+			        + wxString::Format(wxT(":%u"),frame.GetLine());
 		} else {
 			btLine += wxT(" (Unknown file/line)");
 		}
@@ -153,7 +166,7 @@ wxString get_backtrace(unsigned n)
 
 #elif defined(__LINUX__)
 
-#if HAVE_BFD
+#ifdef HAVE_BFD
 
 static bfd* s_abfd;
 static asymbol** s_symbol_list;
@@ -175,12 +188,14 @@ static int get_backtrace_symbols(bfd *abfd, asymbol ***symbol_list_ptr)
 	int vectorsize = bfd_get_symtab_upper_bound(abfd);
 
 	if (vectorsize < 0) {
-		fprintf (stderr, "Error while getting vector size for backtrace symbols : %s" , bfd_errmsg(bfd_get_error()));
+		fprintf (stderr, "Error while getting vector size for backtrace symbols : %s",
+			bfd_errmsg(bfd_get_error()));
 		return -1;
 	}
 
 	if (vectorsize == 0) {
-		fprintf (stderr, "Error while getting backtrace symbols : No symbols (%s)" , bfd_errmsg(bfd_get_error()));
+		fprintf (stderr, "Error while getting backtrace symbols : No symbols (%s)",
+			bfd_errmsg(bfd_get_error()));
 		return -1;
 	}
 
@@ -194,7 +209,8 @@ static int get_backtrace_symbols(bfd *abfd, asymbol ***symbol_list_ptr)
 	vectorsize = bfd_canonicalize_symtab(abfd, *symbol_list_ptr);
 
 	if (vectorsize < 0) {
-		fprintf(stderr, "Error while getting symbol table : %s", bfd_errmsg(bfd_get_error()));
+		fprintf(stderr, "Error while getting symbol table : %s",
+			bfd_errmsg(bfd_get_error()));
 		return -1;
 	}
 
@@ -214,12 +230,14 @@ void init_backtrace_info()
 	s_abfd = bfd_openr("/proc/self/exe", NULL);
 
 	if (s_abfd == NULL) {
-		fprintf(stderr, "Error while opening file for backtrace symbols : %s", bfd_errmsg(bfd_get_error()));
+		fprintf(stderr, "Error while opening file for backtrace symbols : %s",
+			bfd_errmsg(bfd_get_error()));
 		return;
 	}
 
 	if (!(bfd_check_format_matches(s_abfd, bfd_object, NULL))) {
-		fprintf (stderr, "Error while init. backtrace symbols : %s" , bfd_errmsg (bfd_get_error ()));
+		fprintf (stderr, "Error while init. backtrace symbols : %s",
+			bfd_errmsg (bfd_get_error ()));
 		bfd_close(s_abfd);
 		return;
 	}
@@ -253,8 +271,7 @@ void get_file_line_info(bfd *abfd, asection *section, void* _address)
 	}
 
 	s_found =  bfd_find_nearest_line(abfd, section, s_symbol_list,
-									address - vma,
-									&s_file_name, &s_function_name, &s_line_number);
+		address - vma, &s_file_name, &s_function_name, &s_line_number);
 }
 
 #endif // HAVE_BFD
@@ -298,9 +315,9 @@ wxString get_backtrace(unsigned n)
 		return wxEmptyString;
 	}
 
-	wxString libname[num_entries];
-	wxString funcname[num_entries];
-	wxString address[num_entries];
+	std::vector<wxString> libname(num_entries);
+	std::vector<wxString> funcname(num_entries);
+	std::vector<wxString> address(num_entries);
 	wxString AllAddresses;
 	
 	for (int i = 0; i < num_entries; ++i) {
@@ -350,7 +367,7 @@ wxString get_backtrace(unsigned n)
 	wxArrayString out;
 	bool hasLineNumberInfo = false;
 
-#if HAVE_BFD
+#ifdef HAVE_BFD
 	if (!s_have_backtrace_symbols) {
 		init_backtrace_info();
 		wxASSERT(s_have_backtrace_symbols);
@@ -380,7 +397,6 @@ wxString get_backtrace(unsigned n)
 			out.Insert(wxT("??"),i*2);
 			out.Insert(wxT("??"),i*2+1);
 		}
-
 	}
 
 	hasLineNumberInfo = true;
@@ -395,7 +411,6 @@ wxString get_backtrace(unsigned n)
 		// are the line numbers.
 
 		hasLineNumberInfo = wxExecute(command, out) != -1;
-		
 	}
 
 #endif	/* HAVE_BFD / !HAVE_BFD */
@@ -420,10 +435,8 @@ wxString get_backtrace(unsigned n)
 #if TOO_VERBOSE_BACKTRACE
 			btLine += out[2*i+1];
 #else
-
-btLine += out[2*i+1].AfterLast(wxT('/'));
+			btLine += out[2*i+1].AfterLast(wxT('/'));
 #endif
-
 		} else {
 			btLine += libname[i];
 		}
@@ -451,3 +464,5 @@ void print_backtrace(unsigned n)
 	// This is because the string is ansi anyway, and the conv classes are very slow
 	fprintf(stderr, "%s\n", (const char*)unicode2char(trace.c_str()));
 }
+
+// File_checked_for_headers

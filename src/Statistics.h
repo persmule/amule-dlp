@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
-// Copyright (C) 2005-2006Dévai Tamás ( gonosztopi@amule.org )
+// Copyright (C) 2005-2008 Dévai Tamás ( gonosztopi@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -29,13 +29,9 @@
 
 #include "GetTickCount.h"	// Needed for GetTickCount64()
 #include "StatTree.h"		// Needed for CStatTreeItem* classes
-#include "Types.h"		// Needed for uint* types
 
-#include <wx/string.h>		// Needed for wxString
-#include <wx/thread.h>		// Needed for wxMutex and wxMutexLocker
 
 #include <deque>		// Needed for std::deque
-#include <list>			// Needed for std::list
 
 enum StatsGraphType {
 	GRAPH_INVALID = 0,
@@ -236,7 +232,7 @@ class CStatistics {
 
 	void	 RecordHistory();
 	unsigned GetHistoryForWeb(unsigned cntPoints, double sStep, double *sStart, uint32 **graphData);
-	unsigned GetHistory(unsigned cntPoints, double sStep, double sFinal, float **ppf, StatsGraphType which_graph);
+	unsigned GetHistory(unsigned cntPoints, double sStep, double sFinal, const std::vector<float *> &ppf, StatsGraphType which_graph);
 	GraphUpdateInfo GetPointsForUpdate();
 
 	/* Statistics tree functions */
@@ -248,6 +244,7 @@ class CStatistics {
 	// uptime
 	static	uint64	GetUptimeMillis() 			{ return s_uptime->GetTimerValue(); }
 	static	uint64	GetUptimeSeconds()			{ return s_uptime->GetTimerSeconds(); }
+	static	uint64	GetStartTime()				{ return s_uptime->GetTimerStart(); }
 
 	// Upload
 	static	uint64	GetSessionSentBytes()			{ return (*s_sessionUpload); }
@@ -364,7 +361,8 @@ class CStatistics {
 
 	/* Graph-related functions */
 
-	void ComputeAverages(HR **pphr, listRPOS pos, unsigned cntFilled, double sStep, float **ppf, StatsGraphType which_graph);
+	void ComputeAverages(HR **pphr, listRPOS pos, unsigned cntFilled,
+		double sStep, const std::vector<float *> &ppf, StatsGraphType which_graph);
  
 	int GetPointsPerRange()
 	{
@@ -481,14 +479,26 @@ enum StatDataIndex {
 	sdDownOverhead,
 	sdWaitingClients,
 	sdBannedClients,
+	sdED2KUsers,
+	sdKadUsers,
+	sdED2KFiles,
+	sdKadFiles,
 
 	sdTotalItems
 };
 
 class CStatistics {
 	friend class CStatisticsDlg;	// to access CStatistics::GetTreeRoot()
+
+private:
+	CRemoteConnect &m_conn;
+	static CStatTreeItemBase* s_statTree;
+	static uint64 s_start_time;
+	static uint64 s_statData[sdTotalItems];
+	uint8 average_minutes;
+	
  public:
-	CStatistics(CRemoteConnect* conn);
+	CStatistics(CRemoteConnect &conn);
 	~CStatistics();
 
 	static	uint64	GetUptimeMillis()			{ return GetTickCount64() - s_start_time; }
@@ -507,23 +517,18 @@ class CStatistics {
 
 	static	uint32	GetSharedFileCount()			{ return 0; } // TODO
 
+	static	uint32	GetED2KUsers()			{ return s_statData[sdED2KUsers]; }
+	static	uint32	GetKadUsers() 			{ return s_statData[sdKadUsers]; }
+	static	uint32	GetED2KFiles()			{ return s_statData[sdED2KFiles]; }
+	static	uint32	GetKadFiles() 			{ return s_statData[sdKadFiles]; }
+
 	static	void	UpdateStats(const CECPacket* stats);
 
-	void	UpdateStatsTree();
-
-	void SetAverageMinutes(uint8 minutes) { average_minutes = minutes; }
+		void	UpdateStatsTree();
+		void	SetAverageMinutes(uint8 minutes)	{ average_minutes = minutes; }
 	
  private:
 	static	CStatTreeItemBase*	GetTreeRoot()		{ return s_statTree; }
-
-	static	CStatTreeItemBase*	s_statTree;
-
-	static	uint64	s_start_time;
-	static	uint64	s_statData[sdTotalItems];
-
-	uint8 average_minutes;
-	
-	CRemoteConnect*	m_conn;
 };
 
 #endif /* !EC_REMOTE / EC_REMOTE */
@@ -535,3 +540,4 @@ class CStatistics {
 typedef	CStatistics	theStats;
 
 #endif // STATISTICS_H
+// File_checked_for_headers

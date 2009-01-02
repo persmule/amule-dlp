@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -36,33 +36,18 @@ Any mod that changes anything within the Kademlia side will not be allowed to ad
 there client on the eMule forum..
 */
 
-//#include "stdafx.h"
-//#include "../utils/MiscUtils.h"
-//#include "StringConversion.h"
-//#include "MD4.h"
+#include "Kademlia.h" // Interface declarations
 
-#include "Kademlia.h"
+#include <protocol/kad/Constants.h>
+#include <common/Macros.h>
+
 #include "Defines.h"
-#include "Prefs.h"
-#include "Error.h"
-#include "SearchManager.h"
 #include "Indexed.h"
 #include "../net/KademliaUDPListener.h"
 #include "../routing/RoutingZone.h"
-#include "../../SharedFileList.h"
 #include "../routing/Contact.h"
-#include "amule.h"
-#include "OPCodes.h"
-#include "Preferences.h"
-#include "Logger.h"
-
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
+#include "../../amule.h"
+#include "../../Logger.h"
 
 ////////////////////////////////////////
 using namespace Kademlia;
@@ -79,15 +64,15 @@ time_t		CKademlia::m_nextFindBuddy;
 time_t		CKademlia::m_bootstrap;
 bool		CKademlia::m_running = false;
 
-void CKademlia::start(void)
+void CKademlia::Start(void)
 {
 	if (instance != NULL) {
 		return;
 	}
-	start(new CPrefs());
+	Start(new CPrefs());
 }
 
-void CKademlia::start(CPrefs *prefs)
+void CKademlia::Start(CPrefs *prefs)
 {
 	if( m_running ) {
 		delete prefs;
@@ -118,7 +103,7 @@ void CKademlia::start(CPrefs *prefs)
 }
 
 
-void CKademlia::stop()
+void CKademlia::Stop()
 {	
 	if( !m_running ) {
 		return;
@@ -127,7 +112,7 @@ void CKademlia::stop()
 	AddDebugLogLineM(false, logKadMain, wxT("Stopping Kademlia"));
 	m_running = false;
 
-	CSearchManager::stopAllSearches();
+	CSearchManager::StopAllSearches();
 	delete instance->m_udpListener;
 	instance->m_udpListener = NULL;
 
@@ -145,10 +130,10 @@ void CKademlia::stop()
 
 	m_events.clear();
 	
-	theApp.ShowConnectionState();
+	theApp->ShowConnectionState();
 }
 
-void CKademlia::process()
+void CKademlia::Process()
 {
 
 	if( instance == NULL || !m_running) {
@@ -165,8 +150,8 @@ void CKademlia::process()
 		
 	now = time(NULL);
 	wxASSERT(instance->m_prefs != NULL);
-	lastContact = instance->m_prefs->getLastContact();
-	CSearchManager::updateStats();
+	lastContact = instance->m_prefs->GetLastContact();
+	CSearchManager::UpdateStats();
 	if( m_statusUpdate <= now ) {
 		updateUserFile = true;
 		m_statusUpdate = MIN2S(1) + now;
@@ -175,30 +160,30 @@ void CKademlia::process()
 		RecheckFirewalled();
 	}
 	if (m_nextSelfLookup <= now) {
-		CSearchManager::findNodeComplete(instance->m_prefs->getKadID());
+		CSearchManager::FindNodeComplete(instance->m_prefs->GetKadID());
 		m_nextSelfLookup = HR2S(4) + now;
 	}
 	if (m_nextFindBuddy <= now) {
-		instance->m_prefs->setFindBuddy();
+		instance->m_prefs->SetFindBuddy();
 		m_nextFindBuddy = MIN2S(5) + m_nextFirewallCheck;
 	}
 	for (it = m_events.begin(); it != m_events.end(); it++) {
 		zone = it->first;
 		if( updateUserFile ) {
-			tempUsers = zone->estimateCount();
+			tempUsers = zone->EstimateCount();
 			if( maxUsers < tempUsers ) {
 				maxUsers = tempUsers;
 			}
 		}
 		if (m_bigTimer <= now) {
 			if( zone->m_nextBigTimer <= now ) {
-				if(zone->onBigTimer()) {
+				if(zone->OnBigTimer()) {
 					zone->m_nextBigTimer = HR2S(1) + now;
 					m_bigTimer = SEC(10) + now;
 				}
 			} else {
 				if( lastContact && ( (now - lastContact) > (KADEMLIADISCONNECTDELAY-MIN2S(5)))) {
-					if(zone->onBigTimer()) {
+					if(zone->OnBigTimer()) {
 						zone->m_nextBigTimer = HR2S(1) + now;
 						m_bigTimer = SEC(10) + now;
 					}
@@ -207,12 +192,12 @@ void CKademlia::process()
 		}
 
 		if (zone->m_nextSmallTimer <= now) {
-			zone->onSmallTimer();
+			zone->OnSmallTimer();
 			zone->m_nextSmallTimer = MIN2S(1) + now;
 		}
 			// This is a convenient place to add this, although not related to routing
 		if (m_nextSearchJumpStart <= now) {
-			CSearchManager::jumpStart();
+			CSearchManager::JumpStart();
 			m_nextSearchJumpStart += SEARCH_JUMPSTART;
 		}
 	}
@@ -224,108 +209,108 @@ void CKademlia::process()
 		zone = it->first;
 		++it;
 		if (zone->IsDirty()) {
-			zone->merge();
+			zone->Merge();
 			it = m_events.begin(); /* restart */
 		}
 	}
 
 	//Update user count only if changed.
 	if( updateUserFile ) {
-		if( maxUsers != instance->m_prefs->getKademliaUsers()) {
-			instance->m_prefs->setKademliaUsers(maxUsers);
-			instance->m_prefs->setKademliaFiles();
-			theApp.ShowUserCount();
+		if( maxUsers != instance->m_prefs->GetKademliaUsers()) {
+			instance->m_prefs->SetKademliaUsers(maxUsers);
+			instance->m_prefs->SetKademliaFiles();
+			theApp->ShowUserCount();
 		}
 	}
 }
 
-void CKademlia::addEvent(CRoutingZone *zone)
+void CKademlia::AddEvent(CRoutingZone *zone)
 {
 	m_events[zone] = zone;
 }
 
-void CKademlia::removeEvent(CRoutingZone *zone)
+void CKademlia::RemoveEvent(CRoutingZone *zone)
 {
 	m_events.erase(zone);
 }
 
-bool CKademlia::isConnected(void)
+bool CKademlia::IsConnected(void)
 {
 	if( instance && instance->m_prefs ) {
-		return instance->m_prefs->hasHadContact();
+		return instance->m_prefs->HasHadContact();
 	}
 	return false;
 }
 
-bool CKademlia::isFirewalled(void)
+bool CKademlia::IsFirewalled(void)
 {
 	if( instance && instance->m_prefs ) {
-		return instance->m_prefs->getFirewalled();
+		return instance->m_prefs->GetFirewalled();
 	}
 	return true;
 }
 
-uint32 CKademlia::getKademliaUsers(void)
+uint32 CKademlia::GetKademliaUsers(void)
 {
 	if( instance && instance->m_prefs ) {
-		return instance->m_prefs->getKademliaUsers();
+		return instance->m_prefs->GetKademliaUsers();
 	}
 	return 0;
 }
 
-uint32 CKademlia::getKademliaFiles(void)
+uint32 CKademlia::GetKademliaFiles(void)
 {
 	if( instance && instance->m_prefs ) {
-		return instance->m_prefs->getKademliaFiles();
+		return instance->m_prefs->GetKademliaFiles();
 	}
 	return 0;
 }
 
-uint32 CKademlia::getTotalStoreKey(void)
+uint32 CKademlia::GetTotalStoreKey(void)
 {
 	if( instance && instance->m_prefs ) {
-		return instance->m_prefs->getTotalStoreKey();
+		return instance->m_prefs->GetTotalStoreKey();
 	}
 	return 0;
 }
 
-uint32 CKademlia::getTotalStoreSrc(void)
+uint32 CKademlia::GetTotalStoreSrc(void)
 {
 	if( instance && instance->m_prefs ) {
-		return instance->m_prefs->getTotalStoreSrc();
+		return instance->m_prefs->GetTotalStoreSrc();
 	}
 	return 0;
 }
 
-uint32 CKademlia::getTotalStoreNotes(void)
+uint32 CKademlia::GetTotalStoreNotes(void)
 {
 	if( instance && instance->m_prefs ) {
-		return instance->m_prefs->getTotalStoreNotes();
+		return instance->m_prefs->GetTotalStoreNotes();
 	}
 	return 0;
 }
 
-uint32 CKademlia::getTotalFile(void)
+uint32 CKademlia::GetTotalFile(void)
 {
 	if( instance && instance->m_prefs ) {
-		return instance->m_prefs->getTotalFile();
+		return instance->m_prefs->GetTotalFile();
 	}
 	return 0;
 }
 
-uint32 CKademlia::getIPAddress(void)
+uint32 CKademlia::GetIPAddress(void)
 {
 	if( instance && instance->m_prefs ) {
-		return instance->m_prefs->getIPAddress();
+		return instance->m_prefs->GetIPAddress();
 	}
 	return 0;
 }
 
-void CKademlia::processPacket(const byte *data, uint32 lenData, uint32 ip, uint16 port)
+void CKademlia::ProcessPacket(const byte *data, uint32 lenData, uint32 ip, uint16 port)
 {
 	try {
 		if( instance && instance->m_udpListener ) {
-			instance->m_udpListener->processPacket( data, lenData, ip, port);
+			instance->m_udpListener->ProcessPacket( data, lenData, ip, port);
 		}
 	} catch (const wxString& error) {
 		AddDebugLogLineM(false, logKadMain, wxT("Exception on Kad processPacket: ") + error);
@@ -336,32 +321,32 @@ void CKademlia::processPacket(const byte *data, uint32 lenData, uint32 ip, uint1
 	}
 }
 
-bool CKademlia::getPublish(void)
+bool CKademlia::GetPublish(void)
 {
 	if( instance && instance->m_prefs ) {
-		return instance->m_prefs->getPublish();
+		return instance->m_prefs->GetPublish();
 	}
 	return 0;
 }
 
-void CKademlia::bootstrap(uint32 ip, uint16 port)
+void CKademlia::Bootstrap(uint32 ip, uint16 port)
 {
-	if( instance && instance->m_udpListener && !isConnected() && time(NULL) - m_bootstrap > MIN2S(1) ) {
-		instance->m_udpListener->bootstrap( ip, port);
+	if( instance && instance->m_udpListener && !IsConnected() && time(NULL) - m_bootstrap > MIN2S(1) ) {
+		instance->m_udpListener->Bootstrap( ip, port);
 	}
 }
 
 void CKademlia::RecheckFirewalled()
 {
-	if( instance && instance->getPrefs() ) {
-		instance->m_prefs->setFindBuddy(false);
-		instance->m_prefs->setRecheckIP();
+	if( instance && instance->GetPrefs() ) {
+		instance->m_prefs->SetFindBuddy(false);
+		instance->m_prefs->SetRecheckIP();
 		m_nextFindBuddy = MIN2S(5) + m_nextFirewallCheck;
 		m_nextFirewallCheck = HR2S(1) + time(NULL);
 	}
 }
 
-CPrefs *CKademlia::getPrefs(void)
+CPrefs *CKademlia::GetPrefs(void)
 {
 	if (instance == NULL || instance->m_prefs == NULL) {
 		wxASSERT(0);
@@ -370,7 +355,7 @@ CPrefs *CKademlia::getPrefs(void)
 	return instance->m_prefs;
 }
 
-CKademliaUDPListener *CKademlia::getUDPListener(void)
+CKademliaUDPListener *CKademlia::GetUDPListener(void)
 {
 	if (instance == NULL || instance->m_udpListener == NULL) {
 		wxASSERT(0);
@@ -379,7 +364,7 @@ CKademliaUDPListener *CKademlia::getUDPListener(void)
 	return instance->m_udpListener;
 }
 
-CRoutingZone *CKademlia::getRoutingZone(void)
+CRoutingZone *CKademlia::GetRoutingZone(void)
 {
 	if (instance == NULL || instance->m_routingZone == NULL) {
 		wxASSERT(0);
@@ -388,7 +373,7 @@ CRoutingZone *CKademlia::getRoutingZone(void)
 	return instance->m_routingZone;
 }
 
-CIndexed *CKademlia::getIndexed(void)
+CIndexed *CKademlia::GetIndexed(void)
 {
 	if ( instance == NULL || instance->m_indexed == NULL) {
 		wxASSERT(0);
@@ -400,13 +385,16 @@ CIndexed *CKademlia::getIndexed(void)
 // Global function.
 
 #include "../../CryptoPP_Inc.h"
-#include <common/StringFunctions.h>
 void KadGetKeywordHash(const wxString& rstrKeyword, Kademlia::CUInt128* pKadID)
 {
 	byte Output[16];
-	
-	CryptoPP::MD4 md4_hasher; 	
-	
+
+	#ifdef __WEAK_CRYPTO__
+		CryptoPP::Weak::MD4 md4_hasher;
+	#else
+		CryptoPP::MD4 md4_hasher;
+	#endif
+
 	// This should be safe - we assume rstrKeyword is ANSI anyway.
 	char* ansi_buffer = strdup(unicode2UTF8(rstrKeyword));
 	
@@ -415,5 +403,6 @@ void KadGetKeywordHash(const wxString& rstrKeyword, Kademlia::CUInt128* pKadID)
 	//DumpMem(Output,16);
 	free(ansi_buffer);
 	
-	pKadID->setValueBE(Output);
+	pKadID->SetValueBE(Output);
 }
+// File_checked_for_headers

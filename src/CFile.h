@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 1998 Vadim Zeitlin ( zeitlin@dptmaths.ens-cachan.fr )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,7 +26,9 @@
 #ifndef CFILE_H
 #define CFILE_H
 
+#include <common/Path.h>	// Needed for CPath
 #include "SafeFile.h"		// Needed for CFileDataIO
+
 #include <wx/file.h>		// Needed for constants
 
 
@@ -60,6 +62,7 @@ public:
 	 * To check if the file was successfully opened, a
 	 * call to IsOpened() is required.
 	 */
+	CFile(const CPath& path, OpenMode mode = read);
 	CFile(const wxString& path, OpenMode mode = read);
 
 	/**
@@ -82,17 +85,19 @@ public:
 	 * If an accessMode is not explicitly specified, the accessmode
 	 * specified via CPreferences::GetFilePermissions will be used.
 	 */
-	bool Open(const wxString& path, OpenMode mode = read, int accessMode = -1);
+	bool Open(const CPath& path, OpenMode mode = read, int accessMode = wxS_DEFAULT);
+	bool Open(const wxString& path, OpenMode mode = read, int accessMode = wxS_DEFAULT);
 	
 	/**
-	 * Calling Create is requivilant of calling open with OpenMode 'write'.
+	 * Calling Create is equivilant of calling open with OpenMode 'write'.
 	 *
 	 * @param overwrite Specifies if the target file should be overwritten,
 	 *                  in case that it already exists.
 	 *
 	 * @see CFile::Open
 	 */
-	bool Create(const wxString& path, bool overwrite = false, int accessMode = -1);
+	bool Create(const CPath& path, bool overwrite = false, int accessMode = wxS_DEFAULT);
+	bool Create(const wxString& path, bool overwrite = false, int accessMode = wxS_DEFAULT);
 	
 	/**
 	 * Closes the file.
@@ -142,12 +147,18 @@ public:
 	virtual uint64 GetPosition() const;
 	
 	/**
+	 * Returns the current available bytes to read on the file before EOF
+	 * 
+	 */
+	virtual uint64 GetAvailable() const;	
+	
+	/**
 	 * Returns the path of the currently opened file.
 	 * 
 	 * Calling this function on an closed file is
 	 * an illegal operation.
 	 */
-	const wxString& GetFilePath() const;
+	const CPath& GetFilePath() const;
 	
 
 	/**
@@ -164,7 +175,7 @@ protected:
 	virtual sint64 doSeek(sint64 offset) const;
 
 private:
-	//! A CMemFile is neither copyable nor assignable.
+	//! A CFile is neither copyable nor assignable.
 	//@{
 	CFile(const CFile&);
 	CFile& operator=(const CFile&);
@@ -174,7 +185,7 @@ private:
 	int m_fd;
 	
 	//! The full path to the current file.
-	wxString m_filePath;
+	CPath m_filePath;
 };
 
 
@@ -187,3 +198,4 @@ struct CSeekFailureException : public CIOFailureException {
 
 
 #endif // CFILE_H
+// File_checked_for_headers

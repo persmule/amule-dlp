@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 /// Name:         Ed2kHash Class
 ///
 /// Purpose:      aMule ed2k link creator
@@ -23,10 +23,9 @@
 /// along with this program; if not, write to the
 /// Free Software Foundation, Inc.,
 /// 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 // For compilers that support precompilation, includes "wx/wx.h"
-#include "wx/wxprec.h"
 
 #ifdef __BORLANDC__
     #pragma hdrstop
@@ -41,7 +40,6 @@
 #include <wx/regex.h>
 
 #include "ed2khash.h"
-#include "md4.h"
 
 
 // efe, sorry for that, i have not enough time to do the right thing now, but 
@@ -49,7 +47,6 @@
 // alcc.c and here. And remove this stupid comment :)
 //-----------------------------------------------------------------------------
 // efe, this can be put in a separete include file, if you want to reuse
-#include <wx/strconv.h>
 static wxCSConv aMuleConv(wxT("iso8859-1"));
 #ifdef wxUSE_UNICODE
         #define unicode2char(x) (const char*) aMuleConv.cWX2MB(x)
@@ -79,11 +76,7 @@ bool Ed2kHash::SetED2KHashFromFile(const wxFileName& filename, MD4Hook hook)
 {
   // Open file and let wxFFile destructor close the file
   // Closing it explicitly may crash on Win32 ...
-#if wxCHECK_VERSION(2,5,1)
   wxFFile file(filename.GetFullPath(), wxT("rbS"));
-#else
-  wxFFile file(filename.GetFullPath(), "rbS");
-#endif
   if (! file.IsOpened())
     {
       wxLogError (_("Unable to open %s"),unicode2char(filename.GetFullPath()));
@@ -278,3 +271,4 @@ wxArrayString Ed2kHash::GetED2KHash()
 {
   return (m_ed2kArrayOfHashes);
 }
+// File_checked_for_headers

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //  
-// Copyright (c) 2004-2006 shakraw ( shakraw@users.sourceforge.net )
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 shakraw ( shakraw@users.sourceforge.net )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -27,11 +27,14 @@
 #ifndef WEBSOCKET_H
 #define WEBSOCKET_H
 
-#include <wx/thread.h>
-#include <wx/dynarray.h>
 
 #include "WebServer.h"
 
+
+#ifdef ENABLE_UPNP
+class CUPnPControlPoint;
+class CUPnPPortMapping;
+#endif
 class CWebServer;
 
 
@@ -42,7 +45,7 @@ class CWebSocket {
 
 		void SendContent(const char* szStdResponse, const void* pContent, uint32 dwContentSize);
 		void SendData(const void* pData, uint32 dwDataSize);
-		void SendHttpHeaders(bool use_gzip, uint32 content_len, int session_id);
+		void SendHttpHeaders(const char * szType, bool use_gzip, uint32 content_len, int session_id);
 		
 		CWebServerBase *m_pParent;
 		wxSocketBase *m_hSocket;
@@ -87,7 +90,8 @@ class CWCThread : public wxThread { //WC stands for web client socket. not for W
 
 class CWSThread : public wxThread {
 	public:
-		CWSThread(CWebServerBase *webserver); //web socket thread ctor
+		CWSThread(CWebServerBase *webserver);
+		~CWSThread();
 
 		//thread execution starts here
 		virtual void *Entry();
@@ -95,8 +99,15 @@ class CWSThread : public wxThread {
 	private:
 		wxSocketServer *m_WSSocket;
 		CWebServerBase *ws;
-		long wsport;
+		long m_wsport;
+		bool m_upnpEnabled;
+		int m_upnpTCPPort;
+#ifdef ENABLE_UPNP
+		CUPnPControlPoint *m_upnp;
+		std::vector<CUPnPPortMapping> m_upnpMappings;
+#endif
 };
 
 
 #endif //WEBSERVER_H
+// File_checked_for_headers

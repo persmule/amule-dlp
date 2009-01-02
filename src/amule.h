@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,18 +23,21 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
+
 #ifndef AMULE_H
 #define AMULE_H
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
+
 #include <wx/app.h>		// Needed for wxApp
 #include <wx/intl.h>		// Needed for wxLocale
-#include <wx/string.h>		// Needed for wxString
+
 
 #include "Types.h"		// Needed for int32, uint16 and uint64
-#include "GuiEvents.h"		// Needed for GUIEvent
-
-#include <list>			// Needed for std::list
+#ifndef __WXMSW__
+	#include <map>
+	#include <signal.h>
+	#include <wx/unix/execute.h>
+#endif // __WXMSW__
 
 
 class CAbstractFile;
@@ -59,27 +62,31 @@ class CFriendList;
 class CClientUDPSocket;
 class CIPFilter;
 class UploadBandwidthThrottler;
+#ifdef ENABLE_UPNP
+class CUPnPControlPoint;
+class CUPnPPortMapping;
+#endif
 class CStatistics;
-class wxServer;
 class wxSocketEvent;
 class wxCommandEvent;
 class wxFFileOutputStream;
-class wxFile;
 class CUpDownClient;
 class CTimer;
-class wxTimerEvent;
+class CTimerEvent;
 class wxSingleInstanceChecker;
-class wxExecuteData;
+class CHashingEvent;
 class CMuleInternalEvent;
+class CCompletionEvent;
+class wxExecuteData;
+class CLoggingEvent;
 
 
-#define theApp wxGetApp()
+namespace MuleNotify {
+	class CMuleGUIEvent;
+}
 
-enum APPState {
-	APP_STATE_RUNNING = 0,
-	APP_STATE_SHUTINGDOWN,
-	APP_STATE_STARTING
-};
+
+using MuleNotify::CMuleGUIEvent;
 
 
 #ifdef AMULE_DAEMON
@@ -93,8 +100,16 @@ enum APPState {
 #define CONNECTED_KAD_OK (1<<2)
 #define CONNECTED_KAD_FIREWALLED (1<<3)
 
+
 class CamuleApp : public AMULE_APP_BASE
 {
+private:
+	enum APPState {
+		APP_STATE_RUNNING = 0,
+		APP_STATE_SHUTTINGDOWN,
+		APP_STATE_STARTING
+	};
+
 public:
 	CamuleApp();
 	virtual	 ~CamuleApp();
@@ -112,12 +127,11 @@ public:
 	void ServerSocketHandler(wxSocketEvent& event);
 	void UDPSocketHandler(wxSocketEvent& event);
 
-	virtual void NotifyEvent(const GUIEvent& event) = 0;
 	virtual void ShowAlert(wxString msg, wxString title, int flags) = 0;
 
 	// Barry - To find out if app is running or shutting/shut down
 	const bool IsRunning() const { return (m_app_state == APP_STATE_RUNNING); }
-	const bool IsOnShutDown() const { return (m_app_state == APP_STATE_SHUTINGDOWN); }
+	const bool IsOnShutDown() const { return (m_app_state == APP_STATE_SHUTTINGDOWN); }
 
 	// Check ED2K and Kademlia state
 	bool IsFirewalled();
@@ -136,13 +150,10 @@ public:
 	// What about Kad? Is it running?
 	bool IsKadRunning();
 
-	// ed2k URL functions
-	wxString	CreateED2kLink(const CAbstractFile* f);
-	wxString	CreateED2kSourceLink(const CAbstractFile* f);
+	// URL functions
+	wxString	CreateMagnetLink(const CAbstractFile *f);
+	wxString	CreateED2kLink(const CAbstractFile* f, bool add_source = false, bool use_hostname = false, bool addcryptoptions = false);	
 	wxString	CreateED2kAICHLink(const CKnownFile* f);
-	wxString	CreateED2kHostnameSourceLink(const CAbstractFile* f);
-
-	void RunAICHThread();
 
 	// Misc functions
 	void		OnlineSig(bool zero = false);
@@ -158,7 +169,7 @@ public:
 	void		SetPublicIP(const uint32 dwIP);
 	
 	uint32	GetED2KID() const;
-	uint32	GetID() const;
+	uint32	GetID() const;	
 
 	// Other parts of the interface and such
 	CPreferences*		glob_prefs;
@@ -174,9 +185,13 @@ public:
 	CClientCreditsList*	clientcredits;
 	CFriendList*		friendlist;
 	CClientUDPSocket*	clientudp;
-	CStatistics*		statistics;
+	CStatistics*		m_statistics;
 	CIPFilter*		ipfilter;
 	UploadBandwidthThrottler* uploadBandwidthThrottler;
+#ifdef ENABLE_UPNP
+	CUPnPControlPoint*	m_upnp;
+	std::vector<CUPnPPortMapping> m_upnpMappings;
+#endif
 	wxLocale m_locale;
 
 	void ShutDown();
@@ -205,6 +220,12 @@ public:
 	void StartKad();
 	void StopKad();
 
+	/** Bootstraps kad from the specified IP (must be in hostorder). */
+	void BootstrapKad(uint32 ip, uint16 port);
+	/** Updates the nodes.dat file from the specified url. */
+	void UpdateNotesDat(const wxString& str);
+
+
 	void DisconnectED2K();
 	
 	bool CryptoAvailable() const;
@@ -219,7 +240,8 @@ protected:
 	/**
 	 * Handles asserts in a thread-safe manner.
 	 */
-	virtual void OnAssert(const wxChar *file, int line, const wxChar *cond, const wxChar *msg);
+	virtual void OnAssertFailure(const wxChar* file, int line,
+		const wxChar* func, const wxChar* cond, const wxChar* msg);
 #endif
 
 	/**
@@ -239,16 +261,15 @@ protected:
 	void OnSourceDnsDone(CMuleInternalEvent& evt);
 	void OnServerDnsDone(CMuleInternalEvent& evt);
 
-	void OnTCPTimer(CMuleInternalEvent& evt);
+	void OnTCPTimer(CTimerEvent& evt);
+	void OnCoreTimer(CTimerEvent& evt);
 
-	void OnCoreTimer(CMuleInternalEvent& evt);
-
-	void OnFinishedHashing(CMuleInternalEvent& evt);
-	void OnFinishedCompletion(CMuleInternalEvent& evt);
+	void OnFinishedHashing(CHashingEvent& evt);
+	void OnFinishedAICHHashing(CHashingEvent& evt);
+	void OnFinishedCompletion(CCompletionEvent& evt);
 	void OnFinishedHTTPDownload(CMuleInternalEvent& evt);
 	void OnHashingShutdown(CMuleInternalEvent&);
-
-	void OnNotifyEvent(wxEvent& evt);
+	void OnNotifyEvent(CMuleGUIEvent& evt);
 
 	void SetTimeOnTransfer();
 
@@ -259,10 +280,8 @@ protected:
 	wxString m_emulesig_path;
 	wxString m_amulesig_path;
 
-	static const wxString FullMuleVersion;
-	static const wxString OSDescription;
-	static char *strFullMuleVersion;
-	static char *strOSDescription;
+	char *strFullMuleVersion;
+	char *strOSDescription;
 	wxString OSType;
 
 	uint32 m_dwPublicIP;
@@ -283,7 +302,9 @@ private:
 	uint32 m_localip;
 };
 
+
 #ifndef AMULE_DAEMON
+
 
 class CamuleGuiBase {
 public:
@@ -292,17 +313,20 @@ public:
 
 	wxString	m_FrameTitle;
 	CamuleDlg*	amuledlg;
+	int m_FileDetailDialogActive;
 
 	bool CopyTextToClipboard( wxString strText );
 
-	virtual void NotifyEvent(const GUIEvent& event);
 	virtual int InitGui(bool geometry_enable, wxString &geometry_string);
 	virtual void ShowAlert(wxString msg, wxString title, int flags);
 };
 
+
 #ifndef CLIENT_GUI
 
-class CamuleGuiApp : public CamuleApp, public CamuleGuiBase {
+
+class CamuleGuiApp : public CamuleApp, public CamuleGuiBase
+{
 
     virtual int InitGui(bool geometry_enable, wxString &geometry_string);
 
@@ -314,7 +338,7 @@ public:
 	virtual void ShowAlert(wxString msg, wxString title, int flags);
 
 	void ShutDown(wxCloseEvent &evt);
-	virtual void NotifyEvent(const GUIEvent& event);
+	void OnLoggingEvent(CLoggingEvent& evt);
 
 	wxString GetLog(bool reset = false);
 	wxString GetServerLog(bool reset = false);
@@ -322,96 +346,139 @@ public:
 	DECLARE_EVENT_TABLE()
 };
 
+
 DECLARE_APP(CamuleGuiApp)
+#ifdef AMULE_CPP
+	CamuleGuiApp *theApp;
+#else
+	extern CamuleGuiApp *theApp;
+#endif
+
 
 #else /* !CLIENT_GUI */
 
+
 #include "amule-remote-gui.h"
+
 
 #endif // CLIENT_GUI
 
+
 #define CALL_APP_DATA_LOCK
 
+
 #else /* ! AMULE_DAEMON */
+
 
 #include <wx/apptrait.h>
 #include <wx/socket.h>
 
+
 class CSocketSet;
 
-class CAmuledGSocketFuncTable : public GSocketGUIFunctionsTable {
-		CSocketSet *m_in_set, *m_out_set;
 
-		wxMutex m_lock;
-	public:
-		CAmuledGSocketFuncTable();
+class CAmuledGSocketFuncTable : public GSocketGUIFunctionsTable
+{
+private:
+	CSocketSet *m_in_set, *m_out_set;
 
-		void AddSocket(GSocket *socket, GSocketEvent event);
-		void RemoveSocket(GSocket *socket, GSocketEvent event);
-		void RunSelect();
+	wxMutex m_lock;
+public:
+	CAmuledGSocketFuncTable();
 
-		virtual bool OnInit();
-		virtual void OnExit();
-		virtual bool CanUseEventLoop();
-		virtual bool Init_Socket(GSocket *socket);
-		virtual void Destroy_Socket(GSocket *socket);
-		virtual void Install_Callback(GSocket *socket, GSocketEvent event);
-		virtual void Uninstall_Callback(GSocket *socket, GSocketEvent event);
-		virtual void Enable_Events(GSocket *socket);
-		virtual void Disable_Events(GSocket *socket);
+	void AddSocket(GSocket *socket, GSocketEvent event);
+	void RemoveSocket(GSocket *socket, GSocketEvent event);
+	void RunSelect();
+
+	virtual bool OnInit();
+	virtual void OnExit();
+	virtual bool CanUseEventLoop();
+	virtual bool Init_Socket(GSocket *socket);
+	virtual void Destroy_Socket(GSocket *socket);
+	virtual void Install_Callback(GSocket *socket, GSocketEvent event);
+	virtual void Uninstall_Callback(GSocket *socket, GSocketEvent event);
+	virtual void Enable_Events(GSocket *socket);
+	virtual void Disable_Events(GSocket *socket);
 };
 
-class CDaemonAppTraits : public wxConsoleAppTraits {
-		CAmuledGSocketFuncTable *m_table;
 
-		wxMutex m_lock;
-		std::list<wxObject *> m_sched_delete;
-	public:
-		CDaemonAppTraits(CAmuledGSocketFuncTable *table);
-		virtual GSocketGUIFunctionsTable* GetSocketGUIFunctionsTable();
-		virtual void ScheduleForDestroy(wxObject *object);
-		virtual void RemoveFromPendingDelete(wxObject *object);
+typedef std::map<int, wxEndProcessData *> EndProcessDataMap;
 
-		void DeletePending();
+
+class CDaemonAppTraits : public wxConsoleAppTraits
+{
+private:
+	CAmuledGSocketFuncTable *m_table;
+	wxMutex m_lock;
+	std::list<wxObject *> m_sched_delete;
+#ifndef __WXMSW__
+	struct sigaction m_oldSignalChildAction;
+	struct sigaction m_newSignalChildAction;
+#endif
+
+public:
+	CDaemonAppTraits(CAmuledGSocketFuncTable *table);
+	virtual GSocketGUIFunctionsTable* GetSocketGUIFunctionsTable();
+	virtual void ScheduleForDestroy(wxObject *object);
+	virtual void RemoveFromPendingDelete(wxObject *object);
+
+	void DeletePending();
 
 #ifndef __WXMSW__
-		virtual int WaitForChild(wxExecuteData& execData);
+	virtual int WaitForChild(wxExecuteData& execData);
 #endif
-
 #ifdef __WXMAC__
-	    virtual wxStandardPathsBase& GetStandardPaths();
+	virtual wxStandardPathsBase& GetStandardPaths();
 #endif
 };
 
-class CamuleDaemonApp : public CamuleApp {
+
+#ifndef __WXMSW__
+	void OnSignalChildHandler(int signal, siginfo_t *siginfo, void *ucontext);
+	pid_t AmuleWaitPid(pid_t pid, int *status, int options, wxString *msg);
+#endif // __WXMSW__
+
+
+class CamuleDaemonApp : public CamuleApp
+{
+private:
 	bool m_Exit;
+	CAmuledGSocketFuncTable *m_table;
+#ifndef __WXMSW__
+	struct sigaction m_oldSignalChildAction;
+	struct sigaction m_newSignalChildAction;
+#endif // __WXMSW__
 
 	bool OnInit();
 	int OnRun();
 	int OnExit();
 
 	virtual int InitGui(bool geometry_enable, wxString &geometry_string);
-
-	CAmuledGSocketFuncTable *m_table;
+	
 public:
 	CamuleDaemonApp();
-
+	
 	void ExitMainLoop() { m_Exit = true; }
-
-	virtual void NotifyEvent(const GUIEvent& event);
-
+	
 	bool CopyTextToClipboard(wxString strText);
-
+	
 	virtual void ShowAlert(wxString msg, wxString title, int flags);
-
+	
+	void OnLoggingEvent(CLoggingEvent& evt);
+	
 	DECLARE_EVENT_TABLE()
-
+	
 	wxAppTraits *CreateTraits();
-
 };
 
 DECLARE_APP(CamuleDaemonApp)
+#ifdef AMULE_CPP
+	CamuleDaemonApp *theApp;
+#else
+	extern CamuleDaemonApp *theApp;
+#endif
 
 #endif /* ! AMULE_DAEMON */
 
 #endif // AMULE_H
+// File_checked_for_headers

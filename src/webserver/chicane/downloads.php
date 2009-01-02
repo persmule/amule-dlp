@@ -3,10 +3,8 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 	<meta http-equiv="pragmas" content="no-cache">
-    <title>
-      aMule CVS - Web Control Panel
-    </title>
 <?php
+	echo "<title>aMule " , amule_get_version(), " - Web Control Panel</title>";
 	if ( $_SESSION["auto_refresh"] > 0 ) {
 		echo "<meta http-equiv=\"refresh\" content=\"", $_SESSION["auto_refresh"],
 			'; url=downloads.php', '">';
@@ -494,7 +492,7 @@ function GotoCat(cat) {
 				}
 				echo '<acronym title="Cancel"><a href="?cmd=cancel&file=', $file->hash,
 					"\" onclick=\"return confirm('Are you sure that you want to cancel and delete this file?')\" ",
-					'"><img src="l_cancel.gif" alt="Cancel"></a></acronym>';
+					'><img src="l_cancel.gif" alt="Cancel"></a></acronym>';
 				echo '<acronym title="Increase priority"><a href="?cmd=prioup&file=', $file->hash, '"><img src="l_up.gif" alt="Increase priority"></a></acronym>';
 				echo '<acronym title="Decrease priority"><a href="?cmd=priodown&file=', $file->hash, '"><img src="l_down.gif" alt="Decrease priority"></a></acronym>';
 			}

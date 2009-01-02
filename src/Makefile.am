@@ -1,12 +1,21 @@
 if WEB
-  OPT_WEB = webserver
+OPT_WEB = webserver
 endif
 
-SUBDIRS = libs utils pixmaps kademlia $(OPT_WEB)
+SUBDIRS = libs utils pixmaps kademlia skins $(OPT_WEB)
 
-EXTRA_DIST = Makengfile aMule.xpm
+EXTRA_DIST = \
+	aMule.xpm \
+	Parser.y \
+	Scanner.h.in \
+	Scanner.l \
+	muuli.wdr 
 
 bin_PROGRAMS = 
+
+if MONOLITHIC
+bin_PROGRAMS += amule
+endif
 
 if COMPILE_CMD
 bin_PROGRAMS += amulecmd   
@@ -23,12 +32,6 @@ endif
 if AMULE_DAEMON
 bin_PROGRAMS += amuled
 endif
-
-if MONOLITHIC
-bin_PROGRAMS += amule
-endif
-
-DEFS = -DHAVE_CONFIG_H
 
 # Sources
 
@@ -63,7 +66,7 @@ libmuleappcommon_a_SOURCES = \
 	CFile.cpp \
 	DataToText.cpp \
 	ED2KLink.cpp \
-	FileFunctions.cpp \
+	MagnetURI.cpp \
 	MemFile.cpp \
 	NetworkFunctions.cpp \
 	Packet.cpp \
@@ -72,10 +75,16 @@ libmuleappcommon_a_SOURCES = \
 	SHA.cpp \
 	Tag.cpp \
 	Timer.cpp \
+	RandomFunctions.cpp \
 	kademlia/utils/UInt128.cpp
 
-libmuleappcommon_a_CFLAGS = $(WX_CXXFLAGS) -I$(srcdir)/libs
-libmuleappcommon_a_CXXFLAGS = $(WX_CXXFLAGS) -I$(srcdir)/libs
+libmuleappcommon_a_CFLAGS = $(WXBASE_CFLAGS) -I$(srcdir)/libs -I$(srcdir)/include 
+libmuleappcommon_a_CXXFLAGS = $(WXBASE_CXXFLAGS) -I$(srcdir)/libs -I$(srcdir)/include
+if ENABLE_UPNP
+libmuleappcommon_a_CFLAGS += -DENABLE_UPNP=1
+libmuleappcommon_a_CXXFLAGS += -DENABLE_UPNP=1
+endif
+
 
 # Common to core/monolithic
 
@@ -84,43 +93,48 @@ libmuleappcore_a_SOURCES = \
 	DeadSourceList.cpp \
 	Scanner.cpp \
 	Parser.cpp \
-	kademlia/io/ByteIO.cpp \
-	kademlia/io/DataIO.cpp \
-	kademlia/io/FileIO.cpp \
-	kademlia/io/IOException.cpp \
 	kademlia/utils/LittleEndian.cpp \
 	kademlia/kademlia/SearchManager.cpp \
 	kademlia/routing/RoutingBin.cpp \
-	StateMachine.cpp 
+	StateMachine.cpp \
+	ThreadScheduler.cpp
 
-libmuleappcore_a_CFLAGS = $(WX_CXXFLAGS) -I$(srcdir)/libs
-libmuleappcore_a_CXXFLAGS = $(WX_CXXFLAGS) -I$(srcdir)/libs
+libmuleappcore_a_CFLAGS = $(WXBASE_CFLAGS) -I$(srcdir)/libs -I$(srcdir)/include
+libmuleappcore_a_CXXFLAGS = $(WXBASE_CXXFLAGS) -I$(srcdir)/libs -I$(srcdir)/include
+if ENABLE_UPNP
+libmuleappcore_a_CFLAGS += -DENABLE_UPNP=1
+libmuleappcore_a_CXXFLAGS += -DENABLE_UPNP=1
+endif
+
 
 # Common to gui/monolithic
 
 libmuleappgui_a_SOURCES = \
 	BarShader.cpp \
-	CatDialog.cpp \
 	ChatWnd.cpp \
+	ColorFrameCtrl.cpp \
 	CommentDialog.cpp \
 	CommentDialogLst.cpp \
 	DirectoryTreeCtrl.cpp \
 	EditServerListDlg.cpp \
-	listctrl.cpp \
+	extern/wxWidgets/listctrl.cpp \
+	FileDetailListCtrl.cpp \
 	MuleGifCtrl.cpp \
 	MuleListCtrl.cpp \
 	MuleNotebook.cpp \
 	MuleTextCtrl.cpp \
-	FileDetailListCtrl.cpp \
-	muuli_wdr.cpp \
-	ColorFrameCtrl.cpp
+	MuleCollection.cpp \
+	muuli_wdr.cpp 
 
-libmuleappgui_a_CFLAGS = $(WX_CXXFLAGS) -I$(srcdir)/libs
-libmuleappgui_a_CXXFLAGS = $(WX_CXXFLAGS) -I$(srcdir)/libs
+libmuleappgui_a_CFLAGS = $(WX_CXXFLAGS) -I$(srcdir)/libs -I$(srcdir)/include
+libmuleappgui_a_CXXFLAGS = $(WX_CXXFLAGS) -I$(srcdir)/libs -I$(srcdir)/include
+if ENABLE_UPNP
+libmuleappgui_a_CFLAGS += -DENABLE_UPNP=1
+libmuleappgui_a_CXXFLAGS += -DENABLE_UPNP=1
+endif
 
 core_sources = \
-	AICHSyncThread.cpp \
-	AddFileThread.cpp \
+	RC4Encrypt.cpp \
 	amule.cpp \
 	BaseClient.cpp \
 	ClientList.cpp \
@@ -129,8 +143,10 @@ core_sources = \
 	ClientUDPSocket.cpp \
 	DownloadClient.cpp \
 	DownloadQueue.cpp \
-	EMSocket.cpp \
 	ECSpecialCoreTags.cpp \
+	EMSocket.cpp \
+	EncryptedStreamSocket.cpp \
+	EncryptedDatagramSocket.cpp \
 	ExternalConn.cpp \
 	Friend.cpp \
 	FriendList.cpp \
@@ -139,12 +155,14 @@ core_sources = \
 	KnownFileList.cpp \
 	ListenSocket.cpp \
 	MuleUDPSocket.cpp \
+	SearchFile.cpp \
 	SearchList.cpp \
 	ServerConnect.cpp \
 	ServerList.cpp \
 	ServerSocket.cpp \
 	ServerUDPSocket.cpp \
 	SharedFileList.cpp \
+	ThreadTasks.cpp \
 	UploadBandwidthThrottler.cpp \
 	UploadClient.cpp \
 	UploadQueue.cpp \
@@ -156,10 +174,17 @@ core_sources = \
 	kademlia/routing/RoutingZone.cpp \
 	kademlia/routing/Contact.cpp 
 
+if ENABLE_UPNP
+core_sources += \
+	UPnP.cpp \
+	UPnPCompatibility.cpp
+endif
+
 gui_sources = \
 	amule-gui.cpp \
 	amuleDlg.cpp \
 	AddFriend.cpp \
+	CatDialog.cpp \
 	ChatSelector.cpp \
 	ClientDetailDialog.cpp \
 	FileDetailDialog.cpp \
@@ -180,14 +205,22 @@ gui_sources = \
 	MuleTrayIcon.cpp \
 	TransferWnd.cpp 
 
+if ENABLE_IP2COUNTRY
+gui_sources += \
+	IP2Country.cpp
+endif
+
+
 remote_common_sources = \
-	OtherFunctions.cpp 
+	OtherFunctions.cpp \
+	NetworkFunctions.cpp 
 
 common_sources = \
 	ClientCredits.cpp \
 	ECSpecialMuleTags.cpp \
 	KnownFile.cpp \
 	GetTickCount.cpp \
+	GuiEvents.cpp \
 	Logger.cpp \
 	PartFile.cpp \
 	Preferences.cpp \
@@ -196,36 +229,37 @@ common_sources = \
 	Statistics.cpp \
 	StatTree.cpp \
 	SHAHashSet.cpp \
+	TerminationProcess.cpp \
+	TerminationProcessAmuleweb.cpp \
+	UserEvents.cpp \
 	$(remote_common_sources)
 
 # Libs
 
 core_libs = -L. -lmuleappcore
 gui_libs = -L. -lmuleappgui $(X11LIBS) $(WX_LIBS)
-remote_common_libs = -Llibs/common -Llibs/ec -lmulecommon -lec $(ZLIB_LIBS) $(RESOLV_LIB) $(BFD_LIB)
+remote_common_libs = -Llibs/common -Llibs/ec/cpp -lmulecommon -lec $(ZLIB_LIBS) $(RESOLV_LIB) $(BFD_LIB)
 common_libs = -L. -lmuleappcommon $(remote_common_libs) $(CRYPTOLIBS)
 
 core_deps = libmuleappcore.a
 gui_deps = libmuleappgui.a
-remote_common_deps = libs/common/libmulecommon.a libs/ec/libec.a
+remote_common_deps = libs/common/libmulecommon.a libs/ec/cpp/libec.a
 common_deps = libmuleappcommon.a $(remote_common_deps)
 
+#
 # Flags
-
+#
 core_flags = 
+if ENABLE_UPNP
+core_flags += -DENABLE_UPNP=1
+endif
+
 gui_flags = $(WX_CXXFLAGS) $(XRCFLAGS)
-common_flags = -I$(srcdir)/libs -Ilibs
-
-# Extras 
-
-if USE_EMBEDDED_CRYPTO
-libmuleappcommon_a_SOURCES += CryptoPP.cpp
+if ENABLE_IP2COUNTRY
+gui_flags += -DENABLE_IP2COUNTRY=1
 endif
 
-if NEED_RC
-gui_libs += amulerc.$(OBJEXT)
-gui_deps += amulerc.$(OBJEXT)
-endif
+common_flags = -I$(srcdir)/libs -Ilibs -I$(srcdir)/include
 
 # --------- Apps ---------
 
@@ -256,16 +290,22 @@ amule_LDADD = $(common_libs) $(core_libs) $(gui_libs)
 amulegui_DEPENDENCIES = $(common_deps) $(gui_deps)
 amulegui_CFLAGS = $(gui_flags) $(common_flags) -DCLIENT_GUI -DEC_REMOTE
 amulegui_CXXFLAGS = $(gui_flags) $(common_flags) -DCLIENT_GUI -DEC_REMOTE
-amulegui_LDADD =  $(common_libs) $(gui_libs)
+amulegui_LDADD =  $(gui_libs) $(common_libs) $(WXBASE_LIBS)
 
 amuled_DEPENDENCIES = $(core_deps) $(common_deps)
 amuled_CFLAGS = $(WXBASE_CFLAGS) $(core_flags) $(common_flags) -DAMULE_DAEMON 
 amuled_CXXFLAGS = $(WXBASE_CXXFLAGS) $(core_flags) $(common_flags) -DAMULE_DAEMON 
 amuled_LDADD = $(common_libs) $(core_libs) $(WXBASE_LIBS)
 
-ed2k_SOURCES = ED2KLinkParser.cpp
+ed2k_SOURCES = \
+	ED2KLinkParser.cpp \
+	MagnetURI.cpp \
+	MuleCollection.cpp	
+
+ed2k_CPPFLAGS = -DUSE_STD_STRING
+
 # on Win32
-if NEED_RC
+if SYS_WIN32
 ed2k_LDADD = -lshlwapi
 endif
 # on Mac
@@ -278,18 +318,22 @@ amulecmd_SOURCES = \
 	ExternalConnector.cpp \
 	$(remote_common_sources)
 
-amulecmd_DEPENDENCIES = libs/common/libmulecommon.a libs/ec/libec_noevt.a
+amulecmd_DEPENDENCIES = $(remote_common_deps)
 amulecmd_CFLAGS = $(WXBASE_CFLAGS) $(common_flags) -DEC_REMOTE -DECSOCKET_USE_EVENTS=0
 amulecmd_CXXFLAGS = $(WXBASE_CXXFLAGS) $(common_flags) -DEC_REMOTE -DECSOCKET_USE_EVENTS=0
 #amulecmd_LDADD = $(WXBASE_LIBS) $(READLINE_LIBS) $(remote_common_libs)
-amulecmd_LDADD = -Llibs/common -Llibs/ec -lmulecommon -lec_noevt $(WXBASE_LIBS) $(READLINE_LIBS) $(ZLIB_LIBS) $(RESOLV_LIB) $(BFD_LIB)
+amulecmd_LDADD = -Llibs/common -Llibs/ec/cpp -lmulecommon -lec \
+	$(WXBASE_LIBS) $(READLINE_LIBS) $(ZLIB_LIBS) \
+	$(RESOLV_LIB) $(BFD_LIB)
 
-noinst_HEADERS = AddFileThread.h \
+noinst_HEADERS = \
 		AddFriend.h \
-		AICHSyncThread.h \
+		AsyncDNS.h \
+		amule-remote-gui.h \
 		amuleDlg.h \
 		amule.h \
 		amuleIPV4Address.h \
+		ArchSpecific.h \
 		BarShader.h \
 		CatDialog.h \
 		CFile.h \
@@ -298,72 +342,85 @@ noinst_HEADERS = AddFileThread.h \
 		ClientCredits.h \
 		ClientCreditsList.h \
 		ClientDetailDialog.h \
-		ClientList.h \
 		ClientListCtrl.h \
+		ClientList.h \
 		ClientTCPSocket.h \
 		ClientUDPSocket.h \
 		ColorFrameCtrl.h \
 		Color.h \
 		CommentDialog.h \
 		CommentDialogLst.h \
-		CryptoPP.h \
+		Constants.h \
 		CryptoPP_Inc.h \
-		CTypedPtrList.h \
+		DataToText.h \
+		DeadSourceList.h \
 		DirectoryTreeCtrl.h \
 		DownloadListCtrl.h \
 		DownloadQueue.h \
 		ED2KLink.h \
 		EditServerListDlg.h \
 		EMSocket.h \
-		ArchSpecific.h \
+		EncryptedDatagramSocket.h \
+		EncryptedStreamSocket.h \
 		ExternalConnector.h \
 		ExternalConn.h \
 		FileDetailDialog.h \
 		FileDetailListCtrl.h \
-		FileFunctions.h \
 		FileLock.h \
 		Friend.h \
-		FriendList.h \
 		FriendListCtrl.h \
+		FriendList.h \
 		GetTickCount.h \
 		GuiEvents.h \
 		HTTPDownload.h \
 		inetdownload.h \
 		InternalEvents.h \
+		IP2Country.h \
 		IPFilter.h \
 		KadDlg.h \
 		KnownFile.h \
 		KnownFileList.h \
-		listctrl.h \
-		extern/listctrl.262.h \
 		ListenSocket.h \
 		Logger.h \
+		MagnetURI.h \
 		MD4Hash.h \
 		MemFile.h \
+		MuleCollection.h \
 		MuleGifCtrl.h \
 		MuleListCtrl.h \
 		MuleNotebook.h \
 		MuleTextCtrl.h \
+		MuleThread.h \
 		MuleTrayIcon.h \
 		MuleUDPSocket.h \
 		muuli_wdr.h \
 		NetworkFunctions.h \
-		OPCodes.h \
 		OScopeCtrl.h \
+		Observable.h \
+		ObservableQueue.h \
 		OtherFunctions.h \
 		OtherStructs.h \
 		Packet.h \
-		PartFile.h \
+		Parser.hpp \
 		PartFileConvert.h \
+		PartFile.h \
 		Preferences.h \
 		PrefsUnifiedDlg.h \
 		Proxy.h \
+		RangeMap.h \
+		RC4Encrypt.h \
+		RLE.h \
+		RandomFunctions.h \
 		SafeFile.h \
+		Scanner.h \
+		ScopedPtr.h \
 		SearchDlg.h \
+		SearchExpr.h \
+		SearchFile.h \
 		SearchListCtrl.h \
 		SearchList.h \
-		Server.h \
 		ServerConnect.h \
+		Server.h \
 		ServerListCtrl.h \
 		ServerList.h \
 		ServerSocket.h \
@@ -375,17 +432,28 @@ noinst_HEADERS = AddFileThread.h \
 		SharedFilesCtrl.h \
 		SharedFilesWnd.h \
 		StateMachine.h \
-		Statistics.h \
 		StatisticsDlg.h \
+		Statistics.h \
 		StatTree.h \
 		Tag.h \
+		TerminationProcess.h \
+		TerminationProcessAmuleweb.h \
 		TextClient.h \
+		ThreadScheduler.h \
+		ThreadTasks.h \
+		ThrottledSocket.h \
 		Timer.h \
 		TransferWnd.h \
 		Types.h \
 		updownclient.h \
 		UploadBandwidthThrottler.h \
-		UploadQueue.h
+		UploadQueue.h \
+		UPnP.h \
+		UPnPCompatibility.h \
+		UserEvents.h \
+		extern/wxWidgets/listctrl.h \
+		extern/upnp/ixml.h \
+		extern/upnp/upnp.h
 
 MAINTAINERCLEANFILES = Makefile.in
 
@@ -394,23 +462,77 @@ $(srcdir)/Parser.cpp: Parser.y
 
 if GENERATE_FLEX_HEADER
 $(srcdir)/Scanner.cpp: Scanner.l Parser.cpp
-		flex --header-file=$(srcdir)/Scanner.h -o $@ $(srcdir)/Scanner.l
+		$(LEX) --header-file=$(srcdir)/Scanner.h -o $@ $(srcdir)/Scanner.l
 else
 $(srcdir)/Scanner.cpp: Scanner.l Parser.cpp
-		flex -o$@ $(srcdir)/Scanner.l; \
+		$(LEX) -o$@ $(srcdir)/Scanner.l; \
 		echo "// Empty file generated by a flex version unable to create headers" > $(srcdir)/Scanner.h
 endif
 
+# Resources
 
 if NEED_RC
 
-amulerc.$(OBJEXT): $(srcdir)/../amule.rc
-	@thisdir=`pwd` ; \
-	cd $(srcdir)/.. ; \
-	rcfile=`basename "$<"` ; \
-	echo "windres $(RCFLAGS) --define __WIN95__ --define __WIN32__ --define __GNUWIN32__ -O COFF -i "$${rcfile}" -o \"$@\"" ; \
-	windres $(RCFLAGS) --define __WIN95__ --define __WIN32__ --define __GNUWIN32__ -O COFF -i "$${rcfile}" -o "$@" ; \
-	cd $${thisdir} ; \
-	mv "$(srcdir)/../$@" "$@"
+SUFFIXES = .rc
+
+.rc.$(OBJEXT):
+	$(RC) $(RCFLAGS) -I$(top_srcdir) -D__WIN95__ -D__WIN32__ -D__GNUWIN32__ -O COFF -i "$<" -o "$@"
+
+nodist_amuled_SOURCES = amuled-version.rc
+nodist_amulecmd_SOURCES = amulecmd-version.rc
+nodist_ed2k_SOURCES = ed2k-version.rc
+amule_LDADD += amulerc.$(OBJEXT)
+amule_DEPENDENCIES += amulerc.$(OBJEXT)
+amulegui_LDADD += amuleguirc.$(OBJEXT)
+amulegui_DEPENDENCIES += amuleguirc.$(OBJEXT)
+
+amulerc.$(OBJEXT): $(srcdir)/../amule.rc amule-version.rc
+	cat $^ | \
+	( \
+		abs_builddir=`pwd` ; \
+		abs_top_srcdir=`cd $(top_srcdir) ; pwd` ; \
+		cd $(<D) ; \
+		$(RC) $(RCFLAGS) -I$${abs_top_srcdir} -D__WIN95__ -D__WIN32__ -D__GNUWIN32__ -O COFF -o "$${abs_builddir}/$@" ; \
+	)
+
+amuleguirc.$(OBJEXT): $(srcdir)/../amule.rc amulegui-version.rc
+	cat $^ | \
+	( \
+		abs_builddir=`pwd` ; \
+		abs_top_srcdir=`cd $(top_srcdir) ; pwd` ; \
+		cd $(<D) ; \
+		$(RC) $(RCFLAGS) -I$${abs_top_srcdir} -D__WIN95__ -D__WIN32__ -D__GNUWIN32__ -O COFF -o "$${abs_builddir}/$@" ; \
+	)
+
+amule-version.rc: $(top_builddir)/version.rc
+	@sed -e 's/VER_FILEDESCRIPTION_STR/"All-Platform P2P Client Based on eMule"/' \
+	     -e 's/VER_INTERNALNAME_STR/"amule"/' \
+	     -e 's/VER_ORIGINALFILENAME_STR/"amule$(EXEEXT)"/' "$<" > "$@"
+
+amuled-version.rc: $(top_builddir)/version.rc
+	@sed -e 's/VER_FILEDESCRIPTION_STR/"aMule Daemon"/' \
+	     -e 's/VER_INTERNALNAME_STR/"amuled"/' \
+	     -e 's/VER_ORIGINALFILENAME_STR/"amuled$(EXEEXT)"/' "$<" > "$@"
+
+amulecmd-version.rc: $(top_builddir)/version.rc
+	@sed -e 's/VER_FILEDESCRIPTION_STR/"aMule Text Client"/' \
+	     -e 's/VER_INTERNALNAME_STR/"amulecmd"/' \
+	     -e 's/VER_ORIGINALFILENAME_STR/"amulecmd$(EXEEXT)"/' "$<" > "$@"
+
+amulegui-version.rc: $(top_builddir)/version.rc
+	@sed -e 's/VER_FILEDESCRIPTION_STR/"aMule Remote GUI (Experimental)"/' \
+	     -e 's/VER_INTERNALNAME_STR/"amulegui"/' \
+	     -e 's/VER_ORIGINALFILENAME_STR/"amulegui$(EXEEXT)"/' "$<" > "$@"
+
+ed2k-version.rc: $(top_builddir)/version.rc
+	@sed -e 's/VER_FILEDESCRIPTION_STR/"ED2K Links Handler"/' \
+	     -e 's/VER_INTERNALNAME_STR/"ed2k"/' \
+	     -e 's/VER_ORIGINALFILENAME_STR/"ed2k$(EXEEXT)"/' "$<" > "$@"
+
+CLEANFILES = *-version.rc
 
 endif
+
+
+EXTRA__DIST__SUBDIRS = include remote-gui.net
+include $(top_srcdir)/automake/dist-hook.am

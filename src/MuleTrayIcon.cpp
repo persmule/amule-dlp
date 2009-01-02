@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2003-2006 Patrizio Bassi (Hetfield) ( hetfield@amule.org )
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2003-2008 Patrizio Bassi (Hetfield) ( hetfield@amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -24,26 +24,24 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
+#include <wx/app.h>
+
 #include "MuleTrayIcon.h"
+
+#include <common/ClientVersion.h>
+#include <common/Constants.h>
 
 #include "pixmaps/mule_TrayIcon_big.ico.xpm"
 #include "pixmaps/mule_Tr_yellow_big.ico.xpm"
 #include "pixmaps/mule_Tr_grey_big.ico.xpm"
 
 #include <wx/menu.h>
-#include <wx/string.h>
-#include <wx/intl.h>
 
-#include "OPCodes.h" 			// Needed for MOD_VERSION_LONG
 #include "amule.h" 			// Needed for theApp
 #include "amuleDlg.h" 			// Needed for IsShown
 #include "Preferences.h"		// Needed for thePrefs
 #include "ServerConnect.h"		// Needed for CServerConnect
-#include "OtherFunctions.h"		// Needed for CastSecondsToHM
 #include "Server.h"			// Needed for CServer
-#include "NetworkFunctions.h"		// Needed for Uint32toStringIP
-#include "Logger.h"
-#include "Color.h"			// Needed for WxColourFromCr
 #include "StatisticsDlg.h"		// Needed for CStatisticsDlg::getColors()
 #include "Statistics.h"			// Needed for theStats
 #include <common/Format.h>			// Needed for CFormat
@@ -157,23 +155,23 @@ void CMuleTrayIcon::SetDownloadSpeed(wxCommandEvent& event){
 void CMuleTrayIcon::ServerConnection(wxCommandEvent& WXUNUSED(event))
 {	
 	wxCommandEvent evt;
-	theApp.amuledlg->OnBnConnect(evt);
+	theApp->amuledlg->OnBnConnect(evt);
 }
 
 
 void CMuleTrayIcon::ShowHide(wxCommandEvent& WXUNUSED(event))
 {
-	if (theApp.amuledlg->IsShown()) {
-		theApp.amuledlg->Hide_aMule();
+	if (theApp->amuledlg->IsShown()) {
+		theApp->amuledlg->Hide_aMule();
 	} else {
-		theApp.amuledlg->Show_aMule();
+		theApp->amuledlg->Show_aMule();
 	}
 }
 
 
 void CMuleTrayIcon::Close(wxCommandEvent& WXUNUSED(event))
 {
-	theApp.amuledlg->Close();
+	theApp->amuledlg->Close();
 }
 
 
@@ -189,10 +187,16 @@ CMuleTrayIcon::CMuleTrayIcon()
 
 CMuleTrayIcon::~CMuleTrayIcon() 
 {
-	// If there's an icon set, remove it
-	if (IsIconInstalled()) {
-		RemoveIcon();
+#ifdef __WXGTK__
+	// FIXME: EVIL HACK: We need to ensure that the superclass doesn't
+	// try to destroy a dangling pointer. See also CMuleTrayIcon::UpdateTray
+	// for comments on this issue.
+	if (m_iconWnd) {
+		if (wxTopLevelWindows.IndexOf((wxWindow*)m_iconWnd) == wxNOT_FOUND) {
+			m_iconWnd = NULL;
+		}
 	}
+#endif
 }
 
 /****************************************************/
@@ -246,16 +250,13 @@ void CMuleTrayIcon::SetTrayIcon(int Icon, uint32 percent)
 		
 		// Do whatever to the icon before drawing it (percent)
 		
-#if !defined(__WXMSW__) && !defined(__WXMAC__)
-		CurrentIcon.SetMask(NULL);
-#else
 		wxBitmap TempBMP;
 		TempBMP.CopyFromIcon(CurrentIcon);
-		TempBMP.SetMask(NULL);
-		CurrentIcon.CopyFromBitmap(TempBMP);
-#endif
 		
-		IconWithSpeed.SelectObject(CurrentIcon);
+		TempBMP.SetMask(NULL);
+
+		IconWithSpeed.SelectObject(TempBMP);
+
 		
 		// Speed bar is: centered, taking 80% of the icon heigh, and 
 		// right-justified taking a 10% of the icon width.
@@ -277,15 +278,10 @@ void CMuleTrayIcon::SetTrayIcon(int Icon, uint32 percent)
 		// Do transparency
 
 		// Set a new mask with transparency set to red.
-		wxMask* new_mask = new wxMask(CurrentIcon, wxColour(0xFF, 0x00, 0x00));
+		wxMask* new_mask = new wxMask(TempBMP, wxColour(0xFF, 0x00, 0x00));
 		
-#if !defined(__WXMSW__) && !defined(__WXMAC__)
-		CurrentIcon.SetMask(new_mask);
-#else
-		TempBMP.CopyFromIcon(CurrentIcon);
 		TempBMP.SetMask(new_mask);
 		CurrentIcon.CopyFromBitmap(TempBMP);
-#endif
 
 		UpdateTray();
 	}
@@ -301,10 +297,33 @@ void CMuleTrayIcon::SetTrayToolTip(const wxString& Tip)
 /**************** Private Functions *****************/
 /****************************************************/
 
-void CMuleTrayIcon::UpdateTray() {
+void CMuleTrayIcon::UpdateTray()
+{
+#ifdef __WXGTK__
+	// FIXME: EVIL HACK: As of wxGTK-2.8.7, closing of the trayicon
+	// window (caused for instance by a crashing kicker) is not
+	// handled, with the result that the pointer to the trayicon
+	// window becomes a dangling pointer. Since we have access to
+	// the pointer, and it's created as a top-level window, it's
+	// relatively easy to force the recreation of a valid window.
+	// Ugly as hell though ....
+	//
+	// This has been repported as bug #1872724:
+	// http://sourceforge.net/tracker/index.php?func=detail&aid=1872724&group_id=9863&atid=109863
+	if (m_iconWnd) {
+		if (wxTopLevelWindows.IndexOf((wxWindow*)m_iconWnd) == wxNOT_FOUND) {
+			printf("Traybar-icon lost, trying to recreate ...\n");
+			m_iconWnd = NULL;
+		}
+	}
+#endif
+
 	// Icon update and Tip update
-	if (IsOk()) SetIcon(CurrentIcon, CurrentTip);
+	if (IsOk()) {
+		SetIcon(CurrentIcon, CurrentTip);
+	}	
 }
+
 
 wxMenu* CMuleTrayIcon::CreatePopupMenu() 
 {
@@ -359,8 +378,8 @@ wxMenu* CMuleTrayIcon::CreatePopupMenu()
 	{
 		wxString temp = _("ClientID: ");
 		
-		if (theApp.IsConnectedED2K()) {
-			unsigned long id = theApp.GetED2KID();
+		if (theApp->IsConnectedED2K()) {
+			unsigned long id = theApp->GetED2KID();
 			temp += wxString::Format(wxT("%lu"), id);
 		} else {
 			temp += _("Not Connected");
@@ -373,9 +392,9 @@ wxMenu* CMuleTrayIcon::CreatePopupMenu()
 		wxString temp_name = _("ServerName: ");
 		wxString temp_ip   = _("ServerIP: ");
 		
-		if ( theApp.serverconnect->GetCurrentServer() ) {
-			temp_name += theApp.serverconnect->GetCurrentServer()->GetListName();
-			temp_ip   += theApp.serverconnect->GetCurrentServer()->GetFullIP();
+		if ( theApp->serverconnect->GetCurrentServer() ) {
+			temp_name += theApp->serverconnect->GetCurrentServer()->GetListName();
+			temp_ip   += theApp->serverconnect->GetCurrentServer()->GetFullIP();
 		} else {
 			temp_name += _("Not Connected");
 			temp_ip   += _("Not Connected");
@@ -386,7 +405,7 @@ wxMenu* CMuleTrayIcon::CreatePopupMenu()
 	
 	// IP Address
 	{
-		wxString temp = CFormat(_("IP: %s")) % ( (theApp.GetPublicIP()) ? Uint32toStringIP(theApp.GetPublicIP()) : wxString(_("Unknown")) );
+		wxString temp = CFormat(_("IP: %s")) % ( (theApp->GetPublicIP()) ? Uint32toStringIP(theApp->GetPublicIP()) : wxString(_("Unknown")) );
 
 		ClientInfoMenu->Append(TRAY_MENU_CLIENTINFO_ITEM,temp);
 	}
@@ -515,7 +534,7 @@ wxMenu* CMuleTrayIcon::CreatePopupMenu()
 	// Separator
 	traymenu->AppendSeparator();
 	
-	if (theApp.IsConnected()) {
+	if (theApp->IsConnected()) {
 		//Disconnection Speed item
 		traymenu->Append(TRAY_MENU_DISCONNECT, _("Disconnect"));
 	} else {
@@ -526,7 +545,7 @@ wxMenu* CMuleTrayIcon::CreatePopupMenu()
 	// Separator
 	traymenu->AppendSeparator();
 	
-	if (theApp.amuledlg->IsShown()) {
+	if (theApp->amuledlg->IsShown()) {
 		//hide item
 		traymenu->Append(TRAY_MENU_HIDE, _("Hide aMule"));
 	} else {
@@ -544,9 +563,10 @@ wxMenu* CMuleTrayIcon::CreatePopupMenu()
 }		
 
 void CMuleTrayIcon::SwitchShow(wxTaskBarIconEvent&) {
-	if ( theApp.amuledlg->IsShown() ) {
-		theApp.amuledlg->Hide_aMule();
+	if ( theApp->amuledlg->IsShown() ) {		
+		theApp->amuledlg->Hide_aMule();
 	} else {
-		theApp.amuledlg->Show_aMule();
+		theApp->amuledlg->Show_aMule();
 	}
 }
+// File_checked_for_headers

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 // 
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003-2006 Angel Vidal (Kry) ( kry@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 Angel Vidal (Kry) ( kry@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -27,7 +27,6 @@
 #define TEXTCLIENT_H
 
 #include "ExternalConnector.h"
-#include <wx/intl.h>
 
 #include <map>
 
@@ -78,3 +77,4 @@ private:
 };
 
 #endif // TEXTCLIENT_H
+// File_checked_for_headers

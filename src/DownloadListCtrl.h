@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -29,7 +29,7 @@
 #include <map>				// Needed for std::multimap
 
 #include "Types.h"			// Needed for uint8
-#include "OtherStructs.h"	// Needed for DownloadItemType
+#include "Constants.h"		// Needed for DownloadItemType
 #include "MuleListCtrl.h"	// Needed for CMuleListCtrl
 
 
@@ -210,26 +210,19 @@ private:
 	void	DrawSourceStatusBar( const CUpDownClient* source, wxDC* dc, const wxRect& rect, bool  bFlat) const;
 
 
-	//! Used to keep track of which sorting order was last used.
-	static int s_lastOrder;
-	//! Used to keep track of which column was last used to sort from.
-	static int s_lastColumn;
-
-	
-	static int wxCALLBACK SortProc(long item1, long item2, long sortData);
+	static int wxCALLBACK SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData);
 	static int Compare( const CPartFile* file1, const CPartFile* file2, long lParamSort );
 	static int Compare( const CUpDownClient* client1, const CUpDownClient* client2, long lParamSort);
 	
 
 	// Event-handlers for files
-	void	OnCleanUpSources( wxCommandEvent& event ); 
 	void	OnCancelFile( wxCommandEvent& event );
 	void	OnSetPriority( wxCommandEvent& event );
 	void	OnSwapSources( wxCommandEvent& event );
 	void	OnSetCategory( wxCommandEvent& event );	
 	void	OnSetStatus( wxCommandEvent& event );
 	void	OnClearCompleted( wxCommandEvent& event );
-	void	OnGetED2KLink( wxCommandEvent& event );
+	void	OnGetLink( wxCommandEvent& event );
 	void	OnGetFeedback( wxCommandEvent& event );
 	void	OnGetRazorStats( wxCommandEvent& event );
 	void	OnViewFileInfo( wxCommandEvent& event );
@@ -245,7 +238,6 @@ private:
 
 	// Misc event-handlers
 	void	OnItemActivated( wxListEvent& event );
-	void	OnColumnLClick( wxListEvent& event );
 	void 	OnMouseRightClick( wxListEvent& event );
 	void 	OnMouseMiddleClick( wxListEvent& event );
 	void	OnKeyPressed( wxKeyEvent& event );
@@ -302,3 +294,4 @@ private:
 };
 
 #endif
+// File_checked_for_headers

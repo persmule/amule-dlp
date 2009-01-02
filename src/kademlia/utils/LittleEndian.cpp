@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -50,7 +50,7 @@ namespace Kademlia {
 ////////////////////////////////////////
 
 //NOTE: avoid those function whenever possible -> terribly slow
-uint16 le(uint16 val)
+uint16 Le(uint16 val)
 {
 	uint32 b0 = (val      ) & 0xFF;
 	uint32 b1 = (val >>  8) & 0xFF;
@@ -58,7 +58,7 @@ uint16 le(uint16 val)
 }
 
 //NOTE: avoid those function whenever possible -> terribly slow
-uint32 le(uint32 val)
+uint32 Le(uint32 val)
 {
 	uint32 b0 = (val      ) & 0xFF;
 	uint32 b1 = (val >>  8) & 0xFF;
@@ -68,7 +68,7 @@ uint32 le(uint32 val)
 }
 
 //NOTE: avoid those function whenever possible -> terribly slow
-uint64 le(uint64 val)
+uint64 Le(uint64 val)
 {
 	uint32 b0 = (uint32)((val      ) & 0xFF);
 	uint32 b1 = (uint32)((val >>  8) & 0xFF);
@@ -83,3 +83,4 @@ uint64 le(uint64 val)
 }
 
 } // End namespace
+// File_checked_for_headers
