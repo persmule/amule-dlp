@@ -80,9 +80,9 @@ class CKademliaUDPListener : public CPacketTracking
 {
 public:
 	~CKademliaUDPListener();
-	void Bootstrap(uint32_t ip, uint16_t port, bool kad2);
+	void Bootstrap(uint32_t ip, uint16_t port, bool kad2, uint8_t kadVersion = 0, const CUInt128* cryptTargetID = NULL);
 	void FirewalledCheck(uint32_t ip, uint16_t port, const CKadUDPKey& senderKey, uint8_t kadVersion);
-	void SendMyDetails(uint8_t opcode, uint32_t ip, uint16_t port, bool kad2, const CKadUDPKey& targetKey, const CUInt128* cryptTargetID);
+	void SendMyDetails(uint8_t opcode, uint32_t ip, uint16_t port, uint8_t kadVersion, const CKadUDPKey& targetKey, const CUInt128* cryptTargetID, bool requestAckPacket);
 	void SendNullPacket(uint8_t opcode, uint32_t ip, uint16_t port, const CKadUDPKey& targetKey, const CUInt128* cryptTargetID);
 	void SendPublishSourcePacket(const CContact& contact, const CUInt128& targetID, const CUInt128& contactID, const TagPtrList& tags);
 	virtual void ProcessPacket(const uint8_t* data, uint32_t lenData, uint32_t ip, uint16_t port, bool validReceiverKey, const CKadUDPKey& senderKey);
@@ -95,8 +95,9 @@ private:
 	static void Free(SSearchTerm* pSearchTerms);
 
 	// Kad1.0
-	void AddContact (const uint8_t* data, uint32_t lenData, uint32_t ip, uint16_t port, uint16_t tport, const CKadUDPKey& key, bool ipVerified, bool update);
+	bool AddContact (const uint8_t* data, uint32_t lenData, uint32_t ip, uint16_t port, uint16_t tport, const CKadUDPKey& key, bool& ipVerified, bool update, CUInt128* outContactID);
 	void AddContacts(const uint8_t* data, uint32_t lenData, uint16_t numContacts, bool update);
+	void SendLegacyChallenge(uint32_t ip, uint16_t port, const CUInt128& contactID, bool kad2);
 
 	void ProcessBootstrapRequest		(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip, uint16_t port);
 	void ProcessBootstrapResponse		(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip);
@@ -120,12 +121,13 @@ private:
 	void ProcessCallbackRequest		(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip, uint16_t port, const CKadUDPKey& senderKey);
 
 	// Kad2.0
-	void AddContact2(const uint8_t* data, uint32_t lenData, uint32_t ip, uint16_t& port, uint8_t *outVersion, const CKadUDPKey& key, bool ipVerified, bool update);
+	bool AddContact2(const uint8_t* data, uint32_t lenData, uint32_t ip, uint16_t& port, uint8_t* outVersion, const CKadUDPKey& key, bool& ipVerified, bool update, bool fromHelloReq, bool* outRequestsACK, CUInt128* outContactID);
 
 	void Process2BootstrapRequest		(uint32_t ip, uint16_t port, const CKadUDPKey& senderKey);
 	void Process2BootstrapResponse		(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip, uint16_t port, const CKadUDPKey& senderKey, bool validReceiverKey);
 	void Process2HelloRequest		(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip, uint16_t port, const CKadUDPKey& senderKey, bool validReceiverKey);
 	void Process2HelloResponse		(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip, uint16_t port, const CKadUDPKey& senderKey, bool validReceiverKey);
+	void Process2HelloResponseAck		(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip, bool validReceiverKey);
 	void ProcessKademlia2Request		(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip, uint16_t port, const CKadUDPKey& senderKey);
 	void ProcessKademlia2Response		(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip, uint16_t port, const CKadUDPKey& senderKey);
 	void Process2SearchNotesRequest		(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip, uint16_t port, const CKadUDPKey& senderKey);
@@ -135,7 +137,7 @@ private:
 	void Process2PublishNotesRequest	(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip, uint16_t port, const CKadUDPKey& senderKey);
 	void Process2PublishKeyRequest		(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip, uint16_t port, const CKadUDPKey& senderKey);
 	void Process2PublishSourceRequest	(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip, uint16_t port, const CKadUDPKey& senderKey);
-	void Process2PublishResponse		(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip, const CKadUDPKey& senderKey);
+	void Process2PublishResponse		(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip, uint16_t port, const CKadUDPKey& senderKey);
 	void Process2Ping			(uint32_t ip, uint16_t port, const CKadUDPKey& senderKey);
 	void Process2Pong			(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip);
 	void Process2FirewallUDP		(const uint8_t* packetData, uint32_t lenPacket, uint32_t ip);

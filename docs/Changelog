@@ -1,3 +1,118 @@
+Version 2.2.2 - The "Similarity." version
+----------
+2008-08-08
+
+	bomj:
+		* Patch for alcc to improve usability
+
+	Gaznevada:
+		* implement getopt_long in cas for systems which lack it
+
+	GonoszTopi:
+		* Fixing denoiser
+		* include <sys/types.h> before <regex.h> as by POSIX
+		* Fix noinline in crypto for some systems
+		* Fix display of ccache option
+		* Add sources from search results for new downloads
+		* Use output of gdlib-config for gd.h detection
+		* Solaris mntent fix
+		* wxMSW fix
+		* Fix NULL pointer dereference
+		* Fix for configure not using --with-geoip value in library check
+		* Added pkg.m4 from pkg-config-0.23
+		* Ported Kademlia Protocol Version 8 from eMule0.49b.
+			- Kad now ignores multiple IDs pointing to one IP in
+			  routing request answers
+			- When calculating the total user count, Kad now uses
+			  (if available) the real number of firewalled clients
+			  for the calculation instead a fixed value. This will
+			  take more effect when 0.49+ nodes become common
+			- Kad no longer tries to add UDP firewalled (and therefore
+			  mostly unreachable) nodes into its routing table,
+			  reducing overhead and increasing reliability [Idea: Netfinity]
+			- Optimized the Kad packettracking code to only track
+			  packets which we check later, to save resources
+			- Fixed a bug which let Kad sometimes assume a Kad2
+			  contact to be Kad1 after probing for both versions
+			- Did first small step in dropping Kad1 support by not
+			  probing unknown Kad contacts for Kad1 anymore to save
+			  overhead. Kad1 clients will nevertheless still be work
+			  for now.
+			- Several changes were made to Kad in order to defy
+			  routing attacks researched by University of Minnesota
+			  guys [Peng Wang, James Tyra, Eric Chan-Tin,
+			  Tyson Malchow, Denis Foo Kune, Nicholas Hopper,
+			  Yongdae Kim], in particular:
+				- Kad contacts will only be able to update
+				  themself in others routing tables if they
+				  provide the proper key (supported by 0.49a+
+				  nodes) in order to make it impossible to
+				  hijack them
+				- Kad uses now a three-way-handshake (or for
+				  older version a similar check) for new contacts,
+				  making sure they do not use a spoofed IP
+				- Unverified contacts are not used for routing
+				  tasks
+			- When reading a nodes.dat without any verified contacts
+			  (possible an old file version), aMule will assume all
+			  contacts to be verified to avoid slowing down the
+			  connecting process
+			- Implemented a special nodes.dat file version suitable
+			  for mass distribution.
+		* Fixed not sending sources for clients that did not announce
+		  their part availability.
+		* Fixed all list columns being disabled in case of invalid data
+		  in config file.
+		* Fixed directory tree not available.
+
+	Kry:
+		* Fixed: Incorrect SX packets sent, plus no reply to
+		  out-of-multipacket SX as a bonus
+
+	MalaPraxis:
+		* Remap colours on Windows
+		* Add resources
+		* Fix wrong usage of CPath::IsOk which caused an infinite loop on Import
+		* Fix wxTempFile usage for compressed IPFilter files
+
+	Phoenix:
+		* Removed the dlopen() code from UPnP.cpp.
+		* Added the m4 macro to test for libupnp.
+		* Updated amule_build_install.sh to work with
+		  --with-libupnp-prefix.
+		* Changed the UPnP code to allow the use of a service without
+		  having successfully subscribed to it. That should be enough
+		  to deal with some lazy router implementations.
+		* Do not unregister if no service is found
+		* Save the found service even if subscription has failed
+		* Fix for initialization of "resultstr" in cryptopp.m4.
+		* Fix for message "Duplicate partfile with hash..." in
+		  DonwloadQueue.cpp. It was using deleted corrupted data.
+		* amule_build_install.sh now uses -a flag in unzip so that
+		  cryptopp files are properly converted from DOS text format.
+
+	Stu Redman:
+		* Scanner fix for MSVC compilation
+		* Fixed crash when progress bar was resized to zero width
+		* Fixed sharing of large files on Windows
+		* Fixed free disc space check
+		* Sanity check before writing nodes.dat - don't write it 
+		  if there are less than 25 contacts
+		* Download List sorted on startup
+		* Splitter bar position in transfer window is restored again
+		* Fixed a GDI resource leak for Windows
+
+	Wuischke:
+		* Show connection status in toolbar when changing skin, thanks to greek
+
+	xor:
+		* Fix window resize problem on Mac OS X
+		* Fix for packets being lost in EC communication.
+		  Fixes aMuleGUI not updating after a while.
+
+--------------------------------------------------------------------------------
+
+
 Version 2.2.1 - The "Excuse me, have you seen my 2.2.0 release anywhere?" version.
 ----------
 2008-06-11
@@ -448,6 +563,8 @@ Version 2.2.1 - The "Excuse me, have you seen my 2.2.0 release anywhere?" versio
 		* Created a specialized termination process object for
 		  amuleweb, so that amule does not kill the web daemon if it
 		  has already died. This fixes a segfault upon exit.
+		* Changed the amule_build_install.sh script to work with
+		  distro tarballs for release.
 
 	pochu:
 		* Fix for subdirectory builds.

@@ -36,6 +36,7 @@
 #include <wx/tokenzr.h>
 #include <wx/wfstream.h>
 #include <wx/zipstrm.h>
+#include <wx/sysopt.h>
 #include <wx/wupdlock.h>	// Needed for wxWindowUpdateLocker
 
 #include <common/EventIDs.h>
@@ -104,7 +105,6 @@ BEGIN_EVENT_TABLE(CamuleDlg, wxFrame)
 	EVT_ICONIZE(CamuleDlg::OnMinimize)
 
 	EVT_BUTTON(ID_BUTTON_FAST, CamuleDlg::OnBnClickedFast)
-	EVT_BUTTON(IDC_SHOWSTATUSTEXT, CamuleDlg::OnBnStatusText)
 
 	EVT_TIMER(ID_GUI_TIMER_EVENT, CamuleDlg::OnGUITimer)
 
@@ -189,15 +189,9 @@ m_clientSkinNames(CLIENT_SKIN_SIZE)
 	wxInitAllImageHandlers();
 	Apply_Clients_Skin();
 	
-	bool override_where = where != wxDefaultPosition;
-	bool override_size =
-		dlg_size.x != DEFAULT_SIZE_X ||
-		dlg_size.y != DEFAULT_SIZE_Y;
-	if (!LoadGUIPrefs(override_where, override_size)) {
-		// Prefs not loaded for some reason, exit
-		AddLogLineM( true, wxT("Error! Unable to load Preferences") );
-		return;
-	}
+#ifdef __WXMSW__
+       wxSystemOptions::SetOption(wxT("msw.remap"), 0);
+#endif
 
 	SetIcon(wxICON(aMule));
 
@@ -250,7 +244,19 @@ m_clientSkinNames(CLIENT_SKIN_SIZE)
 	// Set transfers as active window
 	Create_Toolbar(thePrefs::VerticalToolbar());
 	SetActiveDialog(DT_TRANSFER_WND, m_transferwnd);
+	// Prepare the dialog, sets the splitter-position
+	m_transferwnd->Prepare();
 	m_wndToolbar->ToggleTool(ID_BUTTONTRANSFER, true );
+
+	bool override_where = (where != wxDefaultPosition);
+	bool override_size = (
+		(dlg_size.x != DEFAULT_SIZE_X) ||
+		(dlg_size.y != DEFAULT_SIZE_Y) );
+	if (!LoadGUIPrefs(override_where, override_size)) {
+		// Prefs not loaded for some reason, exit
+		AddLogLineM( true, wxT("Error! Unable to load Preferences") );
+		return;
+	}
 
 	m_is_safe_state = true;
 
@@ -555,16 +561,6 @@ void CamuleDlg::OnBnConnect(wxCommandEvent& WXUNUSED(evt))
 }
 
 
-void CamuleDlg::OnBnStatusText(wxCommandEvent& WXUNUSED(evt))
-{
-	wxString line = CastChild(wxT("infoLabel"), wxStaticText)->GetLabel();
-
-	if (!line.IsEmpty()) {
-		wxMessageBox(line, wxString(_("Status text")), wxOK|wxICON_INFORMATION, this);
-	}
-}
-
-
 void CamuleDlg::ResetLog(int id)
 {
 	wxTextCtrl* ct = CastByID(id, m_serverwnd, wxTextCtrl);
@@ -597,11 +593,14 @@ void CamuleDlg::AddLogLine(bool addtostatusbar, const wxString& line)
 			ct->AppendText( wxT("\n") );
 		} else {
 			// Bold critical log-lines
+			// Windows doesn't support this feature, and it causes GDI resource leaks
+#ifndef __WXMSW__
 			wxTextAttr style = ct->GetDefaultStyle();
 			wxFont font = style.GetFont();
 			font.SetWeight(addtostatusbar ? wxFONTWEIGHT_BOLD : wxFONTWEIGHT_NORMAL);
 			style.SetFont(font);
 			ct->SetDefaultStyle(style);
+#endif
 			
 			// Split multi-line messages into individual lines
 			wxStringTokenizer tokens( bufferline, wxT("\n") );		
@@ -621,6 +620,7 @@ void CamuleDlg::AddLogLine(bool addtostatusbar, const wxString& line)
 		wxStaticText* text = CastChild( wxT("infoLabel"), wxStaticText );
 		// Only show the first line if multiple lines
 		text->SetLabel( bufferline.BeforeFirst( wxT('\n') ) );
+		text->SetToolTip( bufferline );
 		text->GetParent()->Layout();
 	}
 	
@@ -641,7 +641,7 @@ void CamuleDlg::AddServerMessageLine(wxString& message)
 }
 
 
-void CamuleDlg::ShowConnectionState()
+void CamuleDlg::ShowConnectionState(bool skinChanged)
 {
 	static wxImageList status_arrows(16,16,true,0);
 	if (!status_arrows.GetImageCount()) {
@@ -743,7 +743,7 @@ void CamuleDlg::ShowConnectionState()
 		currentState = ECS_Disconnected;
 	}
 
-	if (currentState != s_oldState) {
+	if ( (true == skinChanged) || (currentState != s_oldState)) {
 		wxWindowUpdateLocker freezer(m_wndToolbar);
 		
 		wxToolBarToolBase* toolbarTool = m_wndToolbar->RemoveTool(ID_BUTTONCONNECT);
@@ -992,39 +992,39 @@ bool CamuleDlg::SaveGUIPrefs()
 
 void CamuleDlg::DoIconize(bool iconize) 
 {
-	// Evil Hack: check if the mouse is inside the window
-#ifndef __WINDOWS__
-	if (GetScreenRect().Contains(wxGetMousePosition()))
-#endif
-	{
-		if (m_wndTaskbarNotifier && thePrefs::DoMinToTray()) {
-			if (iconize) {
-				// Skip() will do it.
-				//Iconize(true);
-				if (SafeState()) {
-					Show(false);
-				}
-			} else {
-				Show(true);
-				Raise();
+	if (m_wndTaskbarNotifier && thePrefs::DoMinToTray()) {
+		if (iconize) {
+			// Skip() will do it.
+			//Iconize(true);
+			if (SafeState()) {
+				Show(false);
 			}
 		} else {
-			// Will be done by Skip();
-			//Iconize(iconize);
+			Show(true);
+			Raise();
 		}
+	} else {
+		// Will be done by Skip();
+		//Iconize(iconize);
 	}
 }
 
 void CamuleDlg::OnMinimize(wxIconizeEvent& evt)
 {
-	if (m_prefsDialog && m_prefsDialog->IsShown()) {
-		// Veto.
-	} else {
-		if (m_wndTaskbarNotifier) {
-			DoIconize(evt.Iconized());
+// Evil Hack: check if the mouse is inside the window
+#ifndef __WINDOWS__
+       if (GetScreenRect().Contains(wxGetMousePosition()))
+#endif
+       {
+		if (m_prefsDialog && m_prefsDialog->IsShown()) {
+			// Veto.
+		} else {
+			if (m_wndTaskbarNotifier) {
+				DoIconize(evt.Iconized());
+			}
+			evt.Skip();
 		}
-		evt.Skip();
-	}
+       }
 }
 
 void CamuleDlg::OnGUITimer(wxTimerEvent& WXUNUSED(evt))
@@ -1328,7 +1328,7 @@ void CamuleDlg::Apply_Toolbar_Skin(wxToolBar *wndToolbar)
 	wndToolbar->Realize();
 	
 	// Updates the "Connect" button, and so on.
-	ShowConnectionState();
+	ShowConnectionState(true);
 }
 
 
