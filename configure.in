@@ -24,7 +24,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 #
 
-AC_INIT([aMule],[SVN],[admin@amule.org])
+AC_INIT([aMule],[2.2.1],[admin@amule.org])
 AM_INIT_AUTOMAKE
 
 AC_CONFIG_SRCDIR([src/amule.cpp])
