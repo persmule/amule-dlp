@@ -3,7 +3,7 @@
 // Purpose:     generic implementation of wxListCtrl
 // Author:      Robert Roebling
 //              Vadim Zeitlin (virtual list control support)
-// Id:          $Id: listctrl.262.cpp 5881 2005-11-25 15:24:19Z xaignar $
+// Id:          $Id: listctrl.262.cpp 6781 2006-05-28 12:25:53Z kry $
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -1954,7 +1954,7 @@ void wxListHeaderWindow::OnMouse( wxMouseEvent &event )
             else
             {
                 setCursor = m_currentCursor != wxSTANDARD_CURSOR;
-                m_currentCursor = (wxCursor*)wxSTANDARD_CURSOR;
+                m_currentCursor = (wxCursor*) wxSTANDARD_CURSOR;
             }
 
             if ( setCursor )
