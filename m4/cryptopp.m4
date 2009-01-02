@@ -104,7 +104,7 @@ m4_define([MIN_CRYPTO_VERSION], [m4_ifval([$1], [$1], [5.1])])dnl
 		])
 	done
 
-	AS_IF([test $CRYPTOPP_STYLE = "unknown"], [result=no], [
+	AS_IF([test $CRYPTOPP_STYLE = "unknown"], [result=no; resultstr=""], [
 		# Find out the crypto++ version and check against the minimum required
 		cryptopp_header_path="${cryptopp_includedir+$cryptopp_includedir/}$CRYPTOPP_INCLUDE_PREFIX/$cryptopp_file_with_version"
 		CRYPTOPP_VERSION_STRING=`grep "Reference Manual" $cryptopp_header_path | sed -e ['s/[^0-9]*\([0-9.]*\).*/\1/']`
@@ -132,7 +132,7 @@ m4_define([MIN_CRYPTO_VERSION], [m4_ifval([$1], [$1], [5.1])])dnl
 
 	AC_MSG_RESULT([$result$resultstr])
 
-	m4_ifval([$2$3], [AS_IF([test ${result:-no} = yes], [$2], [$3])])
+	AS_IF([test ${result:-no} = yes], [$2], [$3])
 
 dnl Exported symbols
 AC_SUBST([CRYPTOPP_CPPFLAGS])dnl

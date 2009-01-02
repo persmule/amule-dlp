@@ -49,22 +49,18 @@ bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
 @MONOLITHIC_TRUE@am__append_7 = libmuleappcore.a libmuleappgui.a libmuleappcommon.a
 @AMULE_DAEMON_TRUE@@MONOLITHIC_FALSE@am__append_8 = libmuleappcore.a libmuleappcommon.a
 @AMULE_DAEMON_FALSE@@AMULE_GUI_TRUE@@MONOLITHIC_FALSE@am__append_9 = libmuleappgui.a libmuleappcommon.a
-@ENABLE_UPNP_TRUE@am__append_10 = -DENABLE_UPNP=1
-@ENABLE_UPNP_TRUE@am__append_11 = -DENABLE_UPNP=1
-@ENABLE_UPNP_TRUE@am__append_12 = -DENABLE_UPNP=1
-@ENABLE_UPNP_TRUE@am__append_13 = \
-@ENABLE_UPNP_TRUE@	UPnP.cpp \
+@ENABLE_UPNP_TRUE@am__append_10 = \
+@ENABLE_UPNP_TRUE@	UPnPBase.cpp \
 @ENABLE_UPNP_TRUE@	UPnPCompatibility.cpp
 
-@ENABLE_IP2COUNTRY_TRUE@am__append_14 = \
+@ENABLE_IP2COUNTRY_TRUE@am__append_11 = \
 @ENABLE_IP2COUNTRY_TRUE@	IP2Country.cpp
 
-@SYS_WIN32_TRUE@am__append_15 = -lshlwapi
-@ENABLE_UPNP_TRUE@am__append_16 = -DENABLE_UPNP=1
-@NEED_RC_TRUE@am__append_17 = amulerc.$(OBJEXT)
-@NEED_RC_TRUE@am__append_18 = amulerc.$(OBJEXT)
-@NEED_RC_TRUE@am__append_19 = amuleguirc.$(OBJEXT)
-@NEED_RC_TRUE@am__append_20 = amuleguirc.$(OBJEXT)
+@SYS_WIN32_TRUE@am__append_12 = -lshlwapi
+@NEED_RC_TRUE@am__append_13 = amulerc.$(OBJEXT)
+@NEED_RC_TRUE@am__append_14 = amulerc.$(OBJEXT)
+@NEED_RC_TRUE@am__append_15 = amuleguirc.$(OBJEXT)
+@NEED_RC_TRUE@am__append_16 = amuleguirc.$(OBJEXT)
 DIST_COMMON = $(noinst_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/automake/dist-hook.am
 subdir = src
@@ -78,7 +74,8 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/build-tools.m4 \
 	$(top_srcdir)/m4/inttypes_h.m4 $(top_srcdir)/m4/lcmessage.m4 \
 	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
 	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libpng.m4 \
-	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/progtest.m4 \
+	$(top_srcdir)/m4/libupnp.m4 $(top_srcdir)/m4/nls.m4 \
+	$(top_srcdir)/m4/pkg.m4 $(top_srcdir)/m4/progtest.m4 \
 	$(top_srcdir)/m4/readline.m4 $(top_srcdir)/m4/stdint_h.m4 \
 	$(top_srcdir)/m4/uintmax_t.m4 $(top_srcdir)/m4/ulonglong.m4 \
 	$(top_srcdir)/m4/wxwin.m4 $(top_srcdir)/m4/zlib.m4 \
@@ -162,7 +159,7 @@ am__amule_SOURCES_DIST = RC4Encrypt.cpp amule.cpp BaseClient.cpp \
 	kademlia/kademlia/UDPFirewallTester.cpp \
 	kademlia/net/KademliaUDPListener.cpp \
 	kademlia/net/PacketTracking.cpp kademlia/routing/Contact.cpp \
-	kademlia/routing/RoutingZone.cpp UPnP.cpp \
+	kademlia/routing/RoutingZone.cpp UPnPBase.cpp \
 	UPnPCompatibility.cpp amule-gui.cpp amuleDlg.cpp AddFriend.cpp \
 	CatDialog.cpp ChatSelector.cpp ClientDetailDialog.cpp \
 	FileDetailDialog.cpp KadDlg.cpp OScopeCtrl.cpp \
@@ -177,7 +174,7 @@ am__amule_SOURCES_DIST = RC4Encrypt.cpp amule.cpp BaseClient.cpp \
 	StatTree.cpp SHAHashSet.cpp TerminationProcess.cpp \
 	TerminationProcessAmuleweb.cpp UserEvents.cpp \
 	OtherFunctions.cpp NetworkFunctions.cpp
-@ENABLE_UPNP_TRUE@am__objects_1 = amule-UPnP.$(OBJEXT) \
+@ENABLE_UPNP_TRUE@am__objects_1 = amule-UPnPBase.$(OBJEXT) \
 @ENABLE_UPNP_TRUE@	amule-UPnPCompatibility.$(OBJEXT)
 am__objects_2 = amule-RC4Encrypt.$(OBJEXT) amule-amule.$(OBJEXT) \
 	amule-BaseClient.$(OBJEXT) amule-ClientList.$(OBJEXT) \
@@ -238,7 +235,8 @@ am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__DEPENDENCIES_3 = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-am__DEPENDENCIES_4 = $(am__DEPENDENCIES_1)
+am__DEPENDENCIES_4 = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 @NEED_RC_TRUE@am__DEPENDENCIES_5 = amulerc.$(OBJEXT)
 am__objects_7 = amulecmd-OtherFunctions.$(OBJEXT) \
 	amulecmd-NetworkFunctions.$(OBJEXT)
@@ -262,14 +260,14 @@ am__amuled_SOURCES_DIST = amuled.cpp Timer.cpp RC4Encrypt.cpp \
 	kademlia/kademlia/UDPFirewallTester.cpp \
 	kademlia/net/KademliaUDPListener.cpp \
 	kademlia/net/PacketTracking.cpp kademlia/routing/Contact.cpp \
-	kademlia/routing/RoutingZone.cpp UPnP.cpp \
+	kademlia/routing/RoutingZone.cpp UPnPBase.cpp \
 	UPnPCompatibility.cpp ClientCredits.cpp ECSpecialMuleTags.cpp \
 	KnownFile.cpp GetTickCount.cpp GuiEvents.cpp Logger.cpp \
 	PartFile.cpp Preferences.cpp Proxy.cpp Server.cpp \
 	Statistics.cpp StatTree.cpp SHAHashSet.cpp \
 	TerminationProcess.cpp TerminationProcessAmuleweb.cpp \
 	UserEvents.cpp OtherFunctions.cpp NetworkFunctions.cpp
-@ENABLE_UPNP_TRUE@am__objects_8 = amuled-UPnP.$(OBJEXT) \
+@ENABLE_UPNP_TRUE@am__objects_8 = amuled-UPnPBase.$(OBJEXT) \
 @ENABLE_UPNP_TRUE@	amuled-UPnPCompatibility.$(OBJEXT)
 am__objects_9 = amuled-RC4Encrypt.$(OBJEXT) amuled-amule.$(OBJEXT) \
 	amuled-BaseClient.$(OBJEXT) amuled-ClientList.$(OBJEXT) \
@@ -502,6 +500,10 @@ LIBPNG_CONFIG_PATH = @LIBPNG_CONFIG_PATH@
 LIBPNG_LDFLAGS = @LIBPNG_LDFLAGS@
 LIBPNG_LIBS = @LIBPNG_LIBS@
 LIBS = @LIBS@
+LIBUPNP_CFLAGS = @LIBUPNP_CFLAGS@
+LIBUPNP_CPPFLAGS = @LIBUPNP_CPPFLAGS@
+LIBUPNP_LDFLAGS = @LIBUPNP_LDFLAGS@
+LIBUPNP_LIBS = @LIBUPNP_LIBS@
 LTLIBICONV = @LTLIBICONV@
 LTLIBINTL = @LTLIBINTL@
 LTLIBOBJS = @LTLIBOBJS@
@@ -532,6 +534,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
 POSUB = @POSUB@
 POW_LIB = @POW_LIB@
 RANLIB = @RANLIB@
@@ -587,6 +590,7 @@ ac_ct_LD = @ac_ct_LD@
 ac_ct_RANLIB = @ac_ct_RANLIB@
 ac_ct_RC = @ac_ct_RC@
 ac_ct_STRIP = @ac_ct_STRIP@
+ac_pt_PKG_CONFIG = @ac_pt_PKG_CONFIG@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
@@ -658,9 +662,7 @@ libmuleappcommon_a_SOURCES = \
 	RandomFunctions.cpp \
 	kademlia/utils/UInt128.cpp
 
-libmuleappcommon_a_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) \
-	-I$(srcdir)/libs -I$(srcdir)/include $(CRYPTOPP_CPPFLAGS) \
-	$(am__append_10)
+libmuleappcommon_a_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) -I$(srcdir)/libs -I$(srcdir)/include $(CRYPTOPP_CPPFLAGS) $(LIBUPNP_CPPFLAGS)
 
 # Common to core/monolithic
 libmuleappcore_a_SOURCES = \
@@ -675,9 +677,7 @@ libmuleappcore_a_SOURCES = \
 	StateMachine.cpp \
 	ThreadScheduler.cpp
 
-libmuleappcore_a_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) \
-	-I$(srcdir)/libs -I$(srcdir)/include $(CRYPTOPP_CPPFLAGS) \
-	$(am__append_11)
+libmuleappcore_a_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) -I$(srcdir)/libs -I$(srcdir)/include $(CRYPTOPP_CPPFLAGS) $(LIBUPNP_CPPFLAGS)
 
 # Common to gui/monolithic
 libmuleappgui_a_SOURCES = \
@@ -697,8 +697,7 @@ libmuleappgui_a_SOURCES = \
 	MuleCollection.cpp \
 	muuli_wdr.cpp 
 
-libmuleappgui_a_CPPFLAGS = $(AM_CPPFLAGS) $(WX_CPPFLAGS) \
-	-I$(srcdir)/libs -I$(srcdir)/include $(am__append_12)
+libmuleappgui_a_CPPFLAGS = $(AM_CPPFLAGS) $(WX_CPPFLAGS) -I$(srcdir)/libs -I$(srcdir)/include $(LIBUPNP_CPPFLAGS)
 core_sources = RC4Encrypt.cpp amule.cpp BaseClient.cpp ClientList.cpp \
 	ClientCreditsList.cpp ClientTCPSocket.cpp ClientUDPSocket.cpp \
 	DownloadClient.cpp DownloadQueue.cpp ECSpecialCoreTags.cpp \
@@ -715,7 +714,7 @@ core_sources = RC4Encrypt.cpp amule.cpp BaseClient.cpp ClientList.cpp \
 	kademlia/kademlia/UDPFirewallTester.cpp \
 	kademlia/net/KademliaUDPListener.cpp \
 	kademlia/net/PacketTracking.cpp kademlia/routing/Contact.cpp \
-	kademlia/routing/RoutingZone.cpp $(am__append_13)
+	kademlia/routing/RoutingZone.cpp $(am__append_10)
 gui_sources = amule-gui.cpp amuleDlg.cpp AddFriend.cpp CatDialog.cpp \
 	ChatSelector.cpp ClientDetailDialog.cpp FileDetailDialog.cpp \
 	KadDlg.cpp OScopeCtrl.cpp PartFileConvert.cpp \
@@ -723,7 +722,7 @@ gui_sources = amule-gui.cpp amuleDlg.cpp AddFriend.cpp CatDialog.cpp \
 	SharedFilesWnd.cpp StatisticsDlg.cpp SearchListCtrl.cpp \
 	DownloadListCtrl.cpp ClientListCtrl.cpp FriendListCtrl.cpp \
 	ServerListCtrl.cpp SharedFilesCtrl.cpp MuleTrayIcon.cpp \
-	TransferWnd.cpp $(am__append_14)
+	TransferWnd.cpp $(am__append_11)
 remote_common_sources = \
 	OtherFunctions.cpp \
 	NetworkFunctions.cpp 
@@ -749,7 +748,8 @@ common_sources = \
 
 
 # Libs
-core_libs = -L. -lmuleappcore $(am__append_15)
+core_libs = -L. -lmuleappcore $(LIBUPNP_LDFLAGS) $(LIBUPNP_LIBS) \
+	$(am__append_12)
 gui_libs = -L. -lmuleappgui $(X11LIBS) $(WX_LIBS) $(GEOIP_LDFLAGS) $(GEOIP_LIBS)
 remote_common_libs = -Llibs/common -Llibs/ec/cpp -lmulecommon -lec $(ZLIB_LDFLAGS) $(ZLIB_LIBS) $(RESOLV_LIB) $(BFD_LIBS)
 common_libs = -L. -lmuleappcommon $(remote_common_libs) $(CRYPTOPP_LDFLAGS) $(CRYPTOPP_LIBS)
@@ -761,7 +761,7 @@ common_deps = libmuleappcommon.a $(remote_common_deps)
 #
 # Flags
 #
-core_flags = $(am__append_16)
+core_flags = $(LIBUPNP_CPPFLAGS) $(LIBUPNP_CFLAGS)
 gui_flags = $(WX_CPPFLAGS) $(GEOIP_CPPFLAGS)
 common_flags = -I$(srcdir)/libs -Ilibs -I$(srcdir)/include $(CRYPTOPP_CPPFLAGS)
 
@@ -786,15 +786,15 @@ amuled_SOURCES = \
 	$(common_sources)
 
 amule_DEPENDENCIES = $(common_deps) $(core_deps) $(gui_deps) \
-	$(am__append_18)
+	$(am__append_14)
 amule_CPPFLAGS = $(AM_CPPFLAGS) $(core_flags) $(gui_flags) $(common_flags)
 amule_CXXFLAGS = $(AM_CXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CPPFLAGS_ONLY)
-amule_LDADD = $(common_libs) $(core_libs) $(gui_libs) $(am__append_17)
-amulegui_DEPENDENCIES = $(common_deps) $(gui_deps) $(am__append_20)
+amule_LDADD = $(common_libs) $(core_libs) $(gui_libs) $(am__append_13)
+amulegui_DEPENDENCIES = $(common_deps) $(gui_deps) $(am__append_16)
 amulegui_CPPFLAGS = $(AM_CPPFLAGS) $(gui_flags) $(common_flags) -DCLIENT_GUI -DEC_REMOTE
 amulegui_CXXFLAGS = $(AM_CXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
 amulegui_LDADD = $(gui_libs) $(common_libs) $(WXBASE_LIBS) \
-	$(am__append_19)
+	$(am__append_15)
 amuled_DEPENDENCIES = $(core_deps) $(common_deps)
 amuled_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) $(core_flags) $(common_flags) -DAMULE_DAEMON 
 amuled_CXXFLAGS = $(AM_CXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
@@ -946,12 +946,10 @@ noinst_HEADERS = \
 		updownclient.h \
 		UploadBandwidthThrottler.h \
 		UploadQueue.h \
-		UPnP.h \
+		UPnPBase.h \
 		UPnPCompatibility.h \
 		UserEvents.h \
-		extern/wxWidgets/listctrl.h \
-		extern/upnp/ixml.h \
-		extern/upnp/upnp.h
+		extern/wxWidgets/listctrl.h
 
 MAINTAINERCLEANFILES = Makefile.in
 
@@ -1131,7 +1129,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amule-ThreadTasks.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amule-TransferWnd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amule-UDPFirewallTester.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amule-UPnP.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amule-UPnPBase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amule-UPnPCompatibility.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amule-UploadBandwidthThrottler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amule-UploadClient.Po@am__quote@
@@ -1199,7 +1197,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amuled-ThreadTasks.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amuled-Timer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amuled-UDPFirewallTester.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amuled-UPnP.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amuled-UPnPBase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amuled-UPnPCompatibility.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amuled-UploadBandwidthThrottler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/amuled-UploadClient.Po@am__quote@
@@ -2427,19 +2425,19 @@ amule-RoutingZone.obj: kademlia/routing/RoutingZone.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amule_CPPFLAGS) $(CPPFLAGS) $(amule_CXXFLAGS) $(CXXFLAGS) -c -o amule-RoutingZone.obj `if test -f 'kademlia/routing/RoutingZone.cpp'; then $(CYGPATH_W) 'kademlia/routing/RoutingZone.cpp'; else $(CYGPATH_W) '$(srcdir)/kademlia/routing/RoutingZone.cpp'; fi`
 
-amule-UPnP.o: UPnP.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amule_CPPFLAGS) $(CPPFLAGS) $(amule_CXXFLAGS) $(CXXFLAGS) -MT amule-UPnP.o -MD -MP -MF "$(DEPDIR)/amule-UPnP.Tpo" -c -o amule-UPnP.o `test -f 'UPnP.cpp' || echo '$(srcdir)/'`UPnP.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/amule-UPnP.Tpo" "$(DEPDIR)/amule-UPnP.Po"; else rm -f "$(DEPDIR)/amule-UPnP.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UPnP.cpp' object='amule-UPnP.o' libtool=no @AMDEPBACKSLASH@
+amule-UPnPBase.o: UPnPBase.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amule_CPPFLAGS) $(CPPFLAGS) $(amule_CXXFLAGS) $(CXXFLAGS) -MT amule-UPnPBase.o -MD -MP -MF "$(DEPDIR)/amule-UPnPBase.Tpo" -c -o amule-UPnPBase.o `test -f 'UPnPBase.cpp' || echo '$(srcdir)/'`UPnPBase.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/amule-UPnPBase.Tpo" "$(DEPDIR)/amule-UPnPBase.Po"; else rm -f "$(DEPDIR)/amule-UPnPBase.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UPnPBase.cpp' object='amule-UPnPBase.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amule_CPPFLAGS) $(CPPFLAGS) $(amule_CXXFLAGS) $(CXXFLAGS) -c -o amule-UPnP.o `test -f 'UPnP.cpp' || echo '$(srcdir)/'`UPnP.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amule_CPPFLAGS) $(CPPFLAGS) $(amule_CXXFLAGS) $(CXXFLAGS) -c -o amule-UPnPBase.o `test -f 'UPnPBase.cpp' || echo '$(srcdir)/'`UPnPBase.cpp
 
-amule-UPnP.obj: UPnP.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amule_CPPFLAGS) $(CPPFLAGS) $(amule_CXXFLAGS) $(CXXFLAGS) -MT amule-UPnP.obj -MD -MP -MF "$(DEPDIR)/amule-UPnP.Tpo" -c -o amule-UPnP.obj `if test -f 'UPnP.cpp'; then $(CYGPATH_W) 'UPnP.cpp'; else $(CYGPATH_W) '$(srcdir)/UPnP.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/amule-UPnP.Tpo" "$(DEPDIR)/amule-UPnP.Po"; else rm -f "$(DEPDIR)/amule-UPnP.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UPnP.cpp' object='amule-UPnP.obj' libtool=no @AMDEPBACKSLASH@
+amule-UPnPBase.obj: UPnPBase.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amule_CPPFLAGS) $(CPPFLAGS) $(amule_CXXFLAGS) $(CXXFLAGS) -MT amule-UPnPBase.obj -MD -MP -MF "$(DEPDIR)/amule-UPnPBase.Tpo" -c -o amule-UPnPBase.obj `if test -f 'UPnPBase.cpp'; then $(CYGPATH_W) 'UPnPBase.cpp'; else $(CYGPATH_W) '$(srcdir)/UPnPBase.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/amule-UPnPBase.Tpo" "$(DEPDIR)/amule-UPnPBase.Po"; else rm -f "$(DEPDIR)/amule-UPnPBase.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UPnPBase.cpp' object='amule-UPnPBase.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amule_CPPFLAGS) $(CPPFLAGS) $(amule_CXXFLAGS) $(CXXFLAGS) -c -o amule-UPnP.obj `if test -f 'UPnP.cpp'; then $(CYGPATH_W) 'UPnP.cpp'; else $(CYGPATH_W) '$(srcdir)/UPnP.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amule_CPPFLAGS) $(CPPFLAGS) $(amule_CXXFLAGS) $(CXXFLAGS) -c -o amule-UPnPBase.obj `if test -f 'UPnPBase.cpp'; then $(CYGPATH_W) 'UPnPBase.cpp'; else $(CYGPATH_W) '$(srcdir)/UPnPBase.cpp'; fi`
 
 amule-UPnPCompatibility.o: UPnPCompatibility.cpp
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amule_CPPFLAGS) $(CPPFLAGS) $(amule_CXXFLAGS) $(CXXFLAGS) -MT amule-UPnPCompatibility.o -MD -MP -MF "$(DEPDIR)/amule-UPnPCompatibility.Tpo" -c -o amule-UPnPCompatibility.o `test -f 'UPnPCompatibility.cpp' || echo '$(srcdir)/'`UPnPCompatibility.cpp; \
@@ -3701,19 +3699,19 @@ amuled-RoutingZone.obj: kademlia/routing/RoutingZone.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amuled_CPPFLAGS) $(CPPFLAGS) $(amuled_CXXFLAGS) $(CXXFLAGS) -c -o amuled-RoutingZone.obj `if test -f 'kademlia/routing/RoutingZone.cpp'; then $(CYGPATH_W) 'kademlia/routing/RoutingZone.cpp'; else $(CYGPATH_W) '$(srcdir)/kademlia/routing/RoutingZone.cpp'; fi`
 
-amuled-UPnP.o: UPnP.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amuled_CPPFLAGS) $(CPPFLAGS) $(amuled_CXXFLAGS) $(CXXFLAGS) -MT amuled-UPnP.o -MD -MP -MF "$(DEPDIR)/amuled-UPnP.Tpo" -c -o amuled-UPnP.o `test -f 'UPnP.cpp' || echo '$(srcdir)/'`UPnP.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/amuled-UPnP.Tpo" "$(DEPDIR)/amuled-UPnP.Po"; else rm -f "$(DEPDIR)/amuled-UPnP.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UPnP.cpp' object='amuled-UPnP.o' libtool=no @AMDEPBACKSLASH@
+amuled-UPnPBase.o: UPnPBase.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amuled_CPPFLAGS) $(CPPFLAGS) $(amuled_CXXFLAGS) $(CXXFLAGS) -MT amuled-UPnPBase.o -MD -MP -MF "$(DEPDIR)/amuled-UPnPBase.Tpo" -c -o amuled-UPnPBase.o `test -f 'UPnPBase.cpp' || echo '$(srcdir)/'`UPnPBase.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/amuled-UPnPBase.Tpo" "$(DEPDIR)/amuled-UPnPBase.Po"; else rm -f "$(DEPDIR)/amuled-UPnPBase.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UPnPBase.cpp' object='amuled-UPnPBase.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amuled_CPPFLAGS) $(CPPFLAGS) $(amuled_CXXFLAGS) $(CXXFLAGS) -c -o amuled-UPnP.o `test -f 'UPnP.cpp' || echo '$(srcdir)/'`UPnP.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amuled_CPPFLAGS) $(CPPFLAGS) $(amuled_CXXFLAGS) $(CXXFLAGS) -c -o amuled-UPnPBase.o `test -f 'UPnPBase.cpp' || echo '$(srcdir)/'`UPnPBase.cpp
 
-amuled-UPnP.obj: UPnP.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amuled_CPPFLAGS) $(CPPFLAGS) $(amuled_CXXFLAGS) $(CXXFLAGS) -MT amuled-UPnP.obj -MD -MP -MF "$(DEPDIR)/amuled-UPnP.Tpo" -c -o amuled-UPnP.obj `if test -f 'UPnP.cpp'; then $(CYGPATH_W) 'UPnP.cpp'; else $(CYGPATH_W) '$(srcdir)/UPnP.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/amuled-UPnP.Tpo" "$(DEPDIR)/amuled-UPnP.Po"; else rm -f "$(DEPDIR)/amuled-UPnP.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UPnP.cpp' object='amuled-UPnP.obj' libtool=no @AMDEPBACKSLASH@
+amuled-UPnPBase.obj: UPnPBase.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amuled_CPPFLAGS) $(CPPFLAGS) $(amuled_CXXFLAGS) $(CXXFLAGS) -MT amuled-UPnPBase.obj -MD -MP -MF "$(DEPDIR)/amuled-UPnPBase.Tpo" -c -o amuled-UPnPBase.obj `if test -f 'UPnPBase.cpp'; then $(CYGPATH_W) 'UPnPBase.cpp'; else $(CYGPATH_W) '$(srcdir)/UPnPBase.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/amuled-UPnPBase.Tpo" "$(DEPDIR)/amuled-UPnPBase.Po"; else rm -f "$(DEPDIR)/amuled-UPnPBase.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='UPnPBase.cpp' object='amuled-UPnPBase.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amuled_CPPFLAGS) $(CPPFLAGS) $(amuled_CXXFLAGS) $(CXXFLAGS) -c -o amuled-UPnP.obj `if test -f 'UPnP.cpp'; then $(CYGPATH_W) 'UPnP.cpp'; else $(CYGPATH_W) '$(srcdir)/UPnP.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amuled_CPPFLAGS) $(CPPFLAGS) $(amuled_CXXFLAGS) $(CXXFLAGS) -c -o amuled-UPnPBase.obj `if test -f 'UPnPBase.cpp'; then $(CYGPATH_W) 'UPnPBase.cpp'; else $(CYGPATH_W) '$(srcdir)/UPnPBase.cpp'; fi`
 
 amuled-UPnPCompatibility.o: UPnPCompatibility.cpp
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amuled_CPPFLAGS) $(CPPFLAGS) $(amuled_CXXFLAGS) $(CXXFLAGS) -MT amuled-UPnPCompatibility.o -MD -MP -MF "$(DEPDIR)/amuled-UPnPCompatibility.Tpo" -c -o amuled-UPnPCompatibility.o `test -f 'UPnPCompatibility.cpp' || echo '$(srcdir)/'`UPnPCompatibility.cpp; \
@@ -4759,7 +4757,7 @@ distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 
 distdir: $(DISTFILES)
-	$(mkdir_p) $(distdir)/../automake $(distdir)/extern/upnp $(distdir)/extern/wxWidgets
+	$(mkdir_p) $(distdir)/../automake $(distdir)/extern/wxWidgets
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
