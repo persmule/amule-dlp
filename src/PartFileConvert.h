@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,24 +26,23 @@
 #ifndef PARTFILECONVERT_H
 #define PARTFILECONVERT_H
 
-#include <wx/string.h>
-#include <wx/thread.h>
 #include <wx/dialog.h>
 #include <wx/listctrl.h>
 #include <wx/gauge.h>
 
-#include <list>
 
 #include "Types.h"
 
 struct ConvertJob;
 class CPartFileConvertDlg;
+class CPath;
+
 
 class CPartFileConvert : private wxThread
 {
 public:
-	static int	ScanFolderToAdd(wxString folder, bool deletesource = false);
-	static void	ConvertToeMule(wxString folder, bool deletesource = false);
+	static int	ScanFolderToAdd(const CPath& folder, bool deletesource = false);
+	static void	ConvertToeMule(const CPath& file, bool deletesource = false);
 	static void	StartThread();
 	static void	StopThread();
 
@@ -62,7 +61,7 @@ public:
 private:
 	CPartFileConvert() : wxThread(wxTHREAD_DETACHED) {}
 
-	static int	performConvertToeMule(wxString folder);
+	static int	performConvertToeMule(const CPath& file);
 	virtual ExitCode Entry();
 
 	static wxThread*		s_convertPfThread;
@@ -111,3 +110,4 @@ protected:
 };
 
 #endif /* PARTFILECONVERT_H */
+// File_checked_for_headers

@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 /// Name:         AlcFrame Class
 ///
 /// Purpose:      aMule ed2k link creator
@@ -9,7 +9,10 @@
 ///
 /// Copyright (C) 2004 by Phoenix
 ///
-/// Pixmaps from http://jimmac.musichall.cz/ikony.php3 | http://www.everaldo.com | http://www.icomania.com
+/// Pixmaps from:
+/// 	http://jimmac.musichall.cz/ikony.php3 
+/// 	http://www.everaldo.com 
+///	http://www.icomania.com
 ///
 /// This program is free software; you can redistribute it and/or modify
 /// it under the terms of the GNU General Public License as published by
@@ -25,10 +28,8 @@
 /// along with this program; if not, write to the
 /// Free Software Foundation, Inc.,
 /// 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-// For compilers that support precompilation, includes "wx/wx.h"
-#include "wx/wxprec.h"
 
 #ifdef __BORLANDC__
     #pragma hdrstop
@@ -39,18 +40,16 @@
     #include "wx/wx.h"
 #endif
 
-#include <wx/filedlg.h>
 #include <wx/textfile.h>
 #include <wx/file.h>
 #include <wx/timer.h>
 #include <wx/listbox.h>
 #include <wx/url.h>
-#if wxCHECK_VERSION(2,6,0)
-	#include <wx/uri.h>
-#endif
+#include <wx/uri.h>
 #include <wx/filename.h>
 #include <wx/clipbrd.h>
 #include <wx/dataobj.h>
+#include <wx/filedlg.h>
 
 #ifdef __WXMSW__
 	#include <winerror.h>
@@ -131,8 +130,7 @@ AlcFrame::AlcFrame (const wxString & title):
                                        wxDefaultPosition, wxSize(300,-1));
   m_inputAddTextCtrl->
   SetToolTip (_
-              ("Enter here the URL you want to add to the Ed2k link: "
-               "Add / at the end to let aLinkCreator append the current file name"));
+              ("Enter here the URL you want to add to the Ed2k link: Add / at the end to let aLinkCreator append the current file name"));
 
   // List box
   m_inputUrlListBox = new wxListBox(m_mainPanel, -1, wxDefaultPosition,
@@ -365,7 +363,7 @@ AlcFrame::SetFileToHash()
   const wxString & filename =
     wxFileSelector (_("Select the file you want to compute the ed2k link"),
                     browseroot, wxEmptyString, wxEmptyString, wxT("*.*"),
-                    wxOPEN | wxFILE_MUST_EXIST );
+                    wxFD_OPEN | wxFD_FILE_MUST_EXIST, this);
 
   if (!filename.empty ())
     {
@@ -435,7 +433,7 @@ AlcFrame::SaveEd2kLinkToFile()
       const wxString & filename =
         wxFileSelector (_("Select the file to your computed ed2k link"),
                         wxFileName::GetHomeDir(),wxT("my_ed2k_link"),
-                        wxT("txt"), wxT("*.txt"), wxSAVE );
+                        wxT("txt"), wxT("*.txt"), wxFD_SAVE, this);
 
       if (!filename.empty ())
         {
@@ -465,11 +463,7 @@ void
 AlcFrame::OnBarAbout (wxCommandEvent & WXUNUSED(event))
 {
   wxMessageBox (_
-                ("aLinkCreator, the aMule ed2k link creator\n\n"
-                 "(c) 2004 ThePolish <thepolish@vipmail.ru>\n\n"
-                 "Pixmaps from http://www.everaldo.com and http://www.icomania.com\n"
-		 "and http://jimmac.musichall.cz/ikony.php3\n\n"
-                 "Distributed under GPL"),
+                ("aLinkCreator, the aMule ed2k link creator\n\n(c) 2004 ThePolish <thepolish@vipmail.ru>\n\nPixmaps from http://www.everaldo.com and http://www.icomania.com\nand http://jimmac.musichall.cz/ikony.php3\n\nDistributed under GPL"),
                 _("About aLinkCreator"), wxOK | wxCENTRE | wxICON_INFORMATION);
 }
 
@@ -556,11 +550,7 @@ void AlcFrame::OnStartButton (wxCommandEvent & WXUNUSED(event))
                 {
                   url += fileToHash.GetFullName();
                 }
-			#if wxCHECK_VERSION(2,6,0)
-				arrayOfUrls.Add(wxURI(url).BuildURI());
-			 #else 
-			 	arrayOfUrls.Add(wxURL::ConvertToValidURI(url));
-			 #endif
+		arrayOfUrls.Add(wxURI(url).BuildURI());
             }
           arrayOfUrls.Shrink(); // Reduce memory usage
 
@@ -573,8 +563,8 @@ void AlcFrame::OnStartButton (wxCommandEvent & WXUNUSED(event))
       else
         {
           // Set cancelled msg
-          m_e2kHashTextCtrl->SetValue(_("Canceled !"));
-          m_ed2kTextCtrl->SetValue(_("Canceled !"));
+          m_e2kHashTextCtrl->SetValue(_("Cancelled !"));
+          m_ed2kTextCtrl->SetValue(_("Cancelled !"));
         }
 
       // Deleting progress bar dialog
@@ -616,11 +606,7 @@ AlcFrame::OnAddUrlButton (wxCommandEvent & WXUNUSED(event))
       // Add only a not already existant URL
       if (UrlNotExists)
         {
-		#if wxCHECK_VERSION(2,6,0)
-		   	m_inputUrlListBox->Append(wxURI(url).BuildURI());
-		#else 
-			m_inputUrlListBox->Append(wxURL::ConvertToValidURI(url));
-		#endif
+	  m_inputUrlListBox->Append(wxURI(url).BuildURI());
           m_inputAddTextCtrl->SetValue(wxEmptyString);
         }
       else
@@ -647,3 +633,4 @@ AlcFrame::OnClearUrlButton (wxCommandEvent & WXUNUSED(event))
 {
   m_inputUrlListBox->Clear();
 }
+// File_checked_for_headers

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,16 +23,18 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
+#include <wx/wx.h>
+
+#include "ED2KLink.h"			// Interface declarations.
+
 #include <wx/string.h>
 #include <wx/regex.h>			// Needed for wxRegEx
 #include <wx/tokenzr.h>			// Needed for wxStringTokenizer
 
-#include "ED2KLink.h"			// Interface declarations.
+#include <protocol/ed2k/Constants.h>
+
 #include "MemFile.h"			// Needed for CMemFile
 #include "NetworkFunctions.h"	// Needed for Uint32toStringIP
-#include <common/StringFunctions.h>	// Needed for unicode2char
-#include "OtherFunctions.h"		// Needed for DecodeBase32
-#include "OPCodes.h"			// Needed for MAX_FILE_SIZE
 
 
 
@@ -169,12 +171,12 @@ CED2KFileLink::CED2KFileLink(const wxString& link)
 	// too large to be contained in a unsigned long, which means
 	// that this check is valid, as odd as it seems
 	wxString size = tokens.GetNextToken().Strip(wxString::both);
-	m_size = StrToULong(size);
-	if ((m_size == 0) or (m_size > MAX_FILE_SIZE)) {
-		throw wxString(wxT("Invalid file size"));
+	m_size = StrToULongLong(size);
+	if ((m_size == 0) || (m_size > MAX_FILE_SIZE)) {
+		throw wxString::Format(wxT("Invalid file size %i"), m_size);
 	}
 	
-	if (not m_hash.Decode(tokens.GetNextToken().Strip(wxString::both))) {
+	if (!m_hash.Decode(tokens.GetNextToken().Strip(wxString::both))) {
 		throw wxString(wxT("Invalid hash"));
 	}
 
@@ -188,16 +190,40 @@ CED2KFileLink::CED2KFileLink(const wxString& link)
 			wxString token = srcTokens.GetNextToken();
 			while (srcTokens.HasMoreTokens()) {
 				token = srcTokens.GetNextToken().Strip(wxString::both);
-
-				wxString addr = token.BeforeFirst(wxT(':'));
-				unsigned port = StrToULong(token.AfterFirst(wxT(':')));
+				
+				wxStringTokenizer sourceTokens(token, wxT(":"));
+				wxString addr = sourceTokens.GetNextToken();
+				if (addr.IsEmpty()) {
+					throw wxString( wxT("Empty address" ) );
+				}
+				
+				wxString strport = sourceTokens.GetNextToken();
+				if (strport.IsEmpty()) {
+					throw wxString( wxT("Empty port" ) );
+				}				
+				
+				unsigned port = StrToULong(strport);
 
 				// Sanity checking
-				if ((port == 0) or (port > 0xFFFF) or addr.IsEmpty()) {
-					throw wxString( wxT("Invalid Address/Port" ) );
+				if ((port == 0) || (port > 0xFFFF)) {
+					throw wxString( wxT("Invalid Port" ) );
 				}
-
-				SED2KLinkSource entry = {addr, port};
+				
+				wxString sourcehash;
+				uint8 cryptoptions =0;
+				wxString strcryptoptions = sourceTokens.GetNextToken();
+				if (!strcryptoptions.IsEmpty()) {
+					cryptoptions = (uint8) StrToULong(strcryptoptions);
+					if ((cryptoptions & 0x80) > 0) {
+						// Source ready for encryption, hash included.
+						sourcehash = sourceTokens.GetNextToken();
+						if (sourcehash.IsEmpty()) {
+							throw wxString( wxT("Empty sourcehash conflicts with cryptoptions flag 0x80" ) );
+						}
+					}
+				}
+				
+				SED2KLinkSource entry = { addr, port, sourcehash, cryptoptions };
 
 				m_sources.push_back(entry);
 			}
@@ -210,7 +236,7 @@ CED2KFileLink::CED2KFileLink(const wxString& link)
 
 			while (hashTokens.HasMoreTokens()) {
 				CMD4Hash hash;
-				if (not hash.Decode(hashTokens.GetNextToken().Strip(wxString::both))) {
+				if (!hash.Decode(hashTokens.GetNextToken().Strip(wxString::both))) {
 					throw wxString(wxT("Invalid hash in part-hashes list"));
 				}
 
@@ -260,7 +286,7 @@ wxString CED2KFileLink::GetName() const
 }
 
 
-uint32 CED2KFileLink::GetSize() const
+uint64 CED2KFileLink::GetSize() const
 {
 	return m_size;
 }
@@ -282,4 +308,4 @@ const CAICHHash& CED2KFileLink::GetAICHHash() const
 {
 	return m_AICHHash;
 }
-
+// File_checked_for_headers

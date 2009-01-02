@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -39,7 +39,7 @@ class wxMouseEvent;
  *  - Copy
  *  - Paste
  *  - Clear
- *  - Selected All
+ *  - Select All
  *
  * Other than that, it acts exactly like an ordinary wxTextCtrl.
  */
@@ -100,3 +100,4 @@ protected:
 
 #endif
 
+// File_checked_for_headers

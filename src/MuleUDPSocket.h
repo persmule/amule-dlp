@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (C) 2005-2006aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -29,13 +29,10 @@
 #include "Types.h"				// Needed for uint16 and uint32
 #include "ThrottledSocket.h"	// Needed for ThrottledControlSocket
 #include "amuleIPV4Address.h"	// Needed for amuleIPV4Address
-#include <list>
 
-
-class CDatagramSocketProxy;
+class CEncryptedDatagramSocket;
 class CProxyData;
 class CPacket;
-
 
 /***
  * This class provides a UBT governed UDP-socket.
@@ -49,10 +46,11 @@ class CPacket;
  *  - Fallover recovery for when a socket becomes invalid (error 4).
  *
  * @see ThrottledControlSocket
- * @see CDatagramSocketProxy
+ * @see CEncryptedDatagramSocket
  */
 class CMuleUDPSocket : public ThrottledControlSocket
 {
+	
 public:
 	/**
 	 * Opens a UDP socket at the specified address.
@@ -87,16 +85,14 @@ public:
 	void Close();
 	
 	
-	/**
-	 * This function is called by aMule when the socket may send.
-	 */
-	virtual void	OnSend(int errorCode);
-
-	/**
-	 * This function is called by aMule when there are data to be received.
-	 */
-	virtual void	OnReceive(int errorCode);
-	
+	/** This function is called by aMule when the socket may send. */
+	virtual void OnSend(int errorCode);
+	/** This function is called by aMule when there are data to be received. */
+	virtual void OnReceive(int errorCode);
+	/** This function is called by aMule when there is an error while receiving. */
+	virtual void OnReceiveError(int errorCode, const wxIPV4address& addr);
+	/** This function is called when the socket is lost (see comments in func.) */
+	virtual void OnDisconnected(int errorCode);
 
 	/**
 	 * Queues a packet for sending.
@@ -104,10 +100,15 @@ public:
 	 * @param packet The packet to send.
 	 * @param IP The target IP address.
 	 * @param port The target port.
+	 * @param bEncrypt If the packet must be encrypted
+	 * @param port The target port.	 
+	 * @param pachTargetClientHashORKadID The client hash or Kad ID
+	 * @param bKad
+	 * @param nReceiverVerifyKey
 	 *
 	 * Note that CMuleUDPSocket takes ownership of the packet.
 	 */
-	void	SendPacket(CPacket* packet, uint32 IP, uint16 port);
+	void	SendPacket(CPacket* packet, uint32 IP, uint16 port, bool bEncrypt, const uint8* pachTargetClientHashORKadID, bool bKad, uint16 nReceiverVerifyKey);
 
 
 	/**
@@ -125,7 +126,7 @@ protected:
 	 * @param buffer The data that has been received.
 	 * @param length The length of the data buffer.
 	 */
-	virtual void OnPacketReceived(amuleIPV4Address& addr, byte* buffer, size_t length) = 0;
+	virtual void OnPacketReceived(const wxIPV4address& addr, byte* buffer, size_t length) = 0;
 
 	
 	/** See ThrottledControlSocket::SendControlData */
@@ -170,8 +171,7 @@ private:
 	//! Mutex needed due to the use of the UBT.
 	wxMutex					m_mutex;
 	//! The currently opened socket, if any.
-	CDatagramSocketProxy*	m_socket;
-
+	CEncryptedDatagramSocket*	m_socket;
 	
 	//! Storage struct used for queueing packets.
 	struct UDPPack
@@ -184,10 +184,19 @@ private:
 		uint32		IP;
 		//! Target port.
 		uint16		port;
-	};
+		//! If the packet is encrypted.
+		bool	bEncrypt;
+		//! Is it a kad packet?
+		bool	bKad;
+		// The verification key for RC4 encryption.
+		uint16 nReceiverVerifyKey;
+		// Client hash or kad ID.
+		uint8 pachTargetClientHashORKadID[16];		
+	} ;
 	
 	//! The queue of packets waiting to be sent.
 	std::list<UDPPack> m_queue;
 };
 
 #endif // CLIENTUDPSOCKET_H
+// File_checked_for_headers

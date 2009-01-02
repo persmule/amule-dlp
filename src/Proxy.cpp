@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2004-2006 Marcelo Jimenez ( phoenix@amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Marcelo Jimenez ( phoenix@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -26,15 +26,10 @@
 
 #include "Proxy.h"		/* for Interface		*/
 
-
-#include <typeinfo>		/* For bad_cast			*/
-#include <cctype>		/* For isspace() and isgraph()	*/
-
+#include <common/EventIDs.h>
 
 #include "ArchSpecific.h"	/* for ENDIAN_HTONS()		*/
 #include "Logger.h"		/* for AddDebugLogLineM		*/
-#include "OPCodes.h"		/* for PROXY_SOCKET_HANDLER	*/
-#include "NetworkFunctions.h"	/* for StringIPtoUint32()	*/
 #include "OtherFunctions.h"	/* for EncodeBase64()		*/
 #include <common/StringFunctions.h>	/* for unicode2char */
 
@@ -87,6 +82,8 @@ void CProxyData::Clear()
 
 #ifndef CLIENT_GUI
 
+#include <typeinfo> // Do_not_auto_remove (NetBSD, older gccs)
+
 //------------------------------------------------------------------------------
 // ProxyEventHandler
 //------------------------------------------------------------------------------
@@ -96,7 +93,7 @@ CProxyEventHandler::CProxyEventHandler()
 }
 
 BEGIN_EVENT_TABLE(CProxyEventHandler, wxEvtHandler)
-	EVT_SOCKET(PROXY_SOCKET_HANDLER, CProxyEventHandler::ProxySocketHandler)
+	EVT_SOCKET(ID_PROXY_SOCKET_EVENT, CProxyEventHandler::ProxySocketHandler)
 END_EVENT_TABLE()
 
 //
@@ -231,7 +228,7 @@ t_sm_state CProxyStateMachine::HandleEvent(t_sm_event event)
 
 void CProxyStateMachine::AddDummyEvent()
 {
-	wxSocketEvent e(PROXY_SOCKET_HANDLER);
+	wxSocketEvent e(ID_PROXY_SOCKET_EVENT);
 	// Make sure this is an unknown event :)
 	e.m_event = (wxSocketNotify)(
 		wxSOCKET_INPUT + wxSOCKET_OUTPUT +
@@ -245,8 +242,6 @@ void CProxyStateMachine::AddDummyEvent()
  * the event handler from the socket. They should be removed. For now,
  * please leave it here.
  */
-#include "ListenSocket.h"	// For CClientTCPSocketHandler
-#include "ServerSocket.h"	// For CServerSocketHandler
 
 void CProxyStateMachine::ReactivateSocket()
 {
@@ -1213,7 +1208,7 @@ bool CProxySocket::Start(const wxIPaddress &peerAddress)
 	// the event handler. The method SaveEventHandler() has been created
 	// for that.
 	SaveEventHandler();
-	SetEventHandler(g_proxyEventHandler, PROXY_SOCKET_HANDLER);
+	SetEventHandler(g_proxyEventHandler, ID_PROXY_SOCKET_EVENT);
 	SetNotify(
 		wxSOCKET_CONNECTION_FLAG |
 		wxSOCKET_INPUT_FLAG |
@@ -1479,3 +1474,4 @@ wxUint32 CDatagramSocketProxy::LastCount(void) const
 #endif // CLIENT_GUI
 
 /******************************************************************************/
+// File_checked_for_headers

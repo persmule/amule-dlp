@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -27,27 +27,10 @@
 #define CLIENTLISTCTRL_H
 
 #include "MuleListCtrl.h"		// Needed for CMuleListCtrl
+#include "Constants.h"			// Needed for ViewType
 
 
 class CUpDownClient;
-
-
-//! This enum lists the views currently supported by the CClientListCtrl class.
-enum ViewType
-{ 
-	//! The "neutral" state, where nothing is displayed.
-	vtNone = 0,
-	
-	//! Clients which are recieved files are displayed.
-	vtUploading = 1,
-	
-	//! Clients which are queued for files are displayed.
-	vtQueued = 2,
-	
-	//! All clients are displayed.
-	vtClients = 3
-};
-
 
 
 /**
@@ -260,7 +243,7 @@ struct CUploadingView
 	 *
 	 * @see wxListCtrl::SortItems
 	 */
-	static int wxCALLBACK SortProc(long item1, long item2, long sortData);
+	static int wxCALLBACK SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData);
 	
 	/**
 	 * Helperfunction which draws a simple bar-span over the clients requested file.
@@ -289,7 +272,7 @@ struct CQueuedView
 	/**
 	 * @see CUploadingView::SortProc
 	 */
-	static int wxCALLBACK SortProc(long item1, long item2, long sortData);
+	static int wxCALLBACK SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData);
 };
 
 
@@ -313,7 +296,8 @@ struct CClientsView
 	/**
 	 * @see CUploadingView::SortProc
 	 */
-	static int wxCALLBACK SortProc(long item1, long item2, long sortData);
+	static int wxCALLBACK SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData);
 };
 
 #endif
+// File_checked_for_headers

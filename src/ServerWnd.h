@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,8 +26,6 @@
 #ifndef SERVERWND_H
 #define SERVERWND_H
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
-#include <wx/panel.h>		// Needed for wxPanel
 #include <wx/splitter.h>	// Needed for wxSplitter
 
 
@@ -57,3 +55,4 @@ private:
 };
 
 #endif // SERVERWND_H
+// File_checked_for_headers

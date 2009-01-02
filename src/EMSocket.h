@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,16 +26,11 @@
 #ifndef EMSOCKET_H
 #define EMSOCKET_H
 
-#include "Proxy.h"				// Needed for CSocketClientProxy
+#include "EncryptedStreamSocket.h"				// Needed for CEncryptedStreamSocket
 
-#include "Types.h"				// Needed for uint8 and uint32
 #include "ThrottledSocket.h"	// Needed for ThrottledFileSocket
 
-#include <list>
-
-
 class CPacket;
-
 
 #define ERR_WRONGHEADER		0x01
 #define ERR_TOOBIG			0x02
@@ -48,10 +43,8 @@ class CPacket;
 const sint32 PACKET_HEADER_SIZE	= 6;
 
 
-class CEMSocket : public CSocketClientProxy, public ThrottledFileSocket
+class CEMSocket : public CEncryptedStreamSocket, public ThrottledFileSocket
 {
-	DECLARE_DYNAMIC_CLASS(CEMSocket)
-	
 public:
 	CEMSocket(const CProxyData *ProxyData = NULL);
 	virtual ~CEMSocket();
@@ -89,7 +82,7 @@ public:
 	virtual void	OnReceive(int nErrorCode);
 	
 protected:
-	bool RecievePending() { return pendingOnReceive; }
+
 	virtual bool	PacketReceived(CPacket* WXUNUSED(packet)) { return false; };
 	virtual void	OnClose(int nErrorCode);
 	
@@ -110,7 +103,7 @@ private:
 
 	// Download partial header
 	// actually, this holds only 'PACKET_HEADER_SIZE-1' bytes.
-	char	pendingHeader[PACKET_HEADER_SIZE];
+	byte	pendingHeader[PACKET_HEADER_SIZE];
 	uint32	pendingHeaderSize;
 
 	// Download partial packet
@@ -118,7 +111,7 @@ private:
 	uint32  pendingPacketSize;
 
 	// Upload control
-	char*	sendbuffer;
+	byte*	sendbuffer;
 	uint32	sendblen;
 	uint32	sent;
 
@@ -159,3 +152,4 @@ private:
 
 
 #endif // EMSOCKET_H
+// File_checked_for_headers

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,10 +26,6 @@
 #ifndef CLIENTDETAILDIALOG_H
 #define CLIENTDETAILDIALOG_H
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
-#ifdef __WXMSW__
-	#include <wx/msw/winundef.h>
-#endif
 #include <wx/dialog.h>		// Needed for wxDialog
 
 class CUpDownClient;
@@ -86,3 +82,4 @@ private:
 	CUpDownClient* m_client;
 };
 #endif // CLIENTDETAILDIALOG_H
+// File_checked_for_headers

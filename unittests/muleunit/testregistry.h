@@ -1,7 +1,7 @@
 //
 // MuleUnit: A minimalistic C++ Unit testing framework based on EasyUnit.
 //
-// Copyright (C) 2005-2006Mikkel Schubert (Xaignar@amule.org)
+// Copyright (c) 2005-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (C) 2004 Barthelemy Dagenais (barthelemy@prologique.com)
 //
 // This library is free software; you can redistribute it and/or
@@ -23,11 +23,16 @@
 #ifndef TESTREGISTRY_H
 #define TESTREGISTRY_H
 
-#include "testresult.h"
+#include <list>
 
 namespace muleunit
 {
 	class Test;
+	class TestCase;
+
+	
+typedef std::list<TestCase*> TestCaseList;
+
 
 /**
  * The TestRegistry is the main class used to register all tests,
@@ -50,23 +55,17 @@ public:
 	static void addTest(Test *test);
 
 	/**
-	 * Pass all tests in the registry to the TestRunner runner and
-	 * return the results of all tests ran. This will also print the results 
-	 * using the default test printer (normal level of details and to the 
-	 * standard output).
+	 * Runs all added tests and prints the results.
 	 *
-	 * @param runner The custom runner used to decided which test to run
-	 * @return The test results
+	 * @return False if there were failures.
 	 */
-	static const TestResult* runAndPrint();
+	static bool runAndPrint();
 
 private:
 	static TestRegistry& instance();
 	void add(Test *test);
 	
-	const TestResult* runTests();
-	TestResult m_testResult;
-
+	bool runTests();
 	TestCaseList m_testCases;
 };
 

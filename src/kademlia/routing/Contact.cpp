@@ -1,8 +1,8 @@
 //
 // This file is part of aMule Project
 //
-// Copyright (c) 2004-2006 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2006 aMule Project ( http://www.amule-project.net )
+// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2008 aMule Project ( http://www.amule-project.net )
 // Copyright (C)2003 Barry Dunne (http://www.emule-project.net)
 
 // This program is free software; you can redistribute it and/or
@@ -37,15 +37,10 @@ there client on the eMule forum..
 */
 
 #include "Contact.h"
-#include "../../amule.h"
-#include "../../OPCodes.h" // Neededf for MIN2MS and such stuff.
-#include "../../Statistics.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
+#include <common/Macros.h>
+
+#include "../../Statistics.h"
 
 ////////////////////////////////////////
 using namespace Kademlia;
@@ -56,92 +51,82 @@ CContact::~CContact()
 	theStats::RemoveKadNode();
 }
 
-CContact::CContact()
-{
-	m_clientID = 0;
-	m_ip = 0;
-	m_udpPort = 0;
-	m_tcpPort = 0;
-	initContact();
-}
-
 CContact::CContact(const CUInt128 &clientID, uint32 ip, uint16 udpPort, uint16 tcpPort, const CUInt128 &target)
+:
+m_clientID(clientID),
+m_distance(target),
+m_ip(ip),
+m_tcpPort(tcpPort),
+m_udpPort(udpPort),
+m_type(3),
+m_lastTypeSet(time(NULL)),
+m_expires(0),
+m_created(time(NULL)),
+m_inUse(0)
 {
-	m_clientID = clientID;
-	m_distance.setValue(target);
 	m_distance.XOR(clientID);
-	m_ip = ip;
-	m_udpPort = udpPort;
-	m_tcpPort = tcpPort;
-	initContact();
-}
-
-void CContact::initContact() 
-{
-	m_type = 3;
-	m_expires = 0;
-	m_lastTypeSet = time(NULL);
-	m_created = time(NULL);
-	m_inUse = 0;	
-
+	wxASSERT(udpPort);
 	theStats::AddKadNode();
+	//#warning Kry KAD2 - Update the version on code.
+	m_uVersion = 1;
 }
 
-const wxString CContact::getClientIDString(void) const
+const wxString CContact::GetClientIDString(void) const
 {
-	return m_clientID.toHexString();
+	return m_clientID.ToHexString();
 }
 
 #ifndef CLIENT_GUI
-void CContact::setClientID(const CUInt128 &clientID)
+void CContact::SetClientID(const CUInt128 &clientID)
 {
 	m_clientID = clientID;
-	m_distance = CKademlia::getPrefs()->getKadID();
+	m_distance = CKademlia::GetPrefs()->GetKadID();
 	m_distance.XOR(clientID);
 }
 #endif
 
-const wxString CContact::getDistanceString(void) const
+const wxString CContact::GetDistanceString(void) const
 {
-	return m_distance.toBinaryString();
+	return m_distance.ToBinaryString();
 }
 
-uint32 CContact::getIPAddress(void) const
+uint32 CContact::GetIPAddress(void) const
 {
 	return m_ip;
 }
 
-void CContact::setIPAddress(uint32 ip)
+void CContact::SetIPAddress(uint32 ip)
 {
 	m_ip = ip;
 }
 
-uint16 CContact::getTCPPort(void) const
+uint16 CContact::GetTCPPort(void) const
 {
 	return m_tcpPort;
 }
 
-void CContact::setTCPPort(uint16 port)
+void CContact::SetTCPPort(uint16 port)
 {
 	m_tcpPort = port;
 }
 
-uint16 CContact::getUDPPort(void) const
+uint16 CContact::GetUDPPort(void) const
 {
 	return m_udpPort;
 }
 
-void CContact::setUDPPort(uint16 port)
+void CContact::SetUDPPort(uint16 port)
 {
+	wxASSERT(port);
 	m_udpPort = port;
 }
 
-byte CContact::getType(void) const
+byte CContact::GetType(void) const
 {
 	return m_type;
 }
 
-void CContact::checkingType()
+void CContact::CheckingType()
 {
 	if(time(NULL) - m_lastTypeSet < 10 || m_type == 4) {
 		return;
@@ -154,7 +139,7 @@ void CContact::checkingType()
 
 }
 
-void CContact::updateType()
+void CContact::UpdateType()
 {
 	uint32 hours = (time(NULL)-m_created)/HR2S(1);
 	switch(hours) {
@@ -171,3 +156,4 @@ void CContact::updateType()
 			m_expires = time(NULL) + HR2S(2);
 	}
 }
+// File_checked_for_headers

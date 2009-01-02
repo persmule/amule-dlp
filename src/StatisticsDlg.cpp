@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,10 +23,6 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <wx/settings.h>
-#include <wx/stattext.h>
-#include <wx/sizer.h>
-#include <wx/thread.h>		// Needed for wxMutexLocker
 
 #include <cmath>		// Needed for std::ceil
 
@@ -35,8 +31,23 @@
 #include "OScopeCtrl.h"		// Needed for COScopeCtrl
 #include "Preferences.h"	// Needed for thePrefs
 #include "muuli_wdr.h"		// Needed for statsDlg()
-#include "Statistics.h"		// Needed for theStats
 #include "StatisticsDlg.h"	// Interface declarations
+
+
+class CTreeItemData : public wxTreeItemData
+{
+      public:
+	explicit CTreeItemData(uint32_t uniqueid)
+		: m_uniqueid(uniqueid)
+	{}
+
+	uint32_t GetUniqueId() const throw() { return m_uniqueid; }
+	void SetUniqueId(uint32_t val) throw() { m_uniqueid = val; }
+
+      private:
+	uint32_t m_uniqueid;
+};
+
 
 // CStatisticsDlg panel
 
@@ -147,9 +158,21 @@ void CStatisticsDlg::ApplyStatsColor(int index)
 void CStatisticsDlg::UpdateStatGraphs(bool bStatsVisible, const uint32 peakconnections, const GraphUpdateInfo& update)
 {
 	
-	const float *apfDown[] = { &update.downloads[0], &update.downloads[1], &update.downloads[2] };
-	const float *apfUp[] = { &update.uploads[0], &update.uploads[1], &update.uploads[2] };
-	const float *apfConn[] = { &update.connections[0], &update.connections[1], &update.connections[2] };
+	std::vector<float *> v1(3);
+	v1[0] = const_cast<float *>(&update.downloads[0]);
+	v1[1] = const_cast<float *>(&update.downloads[1]);
+	v1[2] = const_cast<float *>(&update.downloads[2]);
+	const std::vector<float *> &apfDown(v1);
+	std::vector<float *> v2(3);
+	v2[0] = const_cast<float *>(&update.uploads[0]);
+	v2[1] = const_cast<float *>(&update.uploads[1]);
+	v2[2] = const_cast<float *>(&update.uploads[2]);
+	const std::vector<float *> &apfUp(v2);
+	std::vector<float *> v3(3);
+	v3[0] = const_cast<float *>(&update.connections[0]);
+	v3[1] = const_cast<float *>(&update.connections[1]);
+	v3[2] = const_cast<float *>(&update.connections[2]);
+	const std::vector<float *> &apfConn(v3);
 	
 	if (!bStatsVisible) {
 		pscopeDL->DelayPoints();
@@ -232,18 +255,36 @@ void  CStatisticsDlg::InitTree()
 #endif
 }
 
+void CStatisticsDlg::GetExpandedNodes(NodeIdSet& nodeset, const wxTreeItemId& root)
+{
+	wxTreeItemIdValue cookie;
+	wxTreeItemId temp_it = stattree->GetFirstChild(root,cookie);
+	
+	while (temp_it.IsOk()) {
+		if (stattree->IsExpanded(temp_it)) {
+			nodeset.insert(dynamic_cast<CTreeItemData*>(stattree->GetItemData(temp_it))->GetUniqueId());
+		}
+		if (stattree->ItemHasChildren(temp_it)) {
+			GetExpandedNodes(nodeset, temp_it);
+		}
+		temp_it = stattree->GetNextSibling(temp_it);
+	}
+}
 
 void CStatisticsDlg::ShowStatistics(bool init)
 {
+	NodeIdSet ExpandedNodes;
+
 	// If it's not the first initialization of the tree, i.e. application startup
 	if (!init) {
+		GetExpandedNodes(ExpandedNodes, stattree->GetRootItem());
 		// Update sorting / get tree via EC
 		m_stats->UpdateStatsTree();
 	}
 	
 	CStatTreeItemBase* treeRoot = theStats::GetTreeRoot();
 	wxTreeItemId root = stattree->GetRootItem();
-	FillTree(treeRoot, root);
+	FillTree(treeRoot, root, ExpandedNodes);
 #ifdef CLIENT_GUI
 	if (!init) {
 		static bool firstUpdate = true;
@@ -268,7 +309,7 @@ void CStatisticsDlg::ShowStatistics(bool init)
 }
 
 
-void CStatisticsDlg::FillTree(CStatTreeItemBase* statssubtree, wxTreeItemId& StatsGUITree)
+void CStatisticsDlg::FillTree(CStatTreeItemBase* statssubtree, wxTreeItemId& StatsGUITree, const NodeIdSet& expandednodes)
 {
 	wxMutexLocker lock(statssubtree->GetLock());
 
@@ -287,14 +328,22 @@ void CStatisticsDlg::FillTree(CStatTreeItemBase* statssubtree, wxTreeItemId& Sta
 			// There's already a child there, update it.
 			stattree->SetItemText(temp_GUI_it, (*temp_it)->GetDisplayString());
 			temp_item = temp_GUI_it;
+			uint32_t uid = (*temp_it)->GetUniqueId();
+			dynamic_cast<CTreeItemData*>(stattree->GetItemData(temp_GUI_it))->SetUniqueId(uid);
+			if (expandednodes.find(uid) != expandednodes.end()) {
+				stattree->Expand(temp_GUI_it);
+			} else {
+				stattree->Collapse(temp_GUI_it);
+			}
 			temp_GUI_it = stattree->GetNextSibling(temp_GUI_it);
 		} else {
 			// No more child on GUI, add them.
 			temp_item = stattree->AppendItem(StatsGUITree,(*temp_it)->GetDisplayString());
+			stattree->SetItemData(temp_item, new CTreeItemData((*temp_it)->GetUniqueId()));
 		}
 		// Has childs?
 		if ((*temp_it)->HasVisibleChildren()) {
-			FillTree((*temp_it), temp_item);
+			FillTree((*temp_it), temp_item, expandednodes);
 		} else {
 			stattree->DeleteChildren(temp_item);
 		}
@@ -310,3 +359,4 @@ void CStatisticsDlg::FillTree(CStatTreeItemBase* statssubtree, wxTreeItemId& Sta
 		temp_GUI_it = backup_node;
 	}
 }
+// File_checked_for_headers

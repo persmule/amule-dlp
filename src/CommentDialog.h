@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -27,7 +27,6 @@
 #define COMMENTDIALOG_H
 
 #include <wx/dialog.h>		// Needed for wxDialog
-#include <wx/defs.h>		// Needed before any other wx/*.h
 #include <wx/choice.h>		// Needed for wxChoice
 
 class CKnownFile;
@@ -52,3 +51,4 @@ private:
 };
 
 #endif // COMMENTDIALOG_H
+// File_checked_for_headers

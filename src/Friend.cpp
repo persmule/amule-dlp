@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 // 
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,15 +23,11 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <ctime>			// Needed for time(2)
 
 #include "Friend.h"			// Interface declarations.
 #include "PartFile.h"		// Needed for CPartFile
 #include "updownclient.h"	// Needed for CUpDownClient
-#include "amule.h" 			// Needed for theApp / Notify_ChatRefreshFriend
-#include "OtherFunctions.h"
-#include "Tag.h"			// Needed for CTag
-#include "Logger.h"			// Needed for AddDebugLogLineM
+#include "GuiEvents.h"		// Needed for Notify_*
 
 
 CFriend::CFriend()
@@ -117,10 +113,9 @@ void CFriend::LoadFromFile(CFileDataIO* file)
 		CTag newtag(*file, true);
 		switch ( newtag.GetNameID() ) {
 			case FF_NAME:
-				#if wxUSE_UNICODE
-				if (m_strName.IsEmpty()) 
-				#endif
+				if (m_strName.IsEmpty()) {
 					m_strName = newtag.GetStr();
+				}
 				break;
 		}
 	}
@@ -136,18 +131,11 @@ void CFriend::WriteToFile(CFileDataIO* file)
 	file->WriteUInt32(m_dwLastSeen);
 	file->WriteUInt32(m_dwLastChatted);
 	
-	uint32 tagcount = ( m_strName.IsEmpty() ? 0 : 
-	#if wxUSE_UNICODE
-		2 );
-	#else
-		1 );
-	#endif
+	uint32 tagcount = ( m_strName.IsEmpty() ? 0 : 2 );
 	file->WriteUInt32(tagcount);			
 	if ( !m_strName.IsEmpty() ) {
-		CTag nametag(FF_NAME, m_strName);
-		#if wxUSE_UNICODE
-			nametag.WriteTagToFile(file, utf8strOptBOM);
-		#endif		
+		CTagString nametag(FF_NAME, m_strName);
+		nametag.WriteTagToFile(file, utf8strOptBOM);
 		nametag.WriteTagToFile(file);
 	}
 }
@@ -160,3 +148,4 @@ bool CFriend::HasFriendSlot() {
 		return false;
 	}
 }
+// File_checked_for_headers

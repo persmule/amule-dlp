@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -39,7 +39,6 @@ there client on the eMule forum..
 #ifndef __CONTACT_H__
 #define __CONTACT_H__
 
-#include "../utils/UInt128.h"
 #include "../kademlia/Prefs.h"
 #include "../kademlia/Kademlia.h"
 
@@ -49,58 +48,55 @@ namespace Kademlia {
 
 class CContact
 {
-	
 public:
-
 	~CContact();
-	CContact();
-	CContact(const CUInt128 &clientID, uint32 ip, uint16 udpPort, uint16 tcpPort, const CUInt128 &target = CKademlia::getPrefs()->getKadID());
+	CContact(const CUInt128 &clientID,
+		uint32 ip, uint16 udpPort, uint16 tcpPort,
+		const CUInt128 &target = CKademlia::GetPrefs()->GetKadID());
 
-	const CUInt128& getClientID(void) const { return m_clientID; };
-	void setClientID(const CUInt128 &clientID);
+	const CUInt128& GetClientID(void) const { return m_clientID; };
+	void SetClientID(const CUInt128 &clientID);
 
-	const wxString getClientIDString(void) const;
+	const wxString GetClientIDString(void) const;
 
-	const CUInt128& getDistance(void) const { return m_distance; }
-	const wxString getDistanceString(void) const;
+	const CUInt128& GetDistance(void) const { return m_distance; }
+	const wxString GetDistanceString(void) const;
 
-	uint32 getIPAddress(void) const;
-	void setIPAddress(uint32 ip);
+	uint32 GetIPAddress(void) const;
+	void SetIPAddress(uint32 ip);
 
-	uint16 getTCPPort(void) const;
-	void setTCPPort(uint16 port);
+	uint16 GetTCPPort(void) const;
+	void SetTCPPort(uint16 port);
 
-	uint16 getUDPPort(void) const;
-	void setUDPPort(uint16 port);
+	uint16 GetUDPPort(void) const;
+	void SetUDPPort(uint16 port);
 
-	byte getType(void) const;
+	byte GetType(void) const;
 	
-	void updateType();
-	void checkingType();
+	void UpdateType();
+	void CheckingType();
 	
-	bool inUse(void) {return (m_inUse>0); }
-	void incUse(void) {m_inUse++;}
-	void decUse(void) 
+	bool InUse(void) {return (m_inUse>0); }
+	void IncUse(void) {m_inUse++;}
+	void DecUse(void) 
 	{
 		if (m_inUse) {
 			m_inUse--;
-		}else {
+		} else {
 			wxASSERT(0);
 		}
 	}
 
-	const time_t getCreatedTime() const {return m_created;}
+	const time_t GetCreatedTime() const {return m_created;}
 
-	void setExpireTime(time_t value) { m_expires = value; };	
-	const time_t getExpireTime() const {return m_expires;}
+	void SetExpireTime(time_t value) { m_expires = value; };	
+	const time_t GetExpireTime() const {return m_expires;}
 
-	const time_t getLastTypeSet() const {return m_lastTypeSet;}	
-	
+	const time_t GetLastTypeSet() const {return m_lastTypeSet;}	
+
+	uint8 GetVersion() const { return m_uVersion; }
 	
 private:
-
-	void initContact(); // Common initialization goes here
-
 	CUInt128	m_clientID;
 	CUInt128	m_distance;
 	uint32		m_ip;
@@ -111,8 +107,13 @@ private:
 	time_t		m_expires;
 	time_t		m_created;
 	uint32		m_inUse;
+	
+	// Kad version
+	uint8 m_uVersion;
 };
 
 } // End namespace
 
 #endif // __CONTACT_H__
+
+// File_checked_for_headers

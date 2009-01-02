@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (C) 2005-2006aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -25,9 +25,9 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <wx/string.h>
-#include <wx/intl.h>
 #include <wx/log.h>
+#include <wx/event.h>
+
 
 enum DebugType 
 {
@@ -94,7 +94,11 @@ enum DebugType
 	//! Warnings/Errors related to partfile importer
 	logPfConvert,
 	//! Warnings/Errors related to the basic UDP socket-class.
-	logMuleUDP
+	logMuleUDP,
+	//! Warnings/Errors related to the thread-scheduler.
+	logThreads,
+	//! Warnings/Errors related to the Universal Plug and Play subsistem.
+	logUPnP
 	// IMPORTANT NOTE: when you add values to this enum, update the g_debugcats
 	// array in Logger.cpp!
 };
@@ -155,17 +159,19 @@ namespace CLogger
 	/**
 	 * Returns true if debug-messages should be generated for a specific category.
 	 */
-	bool 	IsEnabled( DebugType );
+	bool IsEnabled( DebugType );
 	
 	/**
 	 * Enables or disables debug-messages for a specific category.
 	 */
-	void		SetEnabled( DebugType type, bool enabled );
+	void SetEnabled( DebugType type, bool enabled );
 
 	
 	/**
 	 * Logs the specified line of text.
 	 *
+	 * @param file
+	 * @param line
 	 * @param critical If true, then the message will be made visible directly to the user.
 	 * @param str The actual line of text.
 	 *
@@ -173,11 +179,17 @@ namespace CLogger
 	 * event will be sent directly to the application, otherwise it will be
 	 * queued in the event-loop.
 	 */
-	void		AddLogLine( bool critical, const wxString str );
-	
+	void AddLogLine(
+		const wxString &file,
+		int line,
+		bool critical,
+		const wxString &str);
+
 	/**
-	 * Logs the specified line of text as debug-info.
+	 * Logs the specified line of text, prefixed with the name of the DebugType.
 	 *
+	 * @param file
+	 * @param line
 	 * @param critical If true, then the message will be made visible directly to the user.
 	 * @param type The debug-category, the name of which will be prepended to the line.
 	 * @param str The actual line of text.
@@ -186,7 +198,12 @@ namespace CLogger
 	 * event will be sent directly to the application, otherwise it will be
 	 * queued in the event-loop.
 	 */
-	void		AddDebugLogLine( bool critical, DebugType type, const wxString& str );
+	void AddLogLine(
+		const wxString &file,
+		int line,
+		bool critical,
+		DebugType type,
+		const wxString &str);
 
 
 	/**
@@ -196,7 +213,7 @@ namespace CLogger
 	 *       logfile even when queued to avoid risk of
 	 *       data loss.
 	 */
-	void		FlushPendingEntries();
+	void FlushPendingEntries();
 	
 	/**
 	 * Returns a category specified by index.
@@ -206,7 +223,7 @@ namespace CLogger
 	/**
 	 * Returns the number of debug-categories.
 	 */
-	unsigned int 			GetDebugCategoryCount();
+	unsigned int GetDebugCategoryCount();
 }
 
 
@@ -225,29 +242,79 @@ public:
 };
 
 
+DECLARE_LOCAL_EVENT_TYPE(MULE_EVT_LOGLINE, -1)
+
+
+/** This event is sent when a log-line is queued. */
+class CLoggingEvent : public wxEvent
+{
+public:
+	CLoggingEvent(bool critical, const wxString& msg)
+		: wxEvent(-1, MULE_EVT_LOGLINE)
+		, m_critical(critical)
+		// Deep copy, to avoid thread-unsafe reference counting. */
+		, m_msg(msg.c_str(), msg.Length())
+	{
+	}
+	
+	const wxString& Message() const {
+		return m_msg;
+	}
+
+	bool IsCritical() const {
+		return m_critical;
+	}
+
+	wxEvent* Clone() const {
+		return new CLoggingEvent(m_critical, m_msg);
+	}
+	
+private:
+	bool		m_critical;
+	wxString	m_msg;
+};
+
+
+typedef void (wxEvtHandler::*MuleLogEventFunction)(CLoggingEvent&);
+
+//! Event-handler for completed hashings of new shared files and partfiles.
+#define EVT_MULE_LOGGING(func) \
+	DECLARE_EVENT_TABLE_ENTRY(MULE_EVT_LOGLINE, -1, -1, \
+	(wxObjectEventFunction) (wxEventFunction) \
+	wxStaticCastEvent(MuleLogEventFunction, &func), (wxObject*) NULL),
+
+
+/**
+ * These macros should be used when logging. The 
+ * AddLogLineM macro will simply call one of the
+ * two CLogger::AddLogLine functions depending on
+ * paramteres, but AddDebugLogLineM will only log
+ * a message if the message is either critical or
+ * the specified debug-type is enabled in the 
+ * preferences.
+ */
 #if defined(MULEUNIT)
 	#define AddDebugLogLineM(critical, type, string) do {} while (false)
-	#define AddLogLineM(critical, string) do {} while (false)
-#elif defined(__DEBUG__)
-	#define AddDebugLogLineM(critical, type, string) \
-	do { \
-		if (critical || CLogger::IsEnabled(type)) { \
-			CLogger::AddDebugLogLine(critical, type, string); \
-		} \
-	} while (false)
-
-	#define AddLogLineM(critical, string) \
-		CLogger::AddLogLine(critical, string)
+	#define AddLogLineM(...) do {} while (false)
 #else
-	#define AddDebugLogLineM(critical, type, string) \
-	do { \
-		if (critical) { \
-			CLogger::AddDebugLogLine(critical, type, string); \
-		} \
-	} while (false)
+	#ifdef __DEBUG__
+		#define AddDebugLogLineM(critical, type, string) \
+		do { \
+			if (critical || CLogger::IsEnabled(type)) { \
+				CLogger::AddLogLine(__TFILE__, __LINE__, critical, type, string); \
+			} \
+		} while (false)
+	#else
+		#define AddDebugLogLineM(critical, type, string) \
+		do { \
+			if (critical) { \
+				CLogger::AddLogLine(__TFILE__, __LINE__, critical, type, string); \
+			} \
+		} while (false)
+	#endif
 
-	#define AddLogLineM(critical, string) \
-		CLogger::AddLogLine(critical, string)
+	#define AddLogLineM(...) CLogger::AddLogLine(__TFILE__, __LINE__, __VA_ARGS__)
 #endif
 
 #endif
+// File_checked_for_headers

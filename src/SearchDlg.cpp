@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,24 +23,19 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <wx/sizer.h>
-#include <wx/gauge.h>
-#include <wx/textctrl.h>
-#include <wx/msgdlg.h>
-#include <wx/menu.h>
-#include <wx/checkbox.h>
-#include <wx/statbox.h>
-#include <wx/choice.h>
+#include <wx/app.h>
+
+#include <wx/gauge.h>		// Do_not_auto_remove (win32)
+
+#include <tags/FileTags.h>
 
 #include "SearchDlg.h"		// Interface declarations.
-#include <common/StringFunctions.h>		// Needed for unicode2char
 #include "SearchListCtrl.h"	// Needed for CSearchListCtrl
 #include "muuli_wdr.h"		// Needed for IDC_STARTS
 #include "amuleDlg.h"		// Needed for CamuleDlg
 #include "MuleNotebook.h"
 #include "GetTickCount.h"
 #include "Preferences.h"
-#include "OtherFunctions.h"	// Needed for URLEncode, GetTypeSize
 #include "amule.h"			// Needed for theApp
 #include "SearchList.h"		// Needed for CSearchList
 #include <common/Format.h>
@@ -67,7 +62,7 @@ BEGIN_EVENT_TABLE(CSearchDlg, wxPanel)
 	EVT_CHECKBOX(IDC_EXTENDEDSEARCHCHECK,CSearchDlg::OnExtendedSearchChange)
 	EVT_CHECKBOX(IDC_FILTERCHECK,CSearchDlg::OnFilterCheckChange)
 	
-	EVT_MULENOTEBOOK_PAGE_CLOSED(ID_NOTEBOOK, CSearchDlg::OnSearchClosed)
+	EVT_MULENOTEBOOK_PAGE_CLOSING(ID_NOTEBOOK, CSearchDlg::OnSearchClosing)
 	EVT_NOTEBOOK_PAGE_CHANGED(ID_NOTEBOOK, CSearchDlg::OnSearchPageChanged)
 
 	// Event handlers for the parameter fields getting changed
@@ -99,7 +94,7 @@ CSearchDlg::CSearchDlg(wxWindow* pParent)
 	m_notebook = CastChild( ID_NOTEBOOK, CMuleNotebook );
 
 #if defined(__WXMAC__)
-	#warning TODO: restore the image list if/when wxMac supports locating the image
+	//#warning TODO: restore the image list if/when wxMac supports locating the image
 #else
 	// Initialise the image list
 	wxImageList* m_ImageList = new wxImageList(16,16);
@@ -109,7 +104,7 @@ CSearchDlg::CSearchDlg(wxWindow* pParent)
 #endif
 	
 	// Sanity sanity
-	wxASSERT(CastChild( ID_SEARCHTYPE, wxChoice )->GetString(0) == _("Local Search"));
+	wxASSERT(CastChild( ID_SEARCHTYPE, wxChoice )->GetString(0) == _("Local"));
 	wxASSERT(CastChild( ID_SEARCHTYPE, wxChoice )->GetString(2) == _("Kad"));
 
 	if (thePrefs::GetNetworkED2K()){
@@ -135,7 +130,7 @@ CSearchDlg::~CSearchDlg()
 }
 
 
-CSearchListCtrl* CSearchDlg::GetSearchList( long id )
+CSearchListCtrl* CSearchDlg::GetSearchList( wxUIntPtr id )
 {
 	int nPages = m_notebook->GetPageCount();
 	for ( int i = 0; i < nPages; i++ ) {
@@ -208,17 +203,18 @@ void CSearchDlg::OnFilterCheckChange(wxCommandEvent& event)
 }
 
 
-void CSearchDlg::OnSearchClosed(wxNotebookEvent& evt) 
+void CSearchDlg::OnSearchClosing(wxNotebookEvent& evt) 
 {
 	// Abort global search if it was last tab that was closed.
 	if ( evt.GetSelection() == ((int)m_notebook->GetPageCount() - 1 ) ) {
 		OnBnClickedStop(nullEvent);
 	}
+
 	CSearchListCtrl *ctrl = dynamic_cast<CSearchListCtrl*>(m_notebook->GetPage(evt.GetSelection()));
 	wxASSERT(ctrl);
 	// Zero to avoid results added while destructing.
 	ctrl->ShowResults(0);
-	theApp.searchlist->RemoveResults(ctrl->GetSearchId());
+	theApp->searchlist->RemoveResults(ctrl->GetSearchId());
 	
 	// Do cleanups if this was the last tab
 	if ( m_notebook->GetPageCount() == 1 ) {
@@ -232,11 +228,39 @@ void CSearchDlg::OnSearchPageChanged(wxNotebookEvent& WXUNUSED(evt))
 {
 	int selection = m_notebook->GetSelection();
 
+	// Workaround for a bug in wxWidgets, where deletions of pages
+	// can result in an invalid selection. This has been reported as
+	// http://sourceforge.net/tracker/index.php?func=detail&aid=1865141&group_id=9863&atid=109863
+	if (selection >= (int)m_notebook->GetPageCount()) {
+		selection = m_notebook->GetPageCount() - 1;
+	}
+
 	// Only enable the Download button for pages where files have been selected
 	if ( selection != -1 ) {
-		bool enable = dynamic_cast<CSearchListCtrl*>(m_notebook->GetPage(selection))->GetSelectedItemCount();
+		CSearchListCtrl *ctrl = dynamic_cast<CSearchListCtrl*>(m_notebook->GetPage(selection));
 
+		bool enable = ctrl->GetSelectedItemCount();
 		FindWindow(IDC_SDOWNLOAD)->Enable( enable );
+
+		// set IDC_SEARCHNAME control to search text of currently selected tab
+		wxString SearchText = m_notebook->GetPageText(selection).BeforeLast(wxT(' '));
+		wxString rest;
+		if (SearchText.StartsWith(wxT("!"), &rest)) {
+		    SearchText = rest;
+		}
+
+		// This check is needed because some wxWidgets (tested with
+		// 2.8.7) will return an empty string during the page-changed
+		// event resulting from the first page to being inserted. This
+		// has been reported as patch #1895161:
+		// http://sourceforge.net/tracker/index.php?func=detail&aid=1895161&group_id=9863&atid=309863
+		if (SearchText.Length()) {
+			CastChild(IDC_SEARCHNAME, wxTextCtrl)->SetValue(SearchText);
+
+		}
+		
+		// Select everything.
+		CastChild(IDC_SEARCHNAME, wxTextCtrl)->SetSelection(-1, -1);
 	}
 
 }
@@ -275,7 +299,7 @@ void CSearchDlg::OnBnClickedStart(wxCommandEvent& WXUNUSED(evt))
 
 		// Web Search (FileHash.com)
 		case 3:
-			theApp.amuledlg->LaunchUrl(theApp.amuledlg->GenWebSearchUrl(searchString, CamuleDlg::wsFileHash));
+			theApp->amuledlg->LaunchUrl(theApp->amuledlg->GenWebSearchUrl(searchString, CamuleDlg::WS_FILEHASH));
 			break;
 
 		// Error
@@ -297,15 +321,15 @@ void CSearchDlg::OnFieldChanged( wxEvent& WXUNUSED(evt) )
 	}
 
 	// Check if either of the dropdowns have been changed
-	enable |= CastChild(IDC_SEARCHMINSIZE, wxChoice)->GetSelection() != 2;
-	enable |= CastChild(IDC_SEARCHMAXSIZE, wxChoice)->GetSelection() != 2;
-	enable |= CastChild(IDC_TypeSearch, wxChoice)->GetSelection();
-	enable |= CastChild(ID_AUTOCATASSIGN, wxChoice)->GetSelection();
+	enable |= (CastChild(IDC_SEARCHMINSIZE, wxChoice)->GetSelection() != 2);
+	enable |= (CastChild(IDC_SEARCHMAXSIZE, wxChoice)->GetSelection() != 2);
+	enable |= (CastChild(IDC_TypeSearch, wxChoice)->GetSelection() > 0);
+	enable |= (CastChild(ID_AUTOCATASSIGN, wxChoice)->GetSelection() > 0);
 	
 	// These are the IDs of the search-fields
 	int spinfields[] = { IDC_SPINSEARCHMIN, IDC_SPINSEARCHMAX, IDC_SPINSEARCHAVAIBILITY };
 	for ( uint16 i = 0; i < itemsof(spinfields); i++ ) {
-		enable |= CastChild( spinfields[i], wxSpinCtrl )->GetValue();
+		enable |= (CastChild( spinfields[i], wxSpinCtrl )->GetValue() > 0);
 	}
 
 	// Enable the "Reset" button if any fields contain text
@@ -352,7 +376,7 @@ bool CSearchDlg::CheckTabNameExists(const wxString& searchString)
 }
 
 
-void CSearchDlg::CreateNewTab(const wxString& searchString, long nSearchID)
+void CSearchDlg::CreateNewTab(const wxString& searchString, wxUIntPtr nSearchID)
 {
 	CSearchListCtrl* list = new CSearchListCtrl( (wxWindow*)m_notebook, ID_SEARCHLISTCTRL, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxNO_BORDER);
 	m_notebook->AddPage(list, searchString, true, 0);
@@ -374,7 +398,7 @@ void CSearchDlg::CreateNewTab(const wxString& searchString, long nSearchID)
 
 void CSearchDlg::OnBnClickedStop(wxCommandEvent& WXUNUSED(evt))
 {
-	theApp.searchlist->StopGlobalSearch();
+	theApp->searchlist->StopGlobalSearch();
 	ResetControls();
 }
 
@@ -393,6 +417,20 @@ void CSearchDlg::LocalSearchEnd()
 	ResetControls();
 }
 
+void CSearchDlg::KadSearchEnd(uint32 id)
+{
+	int nPages = m_notebook->GetPageCount();
+	for (int i = 0; i < nPages; ++i) {
+		CSearchListCtrl* page =
+			dynamic_cast<CSearchListCtrl*>(m_notebook->GetPage(i));
+		if (page->GetSearchId() == id) {
+			wxString rest;
+			if (m_notebook->GetPageText(i).StartsWith(wxT("!"),&rest)) {
+				m_notebook->SetPageText(i,rest);
+			}			
+		}
+	}
+}
 
 void CSearchDlg::OnBnClickedDownload(wxCommandEvent& WXUNUSED(evt))
 {
@@ -425,95 +463,90 @@ void CSearchDlg::StartNewSearch()
 	FindWindow(IDC_STARTS)->Disable();
 	FindWindow(IDC_SDOWNLOAD)->Disable();
 	FindWindow(IDC_CANCELS)->Enable();
+
+	CSearchList::CSearchParams params;
 	
-	wxString searchString = CastChild( IDC_SEARCHNAME, wxTextCtrl )->GetValue();
-	searchString.Trim(true);
-	searchString.Trim(false);	
-	if ( searchString.IsEmpty() ) {
+	params.searchString = CastChild( IDC_SEARCHNAME, wxTextCtrl )->GetValue();
+	params.searchString.Trim(true);
+	params.searchString.Trim(false);
+	
+	if (params.searchString.IsEmpty()) {
 		return;
 	}
 
-	wxString typeText, extension;
-	uint32 min = 0, max = 0, availability = 0;
-	
 	if (CastChild(IDC_EXTENDEDSEARCHCHECK, wxCheckBox)->GetValue()) {
-
-		extension = CastChild( IDC_EDITSEARCHEXTENSION, wxTextCtrl )->GetValue();
+		params.extension = CastChild( IDC_EDITSEARCHEXTENSION, wxTextCtrl )->GetValue();
 
 		uint32 sizemin = GetTypeSize( (uint8) CastChild( IDC_SEARCHMINSIZE, wxChoice )->GetSelection() ); 
 		uint32 sizemax = GetTypeSize( (uint8) CastChild( IDC_SEARCHMAXSIZE, wxChoice )->GetSelection() );
 
 		// Parameter Minimum Size
-		min = CastChild( IDC_SPINSEARCHMIN, wxSpinCtrl )->GetValue() * sizemin;
+		params.minSize = CastChild( IDC_SPINSEARCHMIN, wxSpinCtrl )->GetValue() * sizemin;
 
 		// Parameter Maximum Size
-		max = CastChild( IDC_SPINSEARCHMAX, wxSpinCtrl )->GetValue() * sizemax;
+		params.maxSize = CastChild( IDC_SPINSEARCHMAX, wxSpinCtrl )->GetValue() * sizemax;
 
-		if ((max < min) and max) {
-			wxMessageDialog* dlg = new wxMessageDialog(this, _("Min size must be smaller than max size. Max size ignored."), _("Search warning"), wxOK|wxCENTRE|wxICON_INFORMATION);
-			dlg->ShowModal();
-			delete dlg;
-			max = 0;
+		if ((params.maxSize < params.minSize) && (params.maxSize)) {
+			wxMessageDialog dlg(this,
+				_("Min size must be smaller than max size. Max size ignored."),
+				_("Search warning"), wxOK|wxCENTRE|wxICON_INFORMATION);
+			dlg.ShowModal();
+			
+			params.maxSize = 0;
 		}
 
 		// Parameter Availability
-		availability = CastChild( IDC_SPINSEARCHAVAIBILITY, wxSpinCtrl )->GetValue();
-
+		params.availability = CastChild( IDC_SPINSEARCHAVAIBILITY, wxSpinCtrl )->GetValue();
+		
 		switch ( CastChild( IDC_TypeSearch, wxChoice )->GetSelection() ) {
-			case 0:	typeText = wxEmptyString;	break;
-			case 1:	typeText = ED2KFTSTR_ARCHIVE; 	break;
-			case 2: typeText = ED2KFTSTR_AUDIO;	break;
-			case 3:	typeText = ED2KFTSTR_CDIMAGE;	break;
-			case 4: typeText = ED2KFTSTR_IMAGE;	break;
-			case 5: typeText = ED2KFTSTR_PROGRAM;	break;
-			case 6:	typeText = ED2KFTSTR_DOCUMENT;	break;
-			case 7:	typeText = ED2KFTSTR_VIDEO;	break;
-			default:
-				AddDebugLogLineM( true, logGeneral,
-					CFormat( wxT("Warning! Unknown search-category (%s) selected!") )
-						% typeText
-				);
-				break;
+		case 0:	params.typeText = wxEmptyString;	break;
+		case 1:	params.typeText = ED2KFTSTR_ARCHIVE;	break;
+		case 2: params.typeText = ED2KFTSTR_AUDIO;	break;
+		case 3:	params.typeText = ED2KFTSTR_CDIMAGE;	break;
+		case 4: params.typeText = ED2KFTSTR_IMAGE;	break;
+		case 5: params.typeText = ED2KFTSTR_PROGRAM;	break;
+		case 6:	params.typeText = ED2KFTSTR_DOCUMENT;	break;
+		case 7:	params.typeText = ED2KFTSTR_VIDEO;	break;
+		default:
+			AddDebugLogLineM( true, logGeneral,
+				CFormat( wxT("Warning! Unknown search-category (%s) selected!") )
+					% params.typeText
+			);
+			break;
 		}
-		// This will break if we change the order (good to know!)
-#warning FIXME: Restore this assertion after release.
-		// If you start a new search with file type "video" e.g., you get an assert because 
-		// ED2KFTSTR_VIDEO is equal to "Video", while GetStringSelection() returns "Videos"
-		// I'd rather not fix this before release, because assertions do not go into releases
-		// and fixing this implies a change in strings, which would be a burden to all translators.
-		//wxASSERT(CastChild( IDC_TypeSearch, wxChoice )->GetStringSelection() == wxGetTranslation(typeText));
 	}
 
 	SearchType search_type = KadSearch;
-	
-	uint32 real_id = m_nSearchID;
-	
 	switch (CastChild( ID_SEARCHTYPE, wxChoice )->GetSelection()) {
-		case 0: // Local Search	
-			search_type = LocalSearch;
-		case 1: // Global Search
-			if (search_type != LocalSearch) {
-				search_type = GlobalSearch;
-			}
-		case 2: { // Kad search 
-			wxString error = theApp.searchlist->StartNewSearch(&real_id, search_type, searchString, typeText, extension, min, max, availability);
-			if (!error.IsEmpty()) {
-				// Search failed / Remote in progress
-				wxMessageBox(error, _("Search warning."), wxOK|wxCENTRE|wxICON_INFORMATION,this);
-				FindWindow(IDC_STARTS)->Enable();
-				FindWindow(IDC_SDOWNLOAD)->Disable();
-				FindWindow(IDC_CANCELS)->Disable();
-				return;
-			}
-			break;
-		}
-		default:
-			// Should never happen
-			wxASSERT(0);
-			break;
+	case 0: // Local Search	
+		search_type = LocalSearch;
+		break;
+	case 1: // Global Search
+		search_type = GlobalSearch;
+		break;
+	case 2: // Kad search 
+		search_type = KadSearch;
+		break;
+	default:
+		// Should never happen
+		wxASSERT(0);
+		break;
 	}
-	
-	CreateNewTab(searchString + wxT(" (0)"), real_id);
+	uint32 real_id = m_nSearchID;
+	wxString error = theApp->searchlist->StartNewSearch(&real_id, search_type, params);
+	if (!error.IsEmpty()) {
+		// Search failed / Remote in progress
+		wxMessageBox(error, _("Search warning"),
+			wxOK | wxCENTRE | wxICON_INFORMATION, this);
+		FindWindow(IDC_STARTS)->Enable();
+		FindWindow(IDC_SDOWNLOAD)->Disable();
+		FindWindow(IDC_CANCELS)->Disable();
+	} else {
+		CreateNewTab(
+			((search_type == KadSearch) ? wxT("!") : wxEmptyString) +
+				params.searchString + wxT(" (0)"),
+			real_id);
+	}
 }
 
 
@@ -565,8 +598,8 @@ void CSearchDlg::UpdateCatChoice()
 	
 	c_cat->Append(_("Main"));
 
-	for ( unsigned i = 1; i < theApp.glob_prefs->GetCatCount(); i++ ) {
-		c_cat->Append( theApp.glob_prefs->GetCategory( i )->title );
+	for ( unsigned i = 1; i < theApp->glob_prefs->GetCatCount(); i++ ) {
+		c_cat->Append( theApp->glob_prefs->GetCategory( i )->title );
 	}
 	
 	c_cat->SetSelection( 0 );
@@ -575,3 +608,4 @@ void CSearchDlg::UpdateCatChoice()
 void	CSearchDlg::UpdateProgress(uint32 new_value) {
 	m_progressbar->SetValue(new_value);
 }
+// File_checked_for_headers

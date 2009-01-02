@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,33 +23,34 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <wx/settings.h>
-#include <wx/splitter.h>
-#include <wx/defs.h>		// Needed before any other wx/*.h
-#include <wx/sizer.h>		// Needed for wxSizer
-#include <wx/menu.h>
-#include <wx/msgdlg.h>
-#include <wx/stattext.h>
-#include <wx/bmpbuttn.h>
+#include "TransferWnd.h"	// Interface declarations
+
+#include <common/MenuIDs.h>
+
 #include <wx/config.h>
 
-#include "TransferWnd.h"	// Interface declarations
-#include "amuleDlg.h"		// Needed for CamuleDlg
-#include "PartFile.h"		// Needed for PR_LOW
-#include "DownloadQueue.h"	// Needed for CDownloadQueue
-#include "CatDialog.h"		// Needed for CCatDialog
-#include "OPCodes.h"		// Needed for MP_CAT_SET0
-#include "DownloadListCtrl.h"	// Needed for CDownloadListCtrl
-#include "ClientListCtrl.h"	// Needed for CClientListCtrl
-#include "OtherFunctions.h"	// Needed for GetCatTitle
-#include "amule.h"		// Needed for theApp
-#include "muuli_wdr.h"		// Needed for ID_CATEGORIES
-#include "SearchDlg.h"		// Needed for CSearchDlg->UpdateCatChoice()
+
+// This include must be before amuleDlg.h
+#ifdef __WXMSW__
+    #include <wx/msw/winundef.h>	// Needed for windows compilation
+#endif
+
+
+#include "amuleDlg.h"			// Needed for CamuleDlg
+#include "PartFile.h"			// Needed for PR_LOW
+#include "DownloadQueue.h"		// Needed for CDownloadQueue
+#include "CatDialog.h"			// Needed for CCatDialog
+#include "DownloadListCtrl.h"		// Needed for CDownloadListCtrl
+#include "ClientListCtrl.h"		// Needed for CClientListCtrl
+#include "amule.h"			// Needed for theApp
+#include "muuli_wdr.h"			// Needed for ID_CATEGORIES
+#include "SearchDlg.h"			// Needed for CSearchDlg->UpdateCatChoice()
 #include "MuleNotebook.h"
 #include "Preferences.h"
-#include "ClientList.h"
-#include "Statistics.h"		// Needed for theStats
+#include "Statistics.h"			// Needed for theStats
 #include "SharedFileList.h"		// Needed for CSharedFileList
+#include "GuiEvents.h"			// Needed for CoreNotify_*
+
 
 BEGIN_EVENT_TABLE(CTransferWnd, wxPanel)
 	EVT_RIGHT_DOWN(CTransferWnd::OnNMRclickDLtab)
@@ -92,12 +93,12 @@ CTransferWnd::CTransferWnd( wxWindow* pParent )
 	nb->SetPopupHandler( this );
 	
 	// Set default category
-	theApp.glob_prefs->GetCategory(0)->title = GetCatTitle(thePrefs::GetAllcatType());
-	theApp.glob_prefs->GetCategory(0)->incomingpath = thePrefs::GetIncomingDir();
+	theApp->glob_prefs->GetCategory(0)->title = GetCatTitle(thePrefs::GetAllcatType());
+	theApp->glob_prefs->GetCategory(0)->path = thePrefs::GetIncomingDir();
 	
 	// Show default + userdefined categories
-	for ( uint32 i = 0; i < theApp.glob_prefs->GetCatCount(); i++ ) {
-		m_dlTab->AddPage( new wxPanel(m_dlTab), theApp.glob_prefs->GetCategory(i)->title );
+	for ( uint32 i = 0; i < theApp->glob_prefs->GetCatCount(); i++ ) {
+		m_dlTab->AddPage( new wxPanel(m_dlTab), theApp->glob_prefs->GetCategory(i)->title );
 	}
 
 	m_menu = NULL;
@@ -151,27 +152,19 @@ void CTransferWnd::AddCategory( Category_Struct* category )
 	// Update the title
 	UpdateCategory( m_dlTab->GetPageCount() - 1 );
 
-	theApp.amuledlg->searchwnd->UpdateCatChoice();
-}
-
-void CTransferWnd::RemoveCategory(int index)
-{
-	m_dlTab->RemovePage(index);
-				
-	m_dlTab->SetSelection(0);
-	downloadlistctrl->ChangeCategory(0);
+	theApp->amuledlg->m_searchwnd->UpdateCatChoice();
 }
 
 void CTransferWnd::UpdateCategory( int index, bool titleChanged )
 {
-	wxString label = theApp.glob_prefs->GetCategory( index )->title;
+	wxString label = theApp->glob_prefs->GetCategory( index )->title;
 
 	if ( thePrefs::ShowCatTabInfos() ) {
 		uint16 files = 0;
 		uint16 download = 0;
 		
-		for ( unsigned int i = 0; i < theApp.downloadqueue->GetFileCount(); ++i ) {
-			CPartFile *cur_file = theApp.downloadqueue->GetFileByIndex(i);
+		for ( unsigned int i = 0; i < theApp->downloadqueue->GetFileCount(); ++i ) {
+			CPartFile *cur_file = theApp->downloadqueue->GetFileByIndex(i);
 			
 			if ( cur_file && cur_file->CheckShowItemInGivenCat(index) ) {
 				files++;
@@ -189,7 +182,7 @@ void CTransferWnd::UpdateCategory( int index, bool titleChanged )
 
 
 	if ( titleChanged ) {
-		theApp.amuledlg->searchwnd->UpdateCatChoice();
+		theApp->amuledlg->m_searchwnd->UpdateCatChoice();
 	}
 	
 }
@@ -224,7 +217,7 @@ void CTransferWnd::OnSetCatPriority( wxCommandEvent& event )
 }
 
 
-void CTransferWnd::OnAddCategory( wxCommandEvent& WXUNUSED(event) )
+void CTransferWnd::OnAddCategory(wxCommandEvent& WXUNUSED(event))
 {
 	CCatDialog dialog( this,
 	// Allow browse?
@@ -236,37 +229,48 @@ void CTransferWnd::OnAddCategory( wxCommandEvent& WXUNUSED(event) )
 	);
 	if (dialog.ShowModal() == wxOK) {
 		// Add the files on this folder.
-		Category_Struct* newcat = theApp.glob_prefs->GetCategory(theApp.glob_prefs->GetCatCount()-1);
-		theApp.sharedfiles->AddFilesFromDirectory(newcat->incomingpath);
-		theApp.sharedfiles->Reload();		
+		Category_Struct* newcat =
+			theApp->glob_prefs->GetCategory(
+				theApp->glob_prefs->GetCatCount()-1);
+		theApp->sharedfiles->AddFilesFromDirectory(newcat->path);
+		theApp->sharedfiles->Reload();		
 	}
 }
 
 
-void CTransferWnd::OnDelCategory( wxCommandEvent& WXUNUSED(event) )
+void CTransferWnd::OnDelCategory(wxCommandEvent& WXUNUSED(event))
 {
-	if ( m_dlTab->GetSelection() > 0 ) {
-		theApp.downloadqueue->ResetCatParts( m_dlTab->GetSelection() );
-		theApp.glob_prefs->RemoveCat( m_dlTab->GetSelection() );
-		
-		RemoveCategory(m_dlTab->GetSelection());
-		
-		if ( theApp.glob_prefs->GetCatCount() == 1 ) {
+	RemoveCategory(m_dlTab->GetSelection());
+}
+
+
+void CTransferWnd::RemoveCategory(int index)
+{
+	if ( index > 0 ) {
+		theApp->downloadqueue->ResetCatParts(index);
+		theApp->glob_prefs->RemoveCat(index);
+		RemoveCategoryPage(index);
+		if ( theApp->glob_prefs->GetCatCount() == 1 ) {
 			thePrefs::SetAllcatType(0);
 		}
-		
-		theApp.glob_prefs->SaveCats();
-
-		theApp.amuledlg->searchwnd->UpdateCatChoice();
-		
+		theApp->glob_prefs->SaveCats();
+		theApp->amuledlg->m_searchwnd->UpdateCatChoice();
 	}
+}
+
+
+void CTransferWnd::RemoveCategoryPage(int index)
+{
+	m_dlTab->RemovePage(index);
+	m_dlTab->SetSelection(0);
+	downloadlistctrl->ChangeCategory(0);
 }
 
 
 void CTransferWnd::OnEditCategory( wxCommandEvent& WXUNUSED(event) )
 {
-	Category_Struct* cat = theApp.glob_prefs->GetCategory(m_dlTab->GetSelection());
-	wxString oldpath = cat->incomingpath;
+	Category_Struct* cat = theApp->glob_prefs->GetCategory(m_dlTab->GetSelection());
+	CPath oldpath = cat->path;
 	CCatDialog dialog( this, 
 	// Allow browse?
 #ifdef CLIENT_GUI	
@@ -277,9 +281,9 @@ void CTransferWnd::OnEditCategory( wxCommandEvent& WXUNUSED(event) )
 		, m_dlTab->GetSelection());
 	
 	if (dialog.ShowModal() == wxOK) {
-		if (oldpath != cat->incomingpath) {
-			theApp.sharedfiles->AddFilesFromDirectory(cat->incomingpath);
-			theApp.sharedfiles->Reload();			
+		if (!oldpath.IsSameDir(cat->path)) {
+			theApp->sharedfiles->AddFilesFromDirectory(cat->path);
+			theApp->sharedfiles->Reload();			
 		}
 	}
 }
@@ -288,13 +292,13 @@ void CTransferWnd::OnEditCategory( wxCommandEvent& WXUNUSED(event) )
 void CTransferWnd::OnSetDefaultCat( wxCommandEvent& event )
 {
 	thePrefs::SetAllcatType( event.GetId() - MP_CAT_SET0 );
-	theApp.glob_prefs->GetCategory(0)->title = GetCatTitle( thePrefs::GetAllcatType() );
+	theApp->glob_prefs->GetCategory(0)->title = GetCatTitle( thePrefs::GetAllcatType() );
 	
 	UpdateCategory( 0 );
 	
 	downloadlistctrl->ChangeCategory( 0 );
 	
-	theApp.glob_prefs->SaveCats();
+	theApp->glob_prefs->SaveCats();
 	
 	downloadlistctrl->SortList();
 }
@@ -525,3 +529,4 @@ void CTransferWnd::OnSashPositionChanging(wxSplitterEvent& evt)
 		}
 	}
 }
+// File_checked_for_headers

@@ -1,52 +1,22 @@
-DEFS = -DHAVE_CONFIG_H
+SUBDIRS = cpp
 
 # Sources
 
-noinst_LIBRARIES = \
-	libec_noevt.a \
-	libec.a
-
-libec_a_SOURCES = \
-	ECPacket.cpp \
-	ECSocket.cpp \
-	RemoteConnect.cpp \
-	ECSpecialTags.cpp
-
-libec_a_CFLAGS = $(WX_CXXFLAGS) -I$(top_srcdir)/src -I$(top_srcdir)/src/libs
-libec_a_CXXFLAGS = $(WX_CXXFLAGS) -I$(top_srcdir)/src -I$(top_srcdir)/src/libs
-
-libec_noevt_a_SOURCES = \
-	ECPacket.cpp \
-	ECSocket.cpp \
-	RemoteConnect.cpp \
-	ECSpecialTags.cpp
-
-libec_noevt_a_CFLAGS = $(WX_CXXFLAGS) -I$(top_srcdir)/src -I$(top_srcdir)/src/libs -DECSOCKET_USE_EVENTS=0
-libec_noevt_a_CXXFLAGS = $(WX_CXXFLAGS) -I$(top_srcdir)/src -I$(top_srcdir)/src/libs -DECSOCKET_USE_EVENTS=0
-
-noinst_HEADERS =  \
-		ECSocket.h \
-		ECPacket.h \
-		ECFileConfig.h \
-		ECSpecialTags.h \
-		ECCodes.h \
-		RemoteConnect.h
-
 MAINTAINERCLEANFILES = Makefile.in
 
-BUILT_SOURCES = ECVersion.h
+BUILT_SOURCES = ECGeneratedFiles
 
-CLEANFILES = ECVersion.h EC-timestamp mkFileSum$(EXEEXT)
+ECGeneratedFilesSources = \
+	abstracts/ECTagTypes.abstract \
+	abstracts/ECCodes.abstract
 
-mkFileSum$(EXEEXT): $(top_srcdir)/src/utils/mkFileSum.c
-	$(HOSTCC) -o $@ $<
+ECGeneratedFiles: $(ECGeneratedFilesSources)
+	$(srcdir)/file_generator.pl $(srcdir) $(ECGeneratedFilesSources);
+	echo $(ECGeneratedFilesSources) > ECGeneratedFiles
 
-ECVersion.h: EC-timestamp
-	@if test ! -f $@; then \
-	  rm -f EC-timestamp; \
-	  $(MAKE) EC-timestamp; \
-	else :; fi
 
-EC-timestamp: mkFileSum$(EXEEXT) $(top_srcdir)/src/libs/ec/gen_ECVersion $(top_srcdir)/src/libs/ec/ECCodes.h
-	@echo "ECVersion.h timestamp file" > EC-timestamp
-	@$(top_srcdir)/src/libs/ec/gen_ECVersion $(top_srcdir)
+EXTRA_DIST = file_generator.pl
+EXTRA__DIST__SUBDIRS = abstracts java		# c# cannot be included because of the # in the name
+include $(top_srcdir)/automake/dist-hook.am
+
+DISTCLEANFILES = $(BUILT_SOURCES)

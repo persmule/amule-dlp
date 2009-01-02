@@ -3,8 +3,8 @@
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <meta http-equiv="pragmas" content="no-cache">
-<title>aMule CVS - Web Control Panel</title>
 <?php
+	echo "<title>aMule " , amule_get_version(), " - Web Control Panel</title>";
 	if ( $_SESSION["auto_refresh"] > 0 ) {
 		echo "<meta http-equiv=\"refresh\" content=\"", $_SESSION["auto_refresh"],
 			'; url=shared.php', '">';
@@ -195,12 +195,22 @@ border-color: black;
 		}
 
 		$stats = amule_get_stats();
-		if ( $stats["id"] == 0 ) {
-			echo "Not connected";
-		} elseif ( $stats["id"] == 0xffffffff ) {
-			echo "Connecting ...";
+		if ( $stats["kad_connected"] == 1 ) {
+			echo "Connected";
+				if ( $stats["kad_firewalled"] == 1 ) {
+					echo " to KAD (firewalled), ";
+				} else {
+					echo " to KAD, ";
+				}
 		} else {
-			echo "Connected with ", (($stats["id"] < 16777216) ? "low" : "high"), " ID to ",
+			echo "Not connected to KAD, ";
+		}
+		if ( $stats["id"] == 0 ) {
+			echo "not connected to ED2K";
+		} elseif ( $stats["id"] == 0xffffffff ) {
+			echo "connecting to ED2k";
+		} else {
+			echo "connected with ", (($stats["id"] < 16777216) ? "low" : "high"), " ID to ",
 				$stats["serv_name"], "  ", $stats["serv_addr"];
 		}
 		echo '<br>&nbsp;&nbsp;<b>Speed:</b> Up: ', CastToXBytes($stats["speed_up"]), 'ps',
@@ -231,7 +241,7 @@ border-color: black;
 <td valign=middle class="shared-header-left"><a href="shared.php?sort=name"><b>File Name</b></a></td>
 <td valign=middle class="shared-header">
 	<a href="shared.php?sort=xfer"><b>Transferred Data</b></a>&nbsp
-	<a href="shared.php?sort=allxref">(Total)
+	<a href="shared.php?sort=allxfer">(Total)
 </td>
 <td valign=middle class="shared-header">
 	<a href="shared.php?sort=req"><b>Requests</b></a>&nbsp

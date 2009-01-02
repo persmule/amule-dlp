@@ -1,6 +1,6 @@
 Summary:        aMule - another eMule p2p client
 Name:           aMule
-Version:        2.1.3
+Version:        2.2.0
 Release:        0
 License:        GPL
 Group:          Applications/Internet
@@ -31,7 +31,7 @@ the first multi-platform edonkey network client.
 
 %install
 [ ! "$RPM_BUILD_ROOT" = "/" ] && %{__rm} -rf "$RPM_BUILD_ROOT"
-%makeinstall
+%{__make} DESTDIR="$RPM_BUILD_ROOT" install
 %find_lang amule
 
 %clean
@@ -45,13 +45,14 @@ the first multi-platform edonkey network client.
 %{_bindir}/cas
 %{_bindir}/wxcas
 %{_bindir}/amuleweb
+%{_bindir}/autostart-xas
 %{_libdir}/xchat/plugins/xas.pl
 %{_datadir}/applications/*
 %{_datadir}/pixmaps/*
 %{_mandir}/man1/*
 %{_mandir}/*/man1/*
-%docdir %{_datadir}/doc/%{name}-%{version}
-%{_datadir}/doc/%{name}-%{version}
+%docdir %{_datadir}/doc/*
+%{_datadir}/doc/*
 %{_datadir}/cas
 %{_datadir}/amule
 

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,15 +26,13 @@
 #ifndef PREFERENCES_H
 #define PREFERENCES_H
 
-#include "Types.h"			// Needed for ints
 #include "MD4Hash.h"			// Needed for CMD4Hash
 #include "Color.h"			// Needed for COLORREF
 
-#include <wx/string.h>			// Needed for wxString
-#include <wx/arrstr.h>		// Needed for wxArrayString
+#include <wx/arrstr.h>			// Needed for wxArrayString
+#include <common/Path.h>	// Needed for CPath
 
 #include <map>
-#include <vector>
 
 #include "Proxy.h"
 
@@ -42,7 +40,6 @@ class CPreferences;
 class wxConfigBase;
 class wxWindow;
 
-#define DEFAULT_COL_SIZE 65535
 
 enum EViewSharedFilesAccess{
 	vsfaEverybody = 0,
@@ -52,7 +49,7 @@ enum EViewSharedFilesAccess{
 
 struct Category_Struct
 {
-	wxString	incomingpath;
+	CPath		path;
 	wxString	title;
 	wxString	comment;
 	uint32		color;
@@ -204,11 +201,12 @@ public:
 	static void		SetUDPPort(uint16 val)		{ s_udpport = val; }
 	static bool		IsUDPDisabled()			{ return s_UDPDisable; }
 	static void		SetUDPDisable(bool val)		{ s_UDPDisable = val; }
-	static const wxString&	GetIncomingDir()		{ return s_incomingdir; }
-	static void		SetIncomingDir(const wxString& dir)	{ s_incomingdir = dir; }
-	static const wxString&	GetTempDir()			{ return s_tempdir; }
-	static void		SetTempDir(const wxString& dir)	{ s_tempdir = dir; }
+	static const CPath&	GetIncomingDir()		{ return s_incomingdir; }
+	static void		SetIncomingDir(const CPath& dir){ s_incomingdir = dir; }
+	static const CPath&	GetTempDir()			{ return s_tempdir; }
+	static void		SetTempDir(const CPath& dir)	{ s_tempdir = dir; }
 	static const CMD4Hash&	GetUserHash()			{ return s_userhash; }
+	static void		SetUserHash(const CMD4Hash& h)	{ s_userhash = h; }
 	static uint16		GetMaxUpload()			{ return s_maxupload; }
 	static uint16		GetSlotAllocation()		{ return s_slotallocation; }
 	static bool		IsICHEnabled()			{ return s_ICH; }
@@ -220,6 +218,7 @@ public:
 	static bool		DoMinToTray()			{ return s_mintotray; }
 	static void		SetMinToTray(bool val)		{ s_mintotray = val; }
 	static bool		UseTrayIcon()			{ return s_trayiconenabled; }
+	static void		SetUseTrayIcon(bool val)	{ s_trayiconenabled = val; }
 	static bool		DoAutoConnect()			{ return s_autoconnect; }
 	static void		SetAutoConnect(bool inautoconnect)
        					{s_autoconnect = inautoconnect; }
@@ -239,6 +238,8 @@ public:
 	static bool		IsConfirmExitEnabled()		{ return s_confirmExit; }
 	static bool		FilterLanIPs()			{ return s_filterLanIP; }
 	static void		SetFilterLanIPs(bool val)	{ s_filterLanIP = val; }
+	static bool		ParanoidFilter()			{ return s_paranoidfilter; }
+	static void		SetParanoidFilter(bool val)	{ s_paranoidfilter = val; }
 	static bool		IsOnlineSignatureEnabled()	{ return s_onlineSig; }
 	static void		SetOnlineSignatureEnabled(bool val) { s_onlineSig = val; }
 	static uint32		GetMaxGraphUploadRate()		{ return s_maxGraphUploadRate; }
@@ -306,7 +307,6 @@ public:
 	static uint32		GetQueueSize() 			{ return s_iQueueSize*100; }
 	static void		SetQueueSize(uint32 val)	{ s_iQueueSize = val/100; }
 
-	// Barry
 	static uint8		Get3DDepth() 			{ return s_depth3D;}
 	static bool		AddNewFilesPaused()		{ return s_addnewfilespaused; }
 	static void		SetAddNewFilesPaused(bool val)	{ s_addnewfilespaused = val; }
@@ -326,29 +326,42 @@ public:
 	static void		SetMinFreeDiskSpace(uint32 val)	{ s_uMinFreeDiskSpace = val; }
 
 	static const wxString&	GetYourHostname() 		{ return s_yourHostname; }
+	static void		SetYourHostname(const wxString& s)	{ s_yourHostname = s; }
 
 	static void		SetMaxUpload(uint16 in);
 	static void		SetMaxDownload(uint16 in);
 	static void		SetSlotAllocation(uint16 in) 	{ s_slotallocation = in; };
 
-	wxArrayString shareddir_list;
+	typedef std::vector<CPath> PathList;
+	PathList shareddir_list;
+	
 	wxArrayString adresses_list;
 
-	static bool 	AutoConnectStaticOnly() 	{ return s_autoconnectstaticonly; }
+	static bool	 	AutoConnectStaticOnly() 	{ return s_autoconnectstaticonly; }
 	static void		SetAutoConnectStaticOnly(bool val) { s_autoconnectstaticonly = val; }
-	static bool		IsManualHighPrio()		{ return s_bmanualhighprio; }
+	static bool		GetUPnPEnabled()		{ return s_UPnPEnabled; }
+	static void		SetUPnPEnabled(bool val)	{ s_UPnPEnabled = val; }
+	static bool		GetUPnPECEnabled()		{ return s_UPnPECEnabled; }
+	static void		SetUPnPECEnabled(bool val)	{ s_UPnPECEnabled = val; }
+	static bool		GetUPnPWebServerEnabled() 	{ return s_UPnPWebServerEnabled; }
+	static void		SetUPnPWebServerEnabled(bool val){ s_UPnPWebServerEnabled = val; }
+	static uint16		GetUPnPTCPPort()		{ return s_UPnPTCPPort; }
+	static void		SetUPnPTCPPort(uint16 val)	{ s_UPnPTCPPort = val; }
+	static bool		IsManualHighPrio() 		{ return s_bmanualhighprio; }
 	static void		SetManualHighPrio(bool val)	{ s_bmanualhighprio = val; }
 	void			LoadCats();
 	static const wxString&	GetDateTimeFormat() 		{ return s_datetimeformat; }
-	// Download Categories (Ornis)
+	// Download Categories
 	uint32			AddCat(Category_Struct* cat);
 	void			RemoveCat(size_t index);
 	uint32			GetCatCount();
 	Category_Struct* GetCategory(size_t index);
-	const wxString&	GetCatPath(uint8 index);
+	const CPath&	GetCatPath(uint8 index);
 	uint32			GetCatColor(size_t index);
-	Category_Struct *CreateCategory(wxString name, wxString path, wxString comment, uint32 color, uint8 prio);
-	void			UpdateCategory(uint8 cat, wxString name, wxString path, wxString comment, uint32 color, uint8 prio);
+	Category_Struct *CreateCategory(const wxString& name, const CPath& path,
+						const wxString& comment, uint32 color, uint8 prio);
+	void			UpdateCategory(uint8 cat, const wxString& name, const CPath& path,
+						const wxString& comment, uint32 color, uint8 prio);
 
 	static uint32		GetAllcatType() 		{ return s_allcatType; }
 	static void		SetAllcatType(uint32 in)	{ s_allcatType = in; }
@@ -357,6 +370,8 @@ public:
 	// WebServer
 	static uint16 		GetWSPort() 			{ return s_nWebPort; }
 	static void		SetWSPort(uint16 uPort) 	{ s_nWebPort=uPort; }
+	static uint16		GetWebUPnPTCPPort()		{ return s_nWebUPnPTCPPort; }
+	static void		SetWebUPnPTCPPort(uint16 val)	{ s_nWebUPnPTCPPort = val; }
 	static const wxString&	GetWSPass() 			{ return s_sWebPassword; }
 	static void		SetWSPass(const wxString& pass)	{ s_sWebPassword = pass; }
 	static bool		GetWSIsEnabled() 		{ return s_bWebEnabled; }
@@ -378,7 +393,7 @@ public:
 	static bool		ShowCatTabInfos() 		{ return s_showCatTabInfos; }
 	static void		ShowCatTabInfos(bool in) 	{ s_showCatTabInfos=in; }
 	
-	// Madcat - Sources Dropping Tweaks
+	// Sources Dropping Tweaks
 	static bool		DropNoNeededSources() 		{ return s_NoNeededSources > 0; }
 	static bool		SwapNoNeededSources() 		{ return s_NoNeededSources == 2; }
 	static uint8		GetNoNeededSources()		{ return s_NoNeededSources; }
@@ -392,34 +407,39 @@ public:
 	static uint32		GetAutoDropTimer() 		{ return s_AutoDropTimer; }
 	static void		SetAutoDropTimer(uint32 val)	{ s_AutoDropTimer = val; }
 	
-	// Kry - External Connections
+	// External Connections
 	static bool 		AcceptExternalConnections()	{ return s_AcceptExternalConnections; }
 	static void			EnableExternalConnections( bool val ) { s_AcceptExternalConnections = val; }
 	static const wxString&	GetECAddress()			{ return s_ECAddr; }
 	static uint32 		ECPort()			{ return s_ECPort; }
 	static void			SetECPort(uint32 val) { s_ECPort = val; }
 	static const wxString&	ECPassword()			{ return s_ECPassword; }
-	// Madcat - Fast ED2K Links Handler Toggling
+	static void		SetECPass(const wxString& pass)	{ s_ECPassword = pass; }
+	// Fast ED2K Links Handler Toggling
 	static bool 		GetFED2KLH()			{ return s_FastED2KLinksHandler; }
 
-	// Kry - Ip filter 
-	static bool		GetIPFilterOn()			{ return s_IPFilterOn; }
-	static void		SetIPFilterOn(bool val)		{ s_IPFilterOn = val; }
+	// Ip filter 
+	static bool		IsFilteringClients()		{ return s_IPFilterClients; }
+	static void		SetFilteringClients(bool val)	{ s_IPFilterClients = val; }
+	static bool		IsFilteringServers()		{ return s_IPFilterServers; }
+	static void		SetFilteringServers(bool val)	{ s_IPFilterServers = val; }
 	static uint8		GetIPFilterLevel()		{ return s_filterlevel;}
 	static void		SetIPFilterLevel(uint8 level);
 	static bool		IPFilterAutoLoad()		{ return s_IPFilterAutoLoad; }
 	static void		SetIPFilterAutoLoad(bool val)	{ s_IPFilterAutoLoad = val; }
 	static const wxString&	IPFilterURL()			{ return s_IPFilterURL; }
 	static void		SetIPFilterURL(const wxString& url)	{ s_IPFilterURL = url; }
+	static bool		UseIPFilterSystem()		{ return s_IPFilterSys; }
+	static void		SetIPFilterSystem(bool val)	{ s_IPFilterSys = val; }
 
-	// Kry - Source seeds On/Off
-	static bool		GetSrcSeedsOn() 		{ return s_UseSrcSeeds; }
+	// Source seeds On/Off
+	static bool		GetSrcSeedsOn() 			{ return s_UseSrcSeeds; }
 	static void		SetSrcSeedsOn(bool val)		{ s_UseSrcSeeds = val; }
-	
-	static bool		IsSecureIdentEnabled()		{ return s_SecIdent; }
+
+	static bool		IsSecureIdentEnabled()			{ return s_SecIdent; }
 	static void		SetSecureIdentEnabled(bool val)	{ s_SecIdent = val; }
-	
-	static bool		GetExtractMetaData()		{ return s_ExtractMetaData; }
+
+	static bool		GetExtractMetaData()			{ return s_ExtractMetaData; }
 	static void		SetExtractMetaData(bool val)	{ s_ExtractMetaData = val; }
 	
 	static bool		ShowProgBar()			{ return s_ProgBar; }
@@ -432,21 +452,18 @@ public:
 
 	static wxString 	GetBrowser();
 	
-	static const wxString&	GetSkinFile()			{ return s_SkinFile; }
+	static const wxString&	GetSkin()			{ return s_Skin; }
 	
-	static bool		UseSkin()			{ return s_UseSkinFile; }
+	static bool		UseSkins()			{ return s_UseSkinFiles; }
 
-	static bool		VerticalToolbar() { return s_ToolbarOrientation; }
+	static bool		VerticalToolbar()		{ return s_ToolbarOrientation; }
+
+	static bool		ShowPartFileNumber()		{ return s_ShowPartFileNumber; }
 		
-	static const wxString&	GetOSDir()			{ return s_OSDirectory; }
-	static uint16	GetOSUpdate()			{ return s_OSUpdate; }
+	static const CPath&	GetOSDir()			{ return s_OSDirectory; }
+	static uint16		GetOSUpdate()			{ return s_OSUpdate; }
 
 	static uint8		GetToolTipDelay()		{ return s_iToolDelayTime; }
-
-	static int		GetFilePermissions();
-	static void		SetFilePermissions( int perms );
-	static int		GetDirPermissions();
-	static void		SetDirPermissions( int perms );
 
 	static void		UnsetAutoServerStart();
 	static void		CheckUlDlRatio();
@@ -475,7 +492,13 @@ public:
 	static void		SetMessageFilterString(const wxString& val) { s_MessageFilterString = val; }
 	static bool		IsMessageFiltered(const wxString& message);
 
-	// I cant have it return a reference, I'll need a pointer later.
+	static bool		FilterComments()		{ return s_FilterComments; }
+	static void		SetFilterComments(bool val)	{ s_FilterComments = val; }
+	static const wxString&	GetCommentFilterString()	{ return s_CommentFilterString; }
+	static void		SetCommentFilterString(const wxString& val) { s_CommentFilterString = val; }
+	static bool		IsCommentFiltered(const wxString& comment);
+	
+	// Can't have it return a reference, will need a pointer later.
 	static const CProxyData *GetProxyData()			{ return &s_ProxyData; }
 	
 	// Hidden files
@@ -497,13 +520,32 @@ public:
 	// Statistics
 	static unsigned		GetMaxClientVersions()		{ return s_maxClientVersions; }
 
-	// Command on completion
-	static bool	CommandOnCompletion()				{ return s_ExecOnCompletion; }
-	static const wxString& GetCommandOnCompletion()	{ return s_ExecOnCompletionCommand; }
+	// Dropping slow sources
+	static bool GetDropSlowSources()					{ return s_DropSlowSources; }
 	
+	// server.met and nodes.dat urls
+	static const wxString& GetKadNodesUrl() { return s_KadURL; }
+	static void SetKadNodesUrl(const wxString& url) { s_KadURL = url; }
+
+	static const wxString& GetEd2kServersUrl() { return s_Ed2kURL; }
+	static void SetEd2kServersUrl(const wxString& url) { s_Ed2kURL = url; }
+	
+	// Crypt
+	static bool		IsClientCryptLayerSupported()		{return s_IsClientCryptLayerSupported;}
+	static bool		IsClientCryptLayerRequested()		{return IsClientCryptLayerSupported() && s_bCryptLayerRequested;}	
+	static bool		IsClientCryptLayerRequired()		{return IsClientCryptLayerRequested() && s_IsClientCryptLayerRequired;}
+	static bool		IsClientCryptLayerRequiredStrict()	{return false;} // not even incoming test connections will be answered
+	static bool		IsServerCryptLayerUDPEnabled()		{return IsClientCryptLayerSupported();}
+	static bool		IsServerCryptLayerTCPRequested()	{return IsClientCryptLayerRequested();}
+	static bool		IsServerCryptLayerTCPRequired()		{return IsClientCryptLayerRequired();}
+	static uint32		GetKadUDPKey()				{return s_dwKadUDPKey;}
+	static uint8		GetCryptTCPPaddingLength()		{return s_byCryptTCPPaddingLength;}
+	
+	static void		SetClientCryptLayerSupported(bool v)	{s_IsClientCryptLayerSupported = v;}
+	static void		SetClientCryptLayerRequested(bool v)	{s_bCryptLayerRequested = v; }
+	static void		SetClientCryptLayerRequired(bool v)	{s_IsClientCryptLayerRequired = v;}
+
 protected:
-	void	CreateUserHash();
-	void	SetStandartValues();
 	static	int32 GetRecommendedMaxConnections();
 
 	//! Temporary storage for statistic-colors.
@@ -542,6 +584,10 @@ protected:
 	static bool	s_reconnect;
 	static bool	s_autoconnect;
 	static bool	s_autoconnectstaticonly;
+	static bool	s_UPnPEnabled;
+	static bool	s_UPnPECEnabled;
+	static bool	s_UPnPWebServerEnabled;
+	static uint16	s_UPnPTCPPort;
 
 ////////////// PROXY
 	static CProxyData s_ProxyData;
@@ -551,12 +597,10 @@ protected:
 	static bool	s_deadserver;
 
 ////////////// FILES
-	static wxString	s_incomingdir;
-	static wxString	s_tempdir;
+	static CPath	s_incomingdir;
+	static CPath	s_tempdir;
 	static bool	s_ICH;
 	static bool	s_AICHTrustEveryHash;
-	static int	s_perms_files;
-	static int	s_perms_dirs;
 
 ////////////// GUI
 	static uint8	s_depth3D;
@@ -576,6 +620,7 @@ protected:
 
 
 	static bool	s_filterLanIP;
+	static bool	s_paranoidfilter;
 	static bool	s_onlineSig;
 
 	static uint64  	s_totalDownloadedBytes;
@@ -607,14 +652,11 @@ protected:
 	static bool	s_bshowoverhead;
 	static bool	s_bDAP;
 	static bool	s_bUAP;
-	static bool	s_bDisableKnownClientList;
-	static bool	s_bDisableQueueList;
 
 	static bool	s_ShowRatesOnTitle;
 
 	static wxString	s_VideoPlayer;
 	static bool	s_moviePreviewBackup;
-	static bool	s_indicateratings;
 	static bool	s_showAllNotCats;
 	
 	static bool	s_msgonlyfriends;
@@ -623,15 +665,16 @@ protected:
 	static uint8	s_iFileBufferSize;
 	static uint8	s_iQueueSize;
 
-	static uint16	s_maxmsgsessions;
 	static wxString	s_datetimeformat;
 	
 	static bool	s_ToolbarOrientation;
+	static bool	s_ShowPartFileNumber;
 
 	// Web Server [kuchin]
 	static wxString	s_sWebPassword;
 	static wxString	s_sWebLowPassword;
 	static uint16	s_nWebPort;
+	static uint16	s_nWebUPnPTCPPort;
 	static bool	s_bWebEnabled;
 	static bool	s_bWebUseGzip;
 	static uint32	s_nWebPageRefresh;
@@ -655,19 +698,21 @@ protected:
 	static wxString	s_ECPassword;
 	
 	// Kry - IPFilter 
-	static bool	s_IPFilterOn;
+	static bool	s_IPFilterClients;
+	static bool	s_IPFilterServers;
 	static uint8	s_filterlevel;
 	static bool	s_IPFilterAutoLoad;
 	static wxString s_IPFilterURL;
+	static bool	s_IPFilterSys;
 	
 	// Kry - Source seeds on/off
 	static bool	s_UseSrcSeeds;
 	
 	static bool	s_ProgBar;
 	static bool	s_Percent;	
-	
-	static bool	s_SecIdent;
-	
+
+	static bool s_SecIdent;
+
 	static bool	s_ExtractMetaData;
 	
 	static bool	s_AllocFullPart;
@@ -677,11 +722,11 @@ protected:
 	static wxString	s_CustomBrowser;
 	static bool	s_BrowserTab;     // Jacobo221 - Open in tabs if possible
 	
-	static wxString	s_OSDirectory;
+	static CPath	s_OSDirectory;
 	static uint16	s_OSUpdate;
 	
-	static wxString	s_SkinFile;
-	static bool	s_UseSkinFile;
+	static wxString	s_Skin;
+	static bool	s_UseSkinFiles;
 	
 	static bool	s_FastED2KLinksHandler;	// Madcat - Toggle Fast ED2K Links Handler
 	
@@ -690,6 +735,10 @@ protected:
 	static wxString 	s_MessageFilterString;
 	static bool		s_FilterAllMessages;
 	static bool		s_FilterSomeMessages;
+
+	static bool 		s_FilterComments;
+	static wxString 	s_CommentFilterString;
+
 	
 	// Hidden files sharing
 	static bool	s_ShareHiddenFiles;
@@ -706,10 +755,20 @@ protected:
 	// Statistics
 	static	unsigned	s_maxClientVersions;	// 0 = unlimited
 
-	// Exec command on completion
-	static bool s_ExecOnCompletion;
-	static wxString s_ExecOnCompletionCommand;
+	// Drop slow sources if needed
+	static bool s_DropSlowSources;
+	
+	static wxString s_Ed2kURL;
+	static wxString s_KadURL;
+	
+	// Crypt
+	static bool s_IsClientCryptLayerSupported;
+	static bool s_IsClientCryptLayerRequired;
+	static bool s_bCryptLayerRequested;	
+	static uint32	s_dwKadUDPKey;
+	static uint8 s_byCryptTCPPaddingLength;	
 };
 
 
 #endif // PREFERENCES_H
+// File_checked_for_headers

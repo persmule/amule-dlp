@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -28,7 +28,8 @@
 class wxEvtHandler;
 class CTimerThread;
 
-#include <wx/thread.h>
+#include <wx/event.h>
+
 
 /**
  * Replacement for wxTimer as it doesn't work on non-X builds
@@ -67,4 +68,26 @@ private:
 	int m_id;
 };
 
+
+
+class CTimerEvent : public wxEvent
+{
+public:	
+	CTimerEvent(int id = 0);
+
+	virtual wxEvent* Clone() const;
+};
+
+
+DECLARE_LOCAL_EVENT_TYPE(MULE_EVT_TIMER, -1)
+
+	
+typedef void (wxEvtHandler::*MuleTimerEventFunction)(CTimerEvent&);
+
+#define EVT_MULE_TIMER(id, func) \
+	DECLARE_EVENT_TABLE_ENTRY(MULE_EVT_TIMER, id, -1, \
+	(wxObjectEventFunction) (wxEventFunction) \
+	wxStaticCastEvent(MuleTimerEventFunction, &func), (wxObject*) NULL),
+
 #endif /* TIMER_H */
+// File_checked_for_headers

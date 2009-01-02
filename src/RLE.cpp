@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -168,7 +168,7 @@ void PartFileEncoderData::Decode(unsigned char *gapdata, int gaplen, unsigned ch
 	// in a first dword - real size
 	uint32 gapsize = ENDIAN_NTOHL( RawPeekUInt32( gapdata ) );
 	gapdata += sizeof(uint32);
-	m_gap_status.Realloc(gapsize*2*sizeof(uint32));
+	m_gap_status.Realloc(gapsize*2*sizeof(uint64));
 
 	m_gap_status.Decode(gapdata, gaplen - sizeof(uint32));
 }
@@ -197,3 +197,4 @@ int RLE_Data_BV::Encode(std::vector<bool> &data)
 	return 0;
 }
 
+// File_checked_for_headers

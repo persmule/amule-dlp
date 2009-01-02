@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,18 +26,12 @@
 #ifndef UPDOWNCLIENT_H
 #define UPDOWNCLIENT_H
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
-#include <wx/string.h>		// Needed for wxString
-#include <wx/intl.h>
-#include "Types.h"		// Needed for int8, int16, uint8, uint16, uint32 and uint64
-#include "CTypedPtrList.h"	// Needed for CTypedPtrList
 #include "GetTickCount.h"	// Needed for GetTickCount
 #include "MD4Hash.h"
 #include <common/StringFunctions.h>
 #include "NetworkFunctions.h"
 
 #include <map>
-#include <vector>
 
 
 typedef std::vector<bool> BitVector;
@@ -145,6 +139,8 @@ enum ClientState
 	CS_DYING
 };
 
+// This is fixed on ed2k v1, but can be any number on ED2Kv2
+#define STANDARD_BLOCKS_REQUEST 3
 
 class CUpDownClient
 {
@@ -194,6 +190,7 @@ public:
 
 	bool		Disconnected(const wxString& strReason, bool bFromSocket = false);
 	bool		TryToConnect(bool bIgnoreMaxCon = false);
+	bool		Connect();
 	void		ConnectionEstablished();
 	const wxString&	GetUserName() const		{ return m_Username; }
 	//Only use this when you know the real IP or when your clearing it.
@@ -205,7 +202,7 @@ public:
 	uint32		GetUserIDHybrid() const		{ return m_nUserIDHybrid; }
 	void		SetUserIDHybrid(uint32 val);
 	uint32		GetUserPort() const		{ return m_nUserPort; }
-	uint32		GetTransferedDown() const	{ return m_nTransferedDown; }
+	uint32		GetTransferredDown() const	{ return m_nTransferredDown; }
 	uint32		GetServerIP() const		{ return m_dwServerIP; }
 	void		SetServerIP(uint32 nIP)		{ m_dwServerIP = nIP; }
 	uint16		GetServerPort()	const		{ return m_nServerPort; }
@@ -231,7 +228,7 @@ public:
 
 	void		ClearDownloadBlockRequests();
 	void		RequestSharedFileList();
-	void		ProcessSharedFileList(const char* pachPacket, uint32 nSize, wxString& pszDirectory);
+	void		ProcessSharedFileList(const byte* pachPacket, uint32 nSize, wxString& pszDirectory);
 
 	wxString	GetUploadFileInfo();
 
@@ -239,13 +236,13 @@ public:
 
 	uint8		GetClientSoft() const		{ return m_clientSoft; }
 	void		ReGetClientSoft();
-	bool		ProcessHelloAnswer(const char *pachPacket, uint32 nSize);
-	bool		ProcessHelloPacket(const char *pachPacket, uint32 nSize);
+	bool		ProcessHelloAnswer(const byte* pachPacket, uint32 nSize);
+	bool		ProcessHelloPacket(const byte* pachPacket, uint32 nSize);
 	void		SendHelloAnswer();
 	bool		SendHelloPacket();
 	void		SendMuleInfoPacket(bool bAnswer, bool OSInfo = false);
-	bool		ProcessMuleInfoPacket(const char* pachPacket, uint32 nSize);
-	void		ProcessMuleCommentPacket(const char *pachPacket, uint32 nSize);
+	bool		ProcessMuleInfoPacket(const byte* pachPacket, uint32 nSize);
+	void		ProcessMuleCommentPacket(const byte* pachPacket, uint32 nSize);
 	bool		Compare(const CUpDownClient* tocomp, bool bIgnoreUserhash = false) const;
 	void		SetLastSrcReqTime()		{ m_dwLastSourceRequest = ::GetTickCount(); }
 	void		SetLastSrcAnswerTime()		{ m_dwLastSourceAnswer = ::GetTickCount(); }
@@ -256,9 +253,14 @@ public:
 	bool		GetFriendSlot() const 		{ return m_bFriendSlot; }
 	void		SetFriendSlot(bool bNV)		{ m_bFriendSlot = bNV; }
 	void		SetCommentDirty(bool bDirty = true)	{ m_bCommentDirty = bDirty; }
-	uint8		GetSourceExchangeVersion() const	{ return m_bySourceExchangeVer; }
+	uint8			GetSourceExchange1Version() const				{ return m_bySourceExchange1Ver; }
+	bool			SupportsSourceExchange2() const					{ return m_fSupportsSourceEx2; }
+	
 	bool		SafeSendPacket(CPacket* packet);
 
+	void		ProcessRequestPartsPacket(const byte* pachPacket, uint32 nSize, bool largeblocks);
+	void		ProcessRequestPartsPacketv2(const CMemFile& data);	
+	
 	void		SendPublicKeyPacket();
 	void		SendSignaturePacket();
 	void		ProcessPublicKeyPacket(const byte* pachPacket, uint32 nSize);
@@ -296,22 +298,27 @@ public:
 
 	bool		IsDownloading()	const 		{ return (m_nUploadState == US_UPLOADING); }
 
-#ifdef CLIENT_GUI
-	uint32 m_base_score, m_score;
+#ifndef CLIENT_GUI
+	uint32		GetScore(
+				bool sysvalue,
+				bool isdownloading = false,
+				bool onlybasevalue = false) const;
+#else
+	uint32		m_score;
 	uint32		GetScore(
 				bool WXUNUSED(sysvalue),
 				bool WXUNUSED(isdownloading) = false,
 				bool WXUNUSED(onlybasevalue) = false) const
 	{
-		// lfroen: it's calculated
-		return 0;
+		return m_score;
 	}
-#else
-	uint32		GetScore(
-				bool sysvalue,
-				bool isdownloading = false,
-				bool onlybasevalue = false) const;
+	uint16		m_waitingPosition;
+	uint16		GetWaitingPosition() const { return m_waitingPosition; }
 #endif
+	double		GetRating() const
+	{
+		return (double)GetScore(false, IsDownloading(), true);
+	}
 
 	void		AddReqBlock(Requested_Block_Struct* reqblock);
 	void		CreateNextBlockPackage();
@@ -320,6 +327,7 @@ public:
 	void		ClearWaitStartTime();
 	void		SendHashsetPacket(const CMD4Hash& forfileid);
 	bool		SupportMultiPacket() const	{ return m_bMultiPacket; }
+	bool		SupportExtMultiPacket() const	{ return m_fExtMultiPacket; }
 
 	void		SetUploadFileID(CKnownFile *newreqfile);
 
@@ -380,12 +388,12 @@ public:
 	bool		AskForDownload();
 	void		SendStartupLoadReq();
 	void		SendFileRequest();
-	void		ProcessHashSet(const char *packet, uint32 size);
+	void		ProcessHashSet(const byte* packet, uint32 size);
 	bool		AddRequestForAnotherFile(CPartFile* file);
 	bool		DeleteFileRequest(CPartFile* file);
 	void		DeleteAllFileRequests();
 	void		SendBlockRequests();
-	void		ProcessBlockPacket(const char* packet, uint32 size, bool packed = false);
+	void		ProcessBlockPacket(const byte* packet, uint32 size, bool packed, bool largeblocks);
 
 #ifndef CLIENT_GUI
 	uint16		GetAvailablePartCount() const;
@@ -412,6 +420,12 @@ public:
 
 	const wxString&	GetSoftStr() const 		{ return m_clientSoftString; }
 	const wxString&	GetSoftVerStr() const		{ return m_clientVerString; }
+#ifndef CLIENT_GUI
+	const wxString GetServerName() const;
+#else
+	wxString m_ServerName;
+	const wxString&	GetServerName() const { return m_ServerName; }
+#endif
 	
 	uint16		GetKadPort() const		{ return m_nKadPort; }
 	void		SetKadPort(uint16 nPort)	{ m_nKadPort = nPort; }
@@ -422,8 +436,8 @@ public:
 	bool		IsSupportingAICH() const	{return m_fSupportsAICH & 0x01;}
 	void		SendAICHRequest(CPartFile* pForFile, uint16 nPart);
 	bool		IsAICHReqPending() const	{return m_fAICHRequested; }
-	void		ProcessAICHAnswer(const char* packet, uint32 size);
-	void		ProcessAICHRequest(const char* packet, uint32 size);
+	void		ProcessAICHAnswer(const byte* packet, uint32 size);
+	void		ProcessAICHRequest(const byte* packet, uint32 size);
 	void		ProcessAICHFileHash(CMemFile* data, const CPartFile* file);	
 
 	EUtf8Str	GetUnicodeSupport() const;
@@ -506,8 +520,7 @@ public:
 
 	uint32		GetPayloadInBuffer() const	{ return m_addedPayloadQueueSession - GetQueueSessionPayloadUp(); }
 	uint32		GetQueueSessionPayloadUp() const	{ return m_nCurQueueSessionPayloadUp; }
-	void		SendCancelTransfer(CPacket* packet = NULL);
-	bool		HasBlocks() const		{ return !m_BlockRequests_queue.IsEmpty(); }
+	bool		HasBlocks() const		{ return !m_BlockRequests_queue.empty(); }
 
 	/* Source comes from? */
 	ESourceFrom		GetSourceFrom() const	{ return (ESourceFrom)m_nSourceFrom; }
@@ -548,7 +561,7 @@ public:
 	 *
 	 * To check if a client is aggressive use the IsClientAggressive() function.
 	 * 
-	 * Currently this function is called when the following packets are recieved:
+	 * Currently this function is called when the following packets are received:
 	 *  - OP_STARTUPLOADREQ
 	 *  - OP_REASKFILEPING
 	 */
@@ -568,6 +581,8 @@ public:
 	uint32		GetLastBlockOffset() const { return m_nLastBlockOffset; }
 	
 	bool		GetOSInfoSupport() const { return m_fOsInfoSupport; }
+	
+	bool		GetVBTTags() const { return m_fValueBasedTypeTags; }
 	
 	uint16		GetLastPartAsked() const { return m_lastPartAsked; }
 	
@@ -591,9 +606,29 @@ public:
 	
 	uint64		GetUploadedTotal() const;
 	
-	float		GetScoreRatio() const;
+	double 		GetScoreRatio() const;
 	
 	uint32		GetCreationTime() const { return m_nCreationTime; }
+	
+	bool		SupportsLargeFiles() const { return m_fSupportsLargeFiles; }
+	
+	#ifdef __DEBUG__
+	/* Kry - Debug. See connection_reason definition comment below */
+	void		SetConnectionReason(const wxString& reason) { connection_reason = reason; }
+	#endif
+
+	// Encryption / Obfuscation
+	bool			SupportsCryptLayer() const						{ return m_fSupportsCryptLayer; }
+	bool			RequestsCryptLayer() const						{ return SupportsCryptLayer() && m_fRequestsCryptLayer; }
+	bool			RequiresCryptLayer() const						{ return RequestsCryptLayer() && m_fRequiresCryptLayer; }
+	bool			HasObfuscatedConnectionBeenEstablished() const { return m_hasbeenobfuscatinglately; }	
+	
+	void			SetCryptLayerSupport(bool bVal)				{ m_fSupportsCryptLayer = bVal ? 1 : 0; }
+	void			SetCryptLayerRequest(bool bVal)				{ m_fRequestsCryptLayer = bVal ? 1 : 0; }
+	void			SetCryptLayerRequires(bool bVal)				{ m_fRequiresCryptLayer = bVal ? 1 : 0; }
+	bool			ShouldReceiveCryptUDPPackets() const;
+
+	bool			HasDisabledSharedFiles() const { return m_fNoViewSharedFiles; }
 	
 private:
 	
@@ -614,7 +649,7 @@ private:
 	//
 	uint32		m_nUpDatarate;
 	uint32		m_nSumForAvgUpDataRate;
-	CList<TransferredData> m_AvarageUDR_list;
+	std::list<TransferredData> m_AvarageUDR_list;
 
 
 	/**
@@ -670,7 +705,7 @@ private:
 	bool		m_HasValidHash;
 	uint16		m_nUDPPort;
 	uint8		m_byUDPVer;
-	uint8		m_bySourceExchangeVer;
+	uint8		m_bySourceExchange1Ver;
 	uint8		m_byAcceptCommentVer;
 	uint8		m_byExtendedRequestsVer;
 	uint8		m_clientSoft;
@@ -697,7 +732,7 @@ private:
 	uint8		m_bySupportSecIdent;
 
 	uint32		m_byCompatibleClient;
-	CList<CPacket*>	m_WaitingPackets_list;
+	std::list<CPacket*>	m_WaitingPackets_list;
 	uint32		m_lastRefreshedDLDisplay;
 
 	//upload
@@ -720,8 +755,8 @@ private:
 	uint16		m_lastPartAsked;
 	wxString	m_strModVersion;
 
-	CList<Requested_Block_Struct*>	m_BlockRequests_queue;
-	CList<Requested_Block_Struct*>	m_DoneBlocks_list;
+	std::list<Requested_Block_Struct*>	m_BlockRequests_queue;
+	std::list<Requested_Block_Struct*>	m_DoneBlocks_list;
 
 	//download
 	bool		m_bRemoteQueueFull;
@@ -729,7 +764,7 @@ private:
 	uint16		m_nPartCount;
 	uint32		m_dwLastAskedTime;
 	wxString	m_clientFilename;
-	uint32		m_nTransferedDown;
+	uint32		m_nTransferredDown;
 	uint32		m_nLastBlockOffset;   // Patch for show parts that you download [Cax2]
 	uint16		m_cShowDR;
 	uint32		m_dwLastBlockReceived;
@@ -740,8 +775,8 @@ private:
 	bool		m_bUDPPending;
 	bool		m_bHashsetRequested;
 
-	CList<Pending_Block_Struct*>	m_PendingBlocks_list;
-	CList<Requested_Block_Struct*>	m_DownloadBlocks_list;
+	std::list<Pending_Block_Struct*>	m_PendingBlocks_list;
+	std::list<Requested_Block_Struct*>	m_DownloadBlocks_list;
 
 	float		kBpsDown;
 	float		fDownAvgFilter;
@@ -761,10 +796,17 @@ private:
 		m_fSharedDirectories : 1, // client supports OP_ASKSHAREDIRS opcodes
 		m_fSupportsAICH      : 3,
 		m_fAICHRequested     : 1,
-		m_fSentOutOfPartReqs : 1;
-
+		m_fSupportsLargeFiles : 1,
+		m_fSentOutOfPartReqs : 1,
+		m_fExtMultiPacket : 1,
+		m_fRequestsCryptLayer: 1,
+	    m_fSupportsCryptLayer: 1,
+		m_fRequiresCryptLayer: 1,
+		m_fSupportsSourceEx2 : 1;
+		
 	unsigned int
-		m_fOsInfoSupport : 1;
+		m_fOsInfoSupport : 1,
+		m_fValueBasedTypeTags : 1;		
 
 	/* Razor 1a - Modif by MikaelB */
 
@@ -808,6 +850,8 @@ private:
 
 	CKnownFile*	m_uploadingfile;
 
+	uint8		m_MaxBlockRequests;
+
 	// needed for stats
 	uint32		m_lastClientSoft;
 	uint32		m_lastClientVersion;
@@ -815,6 +859,21 @@ private:
 	
 	/* For buddies timeout */
 	uint32 m_nCreationTime;
+	
+	/* Calculation of last average speed */
+	uint32 m_lastaverage;
+	uint32 m_last_block_start;
+	
+	/* Save the encryption status for display when disconnected */
+	bool m_hasbeenobfuscatinglately;
+	
+	/* Kry - Debug thing. Clients created just to check their data
+	   have this string set to the reason we want to check them. 
+	   Obviously, once checked, we disconect them. Take that, sucker.
+	   This debug code is just for me I'm afraid. */
+	  #ifdef __DEBUG__
+	  wxString connection_reason;
+	  #endif
 };
 
 
@@ -823,3 +882,4 @@ private:
 
 
 #endif // UPDOWNCLIENT_H
+// File_checked_for_headers

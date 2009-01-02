@@ -1,5 +1,6 @@
 #include <muleunit/test.h>
 #include <algorithm>
+#include "Types.h"
 #include "RangeMap.h"
 
 
@@ -13,7 +14,7 @@ typedef CRangeMap<int> TestRangeMap;
  */
 wxString StringFrom(const TestRangeMap::const_iterator& it)
 {
-	return wxString::Format(wxT("(%u, %u, %i)"), it.keyStart(), it.keyEnd(), *it);
+	return wxString::Format(wxT("(%") wxLongLongFmtSpec wxT("u, %")  wxLongLongFmtSpec wxT("u, %i)"), it.keyStart(), it.keyEnd(), *it);
 }
 
 /**
@@ -21,7 +22,7 @@ wxString StringFrom(const TestRangeMap::const_iterator& it)
  */
 wxString StringFrom(TestRangeMap::iterator it)
 {
-	return wxString::Format(wxT("(%u, %u, %i)"), it.keyStart(), it.keyEnd(), *it);
+	return wxString::Format(wxT("(%") wxLongLongFmtSpec wxT("u, %")  wxLongLongFmtSpec wxT("u, %i)"), it.keyStart(), it.keyEnd(), *it);
 }
 
 
@@ -30,7 +31,7 @@ wxString StringFrom(TestRangeMap::iterator it)
  */
 wxString StringFrom(const CRangeMap<void>::const_iterator& it)
 {
-	return wxString::Format(wxT("(%u, %u)"), it.keyStart(), it.keyEnd());
+	return wxString::Format(wxT("(%") wxLongLongFmtSpec wxT("u, %")  wxLongLongFmtSpec wxT("u)"), it.keyStart(), it.keyEnd());
 }
 
 /**
@@ -38,7 +39,7 @@ wxString StringFrom(const CRangeMap<void>::const_iterator& it)
  */
 wxString StringFrom(CRangeMap<void>::iterator it)
 {
-	return wxString::Format(wxT("(%u, %u)"), it.keyStart(), it.keyEnd());
+	return wxString::Format(wxT("(%") wxLongLongFmtSpec wxT("u, %")  wxLongLongFmtSpec wxT("u)"), it.keyStart(), it.keyEnd());
 }
 
 
@@ -70,7 +71,7 @@ wxString StringFrom(const CRangeMap<VALUE>& map)
 
 DECLARE(RangeMap);
 	TestRangeMap m_map;
-	TestRangeMap* m_mmaps;
+	TestRangeMap m_mmaps[3];
 
 	// Identifers for the multirange maps
 	enum Maps {
@@ -82,26 +83,27 @@ DECLARE(RangeMap);
 	// Sets up a few maps with predefined ranges.
 	void setUp() {
 		m_map.insert(100, 150, 0);
-		ASSERT_EQUALS(wxT("[(100, 150, 0)]"), StringFrom(m_map));
-		
-		m_mmaps = new TestRangeMap[3];
 		
 		m_mmaps[CONT].insert(100, 150, 0);
 		m_mmaps[CONT].insert(151, 200, 1);
-		ASSERT_EQUALS(wxT("[(100, 150, 0), (151, 200, 1)]"), StringFrom(m_mmaps[CONT]));
 		
 		m_mmaps[SDIFF].insert(100, 150, 0);
 		m_mmaps[SDIFF].insert(160, 200, 1);
-		ASSERT_EQUALS(wxT("[(100, 150, 0), (160, 200, 1)]"), StringFrom(m_mmaps[SDIFF]));
 		
 		m_mmaps[SSAME].insert(100, 150, 1);
 		m_mmaps[SSAME].insert(160, 200, 1);
+		
+		ASSERT_EQUALS(wxT("[(100, 150, 0)]"), StringFrom(m_map));
+		ASSERT_EQUALS(wxT("[(100, 150, 0), (151, 200, 1)]"), StringFrom(m_mmaps[CONT]));
+		ASSERT_EQUALS(wxT("[(100, 150, 0), (160, 200, 1)]"), StringFrom(m_mmaps[SDIFF]));
 		ASSERT_EQUALS(wxT("[(100, 150, 1), (160, 200, 1)]"), StringFrom(m_mmaps[SSAME]));
 	}
 
 	void tearDown() {
 		m_map.clear();
-		delete[] m_mmaps;
+		m_mmaps[0].clear();
+		m_mmaps[1].clear();
+		m_mmaps[2].clear();
 	}
 
 
@@ -776,6 +778,36 @@ TEST(RangeMap, Erase_TouchingEnd_TouchingEnd_AfterEnd)
 TEST(RangeMap, Erase_AfterEnd_AfterEnd)
 {
 	doErase(152, 170, wxT("[(100, 150, 0)]"));
+}
+
+
+TEST(RangeMap, Swap)
+{
+	{
+		TestRangeMap mapA = m_mmaps[CONT];
+		TestRangeMap mapB = m_mmaps[SSAME];
+		
+		ASSERT_EQUALS(mapA, m_mmaps[CONT]);
+		ASSERT_EQUALS(mapB, m_mmaps[SSAME]);
+		
+		std::swap(mapA, mapB);
+
+		ASSERT_EQUALS(mapB, m_mmaps[CONT]);
+		ASSERT_EQUALS(mapA, m_mmaps[SSAME]);		
+	}
+	
+	{
+		TestRangeMap mapA = m_mmaps[CONT];
+		TestRangeMap mapB = m_mmaps[SSAME];
+		
+		ASSERT_EQUALS(mapA, m_mmaps[CONT]);
+		ASSERT_EQUALS(mapB, m_mmaps[SSAME]);
+		
+		mapA.swap(mapB);
+
+		ASSERT_EQUALS(mapB, m_mmaps[CONT]);
+		ASSERT_EQUALS(mapA, m_mmaps[SSAME]);		
+	}
 }
 
 

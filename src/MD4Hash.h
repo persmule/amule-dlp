@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -25,12 +25,18 @@
 #ifndef CMD4HASH_H
 #define CMD4HASH_H
 
-#include <cctype>			// Needed for toupper()
 
 #include "ArchSpecific.h"	// Needed for Raw{Peek,Poke}UInt64()
-#include "libs/common/MuleDebug.h"		// Needed for MULE_VALIDATE_PARAMS
 
-#include <wx/string.h>		// Needed for wxString
+#include "kademlia/utils/UInt128.h" // Needed for CUInt128
+
+#include <common/MuleDebug.h>		// Needed for MULE_VALIDATE_PARAMS
+
+#ifdef USE_WX_EXTENSIONS
+#include <common/StringFunctions.h>
+#endif
+
+#include <string>
 
 
 const size_t MD4HASH_LENGTH = 16;
@@ -56,6 +62,18 @@ public:
 	 */
 	CMD4Hash() {
 		Clear();
+	}
+
+	/**
+	 * Create a CMD4Hash from a CUInt128
+	 * 
+	 * @param hash The 128 bits integer to be used.
+	 *
+	 */
+	CMD4Hash(const Kademlia::CUInt128& hash) {
+		byte transitional_array[MD4HASH_LENGTH];
+		hash.ToByteArray(transitional_array);
+		SetHash(transitional_array);
 	}
 	
 	~CMD4Hash() {
@@ -152,8 +170,9 @@ public:
 	 * This function converts a hexadecimal representation of a MD4
 	 * hash and stores it in the m_hash data-member.
 	 */ 
-	bool Decode(const wxString& hash) {
-		if (hash.Length() != MD4HASH_LENGTH * 2) {
+	
+	bool Decode(const std::string& hash) {
+		if (hash.length() != MD4HASH_LENGTH * 2) {
 			return false;
 		}
 		
@@ -178,6 +197,12 @@ public:
 
 		return true;
 	}
+
+	#ifdef USE_WX_EXTENSIONS
+	bool Decode(const wxString& hash) {
+		return Decode(std::string(unicode2char(hash)));
+	}
+	#endif
 	
 	/** 
 	 * Creates a 32 char long hexadecimal representation of a MD4 hash.
@@ -187,19 +212,27 @@ public:
 	 * This function creates a hexadecimal representation of the MD4 
 	 * hash stored in the m_hash data-member and returns it.
 	 */
-	wxString Encode() const {
-		wxString Base16Buff;
+	std::string EncodeSTL() const {
+		std::string Base16Buff;
 
 		for ( size_t i = 0; i < MD4HASH_LENGTH*2; i++ ) {
 			size_t x = ( i % 2 == 0 ) ? ( m_hash[i/2] >> 4 ) : ( m_hash[i/2] & 0xf );
 
-			if ( x <  10 ) Base16Buff += (char)( x + '0' ); else 
-			if ( x >= 10 ) Base16Buff += (char)(  x + ( 'A' - 10 ));
+			if ( x <  10 ) {
+				Base16Buff += (char)( x + '0' ); 
+			} else {
+				Base16Buff += (char)(  x + ( 'A' - 10 ));
+			}
 		}
 
 		return Base16Buff;
+	}		
+	
+	#ifdef USE_WX_EXTENSIONS
+	wxString Encode() const {
+		return char2unicode(EncodeSTL().c_str());
 	}
-
+	#endif
 	
 	/**
 	 * Explicitly set the hash-array to the contents of a unsigned char array.
@@ -255,3 +288,4 @@ private:
 
 
 #endif
+// File_checked_for_headers

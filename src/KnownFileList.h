@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,17 +26,12 @@
 #ifndef KNOWNFILELIST_H
 #define KNOWNFILELIST_H
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
-#include <wx/hashmap.h>		// Needed for WX_DECLARE_HASH_MAP, wxStringHash and wxStringEqual
-#include <wx/thread.h>		// Needed for wxMutex
 
-#include <list>
-
-#include "Types.h"		// Needed for uint16 and uint32
 #include "SharedFileList.h" // CKnownFileMap
 
 
-class CKnownFile;	
+class CKnownFile;
+class CPath;
 
 class CKnownFileList
 {
@@ -47,12 +42,15 @@ public:
 	bool	Init();
 	void	Save();
 	void	Clear();
-	CKnownFile*	FindKnownFile(wxString filename,uint32 in_date,uint32 in_size);
-	CKnownFile*   FindKnownFileByID(const CMD4Hash& hash);
+	CKnownFile* FindKnownFile(
+		const CPath& filename,
+		time_t in_date,
+		uint64 in_size);
+	CKnownFile* FindKnownFileByID(const CMD4Hash& hash);
 	bool	IsKnownFile(const CKnownFile* file);
 
 	uint16 requested;
-	uint32 transfered;
+	uint32 transferred;
 	uint16 accepted;
 
 private:
@@ -60,11 +58,21 @@ private:
 
 	bool	Append(CKnownFile*);
 
-	CKnownFile* IsOnDuplicates(wxString filename,uint32 in_date,uint32 in_size) const;
+	CKnownFile *IsOnDuplicates(
+		const CPath& filename,
+		uint32 in_date,
+		uint64 in_size) const;
+
+	bool KnownFileMatches(
+		CKnownFile *knownFile,
+		const CPath& filename,
+		uint32 in_date,
+		uint64 in_size) const;
 
 	typedef std::list<CKnownFile*> KnownFileList;
-	KnownFileList	m_duplicates;
-	CKnownFileMap	m_map;
+	KnownFileList	m_duplicateFileList;
+	CKnownFileMap	m_knownFileMap;
 };
 
 #endif // KNOWNFILELIST_H
+// File_checked_for_headers

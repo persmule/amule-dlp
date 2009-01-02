@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 // 
-// Copyright (C) 2005-2006aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -44,9 +44,6 @@ public:
     
 	uint64 GetNumberOfSentBytesSinceLastCallAndReset();
     uint64 GetNumberOfSentBytesOverheadSinceLastCallAndReset();
-    uint32 GetHighestNumberOfFullyActivatedSlotsSinceLastCallAndReset();
-    
-	uint32 GetStandardListSize();
 
     void AddToStandardList(uint32 index, ThrottledFileSocket* socket);
     bool RemoveFromStandardList(ThrottledFileSocket* socket);
@@ -86,8 +83,8 @@ private:
 
     uint64 m_SentBytesSinceLastCall;
     uint64 m_SentBytesSinceLastCallOverhead;
-    uint32 m_highestNumberOfFullyActivatedSlots;
 };
 
 
 #endif
+// File_checked_for_headers

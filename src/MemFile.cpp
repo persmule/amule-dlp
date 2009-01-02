@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -34,12 +34,13 @@ CMemFile::CMemFile(unsigned int growthRate)
 	m_growthRate	= growthRate;
 	m_position		= 0;
 	m_delete		= true;
+	m_readonly		= false;
 }
 
 
 CMemFile::CMemFile(byte* buffer, size_t bufferSize)
 {
-	MULE_VALIDATE_PARAMS(buffer, wxT("CMemFile: Attempted to resize to attach to invalid buffer."));
+	MULE_VALIDATE_PARAMS(buffer, wxT("CMemFile: Attempted to attach invalid buffer."));
 	
 	m_buffer		= buffer;
 	m_BufferSize	= bufferSize;
@@ -47,8 +48,21 @@ CMemFile::CMemFile(byte* buffer, size_t bufferSize)
 	m_growthRate	= 0;
 	m_position		= 0;
 	m_delete		= false;
+	m_readonly		= false;
 }
 
+CMemFile::CMemFile(const byte* buffer, size_t bufferSize)
+{
+	MULE_VALIDATE_PARAMS(buffer, wxT("CMemFile: Attempted to attach invalid buffer."));
+	
+	m_buffer		= const_cast<byte*>(buffer);
+	m_BufferSize	= bufferSize;
+	m_fileSize		= bufferSize;
+	m_growthRate	= 0;
+	m_position		= 0;
+	m_delete		= false;
+	m_readonly		= true;
+}
 
 CMemFile::~CMemFile()
 {
@@ -66,6 +80,8 @@ uint64 CMemFile::GetPosition() const
 
 void CMemFile::SetLength(size_t newLen)
 {
+	MULE_VALIDATE_STATE(!m_readonly, wxT("CMemFile: Attempted to change lenght on a read-only buffer."));
+	
 	if (newLen > m_BufferSize) {
 		enlargeBuffer(newLen);
 	}
@@ -88,8 +104,10 @@ void CMemFile::enlargeBuffer(size_t size)
 {
 	MULE_VALIDATE_PARAMS(size >= m_BufferSize, wxT("CMemFile: Attempted to shrink buffer."));
 	MULE_VALIDATE_STATE(m_delete, wxT("CMemFile: Attempted to grow an attached buffer."));
-
+	MULE_VALIDATE_STATE(!m_readonly, wxT("CMemFile: Attempted to grow a read-only buffer."));
+	
 	size_t newsize = m_BufferSize;
+	
 	if (m_growthRate) {
 		newsize = ((size + m_growthRate - 1) / m_growthRate) * m_growthRate;
 	} else {
@@ -112,7 +130,7 @@ sint64 CMemFile::doRead(void* buffer, size_t count) const
 	if (m_position > m_fileSize) {
 		return 0;
 	} else if (m_position + count > m_fileSize) {
-		count -= (m_position + count) - m_fileSize;
+		count = m_fileSize - m_position;
 	}
 	
 	if (count) {
@@ -126,8 +144,9 @@ sint64 CMemFile::doRead(void* buffer, size_t count) const
 
 sint64 CMemFile::doWrite(const void* buffer, size_t count)
 {
-	MULE_VALIDATE_PARAMS(buffer, wxT("CMemFile: Attempting to write from invalid buffer"));
-
+	MULE_VALIDATE_PARAMS(buffer, wxT("CMemFile: Attempting to write to invalid buffer"));
+	MULE_VALIDATE_STATE(!m_readonly, wxT("CMemFile: Attempted to write to a read-only buffer."));
+	
 	// Needs more space?
 	if (m_position + count > m_BufferSize) {
 		enlargeBuffer(m_position + count);
@@ -148,8 +167,19 @@ sint64 CMemFile::doWrite(const void* buffer, size_t count)
 
 sint64 CMemFile::doSeek(sint64 offset) const
 {
-	MULE_VALIDATE_PARAMS(offset >= 0, wxT("Invalid position, must be positive."));
+	MULE_VALIDATE_PARAMS(offset >= 0, wxT("CMemFile: Invalid seek, position, must be positive."));
 	
 	return m_position = offset;
 }
 
+
+void CMemFile::ResetData()
+{
+	wxCHECK_RET(!m_readonly, wxT("Trying to reset read-only buffer"));
+	
+	memset(m_buffer, 0, m_BufferSize);
+	m_fileSize	= 0;
+	m_position	= 0;
+}
+
+// File_checked_for_headers

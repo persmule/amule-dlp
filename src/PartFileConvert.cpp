@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,6 +23,8 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
+#include <wx/app.h>
+
 #include "PartFileConvert.h"
 
 #ifdef CLIENT_GUI
@@ -37,40 +39,24 @@ CConvertListCtrl::CConvertListCtrl(
 			 long WXUNUSED(style),
 			 const wxValidator& WXUNUSED(validator),
 			 const wxString& WXUNUSED(name))
-			 {};
+			 {}
 				 
 #else 
 
 // Normal compilation
 
 #include "amule.h"
-#include "CFile.h"
 #include "DownloadQueue.h"
 #include <common/Format.h>
 #include "Logger.h"
-#include "OtherFunctions.h"
 #include "PartFile.h"
 #include "Preferences.h"
-#include "SafeFile.h"
 #include "SharedFileList.h"
-#include "FileFunctions.h"
+#include <common/FileFunctions.h>
 
-#include <common/PlatformSpecific.h>
+#include <wx/stdpaths.h>
 #include "muuli_wdr.h"
-#include <wx/dirdlg.h>
-#include <wx/icon.h>
-#include <wx/listctrl.h>
-#include <wx/msgdlg.h>
-#include <wx/stattext.h>
-#include <wx/button.h>
 
-#include <wx/file.h>
-#include <wx/filefn.h>
-#include <wx/filename.h>
-#include <wx/string.h>
-#include <wx/utils.h>
-
-#include <algorithm>
 
 enum convstatus{
 	CONV_OK			= 0,
@@ -85,8 +71,8 @@ enum convstatus{
 };
 
 struct ConvertJob {
-	wxString	folder;
-	wxString	filename;
+	CPath		folder;
+	CPath		filename;
 	wxString	filehash;
 	int		format;
 	int		state;
@@ -105,15 +91,14 @@ wxMutex			CPartFileConvert::s_mutex;
 
 CPartFileConvertDlg*	CPartFileConvert::s_convertgui = NULL;
 
-int CPartFileConvert::ScanFolderToAdd(wxString folder, bool deletesource)
+int CPartFileConvert::ScanFolderToAdd(const CPath& folder, bool deletesource)
 {
 	int count = 0;
 	CDirIterator finder(folder);
-	wxString file;
 
-	file = finder.GetFirstFile(CDirIterator::File, wxT("*.part.met"));
-	while (!file.IsEmpty()) {
-		ConvertToeMule(file, deletesource);
+	CPath file = finder.GetFirstFile(CDirIterator::File, wxT("*.part.met"));
+	while (!file.IsOk()) {
+		ConvertToeMule(folder.JoinPaths(file), deletesource);
 		file = finder.GetNextFile();
 		count++;
 	}
@@ -127,23 +112,23 @@ int CPartFileConvert::ScanFolderToAdd(wxString folder, bool deletesource)
 	*/
 
 	file = finder.GetFirstFile(CDirIterator::Dir, wxT("*.*"));
-	while (!file.IsEmpty()) {
-		if (file != wxT(".") && file != wxT("..")) {
-			ScanFolderToAdd(file, deletesource);
-		}
+	while (!file.IsOk()) {
+		ScanFolderToAdd(folder.JoinPaths(file), deletesource);
+		
 		file = finder.GetNextFile();
 	}
 
 	return count;
 }
 
-void CPartFileConvert::ConvertToeMule(wxString folder, bool deletesource)
+void CPartFileConvert::ConvertToeMule(const CPath& file, bool deletesource)
 {
-	if (!wxFileName::FileExists(folder))
+	if (!file.FileExists()) {
 		return;
+	}
 	
 	ConvertJob* newjob = new ConvertJob();
-	newjob->folder = folder;
+	newjob->folder = file;
 	newjob->removeSource = deletesource;
 	newjob->state = CONV_QUEUE;
 
@@ -258,7 +243,7 @@ wxThread::ExitCode CPartFileConvert::Entry()
 	UpdateGUI(NULL);
 
 	if (imported) {
-		theApp.sharedfiles->PublishNextTurn();
+		theApp->sharedfiles->PublishNextTurn();
 	}
 
 	AddDebugLogLineM(false, logPfConvert, wxT("No more jobs on queue, exiting from thread."));
@@ -268,21 +253,20 @@ wxThread::ExitCode CPartFileConvert::Entry()
 	return NULL;
 }
 
-int CPartFileConvert::performConvertToeMule(wxString folder)
+int CPartFileConvert::performConvertToeMule(const CPath& fileName)
 {
-	wxString filepartindex, newfilename;
-	wxString buffer;
+	wxString filepartindex, buffer;
 	unsigned fileindex;
-	wxString partfile = folder;
-	folder = folder.BeforeLast(wxFileName::GetPathSeparator());
-	partfile = partfile.AfterLast(wxFileName::GetPathSeparator());
+	
+	CPath folder	= fileName.GetPath();
+	CPath partfile	= fileName.GetFullName();
+	CPath newfilename;
+
 	CDirIterator finder(folder);
 
 	UpdateGUI(0, _("Reading temp folder"), true);
 
-	filepartindex = partfile.BeforeFirst(wxT('.'));
-	//int pos=filepartindex.ReverseFind('\\');
-	//if (pos>-1) filepartindex=filepartindex.Mid(pos+1,filepartindex.GetLength()-pos);
+	filepartindex = partfile.RemoveAllExt().GetRaw();
 
 	UpdateGUI(4, _("Retrieving basic information from download info file"));
 
@@ -296,7 +280,7 @@ int CPartFileConvert::performConvertToeMule(wxString folder)
 			return CONV_BADFORMAT;
 	}
 
-	wxString oldfile = JoinPaths(folder, partfile.Left(partfile.Length() - ((s_pfconverting->partmettype == PMT_SHAREAZA) ? 3 : 4)));
+	CPath oldfile = folder.JoinPaths(partfile.RemoveExt());
 
 	{
 		wxMutexLocker lock(s_mutex);
@@ -307,7 +291,7 @@ int CPartFileConvert::performConvertToeMule(wxString folder)
 
 	UpdateGUI(s_pfconverting);
 
-	if (theApp.downloadqueue->GetFileByID(file->GetFileHash())) {
+	if (theApp->downloadqueue->GetFileByID(file->GetFileHash())) {
 		delete file;
 		return CONV_ALREADYEXISTS;
 	}
@@ -317,18 +301,17 @@ int CPartFileConvert::performConvertToeMule(wxString folder)
 
 		try {			
 			CFile inputfile;
-			wxString filename;
 
 			// just count
 			unsigned maxindex = 0;
 			unsigned partfilecount = 0;
-			buffer = finder.GetFirstFile(CDirIterator::File, filepartindex + wxT(".*.part"));
-			while (!buffer.IsEmpty()) {
+			CPath filePath = finder.GetFirstFile(CDirIterator::File, filepartindex + wxT(".*.part"));
+			while (!filePath.IsOk()) {
 				long l;
 				++partfilecount;
-				buffer.AfterLast(wxFileName::GetPathSeparator()).AfterFirst(wxT('.')).BeforeLast(wxT('.')).ToLong(&l);
+				filePath.GetFullName().RemoveExt().GetExt().ToLong(&l);
 				fileindex = (unsigned)l;
-				buffer = finder.GetNextFile();
+				filePath = finder.GetNextFile();
 				// GonoszTopi - why the hell does eMule need this??
 				//if (fileindex == 0) continue;
 				if (fileindex > maxindex) maxindex = fileindex;
@@ -351,9 +334,9 @@ int CPartFileConvert::performConvertToeMule(wxString folder)
 
 			UpdateGUI(s_pfconverting);
 
-			wxLongLong freespace;
-			if (wxGetDiskSpace(thePrefs::GetTempDir(), NULL, &freespace)) {
-				if (freespace < (maxindex * PARTSIZE)) {
+			sint64 freespace = CPath::GetFreeSpaceAt(thePrefs::GetTempDir());
+			if (freespace != wxInvalidOffset) {
+				if (static_cast<uint64>(freespace) < maxindex * PARTSIZE) {
 					delete file;
 					delete [] ba;
 					return CONV_OUTOFDISKSPACE;
@@ -369,8 +352,8 @@ int CPartFileConvert::performConvertToeMule(wxString folder)
 			file->m_hpartfile.SetLength( s_pfconverting->spaceneeded );
 
 			unsigned curindex = 0;
-			filename = finder.GetFirstFile(CDirIterator::File, filepartindex + wxT(".*.part"));
-			while (!filename.IsEmpty()) {
+			CPath filename = finder.GetFirstFile(CDirIterator::File, filepartindex + wxT(".*.part"));
+			while (filename.IsOk()) {
 				// stats
 				++curindex;
 				buffer = wxString::Format(_("Loading data from old download file (%u of %u)"), curindex, partfilecount);
@@ -378,7 +361,7 @@ int CPartFileConvert::performConvertToeMule(wxString folder)
 				UpdateGUI(10 + (curindex * stepperpart), buffer);
 
 				long l;
-				filename.AfterLast(wxFileName::GetPathSeparator()).AfterFirst(wxT('.')).BeforeLast(wxT('.')).ToLong(&l);
+				filename.GetFullName().RemoveExt().GetExt().ToLong(&l);
 				fileindex = (unsigned)l;
 				if (fileindex == 0) {
 					filename = finder.GetNextFile();
@@ -418,25 +401,23 @@ int CPartFileConvert::performConvertToeMule(wxString folder)
 	else //if (pfconverting->partmettype==PMT_DEFAULTOLD || pfconverting->partmettype==PMT_NEWOLD || Shareaza  ) 
 	{
 		if (!s_pfconverting->removeSource) {
-			wxFile f(oldfile);
 			wxMutexLocker lock(s_mutex);
-			s_pfconverting->spaceneeded = f.Length();
+			s_pfconverting->spaceneeded = oldfile.GetFileSize();
 		}
 
 		UpdateGUI(s_pfconverting);
 
-		wxLongLong freespace;
-		if (!wxGetDiskSpace(thePrefs::GetTempDir(), NULL, &freespace)) {
+		sint64 freespace = CPath::GetFreeSpaceAt(thePrefs::GetTempDir());
+		if (freespace == wxInvalidOffset) {
 			delete file;
 			return CONV_IOERROR;
-		}
-		if (!s_pfconverting->removeSource && (freespace < s_pfconverting->spaceneeded)) {
+		} else if (!s_pfconverting->removeSource && (freespace < s_pfconverting->spaceneeded)) {
 			delete file;
 			return CONV_OUTOFDISKSPACE;
 		}
 
 		file->CreatePartFile();
-		newfilename = file->GetFullName();
+		newfilename = file->GetFullName().RemoveExt();
 
 		file->m_hpartfile.Close();
 
@@ -444,16 +425,15 @@ int CPartFileConvert::performConvertToeMule(wxString folder)
 
 		UpdateGUI(92, _("Copy"));
 
-		wxRemoveFile(newfilename.Left(newfilename.Length()-4));
-
-		if (!wxFileName::FileExists(oldfile)) {
+		CPath::RemoveFile(newfilename);
+		if (!oldfile.FileExists()) {
 			// data file does not exist. well, then create a 0 byte big one
 			CFile datafile;
-			ret = datafile.Create(newfilename.Left(newfilename.Length() - 4));
+			ret = datafile.Create(newfilename);
 		} else if (s_pfconverting->removeSource) {
-			ret = wxRenameFile(oldfile, newfilename.Left(newfilename.Length() - 4));
+			ret = CPath::RenameFile(oldfile, newfilename);
 		} else {
-			ret = wxCopyFile(oldfile, newfilename.Left(newfilename.Length() - 4), false);
+			ret = CPath::CloneFile(oldfile, newfilename, false);
 		}
 		if (!ret) {
 			file->Delete();
@@ -465,19 +445,16 @@ int CPartFileConvert::performConvertToeMule(wxString folder)
 
 	UpdateGUI(94, _("Retrieving source downloadfile information"));
 
-	wxRemoveFile(newfilename);
+	CPath::RemoveFile(newfilename);
 	if (s_pfconverting->removeSource) {
-		wxRenameFile(JoinPaths(folder, partfile), newfilename);
+		CPath::RenameFile(folder.JoinPaths(partfile), newfilename);
 	} else {
-		wxCopyFile(JoinPaths(folder, partfile), newfilename, false);
+		CPath::CloneFile(folder.JoinPaths(partfile), newfilename, false);
 	}
 
-	file->hashlist.Clear();
+	file->m_hashlist.clear();
 
-	while (file->gaplist.GetCount() > 0 ) {
-		delete file->gaplist.GetAt(file->gaplist.GetHeadPosition());
-		file->gaplist.RemoveAt(file->gaplist.GetHeadPosition());
-	}
+	DeleteContents(file->m_gaplist);
 
 	if (!file->LoadPartFile(thePrefs::GetTempDir(), file->GetPartMetFileName(), false)) {
 		//delete file;
@@ -486,33 +463,29 @@ int CPartFileConvert::performConvertToeMule(wxString folder)
 	}
 
 	if (s_pfconverting->partmettype == PMT_NEWOLD || s_pfconverting->partmettype == PMT_SPLITTED ) {
-		file->completedsize = file->transfered;
+		file->SetCompletedSize(file->transferred);
 		file->m_iGainDueToCompression = 0;
 		file->m_iLostDueToCorruption = 0;
 	}
 
 	UpdateGUI(100, _("Adding download and saving new partfile"));
 
-	theApp.downloadqueue->AddDownload(file, thePrefs::AddNewFilesPaused(), 0);
+	theApp->downloadqueue->AddDownload(file, thePrefs::AddNewFilesPaused(), 0);
 	file->SavePartFile();
 	
 	if (file->GetStatus(true) == PS_READY) {
-		theApp.sharedfiles->SafeAddKFile(file); // part files are always shared files
+		theApp->sharedfiles->SafeAddKFile(file); // part files are always shared files
 	}
 
 	if (s_pfconverting->removeSource) {
-		buffer = finder.GetFirstFile(CDirIterator::File, filepartindex + wxT(".*"));
-		while (!buffer.IsEmpty()) {
-			wxRemoveFile(buffer);
-			buffer = finder.GetNextFile();
+		CPath oldFile = finder.GetFirstFile(CDirIterator::File, filepartindex + wxT(".*"));
+		while (oldFile.IsOk()) {
+			CPath::RemoveFile(folder.JoinPaths(oldFile));
+			oldFile = finder.GetNextFile();
 		}
 
 		if (s_pfconverting->partmettype == PMT_SPLITTED) {
-			#ifndef __VMS__
-				wxRmdir(folder);
-			#else
-				#warning wxRmdir does not work under VMS !
-			#endif
+			CPath::RemoveDir(folder);
 		}
 	}
 
@@ -538,7 +511,7 @@ void CPartFileConvert::UpdateGUI(float percent, wxString text, bool fullinfo)
 		percentlabel->GetParent()->Layout();
 
 		if (fullinfo) {
-			dynamic_cast<wxStaticBoxSizer*>(IDC_CURJOB)->GetStaticBox()->SetLabel(s_pfconverting->folder);
+			dynamic_cast<wxStaticBoxSizer*>(IDC_CURJOB)->GetStaticBox()->SetLabel(s_pfconverting->folder.GetPrintable());
 		}
 	}
 
@@ -720,14 +693,16 @@ CPartFileConvertDlg::CPartFileConvertDlg(wxWindow* parent)
 
 void CPartFileConvertDlg::OnAddFolder(wxCommandEvent& WXUNUSED(event))
 {
-	wxString folder = ::wxDirSelector(_("Please choose a folder to search for temporary downloads! (subfolders will be included)"),
-					  GetDocumentsDir());
+	wxString folder = ::wxDirSelector(
+		_("Please choose a folder to search for temporary downloads! (subfolders will be included)"),
+		wxStandardPaths::Get().GetDocumentsDir(), wxDD_DEFAULT_STYLE,
+		wxDefaultPosition, this);
 	if (!folder.IsEmpty()) {
 		int reply = wxMessageBox(_("Do you want the source files of succesfully imported downloads be deleted?"),
 					 _("Remove sources?"),
 					 wxYES_NO | wxCANCEL | wxICON_QUESTION, this);
 		if (reply != wxCANCEL) {
-			CPartFileConvert::ScanFolderToAdd(folder, (reply == wxYES));
+			CPartFileConvert::ScanFolderToAdd(CPath(folder), (reply == wxYES));
 		}
 	}
 }
@@ -755,9 +730,9 @@ void CPartFileConvertDlg::UpdateJobInfo(ConvertJob* job)
 	wxString buffer;
 
 	// search jobitem in listctrl
-	long itemnr = m_joblist->FindItem(-1, (long)job);
+	long itemnr = m_joblist->FindItem(-1, reinterpret_cast<wxUIntPtr>(job));
 	if (itemnr != -1) {
-		m_joblist->SetItem(itemnr, 0, job->filename.IsEmpty() ? job->folder : job->filename );
+		m_joblist->SetItem(itemnr, 0, job->filename.IsOk() ? job->folder.GetPrintable() : job->filename.GetPrintable() );
 		m_joblist->SetItem(itemnr, 1, CPartFileConvert::GetReturncodeText(job->state) );
 		if (job->size > 0) {
 			buffer = CFormat(_("%s (Disk: %s)")) % CastItoXBytes(job->size) % CastItoXBytes(job->spaceneeded);
@@ -774,7 +749,7 @@ void CPartFileConvertDlg::UpdateJobInfo(ConvertJob* job)
 
 void CPartFileConvertDlg::RemoveJob(ConvertJob* job)
 {
-	long itemnr = m_joblist->FindItem(-1, (long)job);
+	long itemnr = m_joblist->FindItem(-1, reinterpret_cast<wxUIntPtr>(job));
 	if (itemnr != -1) {
 		m_joblist->DeleteItem(itemnr);
 	}
@@ -782,9 +757,9 @@ void CPartFileConvertDlg::RemoveJob(ConvertJob* job)
 
 void CPartFileConvertDlg::AddJob(ConvertJob* job)
 {
-	long ix = m_joblist->InsertItem(m_joblist->GetItemCount(), job->folder);
+	long ix = m_joblist->InsertItem(m_joblist->GetItemCount(), job->folder.GetPrintable());
 	if (ix != -1) {
-		m_joblist->SetItemData(ix, (long)job);
+		m_joblist->SetItemData(ix, reinterpret_cast<wxUIntPtr>(job));
 		m_joblist->SetItem(ix, 1, CPartFileConvert::GetReturncodeText(job->state));
 	}
 }
@@ -822,3 +797,4 @@ void CPartFileConvertDlg::RetrySel(wxCommandEvent& WXUNUSED(event))
 }
 
 #endif
+// File_checked_for_headers

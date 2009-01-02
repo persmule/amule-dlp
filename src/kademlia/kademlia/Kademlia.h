@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -40,7 +40,6 @@ there client on the eMule forum..
 #define __KAD_KADEMLIA_H__
 
 #include <map>
-#include "../../Types.h"
 #include "../utils/UInt128.h"
 
 class CSharedFileList;
@@ -66,32 +65,32 @@ typedef std::map<CRoutingZone*, CRoutingZone*> EventMap;
 class CKademlia
 {
 public:
-	static void start(void);
-	static void start(CPrefs *prefs);
-	static void stop();
+	static void Start(void);
+	static void Start(CPrefs *prefs);
+	static void Stop();
  
-	static CPrefs				*getPrefs(void);
-	static CRoutingZone			*getRoutingZone(void);
-	static CKademliaUDPListener	*getUDPListener(void);
-	static CIndexed				*getIndexed(void);
-	static bool					isRunning(void) {return m_running;}
-	static bool					isConnected(void);
-	static bool					isFirewalled(void);
+	static CPrefs				*GetPrefs(void);
+	static CRoutingZone			*GetRoutingZone(void);
+	static CKademliaUDPListener	*GetUDPListener(void);
+	static CIndexed				*GetIndexed(void);
+	static bool					IsRunning(void) {return m_running;}
+	static bool					IsConnected(void);
+	static bool					IsFirewalled(void);
 	static void					RecheckFirewalled(void);
-	static uint32				getKademliaUsers(void);
-	static uint32				getKademliaFiles(void);
-	static uint32				getTotalStoreKey(void);
-	static uint32				getTotalStoreSrc(void);
-	static uint32				getTotalStoreNotes(void);
-	static uint32				getTotalFile(void);
-	static bool					getPublish(void);
-	static uint32				getIPAddress(void);
-	static void					bootstrap(uint32 ip, uint16 port);
-	static void					processPacket(const byte* data, uint32 lenData, uint32 ip, uint16 port);
+	static uint32				GetKademliaUsers(void);
+	static uint32				GetKademliaFiles(void);
+	static uint32				GetTotalStoreKey(void);
+	static uint32				GetTotalStoreSrc(void);
+	static uint32				GetTotalStoreNotes(void);
+	static uint32				GetTotalFile(void);
+	static bool					GetPublish(void);
+	static uint32				GetIPAddress(void);
+	static void					Bootstrap(uint32 ip, uint16 port);
+	static void					ProcessPacket(const byte* data, uint32 lenData, uint32 ip, uint16 port);
 
-	static void addEvent(CRoutingZone *zone);
-	static void removeEvent(CRoutingZone *zone);
-	static void process();
+	static void AddEvent(CRoutingZone *zone);
+	static void RemoveEvent(CRoutingZone *zone);
+	static void Process();
 
 private:
 	CKademlia() {}
@@ -119,3 +118,4 @@ void KadGetKeywordHash(const wxString& rstrKeyword, Kademlia::CUInt128* pKadID);
 wxString KadGetKeywordBytes(const wxString& rstrKeywordW);
 
 #endif // __KAD_KADEMLIA_H__
+// File_checked_for_headers

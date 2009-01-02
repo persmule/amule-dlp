@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -27,12 +27,9 @@
 #define SHAREDFILELIST_H
 
 #include <map>
-#include <vector>
-#include <wx/defs.h>		// Needed before any other wx/*.h
 #include <wx/thread.h>		// Needed for wxMutex
 
 #include "Types.h"		// Needed for uint16 and uint64
-#include "CTypedPtrList.h"	// Needed for CTypedPtrList
 
 struct UnknownFile_Struct;
 
@@ -43,6 +40,9 @@ class CMD4Hash;
 class CServer;
 class CUpDownClient;
 class CPublishKeywordList;
+class CPath;
+class CAICHHash;
+
 
 typedef std::map<CMD4Hash,CKnownFile*> CKnownFileMap;
 
@@ -50,8 +50,7 @@ class CSharedFileList {
 public:
 	CSharedFileList(CKnownFileList* in_filelist);
 	~CSharedFileList();
-	bool	AddFile(CKnownFile* pFile);
-	void 	Reload(bool firstload = false);
+	void 	Reload();
 	void	SafeAddKFile(CKnownFile* toadd, bool bOnlyAdd = false);
 	void	RemoveFile(CKnownFile* toremove);
 	CKnownFile*	GetFileByID(const CMD4Hash& filehash);
@@ -62,13 +61,13 @@ public:
 	uint32  GetFileCount()	{ wxMutexLocker lock(list_mut); return m_Files_map.size(); }
 	void	CopyFileList(std::vector<CKnownFile*>& out_list);
 	void	UpdateItem(CKnownFile* toupdate);
-	void	AddFilesFromDirectory(wxString directory);
-	void    GetSharedFilesByDirectory(const wxString directory,CTypedPtrList<CPtrList, CKnownFile*>& list);
+	unsigned	AddFilesFromDirectory(const CPath& directory);
+	void    GetSharedFilesByDirectory(const wxString& directory, CKnownFilePtrList& list);
 	void	ClearED2KPublishInfo();
 	void	RepublishFile(CKnownFile* pFile);
 	void	Process();
 	void	PublishNextTurn()	{ m_lastPublishED2KFlag = true; }
-	bool	RenameFile(CKnownFile* pFile, const wxString& newName);
+	bool	RenameFile(CKnownFile* pFile, const CPath& newName);
 	
 	/* Kad Stuff */
 	void	Publish();
@@ -76,8 +75,15 @@ public:
 	void	RemoveKeywords(CKnownFile* pFile);	
 	// This is actually unused, but keep it here - will be needed later.
 	void	ClearKadSourcePublishInfo();
+
+	/** 
+ 	 * Checks for files which missing or wrong AICH hashes.
+ 	 * Those that are found are scheduled for ACIH hashing.
+ 	 */
+	void CheckAICHHashes(const std::list<CAICHHash>& hashes);
 	
 private:
+	bool	AddFile(CKnownFile* pFile);
 	void	FindSharedFiles();
 	bool	reloading;
 	
@@ -101,3 +107,4 @@ private:
 };
 
 #endif // SHAREDFILELIST_H
+// File_checked_for_headers

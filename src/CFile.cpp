@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 1998 Vadim Zeitlin ( zeitlin@dptmaths.ens-cachan.fr )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,33 +23,20 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <common/MuleDebug.h>			// Needed for MULE_VALIDATE_*
-#include <common/StringFunctions.h>	// Needed for unicode2char
-#include <common/Format.h>
 
-#include "CFile.h"				// Interface declarations.
-#include "FileFunctions.h"		// Needed for CheckFileExists
-#include "Preferences.h"		// Needed for thePrefs
-#include "Logger.h"				// Needed for AddDebugLogLineM
+#include "CFile.h"		// Interface declarations.
+#include "Logger.h"		// Needed for AddDebugLogLineM
+#include <common/Path.h>	// Needed for CPath
 
-#include <unistd.h>				// Needed for close(2)
-#include <cstdio>       		// SEEK_xxx constants
-#include <fcntl.h>       		// O_RDONLY &c
-#include <errno.h>				// errno
-
-#include <wx/filefn.h>
-#include <wx/log.h>				// Needed for wxSysErrorMsg
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"             // Needed for HAVE_SYS_PARAM_H
 #endif
 
-// Mario Sergio Fujikawa Ferreira <lioux@FreeBSD.org>
-// to detect if this is a *BSD system
+
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
-
 
 // standard
 #if defined(__WXMSW__) && !defined(__GNUWIN32__) && !defined(__WXWINE__) && !defined(__WXMICROWIN__)
@@ -97,19 +84,6 @@ char* mktemp( char * path ) { return path ;}
 #	error  "Please specify the header with file functions declarations."
 #endif  //Win/UNIX
 
-#include <sys/types.h>
-#include <sys/stat.h>
-
-// Windows compilers don't have these constants
-#ifndef W_OK
-enum {
-	F_OK = 0,   // test for existence
-	X_OK = 1,   //          execute permission
-	W_OK = 2,   //          write
-	R_OK = 4    //          read
-};
-#endif // W_OK
-
 // there is no distinction between text and binary files under Unix, so define
 // O_BINARY as 0 if the system headers don't do it already
 #if defined(__UNIX__) && !defined(O_BINARY)
@@ -125,36 +99,47 @@ enum {
 // and ensures that we use 64b IO on windows (only 32b by default).
 #ifdef __WXMSW__
 	#define FLUSH_FD(x)			_commit(x)
-	#define SEEK_FD(x, y, z)	_lseeki64(x, y, z)
+	#define SEEK_FD(x, y, z)		_lseeki64(x, y, z)
 	#define TELL_FD(x)			_telli64(x)
 
 	#if (__MSVCRT_VERSION__ < 0x0601)
-		#warning MSCVRT-Version smaller than 6.01
+		//#warning MSCVRT-Version smaller than 6.01
 		#define STAT_FD(x, y)		_fstati64(x, y)
-		#define STAT_STRUCT			struct _stati64
+		#define STAT_STRUCT		struct _stati64
 	#else
 		#define STAT_FD(x, y)		_fstat64(x, y)
-		#define STAT_STRUCT			struct __stat64
+		#define STAT_STRUCT		struct __stat64
 	#endif
 #else
-	#define FLUSH_FD(x)			fsync(x)
-	#define SEEK_FD(x, y, z)	lseek(x, y, z)
+
+// We don't need to sync all meta-data, just the contents,
+// so use fdatasync when possible (see man fdatasync).
+	#if defined(_POSIX_SYNCHRONIZED_IO) && (_POSIX_SYNCHRONIZED_IO > 0)
+		#define FLUSH_FD(x)		fdatasync(x)
+	#else
+		#define FLUSH_FD(x)		fsync(x)
+	#endif
+
+	#define SEEK_FD(x, y, z)		lseek(x, y, z)
 	#define TELL_FD(x)			wxTell(x)
-	#define STAT_FD(x, y)		fstat(x, y)
+	#define STAT_FD(x, y)			fstat(x, y)
 	#define STAT_STRUCT			struct stat
 #endif
 
 
-// This macro is used to check if a syscall failed, in that case
+// This function is used to check if a syscall failed, in that case
 // log an appropriate message containing the errno string.
-#define SYSCALL_CHECK(check, what) \
-	do { \
-		if (!(check)) { \
-			AddDebugLogLineM(true, logCFile, \
-				wxString() << wxT("Error when ") << what << wxT(" (") \
-					<< m_filePath << wxT("): ") << wxSysErrorMsg()); \
-		} \
-	} while (false);
+inline void syscall_check(
+	bool check,
+	const CPath& filePath,
+	const wxString& what)
+{
+	if (!check) {
+		AddDebugLogLineM(true, logCFile,
+			CFormat(wxT("Error when %s (%s): %s"))
+				% what % filePath % wxSysErrorMsg());
+	}
+}
 
 
 CSeekFailureException::CSeekFailureException(const wxString& desc)
@@ -165,6 +150,13 @@ CSeekFailureException::CSeekFailureException(const wxString& desc)
 CFile::CFile()
 	: m_fd(fd_invalid)
 {}
+
+
+CFile::CFile(const CPath& fileName, OpenMode mode)
+	: m_fd(fd_invalid)
+{
+	Open(fileName, mode);
+}
 
 
 CFile::CFile(const wxString& fileName, OpenMode mode)
@@ -194,7 +186,7 @@ bool CFile::IsOpened() const
 }
 
 
-const wxString& CFile::GetFilePath() const
+const CPath& CFile::GetFilePath() const
 {
 	MULE_VALIDATE_STATE(IsOpened(), wxT("CFile: Cannot return path of closed file."));
 
@@ -202,91 +194,79 @@ const wxString& CFile::GetFilePath() const
 }
 
 
-bool CFile::Create(const wxString& path, bool overwrite, int accessMode)
+bool CFile::Create(const CPath& path, bool overwrite, int accessMode)
 {
-	if (!overwrite && CheckFileExists(path)) {
+	if (!overwrite && path.FileExists()) {
 		return false;
 	}
 
 	return Open(path, write, accessMode);
 }
 
+bool CFile::Create(const wxString& path, bool overwrite, int accessMode)
+{
+	return Create(CPath(path), overwrite, accessMode);
+}
+
 
 bool CFile::Open(const wxString& fileName, OpenMode mode, int accessMode)
 {
-	MULE_VALIDATE_PARAMS(!fileName.IsEmpty(), wxT("CFile: Cannot open, empty path."));
+	MULE_VALIDATE_PARAMS(fileName.Length(), wxT("CFile: Cannot open, empty path."));
+	
+	return Open(CPath(fileName), mode, accessMode);
+}
 
-	if ( accessMode == -1 ) {
-#ifndef MULEUNIT // TODO: Remove the need for this
-		accessMode = thePrefs::GetFilePermissions();
-#else
-		accessMode = wxS_DEFAULT;
-#endif
-	}
+
+bool CFile::Open(const CPath& fileName, OpenMode mode, int accessMode)
+{
+	MULE_VALIDATE_PARAMS(fileName.IsOk(), wxT("CFile: Cannot open, empty path."));
 
 #ifdef __linux__
 	int flags = O_BINARY | O_LARGEFILE;
 #else
 	int flags = O_BINARY;
 #endif
-
 	switch ( mode ) {
 		case read:
 			flags |= O_RDONLY;
 			break;
-	
+		
 		case write_append:
-			if (CheckFileExists(fileName))
+			if (fileName.FileExists())
 			{
 				flags |= O_WRONLY | O_APPEND;
 				break;
 			}
 			//else: fall through as write_append is the same as write if the
 			//      file doesn't exist
-	
+		
 		case write:
 			flags |= O_WRONLY | O_CREAT | O_TRUNC;
 			break;
-	
+		
 		case write_excl:
 			flags |= O_WRONLY | O_CREAT | O_EXCL;
 			break;
-
+		
 		case read_write:
 			flags |= O_RDWR;
         	break;
 	}
-
+	
 	if (IsOpened()) {
 		Close();	
 	}
+	
 
 	
-	// When opening files, we will always first try to create an ANSI file name,
-	// even if that means an extended ANSI file name. Only if it is not possible
-	// to do that, we fall back to  UTF-8 file names. This is unicode safe and is
-	// the only way to guarantee that we can open any file in the file system,
-	// even if it is not an UTF-8 valid sequence.
-	//
-	
-	
-	// Test if it is possible to use an ANSI name
-	Unicode2CharBuf tmpFileName = unicode2char(fileName);
-	if (tmpFileName) {
-		// Use an ANSI name
-		m_fd = open(tmpFileName, flags, accessMode);
-	} 
-	
-	if (m_fd == fd_invalid) { // Wrong conversion or can't open.
-		// Try an UTF-8 name
-		m_fd = open(unicode2UTF8(fileName), flags, accessMode);
-	}
-	
+	Unicode2CharBuf tmpFileName = filename2char(fileName.GetRaw());
+	wxASSERT_MSG(tmpFileName, wxT("Convertion failed in CFile::Open"));
+
 	m_filePath = fileName;
-
-	SYSCALL_CHECK(m_fd != fd_invalid, wxT("opening file"));	
-      
-    return IsOpened();
+	m_fd = open(tmpFileName, flags, accessMode);
+	syscall_check(m_fd != fd_invalid, m_filePath, wxT("opening file"));
+	
+	return IsOpened();
 }
 
 
@@ -295,7 +275,7 @@ bool CFile::Close()
 	MULE_VALIDATE_STATE(IsOpened(), wxT("CFile: Cannot close closed file."));
 
 	bool closed = (close(m_fd) != -1);
-	SYSCALL_CHECK(closed, wxT("closing file"));
+	syscall_check(closed, m_filePath, wxT("closing file"));
 	
 	m_fd = fd_invalid;	
 	
@@ -308,7 +288,7 @@ bool CFile::Flush()
 	MULE_VALIDATE_STATE(IsOpened(), wxT("CFile: Cannot flush closed file."));
 	
 	bool flushed = (FLUSH_FD(m_fd) != -1);
-	SYSCALL_CHECK(flushed, wxT("flushing file"));
+	syscall_check(flushed, m_filePath, wxT("flushing file"));
 
 	return flushed;	
 }
@@ -398,6 +378,21 @@ uint64 CFile::GetLength() const
 }
 
 
+uint64 CFile::GetAvailable() const
+{
+	const uint64 length = GetLength();
+	const uint64 position = GetPosition();
+
+	// Safely handle seeking past EOF
+	if (position < length) {
+		return length - position;
+	}
+
+	// File is at or after EOF
+	return 0;
+}
+
+
 bool CFile::SetLength(size_t new_len)
 {
 	MULE_VALIDATE_STATE(IsOpened(), wxT("CFile: Cannot set length when no file is open."));
@@ -408,7 +403,8 @@ bool CFile::SetLength(size_t new_len)
 	int result = ftruncate(m_fd, new_len);
 #endif
 
-	SYSCALL_CHECK((result != -1), wxT("truncating file"));	
+	syscall_check((result != -1), m_filePath, wxT("truncating file"));
 
 	return (result != -1);
 }
+// File_checked_for_headers

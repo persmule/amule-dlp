@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 Angel Vidal Veiga - Kry (kry@amule.org)
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Angel Vidal Veiga - Kry (kry@amule.org)
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -23,14 +23,14 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
+
 #ifndef STRING_FUNCTIONS_H
 #define STRING_FUNCTIONS_H
 
 #include "../../Types.h"		// Needed for uint16 and uint32
-#include <wx/defs.h>
-#include <wx/string.h>
-#include <wx/strconv.h>
-#include <wx/filename.h>
+
+class CPath;
+
 
 // UTF8 types: No UTF8, BOM prefix, or Raw UTF8
 enum EUtf8Str
@@ -76,16 +76,18 @@ enum EUtf8Str
 typedef const wxWX2MBbuf Unicode2CharBuf;
 typedef const wxMB2WXbuf Char2UnicodeBuf;
 
-static wxCSConv aMuleConv(wxT("iso8859-1"));
-
-inline Unicode2CharBuf	unicode2char(const wxChar* x)	{ return aMuleConv.cWX2MB(x); }
-inline Char2UnicodeBuf	char2unicode(const char* x)		{ return aMuleConv.cMB2WX(x); }
+inline Unicode2CharBuf unicode2char(const wxChar* x)	{ return wxConvLocal.cWX2MB(x); }
+inline Char2UnicodeBuf char2unicode(const char* x)	{ return wxConvLocal.cMB2WX(x); }
 
 inline Unicode2CharBuf unicode2UTF8(const wxChar* x)	{ return wxConvUTF8.cWX2MB(x); }
-inline Char2UnicodeBuf UTF82unicode(const char* x)		{ return wxConvUTF8.cMB2WX(x); }
+inline Char2UnicodeBuf UTF82unicode(const char* x)	{ return wxConvUTF8.cMB2WX(x); }
 
-inline const wxCharBuffer char2UTF8(const char *x) { return unicode2UTF8(char2unicode(x)); }
-inline const wxCharBuffer UTF82char(const char *x) { return unicode2char(UTF82unicode(x)); }
+inline const wxCharBuffer char2UTF8(const char *x)	{ return unicode2UTF8(char2unicode(x)); }
+inline const wxCharBuffer UTF82char(const char *x)	{ return unicode2char(UTF82unicode(x)); }
+
+inline Unicode2CharBuf filename2char(const wxChar* x)	{ return wxConvFile.cWC2MB(x); }
+inline Char2UnicodeBuf char2filename(const char* x)	{ return wxConvFile.cMB2WC(x); }
+
 
 //
 // Replaces "&" with "&&" in 'in' for use with text-labels
@@ -131,6 +133,13 @@ inline unsigned long StrToULong( const wxString& str ) {
 	return value;
 }
 
+inline unsigned long long StrToULongLong( const wxString& str ) {
+#ifdef _MSC_VER
+	return _atoi64(unicode2char(str));
+#else
+	return atoll(unicode2char(str));
+#endif
+}
 
 inline unsigned int GetRawSize(const wxString& rstr, EUtf8Str eEncode)
 {
@@ -170,19 +179,7 @@ inline unsigned int GetRawSize(const wxString& rstr, EUtf8Str eEncode)
  * @param isFilePath If true, then the path will be truncated rather than the filename if possible.
  * @return The truncated filename.
  */
-wxString TruncateFilename(const wxString& filename, size_t length, bool isFilePath = false);
-
-/**
- * Removes invalid chars from the filename.
- *
- * @param filename the filename to clean.
- * @param keepSpace If false, spaces are replaced with underscores.
- * @param fat32 If true, chars invalid on fat32 are also replaced.
- *
- * Note that fat32 is always considered to be true on wxMSW.
- */ 
-wxString CleanupFilename(const wxString& filename, bool keepSpaces = true, bool fat32 = false);
-
+wxString TruncateFilename(const CPath& filename, size_t length, bool isFilePath = false);
 
 /**
  * Strips all path separators from the specified end of a path.
@@ -229,6 +226,28 @@ wxString validateURI(const wxString& url);
 
 
 /**
+ * Compares two strings, while taking numerals into consideration.
+ *
+ * @return Returns -1 if a < b, 1 if a > b and 0 if a = b
+ *
+ * This function basically splits the two strings into a number of
+ * fields, deliniated by whitespace, non-alphanumerical chars. The 
+ * numerals are then converted to integers, and the fields are
+ * compared. This allows strings such as "a (2)" and "a (10)" to
+ * be properly sorted for displaying.
+ *
+ * Currently does not handle floats (they are treated as to seperate
+ * fields, nor negative numbers.
+ */
+int FuzzyStrCmp(const wxString& a, const wxString& b);
+
+/**
+ * As with FuzzyStrCmp, but case insensitive.
+ */
+int FuzzyStrCaseCmp(const wxString& a, const wxString& b);
+
+
+/**
  * This class provides a simple and fast tokenizer.
  */
 class CSimpleTokenizer
@@ -241,7 +260,7 @@ public:
 	CSimpleTokenizer(const wxString& str, wxChar delim);
 
 	/**
-	 * Returns the next part of the string seperated by the
+	 * Returns the next part of the string separated by the
 	 * given delimiter. When the entire string has been
 	 * tokenized, an empty string is returned. Note that
 	 * empty tokens are also returned.
@@ -281,3 +300,4 @@ private:
 
 
 #endif // STRING_FUNCTIONS_H
+// File_checked_for_headers

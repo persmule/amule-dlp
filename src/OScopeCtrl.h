@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -30,13 +30,10 @@
 #define NULL 0
 #endif
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
 #include <wx/control.h>		// Needed for wxControl
 #include <wx/timer.h>		// Needed for wxTimer
 #include <wx/pen.h>
-#include <wx/brush.h>
 
-#include "Types.h"		// Needed for RECT
 #include "Color.h"		// Needed for COLORREF and RGB
 #include "Statistics.h"		// Needed for StatsGraphType
 
@@ -57,23 +54,25 @@ public:
 
 	void SetRange(float dLower, float dUpper, unsigned iTrend = 0);
 	void SetRanges(float dLower, float dUpper);
-	void SetXUnits(const wxString& string, const wxString& XMin = wxT(""), const wxString& XMax = wxT(""));
-	void SetYUnits(const wxString& string, const wxString& YMin = wxT(""), const wxString& YMax = wxT(""));
+	void SetXUnits(const wxString& string,
+		const wxString& XMin = wxEmptyString, const wxString& XMax = wxEmptyString);
+	void SetYUnits(const wxString& string,
+		const wxString& YMin = wxEmptyString, const wxString& YMax = wxEmptyString);
 	void SetBackgroundColor(COLORREF color);
 	void SetGridColor(COLORREF color);
 	void SetPlotColor(COLORREF color, unsigned iTrend = 0);
 	COLORREF GetPlotColor(unsigned iTrend = 0)  {return pdsTrends[iTrend].crPlot;}
-	float GetUpperLimit()	{ return pdsTrends[0].fUpperLimit; }
+	float GetUpperLimit()		{ return pdsTrends[0].fUpperLimit; }
 	void Reset(double sNewPeriod);
 	void Stop();
 	void RecreateGraph(bool bRefresh=true);
 	void RecreateGrid();
-	void AppendPoints(double sTimestamp, const float *apf[]);
-	void DelayPoints()	{ nDelayedPoints++; }
-	unsigned GetPlotHeightPixels()		{return nPlotHeight;}
-	unsigned GetPlotWidthPoints()		{return nPlotWidth/nShiftPixels;}
-	wxBitmap* GetBitmapPlot()			{return bmapPlot;};
-	wxBitmap* GetBitmapGrid()			{return bmapGrid;};
+	void AppendPoints(double sTimestamp, const std::vector<float *> &apf);
+	void DelayPoints()		{ nDelayedPoints++; }
+	unsigned GetPlotHeightPixels()	{ return nPlotHeight; }
+	unsigned GetPlotWidthPoints()	{ return nPlotWidth/nShiftPixels; }
+	wxBitmap* GetBitmapPlot()	{ return bmapPlot; }
+	wxBitmap* GetBitmapGrid()	{ return bmapGrid; }
 
 	StatsGraphType graph_type;
 	
@@ -136,10 +135,11 @@ private:
 	void OnSize(wxSizeEvent& evt);
 	void ShiftGraph(unsigned cntPoints);
 	void PlotHistory(unsigned cntPoints, bool bShiftGraph, bool bRefresh);
-	void DrawPoints(const float *apf[], unsigned cntPoints);
+	void DrawPoints(const std::vector<float *> &apf, unsigned cntPoints);
 	unsigned GetPlotY(float fPlot, PlotData_t* ppds);
 	void InvalidateCtrl(bool bInvalidateGraph = true, bool bInvalidateGrid = true);
 	void DoBlit();
 };
 
 #endif // OSCOPECTRL_H
+// File_checked_for_headers

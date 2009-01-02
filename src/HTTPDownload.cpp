@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Tiku
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,18 +23,10 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#ifdef __WXMSW__
-	#include <wx/defs.h>
-	#include <wx/msw/winundef.h>
-#endif
 
-
-#include <wx/intl.h>
 #include <wx/wfstream.h>
 #include <wx/protocol/http.h>
-#include <wx/app.h>
 
-#include <cmath>
 
 #include "HTTPDownload.h"				// Interface declarations
 #include <common/StringFunctions.h>		// Needed for unicode2char
@@ -42,7 +34,6 @@
 #include "Logger.h"						// Needed for AddLogLine*
 #include <common/Format.h>				// Needed for CFormat
 #include "InternalEvents.h"				// Needed for CMuleInternalEvent
-#include "Proxy.h"						// Needed for CProxyData
 #include "Preferences.h"
 
 
@@ -50,7 +41,6 @@
 #include "inetdownload.h"	// Needed for inetDownload
 #include "muuli_wdr.h"		// Needed for ID_CANCEL: Let it here or will fail on win32
 #include "MuleGifCtrl.h"
-#include <wx/gauge.h>
 
 #ifdef __WXMSW__
 typedef wxGauge95 wxGaugeControl;
@@ -83,8 +73,7 @@ public:
 	}
 
 	~CHTTPDownloadDialog() {
-	 	m_thread->Delete();
-		delete m_thread;
+		StopThread();
 	}	
 
 	void UpdateGauge(int total, int current) {
@@ -99,7 +88,7 @@ public:
 	
 		CastChild(IDC_DOWNLOADSIZE, wxStaticText)->SetLabel(label.GetString());
 	
-		if (total and (total != m_progressbar->GetRange())) {
+		if (total && (total != m_progressbar->GetRange())) {
 			m_progressbar->SetRange(total);
 		}
 	
@@ -111,12 +100,18 @@ public:
 	}
 
 private:
-	DECLARE_EVENT_TABLE();
+	void StopThread() {
+		if (m_thread) {
+		 	m_thread->Stop();
+			delete m_thread;
+			m_thread = NULL;
+		}
+	}
 
 	void OnBtnCancel(wxCommandEvent& WXUNUSED(evt)) {
 		printf("HTTP download cancelled\n");
 		Show(false);
-	 	m_thread->Delete();
+		StopThread();
 	}
 	
 	void OnProgress(CMuleInternalEvent& evt) {
@@ -128,9 +123,11 @@ private:
 		Destroy();
 	}
   
-	wxThread*		m_thread;
+	CMuleThread*	m_thread;
 	MuleGifCtrl* 	m_ani;
 	wxGaugeControl* m_progressbar;
+	
+	DECLARE_EVENT_TABLE()
 };
 
 
@@ -146,15 +143,15 @@ DEFINE_LOCAL_EVENT_TYPE(wxEVT_HTTP_SHUTDOWN)
 #endif
 
 
-CHTTPDownloadThread::CHTTPDownloadThread(const wxString& url, const wxString& filename, HTTP_Download_File file_id, bool showDialog)
+CHTTPDownloadThread::CHTTPDownloadThread(const wxChar* url, const wxChar* filename, HTTP_Download_File file_id, bool showDialog)
 #ifdef AMULE_DAEMON
-	: wxThread(wxTHREAD_DETACHED),
+	: CMuleThread(wxTHREAD_DETACHED),
 #else
-	: wxThread(showDialog ? wxTHREAD_JOINABLE : wxTHREAD_DETACHED),
+	: CMuleThread(showDialog ? wxTHREAD_JOINABLE : wxTHREAD_DETACHED),
 #endif
 	  m_url(url),
 	  m_tempfile(filename),
-	  m_result(1),
+	  m_result(-1),
 	  m_file_id(file_id),
 	  m_companion(NULL)
 {
@@ -168,11 +165,9 @@ CHTTPDownloadThread::CHTTPDownloadThread(const wxString& url, const wxString& fi
 }
 
 
-wxThread::ExitCode CHTTPDownloadThread::Entry()
+CMuleThread::ExitCode CHTTPDownloadThread::Entry()
 {
 	if (TestDestroy()) { 
-		// Thread going down...
-		m_result = -1;
 		return NULL;
 	}
 	
@@ -234,12 +229,16 @@ wxThread::ExitCode CHTTPDownloadThread::Entry()
 				}
 			}
 		} while (current_read && !TestDestroy());
+
+		if (current_read == 0) {
+			// Download was succesful.
+			m_result = 1;
+		}
 	} catch (const wxString& error) {
 		if (wxFileExists(m_tempfile)) {
 			wxRemoveFile(m_tempfile);
 		}
 
-		m_result = -1;		
 		AddLogLineM(false, error);
 	}
 
@@ -366,3 +365,4 @@ wxInputStream* CHTTPDownloadThread::GetInputStream(wxHTTP** url_handler, const w
 	return url_read_stream;
 }
 
+// File_checked_for_headers

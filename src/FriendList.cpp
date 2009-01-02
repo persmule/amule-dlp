@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,18 +23,15 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
-#include <wx/intl.h>		// Needed for _
 
 #include "FriendList.h" // Interface
 
+#include <common/DataFileVersion.h>
+
 #include "amule.h"			// Needed for theApp: let it first or fail under win32
 #include "ClientList.h"		// Needed for CClientList
-#include "OPCodes.h"		// Needed for MP_DETAIL
 #include "updownclient.h"	// Needed for CUpDownClient
 #include "Friend.h"		// Needed for CFriend
-#include "ArchSpecific.h"
-#include "OtherFunctions.h"
 #include "CFile.h"
 #include "Logger.h"
 
@@ -102,9 +99,9 @@ void CFriendList::RemoveFriend(const CMD4Hash& userhash, uint32 lastUsedIP, uint
 
 void CFriendList::LoadList()
 {
-  	wxString metfile = theApp.ConfigDir + wxT("emfriends.met"); 
+  	CPath metfile = CPath(theApp->ConfigDir + wxT("emfriends.met"));
 	
-	if ( !wxFileExists(metfile) ) {
+	if (!metfile.FileExists()) {
 		return;
 	}
 	
@@ -134,7 +131,7 @@ void CFriendList::LoadList()
 void CFriendList::SaveList()
 {
 	CFile file;
-	if (file.Create(theApp.ConfigDir + wxT("emfriends.met"), true)) {
+	if (file.Create(theApp->ConfigDir + wxT("emfriends.met"), true)) {
 		try {
 			file.WriteUInt8(MET_HEADER);
 			file.WriteUInt32(m_FriendList.size());
@@ -196,7 +193,7 @@ void	CFriendList::RequestSharedFileList(const CMD4Hash& userhash, uint32 dwIP, u
 		if (!client) {
 			client = new CUpDownClient(cur_friend->GetPort(), cur_friend->GetIP(), 0, 0, 0, true, true);
 			client->SetUserName(cur_friend->GetName());
-			theApp.clientlist->AddClient(client);
+			theApp->clientlist->AddClient(client);
 		}
 		client->RequestSharedFileList();
 	}
@@ -218,7 +215,7 @@ void CFriendList::StartChatSession(const CMD4Hash& userhash, uint32 dwIP, uint16
 			client = new CUpDownClient(friend_client->GetPort(), friend_client->GetIP(), 0, 0, 0, true, true);
 			client->SetIP(friend_client->GetIP());
 			client->SetUserName(friend_client->GetName());
-			theApp.clientlist->AddClient(client);
+			theApp->clientlist->AddClient(client);
 			friend_client->LinkClient(client);
 		}
 	} else {
@@ -232,3 +229,4 @@ void CFriendList::UpdateFriendName(const CMD4Hash& userhash, const wxString& nam
 	friend_client->SetName(name);
 	SaveList();
 }
+// File_checked_for_headers

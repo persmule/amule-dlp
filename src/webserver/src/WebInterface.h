@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //  
-// Copyright (c) 2004-2006 shakraw ( shakraw@users.sourceforge.net )
-// Copyright (c) 2003-2006 Kry ( elkry@sourceforge.net )
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 shakraw ( shakraw@users.sourceforge.net )
+// Copyright (c) 2003-2008 Kry ( elkry@sourceforge.net )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -29,9 +29,11 @@
 
 #include "ExternalConnector.h"
 
-#include "MD4Hash.h"
 
-class CamulewebApp : public CaMuleExternalConnector {
+class CamulewebApp
+:
+public CaMuleExternalConnector
+{
 	class CWebServerBase *m_webserver;
 public:
 	const wxString GetGreetingTitle();
@@ -55,16 +57,20 @@ public:
 	bool	m_AllowGuest;
 
 	long		m_WebserverPort;
+	bool		m_UPnPWebServerEnabled;
+	int		m_UPnPTCPPort;
 	unsigned int	m_PageRefresh;
 	bool		m_LoadSettingsFromAmule;
 
 	bool		m_TemplateOk;
 
 public:
-	void Post_Shell();
+	virtual void Post_Shell();
+	
 private:
 	virtual bool	OnInit();
 	virtual int 	OnRun();
 };
 
 #endif // WEBINTERFACE_H
+// File_checked_for_headers

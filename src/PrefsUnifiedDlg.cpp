@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Original author: Emilio Sandoz
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,36 +26,19 @@
 
 #include "PrefsUnifiedDlg.h"
 
+#include <common/Constants.h>
 
-#include <wx/button.h>
-#include <wx/checkbox.h>
 #include <wx/colordlg.h>
-#include <wx/config.h>
-#include <wx/filedlg.h>
-#include <wx/sizer.h>			// Needed in Mac compilation
-#include <wx/slider.h>
-#include <wx/spinctrl.h>
-#include <wx/tokenzr.h>
-#include <wx/valgen.h>
-#include <wx/textctrl.h>
-#include <wx/choice.h>
-#include <wx/msgdlg.h>
-#include <wx/stattext.h>
-#include <wx/dirdlg.h>
-#include <wx/checklst.h>
 #include <wx/tooltip.h>
 
 #include "amule.h"				// Needed for theApp
 #include "amuleDlg.h"
 #include "Color.h"
-#include "OtherFunctions.h"		// Needed for IsEmptyFile
-#include <common/StringFunctions.h>	// Needed for unicode2char
 #include "EditServerListDlg.h"
 #include "SharedFileList.h"		// Needed for CSharedFileList
 #include "StatisticsDlg.h"		// Needed for graph parameters, colors
 #include "IPFilter.h"			// Needed for CIPFilter
 #include "SearchList.h"
-#include "DownloadQueue.h"
 #include "ClientList.h"
 #include "DirectoryTreeCtrl.h"	// Needed for CDirectoryTreeCtrl
 #include "Preferences.h"
@@ -65,31 +48,43 @@
 #include "TransferWnd.h"		// Needed for CTransferWnd::UpdateCatTabTitles()
 #include "KadDlg.h"				// Needed for CKadDlg
 #include "OScopeCtrl.h"			// Needed for OScopeCtrl
+#include "ServerList.h"
+#include "UserEvents.h"
 
 BEGIN_EVENT_TABLE(PrefsUnifiedDlg,wxDialog)
+	// Events
+#define USEREVENTS_EVENT(ID, NAME, VARS) \
+	EVT_CHECKBOX(USEREVENTS_FIRST_ID + CUserEvents::ID * USEREVENTS_IDS_PER_EVENT + 1,	PrefsUnifiedDlg::OnCheckBoxChange) \
+	EVT_CHECKBOX(USEREVENTS_FIRST_ID + CUserEvents::ID * USEREVENTS_IDS_PER_EVENT + 3,	PrefsUnifiedDlg::OnCheckBoxChange)
+	USEREVENTS_EVENTLIST()
+#undef USEREVENTS_EVENT
+
 	// Proxy
 	EVT_CHECKBOX(ID_PROXY_ENABLE_PROXY,	PrefsUnifiedDlg::OnCheckBoxChange)
 	EVT_CHECKBOX(ID_PROXY_ENABLE_PASSWORD,	PrefsUnifiedDlg::OnCheckBoxChange)
 //	EVT_CHECKBOX(ID_PROXY_AUTO_SERVER_CONNECT_WITHOUT_PROXY,	PrefsUnifiedDlg::OnCheckBoxChange)
-	
+
 	// Connection
 	EVT_SPINCTRL(IDC_PORT,			PrefsUnifiedDlg::OnTCPClientPortChange)
-	
+
 	// The rest. Organize it!
 	EVT_CHECKBOX(IDC_UDPDISABLE,		PrefsUnifiedDlg::OnCheckBoxChange)
 	EVT_CHECKBOX(IDC_CHECKDISKSPACE,	PrefsUnifiedDlg::OnCheckBoxChange)
-	EVT_CHECKBOX(IDC_USESKIN,		PrefsUnifiedDlg::OnCheckBoxChange)
+	EVT_CHECKBOX(IDC_USESKINFILES,		PrefsUnifiedDlg::OnCheckBoxChange)
 	EVT_CHECKBOX(IDC_ONLINESIG,		PrefsUnifiedDlg::OnCheckBoxChange)
 	EVT_CHECKBOX(IDC_REMOVEDEAD,		PrefsUnifiedDlg::OnCheckBoxChange)
-	EVT_CHECKBOX(IDC_ENABLE_AUTO_HQRS,	PrefsUnifiedDlg::OnCheckBoxChange)
 	EVT_CHECKBOX(IDC_AUTOSERVER,		PrefsUnifiedDlg::OnCheckBoxChange)
 	EVT_CHECKBOX(IDC_AUTOIPFILTER,		PrefsUnifiedDlg::OnCheckBoxChange)
 	EVT_CHECKBOX(IDC_MSGFILTER,		PrefsUnifiedDlg::OnCheckBoxChange)
 	EVT_CHECKBOX(IDC_MSGFILTER_ALL,		PrefsUnifiedDlg::OnCheckBoxChange)
 	EVT_CHECKBOX(IDC_MSGFILTER_WORD,	PrefsUnifiedDlg::OnCheckBoxChange)
+	EVT_CHECKBOX(IDC_FILTERCOMMENTS,	PrefsUnifiedDlg::OnCheckBoxChange)
 	EVT_CHECKBOX(IDC_STARTNEXTFILE,		PrefsUnifiedDlg::OnCheckBoxChange)
 	EVT_CHECKBOX(IDC_ENABLETRAYICON,	PrefsUnifiedDlg::OnCheckBoxChange)
-	EVT_CHECKBOX(IDC_VERTTOOLBAR,	PrefsUnifiedDlg::OnCheckBoxChange)
+	EVT_CHECKBOX(IDC_VERTTOOLBAR,		PrefsUnifiedDlg::OnCheckBoxChange)
+	EVT_CHECKBOX(IDC_SUPPORT_PO,		PrefsUnifiedDlg::OnCheckBoxChange)
+	EVT_CHECKBOX(IDC_ENABLE_PO_OUTGOING,	PrefsUnifiedDlg::OnCheckBoxChange)
+	EVT_CHECKBOX(IDC_ENFORCE_PO_INCOMING,	PrefsUnifiedDlg::OnCheckBoxChange)
 
 	EVT_BUTTON(ID_PREFS_OK_TOP,		PrefsUnifiedDlg::OnOk)
 	EVT_BUTTON(ID_OK,			PrefsUnifiedDlg::OnOk)
@@ -97,7 +92,7 @@ BEGIN_EVENT_TABLE(PrefsUnifiedDlg,wxDialog)
 	EVT_BUTTON(ID_PREFS_CANCEL_TOP,		PrefsUnifiedDlg::OnCancel)
 
 	// Browse buttons
-	EVT_BUTTON(IDC_SELSKINFILE,		PrefsUnifiedDlg::OnButtonBrowseSkin)
+//	EVT_BUTTON(IDC_SELSKIN,		PrefsUnifiedDlg::OnButtonDir)
 	EVT_BUTTON(IDC_BTN_BROWSE_WAV,		PrefsUnifiedDlg::OnButtonBrowseWav)
 	EVT_BUTTON(IDC_BROWSEV,			PrefsUnifiedDlg::OnButtonBrowseApplication)
 	EVT_BUTTON(IDC_SELTEMPDIR,		PrefsUnifiedDlg::OnButtonDir)
@@ -126,10 +121,34 @@ BEGIN_EVENT_TABLE(PrefsUnifiedDlg,wxDialog)
 	EVT_COMMAND_SCROLL(IDC_SERVERKEEPALIVE,	PrefsUnifiedDlg::OnScrollBarChange)
 
 	EVT_SPINCTRL(IDC_MAXUP,			PrefsUnifiedDlg::OnRateLimitChanged)
-	
+
+	EVT_LIST_ITEM_SELECTED(IDC_EVENTLIST,	PrefsUnifiedDlg::OnUserEventSelected)
+
 	EVT_CLOSE(PrefsUnifiedDlg::OnClose)
-	
+
 END_EVENT_TABLE()
+
+
+/**
+ * Creates an command-event for the given checkbox.
+ *
+ * This can be used enforce logical constraints by passing by
+ * sending a check-box event for each checkbox, when transfering
+ * to the UI. However, it should also be used for checkboxes that 
+ * have no side-effects other than enabling/disabling other
+ * widgets in the preferences dialogs.
+ */
+void SendCheckBoxEvent(wxWindow* parent, int id)
+{
+	wxCheckBox* widget = CastByID(id, parent, wxCheckBox);
+	wxCHECK_RET(widget, wxT("Invalid widget in CreateEvent"));
+
+	wxCommandEvent evt(wxEVT_COMMAND_CHECKBOX_CLICKED, id);
+	evt.SetInt(widget->IsChecked() ? 1 : 0);
+
+	parent->ProcessEvent(evt);
+}
+
 
 
 /**
@@ -158,59 +177,61 @@ PrefsPage pages[] =
 	{ wxTRANSLATE("Online Signature"),	PreferencesOnlineSigTab,	21, NULL },
 	{ wxTRANSLATE("Server"),		PreferencesServerTab,		15, NULL },
 	{ wxTRANSLATE("Files"),			PreferencesFilesTab,		16, NULL },
-	{ wxTRANSLATE("Sources Dropping"),	PreferencesSourcesDroppingTab,	20, NULL },
 	{ wxTRANSLATE("Directories"),		PreferencesDirectoriesTab,	17, NULL },
 	{ wxTRANSLATE("Statistics"),		PreferencesStatisticsTab,	10, NULL },
 	{ wxTRANSLATE("Security"),		PreferencesSecurityTab,		22, NULL },
 	//Notications are disabled since they havent been implemented
 	//{ wxTRANSLATE("Notifications"),	PreferencesNotifyTab,		18, NULL },
 	{ wxTRANSLATE("Gui Tweaks"),		PreferencesGuiTweaksTab,	19, NULL },
-	{ wxTRANSLATE("Core Tweaks"),		PreferencesaMuleTweaksTab,	12, NULL }
+	{ wxTRANSLATE("Core Tweaks"),		PreferencesaMuleTweaksTab,	12, NULL },
+	{ wxTRANSLATE("Events"),		PreferencesEventsTab,		5,  NULL }
 #ifdef __DEBUG__
-	,{ wxTRANSLATE("Debugging"),		PreferencesDebug,			25, NULL }
+	,{ wxTRANSLATE("Debugging"),		PreferencesDebug,		25, NULL }
 #endif
 };
 
 
 PrefsUnifiedDlg::PrefsUnifiedDlg(wxWindow *parent)
 :
-wxDialog(parent, -1, _("Preferences"), wxDefaultPosition, wxDefaultSize,
+wxDialog(parent, -1, _("Preferences"),
+	wxDefaultPosition, wxDefaultSize,
 	wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
-	preferencesDlgTop( this, FALSE );
+	preferencesDlgTop(this, false);
 	
-	wxListCtrl* PrefsIcons = CastChild( ID_PREFSLISTCTRL, wxListCtrl );
-
-	wxImageList* icon_list = new wxImageList(16, 16);
-	PrefsIcons->AssignImageList( icon_list, wxIMAGE_LIST_SMALL);
+	wxListCtrl *PrefsIcons = CastChild(ID_PREFSLISTCTRL, wxListCtrl);
+	wxImageList *icon_list = new wxImageList(16, 16);
+	PrefsIcons->AssignImageList(icon_list, wxIMAGE_LIST_SMALL);
 
 	// Add the single column used
-	PrefsIcons->InsertColumn(0, wxEmptyString, wxLIST_FORMAT_LEFT, PrefsIcons->GetSize().GetWidth()-5);
+	PrefsIcons->InsertColumn(
+		0, wxEmptyString, wxLIST_FORMAT_LEFT,
+		PrefsIcons->GetSize().GetWidth()-5);
 
 	// Temp variables for finding the smallest height and width needed
 	int width = 0;
 	int height = 0;
 
 	// Add each page to the page-list
-	for ( unsigned int i = 0; i < ELEMENT_COUNT(pages); i++ ) {
+	for (unsigned int i = 0; i < itemsof(pages); ++i) {
 		// Add the icon and label assosiated with the page
-		icon_list->Add( amuleSpecial(pages[i].m_imageidx) );
+		icon_list->Add(amuleSpecial(pages[i].m_imageidx));
 		PrefsIcons->InsertItem(i, wxGetTranslation(pages[i].m_title), i);
 	}
 	
 	// Set list-width so that there arn't any scrollers
-	PrefsIcons->SetColumnWidth( 0, wxLIST_AUTOSIZE );
-	PrefsIcons->SetMinSize(wxSize(PrefsIcons->GetColumnWidth( 0 ) + 10, -1));
-	PrefsIcons->SetMaxSize(wxSize(PrefsIcons->GetColumnWidth( 0 ) + 10, -1));
+	PrefsIcons->SetColumnWidth(0, wxLIST_AUTOSIZE);
+	PrefsIcons->SetMinSize(wxSize(PrefsIcons->GetColumnWidth(0) + 10, -1));
+	PrefsIcons->SetMaxSize(wxSize(PrefsIcons->GetColumnWidth(0) + 10, -1));
 
 	// Now add the pages and calculate the minimum size	
-	for ( unsigned int i = 0; i < ELEMENT_COUNT(pages); i++ ) {
+	for (unsigned int i = 0; i < itemsof(pages); ++i) {
 		// Create a container widget and the contents of the page
-		pages[i].m_widget = new wxPanel( this, -1 );
-		pages[i].m_function( pages[i].m_widget, true, true );
+		pages[i].m_widget = new wxPanel(this, -1);
+		pages[i].m_function(pages[i].m_widget, true, true);
 
 		// Add it to the sizer
-		prefs_sizer->Add( pages[i].m_widget, 0, wxGROW|wxEXPAND );
+		prefs_sizer->Add(pages[i].m_widget, 0, wxGROW|wxEXPAND);
 
 		if (pages[i].m_function == PreferencesGeneralTab) {
 			// This must be done now or pages won't Fit();
@@ -221,48 +242,78 @@ wxDialog(parent, -1, _("Preferences"), wxDefaultPosition, wxDefaultSize,
 				browserCheck->Append(_("System default"));
 				browserCheck->Append(_("User Defined"));
 			#endif /* __WXMSW__ */
+		} else if (pages[i].m_function == PreferencesEventsTab) {
+
+#define USEREVENTS_REPLACE_VAR(VAR, DESC, CODE)	+ wxString(wxT("\n  %") VAR wxT(" - ")) + wxGetTranslation(DESC)
+#define USEREVENTS_EVENT(ID, NAME, VARS) case CUserEvents::ID: CreateEventPanels(idx, wxEmptyString VARS, pages[i].m_widget); break;
+
+			wxListCtrl *list = CastChild(IDC_EVENTLIST, wxListCtrl);
+			list->InsertColumn(0, wxEmptyString);
+			for (unsigned int idx = 0; idx < CUserEvents::GetCount(); ++idx) {
+				long lidx = list->InsertItem(idx,
+					wxGetTranslation(CUserEvents::GetDisplayName(
+						static_cast<enum CUserEvents::EventType>(idx))));
+				if (lidx != -1) {
+					list->SetItemData(lidx,
+						USEREVENTS_FIRST_ID + idx * USEREVENTS_IDS_PER_EVENT);
+					switch (idx) {
+						USEREVENTS_EVENTLIST()
+					}
+				}
+			}
+			list->SetColumnWidth(0, wxLIST_AUTOSIZE);
 		}
-		
+#ifdef __DEBUG__
+		else if (pages[i].m_function == PreferencesDebug) {
+			int count = CLogger::GetDebugCategoryCount();
+			wxCheckListBox* list = CastChild( ID_DEBUGCATS, wxCheckListBox );
+
+			for ( int i = 0; i < count; i++ ) {
+				list->Append( CLogger::GetDebugCategory( i ).GetName() );
+			}
+		}
+#endif
+
 		// Align and resize the page
 		Fit();
 		Layout();
 
 		// Find the greatest sizes
 		wxSize size = prefs_sizer->GetSize();
-		if ( size.GetWidth() > width ) {
+		if (size.GetWidth() > width) {
 			width = size.GetWidth();
 		}
 
-		if ( size.GetHeight() > height ) {
+		if (size.GetHeight() > height) {
 			height = size.GetHeight();
 		}
 
 		// Hide it for now
-		prefs_sizer->Remove( pages[i].m_widget );
-		pages[i].m_widget->Show( false );
+		prefs_sizer->Detach(pages[i].m_widget);
+		pages[i].m_widget->Show(false);
 	}
 	
 	// Default to the General tab
 	m_CurrentPanel = pages[0].m_widget;
-	prefs_sizer->Add( pages[0].m_widget, 0, wxGROW|wxEXPAND );
+	prefs_sizer->Add(pages[0].m_widget, 0, wxGROW|wxEXPAND);
 	m_CurrentPanel->Show( true );
 
 	// Select the first item
-	PrefsIcons->SetItemState( 0, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED );
+	PrefsIcons->SetItemState(0, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
 
 	// We now have the needed minimum height and width
-	prefs_sizer->SetMinSize( width, height );
+	prefs_sizer->SetMinSize(width, height);
 
 	// Store some often used pointers
-	m_ShareSelector = CastChild( IDC_SHARESELECTOR, CDirectoryTreeCtrl );
-	m_buttonColor   = CastChild( IDC_COLOR_BUTTON, wxButton );
-	m_choiceColor   = CastChild( IDC_COLORSELECTOR, wxChoice );
+	m_ShareSelector = CastChild(IDC_SHARESELECTOR, CDirectoryTreeCtrl);
+	m_buttonColor   = CastChild(IDC_COLOR_BUTTON, wxButton);
+	m_choiceColor   = CastChild(IDC_COLORSELECTOR, wxChoice);
 
 	// Connect the Cfgs with their widgets
 	thePrefs::CFGMap::iterator it = thePrefs::s_CfgList.begin();
 	for ( ; it != thePrefs::s_CfgList.end(); ++it ) {
 		// Checking for failures
-		if ( !it->second->ConnectToWidget( it->first, this ) ) {
+		if ( !it->second->ConnectToWidget(it->first, this) ) {
 			printf("Failed to connect Cfg to widget with the ID %d and key %s\n",
 				it->first, (const char *)unicode2char(it->second->GetKey()));
 		}
@@ -271,8 +322,8 @@ wxDialog(parent, -1, _("Preferences"), wxDefaultPosition, wxDefaultSize,
 
 	// It must not be resized to something smaller than what it currently is
 	wxSize size = GetClientSize();
-	SetSizeHints( size.GetWidth(), size.GetHeight() );
-
+	SetSizeHints(size.GetWidth(), size.GetHeight());
+	
 	#ifdef __WXMSW__
 		FindWindow(IDC_VERTTOOLBAR)->Enable(false);
 	#endif
@@ -303,7 +354,7 @@ bool PrefsUnifiedDlg::TransferToWindow()
 		}
 	}
 
-	m_ShareSelector->SetSharedDirectories(&theApp.glob_prefs->shareddir_list);
+	m_ShareSelector->SetSharedDirectories(&theApp->glob_prefs->shareddir_list);
 
 	for ( int i = 0; i < cntStatColors; i++ ) {
 		thePrefs::s_colors[i] = CStatisticsDlg::acrStat[i];
@@ -328,19 +379,20 @@ bool PrefsUnifiedDlg::TransferToWindow()
 	FindWindow(ID_PROXY_AUTO_SERVER_CONNECT_WITHOUT_PROXY)->Enable(false);
 	
 	// Enable/Disable some controls
-	bool customBrowser = CastChild( IDC_BROWSER, wxChoice )->GetSelection() == CastChild( IDC_BROWSER, wxChoice )->GetCount() - 1;
+	bool customBrowser =
+		CastChild(IDC_BROWSER, wxChoice)->GetSelection() ==
+		(int)CastChild(IDC_BROWSER, wxChoice)->GetCount() - 1;
 	FindWindow( IDC_BROWSERSELF )->Enable( customBrowser );
 	FindWindow( IDC_SELBROWSER )->Enable( customBrowser );
 	#ifndef __WXMSW__
 		FindWindow( IDC_BROWSERTABS )->Enable( !customBrowser );
 	#endif
 	FindWindow( IDC_MINDISKSPACE )->Enable( thePrefs::IsCheckDiskspaceEnabled() );
-	FindWindow( IDC_SKINFILE )->Enable( thePrefs::UseSkin() );
+	FindWindow( IDC_SKIN )->Enable( thePrefs::UseSkins() );
 	FindWindow( IDC_OSDIR )->Enable( thePrefs::IsOnlineSignatureEnabled() );
 	FindWindow( IDC_OSUPDATE )->Enable( thePrefs::IsOnlineSignatureEnabled() );
 	FindWindow( IDC_UDPPORT )->Enable( !thePrefs::s_UDPDisable );
 	FindWindow( IDC_SERVERRETRIES )->Enable( thePrefs::DeadServer() );
-	FindWindow( IDC_HQR_VALUE )->Enable( thePrefs::DropHighQueueRankingSources() );
 	FindWindow( IDC_STARTNEXTFILE_SAME )->Enable(thePrefs::StartNextFile());
 
 #ifdef __WXMAC__
@@ -363,30 +415,21 @@ bool PrefsUnifiedDlg::TransferToWindow()
 		FindWindow(IDC_MSGWORD)->Enable(false);	
 	}
 
-	FindWindow(IDC_MSGWORD)->Enable(CastChild(IDC_MSGFILTER_WORD, wxCheckBox)->IsChecked());	
+	FindWindow(IDC_MSGWORD)->Enable(CastChild(IDC_MSGFILTER_WORD, wxCheckBox)->IsChecked());
+	FindWindow(IDC_COMMENTWORD)->Enable(CastChild(IDC_FILTERCOMMENTS, wxCheckBox)->IsChecked());
 	
-	// Set the permissions scrollers for files
-	int perms = thePrefs::GetFilePermissions();
-	CastChild( IDC_SPIN_PERM_FU, wxSpinCtrl )->SetValue( perms / 0100 );
-	CastChild( IDC_SPIN_PERM_FG, wxSpinCtrl )->SetValue( perms % 0100 / 010 );
-	CastChild( IDC_SPIN_PERM_FO, wxSpinCtrl )->SetValue( perms % 0100 % 010 / 01 );
-	
-	// Set the permissions scrollers for directories
-	perms = thePrefs::GetDirPermissions();
-	CastChild( IDC_SPIN_PERM_DU, wxSpinCtrl )->SetValue( perms / 0100 );
-	CastChild( IDC_SPIN_PERM_DG, wxSpinCtrl )->SetValue( perms % 0100 / 010 );
-	CastChild( IDC_SPIN_PERM_DO, wxSpinCtrl )->SetValue( perms % 0100 % 010 / 01 );
+	// Protocol obfuscation
+	::SendCheckBoxEvent(this, IDC_SUPPORT_PO);
+	::SendCheckBoxEvent(this, IDC_ENABLE_PO_OUTGOING);
+	::SendCheckBoxEvent(this, IDC_ENFORCE_PO_INCOMING);
 
-	// Set debugging toggles
 #ifdef __DEBUG__
+	// Set debugging toggles
 	int count = CLogger::GetDebugCategoryCount();
 	wxCheckListBox* list = CastChild( ID_DEBUGCATS, wxCheckListBox );
 
 	for ( int i = 0; i < count; i++ ) {
-		const CDebugCategory& cat = CLogger::GetDebugCategory( i );
-		
-		list->Append( cat.GetName() );
-		list->Check( i, cat.IsEnabled() );
+		list->Check( i, CLogger::GetDebugCategory( i ).IsEnabled() );
 	}
 #endif
 	
@@ -406,46 +449,31 @@ bool PrefsUnifiedDlg::TransferFromWindow()
 		}
 	}
 
-	theApp.glob_prefs->shareddir_list.Clear();
-	m_ShareSelector->GetSharedDirectories(&theApp.glob_prefs->shareddir_list);
+	theApp->glob_prefs->shareddir_list.clear();
+	m_ShareSelector->GetSharedDirectories(&theApp->glob_prefs->shareddir_list);
 
 	for ( int i = 0; i < cntStatColors; i++ ) {
 		if ( thePrefs::s_colors[i] != thePrefs::s_colors_ref[i] ) {
 			CStatisticsDlg::acrStat[i] = thePrefs::s_colors[i];
-			theApp.amuledlg->statisticswnd->ApplyStatsColor(i);
+			theApp->amuledlg->m_statisticswnd->ApplyStatsColor(i);
 		}
 
-		theApp.amuledlg->kademliawnd->SetGraphColors();
+		theApp->amuledlg->m_kademliawnd->SetGraphColors();
 	}
 
-	// Set the file-permissions value
-	int file_perms = 0;
-	file_perms |= 0100 * CastChild( IDC_SPIN_PERM_FU, wxSpinCtrl )->GetValue();
-	file_perms |= 0010 * CastChild( IDC_SPIN_PERM_FG, wxSpinCtrl )->GetValue();
-	file_perms |= 0001 * CastChild( IDC_SPIN_PERM_FO, wxSpinCtrl )->GetValue();
-	thePrefs::SetFilePermissions( file_perms );
-
-	int dir_perms = 0;
-	dir_perms |= 0100 * CastChild( IDC_SPIN_PERM_DU, wxSpinCtrl )->GetValue();
-	dir_perms |= 0010 * CastChild( IDC_SPIN_PERM_DG, wxSpinCtrl )->GetValue();
-	dir_perms |= 0001 * CastChild( IDC_SPIN_PERM_DO, wxSpinCtrl )->GetValue();
-	thePrefs::SetDirPermissions( dir_perms );
-
-	// Get debugging toggles
 #ifdef __DEBUG__
+	// Get debugging toggles
 	int count = CLogger::GetDebugCategoryCount();
 	wxCheckListBox* list = CastChild( ID_DEBUGCATS, wxCheckListBox );
 
 	for ( int i = 0; i < count; i++ ) {
-		const CDebugCategory& cat = CLogger::GetDebugCategory( i );
-		
-		CLogger::SetEnabled( cat.GetType(), list->IsChecked( i ) );
+		CLogger::SetEnabled( CLogger::GetDebugCategory( i ).GetType(), list->IsChecked( i ) );
 	}
 #endif
 
 	#ifdef CLIENT_GUI
 	// Send preferences to core.
-	theApp.glob_prefs->SendToRemote();
+	theApp->glob_prefs->SendToRemote();
 	#endif
 	
 	return true;
@@ -474,12 +502,12 @@ void PrefsUnifiedDlg::OnOk(wxCommandEvent& WXUNUSED(event))
 	// do sanity checking, special processing, and user notifications here
 	thePrefs::CheckUlDlRatio();
 
-	if ( CfgChanged(IDC_PORT) ) {
+	if (CfgChanged(IDC_PORT)) {
 		restart_needed = true;
 		restart_needed_msg += _("- TCP port changed.\n");
 	}
 
-	if ( CfgChanged(IDC_UDPPORT) ) {
+	if (CfgChanged(IDC_UDPPORT)) {
 		restart_needed = true;
 		restart_needed_msg += _("- UDP port changed.\n");
 	}
@@ -487,93 +515,96 @@ void PrefsUnifiedDlg::OnOk(wxCommandEvent& WXUNUSED(event))
 	// Force port checking
 	thePrefs::SetPort(thePrefs::GetPort());
 	
-	if (	IsEmptyFile(theApp.ConfigDir + wxT("addresses.dat")) && 
+	if ((CPath::GetFileSize(theApp->ConfigDir + wxT("addresses.dat")) == 0) && 
 		CastChild(IDC_AUTOSERVER, wxCheckBox)->IsChecked() ) {
 		thePrefs::UnsetAutoServerStart();
-		wxMessageBox(wxString::wxString( _(
-			"Your Auto-update servers list is in blank.\n"
-			"'Auto-update serverlist at startup' will be disabled.")),
+		wxMessageBox(wxString::wxString( _("Your Auto-update servers list is in blank.\n'Auto-update serverlist at startup' will be disabled.")),
 			_("Message"), wxOK | wxICON_INFORMATION, this);
 	}
 
-	if ( thePrefs::AcceptExternalConnections() && thePrefs::ECPassword().IsEmpty() ) {
+	if (thePrefs::AcceptExternalConnections() && thePrefs::ECPassword().IsEmpty()) {
 		thePrefs::EnableExternalConnections( false );
 
-		wxMessageBox( _(
-			"You have enabled external connections but have not specified a password.\n"
-			"External connections cannot be enabled unless a valid password is specified."));
+		wxMessageBox( _("You have enabled external connections but have not specified a password.\nExternal connections cannot be enabled unless a valid password is specified."));
 	}
 	
 	// save the preferences on ok
-	theApp.glob_prefs->Save();
+	theApp->glob_prefs->Save();
 
-	if ( CfgChanged(IDC_FED2KLH) && theApp.amuledlg->GetActiveDialog() != CamuleDlg::SearchWnd ) {
-		theApp.amuledlg->ShowED2KLinksHandler( thePrefs::GetFED2KLH() );
+	if (CfgChanged(IDC_FED2KLH) && theApp->amuledlg->GetActiveDialog() != CamuleDlg::DT_SEARCH_WND) {
+		theApp->amuledlg->ShowED2KLinksHandler( thePrefs::GetFED2KLH() );
 	}
 
-	if ( CfgChanged(IDC_LANGUAGE) ) {
+	if (CfgChanged(IDC_LANGUAGE)) {
 		restart_needed = true;
 		restart_needed_msg += _("- Language changed.\n");
 	}
 
-	if ( CfgChanged(IDC_TEMPFILES) ) {
+	if (CfgChanged(IDC_TEMPFILES)) {
 		restart_needed = true;
 		restart_needed_msg += _("- Temp folder changed.\n");
 	}
 
-	if (	CfgChanged(IDC_INCFILES) ||
-		CfgChanged(IDC_TEMPFILES) ||
-		m_ShareSelector->HasChanged ) {
-		theApp.sharedfiles->Reload(false);
+	if (CfgChanged(IDC_INCFILES) || CfgChanged(IDC_TEMPFILES) || m_ShareSelector->HasChanged ) {
+		theApp->sharedfiles->Reload();
 	}
 
-	if ( CfgChanged(IDC_OSDIR) || CfgChanged(IDC_ONLINESIG) ) {
+	if (CfgChanged(IDC_OSDIR) || CfgChanged(IDC_ONLINESIG)) {
 		wxTextCtrl* widget = CastChild( IDC_OSDIR, wxTextCtrl );
 
 		// Build the filenames for the two OS files
-		theApp.SetOSFiles( widget->GetValue() );
+		theApp->SetOSFiles( widget->GetValue() );
 	}
 
-	if (thePrefs::GetIPFilterOn()) {
-		theApp.clientlist->FilterQueues();
+	if (CfgChanged(IDC_IPFCLIENTS) || CfgChanged(IDC_IPFSERVERS) || CfgChanged(ID_IPFILTERLEVEL)) {
+		if (thePrefs::IsFilteringClients()) {
+			theApp->clientlist->FilterQueues();
+		}
+		if (thePrefs::IsFilteringServers()) {
+			theApp->serverlist->FilterServers();
+		}
 	}
 
 	if (thePrefs::GetShowRatesOnTitle()) {
 		// This avoids a 5 seconds delay to show the title
-		theApp.amuledlg->SetTitle(theApp.m_FrameTitle + wxT(" -- ") + _("Up: 0.0 | Down: 0.0"));
+		theApp->amuledlg->SetTitle(theApp->m_FrameTitle + wxT(" -- ") + _("Up: 0.0 | Down: 0.0"));
 	} else {
 		// This resets the title
-		theApp.amuledlg->SetTitle(theApp.m_FrameTitle);
+		theApp->amuledlg->SetTitle(theApp->m_FrameTitle);
 	}
 
 	if (CfgChanged(IDC_EXTCATINFO)) {
-		theApp.amuledlg->transferwnd->UpdateCatTabTitles();
+		theApp->amuledlg->m_transferwnd->UpdateCatTabTitles();
 	}
 
 	// Changes related to the statistics-dlg
-	if ( CfgChanged(IDC_SLIDER) ) {
-		theApp.amuledlg->statisticswnd->SetUpdatePeriod(thePrefs::GetTrafficOMeterInterval());
-		theApp.amuledlg->kademliawnd->SetUpdatePeriod(thePrefs::GetTrafficOMeterInterval());
+	if (CfgChanged(IDC_SLIDER)) {
+		theApp->amuledlg->m_statisticswnd->SetUpdatePeriod(thePrefs::GetTrafficOMeterInterval());
+		theApp->amuledlg->m_kademliawnd->SetUpdatePeriod(thePrefs::GetTrafficOMeterInterval());
 	}
 
 	if ( CfgChanged(IDC_SLIDER3) ) {
-		theApp.amuledlg->statisticswnd->ResetAveragingTime();
+		theApp->amuledlg->m_statisticswnd->ResetAveragingTime();
 	}
 
-	if ( CfgChanged(IDC_DOWNLOAD_CAP) ) {
-		theApp.amuledlg->statisticswnd->SetARange( true, thePrefs::GetMaxGraphDownloadRate() );
+	if (CfgChanged(IDC_DOWNLOAD_CAP)) {
+		theApp->amuledlg->m_statisticswnd->SetARange( true, thePrefs::GetMaxGraphDownloadRate() );
 	}
 
-	if ( CfgChanged(IDC_UPLOAD_CAP) ) {
-		theApp.amuledlg->statisticswnd->SetARange( false, thePrefs::GetMaxGraphUploadRate() );
+	if (CfgChanged(IDC_UPLOAD_CAP)) {
+		theApp->amuledlg->m_statisticswnd->SetARange( false, thePrefs::GetMaxGraphUploadRate() );
 	}
 
-	if (!thePrefs::GetNetworkED2K() && theApp.IsConnectedED2K()) {
-		theApp.DisconnectED2K();
+	if (CfgChanged(IDC_SKIN) || CfgChanged(IDC_USESKINFILES)) {
+		theApp->amuledlg->Create_Toolbar(thePrefs::VerticalToolbar());
+	}
+
+	if (!thePrefs::GetNetworkED2K() && theApp->IsConnectedED2K()) {
+		theApp->DisconnectED2K();
 	}
 	
-	if (!thePrefs::GetNetworkKademlia() && theApp.IsConnectedKad()) {
-		theApp.StopKad();
+	if (!thePrefs::GetNetworkKademlia() && theApp->IsConnectedKad()) {
+		theApp->StopKad();
 	}	
 
 	if (!thePrefs::GetNetworkED2K() && !thePrefs::GetNetworkKademlia()) {
@@ -602,13 +633,13 @@ void PrefsUnifiedDlg::OnClose(wxCloseEvent& event)
 	if (event.CanVeto()) {
 		event.Veto();
 	} else {
-		if (theApp.amuledlg) {
-			theApp.amuledlg->m_prefsDialog = NULL;
+		if (theApp->amuledlg) {
+			theApp->amuledlg->m_prefsDialog = NULL;
 		}
 	
 		// Un-Connect the Cfgs
 		thePrefs::CFGMap::iterator it = thePrefs::s_CfgList.begin();
-		for ( ; it != thePrefs::s_CfgList.end(); ++it ) {
+		for (; it != thePrefs::s_CfgList.end(); ++it) {
 			// Checking for failures
 			it->second->ConnectToWidget( 0 );
 		}
@@ -626,9 +657,20 @@ void PrefsUnifiedDlg::OnCancel(wxCommandEvent& WXUNUSED(event))
 
 void PrefsUnifiedDlg::OnCheckBoxChange(wxCommandEvent& event)
 {
-	bool		value = event.IsChecked();
+	bool	value = event.IsChecked();
+	int	id = event.GetId();	
 
-	switch ( event.GetId() ) {
+	// Check if this checkbox is one of the User Events checkboxes
+	if (id >= USEREVENTS_FIRST_ID &&
+	    id < USEREVENTS_FIRST_ID +
+	    	(int)CUserEvents::GetCount() * USEREVENTS_IDS_PER_EVENT) {
+		// The corresponding text control always has
+		// an ID one greater than the checkbox
+		FindWindow(id + 1)->Enable(value);
+		return;
+	}
+
+	switch ( id ) {
 		case IDC_UDPDISABLE:
 			// UDP is disable rather than enable, so we flip the value
 			FindWindow( IDC_UDPPORT )->Enable(!value);
@@ -638,8 +680,8 @@ void PrefsUnifiedDlg::OnCheckBoxChange(wxCommandEvent& event)
 			FindWindow( IDC_MINDISKSPACE )->Enable(value);
 			break;	
 		
-		case IDC_USESKIN:
-			FindWindow( IDC_SKINFILE )->Enable(value);;
+		case IDC_USESKINFILES:
+			FindWindow( IDC_SKIN )->Enable(value);;
 			break;
 
 		case IDC_ONLINESIG:
@@ -651,17 +693,10 @@ void PrefsUnifiedDlg::OnCheckBoxChange(wxCommandEvent& event)
 			FindWindow( IDC_SERVERRETRIES )->Enable(value);;
 			break;
 
-		case IDC_ENABLE_AUTO_HQRS:
-			FindWindow( IDC_HQR_VALUE )->Enable(value);;
-			break;
-
 		case IDC_AUTOSERVER:
-			if (	IsEmptyFile(theApp.ConfigDir + wxT("addresses.dat")) && 
+			if ((CPath::GetFileSize(theApp->ConfigDir + wxT("addresses.dat")) == 0) && 
 				CastChild(event.GetId(), wxCheckBox)->IsChecked() ) {
-				wxMessageBox(wxString::wxString( _(
-					"Your Auto-update servers list is in blank.\n"
-					"Please fill in at least one URL to point to a valid server.met file.\n"
-					"Click on the button \"List\" by this checkbox to enter an URL.")),
+				wxMessageBox(wxString::wxString( _("Your Auto-update servers list is in blank.\nPlease fill in at least one URL to point to a valid server.met file.\nClick on the button \"List\" by this checkbox to enter an URL.")),
 					_("Message"), wxOK | wxICON_INFORMATION);
 				CastChild(event.GetId(), wxCheckBox)->SetValue(false);
 			}
@@ -699,6 +734,10 @@ void PrefsUnifiedDlg::OnCheckBoxChange(wxCommandEvent& event)
 			FindWindow(IDC_MSGWORD)->Enable(value);
 			break;
 
+		case IDC_FILTERCOMMENTS:
+			FindWindow(IDC_COMMENTWORD)->Enable(value);
+			break;
+
 		case ID_PROXY_ENABLE_PROXY:
 			FindWindow(ID_PROXY_TYPE)->Enable(value);
 			FindWindow(ID_PROXY_NAME)->Enable(value);
@@ -717,18 +756,35 @@ void PrefsUnifiedDlg::OnCheckBoxChange(wxCommandEvent& event)
 		case IDC_ENABLETRAYICON:
 			FindWindow(IDC_MINTRAY)->Enable(value);
 			if (value) {
-				theApp.amuledlg->CreateSystray();
+				theApp->amuledlg->CreateSystray();
 			} else {
-				theApp.amuledlg->RemoveSystray();
+				theApp->amuledlg->RemoveSystray();
 			}
+			thePrefs::SetUseTrayIcon(value);
 			break;
 		
 		case ID_PROXY_AUTO_SERVER_CONNECT_WITHOUT_PROXY:
 			break;
 		case IDC_VERTTOOLBAR:
-			theApp.amuledlg->Create_Toolbar(wxEmptyString, value);
+			theApp->amuledlg->Create_Toolbar(value);
 			// Update the first tool (conn button)
-			theApp.amuledlg->ShowConnectionState();
+			theApp->amuledlg->ShowConnectionState();
+			break;
+	
+		case IDC_ENFORCE_PO_INCOMING:
+			FindWindow(IDC_ENABLE_PO_OUTGOING)->Enable(!value);
+			break;
+
+		case IDC_ENABLE_PO_OUTGOING:
+			FindWindow(IDC_SUPPORT_PO)->Enable(!value);
+			FindWindow(IDC_ENFORCE_PO_INCOMING)->Enable(value);
+			break;
+
+		case IDC_SUPPORT_PO:
+			FindWindow(IDC_ENABLE_PO_OUTGOING)->Enable(value);
+			break;
+		
+		default:
 			break;
 	}
 }
@@ -757,7 +813,9 @@ void PrefsUnifiedDlg::OnBrowserChange( wxCommandEvent& evt )
 {
 	wxTextCtrl* textctrl = CastChild( IDC_BROWSERSELF, wxTextCtrl );
 	wxButton* btn = CastChild( IDC_SELBROWSER, wxButton );
-	bool enable = evt.GetSelection() == CastChild( IDC_BROWSER, wxChoice )->GetCount() - 1;
+	bool enable =
+		evt.GetSelection() ==
+		(int)CastChild( IDC_BROWSER, wxChoice )->GetCount() - 1;
 
 	if (textctrl) {
 		textctrl->Enable( enable );
@@ -792,20 +850,25 @@ void PrefsUnifiedDlg::OnButtonDir(wxCommandEvent& event)
 		type = _("Online Signatures");
 		break;
 
+//	case IDC_SELSKIN:
+//		id = IDC_SKIN;
+//		type = _("Skins directory");
+//		break;
+
 	default:
-		wxASSERT( false );
+		wxASSERT(false);
 		return;
 	}
 
 	type = CFormat(_("Choose a folder for %s")) % type;
-
 	wxTextCtrl* widget = CastChild( id, wxTextCtrl );
 	wxString dir = widget->GetValue();
-
-	wxString str = wxDirSelector( type, dir, 0, wxDefaultPosition, this );
-
-	if ( !str.IsEmpty() ) {
-		widget->SetValue( str );
+	wxString str = wxDirSelector(
+		type, dir,
+		wxDD_DEFAULT_STYLE,
+		wxDefaultPosition, this);
+	if (!str.IsEmpty()) {
+		widget->SetValue(str);
 	}
 }
 
@@ -818,19 +881,6 @@ void PrefsUnifiedDlg::OnButtonBrowseWav(wxCommandEvent& WXUNUSED(evt))
 	
 	if ( !str.IsEmpty() ) {
 		wxTextCtrl* widget = CastChild( IDC_EDIT_TBN_WAVFILE, wxTextCtrl );
-
-		widget->SetValue( str );
-	}
-}
-
-
-void PrefsUnifiedDlg::OnButtonBrowseSkin(wxCommandEvent& WXUNUSED(evt))
-{
-	wxString str = wxFileSelector(
-		_("Browse skin file"), wxEmptyString, wxEmptyString, wxT("*"),  wxT("*.*"), 0, this );
-
-	if ( !str.IsEmpty() ) {
-		wxTextCtrl* widget = CastChild( IDC_SKINFILE, wxTextCtrl );
 
 		widget->SetValue( str );
 	}
@@ -873,7 +923,7 @@ void PrefsUnifiedDlg::OnButtonBrowseApplication(wxCommandEvent& event)
 
 void PrefsUnifiedDlg::OnButtonEditAddr(wxCommandEvent& WXUNUSED(evt))
 {
-	wxString fullpath( theApp.ConfigDir + wxT("addresses.dat") );
+	wxString fullpath( theApp->ConfigDir + wxT("addresses.dat") );
 
 	EditServerListDlg* test = new EditServerListDlg(this, _("Edit Serverlist"),
 		_("Add here URL's to download server.met files.\nOnly one url on each line."),
@@ -886,20 +936,19 @@ void PrefsUnifiedDlg::OnButtonEditAddr(wxCommandEvent& WXUNUSED(evt))
 
 void PrefsUnifiedDlg::OnButtonIPFilterReload(wxCommandEvent& WXUNUSED(event))
 {
-	theApp.ipfilter->Reload();
-	theApp.clientlist->FilterQueues();
+	theApp->ipfilter->Reload();
 }
 
 
 void PrefsUnifiedDlg::OnButtonIPFilterUpdate(wxCommandEvent& WXUNUSED(event))
 {
-	theApp.ipfilter->Update( CastChild( IDC_IPFILTERURL, wxTextCtrl )->GetValue() );
+	theApp->ipfilter->Update( CastChild( IDC_IPFILTERURL, wxTextCtrl )->GetValue() );
 }
 
 
 void PrefsUnifiedDlg::OnPrefsPageChange(wxListEvent& event)
 {
-	prefs_sizer->Remove( m_CurrentPanel );
+	prefs_sizer->Detach( m_CurrentPanel );
 	m_CurrentPanel->Show( false );
 
 	m_CurrentPanel = pages[ event.GetIndex() ].m_widget;
@@ -933,44 +982,45 @@ void PrefsUnifiedDlg::OnScrollBarChange( wxScrollEvent& event )
 	switch ( event.GetId() ) {
 	case IDC_SLIDER:
 		id = IDC_SLIDERINFO;
-		label = wxString::Format( _("Update delay: %d secs"), event.GetPosition() );
-		theApp.amuledlg->statisticswnd->SetUpdatePeriod(event.GetPosition());
-		theApp.amuledlg->kademliawnd->SetUpdatePeriod(event.GetPosition());
+		label = wxString::Format( wxPLURAL("Update delay: %d second", "Update delay: %d seconds", event.GetPosition()), event.GetPosition() );
+		theApp->amuledlg->m_statisticswnd->SetUpdatePeriod(event.GetPosition());
+		theApp->amuledlg->m_kademliawnd->SetUpdatePeriod(event.GetPosition());
 		break;
 
 	case IDC_SLIDER3:
 		id = IDC_SLIDERINFO3;
-		label = wxString::Format( _("Time for average graph: %d mins"), event.GetPosition() );
-		theApp.statistics->SetAverageMinutes(event.GetPosition());
+		label = wxString::Format( wxPLURAL("Time for average graph: %d minute", "Time for average graph: %d minutes", event.GetPosition()), event.GetPosition() );
+		theApp->m_statistics->SetAverageMinutes(event.GetPosition());
 		break;
 
 	case IDC_SLIDER4:
 		id = IDC_SLIDERINFO4;
 		label = wxString::Format( _("Connections Graph Scale: %d"), event.GetPosition() );
-		theApp.amuledlg->statisticswnd->GetConnScope()->SetRanges(0,event.GetPosition());
+		theApp->amuledlg->m_statisticswnd->GetConnScope()->SetRanges(0,event.GetPosition());
 		break;
 
 	case IDC_SLIDER2:
 		id = IDC_SLIDERINFO2;
-		label = wxString::Format( _("Update delay : %d secs"), event.GetPosition() );
+		label = wxString::Format( wxPLURAL("Update delay : %d second", "Update delay : %d seconds", event.GetPosition()), event.GetPosition() );
 		break;
 
 	case IDC_FILEBUFFERSIZE:
 		id = IDC_FILEBUFFERSIZE_STATIC;
-		label = wxString::Format( _("File Buffer Size: %d bytes"), event.GetPosition() * 15000 );
+		// Yes, it seems odd to add the singular form here, but other languages might need to know the number to select the appropriate translation
+		label = wxString::Format( wxPLURAL("File Buffer Size: %d byte", "File Buffer Size: %d bytes", event.GetPosition() * 15000), event.GetPosition() * 15000 );
 		break;
 
 	case IDC_QUEUESIZE:
 		id = IDC_QUEUESIZE_STATIC;
-		label = wxString::Format( _("Upload Queue Size: %d clients"), event.GetPosition() * 100 );
+		// Yes, it seems odd to add the singular form here, but other languages might need to know the number to select the appropriate translation
+		label = wxString::Format( wxPLURAL("Upload Queue Size: %d client", "Upload Queue Size: %d clients", event.GetPosition() * 100), event.GetPosition() * 100 );
 		break;
 
 	case IDC_SERVERKEEPALIVE:
 		id = IDC_SERVERKEEPALIVE_LABEL;
 
 		if ( event.GetPosition() ) {
-			label = wxString::Format( _("Server connection refresh interval: %d minutes"),
-				event.GetPosition() );
+			label = wxString::Format( wxPLURAL("Server connection refresh interval: %d minute", "Server connection refresh interval: %d minutes", event.GetPosition()), event.GetPosition() );
 		} else {
 			label = wxString::Format( _("Server connection refresh interval: Disabled") );
 		}
@@ -1020,3 +1070,65 @@ void PrefsUnifiedDlg::OnTCPClientPortChange(wxSpinEvent& WXUNUSED(event))
 	txt << wxT("UDP port for extended server requests (TCP+3):") << port + 3;
 	CastChild(ID_TEXT_CLIENT_UDP_PORT, wxStaticText)->SetLabel(txt);
 }
+
+void PrefsUnifiedDlg::OnUserEventSelected(wxListEvent& event)
+{
+	for (unsigned int i = 0; i < CUserEvents::GetCount(); ++i) {
+		IDC_PREFS_EVENTS_PAGE->Hide(i + 2);
+	}
+
+	IDC_PREFS_EVENTS_PAGE->Show((event.GetData() - USEREVENTS_FIRST_ID) / USEREVENTS_IDS_PER_EVENT + 2, true);
+
+	IDC_PREFS_EVENTS_PAGE->Layout();
+
+	event.Skip();
+}
+
+void PrefsUnifiedDlg::CreateEventPanels(const int idx, const wxString& vars, wxWindow* parent)
+{
+	wxStaticBox *item8 = new wxStaticBox( parent, -1, CFormat(_("Execute command on `%s' event")) % wxGetTranslation(CUserEvents::GetDisplayName(static_cast<enum CUserEvents::EventType>(idx))) );
+	wxStaticBoxSizer *item7 = new wxStaticBoxSizer( item8, wxVERTICAL );
+
+	wxCheckBox *item9 = new wxCheckBox( parent, USEREVENTS_FIRST_ID + idx * USEREVENTS_IDS_PER_EVENT + 1, _("Enable command execution on core"), wxDefaultPosition, wxDefaultSize, 0 );
+	item7->Add( item9, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
+
+	wxFlexGridSizer *item10 = new wxFlexGridSizer( 3, 0, 0 );
+	item10->AddGrowableCol( 2 );
+
+	item10->Add( 20, 20, 0, wxALIGN_CENTER|wxALL, 0 );
+
+	wxStaticText *item11 = new wxStaticText( parent, -1, _("Core command:"), wxDefaultPosition, wxDefaultSize, 0 );
+	item10->Add( item11, 0, wxALIGN_CENTER|wxALL, 5 );
+
+	wxTextCtrl *item12 = new wxTextCtrl( parent, USEREVENTS_FIRST_ID + idx * USEREVENTS_IDS_PER_EVENT + 2, wxT(""), wxDefaultPosition, wxDefaultSize, 0 );
+	item12->Enable(CUserEvents::IsCoreCommandEnabled(static_cast<enum CUserEvents::EventType>(idx)));
+	item10->Add( item12, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	item7->Add( item10, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
+
+	wxCheckBox *item14 = new wxCheckBox( parent, USEREVENTS_FIRST_ID + idx * USEREVENTS_IDS_PER_EVENT + 3, _("Enable command execution on GUI"), wxDefaultPosition, wxDefaultSize, 0 );
+	item7->Add( item14, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
+
+	wxFlexGridSizer *item15 = new wxFlexGridSizer( 3, 0, 0 );
+	item15->AddGrowableCol( 2 );
+
+	item15->Add( 20, 20, 0, wxALIGN_CENTER|wxALL, 0 );
+
+	wxStaticText *item16 = new wxStaticText( parent, -1, _("GUI command:"), wxDefaultPosition, wxDefaultSize, 0 );
+	item15->Add( item16, 0, wxALIGN_CENTER|wxALL, 5 );
+
+	wxTextCtrl *item17 = new wxTextCtrl( parent, USEREVENTS_FIRST_ID + idx * USEREVENTS_IDS_PER_EVENT + 4, wxT(""), wxDefaultPosition, wxDefaultSize, 0 );
+	item17->Enable(CUserEvents::IsGUICommandEnabled(static_cast<enum CUserEvents::EventType>(idx)));
+	item15->Add( item17, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	item7->Add( item15, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
+
+	wxStaticText *item13 = new wxStaticText( parent, -1, _("The following variables will be replaced:") + vars, wxDefaultPosition, wxDefaultSize, 0 );
+	item7->Add( item13, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	IDC_PREFS_EVENTS_PAGE->Add(item7, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+	IDC_PREFS_EVENTS_PAGE->Layout();
+	IDC_PREFS_EVENTS_PAGE->Hide(idx + 2);
+}
+// File_checked_for_headers

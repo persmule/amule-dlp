@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (C) 2005-2006Froenchenko Leonid ( lfroen@amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2008 Froenchenko Leonid ( lfroen@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -30,7 +30,6 @@
  */
 #ifdef __cplusplus
 
-#include <list>
 
 class CWriteStrBuffer {
 		std::list<char *> m_buf_list;
@@ -71,7 +70,11 @@ class CPhPLibContext {
 		void SetContext();
 		void Execute(CWriteStrBuffer *);
 		
+#if defined(__GNUC__)
+		static void Printf(const char *str, ...)  __attribute__ ((__format__ (__printf__, 1, 2)));
+#else
 		static void Printf(const char *str, ...);
+#endif
 		static void Print(const char *str);
 
 		static CPhPLibContext *g_curr_context;
@@ -95,3 +98,4 @@ void load_session_vars(char *target, std::map<std::string, std::string> &varmap)
 void save_session_vars(std::map<std::string, std::string> &varmap);
 
 #endif //_PHP_CORE_LIB_H_
+// File_checked_for_headers

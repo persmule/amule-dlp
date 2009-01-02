@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -54,21 +54,16 @@ public:
 
 
 #ifndef CLIENT_GUI
-	/**
-	 * Replaces the current contents of the list with that on the given list.
-	 *
-	 * @param The list with which to update the displayed contents.
-	 *
-	 * This function removes the current list of files and replaces it with the 
-	 * files contained on the list given as an argument.
-	 */
-	void	ShowFileList(CSharedFileList* list);
+	/** Reloads the list of shared files. */
+	void	ShowFileList();
 #endif
 
 	/**
-	 * Adds the specified file to the list.
+	 * Adds the specified file to the list, updating filecount and more.
 	 *
 	 * @param file The new file to be shown.
+	 * 
+	 * Note that the item is inserted in sorted order.
 	 */
 	void	ShowFile(CKnownFile* file);
 
@@ -93,15 +88,13 @@ public:
 	
 private:
 	/**
-	 * Updates the item at the specified position using the specified file.
+	 * Adds the specified file to the list. 
 	 *
-	 * @param file The file to use as reference.
-	 * @param pos The item which to update.
-	 *
-	 * This function updates the fields of the specified item, using the data
-	 * taken from the pointed to file.
+	 * If 'batch' is true, the item will be inserted last,
+	 * and the files-count will not be updated, nor is 
+	 * the list checked for dupes.
 	 */
-	void	UpdateFile(CKnownFile* file, long pos);
+	void	DoShowFile(CKnownFile* file, bool batch);
 	
 	/**
 	 * Draws the graph of file-part availability.
@@ -134,7 +127,7 @@ private:
 	 *
 	 * @see wxListCtrl::SortItems
 	 */
-	static int wxCALLBACK SortProc(long item1, long item2, long sortData);
+	static int wxCALLBACK SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData);
 
 	/**
 	 * Function that specifies which columns have alternate sorting.
@@ -148,6 +141,11 @@ private:
 	 * Event-handler for right-clicks on the list-items.
 	 */
 	void	OnRightClick(wxListEvent& event);
+
+	/**
+	 * Event-handler for right-clicks on the list-items.
+	 */
+	void	OnGetFeedback(wxCommandEvent& event);
 	
 	/**
 	 * Event-handler for the Set Priority menu items.
@@ -160,7 +158,7 @@ private:
 	void	OnSetPriorityAuto( wxCommandEvent& event );
 	
 	/**
-	 * Event-handler for the Create ED2K URI items.
+	 * Event-handler for the Create ED2K/Magnet URI items.
 	 */
 	void	OnCreateURI( wxCommandEvent& event );
 	
@@ -184,6 +182,10 @@ private:
 	 */
 	void	OnKeyPressed( wxKeyEvent& event );
 
+	/**
+	 * Adds links in a collection to transfers
+	 */
+	void	OnAddCollection( wxCommandEvent& WXUNUSED(evt) );
 
 	//! Pointer used to ensure that the menu isn't displayed twice.
 	wxMenu* m_menu;
@@ -193,3 +195,4 @@ private:
 };
 
 #endif
+// File_checked_for_headers

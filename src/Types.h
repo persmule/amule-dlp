@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,11 +26,35 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include <inttypes.h>		// Needed for int type declarations
-#include <wx/dynarray.h>	// Needed for WX_DEFINE_ARRAY_SHORT
+#ifndef USE_STD_STRING
 #include <wx/string.h>		// Needed for wxString and wxEmptyString
+#endif 
 
-// These are MSVC defines used in eMule. They should 
+#include <list>			// Needed for std::list
+#include <vector>		// Needed for std::vector
+
+#ifndef _MSC_VER
+	#ifndef __STDC_FORMAT_MACROS
+		#define __STDC_FORMAT_MACROS
+	#endif
+	#include <inttypes.h>
+	#define LONGLONG(x) x##ll
+	#define ULONGLONG(x) x##llu
+#else
+	typedef unsigned __int8 byte;
+	typedef unsigned __int8 uint8_t;
+	typedef unsigned __int16 uint16_t;
+	typedef unsigned __int32 uint32_t;
+	typedef unsigned __int64 uint64_t;
+	typedef signed __int8 int8_t;
+	typedef signed __int16 int16_t;
+	typedef signed __int32 int32_t;
+	typedef signed __int64 int64_t;
+	#define LONGLONG(x) x##i64
+	#define ULONGLONG(x) x##ui64
+#endif
+
+// These are _MSC_VER defines used in eMule. They should 
 // not be used in aMule, instead, use this table to 
 // find the type to use in order to get the desired 
 // effect. 
@@ -85,10 +109,30 @@ typedef int32_t		sint32;
 typedef int64_t		sint64;
 typedef uint8_t		byte;
 
-WX_DEFINE_ARRAY_SHORT(uint16, ArrayOfUInts16);
+
+class CKnownFile;
+class CUpDownClient;
+
+//! Various common list-types.
+//@{ 
+#ifndef USE_STD_STRING
+typedef std::list<wxString> CStringList;
+#endif
+typedef std::list<CKnownFile*> CKnownFilePtrList;
+typedef std::list<CUpDownClient*> CClientPtrList;
+//@}
+
+typedef std::vector<uint16> ArrayOfUInts16;
 
 /* This is the Evil Void String For Returning On Const References From Hell */
+// IT MEANS I WANT TO USE IT EVERYWHERE. DO NOT MOVE IT. 
+// THE FACT SOMETHING IS USED IN JUST ONE PLACE DOESN'T MEAN IT HAS
+// TO BE MOVED TO THAT PLACE. I MIGHT NEED IT ELSEWHERE LATER.
+//
+
+#ifndef USE_STD_STRING
 static const wxString EmptyString = wxEmptyString;
+#endif
 
 #ifndef __cplusplus
 	typedef int bool;
@@ -96,39 +140,32 @@ static const wxString EmptyString = wxEmptyString;
 
 
 #ifdef __WXMSW__
-	#include <windef.h>		// Needed for RECT
-	#include <wingdi.h>
-	#include <winuser.h>
-	#include <wx/msw/winundef.h>	/* Needed to be able to include mingw headers */
-
+#ifdef _MSC_VER
+	#define NOMINMAX
+	#include <windows.h> // Needed for RECT  // Do_not_auto_remove
+#endif
+	#include <windef.h>	// Needed for RECT  // Do_not_auto_remove
+	#include <wingdi.h>	// Do_not_auto_remove
+	#include <winuser.h>	// Do_not_auto_remove
+	// Windows compilers don't have these constants
+	#ifndef W_OK
+		enum
+		{
+			F_OK = 0,   // test for existence
+			X_OK = 1,   //          execute permission
+			W_OK = 2,   //          write
+			R_OK = 4    //          read
+		};
+	#endif // W_OK
 #else 
-
 	typedef struct sRECT {
 	  uint32 left;
 	  uint32 top;
 	  uint32 right;
 	  uint32 bottom;
 	} RECT;
-
 #endif /* __WXMSW__ */
 
-/*
- * Check version stuff
- */
-#ifndef wxSUBRELEASE_NUMBER
-	#define wxSUBRELEASE_NUMBER 0
-#endif
-
-#ifndef wxCHECK_VERSION_FULL
-
-	#define wxCHECK_VERSION_FULL(major,minor,release,subrel) \
-		(wxMAJOR_VERSION > (major) || \
-		(wxMAJOR_VERSION == (major) && wxMINOR_VERSION > (minor)) || \
-		(wxMAJOR_VERSION == (major) && wxMINOR_VERSION == (minor) && \
-		 	wxRELEASE_NUMBER > (release)) || \
-		 wxMAJOR_VERSION == (major) && wxMINOR_VERSION == (minor) && \
-		 	wxRELEASE_NUMBER == (release) && wxSUBRELEASE_NUMBER >= (subrel))
-
-#endif
 
 #endif /* TYPES_H */
+// File_checked_for_headers

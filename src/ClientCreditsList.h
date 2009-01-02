@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,7 +26,6 @@
 #ifndef CLIENTCREDITSLIST_H
 #define CLIENTCREDITSLIST_H
 
-#include "Types.h"		// Needed for uint16 and uint32
 #include "MD4Hash.h"	// Needed for CMD4Hash
 
 #include <map>
@@ -39,7 +38,7 @@ public:
 	CClientCreditsList();
 	~CClientCreditsList();
 	
-			// return signature size, 0 = Failed | use sigkey param for debug only
+	// return signature size, 0 = Failed | use sigkey param for debug only
 	uint8	CreateSignature(CClientCredits* pTarget, byte* pachOutput, uint8 nMaxSize, uint32 ChallengeIP, uint8 byChaIPKind, void* sigkey = NULL);
 	bool	VerifyIdent(CClientCredits* pTarget, const byte* pachSignature, uint8 nInputSize, uint32 dwForIP, uint8 byChaIPKind);	
 
@@ -58,12 +57,13 @@ protected:
 #endif
 private:
 	typedef std::map<CMD4Hash, CClientCredits*> ClientMap;
-	ClientMap m_mapClients;
-	uint32			m_nLastSaved;
+	ClientMap	m_mapClients;
+	uint32		m_nLastSaved;
 	// A void* to avoid having to include the large CryptoPP.h file
 	void*		m_pSignkey;
-	byte			m_abyMyPublicKey[80];
-	uint8			m_nMyPublicKeyLen;
+	byte		m_abyMyPublicKey[80];
+	uint8		m_nMyPublicKeyLen;
 };
 
 #endif // CLIENTCREDITSLIST_H
+// File_checked_for_headers

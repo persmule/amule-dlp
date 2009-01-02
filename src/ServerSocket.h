@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -30,7 +30,6 @@
 #ifndef SERVERSOCKET_H
 #define SERVERSOCKET_H
 
-#include "Types.h"		// Needed for int8 and int32
 #include "EMSocket.h"		// Needed for CEMSocket
 #include "ServerConnect.h"
 
@@ -42,16 +41,14 @@ class CServer;
 
 class CServerSocket : public CEMSocket
 {
-	DECLARE_DYNAMIC_CLASS(CServerSocket)
 	friend class CServerConnect;
-	CServerSocket() {};
-	
 public:
+
 	CServerSocket(CServerConnect* in_serverconnect, const CProxyData *ProxyData = NULL);
 	virtual ~CServerSocket();
 
-	void	ConnectToServer(CServer* server);
-	sint8	GetConnectionState()		{ return connectionstate; } 
+	void	ConnectToServer(CServer* server, bool bNoCrypt = false);
+	sint8	GetConnectionState()	const	{ return connectionstate; } 
  	uint32  GetLastTransmission() const	{ return m_dwLastTransmission; }
 	wxString info;
 
@@ -65,12 +62,15 @@ public:
  	void	OnHostnameResolved(uint32 ip);
  	CServer *GetServerConnected() const { return serverconnect->GetCurrentServer(); }
 	
+	uint32 GetServerIP() const;
+	
 private:
-	bool	ProcessPacket(const char* packet, uint32 size, int8 opcode);
+	bool	ProcessPacket(const byte* packet, uint32 size, int8 opcode);
 	void	SetConnectionState(sint8 newstate);
 	CServerConnect*	serverconnect; 
 	sint8	connectionstate;
 	CServer*	cur_server;
+	bool m_bNoCrypt;
 	bool	headercomplete;
 	int32	sizetoget;
 	int32	sizereceived;
@@ -83,3 +83,4 @@ private:
 };
 
 #endif // SERVERSOCKET_H
+// File_checked_for_headers

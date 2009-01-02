@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2006 Mikkel Schubert ( xaignar@users.sourceforge.net )
-// Copyright (c) 2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2006-2008 Mikkel Schubert ( xaignar@users.sourceforge.net )
+// Copyright (c) 2006-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -26,11 +26,12 @@
 #ifndef FILELOCK_H
 #define FILELOCK_H
 
-#include <string>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <cerrno>
+#ifndef _MSC_VER
+#include <unistd.h> // Do_not_auto_remove (Needed for OpenBSD)
+#endif
+#include <string> // Do_not_auto_remove (g++-4.0.1 except win32)
 
 
 /**
@@ -40,9 +41,9 @@
  * on all filesystems (NFS) and thus locking is not
  * certain.
  *
- * Currently, this lock holds a exclusive lock on the 
+ * Currently, this lock holds an exclusive lock on the 
  * file in question. It is assumed that the file will
- * be read/written to by all users.
+ * be read/written by all users.
  * 
  */
 class CFileLock
@@ -56,7 +57,7 @@ public:
 	 * file is not removed afterwards.
 	 */
 	CFileLock(const std::string& file)
-#ifdef __WIN32__
+#if defined(__WIN32__) || defined(_MSC_VER)
 	{
 	}
 #else
@@ -120,3 +121,4 @@ private:
 };
 
 #endif
+// File_checked_for_headers

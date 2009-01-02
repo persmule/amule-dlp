@@ -1,3 +1,681 @@
+Version 2.2.1 - ???
+----------
+2008-03-??
+
+	Bas Zoetekouw:
+		* Patch for debian bug #350396: "amule depletes entropy pool".
+
+	brainnolo:
+		* Patch for loading the correct path for the UPnP libraries
+		  in Mac.
+		* Added the binaries for libUPnP for Mac to the directory
+		  aMule.app/Contents/Frameworks.
+		* Universal Binary ed2kHelperScript update.
+		* avoid removing libupnp libs during initial cleanup
+		  (this would defeat bundling them) . It will now remove only
+		  libwx in the Frameworks directory (which are supposed to be
+		  from an old build).
+
+	centaur:
+		* OpenBSD patch.
+
+	Coronas:
+		* Patch to show kad status in amuleweb (Bug 1103)
+		* typo in src/webserver/default/shared.php.
+
+	drkirkby:
+		* Test for gcc before including gcc specific flags on the
+		  compiler line.
+
+	DLH:
+		* amulegui.xpm icon.
+
+	EastWind:
+		* Patch to prevent overwriting of GDLIB_LIBS
+
+	Gerd78:
+		* Added autostart-xas to rpm .spec files.
+		* Patch for autoconf >= 2.60.
+		* Patch for redefinition of $(docdir) in docs/Makefile.am.
+		* Patch for aMule .desktop files.
+		* Added amulegui desktop icon (with Vollstrecker).
+		* Patch for fixing aMule spec file in Fedora and Mandriva.
+		* Test for perl File::Copy in configure.
+
+	Gnucco:
+		* Workaround for string serialization bug.
+		* Workaround for aMule does not publish new files on kad.
+
+	GonoszTopi:
+		* Added ability to compile amulecmd without thread support in wx.
+		* Fixed source seeds handling on startup.
+		* Proper restoration of startup locale after checking available
+		  locales.
+		* Fixed linkage with wxMSW.
+		* Got rid of a few more warnings.
+		* Fixed #929: configure: BUILD_CC uses CC's CFLAGS
+		* Implemented #962: don't display (0) when not downloading from source
+		* Fixed #954 - added ability turn IPFilter on/off for servers/clients
+		  independently.
+		* Added support for magnet ed2k links.
+		* Improve cross compilation
+		* Fixed segmentation fault in amuled
+		* Proper restoration of startup locale after checking available locales
+		* Don't allow sources coming from .seeds to be cleaned up for a while
+		  after startup
+		* Improve accuracy for ticks
+		* Improve debug output
+		* Don't add clients when shutting down
+		* Added a simple (ascii) text file reader class
+		* Sed denoiser - removes excessive messages from compilation - 
+		  Thanks to Vollstrecker for the idea and discussions.
+		* Drop path component from logged file names.
+		* Fix for perl v5.8.8
+		* wxCas compilation fixes for wxCVS
+		* Doxyfile doesn't need to be installed, it's unusable without the sources.
+		* Fixed #979: No win32 version information
+		* Updated listctrl code to 2.8.7
+		* Fixed a buffer overflow in TextFile.cpp
+		* Cross-compilation fixes.
+		* Some little optimizations on configure.
+		* Re-categorized a number of strings whether they need translation or not.
+
+	Hermit:
+		* Patch for amulecmd history which ensures that when the same command
+		  is repeated several times in a row it only gets recorded in the
+		  history once.
+
+	jcoy:
+		* Set download priority in amulecmd.
+
+	ken:
+		* Fixed control-clicking (right-clicking) on tabs in notebooks on the
+		  Mac.
+		* Compilation fix for MacOSX 10.3
+		* Fixed a crashing bug with static initialization order
+		* Ship the license as required by the GPL.
+		* Fixes linking of embedded CryptoPP (on the Mac, if nowhere else).
+		* Quick-n-dirty hack for stats graphs on the Mac.
+
+	Kry:
+		* Protocol Obfuscation (enabled by default)
+		* Large file support (>4GB)
+		* Disabled auto-update of servers from clients and other servers by default.
+		* Fixed a bug while getting sources for large files (>4GB)
+		* Fixed mldonkey_importer to work with mldonkey >= 2.7.6
+		* Improve exception handling
+		* Added a column on client view that shows if the user has reported having 
+		  disabled shared files.
+		* Disable the "Show files" option in context menu if the user has reported 
+		  having disabled shared files.
+		* Add generic CTag classes support for Kad data types
+		* Remove kad IO classes
+		* Safety on memfiles created from packets
+		* Fixed publishing and sending shared files requests
+		* Fixed Unittest
+		* Update audio and video types
+		* Update EC to use the equivalent of VBT tags
+		* Fix ID sending on hello packet to use the hybrid ID instead of plain ed2k id
+		* Fix a bug on sending info to other clients on file list request
+		* Upgrade lex generated code
+		* Add the --reset-config flag
+		* Modified getclosetsto() fix, originally by tatikiran
+		* Changes to flex parsing of search expressions.
+		* Fix several missing variable initializations
+		* Swap bytes for int types in EC code
+		* Lower reask times
+		* Fix Memleak in ECSocket
+		* Extend amulecmd with 'show log' and 'reset' command, originally by quinox, bug #856
+		* Usage of HOSTCC for compile-time executions
+		* Created translation status scripts
+		* Move server packets to the back of the UDP queue if the server is still
+		  resolving a dynamic host
+		* Script to wikify changelog
+		* Separate ECTag from ECPacket
+		* Fix crash on startup
+		* Fix several rare memleaks
+		* Fixes on Kademlia keyword store
+		* Initial Kademlia 2 integration
+		* Remove duplicated SendPacket functions in Kad
+		* CPacket uses const CMemfile reference instead of pointer
+		* Fix for (rare) bogus packets being send on kad
+		* Fix for empty packets in Kad Search
+		* Fixed server IP for EC
+		* Don't destroy shareddir.dat on remote GUI, bug #945
+		* Incorrect percentage displayed by amulecmd for files > 4Gb, bug #949
+		* Ask user to download server list when list is empty and ed2k active
+		* Support automake 1.10
+		* Reorganization of EC code
+		* Added script to generate EC files for different programming languages
+		  (C#, Java and C++) from an abstract language
+		* Dropped support for < wx2.8.x (in case you want to blame someone)
+		* Added remote gui datastructure for new classes.
+		* Fixed compilation with wx2.9, also with disabled 2.6 comatibility.
+		* Heavily modified IP2Country code.
+		  Proper names, guards, creation on the heap... etc.
+		* Added script to create Kad nodes files
+		* Fixes for emule-collection support
+		* Added some sanity checks
+		* Source links with crypt data support.
+		* Fix Mac build
+		* Remember kad and ed2k urls and restore them on restart.
+		* Force conversion to be ISO8859 for tag names, obvious from the network
+		  standards. This also fixes Kad.
+		* Changed the inheritance for the UDP sockets to include the encrypted layer
+		* Fix for MuleGifDecoder issue
+		* Windows fixes
+		* Added OnO patch for Toolbar display.
+		* Fixed validation of preferences items for wxWidgets 2.8.4
+		* Fixed cryptopp version recognition on Mac.
+
+	lfroen:
+		* Fix partcount not being set in remote gui
+		* Use only one EC library with amuleweb
+		* Fix LastSeenComplete
+		* Fix for NonCurrentSources
+		* Fix incorrect cookie parsing for amuleweb
+		* Fix passing strings in EC
+		* Lock webserver when serving images
+		* EC implementation in C# (work in progress)
+		* Fix preferences in amuleweb
+		* Fix EC crashing webserver when new item added
+		* GUI implementation in C# (work in progress)
+		* Implementing split() call
+		* Compilation fix for MuleGifDecoder
+
+	LittleAbacus:
+		* Patch to show part file numbers.
+		* set the search string to the search text of currently
+		  selected tab.
+
+	morricone:
+		* Fix for wxwin.m4 not autodetecting wxBase.
+
+	mr_hyde:
+		* Patch to enable Kad search with amulecmd.
+		* Fix for some man pages have wrong name with
+		  --program-suffix.
+		* Temporary fix for tarball configure.in using SVNDATE.
+
+	Nodsu:
+		* Patch to make amulecmd cancel/pause/resume work with many
+		  files and file names.
+		* Patch to enable preview in remote GUI.
+		* Patch to create the magic string $file in previews. This
+		  string is replaced with the file name in the command line,
+		  in case it exists.
+
+	nvinay:
+		* Trivial issue with memset found using google codesearch which may
+		  affect only the debugging.
+
+	Phoenix:
+		* Fix for crash in amulegui/DownloadListCtrl.cpp.
+		* Upgraded extern/listctrl.{cpp,h} from wxWidgets cvs code.
+		* Fixed some gtk2 warnings in extern/listctrl.cpp.
+		* Fix for unhandled exception in new skinned toolbar code.
+		* Coding style fixes.
+		* Fix for server disconnection during global search.
+		* No more wxARRAY's in amuleweb.
+		* Fixed bug in mutex code in amuleweb (s_mutex_wcThreads).
+		* No more wxARRAY's in aMule code.
+		* Fixed bug in ECPacket.cpp: assignment inside assertion.
+		* Changed CECSocket constructor to be exception safe.
+		* Fix for invalid rectangle size on COScopeCtrl::PlotHistory().
+		* Removed the default constructor for Kademlia contacts.
+		* Fix for "get bwlimits" command in amulecmd always returning
+		  zero for maximum download value.
+		* Added UPnP support.
+		* Fix for crash in ECSocket.cpp.
+		* FileDetailDialog:: now has more intuitive Apply, Ok, Cancel
+		  interface.
+		* GUI to enter a specific bind IP in
+		  "Preferences->Connection->BindAddress".
+		* Resurrected support for the tag FT_DL_ACTIVE_TIME in the met
+		  file. It's value, the download active time, can now be seen
+		  in the file details dialog.
+		* Added the DLACTIVETIME variable to the list of replaced
+		  variables in the DowloadCompleted user event.
+		* MuleTrayIcon.cpp was not compiling for __WXMAC_CARBON__.
+		  Seems to be fixed, but must be the code now has a lot of
+		  ifdefs and must be tested on other platforms.
+		* Added two more events: "out of space in temporary partition"
+		  and "error upon completion".
+		* Fixed a crash in amulegui when adding a new category.
+		* Fixed a bug in amulegui, removing a category remotely did
+		  not update the category count in amule.conf, so the next
+		  time amule was run, the category was there again.
+		* Fixed a bug in toolbar skins, the skin file was opened even
+		  when the checkbox "Use skins" was not checked.
+		* Fixed a crash related to MuleGIFDecoder wx-2.8.0 when
+		  downloading the file IPFIlter.dat.
+		* Fix for ECSocket.cpp, amulegui was crashing upon entry.
+		* Fix for ClientDetailDialog in amulegui. Was showing
+		  incorrect IP / Server / Software version information.
+		* Switch binding of UPnP libraries to use one digit version
+		  names instead of unversioned names.
+		* Fix for crash in amuleweb when the image file did not exist.
+		* UPnP add/delete port mappings are now done in every device
+		  found, instead of only the first one.
+		* Creation of --enable-upnp/--disable-upnp configure flag.
+		* Update of wxWidgets-2.6.3 deprecated code to version 2.8.2.
+		* Fixed IPFilter.dat loading from a zipped file.
+		* Added a termination process to wxExecute() calls, so that we
+		  no longer leave zombies.
+		* CDirIterator now uses wxDir.
+		* CheckDirExists() now uses wxDir::Exists().
+		* CheckFileExists() now uses wxFile::Exists().
+		* GetLastModificationTime() now uses wxFileModificationTime().
+		* GetFileSize() now uses wxFile::Length().
+		* UTF8_CopyFile() now uses wxCopyFile(). Later reverted for locale fixes.
+		* UTF8_RemoveFile() now uses wxRemoveFile(). Later reverted for locale fixes.
+		* UTF8_MoveFile() now uses wxRenameFile(). Later reverted for locale fixes.
+		* theApp is now a global pointer, so that we can access the
+		  global application object from within a core file.
+		* Partial fix for the COLORREF compilation problem on Windows.
+		* Fix for libpng version detection on acinclude.m4. It was
+		  failing for strings like 1.2.15beta5 (e.g., debian 4.0 etch).
+		* Fix for theApp variable usage in amulegui. It was not beeing
+		  initialized and amulegui was segfaulting.
+		* Fixed the forum address in the backtrace print.
+		* Applied Bas Zoetekouw's patch for debian bug #350396:
+		  "amule depletes entropy pool".
+		* Implemented IP2Country using GeoIP.
+		* When converting from multibyte to wide characters,
+		  ConvAmuleBrokenFileNames now tries UTF-8 first. If this
+		  fails, then it tries ISO-8859-1.
+		* New directory based skin support, reworked Trevino's patch.
+		* Fixed amuleweb crashes due to bug in ECSocket.cpp
+		* Code to refresh port mappings in the event of a temporary router failure
+		* Code to deal with previously unhandled UPnP events.
+		* Fixed remote-gui segfault in UpdateStatsTree()
+		* syscall_check is no longer a macro
+		* Fixed a serious bug introduced by ENABLE_UPNP Makefile.am switch
+		* Fix for libpng version detection on acinclude.m4
+		* Fix for server list and node list
+		* Made some common dialog modals and giving them a default style
+		* Handle different UPnP library versions
+		* UPnP for amuleweb.
+		* Fix for crash on exit and a little less redundancy.
+		* Trying to make listctrls behave on Mac.
+		* Fix for CheckFreeDiskSpace(). Was probably returning ok if
+		  the directory where the file would be saved did not exist.
+		* Fix for overflow in CPartFile::HashSinglePart() as reported
+		  by visualage.
+		* Fix for overflow in CSharedFilesCtrl::DrawAvailabilityBar()
+		  as reported by a3linux, CtrlAltDel and stefanero. Special
+		  thanks to a3linux for the backtrace.
+		* Improoved the macro CHECK_CRYPTO() in acinclude.m4.
+		* Fix for the check of cryptopp library version in
+		  configure.in.
+		* Rewrote the cryptopp m4 stuff.
+		* Fixed some memory leaks related to the use of
+		  CTerminationProcess.
+		* Fixed the usage of CryptoPP::Base64Encoder when creating the
+		  key pair for ClientCreditsList. cryptopp semantics is to
+		  give the ownership, so do not create objects like this on
+		  the heap.
+		* Fix for amuled creating zombies. wxProcess does not work
+		  with wxBase.
+		* wxProcess now receives OnTerminate() events in amuled.
+		* Created a specialized termination process object for
+		  amuleweb, so that amule does not kill the web daemon if it
+		  has already died. This fixes a segfault upon exit.
+
+	pochu:
+		* Fix for subdirectory builds.
+
+	Radek:
+		* Patch to fix windows compilation.
+
+	Raziel:
+		* Adapt Kad code to the standard coding guidelines.
+		* Work on EC API
+
+	spiralvoice:
+		* Patch to enable MLDonkey os_info support.
+
+	Skolnick:
+		* Added the time to the aMule stats in the wxCas window and
+		  in the generated image.
+		* Added the time to the aMule stats in the cas output and
+		  in the generated image
+		* Added option to generate image in JPG format (along with PNG)
+		* Added new icon for aMule
+
+	Stu Redman:
+		* Fix for Transferred / Completed not updated in remote GUI.
+		* Fix for PARTSIZE not beeing 64 bits. Enums are always 32
+		  bits, even if we use a 64 bit constant to initialize it.
+		* ratings/comment marks are now shown in the main transfer
+		  window (the little colored !! on the left).
+		* comments are now updated when comment packets arrive (not
+		  only when the show comment dialog is open).
+		* remote names are now updated once on startup. So there is no
+		  more 3s lag until the names are shown when the dialog is
+		  opened for the first time.
+		* ED2K/Kad User/Filecount is now shown in the remote-gui status
+		  bar.
+		* Kad users/files also updated on the Kad Tab.
+		* Backed out a now obsolete change made in CommentDialogLst.cpp
+		  (comments are not related to remote filenames anymore).
+
+	Tiziano Müller:
+		* Fixed compilation when --enable-geoip is used in conjunction
+		  with the ld-flag "--as-needed".
+
+	Trevino:
+		* Fix for "Both the Unknown client icon and the Unknown status
+		icon points to the same file" issue.
+		* Skin support with relative paths.
+
+	visualage:
+		* Fix for aMuleWeb unicode search/download link error.
+		* Fix for aMuleWeb segfault when refreshing too frequently.
+		* Fix for regular expression in aMuleWeb-PHP/split function.
+
+	Vollstrecker:
+		* Added possibility to give the path for output right with
+		  -p or -o in cas.
+		* Changed cas to use getopt_long.
+		* Added --config-dir and -c option to cas.
+		* Added alias -H --html to cas.
+		* Added alias -P --picture to cas.
+		* Added --config-dir and -c option to ed2k.
+		* Added --config-dir option to amuled.
+		* Fixed typos in the man pages.
+		* Added manpage for amulegui.
+		* Added amulegui desktop icon (with Gerd78).
+		* Manpages update.
+		* Add debian folder.
+		* Correct use of libcrypto >= 5.5 and update of debian-dir.
+		* Added Option to use generic ipfilter.dat.
+		* Made possible to select which translations get build and
+		  installed.
+		* Install only manpages in requested Langs.
+
+	wuischke:
+		* Add emulecollection support on aMule ED2K Links Handler
+		* Fix online signature update rate
+		* Fix display of filesize > 4GB in file detail dialog
+		* Fix toolbar import/about icon order
+		* Add option to load emulecollection in SharedFilesCtrl
+		* Add oga and ogv extension for file type search
+		* Allow skin/webserver template section via wxchoice + skin enhancement
+		* Some error messages rephrased, to improve readability
+		* Fix idle mode for UBT
+		* Fix Ctrl+a in MuleListCtrl
+		* Replace (f)lex by $(LEX) in Makefile.am files
+		* Fix libUPnP unloading.
+		* Fix building with external CryptoPP
+		* Ship skins with tarball
+		* Display file size in human readable format in FileDetailDialog
+		* Added upload feedback
+		* Added option to enable EC and set pass in A[amuled]
+		* Removed GetLocaleDir()
+		* Zipped skin format
+		* Fix utf8 problem with file names
+		* Fixed toolbar display with skins when blinking on incoming message
+		* Fix #1114, missing break statement, thanks to mr_hyde
+		* Add option to filter file comments
+
+	Xaignar:
+		* Renaming the SearchList typedef to CSearchResultList
+		* Splitting CSearchFile out from SearchList.* to SearchFile.*. 
+		* fix initialization of member variables in CSearchFile when
+		  creating on remote gui.
+		* Call GetLength safely when sharing files
+		* Added support for child results to CSearchListCtrl
+		* Major cleanup of CSearchList
+		* Add logger target for the thread-scheduler
+		* Add smart pointers CScopedPtr and CScopedArray
+		* Fix possible crash due to pending events
+		* Fix accessing empty list in CMuleListCtrl
+		* Add support for displaying large files with CBarShader
+		* Improved sanity checking and simplified exception-handling
+		  via CScopedPtr and CScopedArray.
+		* Major reworking of threads, add a thread scheduler for
+		  IO intensive tasks, improve thread-safety for AICH-sync thread
+		* Fix FileIO unittests and add test of const CMemFile objects
+		* Update AICH from eMule-0.47a Beta1
+		* fix positioning of individual frames
+		* Improved exception handling
+		* Updating the FindMatchingClient function
+		* Avoid dangling pointers in case of asserts failing
+		* Updating CFormat to properly handle 64b ints on all platforms
+		* Fixing CFile::GetAvailable if position is past EOF
+		* Fixed possible use of uninitialized variables
+		* Adding template function for freeing the contents of a list/map
+		* Remove CList
+		* Fixing a couple of infinite loops
+		* Fixes file completion under amuled
+		* Add locking to the ED2KLinks file
+		* Removed multiple macros for array size
+		* Removed the CMD4Hash from wxString constructor
+		* Add swap function to CRangeMap 
+		* Reworking of the notify-code
+		* Optimized and simplified adding of shared files to the listctrl
+		* Remove partially copied files when a UTF8_CopyFile fails.
+		* Drop the file/directory permission settings, use umask
+		  instead.
+		* Fixed loading of version information for servers. Previously
+		  the information saved in the servers.met file was ignored.
+		* Fixed problem with reading ST_AUXPORTSLIST tags for servers,
+		  where empty tags would cause the existing server-port to be
+		  overwritten, thereby preventing connections to that server.
+		* Fixed linking of libmuleappcommon, which would previously
+		  include GUI related symbols, thereby breaking amuled in some
+		  cases.
+		* Added fuzzy sorting method for strings, currently only used
+		  for sorting server-version information.
+		* Fixed sorting of the "Static" column on the server-list,
+		  which didn't conform to 'strict-weak ordering'.
+		* Added missing catch-statements in places where subclasses of
+		  CSafeDataIO was used, thereby preventing crashes in case of
+		  funky files/filesystems, such as network drives only
+		  supporting up to 2GB files. (closes bug #878 and #1205).
+		* Fixed opening of the Help-page when modifers were applied to
+		  F1, which was causing conflict with various system-wide
+		  shortcuts (this closes bug #1200).
+		* Used -isystem to mark wxWidgets and Crypto++ include files
+		  as system-files, thereby reducing the number of warnings
+		  generated by these includes.
+		* Fixed the shared-files-list ctrl assuming that all items
+		  were part-files when creating feedback, which could cause
+		  wrongful casts of CKnownFile objects.
+		* Changed from using signed longs to store pointers in
+		  wxListCtrl, to using wxUIntPtr, which is guranteeded to be
+		  able to contain pointers on all platforms.
+		* Fixed unicode-chars not being registered by key-events for
+		  wxListCtrl (applied to our local copy).
+		* Fixed various problems with using arrow-keys and other
+		  control-keys on the listsctrls in aMule.
+		* Fixed checks for changes in .part files between runs, which
+		  previously was entirely broken (checked both wrong
+		  timestamps and files).
+		* Fixed saving AICH-hashsets to an empty file, where buggy
+		  sanity-checks were causing the result to be discarded.
+		* Improved the CreateHashFrom* functions, preventing the
+		  hashing of empty files, and accessing an empty vector.
+		* Added a workaround for a bug in wxNotebook, which would
+		  cause the selection returned in page-changed events to
+		  sometimes be invalid, thereby causing aMule to crash when
+		  attempting to access an non-existing page. This should fix
+		  some crashes assosiated with closing search-result tabs.
+		* Dropped the internal Crypto++ libraries. Most distros have
+		  it these days, and it's just another headache for us to
+		  support (and was becomming pretty outdated).
+		* Improved checks for NULL points in CClientListCtrl.
+		* Fixed some poor english in various logging messages.
+		* Improved thread-safety in various classes, in part because
+		  wxString isn't threadsafe, and we use that class a lot.
+		* Added support for writing 64-bit ints in CTags, which was
+		  needed for some server-packets.
+		* Improved debugging-information support in CTag.
+		* Fixed saving/loading of 64-bit ints for Kademlia, which were
+		  sometimes sent as binary blobs. Previously, we would read
+		  from the net and save them to 'src_index.dat' just fine, but
+		  would fail when it came to reading them from
+		  'src_index.dat', resuling in that file being unreadable.
+		* Fixed the corruption of some tags (mostly Kademlia), where
+		  the tag-names were wrongly saved as UTF-8, though they
+		  should have been saved unchanged. This closes bug #1188.
+		* Applied various fixes to better conform to ANSI-C++.
+		* Fixed repeating of CPPFLAGS when compiling with GeoIP
+		  enabled, which caused problems when -pedantic was used.
+		* Fixed a couple of small memory-leaks in UPnP (bug #1230).
+		* Added the "printf" attribute to printf-like functions in the
+		  webserver code, allowing for compile-time error-checking.
+		* Fixed potential crashes that would result from server
+		  connection attempts that timed out before the hostname
+		  lookup returned.
+		* Worked around crash in the taskbar icon, which would trigger
+		  if the kicker crashed.
+		* Fixed safehash-check for files greater than 4GB.
+		* Added support for pretty-printing of classes to CFormat.
+		* Added a class for the transparent handling of paths, needed
+		  because we want to be able to handle both mangled (saved in
+		  the wrong locale) and normal filenames. This should fix
+		  problems with accessing files with extended chars in the
+		  filename.
+		* Added warning in case port could not be bound to the
+		  hostname specified in the preferences.
+		* Made outbound connections use the hostname specified in the
+		  preferences. Is possibly not fully functional.
+		* Fixed memory-leak when adding invalid ED2K links.
+		* Fixed crash when the hashing-result from a now deleted
+		  part-file was returned.
+		* Allow the update of the server-list from the remote gui.
+		* Optimized file-syncing, by only flushing the file contents,
+		  rather than the meta-data (timestamps, etc).
+		* Fixed possible redefinition of the VERSION define.
+		* Fixed redundancy resulting from the use of two different
+		  list of file-extensions, used when determining the filetype.
+		* Dropped support for importing configuration files, and the
+		  like, from older eDonkey and *Mule clients, as most of these
+		  were extremly old.
+		* Re-added double-buffering for listsctrls, in a manner that
+		  should hopefully avoid the problems seen previously.
+		* Fixed missing unicode-convertion on a number of packets when
+		  sending to unicode-enabled clients.
+		* Fixes passing of the error-code to OnReceiveError in
+		  CMuleUDPSocket::OnReceive.
+		* Improved handling of invalidated (closed) UDP sockets, caused
+		  by the fact that wxWidgets errorously treats empty datagram
+		  packets as EOF.
+		* Fixed setting priorities for part-files on the remote gui
+		  (this resolves bug #1251).
+		* Improved debugging information when using CFormat.
+		* Rewrote the CTextFile class, improving the reading speed,
+		  and adding the functionality for writing files.
+		* Improved sanity-checks in the CQueuedData class, thereby
+		  preventing the possibility of memory-corruption resulting
+		  from mangled packets.
+		* Added autoconf check for broken exception-handling.
+		* Added subclass of Cfg_Str for loading/saving paths.
+		* Added functions for checking permissions of dirs/files, and
+		  for retrieving the free space at a given location, to CPath.
+		* Increased minimum free size needed before writing ".met"
+		  files from around 5KB to 100KB, as ".met" can easily be
+		  much larger than 5 KB in size.
+		* Improved checks for permissions of directories, and insured
+		  that the fallback directories are also checked in the case
+		  were the user-specified directories are inaccessible.
+		* Changed temp/incomming dir variables to "CPath"s, using the
+		  previously added Cfg_Path class.
+		* Fixed spurious warnings caused by not checking if certain 
+		  preference files existed before trying to read them. Also
+		  removed an unnessesary warning for when known.met doesn't 
+		  exist.
+		* Added wrapper-class for wxThread, to allow us to safely
+		  terminate joinable threads without using Delete, a function
+		  that is only intended for use with detached threads.
+		* Fixed cancelled downloads being reported as succesful.
+		* Fixed warning about dirs without shareable files, in the
+		  case where there were sharable files, but they were all
+		  duplicates.
+		* Save directories (shared, incoming, etc) as well as the
+		  filenames of known files in an locale-independant manner,
+		  so that changes in locale does not affect our ability to
+		  find previously used files or directories. This will break
+		  backwards compatibility when using unicoded directory-names.
+		* Worked around the search-string being cleared when starting the
+		  first search, which was caused by bug in wxWidgets.
+		* When starting a search, the entire search string is selected.
+		* Fixed creation of ED2k-links with an AICH-hash, in case the
+		  file does not actually have a AICH-hash. Also disabled the
+		  option in the shared-files window when the file lacks an
+		  AICH hash.
+		* Removed workarounds for old (and resolved) wxWidgets bugs.
+		* Fixed creation of ED2K links without sources, where an
+		  superflous "|/" would be appended to the end of the link.
+		* Fixed handling of spaces when creating ED2k links. These are
+		  now escaped.
+		* Fixed swapped notify-functions, which would cause clients to
+		  be left on the upload-queue ctrl, even if the underlying
+		  object was deleted.
+		* Improved enabling/disabling of items on the right-click menu
+		  on the download queue. Among other things, it is now
+		  possible to stop a paused download, without having to
+		  restart it first (this closes bug #1078).
+		* -- TODO
+		* Fixed the setting priorities for shared files via the remote
+		  GUI (this closes bug #1267).
+		* Fixed clipping issues when columns are resized to very small
+		  width, causing the contents of one column to be drawn on top
+		  of the next column (this closes bug #1171).
+		* Fixed copying of text to the clipboard, which previously
+		  used the "primary" clipboard (middle-click) under X11. It
+		  now uses the default clipboard, which is what DEs typically
+		  use for Ctrl+C/V/X. This closes bug #1139.
+		* Improved the displaying of the connection status, and fixed
+		  problems where the status of only one of the active networks
+		  would be displayed. This closes bug #981.
+		* Fixed percentage display of available parts in the
+		  file-details dialog, where the decimal portion of the value
+		  would always be zero. This resolves bug #1060.
+		* Improved thread-safety of the AICH-sync thread on amuled,
+		  and prevented the possibility of deadlocks in a few cases.
+		* Fixed bug where the preferences dialog on the monolithic
+		  client would not be updated if the preferences had been
+		  changed via EC after the dialog had been first shown.
+		* Added support for protocol-obfuscation configuration via
+		  external connections.
+		* Fixed problem where obfuscation of out-going connections
+		  could be enabled even if obfuscation support was not,
+		  leading to clients being wrongly dropped in some cases.
+		* Fixed check-boxes in the preferences dialog for the various
+		  obfuscation options not being updated when one of the other
+		  obfuscation check-boxes were checked/unchecked.
+		* Added the ability to update the nodes.dat file via the
+		  remote gui, as well as bootstrapping from a specific IP.
+		* The server.met and the nodes.dat urls are now saved when
+		  changed in the remote UI, and are read from the core when
+		  starting the remote gui.
+		* Allow for the creation of ED2k-links on the remote gui. This
+		  resolves bug #893, #567 and #584.
+		* Fixed checks preventing the creation of source-links when
+		  only using Kademlia.
+
+	xor:
+		* Fix for crash on amuled when starting up kademlia.
+
+	ycjhi:
+		* fix for OSX aMule-CVS-20071115 fails in loading libixml and
+		  libupnp.
+		* fix for aMule-CVS-20071115 doesn't update server.met on
+		  startup.
+
+	Special Thanks to:
+		* FreeToGo for implementing the first version of IP2Country on
+		  the forum.
+		* Mark James (http://www.famfamfam.com) for providing the
+		  flags icons and mischamajskij for his unknown icon
+		* deloun and mischamajskij for their work on aMule skins
+		* Bun Bun, for being there to tell me I'm not stupid.
+
+--------------------------------------------------------------------------------
+
 Version 2.1.3 - The "We missed the 6/6/6 devil release and we're very sad" version
 ----------
 2006-06-11
@@ -28,7 +706,7 @@ Version 2.1.3 - The "We missed the 6/6/6 devil release and we're very sad" versi
 
 Version 2.1.2 - The "We're on fire!" version
 ----------
-2006-05-28
+2006-03-28
 
 	GonoszTopi:
 		* Fixed some warning messages.
@@ -170,7 +848,7 @@ Version 2.1.1 - The "There can be only two! Point one! Point one!" version
 
 	Raziel:
 		* Fixed "0000690 bug for browse windows in amulegui"
-	
+
 	Xaignar:
 		* Fixed problem with recursivly sharing folders that hadn't been
 		  expanded in the tree ctrl.

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -39,11 +39,12 @@ class CServerUDPSocket : public CMuleUDPSocket
 public:
 	CServerUDPSocket(amuleIPV4Address& addr, const CProxyData* ProxyData = NULL);
 
-	void	SendPacket(CPacket* packet, CServer* host, bool delPacket);
+	void	SendPacket(CPacket* packet, CServer* host, bool delPacket, bool rawpacket, uint16 port_offset);
 	void	OnHostnameResolved(uint32 ip);
+	virtual void OnReceiveError(int errorCode, const wxIPV4address& addr);
 
 private:
-	void	OnPacketReceived(amuleIPV4Address& addr, byte* buffer, size_t length);
+	void	OnPacketReceived(const wxIPV4address& addr, byte* buffer, size_t length);
 	void	ProcessPacket(CMemFile& packet, uint8 opcode, const wxString& host, uint16 port);
 	void	SendQueue();
 
@@ -59,3 +60,4 @@ private:
 };
 
 #endif // SERVERUDPSOCKET_H
+// File_checked_for_headers

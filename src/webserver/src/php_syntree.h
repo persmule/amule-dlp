@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (C) 2005-2006Froenchenko Leonid ( lfroen@amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2008 Froenchenko Leonid ( lfroen@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -30,6 +30,9 @@
 #ifndef _PHP_SYNTREE_H_
 #define _PHP_SYNTREE_H_
 
+#ifndef __STDC_FORMAT_MACROS
+	#define __STDC_FORMAT_MACROS
+#endif
 #include <inttypes.h>
 
 typedef enum PHP_VALUE_TYPE {
@@ -40,7 +43,7 @@ typedef enum PHP_VALUE_TYPE {
 	/* Internally used (not ref counted) data */
 	PHP_VAL_INT_DATA,
 	/* ptr_val points to VAR_NODE */
-	PHP_VAL_VAR_NODE,
+	PHP_VAL_VAR_NODE
 } PHP_VALUE_TYPE;
 
 typedef struct PHP_VALUE_NODE {
@@ -118,7 +121,7 @@ typedef enum PHP_EXP_OP {
 	/* list of expressions */
 	PHP_OP_LIST,
 	/* for "switch" list of cases */
-	PHP_OP_CASE,
+	PHP_OP_CASE
 } PHP_EXP_OP;
 
 struct PHP_EXP_NODE {
@@ -181,7 +184,7 @@ typedef struct PHP_SYN_NODE PHP_SYN_NODE;
 typedef enum PHP_SCOPE_ITEM_TYPE {
 	PHP_SCOPE_NONE,
 	PHP_SCOPE_VAR, PHP_SCOPE_FUNC, PHP_SCOPE_CLASS,
-	PHP_SCOPE_PARAM,
+	PHP_SCOPE_PARAM
 } PHP_SCOPE_ITEM_TYPE;
 
 
@@ -210,7 +213,7 @@ typedef enum PHP_STATMENT_TYPE {
 	PHP_ST_WHILE, PHP_ST_DO_WHILE, PHP_ST_FOR, PHP_ST_FOREACH, PHP_ST_SWITCH,
 	PHP_ST_CONTINUE, PHP_ST_BREAK, PHP_ST_RET,
 	PHP_ST_FUNC_DECL, PHP_ST_CLASS_DECL,
-	PHP_ST_ECHO,
+	PHP_ST_ECHO
 } PHP_STATMENT_TYPE;
 
 /* 
@@ -492,7 +495,11 @@ extern "C" {
 	// left = VAR(func_name), right=ARRAY(args)
 	void php_run_func_call(PHP_EXP_NODE *node, PHP_VALUE_NODE *result);
 
+#if defined(__GNUC__)
+	void php_report_error(PHP_MSG_TYPE mtype, char *msg, ...)  __attribute__ ((__format__ (__printf__, 2, 3)));
+#else
 	void php_report_error(PHP_MSG_TYPE mtype, char *msg, ...);
+#endif
 	
 /*
  * Debugging
@@ -541,3 +548,4 @@ void func_scope_init(PHP_FUNC_PARAM_DEF *params, int param_count,
 #endif
 
 #endif //_PHP_SYNTREE_H_
+// File_checked_for_headers

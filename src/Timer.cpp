@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -23,24 +23,22 @@
 //
 
 #include "Timer.h"		// Interface declaration
-#include "InternalEvents.h"	// Needed for CMuleInternalEvent
 #include "GetTickCount.h"	// Needed for GetTickCountFullRes
+#include "MuleThread.h"		// Needed for CMuleThread
 
-
-DEFINE_LOCAL_EVENT_TYPE(wxEVT_AMULE_TIMER)
 
 //////////////////////// Timer Thread ////////////////////
 
-class CTimerThread : public wxThread
+class CTimerThread : public CMuleThread
 {
 public:
 	CTimerThread()
-		: wxThread(wxTHREAD_JOINABLE)
+		: CMuleThread(wxTHREAD_JOINABLE)
 	{
 	}
 
 	void* Entry() {
-		CMuleInternalEvent evt(wxEVT_AMULE_TIMER, m_id);
+		CTimerEvent evt(m_id);
 
 		uint64 lastEvent = GetTickCountFullRes();
 		do {
@@ -128,7 +126,7 @@ bool CTimer::Start(int millisecs, bool oneShot)
 	}
 
 	// Something went wrong ...
-	m_thread->Delete();
+	m_thread->Stop();
 	delete m_thread;
 	m_thread = NULL;
 
@@ -140,10 +138,24 @@ void CTimer::Stop()
 {
 	if (m_thread) {
 		m_thread->m_sleepSemaphore.Post();
-		m_thread->Delete();
-		m_thread->Wait();
+		m_thread->Stop();
 		delete m_thread;
 		m_thread = NULL;
 	}
 }
 
+
+DEFINE_LOCAL_EVENT_TYPE(MULE_EVT_TIMER)
+
+CTimerEvent::CTimerEvent(int id)
+	: wxEvent(id, MULE_EVT_TIMER)
+{
+}
+
+
+wxEvent* CTimerEvent::Clone() const
+{
+	return new CTimerEvent(GetId());
+}
+
+// File_checked_for_headers

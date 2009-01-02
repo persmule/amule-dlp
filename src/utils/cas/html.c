@@ -38,10 +38,10 @@
 #include "functions.h"
 #include "version.h"
 
-
-int create_html(char *stats[20], char *lines[6], char template[120])
+int create_html(char *stats[20], char *lines[6], char template[120], char *path_for_html)
 {
 	/* Strings */
+	char *path = NULL;
 	char version[25], upload[25], download[25];
 	char *search[] = {"#VERSION#", "#CLIENT#", "#NICK#", "#UPLOADRATE#" ,
 		"#DOWNLOADRATE#" , "#QUEUE#" , "#NUMSHARE#" , "#SESSIONUP#" ,
@@ -104,7 +104,8 @@ int create_html(char *stats[20], char *lines[6], char template[120])
 
 	/* printf("FINAL: %s\n",mem); */
 
-	char *path = get_path("aMule-online-sign.html");
+	path = get_amule_path("aMule-online-sign.html", 0, path_for_html);
+
 	if (NULL == path)
 	{
 		perror("could not get the HTML path\n");

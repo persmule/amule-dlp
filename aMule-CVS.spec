@@ -1,10 +1,10 @@
-%define cvsdate %(date +%Y%m%d)
+%define svndate %(date +%Y%m%d)
 %define optflags %{nil}
 
 Summary:        aMule - another eMule p2p client
 Name:           aMule
 Version:        CVS
-Release:        %{cvsdate}
+Release:        %{svndate}
 License:        GPL
 Group:          Applications/Internet
 Packager:       The aMule Team (http://forum.amule.org/)
@@ -49,7 +49,7 @@ echo " 0, ok, here we go then... Muhahaha :), installing."
 
 %install
 [ ! "$RPM_BUILD_ROOT" = "/" ] && %{__rm} -rf "$RPM_BUILD_ROOT"
-%makeinstall
+%{__make} DESTDIR="$RPM_BUILD_ROOT" install
 %find_lang amule
 
 %clean
@@ -63,13 +63,14 @@ echo " 0, ok, here we go then... Muhahaha :), installing."
 %{_bindir}/cas
 %{_bindir}/wxcas
 %{_bindir}/amuleweb
+%{_bindir}/autostart-xas
 %{_libdir}/xchat/plugins/xas.pl
 %{_datadir}/applications/*
 %{_datadir}/pixmaps/*
 %{_mandir}/man1/*
 %{_mandir}/*/man1/*
-%docdir %{_datadir}/doc/%{name}-%{version}
-%{_datadir}/doc/%{name}-%{version}
+%docdir %{_datadir}/doc/*
+%{_datadir}/doc/*
 %{_datadir}/cas
 %{_datadir}/amule
 

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,12 +26,9 @@
 #ifndef CLIENTLIST_H
 #define CLIENTLIST_H
 
-#include "Types.h"		// Needed for uint16 and uint32
-#include "MD4Hash.h"		// Needed for CMD4Hash
 #include "DeadSourceList.h"	// Needed for CDeadSourceList
 
 #include <deque>
-#include <map>
 #include <set>
 
 class CUpDownClient;
@@ -342,6 +339,10 @@ public:
 	void RemoveFromKadList(CUpDownClient* torem);
 	void AddToKadList(CUpDownClient* toadd);
 
+	// We lack the kad firewall check
+//	//#warning ALSO FIX THIS, NOW!!!
+	bool IsKadFirewallCheckIP(uint32 /*ip*/) { return false; }
+	
 private:
 	/**
 	 * Helperfunction which finds a client matching the specified client.
@@ -413,3 +414,4 @@ private:
 };
 
 #endif
+// File_checked_for_headers

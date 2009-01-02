@@ -1,7 +1,7 @@
 //
 // MuleUnit: A minimalistic C++ Unit testing framework based on EasyUnit.
 //
-// Copyright (C) 2005-2006Mikkel Schubert (Xaignar@amule.org)
+// Copyright (c) 2005-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (C) 2004 Barthelemy Dagenais (barthelemy@prologique.com)
 //
 // This library is free software; you can redistribute it and/or
@@ -22,6 +22,8 @@
 #ifndef TEST_H
 #define TEST_H
 
+#include <exception>
+
 #include <wx/string.h>
 #include <list>
 
@@ -35,20 +37,100 @@ namespace muleunit
 {
 
 class TestCase;
-	
-struct TestFailure
+class BTList;
+
+
+/** Returns the size of a static array. */
+template <typename T, size_t N>
+inline size_t ArraySize(T(&)[N])
 {
-	//! The message (or condition) of the assertion.
-	wxString	message;
-	//! The file name where the assertion is located.
-	wxString	fileName;
-	//! The line number where the assertion is located.
-	long		lineNumber;	
+	return N;
+}
+
+
+/** Printf for wide-char strings. */
+inline void Printf(const wxChar *pszFormat, ...)
+{
+	va_list argptr;
+	va_start(argptr, pszFormat);
+
+	wxPuts(wxString::FormatV(pszFormat, argptr).c_str());
+
+	va_end(argptr);
+}
+
+
+/** This exception is raised if an ASSERT fails. */
+struct CTestFailureException : public std::exception
+{
+	/** Constructor, takes a snapshot of the current context, and adds the given information. */
+	CTestFailureException(const wxString& msg, const wxChar* file, long lineNumber);
+
+	~CTestFailureException() throw();
+
+	/** Prints the context backtrace for the location where the exception was thrown. */
+	void PrintBT() const;
+
+	virtual const char* what () const throw ();
+private:
+	//! Pointer to struct containing a snapshot of the contexts
+	//! taken at the time the exception was created.
+	struct BTList* m_bt;
+
+	//! The message passed in the constructor.
+	std::string m_message;
 };
 
-	
-//! List used to store partial test-results
-typedef std::list<TestFailure> TestFailureList;
+/** This exception is raised if an wxASSERT fails. */
+struct CAssertFailureException : public CTestFailureException
+{
+public:
+	CAssertFailureException(const wxString& msg, const wxChar* file, long lineNumber)
+		: CTestFailureException(msg, file, lineNumber)
+	{
+	}
+};
+
+
+/** 
+ * This class is used to produce informative backtraces
+ *
+ * This is done by specifying a "context" for a given scope, using
+ * the CONTEXT macro, at which point a description is added to the
+ * current list of contexts. At destruction, when the scope is exited,
+ * the context is removed from the queue. 
+ *
+ * The resulting "backtrace" can then be printed by calling the
+ * PrintBT() function of an CTestFailureException.
+ */
+class CContext
+{
+public:
+	/** Adds a context with the specified information and description. */
+	CContext(const wxChar* file, int line, const wxString& desc);
+
+	/** Removes the context addded by the constructor. */
+	~CContext();
+};
+
+
+//! Used to join the CContext instance name with the line-number.
+//! This is done to prevent shadowing.
+#define DO_CONTEXT(x, y, z) x y##z
+
+//! Specifies the context of the current scope.
+#define CONTEXT(x) CContext wxCONCAT(context,__LINE__)(wxT(__FILE__), __LINE__, x)
+
+
+/** 
+ * This class disables assertions while it is in scope.
+ */
+class CAssertOff
+{
+public:
+	CAssertOff();
+	~CAssertOff();
+};
 
 
 /**
@@ -94,24 +176,6 @@ public:
 	virtual void run();
 
 	/**
-	 * Add a testpartresult to the testpartresult list of this test. 
-	 * This method is used by the assertion macros to report success
-	 * or failure.
-	 *
-	 * @param testPartResult The testpartresult to be added to the list
-	 */
-	virtual void addTestFailure(const wxString& msg, const wxString& file, long lineNumber);
-
-	/**
-	 * Get the testpartresult list of this test. If assertion macros
-	 * and TEST and TESTF macros are used, there may be more than
-	 * one successful testpartresult and no more than one failure.
-	 *
-	 * @return testPartResult The list of testpartresults of this test
-	 */
-	const TestFailureList& getTestFailures() const;
-
-	/**
 	 * Get the name of the TestCase this test belongs to. The name of the
 	 * TestCase is the first parameter of the test declaration. For example,
 	 * if a test is declared as TEST(TESTCASE1, TEST1), this method will return
@@ -131,28 +195,22 @@ public:
 	 */
 	const wxString& getTestName() const;
 
-protected:
 	template <typename A, typename B>
-	bool DoAssertEquals(const wxString& file, unsigned line, const A& a, const B& b)
+	static void DoAssertEquals(const wxString& file, unsigned line, const A& a, const B& b)
 	{
-		if (a == b) {
-			return true;
-		} else {
+		if (!(a == b)) {
 			wxString message = wxT("Expected '") + StringFrom(a) + 
 								wxT("' but got '") + StringFrom(b) + wxT("'");
 
-			addTestFailure(message, file, line);
-		
-			return false;
+			throw CTestFailureException(message, file, line);
 		}
 	}
-	
+
+protected:
 	wxString m_testCaseName;
 	wxString m_testName;
 	TestCase* m_testCase;
-	TestFailureList m_testFailures;
 };
-
 
 
 /**
@@ -175,6 +233,10 @@ inline wxString StringFrom(signed long long value)
 }
 
 
+#define THROW_TEST_FAILURE(message) \
+	throw CTestFailureException(message, wxT(__FILE__), __LINE__)
+
+
 /**
  * Asserts that a condition is true.
  * If the condition is not true, a failure is generated.
@@ -183,9 +245,8 @@ inline wxString StringFrom(signed long long value)
  */
 #define ASSERT_TRUE_M(condition, message) \
 { \
-	if (!(condition)) {\
-		this->addTestFailure(message, wxT(__FILE__), __LINE__); \
-		return; \
+	if (!(condition)) { \
+		THROW_TEST_FAILURE(message); \
 	} \
 }
 
@@ -194,14 +255,14 @@ inline wxString StringFrom(signed long long value)
  * Same as ASSERT_TRUE, but without an explicit message.
  */
 #define ASSERT_TRUE(condition) \
-	ASSERT_TRUE_M(condition, wxT(#condition));
+	ASSERT_TRUE_M(condition, wxString(wxT("Not true: ")) + wxT(#condition));
 
 
 /**
  * Same as ASSERT_TRUE, but without an explicit message and condition must be false.
  */
 #define ASSERT_FALSE(condition) \
-	ASSERT_TRUE_M(!(condition), wxT(#condition));
+	ASSERT_TRUE_M(!(condition), wxString(wxT("Not false: ")) + wxT(#condition));
 
 
 /**
@@ -214,8 +275,7 @@ inline wxString StringFrom(signed long long value)
 #define ASSERT_EQUALS_M(expected,actual,message)\
 { \
 	if (!(expected == actual)) { \
-		this->addTestFailure(message, wxT(__FILE__), __LINE__); \
-		return; \
+		THROW_TEST_FAILURE(message); \
 	} \
 }
 
@@ -224,9 +284,7 @@ inline wxString StringFrom(signed long long value)
  * Same as ASSERT_EQUALS_M, but without an explicit message.
  */
 #define ASSERT_EQUALS(expected, actual) \
-{ \
-	if (!this->DoAssertEquals(wxT(__FILE__), __LINE__, expected, actual)) return; \
-}
+	Test::DoAssertEquals(wxT(__FILE__), __LINE__, expected, actual)
 
 
 /**
@@ -234,11 +292,7 @@ inline wxString StringFrom(signed long long value)
  * @param text Failure message
  */
 #define FAIL_M(text) \
-{ \
-   this->addTestFailure(text, wxT("__FILE__"), __LINE__); \
-   return; \
-}
-
+	THROW_TEST_FAILURE(text)
 
 /**
  * Same as FAIL_M, but without an explicit message.
@@ -252,15 +306,19 @@ inline wxString StringFrom(signed long long value)
 #define ASSERT_RAISES_M(type, call, message) \
 	try { \
 		{ call; }\
-		this->addTestFailure(message, wxT(__FILE__), __LINE__); \
-		return; \
-	} catch (const type&) {}
+		THROW_TEST_FAILURE(message); \
+	} catch (const type&) { \
+	} catch (const std::exception& e) { \
+		THROW_TEST_FAILURE(wxString::FromAscii(e.what())); \
+	}
+	
 
 
 /**
  * Same as ASSERT_RAISES, but without an explicit message.
  */
-#define ASSERT_RAISES(type, call) ASSERT_RAISES_M(type, (call), wxT("Exception of type " #type " not raised."))
+#define ASSERT_RAISES(type, call) \
+	ASSERT_RAISES_M(type, (call), wxT("Exception of type ") wxT(#type) wxT(" not raised."))
 
 
 

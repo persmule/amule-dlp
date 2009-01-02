@@ -1,8 +1,8 @@
 //
 // This file is part of aMule Project
 //
-// Copyright (c) 2004-2006 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2006 aMule Project ( http://www.amule-project.net )
+// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2008 aMule Project ( http://www.amule-project.net )
 // Copyright (C)2003 Barry Dunne (http://www.emule-project.net)
 
 // This program is free software; you can redistribute it and/or
@@ -36,13 +36,9 @@ Any mod that changes anything within the Kademlia side will not be allowed to ad
 there client on the eMule forum..
 */
 
-//#include "stdafx.h"
 #include "RoutingBin.h"
 #include "Contact.h"
-#include "../kademlia/Kademlia.h"
 #include "../kademlia/Defines.h"
-#include "../routing/RoutingZone.h"
-#include "Logger.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -72,18 +68,18 @@ CRoutingBin::~CRoutingBin()
 	m_entries.clear();
 }
 
-bool CRoutingBin::add(CContact *contact, bool check)
+bool CRoutingBin::Add(CContact *contact, bool check)
 {
 	wxASSERT(contact != NULL);
 	bool retVal = false;
 	// If this is already in the entries list
 	CContact *c = NULL;
 	if (check)
-		c=getContact(contact->getClientID());
+		c=GetContact(contact->GetClientID());
 
 	if (c != NULL) {
 		// Move to the end of the list
-		remove(c);
+		Remove(c);
 		m_entries.push_back(c);
 		retVal = false;
 	} else {
@@ -98,7 +94,7 @@ bool CRoutingBin::add(CContact *contact, bool check)
 	return retVal;
 }
 
-void CRoutingBin::setAlive(uint32 ip, uint16 port)
+void CRoutingBin::SetAlive(uint32 ip, uint16 port)
 {
 	if (m_entries.empty()) {
 		return;
@@ -108,14 +104,14 @@ void CRoutingBin::setAlive(uint32 ip, uint16 port)
 	ContactList::iterator it;
 	for (it = m_entries.begin(); it != m_entries.end(); ++it) {
 		c = *it;
-		if ((ip == c->getIPAddress()) && (port == c->getUDPPort())) {
-			c->updateType();
+		if ((ip == c->GetIPAddress()) && (port == c->GetUDPPort())) {
+			c->UpdateType();
 			break;
 		}
 	}
 }
 
-void CRoutingBin::setTCPPort(uint32 ip, uint16 port, uint16 tcpPort)
+void CRoutingBin::SetTCPPort(uint32 ip, uint16 port, uint16 tcpPort)
 {
 	if (m_entries.empty()) {
 		return;
@@ -125,28 +121,28 @@ void CRoutingBin::setTCPPort(uint32 ip, uint16 port, uint16 tcpPort)
 	ContactList::iterator it;
 	for (it = m_entries.begin(); it != m_entries.end(); ++it) {
 		c = *it;
-		if ((ip == c->getIPAddress()) && (port == c->getUDPPort())) {
-			c->setTCPPort(tcpPort);
-			c->updateType();
+		if ((ip == c->GetIPAddress()) && (port == c->GetUDPPort())) {
+			c->SetTCPPort(tcpPort);
+			c->UpdateType();
 			// Move to the end of the list
-			remove(c);
+			Remove(c);
 			m_entries.push_back(c);
 			break;
 		}
 	}
 }
 
-void CRoutingBin::remove(CContact *contact)
+void CRoutingBin::Remove(CContact *contact)
 {
 	m_entries.remove(contact);
 }
 
-CContact *CRoutingBin::getContact(const CUInt128 &id) 
+CContact *CRoutingBin::GetContact(const CUInt128 &id) 
 {
 	CContact *retVal = NULL;
 	ContactList::const_iterator it;
 	for (it = m_entries.begin(); it != m_entries.end(); ++it) {
-		if ((*it)->getClientID() == id) {
+		if ((*it)->GetClientID() == id) {
 			retVal = *it;
 			break;
 		}
@@ -154,17 +150,17 @@ CContact *CRoutingBin::getContact(const CUInt128 &id)
 	return retVal;
 }
 
-uint32 CRoutingBin::getSize(void) const
+uint32 CRoutingBin::GetSize(void) const
 {
 	return (uint32)m_entries.size();
 }
 
-uint32 CRoutingBin::getRemaining(void) const
+uint32 CRoutingBin::GetRemaining(void) const
 {
 	return (uint32)K - m_entries.size();
 }
 
-void CRoutingBin::getEntries(ContactList *result, bool emptyFirst) 
+void CRoutingBin::GetEntries(ContactList *result, bool emptyFirst) 
 {
 	if (emptyFirst) {
 		result->clear();
@@ -174,7 +170,7 @@ void CRoutingBin::getEntries(ContactList *result, bool emptyFirst)
 	}
 }
 
-CContact *CRoutingBin::getOldest(void) 
+CContact *CRoutingBin::GetOldest(void) 
 {
 	if (m_entries.size() > 0) {
 		return m_entries.front();
@@ -182,7 +178,7 @@ CContact *CRoutingBin::getOldest(void)
 	return NULL;
 }
 
-void CRoutingBin::getClosestTo(uint32 maxType, const CUInt128 &target, uint32 maxRequired, ContactMap *result, bool emptyFirst, bool inUse)
+void CRoutingBin::GetClosestTo(uint32 maxType, const CUInt128 &target, uint32 maxRequired, ContactMap *result, bool emptyFirst, bool inUse)
 {
 	// If we have to clear the bin, do it now.
 	if (emptyFirst) {
@@ -199,13 +195,13 @@ void CRoutingBin::getClosestTo(uint32 maxType, const CUInt128 &target, uint32 ma
 	
 	ContactList::const_iterator it;
 	for (it = m_entries.begin(); it != m_entries.end(); ++it) {
-		if((*it)->getType() <= maxType) {
-			CUInt128 targetDistance((*it)->getClientID());
+		if((*it)->GetType() <= maxType) {
+			CUInt128 targetDistance((*it)->GetClientID());
 			targetDistance.XOR(target);
 			(*result)[targetDistance] = *it;
 			// This list will be used for an unknown time, Inc in use so it's not deleted.
 			if( inUse ) {
-				(*it)->incUse();
+				(*it)->IncUse();
 			}
 		}
 	}
@@ -214,9 +210,10 @@ void CRoutingBin::getClosestTo(uint32 maxType, const CUInt128 &target, uint32 ma
 	while (result->size() > maxRequired) {
  	// Dec in use count.
  		if( inUse ) {
-  			(--result->end())->second->decUse();
+  			(--result->end())->second->DecUse();
 		}
  		// Remove from results
  		result->erase(--result->end());
 	}
 }
+// File_checked_for_headers

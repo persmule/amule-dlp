@@ -1,2 +1,4 @@
-SUBDIRS = io kademlia net routing utils
+SUBDIRS = kademlia net routing utils
 
+
+MAINTAINERCLEANFILES = Makefile.in

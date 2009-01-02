@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
-// Copyright (C) 2005-2006Dévai Tamás ( gonosztopi@amule.org )
+// Copyright (C) 2005-2008  Dévai Tamás ( gonosztopi@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -25,17 +25,14 @@
 //
 
 #include "Statistics.h"		// Interface declarations
-#include <ec/ECCodes.h>		// Needed for EC tagnames
-#include <ec/ECPacket.h>		// Needed for CECTag
-#include "OPCodes.h"
 
-#include <wx/intl.h>	// Needed for i18n
+#include <protocol/ed2k/ClientSoftware.h>
+
+#include <ec/cpp/ECTag.h>		// Needed for CECTag
 
 #ifndef EC_REMOTE
-	#include "GetTickCount.h"	// Needed for GetTickCount64()
 	#ifndef AMULE_DAEMON
 		#include <common/Format.h>		// Needed for CFormat
-		#include "OtherFunctions.h"	// Needed for CastItoSpeed()
 	#endif
 	#include "DataToText.h"		// Needed for GetSoftName()
 	#include "Preferences.h"	// Needed for thePrefs
@@ -46,9 +43,10 @@
 	#include "updownclient.h"	// Needed for CUpDownClient
 #else
 	#include "Preferences.h"
-	#include <ec/RemoteConnect.h>		// Needed for CRemoteConnect
+	#include <ec/cpp/RemoteConnect.h>		// Needed for CRemoteConnect
 #endif
 
+#include <wx/intl.h>
 
 #ifdef __BSD__
 	// glibc -> bsd libc
@@ -375,27 +373,32 @@ unsigned CStatistics::GetHistory(	// Assemble arrays of sample points for a grap
 	unsigned cntPoints,		// number of sample points to assemble
 	double sStep,			// time difference between sample points
 	double sFinal,			// latest allowed timestamp
-	float** ppf,			// an array of pointers to arrays of floats for the result
+	const std::vector<float *> &ppf,// an array of pointers to arrays of floats for the result
 	StatsGraphType which_graph)	// the graph which will receive the points
 {	
-	if (sStep==0.0 || cntPoints==0)
+	if (sStep==0.0 || cntPoints==0) {
 		return(0);
-	float		*pf1 = *ppf;
-	float		*pf2 = *(ppf+1);
-	float		*pf3 = *(ppf+2);
-	unsigned	cntFilled = 0;
-	listRPOS	pos = listHR.rbegin();
+	}
+	
+	float *pf1 = ppf[0];
+	float *pf2 = ppf[1];
+	float *pf3 = ppf[2];
+	unsigned cntFilled = 0;
+	listRPOS pos = listHR.rbegin();
 
 	// start of list should be an integer multiple of the sampling period for samples 
 	// to be consistent when the graphs are resized horizontally
 	double	sTarget;
-	if (sFinal >= 0.0)
+	if (sFinal >= 0.0) {
 		sTarget = sFinal;
-	else
-		sTarget = (sStep==1.0 ? pos->sTimestamp : std::floor(pos->sTimestamp/sStep) * sStep); 
+	} else {
+		sTarget = sStep==1.0 ?
+			pos->sTimestamp :
+			std::floor(pos->sTimestamp/sStep) * sStep;
+	}
 
-	HR	**ahr = NULL, **pphr = NULL;
-	bool	bRateGraph = (which_graph != GRAPH_CONN);	// rate graph or connections graph?
+	HR **ahr = NULL, **pphr = NULL;
+	bool bRateGraph = (which_graph != GRAPH_CONN);	// rate graph or connections graph?
 	if (bRateGraph) {
 		ahr = new HR* [cntPoints];
 		pphr = ahr;
@@ -413,23 +416,27 @@ unsigned CStatistics::GetHistory(	// Assemble arrays of sample points for a grap
 			*pf2++ = (float)pos->cntConnections;
 			*pf3++ = (float)pos->cntDownloads;
 		}
-		if (++cntFilled  == cntPoints)		// enough points 
+		if (++cntFilled  == cntPoints) {	// enough points 
 			break;
-		if (pos->sTimestamp == 0.0)		// reached beginning of uptime
+		}
+		if (pos->sTimestamp == 0.0) {		// reached beginning of uptime
 			break;
+		}
 		if ((sTarget -= sStep) <= 0.0) {	// don't overshoot the beginning
-			if (bRateGraph)
+			if (bRateGraph) {
 				*pphr++ = &hrInit;
-			else
+			} else {
 				*pf1++ = *pf2++ = *pf3++ = 0.0;
+			}
 			++cntFilled;
 			break;
 		}
 	}
 
 	if (bRateGraph) {
-		if  (cntFilled > 0)
+		if  (cntFilled > 0) {
 			ComputeAverages(pphr, pos, cntFilled, sStep, ppf, which_graph);
+		}
 		delete[] ahr;
 	}
 
@@ -500,12 +507,12 @@ unsigned CStatistics::GetHistoryForWeb(  // Assemble arrays of sample points for
 
 
 void CStatistics::ComputeAverages(
-	HR		**pphr,			// pointer to (end of) array of assembled history records
-	listRPOS	pos,			// position in history list from which to backtrack
-	unsigned	cntFilled,		// number of points in the sample data
-	double		sStep,			// time difference between two samples
-	float		**ppf,			// an array of pointers to arrays of floats with sample data
-	StatsGraphType	which_graph)		// the graph which will receive the points
+	HR		**pphr,		// pointer to (end of) array of assembled history records
+	listRPOS	pos,		// position in history list from which to backtrack
+	unsigned	cntFilled,	// number of points in the sample data
+	double		sStep,		// time difference between two samples
+	const std::vector<float *> &ppf,// an array of pointers to arrays of floats with sample data
+	StatsGraphType	which_graph)	// the graph which will receive the points
 {	
 	double		sTarget, kValueRun;
 	uint64 		avgTime = average_minutes * 60;
@@ -539,11 +546,17 @@ void CStatistics::ComputeAverages(
 			
 			uint32 value = 0;
 			switch (which_graph) {
-				case GRAPH_DOWN:	value = (uint32)(pos->kBpsDownCur * 1024.0);	break;
-				case GRAPH_UP:		value = (uint32)(pos->kBpsUpCur * 1024.0);		break;
-				case GRAPH_KAD:		value = (uint32)(pos->kadNodesCur * 1024.0);	break;
-				default:
-					wxCHECK_RET(false, wxT("ComputeAverages called with unsupported graph type."));		
+			case GRAPH_DOWN:
+				value = (uint32)(pos->kBpsDownCur * 1024.0);
+				break;
+			case GRAPH_UP:
+				value = (uint32)(pos->kBpsUpCur * 1024.0);
+				break;
+			case GRAPH_KAD:
+				value = (uint32)(pos->kadNodesCur * 1024.0);
+				break;
+			default:
+				wxCHECK_RET(false, wxT("ComputeAverages called with unsupported graph type."));		
 			}		
 			
 			runningAvg->m_byte_history.push_front(value);
@@ -557,9 +570,9 @@ void CStatistics::ComputeAverages(
 	};
 
 	// now compute averages in returned arrays, starting with the earliest values
-	float	*pf1 = *ppf++ + cntFilled - 1;	// holds session avg
-	float	*pf2 = *ppf++ + cntFilled - 1;	// holds running avg
-	float	*pf3 = *ppf + cntFilled - 1;	// holds current rate
+	float *pf1 = ppf[0] + cntFilled - 1;	// holds session avg
+	float *pf2 = ppf[1] + cntFilled - 1;	// holds running avg
+	float *pf3 = ppf[2] + cntFilled - 1;	// holds current rate
 
 	for (int cnt=cntFilled; cnt>0; cnt--, pf1--, pf2--, pf3--) {
 		HR *phr = *(--pphr);
@@ -722,7 +735,7 @@ void CStatistics::UpdateStatsTree()
 	s_foundSources->ReSortChildren();
 	// TODO: sort OS_Info subtrees.
 
-	s_avgConnections->SetValue(theApp.listensocket->GetAverageConnections());
+	s_avgConnections->SetValue(theApp->listensocket->GetAverageConnections());
 
 #if 0
 	(*cli13) = wxString::Format(_("LowID: %u (%.2f%% Total %.2f%% Known)"),#lowid , (#total>0)?((double)100*#lowid/#total):0, (double)100*#knownLowID/#known);
@@ -737,7 +750,7 @@ void CStatistics::UpdateStatsTree()
 	uint32 servtuser;
 	uint32 servtfile;
 	float servocc;
-	theApp.serverlist->GetStatus(servfail, servuser, servfile, servtuser, servtfile, servocc);
+	theApp->serverlist->GetStatus(servfail, servuser, servfile, servtuser, servtfile, servocc);
 	s_workingServers->SetValue((uint64)((*s_totalServers)-servfail));
 	s_failedServers->SetValue((uint64)servfail);
 	s_usersOnWorking->SetValue((uint64)servuser);
@@ -816,7 +829,7 @@ void CStatistics::AddUploadToSoft(uint8 SoftType, uint32 bytes)
 
 inline bool SupportsOSInfo(unsigned clientSoft)
 {
-	return (clientSoft == SO_AMULE) || (clientSoft == SO_HYDRANODE);
+	return (clientSoft == SO_AMULE) || (clientSoft == SO_HYDRANODE) || (clientSoft == SO_NEW2_MLDONKEY);
 }
 
 // Do some random black magic to strings to get a relatively unique number for them.
@@ -913,13 +926,14 @@ void CStatistics::RemoveKnownClient(uint32 clientSoft, uint32 clientVersion, con
 
 #else /* EC_REMOTE (CLIENT_GUI) */
 
-CStatistics::CStatistics(CRemoteConnect* conn)
-	: m_conn(conn)
+CStatistics::CStatistics(CRemoteConnect &conn)
+:
+m_conn(conn)
 {
 	s_start_time = GetTickCount64();
 
 	// Init Tree
-	s_statTree = new CStatTreeItemBase(_("Statistics"));
+	s_statTree = new CStatTreeItemBase(_("Statistics"), 0);
 
 	// Clear stat data container
 	for (int i = 0; i < sdTotalItems; ++i) {
@@ -936,13 +950,17 @@ CStatistics::~CStatistics()
 
 void CStatistics::UpdateStats(const CECPacket* stats)
 {
-	s_statData[sdUpload] = stats->GetTagByNameSafe(EC_TAG_STATS_UL_SPEED)->GetInt32Data();
-	s_statData[sdUpOverhead] = stats->GetTagByNameSafe(EC_TAG_STATS_UP_OVERHEAD)->GetInt32Data();
-	s_statData[sdDownload] = stats->GetTagByNameSafe(EC_TAG_STATS_DL_SPEED)->GetInt32Data();
-	s_statData[sdDownOverhead] = stats->GetTagByNameSafe(EC_TAG_STATS_DOWN_OVERHEAD)->GetInt32Data();
-	s_statData[sdWaitingClients] = stats->GetTagByNameSafe(EC_TAG_STATS_UL_QUEUE_LEN)->GetInt32Data();
-	s_statData[sdBannedClients] = stats->GetTagByNameSafe(EC_TAG_STATS_BANNED_COUNT)->GetInt32Data();
-};
+	s_statData[sdUpload] = stats->GetTagByNameSafe(EC_TAG_STATS_UL_SPEED)->GetInt();
+	s_statData[sdUpOverhead] = stats->GetTagByNameSafe(EC_TAG_STATS_UP_OVERHEAD)->GetInt();
+	s_statData[sdDownload] = stats->GetTagByNameSafe(EC_TAG_STATS_DL_SPEED)->GetInt();
+	s_statData[sdDownOverhead] = stats->GetTagByNameSafe(EC_TAG_STATS_DOWN_OVERHEAD)->GetInt();
+	s_statData[sdWaitingClients] = stats->GetTagByNameSafe(EC_TAG_STATS_UL_QUEUE_LEN)->GetInt();
+	s_statData[sdBannedClients] = stats->GetTagByNameSafe(EC_TAG_STATS_BANNED_COUNT)->GetInt();
+	s_statData[sdED2KUsers] = stats->GetTagByNameSafe(EC_TAG_STATS_ED2K_USERS)->GetInt();
+	s_statData[sdKadUsers] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_USERS)->GetInt();
+	s_statData[sdED2KFiles] = stats->GetTagByNameSafe(EC_TAG_STATS_ED2K_FILES)->GetInt();
+	s_statData[sdKadFiles] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_FILES)->GetInt();
+}
 
 
 void CStatistics::UpdateStatsTree()
@@ -951,7 +969,7 @@ void CStatistics::UpdateStatsTree()
 	if (thePrefs::GetMaxClientVersions() != 0) {
 		request.AddTag(CECTag(EC_TAG_STATTREE_CAPPING, (uint8)thePrefs::GetMaxClientVersions()));
 	}
-	const CECPacket* reply = m_conn->SendRecvPacket(&request);
+	const CECPacket* reply = m_conn.SendRecvPacket(&request);
 	if (reply) {
 		const CECTag* treeRoot = reply->GetTagByName(EC_TAG_STATTREE_NODE);
 		if (treeRoot) {
@@ -963,3 +981,5 @@ void CStatistics::UpdateStatsTree()
 }
 
 #endif /* !EC_REMOTE */
+
+// File_checked_for_headers

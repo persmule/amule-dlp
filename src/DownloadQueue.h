@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,15 +26,12 @@
 #ifndef DOWNLOADQUEUE_H
 #define DOWNLOADQUEUE_H
 
-#include "Types.h"		// Needed for uint8, uint16, uint32 and uint64
 #include "MD4Hash.h"		// Needed for CMD4Hash
 #include "ObservableQueue.h"	// Needed for CObservableQueue
 #include "GetTickCount.h" 	// Needed fot GetTickCount
 
-#include <wx/thread.h>		// Needed for wxMutex
 
 #include <deque>
-#include <list>
 
 
 class CSharedFileList;
@@ -48,6 +45,7 @@ class CED2KLink;
 class CED2KFileLink;
 class CED2KServerLink;
 class CED2KServerListLink;
+class CPath;
 
 namespace Kademlia {
 	class CUInt128;
@@ -72,12 +70,8 @@ public:
 	 */
 	~CDownloadQueue();
 
-	/**
-	 * Loads met-files from the specified directory.
-	 *
-	 * @param path The directory containing the .met files.
-	 */
-	void	LoadMetFiles(const wxString& path);
+	/** Loads met-files from the specified directory. */
+	void	LoadMetFiles(const CPath& path);
 
 	/**
 	 * Main worker function.
@@ -111,7 +105,11 @@ public:
 	 * Returns true if the specified file is on the download-queue.
 	 */
 	bool	IsPartFile(const CKnownFile* file) const;
-
+	
+	/**
+	 * Updates the file's download active time
+	 */
+	void OnConnectionState(bool bConnected);
 	
 	/**
 	 * Starts a new download based on the specified search-result.
@@ -264,6 +262,10 @@ public:
 	void	OnHostnameResolved(uint32 ip);
 
 
+	/**
+	 * Adds an ed2k or magnet link to download queue.
+	 */
+	bool	AddLink( const wxString& link, int category = 0 );
 
 	bool	AddED2KLink( const wxString& link, int category = 0 );
 	bool	AddED2KLink( const CED2KLink* link, int category = 0 );
@@ -293,7 +295,7 @@ public:
 	/**
 	 * Add a Kad source to a download
 	 */
-	 void	KademliaSearchFile(uint32 searchID, const Kademlia::CUInt128* pcontactID, const Kademlia::CUInt128* pkadID, uint8 type, uint32 ip, uint16 tcp, uint16 udp, uint32 serverip, uint16 serverport, uint32 clientid);
+	 void	KademliaSearchFile(uint32 searchID, const Kademlia::CUInt128* pcontactID, const Kademlia::CUInt128* pkadID, uint8 type, uint32 ip, uint16 tcp, uint16 udp, uint32 serverip, uint16 serverport, uint8 byCryptOptions);
 	
 	CPartFile* GetFileByKadFileSearchID(uint32 id) const;
 	
@@ -313,12 +315,8 @@ private:
 	 */
 	void	DoSortByPriority();
 	
-	/**
-	 * Checks that there is enough free spaces for temp-files at that specified path.
-	 *
-	 * @param path The path to a folder containing temp-files.
-	 */
-	void	CheckDiskspace( const wxString& path );
+	/** Checks that there is enough free spaces for temp-files at that specified path. */
+	void	CheckDiskspace(const CPath& path);
 
 	/**
 	 * Parses all links in the ED2KLink file and resets it.
@@ -337,7 +335,7 @@ private:
 	int		GetMaxFilesPerUDPServerPacket() const;
 	bool	SendGlobGetSourcesUDPPacket(CMemFile& data);
 	
-	void 	AddToResolve(const CMD4Hash& fileid, const wxString& pszHostname, uint16 port);
+	void 	AddToResolve(const CMD4Hash& fileid, const wxString& pszHostname, uint16 port, const wxString& hash, uint8 cryptoptions);
 
 	//! The mutex assosiated with this class, mutable to allow for const functions.
 	mutable wxMutex m_mutex;
@@ -366,6 +364,10 @@ private:
 		wxString strHostname;
 		//! The user-port of the source.
 		uint16 port;
+		//! The hash of the source
+		wxString hash;
+		//! The cryptoptions for the source
+		uint8 cryptoptions;
 	};
 
 	std::deque<Hostname_Entry>	m_toresolve;
@@ -387,3 +389,4 @@ private:
 };
 
 #endif // DOWNLOADQUEUE_H
+// File_checked_for_headers

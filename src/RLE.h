@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -25,7 +25,6 @@
 #ifndef RLE_H
 #define RLE_H
 
-#include <vector>
 
 #include "Types.h"
 
@@ -52,7 +51,7 @@ public:
 	
 	const unsigned char *Encode(ArrayOfUInts16 &data, int &outlen)
 	{
-		return EncodeT<ArrayOfUInts16>(data, data.GetCount(), outlen);
+		return EncodeT<ArrayOfUInts16>(data, data.size(), outlen);
 	}
 	
 	const unsigned char *Decode(const unsigned char *data, int len);	
@@ -188,7 +187,7 @@ public:
 	
 	PartFileEncoderData() { }
 	PartFileEncoderData(int part_count, int gap_count) :
-		m_part_status(part_count, true), m_gap_status(gap_count*sizeof(uint32), true)
+		m_part_status(part_count, true), m_gap_status(gap_count*sizeof(uint64), true)
 	{
 	}
 		
@@ -207,3 +206,5 @@ public:
 };
 
 #endif
+
+// File_checked_for_headers

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 Kry ( elkry@sourceforge.net / http://www.amule.org )
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 Kry ( elkry@sourceforge.net / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -23,27 +23,23 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include <vector>
 
-#include <wx/intl.h>		// Needed for _()
 
-#include <ec/ECPacket.h>		// Needed for CECTag
-#include <ec/ECCodes.h>		// Needed for TAGnames
-#include <ec/ECSpecialTags.h>	// Needed for special EC tag creator classes
+#include <ec/cpp/ECTag.h>		// Needed for CECTag
+#include <ec/cpp/ECSpecialTags.h>	// Needed for special EC tag creator classes
 
-#include "KnownFile.h"		// Needed for PS_*
 #include "Preferences.h"
 #include "amule.h"
 
 CEC_Category_Tag::CEC_Category_Tag(uint32 cat_index, EC_DETAIL_LEVEL detail_level) : CECTag(EC_TAG_CATEGORY, cat_index)
 {
-	Category_Struct *cat = theApp.glob_prefs->GetCategory(cat_index);
+	Category_Struct *cat = theApp->glob_prefs->GetCategory(cat_index);
 	switch (detail_level) {
 		case EC_DETAIL_UPDATE:
 		case EC_DETAIL_INC_UPDATE:
 		case EC_DETAIL_WEB:
 		case EC_DETAIL_FULL:
-			AddTag(CECTag(EC_TAG_CATEGORY_PATH, cat->incomingpath));
+			AddTag(CECTag(EC_TAG_CATEGORY_PATH, cat->path.GetRaw()));
 			AddTag(CECTag(EC_TAG_CATEGORY_COMMENT, cat->comment));
 			AddTag(CECTag(EC_TAG_CATEGORY_COLOR, (uint32)cat->color));
 			AddTag(CECTag(EC_TAG_CATEGORY_PRIO, cat->prio));
@@ -64,20 +60,20 @@ CEC_Category_Tag::CEC_Category_Tag(uint32 cat_index, wxString name, wxString pat
 
 void CEC_Category_Tag::Apply()
 {
-	theApp.glob_prefs->UpdateCategory(GetInt32Data(), Name(), Path(), Comment(), Color(), Prio());
+	theApp->glob_prefs->UpdateCategory(GetInt(), Name(), CPath(Path()), Comment(), Color(), Prio());
 }
 
 void CEC_Category_Tag::Create()
 {
-	theApp.glob_prefs->CreateCategory(Name(), Path(), Comment(), Color(), Prio());
+	theApp->glob_prefs->CreateCategory(Name(), CPath(Path()), Comment(), Color(), Prio());
 }
 
 CEC_Prefs_Packet::CEC_Prefs_Packet(uint32 selection, EC_DETAIL_LEVEL pref_details, EC_DETAIL_LEVEL cat_details) : CECPacket(EC_OP_SET_PREFERENCES, pref_details)
 {
 	if (selection & EC_PREFS_CATEGORIES) {
-		if (theApp.glob_prefs->GetCatCount() > 1) {
+		if (theApp->glob_prefs->GetCatCount() > 1) {
 			CECEmptyTag cats(EC_TAG_PREFS_CATEGORIES);
-			for (unsigned int i = 0; i < theApp.glob_prefs->GetCatCount(); ++i) {
+			for (unsigned int i = 0; i < theApp->glob_prefs->GetCatCount(); ++i) {
 				CEC_Category_Tag catTag(i, cat_details);
 				cats.AddTag(catTag);
 			}
@@ -88,7 +84,8 @@ CEC_Prefs_Packet::CEC_Prefs_Packet(uint32 selection, EC_DETAIL_LEVEL pref_detail
 	if (selection & EC_PREFS_GENERAL) {
 		CECEmptyTag user_prefs(EC_TAG_PREFS_GENERAL);
 		user_prefs.AddTag(CECTag(EC_TAG_USER_NICK, thePrefs::GetUserNick()));
-		user_prefs.AddTag(CECTag(EC_TAG_USER_USERHASH, thePrefs::GetUserHash()));
+		user_prefs.AddTag(CECTag(EC_TAG_USER_HASH, thePrefs::GetUserHash()));
+		user_prefs.AddTag(CECTag(EC_TAG_USER_HOST, thePrefs::GetYourHostname()));
 		AddTag(user_prefs);
 	}
 
@@ -209,6 +206,7 @@ CEC_Prefs_Packet::CEC_Prefs_Packet(uint32 selection, EC_DETAIL_LEVEL pref_detail
 		if (thePrefs::IsManualHighPrio()) {
 			srv_prefs.AddTag(CECEmptyTag(EC_TAG_SERVERS_MANUAL_HIGH_PRIO));
 		}
+		srv_prefs.AddTag(CECTag(EC_TAG_SERVERS_UPDATE_URL, thePrefs::GetEd2kServersUrl()));
 		AddTag(srv_prefs);
 	}
 
@@ -275,20 +273,21 @@ CEC_Prefs_Packet::CEC_Prefs_Packet(uint32 selection, EC_DETAIL_LEVEL pref_detail
 	}
 
 	if (selection & EC_PREFS_DIRECTORIES) {
-		#warning TODO
+		//#warning TODO
 	}
 
 	if (selection & EC_PREFS_STATISTICS) {
-		#warning TODO
+		//#warning TODO
 	}
 
 	if (selection & EC_PREFS_SECURITY) {
 		CECEmptyTag secPrefs(EC_TAG_PREFS_SECURITY);
 		secPrefs.AddTag(CECTag(EC_TAG_SECURITY_CAN_SEE_SHARES, thePrefs::CanSeeShares()));
-		secPrefs.AddTag(CECTag(EC_TAG_SECURITY_FILE_PERMISSIONS, (uint32)thePrefs::GetFilePermissions()));
-		secPrefs.AddTag(CECTag(EC_TAG_SECURITY_DIR_PERMISSIONS, (uint32)thePrefs::GetDirPermissions()));
-		if (thePrefs::GetIPFilterOn()) {
-			secPrefs.AddTag(CECEmptyTag(EC_TAG_IPFILTER_ENABLED));
+		if (thePrefs::IsFilteringClients()) {
+			secPrefs.AddTag(CECEmptyTag(EC_TAG_IPFILTER_CLIENTS));
+		}
+		if (thePrefs::IsFilteringServers()) {
+			secPrefs.AddTag(CECEmptyTag(EC_TAG_IPFILTER_SERVERS));
 		}
 		if (thePrefs::IPFilterAutoLoad()) {
 			secPrefs.AddTag(CECEmptyTag(EC_TAG_IPFILTER_AUTO_UPDATE));
@@ -301,6 +300,17 @@ CEC_Prefs_Packet::CEC_Prefs_Packet(uint32 selection, EC_DETAIL_LEVEL pref_detail
 		if (thePrefs::IsSecureIdentEnabled()) {
 			secPrefs.AddTag(CECEmptyTag(EC_TAG_SECURITY_USE_SECIDENT));
 		}
+		
+		if (thePrefs::IsClientCryptLayerSupported()) {
+			secPrefs.AddTag(CECEmptyTag(EC_TAG_SECURITY_OBFUSCATION_SUPPORTED));
+		}
+		if (thePrefs::IsClientCryptLayerRequested()) {
+			secPrefs.AddTag(CECEmptyTag(EC_TAG_SECURITY_OBFUSCATION_REQUESTED));
+		}
+		if (thePrefs::IsClientCryptLayerRequired()) {
+			secPrefs.AddTag(CECEmptyTag(EC_TAG_SECURITY_OBFUSCATION_REQUIRED));
+		}
+
 		AddTag(secPrefs);
 	}
 
@@ -314,6 +324,12 @@ CEC_Prefs_Packet::CEC_Prefs_Packet(uint32 selection, EC_DETAIL_LEVEL pref_detail
 		cwPrefs.AddTag(CECTag(EC_TAG_CORETW_UL_QUEUE, thePrefs::GetQueueSize()));
 		cwPrefs.AddTag(CECTag(EC_TAG_CORETW_SRV_KEEPALIVE_TIMEOUT, thePrefs::GetServerKeepAliveTimeout()));
 		AddTag(cwPrefs);
+	}
+
+	if (selection & EC_PREFS_KADEMLIA) {
+		CECEmptyTag kadPrefs(EC_TAG_PREFS_KADEMLIA);
+		kadPrefs.AddTag(CECTag(EC_TAG_KADEMLIA_UPDATE_URL, thePrefs::GetKadNodesUrl()));
+		AddTag(kadPrefs);
 	}
 }
 
@@ -330,7 +346,7 @@ void ApplyBoolean(bool use_tag, const CECTag *thisTab, void (applyFunc)(bool), i
 	const CECTag *boolTag = thisTab->GetTagByName(tagName);
 	if (use_tag) {
 		if (boolTag != NULL) {
-			applyFunc(boolTag->GetInt8Data() != 0);
+			applyFunc(boolTag->GetInt() != 0);
 		}
 	} else {
 		applyFunc(boolTag != NULL);
@@ -351,6 +367,12 @@ void CEC_Prefs_Packet::Apply()
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_USER_NICK)) != NULL) {
 			thePrefs::SetUserNick(oneTag->GetStringData());
 		}
+		if ((oneTag = thisTab->GetTagByName(EC_TAG_USER_HASH)) != NULL) {
+			thePrefs::SetUserHash(oneTag->GetMD4Data());
+		}
+		if ((oneTag = thisTab->GetTagByName(EC_TAG_USER_HOST)) != NULL) {
+			thePrefs::SetYourHostname(oneTag->GetStringData());
+		}
 	}
 
 	//
@@ -360,32 +382,32 @@ void CEC_Prefs_Packet::Apply()
 	
 	if ((thisTab = GetTagByName(EC_TAG_PREFS_CONNECTIONS)) != NULL) {
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_CONN_UL_CAP)) != NULL) {
-			thePrefs::SetMaxGraphUploadRate(oneTag->GetInt32Data());
+			thePrefs::SetMaxGraphUploadRate(oneTag->GetInt());
 		}
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_CONN_DL_CAP)) != NULL) {
-			thePrefs::SetMaxGraphDownloadRate(oneTag->GetInt32Data());
+			thePrefs::SetMaxGraphDownloadRate(oneTag->GetInt());
 		}
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_CONN_MAX_UL)) != NULL) {
-			thePrefs::SetMaxUpload(oneTag->GetInt16Data());
+			thePrefs::SetMaxUpload(oneTag->GetInt());
 		}
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_CONN_MAX_DL)) != NULL) {
-			thePrefs::SetMaxDownload(oneTag->GetInt16Data());
+			thePrefs::SetMaxDownload(oneTag->GetInt());
 		}
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_CONN_SLOT_ALLOCATION)) != NULL) {
-			thePrefs::SetSlotAllocation(oneTag->GetInt16Data());
+			thePrefs::SetSlotAllocation(oneTag->GetInt());
 		}
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_CONN_TCP_PORT)) != NULL) {
-			thePrefs::SetPort(oneTag->GetInt16Data());
+			thePrefs::SetPort(oneTag->GetInt());
 		}
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_CONN_UDP_PORT)) != NULL) {
-			thePrefs::SetUDPPort(oneTag->GetInt16Data());
+			thePrefs::SetUDPPort(oneTag->GetInt());
 		}
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetUDPDisable, EC_TAG_CONN_UDP_DISABLE);
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_CONN_MAX_FILE_SOURCES)) != NULL) {
-			thePrefs::SetMaxSourcesPerFile(oneTag->GetInt16Data());
+			thePrefs::SetMaxSourcesPerFile(oneTag->GetInt());
 		}
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_CONN_MAX_CONN)) != NULL) {
-			thePrefs::SetMaxConnections(oneTag->GetInt16Data());
+			thePrefs::SetMaxConnections(oneTag->GetInt());
 		}
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetAutoConnect, EC_TAG_CONN_AUTOCONNECT);
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetReconnect, EC_TAG_CONN_RECONNECT);
@@ -407,7 +429,7 @@ void CEC_Prefs_Packet::Apply()
 	if ((thisTab = GetTagByName(EC_TAG_PREFS_REMOTECTRL)) != NULL) {
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetWSIsEnabled, EC_TAG_WEBSERVER_AUTORUN);
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_WEBSERVER_PORT)) != NULL) {
-			thePrefs::SetWSPort(oneTag->GetInt16Data());
+			thePrefs::SetWSPort(oneTag->GetInt());
 		}
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_PASSWD_HASH)) != NULL) {
 			thePrefs::SetWSPass(oneTag->GetMD4Data().Encode());
@@ -420,7 +442,7 @@ void CEC_Prefs_Packet::Apply()
 		}
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetWebUseGzip, EC_TAG_WEBSERVER_USEGZIP);
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_WEBSERVER_REFRESH)) != NULL) {
-			thePrefs::SetWebPageRefresh(oneTag->GetInt32Data());
+			thePrefs::SetWebPageRefresh(oneTag->GetInt());
 		}
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_WEBSERVER_TEMPLATE)) != NULL) {
 			thePrefs::SetWebTemplate(oneTag->GetStringData());
@@ -434,7 +456,7 @@ void CEC_Prefs_Packet::Apply()
 	if ((thisTab = GetTagByName(EC_TAG_PREFS_SERVERS)) != NULL) {
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetDeadServer, EC_TAG_SERVERS_REMOVE_DEAD);
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_SERVERS_DEAD_SERVER_RETRIES)) != NULL) {
-			thePrefs::SetDeadserverRetries(oneTag->GetInt16Data());
+			thePrefs::SetDeadserverRetries(oneTag->GetInt());
 		}
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetAutoServerlist, EC_TAG_SERVERS_AUTO_UPDATE);
 		// Here should come the URL list...
@@ -445,6 +467,9 @@ void CEC_Prefs_Packet::Apply()
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetSafeServerConnectEnabled, EC_TAG_SERVERS_SAFE_SERVER_CONNECT);
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetAutoConnectStaticOnly, EC_TAG_SERVERS_AUTOCONN_STATIC_ONLY);
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetManualHighPrio, EC_TAG_SERVERS_MANUAL_HIGH_PRIO);
+		if ((oneTag = thisTab->GetTagByName(EC_TAG_SERVERS_UPDATE_URL)) != NULL) {
+			thePrefs::SetEd2kServersUrl(oneTag->GetStringData());
+		}		
 	}
 
 	if ((thisTab = GetTagByName(EC_TAG_PREFS_FILES)) != NULL) {
@@ -463,69 +488,75 @@ void CEC_Prefs_Packet::Apply()
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetAllocFullPart, EC_TAG_FILES_ALLOC_FULL_SIZE);
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetCheckDiskspaceEnabled, EC_TAG_FILES_CHECK_FREE_SPACE);
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_FILES_MIN_FREE_SPACE)) != NULL) {
-			thePrefs::SetMinFreeDiskSpace(oneTag->GetInt32Data());
+			thePrefs::SetMinFreeDiskSpace(oneTag->GetInt());
 		}
 	}
 
 	if ((thisTab = GetTagByName(EC_TAG_PREFS_SRCDROP)) != NULL) {
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_SRCDROP_NONEEDED)) != NULL) {
-			thePrefs::SetNoNeededSources(oneTag->GetInt8Data());
+			thePrefs::SetNoNeededSources(oneTag->GetInt());
 		}
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetDropFullQueueSources, EC_TAG_SRCDROP_DROP_FQS);
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetDropHighQueueRankingSources, EC_TAG_SRCDROP_DROP_HQRS);
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_SRCDROP_HQRS_VALUE)) != NULL) {
-			thePrefs::SetHighQueueRanking(oneTag->GetInt16Data());
+			thePrefs::SetHighQueueRanking(oneTag->GetInt());
 		}
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_SRCDROP_AUTODROP_TIMER)) != NULL) {
-			thePrefs::SetAutoDropTimer(oneTag->GetInt16Data());
+			thePrefs::SetAutoDropTimer(oneTag->GetInt());
 		}
 	}
 
 	if ((thisTab = GetTagByName(EC_TAG_PREFS_DIRECTORIES)) != NULL) {
-		#warning TODO
+		//#warning TODO
 	}
 
 	if ((thisTab = GetTagByName(EC_TAG_PREFS_STATISTICS)) != NULL) {
-		#warning TODO
+		//#warning TODO
 	}
 
 	if ((thisTab = GetTagByName(EC_TAG_PREFS_SECURITY)) != NULL) {
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_SECURITY_CAN_SEE_SHARES)) != NULL) {
-			thePrefs::SetCanSeeShares(oneTag->GetInt8Data());
+			thePrefs::SetCanSeeShares(oneTag->GetInt());
 		}
-		if ((oneTag = thisTab->GetTagByName(EC_TAG_SECURITY_FILE_PERMISSIONS)) != NULL) {
-			thePrefs::SetFilePermissions(oneTag->GetInt32Data());
-		}
-		if ((oneTag = thisTab->GetTagByName(EC_TAG_SECURITY_DIR_PERMISSIONS)) != NULL) {
-			thePrefs::SetDirPermissions(oneTag->GetInt32Data());
-		}
-		ApplyBoolean(use_tag, thisTab, thePrefs::SetIPFilterOn, EC_TAG_IPFILTER_ENABLED);
+		ApplyBoolean(use_tag, thisTab, thePrefs::SetFilteringClients, EC_TAG_IPFILTER_CLIENTS);
+		ApplyBoolean(use_tag, thisTab, thePrefs::SetFilteringServers, EC_TAG_IPFILTER_SERVERS);
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetIPFilterAutoLoad, EC_TAG_IPFILTER_AUTO_UPDATE);
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_IPFILTER_UPDATE_URL)) != NULL) {
 			thePrefs::SetIPFilterURL(oneTag->GetStringData());
 		}
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_IPFILTER_LEVEL)) != NULL) {
-			thePrefs::SetIPFilterLevel(oneTag->GetInt8Data());
+			thePrefs::SetIPFilterLevel(oneTag->GetInt());
 		}
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetFilterLanIPs, EC_TAG_IPFILTER_FILTER_LAN);
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetSecureIdentEnabled, EC_TAG_SECURITY_USE_SECIDENT);
+
+		ApplyBoolean(use_tag, thisTab, thePrefs::SetClientCryptLayerSupported, EC_TAG_SECURITY_OBFUSCATION_SUPPORTED);
+		ApplyBoolean(use_tag, thisTab, thePrefs::SetClientCryptLayerRequested, EC_TAG_SECURITY_OBFUSCATION_REQUESTED);
+		ApplyBoolean(use_tag, thisTab, thePrefs::SetClientCryptLayerRequired,  EC_TAG_SECURITY_OBFUSCATION_REQUIRED);
 	}
 
 	if ((thisTab = GetTagByName(EC_TAG_PREFS_CORETWEAKS)) != NULL) {
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_CORETW_MAX_CONN_PER_FIVE)) != NULL) {
-			thePrefs::SetMaxConsPerFive(oneTag->GetInt16Data());
+			thePrefs::SetMaxConsPerFive(oneTag->GetInt());
 		}
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetVerbose, EC_TAG_CORETW_VERBOSE);
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_CORETW_FILEBUFFER)) != NULL) {
-			thePrefs::SetFileBufferSize(oneTag->GetInt32Data());
+			thePrefs::SetFileBufferSize(oneTag->GetInt());
 		}
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_CORETW_UL_QUEUE)) != NULL) {
-			thePrefs::SetQueueSize(oneTag->GetInt32Data());
+			thePrefs::SetQueueSize(oneTag->GetInt());
 		}
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_CORETW_SRV_KEEPALIVE_TIMEOUT)) != NULL) {
-			thePrefs::SetServerKeepAliveTimeout(oneTag->GetInt32Data());
+			thePrefs::SetServerKeepAliveTimeout(oneTag->GetInt());
+		}
+	}
+	
+	if ((thisTab = GetTagByName(EC_TAG_PREFS_KADEMLIA)) != NULL) {
+		if ((oneTag = thisTab->GetTagByName(EC_TAG_KADEMLIA_UPDATE_URL)) != NULL) {
+			thePrefs::SetKadNodesUrl(oneTag->GetStringData());
 		}
 	}
 
-	theApp.glob_prefs->Save();
+	theApp->glob_prefs->Save();
 }
+// File_checked_for_headers

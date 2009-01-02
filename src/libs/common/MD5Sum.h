@@ -1,6 +1,6 @@
 // This file is part of the aMule Project.
  /* 
- Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+ Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
  Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All
  rights reserved.
 
@@ -26,17 +26,23 @@
 #ifndef MD5SUM_H
 #define MD5SUM_H
 
-#include <wx/string.h>		// Needed for wxString
 
 class MD5Sum {
 public:
 	MD5Sum();
 	MD5Sum(const wxString& sSource);
+	MD5Sum(const uint8* buffer, int len);
+	
 	wxString Calculate(const wxString& sSource);
+	wxString Calculate(const uint8* buffer, int len);
+
 	wxString GetHash();
+	const uint8* GetRawHash() const { return m_rawhash; }
 
 private:
 	wxString	m_sHash;
+	uint8 m_rawhash[16];
 };
 
 #endif // MD5SUM_H
+// File_checked_for_headers

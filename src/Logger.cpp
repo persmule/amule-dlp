@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (C) 2005-2006aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -25,10 +25,11 @@
 #include "Logger.h"
 #include "amule.h"
 #include "Preferences.h"
-#include <common/StringFunctions.h>
 
-#include <wx/thread.h>
-#include <deque>
+#include <wx/filename.h>
+
+
+DEFINE_LOCAL_EVENT_TYPE(MULE_EVT_LOGLINE)
 
 
 CDebugCategory::CDebugCategory( DebugType type, const wxString& name )
@@ -87,14 +88,16 @@ CDebugCategory g_debugcats[] = {
 	CDebugCategory( logProxy,		wxT("Proxy") ),
 	CDebugCategory( logSearch,		wxT("Searching") ),
 	CDebugCategory( logServerUDP,		wxT("ServerUDP") ),
-	CDebugCategory( logClientKadUDP,		wxT("Client Kademlia UDP") ),
+	CDebugCategory( logClientKadUDP,	wxT("Client Kademlia UDP") ),
 	CDebugCategory( logKadSearch,		wxT("Kademlia Search") ),
 	CDebugCategory( logKadRouting,		wxT("Kademlia Routing") ),
 	CDebugCategory( logKadIndex,		wxT("Kademlia Indexing") ),
 	CDebugCategory( logKadMain,		wxT("Kademlia Main Thread") ),
 	CDebugCategory( logKadPrefs,		wxT("Kademlia Preferences") ),
 	CDebugCategory( logPfConvert,		wxT("PartFileConvert") ),
-	CDebugCategory( logMuleUDP,			wxT("MuleUDPSocket" ) )
+	CDebugCategory( logMuleUDP,		wxT("MuleUDPSocket" ) ),
+	CDebugCategory( logThreads,		wxT("ThreadScheduler" ) ),
+	CDebugCategory( logUPnP,		wxT("Universal Plug and Play" ) ),
 };
 
 
@@ -135,26 +138,24 @@ void CLogger::SetEnabled( DebugType type, bool enabled )
 }
 
 
-
 struct LogEntry
 {
-	GUI_Event_ID	event;
-	bool			critical;
-	wxString		entry;
+	bool critical;
+	wxString entry;
 };
+
 
 static std::deque<LogEntry*> s_backLog;
 static wxMutex s_mutex;
 
 
-void PushEntry(GUI_Event_ID event, bool critical, const wxString& str)
+void PushEntry(bool critical, const wxString& str)
 {
 	wxMutexLocker lock(s_mutex);
 
 	LogEntry* item = new LogEntry;
-	item->event		= event;
-	item->critical	= critical;
-	item->entry		= str;
+	item->critical = critical;
+	item->entry = str;
 	
 	s_backLog.push_back(item);
 }
@@ -183,16 +184,16 @@ void CLogger::FlushPendingEntries()
 	
 	LogEntry* entry = NULL;
 	while ((entry = PopEntry())) {
-		GUIEvent event(entry->event, entry->critical, entry->entry);
+		CLoggingEvent event(entry->critical, entry->entry);
 	
 #ifdef CLIENT_GUI
-		theApp.NotifyEvent(event);
+		theApp->ProcessEvent(event);
 #else
 		// Try to handle events immediatly when possible (to save to file).
-		if (theApp.applog) {
-			theApp.NotifyEvent(event);			
+		if (theApp->applog) {
+			theApp->ProcessEvent(event);			
 		} else {
-			theApp.AddPendingEvent(event);
+			theApp->AddPendingEvent(event);
 		}
 #endif
 
@@ -201,9 +202,15 @@ void CLogger::FlushPendingEntries()
 }
 
 
-void CLogger::AddLogLine(bool critical, const wxString str)
+void CLogger::AddLogLine(
+	const wxString &file,
+	int line,
+	bool critical,
+	const wxString &str)
 {
-	PushEntry(ADDLOGLINE, critical, str);
+	wxString msg;
+	msg << file.AfterLast(wxFileName::GetPathSeparator()) << wxT("(") << line << wxT("): ") << str;
+	PushEntry(critical, msg);
 
 	if (wxThread::IsMain()) {
 		FlushPendingEntries();
@@ -211,7 +218,12 @@ void CLogger::AddLogLine(bool critical, const wxString str)
 }
 
 
-void CLogger::AddDebugLogLine( bool critical, DebugType type, const wxString& str )
+void CLogger::AddLogLine(
+	const wxString &file,
+	int line,
+	bool critical,
+	DebugType type,
+	const wxString& str)
 {
 	int index = (int)type;
 	
@@ -219,7 +231,7 @@ void CLogger::AddDebugLogLine( bool critical, DebugType type, const wxString& st
 		const CDebugCategory& cat = g_debugcats[ index ];
 		wxASSERT(type == cat.GetType());
 
-		AddLogLine(critical, cat.GetName() + wxT(": ") + str);
+		AddLogLine(file, line, critical, cat.GetName() + wxT(": ") + str);
 	} else {
 		wxASSERT( false );
 	}
@@ -252,8 +264,9 @@ void CLoggerTarget::DoLogString(const wxChar* msg, time_t)
 	wxString str(msg);
 	
 	// This is much simpler than manually handling all wx log-types.
-	bool critical = str.StartsWith(_("Error: ")) or str.StartsWith(_("Warning: "));
+	bool critical = str.StartsWith(_("Error: ")) || str.StartsWith(_("Warning: "));
 
-	CLogger::AddLogLine(critical, str);
+	CLogger::AddLogLine(__TFILE__, __LINE__, critical, str);
 }
 
+// File_checked_for_headers

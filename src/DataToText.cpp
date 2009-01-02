@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -22,14 +22,11 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include "DataToText.h"
 
 #include "KnownFile.h"		// Needed by PriorityToStr
 #include "updownclient.h"	// Needed by DownloadStateToStr and GetSoftName
 
-#include <wx/string.h>
-#include <wx/intl.h>
-
+#include <protocol/ed2k/ClientSoftware.h>
 
 wxString PriorityToStr( int priority, bool isAuto )
 {
@@ -137,3 +134,4 @@ wxString OriginToText(unsigned int source_from)
 		default:		return wxTRANSLATE("Unknown");
 	}
 }
+// File_checked_for_headers

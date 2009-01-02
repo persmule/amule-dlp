@@ -8,6 +8,15 @@
 using Kademlia::CUInt128;
 using namespace muleunit;
 
+namespace muleunit
+{
+	template <>
+	wxString StringFrom<CPath>(const CPath& path)
+	{
+		return path.GetPrintable();
+	}
+}
+
 
 //! The max file-size of auto-generated files to test.
 const size_t TEST_LENGTH = 512;
@@ -22,7 +31,7 @@ namespace muleunit {
 	//! Needed for ASSERT_EQUALS with CUInt128 values
 	template <>
 	wxString StringFrom<CUInt128>(const CUInt128& value) {
-		return value.toHexString();
+		return value.ToHexString();
 	}
 }
 
@@ -73,18 +82,22 @@ public:
 	CFile* m_predefFile;
 	
 	void setUp() {
+		m_emptyFile = m_predefFile = NULL;
+		const CPath emptyPath = CPath(wxT("FileDataIOTest.empty"));
+		const CPath datPath   = CPath(wxT("FileDataIOTest.dat"));
+
 		m_emptyFile = new CFile();
-		m_emptyFile->Create(wxT("FileDataIOTest.empty"), true);
+		m_emptyFile->Create(emptyPath, true);
 		ASSERT_TRUE(m_emptyFile->IsOpened());
 		m_emptyFile->Close();
-		m_emptyFile->Open(wxT("FileDataIOTest.empty"), CFile::read_write);
+		m_emptyFile->Open(emptyPath, CFile::read_write);
 		ASSERT_TRUE(m_emptyFile->IsOpened());
 		
 		m_predefFile = new CFile();
-		m_predefFile->Create(wxT("FileDataIOTest.dat"), true);
+		m_predefFile->Create(datPath, true);
 		ASSERT_TRUE(m_predefFile->IsOpened());
 		m_predefFile->Close();
-		m_predefFile->Open(wxT("FileDataIOTest.dat"), CFile::read_write);
+		m_predefFile->Open(datPath, CFile::read_write);
 		ASSERT_TRUE(m_predefFile->IsOpened());
 
 		writePredefData(m_predefFile);
@@ -114,6 +127,8 @@ public:
 	CMemFile* m_predefFile;
 	
 	void setUp() {
+		m_emptyFile = m_predefFile = NULL;
+
 		m_emptyFile = new CMemFile();
 		m_predefFile = new CMemFile();
 		
@@ -232,7 +247,7 @@ struct RWInterface<CUInt128>
 {
 	static CUInt128 genValue(size_t j) {
 		CUInt128 value;
-		uint32* data = (uint32*)value.getDataPtr();
+		uint32* data = (uint32*)value.GetDataPtr();
 		for (size_t y = 0; y < 4; y++) {
 			data[y] = (j + 3 + y * 4) & 0xff;
 			data[y] = (data[y] << 8) | (j + 2 + y * 4) & 0xff;
@@ -482,9 +497,16 @@ public:
 	
 	struct Encoding
 	{
-		EUtf8Str		id;
+		const EUtf8Str		id;
 		const char*		header;
-		size_t			headLen;
+		const size_t		headLen;
+	};
+
+	struct TestString
+	{
+		const wxChar*		str;
+		// Raw and UTF8 expected lengths ...
+		const size_t		lengths[2];
 	};
 	
 	void run() {
@@ -494,22 +516,28 @@ public:
 		Encoding encodings[] = 
 		{
 			{utf8strNone,	NULL,			0},
-			{utf8strOptBOM,	"\xEF\xBB\xBF",	3},
+			{utf8strOptBOM,	"\xEF\xBB\xBF",		3},
 			{utf8strRaw,	NULL,			0}
 		};
 		
-		
-		const wxChar* testData[] = 
+		TestString testData[] = 
 		{
-			wxT("0123456789abcdef"),
-			wxT("")
+			{ wxT("0123456789abcdef"),	{ 16, 16 } },
+			{ wxT(""),			{  0,  0 } },
+			{ wxT("abc ø def æ ghi å"),	{ 17, 20 } },
+			{ wxT("aáeéuúó"),		{  7, 11 } },
+			{ wxT("uüoöÿeëaäyÿ"),		{ 11, 17 } },
 		};
 		
 	
-		for (size_t str = 0; str < 2; ++str) {
-			for (size_t enc = 0; enc < 3; ++enc) {
-				const wxChar* curStr = testData[str];
-				size_t strLen = wxStrlen(curStr);
+		for (size_t str = 0; str < ArraySize(testData); ++str) {
+			CONTEXT(wxString(wxT("Testing string: '")) << testData[str].str << wxT("'"));
+
+			for (size_t enc = 0; enc < ArraySize(encodings); ++enc) {
+				CONTEXT(wxString::Format(wxT("Testing encoding: %i"), encodings[enc]));
+
+				const wxChar* curStr = testData[str].str;
+				size_t strLen = testData[str].lengths[(encodings[enc].id == utf8strNone) ? 0 : 1];
 				size_t headLen = encodings[enc].headLen;
 				
 				file->WriteString(curStr, encodings[enc].id, 2);
@@ -519,8 +547,8 @@ public:
 
 				// Check header (if any)
 				if (encodings[enc].header) {
-					char head[headLen];
-					file->Read(head, headLen);
+					wxCharBuffer head(headLen);
+					file->Read(head.data(), headLen);
 					ASSERT_EQUALS(0, memcmp(head, encodings[enc].header, headLen));
 				}
 				
@@ -536,8 +564,8 @@ public:
 
 				// Check header (if any)
 				if (encodings[enc].header) {
-					char head[headLen];
-					file->Read(head, headLen);
+					wxCharBuffer head(headLen);
+					file->Read(head.data(), headLen);
 					ASSERT_EQUALS(0, memcmp(head, encodings[enc].header, headLen));
 				}
 				
@@ -545,6 +573,27 @@ public:
 				ASSERT_EQUALS(curStr, file->ReadString(encodings[enc].id, 4));
 				ASSERT_EQUALS(0u, file->Seek(0, wxFromStart));
 			}
+		}
+
+		CAssertOff silence;
+		for (size_t enc = 0; enc < ArraySize(encodings); ++enc) {
+			CONTEXT(wxString::Format(wxT("Testing encoding against poisoning: %i"), encodings[enc]));
+
+			//////////////////////////////////////////////
+			// Check if we guard against "poisoning".
+			ASSERT_EQUALS(0u, file->Seek(0, wxFromStart));
+
+			const size_t rawLen = (((uint16)-1) * 3) / 4;
+			wxString badStr(wxT('\xfe'), rawLen);
+
+			// This will cause the string to be UTF-8 encoded,
+			// thereby exceeding the max length-field size (16b).
+			file->WriteString(badStr, encodings[enc].id, 2);
+			file->WriteUInt16(0x7913);
+
+			ASSERT_EQUALS(0u, file->Seek(0, wxFromStart));
+			file->ReadString(true, 2);
+			ASSERT_EQUALS(0x7913, file->ReadUInt16());
 		}
 	}
 };
@@ -645,10 +694,26 @@ TEST(CMemFile, AttachedBuffer)
 	ASSERT_RAISES(CRunTimeException, file.WriteUInt8(0));
 
 	// Init with invalid buffer should fail
-	ASSERT_RAISES(CRunTimeException, new CMemFile(NULL, 1024));
+	ASSERT_RAISES(CRunTimeException, new CMemFile(static_cast<const byte*>(NULL), 1024));
+	ASSERT_RAISES(CRunTimeException, new CMemFile(static_cast<byte*>(NULL), 1024));
 }
 
 
+TEST(CMemFile, ConstBuffer)
+{
+	byte arr[10];
+	CMemFile file(const_cast<const byte*>(arr), sizeof(arr));
+	
+	ASSERT_RAISES(CRunTimeException, file.WriteUInt8(0));
+	ASSERT_RAISES(CRunTimeException, file.WriteUInt16(0));
+	ASSERT_RAISES(CRunTimeException, file.WriteUInt32(0));
+	ASSERT_RAISES(CRunTimeException, file.WriteUInt64(0));
+
+	char buffer[sizeof(arr)];
+	ASSERT_RAISES(CRunTimeException, file.Write(buffer, sizeof(arr)));
+}
+
+	
 TEST(CMemFile, SetLength)
 {
 	CMemFile file;
@@ -666,22 +731,22 @@ TEST(CMemFile, SetLength)
 /////////////////////////////////////////////////////////////////////
 // CFile specific tests
 
-const wxChar* testFile = wxT("TestFile.dat");
+const CPath testFile = CPath(wxT("TestFile.dat"));
 const unsigned testMode = 0600;
 
 DECLARE(CFile);
 	void setUp() {
 		// Ensure that the testfile doesn't exist
-		if (wxFileExists(testFile)) {
-			if (!wxRemoveFile(testFile)) {
+		if (testFile.FileExists()) {
+			if (!CPath::RemoveFile(testFile)) {
 				MULE_VALIDATE_STATE(false, wxT("Failed to remove temporary file."));
 			}
 		}
 	}
 
 	void tearDown() {
-		if (wxFileExists(testFile)) {
-			wxRemoveFile(testFile);
+		if (testFile.FileExists()) {
+			CPath::RemoveFile(testFile);
 		}	
 	}
 END_DECLARE;
@@ -779,7 +844,7 @@ TEST(CFile, Constructor)
 
 TEST(CFile, Create)
 {
-	ASSERT_FALSE(wxFileExists(testFile));
+	ASSERT_FALSE(testFile.FileExists());
 
 	// Check creation of new file, when none exists, with/without overwrite	
 	for (size_t i = 0; i < 2; ++i) {
@@ -796,10 +861,10 @@ TEST(CFile, Create)
 		ASSERT_TRUE(file.fd() == CFile::fd_invalid);
 		ASSERT_TRUE(!file.IsOpened());
 		
-		ASSERT_TRUE(wxFile::Access(testFile, wxFile::read));
-		ASSERT_TRUE(wxFile::Access(testFile, wxFile::write));
+		ASSERT_TRUE(wxFile::Access(testFile.GetRaw(), wxFile::read));
+		ASSERT_TRUE(wxFile::Access(testFile.GetRaw(), wxFile::write));
 	
-		ASSERT_TRUE(wxRemoveFile(testFile));
+		ASSERT_TRUE(wxRemoveFile(testFile.GetRaw()));
 	}
 
 	// Create testfile, with a bit of contents
@@ -842,8 +907,8 @@ TEST(CFile, Create)
 		ASSERT_TRUE(!file.IsOpened());
 	}
 	
-	ASSERT_TRUE(wxFile::Access(testFile, wxFile::read));
-	ASSERT_TRUE(wxFile::Access(testFile, wxFile::write));
+	ASSERT_TRUE(wxFile::Access(testFile.GetRaw(), wxFile::read));
+	ASSERT_TRUE(wxFile::Access(testFile.GetRaw(), wxFile::write));
 }
 
 
@@ -858,5 +923,30 @@ TEST(CFile, SetLength)
 	file.SetLength(512u);	
 	ASSERT_EQUALS(512u, file.GetLength());
 	ASSERT_EQUALS(512u, file.Seek(0, wxFromEnd));
+}
+
+
+TEST(CFile, GetAvailable)
+{
+	{
+		CFile file(testFile, CFile::write);
+
+		writePredefData(&file);
+	}
+
+	CFile file(testFile, CFile::read);
+
+	const uint64 length = file.GetLength();
+	while (!file.Eof()) {
+		ASSERT_EQUALS(length - file.GetPosition(), file.GetAvailable());
+		file.ReadUInt32();
+		ASSERT_EQUALS(length - file.GetPosition(), file.GetAvailable());
+	}
+	
+	ASSERT_EQUALS(0u, file.GetAvailable());
+
+	file.Seek(1024, wxFromCurrent);
+
+	ASSERT_EQUALS(0u, file.GetAvailable());
 }
 

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -22,17 +22,21 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
+
 #ifndef MULEGIFCTRL_H
 #define MULEGIFCTRL_H
 
+
 #include <wx/control.h>
 #include <wx/timer.h>
-#include <wx/bitmap.h>
+
 
 const int GIFTIMERID = 271283;
 
-class wxGIFDecoder;
+
+class MuleGIFDecoder;
 class wxBitmap;
+
 
 /**
  * MuleGifCtrl is a simple widget for displaying a gif animation.
@@ -50,22 +54,31 @@ class wxBitmap;
  */
 class MuleGifCtrl : public wxControl
 {
+private:
+	//! A pointer to the current gif-animation.
+	MuleGIFDecoder *m_decoder;
+	//! Timer used for the delay between each frame.
+	wxTimer m_timer;
+	//! Current frame.
+	wxBitmap m_frame;
+	
 public:
 	/**
 	 * Contructor. See wxWindow class documentation for more information.
 	 */
-	MuleGifCtrl( wxWindow *parent, wxWindowID id, 
-	              const wxPoint& pos = wxDefaultPosition,
-                  const wxSize& size = wxDefaultSize,
-                  long style = 0,
-                  const wxValidator& validator = wxDefaultValidator,
-                  const wxString& name = wxControlNameStr );
-				  
+	MuleGifCtrl(
+		wxWindow *parent, wxWindowID id, 
+		const wxPoint& pos = wxDefaultPosition,
+		const wxSize& size = wxDefaultSize,
+		long style = 0,
+		const wxValidator& validator = wxDefaultValidator,
+		const wxString& name = wxControlNameStr);
+	
 	/**
 	 * Destructor
 	 */
 	virtual ~MuleGifCtrl();
-
+	
 	/**
 	 * This loads the gif image from a char-array with a specific size.
 	 *
@@ -87,25 +100,25 @@ public:
 	 * set and it's not a static image.
 	 */
 	void Start();
-
+	
 	/**
 	 * Stops the animation.
 	 */
 	void Stop();
-
+	
 	/**
 	 * Returns the prefered size of the widget.
 	 *
 	 * @return Prefered size, which is the size of the animation.
 	 */
 	virtual wxSize GetBestSize();
-
+	
 private:
 	/**
 	 * Timer function that selects the next frame in an animation.
 	 */
 	void OnTimer( wxTimerEvent& event );
-
+	
 	/**
 	 * Function for drawing the animation.
 	 * 
@@ -114,22 +127,16 @@ private:
 	 * ERASE_BACKGROUND events we avoid flickering on redraws.
 	 */
 	void OnPaint( wxPaintEvent& event );
-
+	
 	/**
 	 * This function is used to avoid flicker when redrawing.
 	 */
 	void OnErase( wxEraseEvent& WXUNUSED(event) ) {}
-
-	//! A pointer to the current gif-animation.
-	wxGIFDecoder*	m_decoder;
-	//! Timer used for the delay between each frame.
-	wxTimer			m_timer;
-	//! Current frame.
-	wxBitmap		m_frame;
-    
+	
 	//! Enables the event functions OnErase(), OnTimer() and OnPaint().
 	DECLARE_EVENT_TABLE()
 };
 
 #endif
 
+// File_checked_for_headers

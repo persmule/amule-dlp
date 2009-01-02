@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,13 +26,16 @@
 #ifndef OTHERFUNCTIONS_H
 #define OTHERFUNCTIONS_H
 
-#include <wx/string.h>		// Needed for wxString
 #include <wx/intl.h>		// Needed for wxLANGUAGE_ constants
-#include <wx/thread.h>
 
 #include "Types.h"		// Needed for uint16, uint32 and uint64
 
-	
+#include <algorithm>		// Needed for std::for_each	// Do_not_auto_remove (mingw-gcc-3.4.5)
+
+
+class CPath;
+
+
 /**
  * Helper function.
  *
@@ -117,6 +120,46 @@ unsigned int EraseValue( LIST& list, const ITEM& item )
 	}
 
 	return count;
+}
+
+
+//! Used by DeleteContents
+struct SDoDelete
+{
+	// Used for lists, vectors, deques, etc.
+	template <typename TYPE>
+	void operator()(TYPE* ptr) {
+		delete ptr;
+	}
+
+	// Used for maps, hashmaps, rangemaps, etc.
+	template <typename FIRST, typename SECOND>
+	void operator()(const std::pair<FIRST, SECOND>& pair) {
+		delete pair.second;
+	}		
+};
+
+
+/** Frees the contents of a list or map like stl container, clearing it afterwards. */
+template <typename STL_CONTAINER>
+void DeleteContents(STL_CONTAINER& container)
+{
+	// Ensure that the actual container wont contain dangling pointers during
+	// this operation, to ensure that the destructors cant access them.
+	STL_CONTAINER copy;
+	
+	std::swap(copy, container);
+	std::for_each(copy.begin(), copy.end(), SDoDelete());
+}
+
+
+/**
+ * Copies elements from the range [first, first + n) to the range [result, result + n).
+ */
+template <class InputIterator, class OutputIterator>
+OutputIterator STLCopy_n(InputIterator first, size_t n, OutputIterator result)
+{
+	return std::copy(first, first + n, result);
 }
 
 
@@ -211,13 +254,11 @@ wxString GetRateString(uint16 rate);
 // The following functions are used to identify and/or name the type of a file
 enum FileType { ftAny, ftVideo, ftAudio, ftArchive, ftCDImage, ftPicture, ftText, ftProgram };
 // Examins a filename and returns the enumerated value assosiated with it, or ftAny if unknown extension
-FileType GetFiletype(const wxString& filename);
+FileType GetFiletype(const CPath& filename);
 // Returns the description of a filetype: Movies, Audio, Pictures and so on...
 wxString GetFiletypeDesc(FileType type, bool translated = true);
 // Shorthand for GetFiletypeDesc(GetFiletype(filename))
-wxString GetFiletypeByName(const wxString& filename, bool translated = true);
-// Reports if the file has contents or not (no need for the file to exist)
-bool IsEmptyFile(const wxString& filename);
+wxString GetFiletypeByName(const CPath& filename, bool translated = true);
 
 
 // Returns the max number of connections the current OS can handle.
@@ -228,13 +269,9 @@ wxString GetCatTitle(int catid);
 
 /* Other */
 
-// Compares first and second. For uint16 arrays sorting.
-int wxCMPFUNC_CONV Uint16CompareValues(uint16* first, uint16* second);
 
-
-#define ARRSIZE(x) (int) (sizeof(x)/sizeof(x[0]))
+//! Returns the number of items in an array.
 #define itemsof(x) (sizeof(x)/sizeof(x[0]))
-#define ELEMENT_COUNT(X) (sizeof(X) / sizeof(X[0]))
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -273,9 +310,9 @@ private:
 	EED2KFileType s_t;
 };
 
-EED2KFileType GetED2KFileTypeID(const wxString &strFileName);
+EED2KFileType GetED2KFileTypeID(const CPath& fileName);
 wxString GetED2KFileTypeSearchTerm(EED2KFileType iFileID);
-wxString GetFileTypeByName(const wxString &strFileName);
+wxString GetFileTypeByName(const CPath& fileName);
 EED2KFileType GetED2KFileTypeSearchID(EED2KFileType iFileID);
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -322,11 +359,8 @@ inline const long int make_full_ed2k_version(int a, int b, int c) {
 	return ((a << 17) | (b << 10) | (c << 7));
 }
 
-wxString GetConfigDir();
 
-#ifndef EC_REMOTE
-bool CheckConfig();
-#endif
+wxString GetConfigDir();
 
 #define  wxLANGUAGE_CUSTOM 		wxLANGUAGE_USER_DEFINED+1
 #define  wxLANGUAGE_ITALIAN_NAPOLITAN 	wxLANGUAGE_USER_DEFINED+2
@@ -359,6 +393,15 @@ int StrLang2wx(const wxString& language);
  */
 wxString wxLang2Str(const int lang);
 
+/**
+ * Generate MD5Hash of prompt input
+ */
+wxString GetPassword();
+
+
+#if wxUSE_THREADS
+
+#include <wx/thread.h>
 
 /**
  * Automatically unlocks a mutex on construction and locks it on destruction.
@@ -403,6 +446,8 @@ private:
     bool     m_isOk;
     wxMutex& m_mutex;
 };
+#endif /* wxUSE_THREADS */
 
 
 #endif // OTHERFUNCTIONS_H
+// File_checked_for_headers

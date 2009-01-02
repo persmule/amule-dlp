@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (C) 2005-2006aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2004-2006 Marcelo Jimenez (phoenix@amule.org)
+// Copyright (C) 2005-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2008 Marcelo Jimenez (phoenix@amule.org)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -104,3 +104,4 @@ void CStateMachine::flush_queue()
 		m_queue.pop();
 	}
 }
+// File_checked_for_headers

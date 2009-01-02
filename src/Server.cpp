@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -24,17 +24,12 @@
 //
 
 #include "Server.h"		// Interface declarations.
-#include "SafeFile.h"		// Needed for CFileDataIO
-#include "OtherFunctions.h"	// Needed for nstrdup
+
+#include <tags/ServerTags.h>
+
 #include "NetworkFunctions.h" // Needed for StringIPtoUint32
 #include "OtherStructs.h"	// Needed for ServerMet_Struct
-#include "Tag.h"		// Needed for CTag
-#include <common/StringFunctions.h> // Needed for unicode2char 
-#include "Logger.h"
-#include <common/Format.h>
-
-#include <wx/intl.h>	// Needed for _
-
+#include "amule.h"
 
 CServer::CServer(ServerMet_Struct* in_data)
 {
@@ -89,7 +84,7 @@ CServer::CServer(CServer* pOld)
 {
 	wxASSERT(pOld != NULL);
 	
-	TagList::iterator it = pOld->m_taglist.begin();
+	TagPtrList::iterator it = pOld->m_taglist.begin();
 	for ( ; it != pOld->m_taglist.end(); ++it ) {
 		m_taglist.push_back((*it)->CloneTag());
 	}
@@ -105,6 +100,8 @@ CServer::CServer(CServer* pOld)
 	ping = pOld->ping;
 	failedcount = pOld->failedcount; 
 	lastpinged = pOld->lastpinged;
+	lastpingedtime = pOld->lastpingedtime;
+	m_dwRealLastPingedTime = pOld->m_dwRealLastPingedTime;
 	description = pOld->description;
 	listname = pOld->listname;
 	dynip = pOld->dynip;
@@ -119,11 +116,16 @@ CServer::CServer(CServer* pOld)
 	m_uLowIDUsers = pOld->m_uLowIDUsers;
 	lastdescpingedcout = pOld->lastdescpingedcout;
 	m_auxPorts = pOld->m_auxPorts;
+	m_dwServerKeyUDP = pOld->m_dwServerKeyUDP;
+	m_bCryptPingReplyPending = pOld->m_bCryptPingReplyPending;
+	m_dwIPServerKeyUDP = pOld->m_dwIPServerKeyUDP;
+	m_nObfuscationPortTCP = pOld->m_nObfuscationPortTCP;
+	m_nObfuscationPortUDP = pOld->m_nObfuscationPortUDP;
 }
 
 CServer::~CServer()
 {
-	TagList::iterator it = m_taglist.begin();
+	TagPtrList::iterator it = m_taglist.begin();
 	for ( ; it != m_taglist.end(); ++it ) {
 		delete *it;
 	}
@@ -146,6 +148,8 @@ void CServer::Init() {
 	dynip.Clear();
 	failedcount = 0; 
 	lastpinged = 0;
+	lastpingedtime = 0;
+	m_dwRealLastPingedTime = 0;
 	staticservermember=0;
 	maxusers=0;
 	m_uTCPFlags = 0;
@@ -160,6 +164,13 @@ void CServer::Init() {
 	m_auxPorts.Clear();
 	m_lastdnssolve = 0;
 	m_dnsfailure = false;
+
+	m_dwServerKeyUDP = 0;
+	m_bCryptPingReplyPending = false;
+	m_dwIPServerKeyUDP = 0;
+	m_nObfuscationPortTCP = 0;
+	m_nObfuscationPortUDP = 0;
+	
 }	
 
 
@@ -173,17 +184,15 @@ bool CServer::AddTagFromFile(CFileDataIO* servermet)
 
 	switch(tag.GetNameID()){		
 	case ST_SERVERNAME:
-		#if wxUSE_UNICODE
-		if (listname.IsEmpty())
-		#endif
+		if (listname.IsEmpty()) {
 			listname = tag.GetStr();
+		}
 		break;
 		
 	case ST_DESCRIPTION:
-		#if wxUSE_UNICODE
-		if (description.IsEmpty())
-		#endif
-			description = tag.GetStr();		
+		if (description.IsEmpty()) {
+			description = tag.GetStr();
+		}
 		break;
 		
 	case ST_PREFERENCE:
@@ -195,10 +204,9 @@ bool CServer::AddTagFromFile(CFileDataIO* servermet)
 		break;
 		
 	case ST_DYNIP:
-		#if wxUSE_UNICODE
-		if (dynip.IsEmpty())
-		#endif	
+		if (dynip.IsEmpty()) {
 			dynip = tag.GetStr();
+		}
 		break;
 		
 	case ST_FAIL:
@@ -223,10 +231,10 @@ bool CServer::AddTagFromFile(CFileDataIO* servermet)
 		
 	case ST_VERSION:
 		if (tag.IsStr()) {
-			#ifdef wxUSE_UNICODE
-			if (m_strVersion.IsEmpty())
-			#endif
+			// m_strVersion defaults to _("Unknown"), so check for that as well
+			if ((m_strVersion.IsEmpty()) || (m_strVersion == _("Unknown"))) {
 				m_strVersion = tag.GetStr();
+			}
 		} else if (tag.IsInt()) {
 			m_strVersion = wxString::Format(wxT("%u.%u"), tag.GetInt() >> 16, tag.GetInt() & 0xFFFF);
 		} else {
@@ -240,19 +248,39 @@ bool CServer::AddTagFromFile(CFileDataIO* servermet)
 		
 	case ST_AUXPORTSLIST:
 		m_auxPorts = tag.GetStr();
-		realport = port;
-		port = StrToULong(m_auxPorts.BeforeFirst(','));
+
+		// Some server.mets contain empty ST_AUXPORTSLIST tags
+		if (!m_auxPorts.IsEmpty()) {
+			realport = port;
+			port = StrToULong(m_auxPorts.BeforeFirst(','));
+		}
 		break;
 		
 	case ST_LOWIDUSERS:
 		m_uLowIDUsers = tag.GetInt();
 		break;
+	
+	case ST_UDPKEY:
+		m_dwServerKeyUDP = tag.GetInt();
+		break;
+	
+	case ST_UDPKEYIP:
+		m_dwIPServerKeyUDP = tag.GetInt();
+		break;
+	
+	case ST_TCPPORTOBFUSCATION:
+		m_nObfuscationPortTCP = (uint16)tag.GetInt();
+		break;
+	
+	case ST_UDPPORTOBFUSCATION:
+		m_nObfuscationPortUDP = (uint16)tag.GetInt();
+		break;
 
 	default:
-		if (tag.GetName()) {
-			if (!CmpED2KTagName(tag.GetName(), "files")) {
+		if (!tag.GetName().IsEmpty()) {
+			if (tag.GetName() == wxT("files")) {
 				files = tag.GetInt();
-			} else if (!CmpED2KTagName(tag.GetName(), "users")) {
+			} else if (tag.GetName() == wxT("users")) {
 				users = tag.GetInt();
 			}
 		} else {
@@ -295,3 +323,20 @@ void CServer::SetLastDescPingedCount(bool bReset)
 		lastdescpingedcout++;
 	}
 }
+
+uint32 CServer::GetServerKeyUDP(bool bForce) const
+{
+	if (m_dwIPServerKeyUDP != 0 && m_dwIPServerKeyUDP == theApp->GetPublicIP() || bForce) {
+		return m_dwServerKeyUDP;
+	} else {
+		return 0;
+	}
+}
+
+void CServer::SetServerKeyUDP(uint32 dwServerKeyUDP)
+{
+	wxASSERT( theApp->GetPublicIP() != 0 || dwServerKeyUDP == 0 );
+	m_dwServerKeyUDP = dwServerKeyUDP;
+	m_dwIPServerKeyUDP = theApp->GetPublicIP();
+}
+// File_checked_for_headers

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -26,13 +26,15 @@
 #ifndef MULELISTCTRL_H
 #define MULELISTCTRL_H
 
+#ifdef WIN32
+#include <wx/msw/winundef.h>
+#endif
 
-#include "listctrl.h"
+#include <wx/defs.h> // Do_not_auto_remove (Mac, Win32, and just good practice)
+#include "extern/wxWidgets/listctrl.h"
 
 #include <vector>
-
-
-
+#include <list>
 
 
 /**
@@ -124,7 +126,7 @@ public:
 	 * though the SetSortFunc function, otherwise it will just return the 
 	 * position after the last item.
 	 */
-	long GetInsertPos( long data );
+	long GetInsertPos( wxUIntPtr data );
 
 
 	/**
@@ -138,7 +140,7 @@ public:
 
 
 	//! The type of the list of item specific data
-	typedef std::vector<long> ItemDataList;
+	typedef std::vector<wxUIntPtr> ItemDataList;
 
 	/**
 	 * Returns a list the user-data of all selected items.
@@ -160,7 +162,7 @@ public:
 	 * See the documentation on wxListCtrl::SortItems for more information
 	 * about the expected function type.
 	 */
-	void SetSortFunc(wxListCtrlCompare func);
+	void SetSortFunc(MuleListCtrlCompare func);
 
 
 	/**
@@ -294,12 +296,8 @@ private:
 	
 	//! The name of the table. Used to load/save settings.
 	wxString			m_name;
-	//! The sort order. Ascending is the default.
-	unsigned			m_sort_order;
-	//! The column to sort by.
-	unsigned			m_sort_column;
 	//! The sorter function needed by wxListCtrl.
-	wxListCtrlCompare	m_sort_func;
+	MuleListCtrlCompare	m_sort_func;
 
 	//! Contains the current search string.
 	wxString			m_tts_text;
@@ -308,9 +306,34 @@ private:
 	//! The index of the last item selected via TTS.
 	int					m_tts_item;
 
+
+	/**
+	 * Wrapper around the user-provided sorter function.
+	 * 
+	 * This function ensures that items are sorted in the order
+	 * specified by clicking on column-headers, and also enforces
+	 * that different entries are never considered equal. This is
+	 * required for lists that make use of child-items, since
+	 * otherwise, parents may not end up properly located in
+	 * relation to child-items.
+	 */	
+	static int wxCALLBACK SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData);
+
+	/** Compares two items in the list, using the current sort sequence. */
+	int CompareItems(wxUIntPtr item1, wxUIntPtr item2);
+	
+	
+	//! This pair contains a column number and its sorting order.
+	typedef std::pair<unsigned, unsigned> CColPair;
+	typedef std::list<CColPair> CSortingList;
+	
+	//! This list contains in order the columns sequence to sort by.
+	CSortingList m_sort_orders;
+	
 	
 	DECLARE_EVENT_TABLE()
 };
 
 
 #endif // MULELISTCTRL_H
+// File_checked_for_headers

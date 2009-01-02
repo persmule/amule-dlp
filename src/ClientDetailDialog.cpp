@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -24,21 +24,13 @@
 //
 
 #include "ClientDetailDialog.h"	// Interface declarations
-#include "OtherFunctions.h"	// Needed for CastItoIShort
-#include "NetworkFunctions.h" // Needed for Uint32toStringIP
 #include "PartFile.h"		// Needed for CPartFile
-#include "SharedFileList.h"	// Needed for CSharedFileList
 #include "UploadQueue.h"	// Needed for CUploadQueue
 #include "ServerList.h"		// Needed for CServerList
-#include "amule.h"			// Needed for theApp
+#include "amule.h"		// Needed for theApp
 #include "Server.h"		// Needed for CServer
 #include "updownclient.h"	// Needed for CUpDownClient
 #include "muuli_wdr.h"		// Needed for ID_CLOSEWND
-#include <common/Format.h>		// Needed for CFormat
-#include <wx/stattext.h>
-#include <wx/sizer.h>
-#include <wx/msgdlg.h>
-#include <sys/types.h>
 
 // CClientDetailDialog dialog
 
@@ -47,14 +39,23 @@ BEGIN_EVENT_TABLE(CClientDetailDialog,wxDialog)
 END_EVENT_TABLE()
 
 
-CClientDetailDialog::CClientDetailDialog(wxWindow* parent,CUpDownClient* client)
-: wxDialog(parent,9997,_("Client Details"),wxDefaultPosition,wxDefaultSize,wxDEFAULT_DIALOG_STYLE)
+CClientDetailDialog::CClientDetailDialog(
+	wxWindow *parent,
+	CUpDownClient *client)
+:
+wxDialog(
+	parent,
+	9997,
+	_("Client Details"),
+	wxDefaultPosition,
+	wxDefaultSize,
+	wxDEFAULT_DIALOG_STYLE)
 {
 	m_client = client;
-	wxSizer* content=clientDetails(this,TRUE);
+	wxSizer* content = clientDetails(this, true);
 	OnInitDialog();
 	content->SetSizeHints(this);
-	content->Show(this,TRUE);
+	content->Show(this, true);
 }
 
 CClientDetailDialog::~CClientDetailDialog()
@@ -67,97 +68,134 @@ void CClientDetailDialog::OnBnClose(wxCommandEvent& WXUNUSED(evt))
 }
 
 bool CClientDetailDialog::OnInitDialog() {
-	
+	// Username, Userhash and Rating
 	if (!m_client->GetUserName().IsEmpty()) {
-		CastChild(ID_DNAME,wxStaticText)->SetLabel(m_client->GetUserName());
-
-		wxASSERT(!m_client->GetUserHash().IsEmpty()); // if we have client name we have userhash
-		CastChild(ID_DHASH,wxStaticText)->SetLabel(m_client->GetUserHash().Encode());
-
-		CastChild(ID_DRATING,wxStaticText)->SetLabel(wxString::Format(wxT("%.1f"),(float)m_client->GetScore(false,m_client->IsDownloading(),true)));
+		CastChild(ID_DNAME, wxStaticText)->SetLabel(
+			m_client->GetUserName());
+		// if we have client name we have userhash
+		wxASSERT(!m_client->GetUserHash().IsEmpty());
+		CastChild(ID_DHASH, wxStaticText)->SetLabel(
+			m_client->GetUserHash().Encode());
+		CastChild(ID_DRATING, wxStaticText)->SetLabel(
+			wxString::Format(wxT("%.1f"), m_client->GetRating()));
 	} else {
-		CastChild(ID_DNAME,wxStaticText)->SetLabel(_("Unknown"));
-		CastChild(ID_DHASH,wxStaticText)->SetLabel(_("Unknown"));
-		CastChild(ID_DRATING,wxStaticText)->SetLabel(_("Unknown"));;
+		CastChild(ID_DNAME, wxStaticText)->SetLabel(_("Unknown"));
+		CastChild(ID_DHASH, wxStaticText)->SetLabel(_("Unknown"));
+		CastChild(ID_DRATING, wxStaticText)->SetLabel(_("Unknown"));;
 	}	
-
-
+	
+	// Client Software
 	wxString OSInfo = m_client->GetClientOSInfo();
-	if (!OSInfo.IsEmpty())
-	    CastChild(ID_DSOFT,wxStaticText)->SetLabel(m_client->GetSoftStr()+wxT(" (")+OSInfo+wxT(")"));
-	else
-	    CastChild(ID_DSOFT,wxStaticText)->SetLabel(m_client->GetSoftStr());
-	CastChild(ID_DVERSION,wxStaticText)->SetLabel(m_client->GetSoftVerStr());
+	if (!OSInfo.IsEmpty()) {
+		CastChild(ID_DSOFT, wxStaticText)->SetLabel(
+			m_client->GetSoftStr()+wxT(" (")+OSInfo+wxT(")"));
+	} else {
+		CastChild(ID_DSOFT, wxStaticText)->SetLabel(
+			m_client->GetSoftStr());
+	}
 
-	CastChild(ID_DID,wxStaticText)->SetLabel(wxString::Format(wxT("%u (%s)"),ENDIAN_NTOHL(m_client->GetIP()),(m_client->HasLowID() ? _("LowID"):_("HighID"))));
+	// Client Version
+	CastChild(ID_DVERSION, wxStaticText)->SetLabel(
+		m_client->GetSoftVerStr());
 	
-	CastChild(ID_DIP,wxStaticText)->SetLabel(m_client->GetFullIP() + wxString::Format(wxT(":%i"),m_client->GetUserPort()));
+	// User ID
+	CastChild(ID_DID, wxStaticText)->SetLabel(
+		CFormat(wxT("%u (%s)")) % ENDIAN_NTOHL(m_client->GetIP()) % (m_client->HasLowID() ? _("LowID") : _("HighID")));
 
+	// Client IP/Port
+	CastChild(ID_DIP, wxStaticText)->SetLabel(
+		m_client->GetFullIP() +
+		wxString::Format(wxT(":%i"), m_client->GetUserPort()));
+	
+	// Server IP/Port/Name
 	if (m_client->GetServerIP()) {
-		
 		wxString srvaddr = Uint32toStringIP(m_client->GetServerIP());
-		CastChild(ID_DSIP,wxStaticText)->SetLabel(srvaddr);
-		
-		CServer* cserver = theApp.serverlist->GetServerByAddress(srvaddr, m_client->GetServerPort()); 
-		if (cserver) {
-			CastChild(ID_DSNAME,wxStaticText)->SetLabel(cserver->GetListName());
-		} else {
-			CastChild(ID_DSNAME,wxStaticText)->SetLabel(_("Unknown"));
-		}
+		CastChild(ID_DSIP, wxStaticText)->SetLabel(
+			srvaddr +
+			wxString::Format(wxT(":%i"),m_client->GetServerPort()));
+		CastChild(ID_DSNAME, wxStaticText)->SetLabel(
+			m_client->GetServerName());
 	} else {
-		CastChild(ID_DSIP,wxStaticText)->SetLabel(_("Unknown"));
-		CastChild(ID_DSNAME,wxStaticText)->SetLabel(_("Unknown"));
+		CastChild(ID_DSIP, wxStaticText)->SetLabel(_("Unknown"));
+		CastChild(ID_DSNAME, wxStaticText)->SetLabel(_("Unknown"));
 	}
-
+	
+	// File Name
 	const CKnownFile* file = m_client->GetUploadFile();
-	
-	if ( file ) {
-		wxString filename = MakeStringEscaped( TruncateFilename( file->GetFileName(), 60 ) );
-	
-		CastChild(ID_DDOWNLOADING,wxStaticText)->SetLabel( filename );
+	if (file) {
+		wxString filename = MakeStringEscaped(
+			TruncateFilename(file->GetFileName(), 60));
+		CastChild(ID_DDOWNLOADING, wxStaticText)->SetLabel(filename);
 	} else {
-		CastChild(ID_DDOWNLOADING,wxStaticText)->SetLabel(wxT("-"));
+		CastChild(ID_DDOWNLOADING, wxStaticText)->SetLabel(wxT("-"));
 	}
-
-	CastChild(ID_DDUP,wxStaticText)->SetLabel(CastItoXBytes(m_client->GetTransferedDown()));
-	CastChild(ID_DDOWN,wxStaticText)->SetLabel(CastItoXBytes(m_client->GetTransferredUp()));
-	CastChild(ID_DAVUR,wxStaticText)->SetLabel(wxString::Format(_("%.1f kB/s"),m_client->GetKBpsDown()));
-	CastChild(ID_DAVDR,wxStaticText)->SetLabel(wxString::Format(_("%.1f kB/s"),m_client->GetUploadDatarate() / 1024.0f));
-
-	CastChild(ID_DUPTOTAL,wxStaticText)->SetLabel(CastItoXBytes(m_client->GetDownloadedTotal()));		
-	CastChild(ID_DDOWNTOTAL,wxStaticText)->SetLabel(CastItoXBytes(m_client->GetUploadedTotal()));
-	CastChild(ID_DRATIO,wxStaticText)->SetLabel(wxString::Format(wxT("%.1f"),(float)m_client->GetScoreRatio()));
-		
-	if (theApp.CryptoAvailable()){
-			
+	
+	// Upload
+	CastChild(ID_DDUP, wxStaticText)->SetLabel(
+		CastItoXBytes(m_client->GetTransferredDown()));
+	
+	// Download
+	CastChild(ID_DDOWN, wxStaticText)->SetLabel(
+		CastItoXBytes(m_client->GetTransferredUp()));
+	
+	// Average Upload Rate
+	CastChild(ID_DAVUR, wxStaticText)->SetLabel(
+		wxString::Format(_("%.1f kB/s"),
+			m_client->GetKBpsDown()));
+	
+	// Average Download Rate
+	CastChild(ID_DAVDR, wxStaticText)->SetLabel(
+		wxString::Format(_("%.1f kB/s"),
+			m_client->GetUploadDatarate() / 1024.0f));
+	
+	// Total Upload
+	CastChild(ID_DUPTOTAL, wxStaticText)->SetLabel(
+		CastItoXBytes(m_client->GetDownloadedTotal()));
+	
+	// Total Download
+	CastChild(ID_DDOWNTOTAL, wxStaticText)->SetLabel(
+		CastItoXBytes(m_client->GetUploadedTotal()));
+	
+	// DL/UP Modifier
+	CastChild(ID_DRATIO, wxStaticText)->SetLabel(
+		wxString::Format(wxT("%.1f"),
+			(float)m_client->GetScoreRatio()));
+	
+	// Secure Ident
+	if (theApp->CryptoAvailable()) {
 		if (m_client->SUINotSupported()) {
-			CastChild(IDC_CDIDENT,wxStaticText)->SetLabel(_("Not Supported"));
+			CastChild(IDC_CDIDENT, wxStaticText)->SetLabel(
+				_("Not Supported"));
 		} else if (m_client->SUIFailed()) {
-			CastChild(IDC_CDIDENT,wxStaticText)->SetLabel(_("Failed"));
+			CastChild(IDC_CDIDENT, wxStaticText)->SetLabel(
+				_("Failed"));
 		} else if (m_client->SUINeeded()) {
-			CastChild(IDC_CDIDENT,wxStaticText)->SetLabel(_("Not complete"));
+			CastChild(IDC_CDIDENT, wxStaticText)->SetLabel(
+				_("Not complete"));
 		} else if (m_client->IsBadGuy()) {
-			CastChild(IDC_CDIDENT,wxStaticText)->SetLabel(_("Bad Guy"));
+			CastChild(IDC_CDIDENT, wxStaticText)->SetLabel(
+				_("Bad Guy"));
 		} else if (m_client->IsIdentified()) {
-			CastChild(IDC_CDIDENT,wxStaticText)->SetLabel(_("Verified - OK"));
-		}
-			
+			CastChild(IDC_CDIDENT, wxStaticText)->SetLabel(
+				_("Verified - OK"));
+		}	
 	} else {
-		CastChild(IDC_CDIDENT,wxStaticText)->SetLabel(_("Not Available"));
+		CastChild(IDC_CDIDENT, wxStaticText)->SetLabel(
+			_("Not Available"));
 	}
-
+	
+	// Queue Score
 	if (m_client->GetUploadState() != US_NONE) {
-		#ifdef CLIENT_GUI
-		#warning EC needed for queue position
-		CastChild(ID_DSCORE,wxStaticText)->SetLabel(wxString::Format(wxT("%u (QR: %u)"),m_client->GetScore(m_client->IsDownloading(),false), 0));
-		#else
-		CastChild(ID_DSCORE,wxStaticText)->SetLabel(wxString::Format(wxT("%u (QR: %u)"),m_client->GetScore(m_client->IsDownloading(),false),theApp.uploadqueue->GetWaitingPosition(m_client)));		
-		#endif
+		CastChild(ID_DSCORE, wxStaticText)->SetLabel(
+			wxString::Format(_("%u (QR: %u)"),
+				m_client->GetScore(
+					false, m_client->IsDownloading(), false),
+			theApp->uploadqueue->GetWaitingPosition(m_client)));		
 	} else {
-		CastChild(ID_DSCORE,wxStaticText)->SetLabel(wxT("-"));
+		CastChild(ID_DSCORE, wxStaticText)->SetLabel(wxT("-"));
 	}
 	Layout();
 	
-	
 	return true;
 }
+// File_checked_for_headers

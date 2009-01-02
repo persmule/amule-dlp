@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -23,28 +23,29 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-#include "Types.h"
 
 #include "ClientUDPSocket.h"	// Interface declarations
+
+#include <protocol/Protocols.h>
+#include <protocol/ed2k/Client2Client/TCP.h> // Sometimes we reply with TCP packets.
+#include <protocol/ed2k/Client2Client/UDP.h>
+#include <common/EventIDs.h>
+#include <common/Format.h>	// Needed for CFormat
+
 #include "Preferences.h"		// Needed for CPreferences
 #include "PartFile.h"			// Needed for CPartFile
 #include "updownclient.h"		// Needed for CUpDownClient
 #include "UploadQueue.h"		// Needed for CUploadQueue
 #include "Packet.h"				// Needed for CPacket
 #include "SharedFileList.h"		// Needed for CSharedFileList
-#include "KnownFile.h"			// Needed for CKnownFile
 #include "DownloadQueue.h"		// Needed for CDownloadQueue
-#include "OPCodes.h"			// Needed for OP_EMULEPROT
 #include "Statistics.h"			// Needed for theStats
 #include "amule.h"				// Needed for theApp
 #include "ClientList.h"			// Needed for clientlist (buddy support)
 #include "ClientTCPSocket.h"	// Needed for CClientTCPSocket
-#include "OtherFunctions.h"
 #include "MemFile.h"			// Needed for CMemFile
 #include "Logger.h"
-#include "UploadBandwidthThrottler.h"
 #include "kademlia/kademlia/Kademlia.h"
-#include "kademlia/io/IOException.h"
 #include "zlib.h"
 
 //
@@ -52,7 +53,7 @@
 //
 
 CClientUDPSocket::CClientUDPSocket(const amuleIPV4Address& address, const CProxyData* ProxyData)
-	: CMuleUDPSocket(wxT("Client UDP-Socket"), CLIENTUDPSOCKET_HANDLER, address, ProxyData)
+	: CMuleUDPSocket(wxT("Client UDP-Socket"), ID_CLIENTUDPSOCKET_EVENT, address, ProxyData)
 {
 	if (!thePrefs::IsUDPDisabled()) {
 		Open();
@@ -71,7 +72,7 @@ void CClientUDPSocket::OnReceive(int errorCode)
 }
 
 
-void CClientUDPSocket::OnPacketReceived(amuleIPV4Address& addr, byte* buffer, size_t length)
+void CClientUDPSocket::OnPacketReceived(const wxIPV4address& addr, byte* buffer, size_t length)
 {
 	wxCHECK_RET(length >= 2, wxT("Invalid packet."));
 	
@@ -83,24 +84,24 @@ void CClientUDPSocket::OnPacketReceived(amuleIPV4Address& addr, byte* buffer, si
 	try {
 		switch (protocol) {
 			case OP_EMULEPROT:
-				ProcessPacket((char*)buffer + 2,length - 2, opcode, ip, port);
+				ProcessPacket(buffer + 2,length - 2, opcode, ip, port);
 				break;
 				
 			case OP_KADEMLIAHEADER:
 				theStats::AddDownOverheadKad(length);
-				Kademlia::CKademlia::processPacket(buffer, length, wxUINT32_SWAP_ALWAYS(ip), port);
+				Kademlia::CKademlia::ProcessPacket(buffer, length, wxUINT32_SWAP_ALWAYS(ip), port);
 				break;
 				
 			case OP_KADEMLIAPACKEDPROT: {
 				theStats::AddDownOverheadKad(length);
 				uint32 nNewSize = length*10+300; // Should be enough...
-				byte unpack[nNewSize];
+				std::vector<byte> unpack(nNewSize);
 				uLongf unpackedsize = nNewSize-2;
-				uint16 result = uncompress(unpack + 2, &unpackedsize, buffer + 2, length-2);
+				uint16 result = uncompress(&(unpack[2]), &unpackedsize, buffer + 2, length-2);
 				if (result == Z_OK) {
 					unpack[0] = OP_KADEMLIAHEADER;
 					unpack[1] = opcode;
-					Kademlia::CKademlia::processPacket(unpack, unpackedsize + 2, wxUINT32_SWAP_ALWAYS(ip), port);
+					Kademlia::CKademlia::ProcessPacket(&(unpack[0]), unpackedsize + 2, wxUINT32_SWAP_ALWAYS(ip), port);
 				} else {
 					AddDebugLogLineM(false, logClientKadUDP, wxT("Failed to uncompress Kademlia packet"));
 				}
@@ -115,19 +116,17 @@ void CClientUDPSocket::OnPacketReceived(amuleIPV4Address& addr, byte* buffer, si
 		AddDebugLogLineM(false, logClientUDP, wxT("Invalid UDP packet encountered: ") + e.what());
 	} catch (const CEOFException& e) {
 		AddDebugLogLineM(false, logClientUDP, wxT("Malformed packet encountered while parsing UDP packet: ") + e.what());
-	} catch (const Kademlia::CIOException&) {
-		AddDebugLogLineM(false, logClientUDP, wxT("Malformed packet encountered while parsing UDP packet"));
 	}
 }
 
 
-void CClientUDPSocket::ProcessPacket(char* packet, int16 size, int8 opcode, uint32 host, uint16 port)
+void CClientUDPSocket::ProcessPacket(byte* packet, int16 size, int8 opcode, uint32 host, uint16 port)
 {
 	switch (opcode) {
 		case OP_REASKCALLBACKUDP: {
 			AddDebugLogLineM( false, logClientUDP, wxT("Client UDP socket; OP_REASKCALLBACKUDP") );
 			theStats::AddDownOverheadOther(size);
-			CUpDownClient* buddy = theApp.clientlist->GetBuddy();
+			CUpDownClient* buddy = theApp->clientlist->GetBuddy();
 			if( buddy ) {
 				if( size < 17 || buddy->GetSocket() == NULL ) {
 					break;
@@ -139,12 +138,12 @@ void CClientUDPSocket::ProcessPacket(char* packet, int16 size, int8 opcode, uint
 						we discard the first 10 bytes below and then overwrite 
 						the other 6 with ip/port.
 					*/
-					CMemFile mem_packet((byte*)packet+10,size-10);
+					CMemFile mem_packet(packet+10,size-10);
 					// Change the ip and port while leaving the rest untouched
 					mem_packet.Seek(0,wxFromStart);
 					mem_packet.WriteUInt32(host);
 					mem_packet.WriteUInt16(port);
-					CPacket* response = new CPacket(&mem_packet, OP_EMULEPROT, OP_REASKCALLBACKTCP);
+					CPacket* response = new CPacket(mem_packet, OP_EMULEPROT, OP_REASKCALLBACKTCP);
 					AddDebugLogLineM( false, logClientUDP, wxT("Client UDP socket: send OP_REASKCALLBACKTCP") );
 					theStats::AddUpOverheadFileRequest(response->GetPacketSize());
 					buddy->GetSocket()->SendPacket(response);
@@ -156,16 +155,24 @@ void CClientUDPSocket::ProcessPacket(char* packet, int16 size, int8 opcode, uint
 			AddDebugLogLineM( false, logClientUDP, wxT("Client UDP socket: OP_REASKFILEPING") );
 			theStats::AddDownOverheadFileRequest(size);
 			
-			CMemFile data_in((byte*)packet, size);
+			CMemFile data_in(packet, size);
 			CMD4Hash reqfilehash = data_in.ReadHash();
-			CKnownFile* reqfile = theApp.sharedfiles->GetFileByID(reqfilehash);
+			CKnownFile* reqfile = theApp->sharedfiles->GetFileByID(reqfilehash);
+			bool bSenderMultipleIpUnknown = false;
+			CUpDownClient* sender = theApp->uploadqueue->GetWaitingClientByIP_UDP(host, port, true, &bSenderMultipleIpUnknown);
+			
 			if (!reqfile) {
 				CPacket* response = new CPacket(OP_FILENOTFOUND,0,OP_EMULEPROT);
 				theStats::AddUpOverheadFileRequest(response->GetPacketSize());
-				SendPacket(response,host,port);
+				if (sender) {
+					SendPacket(response, host, port, sender->ShouldReceiveCryptUDPPackets(), sender->GetUserHash().GetHash(), false, 0);
+				} else {
+					SendPacket(response, host, port, false, NULL, false, 0);
+				}
+				
 				break;
 			}
-			CUpDownClient* sender = theApp.uploadqueue->GetWaitingClientByIP_UDP(host, port);
+			
 			if (sender){
 				sender->CheckForAggressive();
 				
@@ -195,19 +202,23 @@ void CClientUDPSocket::ProcessPacket(char* packet, int16 size, int8 opcode, uint
 						}
 					}
 					
-					data_out.WriteUInt16(theApp.uploadqueue->GetWaitingPosition(sender));
-					CPacket* response = new CPacket(&data_out, OP_EMULEPROT);
-					response->SetOpCode(OP_REASKACK);
+					data_out.WriteUInt16(theApp->uploadqueue->GetWaitingPosition(sender));
+					CPacket* response = new CPacket(data_out, OP_EMULEPROT, OP_REASKACK);
 					theStats::AddUpOverheadFileRequest(response->GetPacketSize());
-					SendPacket(response, host, port);
+					AddDebugLogLineM( false, logClientUDP, wxT("Client UDP socket: OP_REASKACK to ") + sender->GetFullIP());
+					SendPacket(response, host, port, sender->ShouldReceiveCryptUDPPackets(), sender->GetUserHash().GetHash(), false, 0);
 				} else {
 					AddDebugLogLineM( false, logClientUDP, wxT("Client UDP socket; ReaskFilePing; reqfile does not match") );
 				}						
 			} else {
-				if ((theStats::GetWaitingUserCount() + 50) > thePrefs::GetQueueSize()) {
-					CPacket* response = new CPacket(OP_QUEUEFULL,0,OP_EMULEPROT);
-					theStats::AddUpOverheadFileRequest(response->GetPacketSize());
-					SendPacket(response,host,port);
+				if (!bSenderMultipleIpUnknown) {
+					if ((theStats::GetWaitingUserCount() + 50) > thePrefs::GetQueueSize()) {
+						CPacket* response = new CPacket(OP_QUEUEFULL,0,OP_EMULEPROT);
+						theStats::AddUpOverheadFileRequest(response->GetPacketSize());
+						SendPacket(response,host,port, false, NULL, false, 0); // we cannot answer this one encrypted since we dont know this client
+					}
+				} else {
+					AddDebugLogLineM(false, logClientUDP, CFormat(wxT("UDP Packet received - multiple clients with the same IP but different UDP port found. Possible UDP Portmapping problem, enforcing TCP connection. IP: %s, Port: %u")) % Uint32toStringIP(host) % port);
 				}
 			}
 			break;
@@ -215,7 +226,7 @@ void CClientUDPSocket::ProcessPacket(char* packet, int16 size, int8 opcode, uint
 		case OP_QUEUEFULL: {
 			AddDebugLogLineM( false, logClientUDP, wxT("Client UDP socket: OP_QUEUEFULL") );
 			theStats::AddDownOverheadOther(size);
-			CUpDownClient* sender = theApp.downloadqueue->GetDownloadClientByIP_UDP(host,port);
+			CUpDownClient* sender = theApp->downloadqueue->GetDownloadClientByIP_UDP(host,port);
 			if (sender) {
 				sender->SetRemoteQueueFull(true);
 				sender->UDPReaskACK(0);
@@ -224,9 +235,9 @@ void CClientUDPSocket::ProcessPacket(char* packet, int16 size, int8 opcode, uint
 		}
 		case OP_REASKACK: {				
 			theStats::AddDownOverheadFileRequest(size);
-			CUpDownClient* sender = theApp.downloadqueue->GetDownloadClientByIP_UDP(host,port);
+			CUpDownClient* sender = theApp->downloadqueue->GetDownloadClientByIP_UDP(host,port);
 			if (sender) {
-				CMemFile data_in((byte*)packet,size);
+				CMemFile data_in(packet,size);
 				if ( sender->GetUDPVersion() > 3 ) {
 					sender->ProcessFileStatus(true, &data_in, sender->GetRequestFile());
 				}
@@ -239,7 +250,7 @@ void CClientUDPSocket::ProcessPacket(char* packet, int16 size, int8 opcode, uint
 		case OP_FILENOTFOUND: {
 			AddDebugLogLineM( false, logClientUDP, wxT("Client UDP socket: OP_FILENOTFOUND") );
 			theStats::AddDownOverheadFileRequest(size);
-			CUpDownClient* sender = theApp.downloadqueue->GetDownloadClientByIP_UDP(host,port);
+			CUpDownClient* sender = theApp->downloadqueue->GetDownloadClientByIP_UDP(host,port);
 			if (sender){
 				sender->UDPReaskFNF(); // may delete 'sender'!
 				sender = NULL;
@@ -251,3 +262,4 @@ void CClientUDPSocket::ProcessPacket(char* packet, int16 size, int8 opcode, uint
 			theStats::AddDownOverheadOther(size);				
 	}
 }
+// File_checked_for_headers

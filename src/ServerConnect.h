@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -30,13 +30,10 @@
 #ifndef SERVERCONNECT_H
 #define SERVERCONNECT_H
 
-#include <wx/defs.h>		// Needed before any other wx/*.h
 
-#include "Types.h"		// Needed for int8, uint8, uint16 and uint32
 #include "amuleIPV4Address.h"	// Needed for amuleIPV4Address
 #include "Timer.h"		// Needed for CTimer
 
-#include <list>			// Needed for std::list
 #include <map>			// Needed for std::map
 
 class CServerList;
@@ -56,6 +53,8 @@ class CServerUDPSocket;
 #define	CS_WAITFORLOGIN	3
 #define CS_RETRYCONNECTTIME  30 // seconds
 
+typedef std::map<uint32, CServerSocket*> ServerSocketMap;
+
 class CServerConnect {
 public:
 	CServerConnect(CServerList* in_serverlist, amuleIPV4Address &address);
@@ -64,8 +63,8 @@ public:
 	void	ConnectionFailed(CServerSocket* sender);
 	void	ConnectionEstablished(CServerSocket* sender);
 	
-	void	ConnectToAnyServer(bool prioSort = true);
-	void	ConnectToServer(CServer* toconnect, bool multiconnect = false);
+	void	ConnectToAnyServer(bool prioSort = true, bool bNoCrypt = false);
+	void	ConnectToServer(CServer* toconnect, bool multiconnect = false, bool bNoCrypt = false);
 	void	StopConnectionTry();
 	void	CheckForTimeout();
 	
@@ -77,7 +76,7 @@ public:
 	bool	IsUDPSocketAvailable() const { return serverudpsocket != NULL; }
 	// Creteil End
 
-	bool	SendUDPPacket(CPacket* packet,CServer* host, bool delpacket = false );
+	bool	SendUDPPacket(CPacket* packet,CServer* host, bool delpacket, bool rawpacket = false, uint16 port_offset = 4);
 	bool	Disconnect();
 	bool	IsConnecting()	{ return connecting; }
 	bool	IsConnected()	{ return connected; }
@@ -92,11 +91,25 @@ public:
 	bool	IsSingleConnect()	{ return singleconnecting; }
 	void	KeepConnectionAlive();	
 
+	bool AwaitingTestFromIP(uint32 ip);
+	bool IsConnectedObfuscated() const;
+	
+	/**
+	 * Called when a socket has been DNS resolved.
+	 *
+	 * @param socket The socket object requesting DNS resolution.
+	 * @param ip The found IP, or zero on error.
+	 *
+	 * Note that 'socket' may or may not refer to an valid object,
+	 * and should be checked before being used.
+	 */
+	void OnServerHostnameResolved(void* socket, uint32 ip);
 private:
 	bool	connecting;
 	bool	singleconnecting;
 	bool	connected;
 	int8	max_simcons;
+	bool	m_bTryObfuscated;
 	CServerSocket*	connectedsocket;
 	CServerList*	used_list;
 	CServerUDPSocket*	serverudpsocket;
@@ -106,7 +119,8 @@ private:
 	SocketsList	m_lstOpenSockets;
 	CTimer	m_idRetryTimer;
 
-	std::map<uint32, CServerSocket*> connectionattemps;
+	ServerSocketMap connectionattemps;
 };
 
 #endif // SERVERCONNECT_H
+// File_checked_for_headers

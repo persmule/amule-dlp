@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 /// Name:         wxCasFrame Class
 ///
 /// Purpose:      wxCas main frame
@@ -25,10 +25,8 @@
 /// along with this program; if not, write to the
 /// Free Software Foundation, Inc.,
 /// 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-// For compilers that support precompilation, includes "wx/wx.h"
-#include "wx/wxprec.h"
 
 #ifdef __BORLANDC__
  #pragma hdrstop
@@ -39,12 +37,13 @@
  #include "wx/wx.h"
 #endif
 
-#include <wx/image.h>
-#include <wx/version.h>
 #include <wx/config.h>
 #include <wx/datetime.h>
-#include <wx/wfstream.h>
+#include <wx/filedlg.h>
+#include <wx/image.h>
 #include <wx/protocol/ftp.h>
+#include <wx/version.h>
+#include <wx/wfstream.h>
 
 #include "wxcasframe.h"
 #include "wxcasprint.h"
@@ -132,6 +131,7 @@ WxCasFrame::WxCasFrame ( const wxString & title ) :
 	m_statLine_4 = new wxStaticText ( m_mainPanel, -1, MakeStatLine_4() );
 	m_statLine_5 = new wxStaticText ( m_mainPanel, -1, MakeStatLine_5() );
 	m_statLine_6 = new wxStaticText ( m_mainPanel, -1, MakeStatLine_6() );
+	m_statLine_7 = new wxStaticText ( m_mainPanel, -1, MakeStatLine_7() );
 
 	m_hitLine = new wxStaticText ( m_mainPanel, -1, MakeHitsLine_1() );
 	m_hitButton =
@@ -158,6 +158,7 @@ WxCasFrame::WxCasFrame ( const wxString & title ) :
 	m_sigPanelSBoxSizer->Add ( m_statLine_4, 0, wxALL | wxALIGN_CENTER | wxGROW, 5 );
 	m_sigPanelSBoxSizer->Add ( m_statLine_5, 0, wxALL | wxALIGN_CENTER | wxGROW, 5 );
 	m_sigPanelSBoxSizer->Add ( m_statLine_6, 0, wxALL | wxALIGN_CENTER | wxGROW, 5 );
+	m_sigPanelSBoxSizer->Add ( m_statLine_7, 0, wxALL | wxALIGN_CENTER | wxGROW, 5 );
 
 	m_hitPanelSBoxSizer->Add ( m_hitLine, 0, wxALL | wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxGROW, 5 );
 	m_hitPanelSBoxSizer->Add ( m_hitButton, 0, wxALL | wxALIGN_RIGHT, 5 );
@@ -294,17 +295,19 @@ WxCasFrame::GetStatImage () const
 	memdc.
 	SetTextForeground ( *wxWHITE );
 	memdc.
-	DrawText ( m_statLine_1->GetLabel (), 25, 8 );
+	DrawText ( m_statLine_1->GetLabel (), 25, 0 );
 	memdc.
-	DrawText ( m_statLine_2->GetLabel (), 25, 26 );
+	DrawText ( m_statLine_2->GetLabel (), 25, 17 );
 	memdc.
-	DrawText ( m_statLine_3->GetLabel (), 25, 43 );
+	DrawText ( m_statLine_3->GetLabel (), 25, 34 );
 	memdc.
-	DrawText ( m_statLine_4->GetLabel (), 25, 60 );
+	DrawText ( m_statLine_4->GetLabel (), 25, 51 );
 	memdc.
-	DrawText ( m_statLine_5->GetLabel (), 25, 77 );
+	DrawText ( m_statLine_5->GetLabel (), 25, 68 );
 	memdc.
-	DrawText ( m_statLine_6->GetLabel (), 25, 94 );
+	DrawText ( m_statLine_6->GetLabel (), 25, 85 );
+	memdc.
+	DrawText ( m_statLine_7->GetLabel (), 25, 102 );
 	memdc.
 	SelectObject ( wxNullBitmap );
 
@@ -346,15 +349,16 @@ WxCasFrame::OnBarSave ( wxCommandEvent& WXUNUSED( event ) )
 {
 	wxImage * statImage = GetStatImage ();
 
-	wxString saveFileName = wxFileSelector ( _( "Save Statistics Image" ),
-	                        wxFileName::GetHomeDir (),
-	                        WxCasCte::AMULESIG_IMG_NAME,
-	                        ( const wxChar * ) NULL,
-	                        wxT ( "PNG files (*.png)|*.png|" )
-	                        wxT ( "JPEG files (*.jpg)|*.jpg|" )
-	                        wxT ( "BMP files (*.bmp)|*.bmp|" ),
-	                        wxSAVE );
-
+	wxString saveFileName = wxFileSelector(
+		_( "Save Statistics Image" ),
+		wxFileName::GetHomeDir (),
+		WxCasCte::AMULESIG_IMG_NAME,
+		( const wxChar * ) NULL,
+		wxT ( "PNG files (*.png)|*.png|" )
+		wxT ( "JPEG files (*.jpg)|*.jpg|" )
+		wxT ( "BMP files (*.bmp)|*.bmp|" ),
+		wxFD_SAVE, this);
+	
 	if ( !saveFileName.empty () ) {
 		// This one guesses image format from filename extension
 		// (it may fail if the extension is not recognized):
@@ -605,8 +609,13 @@ WxCasFrame::UpdateStatsPanel ()
 
 		newMaxLineCount = GetMaxUInt( newline.Length (), newMaxLineCount );
 
-		// Hits line 1
+		// Stat line 7
+		newline = MakeStatLine_7();
+		m_statLine_7->SetLabel ( newline );
 
+		newMaxLineCount = GetMaxUInt( newline.Length (), newMaxLineCount );
+
+		// Hits line 1
 		if ( m_aMuleSig->IsSessionMaxDlChanged() ) {
 			newline = MakeHitsLine_1();
 			m_hitLine->SetLabel ( newline );
@@ -671,8 +680,13 @@ WxCasFrame::UpdateStatsPanel ()
 
 		newMaxLineCount = GetMaxUInt( newline.Length (), newMaxLineCount );
 
-		// Hits line 1
+		// Stat line 7
+		newline = MakeStatLine_7();
+		m_statLine_7->SetLabel ( newline );
 
+		newMaxLineCount = GetMaxUInt( newline.Length (), newMaxLineCount );
+
+		// Hits line 1
 		if ( m_aMuleSig->IsSessionMaxDlChanged() ) {
 			newline = MakeHitsLine_1();
 			m_hitLine->SetLabel ( newline );
@@ -735,8 +749,13 @@ WxCasFrame::UpdateStatsPanel ()
 
 		newMaxLineCount = GetMaxUInt( newline.Length (), newMaxLineCount );
 
-		// Hits line 1
+		// Stat line 7
+		newline = MakeStatLine_7();
+		m_statLine_7->SetLabel ( newline );
 
+		newMaxLineCount = GetMaxUInt( newline.Length (), newMaxLineCount );
+
+		// Hits line 1
 		if ( m_aMuleSig->IsSessionMaxDlChanged() ) {
 			newline = MakeHitsLine_1();
 			m_hitLine->SetLabel ( newline );
@@ -800,8 +819,13 @@ WxCasFrame::UpdateStatsPanel ()
 
 		newMaxLineCount = GetMaxUInt( newline.Length (), newMaxLineCount );
 
-		// Hits line 1
+		// Stat line 7
+		newline = MakeStatLine_7();
+		m_statLine_7->SetLabel ( newline );
 
+		newMaxLineCount = GetMaxUInt( newline.Length (), newMaxLineCount );
+
+		// Hits line 1
 		if ( m_aMuleSig->IsSessionMaxDlChanged() ) {
 			newline = MakeHitsLine_1();
 			m_hitLine->SetLabel ( newline );
@@ -865,8 +889,13 @@ WxCasFrame::UpdateStatsPanel ()
 
 		newMaxLineCount = GetMaxUInt( newline.Length (), newMaxLineCount );
 
-		// Hits line 1
+		// Stat line 7
+		newline = MakeStatLine_7();
+		m_statLine_7->SetLabel ( newline );
 
+		newMaxLineCount = GetMaxUInt( newline.Length (), newMaxLineCount );
+
+		// Hits line 1
 		if ( m_aMuleSig->IsSessionMaxDlChanged() ) {
 			newline = MakeHitsLine_1();
 			m_hitLine->SetLabel ( newline );
@@ -1015,11 +1044,11 @@ WxCasFrame::MakeStatLine_2() const
 	                   + _( " is connected to " )
 			   + _( " Kad: " );
 	if(m_aMuleSig->GetKadState() == 2) {
-		newline += _( "ok");
+		newline += _( "ok" );
 	} else if (m_aMuleSig->GetKadState() == 1) {
-			newline += _( "firewalled");
+			newline += _( "firewalled" );
 		} else {
-		newline += _( "off");
+		newline += _( "off" );
 		}
 	return ( newline );
 	}
@@ -1027,19 +1056,21 @@ WxCasFrame::MakeStatLine_2() const
 	wxString newline = m_aMuleSig->GetUser ()
 	                   + _( " is on " )
 	                   + notTooLongName
-			   + _( " [" )
+			   + wxT( " [" )
 			   + m_aMuleSig->GetServerIP ()
-			   + _( ":" )
+			   + wxT( ":" )
 			   + m_aMuleSig->GetServerPort ()
-			   + _( "] with " )
+			   + wxT( "]" )
+			   + _( " with " )
 			   + m_aMuleSig->GetConnexionIDType ()
-			   + _( " | Kad: " );
+			   + wxT( " |" )
+			   + _( " Kad: " );
 	if(m_aMuleSig->GetKadState() == 2) {
-		newline += _( "ok");
+		newline += _( "ok" );
 	} else if (m_aMuleSig->GetKadState() == 1) {
-		newline += _( "firewalled");
+		newline += _( "firewalled" );
 	} else {
-		newline += _( "off");
+		newline += _( "off" );
 	}
 	return ( newline );
 	}
@@ -1074,7 +1105,7 @@ WxCasFrame::MakeStatLine_5() const
 	                   + m_aMuleSig->GetDLRate ()
 	                   + _( " kB/s, Upload: " )
 	                   + m_aMuleSig->GetULRate ()
-	                   + _( "kB/s" );
+	                   + _( " kB/s" );
 
 	return ( newline );
 }
@@ -1087,6 +1118,16 @@ WxCasFrame::MakeStatLine_6() const
 	                   + _( " file(s), Clients on queue: " )
 	                   + m_aMuleSig->GetQueue ();
 
+	return ( newline );
+}
+
+wxString
+WxCasFrame::MakeStatLine_7() const
+{
+	wxDateTime now = wxDateTime::Now();
+	wxString newline = _( "Time: " )
+	                   + now.Format( wxDefaultDateTimeFormat , wxDateTime::Local );
+	
 	return ( newline );
 }
 
@@ -1139,3 +1180,4 @@ void WxCasFrame::SaveAbsoluteHits()
 	prefs->Write( WxCasCte::ABSOLUTE_MAX_DL_DATE_KEY, ( long ) ( m_aMuleSig->GetAbsoluteMaxDlDate().GetTicks() ) );
 	prefs->Flush();
 }
+// File_checked_for_headers

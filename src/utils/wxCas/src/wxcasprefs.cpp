@@ -28,7 +28,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // For compilers that support precompilation, includes "wx/wx.h"
-#include "wx/wxprec.h"
 
 #ifdef __BORLANDC__
  #pragma hdrstop
@@ -39,7 +38,6 @@
  #include "wx/wx.h"
 #endif
 
-#include <wx/dirdlg.h>
 #include <wx/config.h>
 
 #include "wxcasprefs.h"
@@ -297,7 +295,7 @@ WxCasPrefs::WxCasPrefs ( wxWindow * parent ) : wxDialog ( parent, -1,
 	m_validateButton =
 	    new wxButton ( this, ID_VALIDATE_BUTTON, wxString ( _( "Validate" ) ) );
 	m_cancelButton =
-	    new wxButton ( this, ID_CANCEL_BUTTON, wxString ( _( "Cancel" ) ) );
+	    new wxButton ( this, wxID_CANCEL, wxString ( _( "Cancel" ) ) );
 
 	m_buttonHBox->Add ( m_validateButton, 0, wxALIGN_CENTER | wxALL, 5 );
 	m_buttonHBox->Add ( m_cancelButton, 0, wxALIGN_CENTER | wxALL, 5 );
@@ -321,7 +319,6 @@ BEGIN_EVENT_TABLE ( WxCasPrefs, wxDialog )
 EVT_BUTTON ( ID_OSPATH_BROWSE_BUTTON, WxCasPrefs::OnOSPathBrowseButton )
 EVT_BUTTON ( ID_AUTOSTATIMG_BROWSE_BUTTON, WxCasPrefs::OnAutoStatImgBrowseButton )
 EVT_BUTTON ( ID_VALIDATE_BUTTON, WxCasPrefs::OnValidateButton )
-EVT_BUTTON ( ID_CANCEL_BUTTON, WxCasPrefs::OnCancel )       	// Defined in wxDialog
 EVT_CHECKBOX ( ID_AUTOSTATIMG_CHECK, WxCasPrefs::OnAutoStatImgCheck )
 EVT_CHECKBOX ( ID_FTP_UPDATE_CHECK, WxCasPrefs::OnFtpUpdateCheck )
 END_EVENT_TABLE ()
@@ -329,10 +326,11 @@ END_EVENT_TABLE ()
 // Browse for OS Path
 void WxCasPrefs::OnOSPathBrowseButton ( wxCommandEvent& WXUNUSED( event ) )
 {
-	const wxString & dir =
-	    wxDirSelector ( _( "Folder containing your signature file" ),
-	                    WxCasCte::DEFAULT_AMULESIG_PATH );
-
+	const wxString &dir = wxDirSelector(_
+		("Folder containing your signature file"),
+	        WxCasCte::DEFAULT_AMULESIG_PATH,
+		wxDD_DEFAULT_STYLE,
+		wxDefaultPosition, this);
 	if ( !dir.empty () ) {
 		m_osPathTextCtrl->SetValue ( dir );
 	}
@@ -342,9 +340,11 @@ void WxCasPrefs::OnOSPathBrowseButton ( wxCommandEvent& WXUNUSED( event ) )
 void
 WxCasPrefs::OnAutoStatImgBrowseButton ( wxCommandEvent& WXUNUSED( event ) )
 {
-	const wxString & dir =
-	    wxDirSelector ( _( "Folder where generating the statistic image" ),
-	                    WxCasCte::DEFAULT_AUTOSTATIMG_PATH );
+	const wxString & dir = wxDirSelector(
+		_("Folder where generating the statistic image"),
+	        WxCasCte::DEFAULT_AUTOSTATIMG_PATH,
+		wxDD_DEFAULT_STYLE,
+		wxDefaultPosition, this);
 
 	if ( !dir.empty () ) {
 		m_autoStatImgTextCtrl->SetValue ( dir );
@@ -481,3 +481,4 @@ WxCasPrefs::EnableFtpUpdateCtrls( bool state )
 	m_ftpPasswdTextCtrl->Enable ( state );
 	m_ftpPasswdStaticText->Enable ( state );
 }
+// File_checked_for_headers
