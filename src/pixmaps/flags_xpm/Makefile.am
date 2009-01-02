@@ -35,8 +35,8 @@ EXTRA_DIST = \
 	bw.xpm \
 	by.xpm \
 	bz.xpm \
-	ca.xpm \
 	catalonia.xpm \
+	ca.xpm \
 	cc.xpm \
 	cd.xpm \
 	cf.xpm \
@@ -49,12 +49,12 @@ EXTRA_DIST = \
 	cn.xpm \
 	co.xpm \
 	cr.xpm \
-	cs.xpm \
 	cu.xpm \
 	cv.xpm \
 	cx.xpm \
 	cy.xpm \
 	cz.xpm \
+	cs.xpm \
 	de.xpm \
 	dj.xpm \
 	dk.xpm \
@@ -192,8 +192,8 @@ EXTRA_DIST = \
 	rw.xpm \
 	sa.xpm \
 	sb.xpm \
-	sc.xpm \
 	scotland.xpm \
+	sc.xpm \
 	sd.xpm \
 	se.xpm \
 	sg.xpm \

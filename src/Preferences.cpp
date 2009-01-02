@@ -929,10 +929,10 @@ void CPreferences::BuildItemList( const wxString& appdir )
 #endif
 
 	/**
-	 * Misc
+	 * Browser options
 	 **/
 	#ifdef __WXMAC__
-		int			browser = 8; // this is a "magic number" and will break if
+		int			browser = 9; // this is a "magic number" and will break if
 								 // more browser choices are added in the interface,
 								 // but there isn't a symbolic name defined
 		wxString	customBrowser = wxT("/usr/bin/open");
@@ -941,9 +941,14 @@ void CPreferences::BuildItemList( const wxString& appdir )
 		wxString	customBrowser; // left empty
 	#endif
 
-	NewCfgItem(IDC_BROWSER,		(MkCfg_Int( wxT("/FakeCheck/Browser"), s_Browser, browser )));
-	NewCfgItem(IDC_BROWSERTABS,	(new Cfg_Bool( wxT("/FakeCheck/BrowserTab"), s_BrowserTab, true )));
-	NewCfgItem(IDC_BROWSERSELF,	(new Cfg_Str(  wxT("/FakeCheck/CustomBrowser"), s_CustomBrowser, customBrowser )));
+	NewCfgItem(IDC_BROWSER,		(MkCfg_Int( wxT("/Browser/DefaultBrowser"), s_Browser, browser )));
+	NewCfgItem(IDC_BROWSERTABS,	(new Cfg_Bool( wxT("/Browser/OpenPageInTab"), s_BrowserTab, true )));
+	NewCfgItem(IDC_BROWSERSELF,	(new Cfg_Str(  wxT("/Browser/CustomBrowserString"), s_CustomBrowser, customBrowser )));
+
+
+	/**
+	 * Misc
+	 **/
 	NewCfgItem(IDC_QUEUESIZE,	(MkCfg_Int( wxT("/eMule/QueueSizePref"), s_iQueueSize, 50 )));
 
 
@@ -1606,35 +1611,37 @@ wxString CPreferences::GetBrowser()
 #ifndef __WXMSW__
 	if( s_BrowserTab )
 		switch ( s_Browser ) {
-			case 0: cmd = wxT("kfmclient exec '%s'"); break;
-			case 1: cmd = wxT("sh -c \"if ! mozilla -remote 'openURL(%s, new-tab)'; then mozilla '%s'; fi\""); break;
-			case 2: cmd = wxT("sh -c \"if ! firefox -remote 'openURL(%s, new-tab)'; then firefox '%s'; fi\""); break;
-			case 3: cmd = wxT("sh -c \"if ! MozillaFirebird -remote 'openURL(%s, new-tab)'; then MozillaFirebird '%s'; fi\""); break;
-			case 4: cmd = wxT("opera --newpage '%s'"); break;
-			case 5: cmd = wxT("sh -c \"if ! netscape -remote 'openURLs(%s,new-tab)'; then netscape '%s'; fi\""); break;
-			case 6: cmd = wxT("galeon -n '%s'"); break;
-			case 7: cmd = wxT("epiphany -n '%s'"); break;
-			case 8: cmd = s_CustomBrowser; break;
+			case 0: cmd = wxEmptyString; break;
+			case 1: cmd = wxT("kfmclient exec '%s'"); break;
+			case 2: cmd = wxT("sh -c \"if ! mozilla -remote 'openURL(%s, new-tab)'; then mozilla '%s'; fi\""); break;
+			case 3: cmd = wxT("sh -c \"if ! firefox -remote 'openURL(%s, new-tab)'; then firefox '%s'; fi\""); break;
+			case 4: cmd = wxT("sh -c \"if ! MozillaFirebird -remote 'openURL(%s, new-tab)'; then MozillaFirebird '%s'; fi\""); break;
+			case 5: cmd = wxT("opera --newpage '%s'"); break;
+			case 6: cmd = wxT("sh -c \"if ! netscape -remote 'openURLs(%s,new-tab)'; then netscape '%s'; fi\""); break;
+			case 7: cmd = wxT("galeon -n '%s'"); break;
+			case 8: cmd = wxT("epiphany -n '%s'"); break;
+			case 9: cmd = s_CustomBrowser; break;
 			default:
 				AddLogLineM( true, _("Unable to determine selected browser!") );
 		}
 	else
 		switch ( s_Browser ) {
-			case 0: cmd = wxT("konqueror '%s'"); break;
-			case 1: cmd = wxT("sh -c 'mozilla %s'"); break;
-			case 2: cmd = wxT("firefox '%s'"); break;
-			case 3:	cmd = wxT("MozillaFirebird '%s'"); break;
-			case 4:	cmd = wxT("opera '%s'"); break;
-			case 5: cmd = wxT("netscape '%s'"); break;
-			case 6: cmd = wxT("galeon '%s'"); break;
-			case 7: cmd = wxT("epiphany '%s'"); break;
-			case 8: cmd = s_CustomBrowser; break;
+			case 0: cmd = wxEmptyString; break;
+			case 1: cmd = wxT("konqueror '%s'"); break;
+			case 2: cmd = wxT("sh -c 'mozilla %s'"); break;
+			case 3: cmd = wxT("firefox '%s'"); break;
+			case 4:	cmd = wxT("MozillaFirebird '%s'"); break;
+			case 5:	cmd = wxT("opera '%s'"); break;
+			case 6: cmd = wxT("netscape '%s'"); break;
+			case 7: cmd = wxT("galeon '%s'"); break;
+			case 8: cmd = wxT("epiphany '%s'"); break;
+			case 9: cmd = s_CustomBrowser; break;
 			default:
 				AddLogLineM( true, _("Unable to determine selected browser!") );
 		}
 #else
 	switch ( s_Browser ) {
-		case 0: cmd = wxT(""); break;
+		case 0: cmd = wxEmptyString; break;
 		case 1: cmd = s_CustomBrowser; break;
 		default:
 			AddLogLineM( true, _("Unable to determine selected browser!") );

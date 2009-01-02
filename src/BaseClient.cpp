@@ -1211,13 +1211,13 @@ void CUpDownClient::ClearDownloadBlockRequests()
 bool CUpDownClient::Disconnected(const wxString& strReason, bool bFromSocket)
 {
 	//wxASSERT(theApp->clientlist->IsValidClient(this));
-
+	
 	// was this a direct callback?
 	if (m_dwDirectCallbackTimeout != 0) {
 		theApp->clientlist->RemoveDirectCallback(this);
 		m_dwDirectCallbackTimeout = 0;
 		theApp->clientlist->AddDeadSource(this);
-		AddDebugLogLineM(false, logClient, wxT("Direct callback failed to client ") + GetUserHash().Encode());
+		AddDebugLogLineM(false, logClient, wxT("Direct callback failed to client ") + GetUserHash().Encode() + wxT(" on ip ") + GetFullIP());
 	}
 
 	if (GetKadState() == KS_QUEUED_FWCHECK_UDP || GetKadState() == KS_CONNECTING_FWCHECK_UDP) {
@@ -1442,6 +1442,10 @@ bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon)
 	
 	
 	if (HasLowID() && SupportsDirectUDPCallback() && thePrefs::GetEffectiveUDPPort() != 0 && GetConnectIP() != 0) { // LOWID with DirectCallback
+		if (m_dwDirectCallbackTimeout != 0) {
+			AddDebugLogLineM(false, logClient, wxT("ERROR: Trying Direct UDP Callback while already trying to connect to client ") + GetUserHash().Encode());
+			return true;	// We're already trying a direct connection to this client
+		}
 		// a direct callback is possible - since no other parties are involved and only one additional packet overhead 
 		// is used we basically handle it like a normal connection try, no restrictions apply
 		// we already check above with !theApp->DoCallback(this) if any callback is possible at all
@@ -2344,6 +2348,8 @@ void CUpDownClient::SetIP( uint32 val )
 	m_dwUserIP = val;
 
 	m_nConnectIP = val;
+	
+	m_FullUserIP = Uint32toStringIP(val);
 }
 
 

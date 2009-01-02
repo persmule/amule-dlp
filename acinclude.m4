@@ -485,6 +485,7 @@ AC_DEFUN([MULE_DENOISER],
 	])
 
 	AC_MSG_CHECKING([denoising level])
+	AS_IF([test x$SYS = xwin32], [with_denoise_level=0])
 	AS_IF([test ${with_denoise_level:-5} = yes], [with_denoise_level=5])
 	AS_IF([test ${with_denoise_level:-5} = no], [with_denoise_level=0])
 	AS_IF([test ${with_denoise_level:-5} -gt 4],
