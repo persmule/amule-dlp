@@ -58,6 +58,7 @@
 #include "UserEvents.h"
 #include "MagnetURI.h"		// Needed for CMagnetED2KConverter
 #include "ScopedPtr.h"		// Needed for CScopedPtr
+#include "PlatformSpecific.h"	// Needed for CanFSHandleLargeFiles
 
 #include "kademlia/kademlia/Kademlia.h"
 
@@ -132,10 +133,10 @@ void CDownloadQueue::LoadMetFiles(const CPath& path)
 		fileName = files[i].GetFullName();
 		
 		CPartFile* toadd = new CPartFile();
-		bool result = toadd->LoadPartFile(path, fileName);
+		bool result = (toadd->LoadPartFile(path, fileName) != 0);
 		if (!result) {
 			// Try from backup
-			result = toadd->LoadPartFile(path, fileName, true);
+			result = (toadd->LoadPartFile(path, fileName, true) != 0);
 		}
 		
 		if (result && !IsFileExisting(toadd->GetFileHash())) {
@@ -156,7 +157,7 @@ void CDownloadQueue::LoadMetFiles(const CPath& path)
 			} else {
 				// If result is false, then reading of both the primary and the backup .met failed
 				AddLogLineM(false, 
-					_("Error: Failed to load backup file. Search http://forum.amule.org for .part.met recovery solutions."));
+					_("ERROR: Failed to load backup file. Search http://forum.amule.org for .part.met recovery solutions."));
 				msg << CFormat(wxT("ERROR: Failed to load PartFile '%s'")) % fileName;
 			}
 			
@@ -226,11 +227,20 @@ void CDownloadQueue::AddSearchToDownload(CSearchFile* toadd, uint8 category)
 		return;
 	}
 
-	
+	if (toadd->GetFileSize() > OLD_MAX_FILE_SIZE) {
+		if (!PlatformSpecific::CanFSHandleLargeFiles(thePrefs::GetTempDir())) {
+			AddLogLineM(true, _("Filesystem for Temp directory cannot handle large files."));
+			return;
+		} else if (!PlatformSpecific::CanFSHandleLargeFiles(theApp->glob_prefs->GetCatPath(category))) {
+			AddLogLineM(true, _("Filesystem for Incoming directory cannot handle large files."));
+			return;
+		}
+	}
+
 	CPartFile* newfile = NULL;
 	try {
 		newfile = new CPartFile(toadd);
-	} catch (const CInvalidPacket& e) {
+	} catch (const CInvalidPacket& WXUNUSED(e)) {
 		AddDebugLogLineM(true, logDownloadQueue, wxT("Search-result contained invalid tags, could not add"));
 	}
 	
@@ -297,8 +307,10 @@ void CDownloadQueue::StartNextFile(CPartFile* oldfile)
 void CDownloadQueue::AddDownload(CPartFile* file, bool paused, uint8 category)
 {
 	wxCHECK_RET(!IsFileExisting(file->GetFileHash()), wxT("Adding duplicate part-file"));
-	
-	if ( paused && GetFileCount() ) {
+
+	if (file->GetStatus(true) == PS_ALLOCATING) {
+		file->PauseFile();
+	} else if (paused && GetFileCount()) {
 		file->StopFile();
 	}
 
@@ -1294,7 +1306,7 @@ bool CDownloadQueue::AddLink( const wxString& link, int category )
 	if (link.compare(0, 7, wxT("magnet:")) == 0) {
 		uri = CMagnetED2KConverter(link);
 		if (uri.empty()) {
-			AddLogLineM(true, CFormat(_("Cannot convert magnet link to ed2k: %s")) % link);
+			AddLogLineM(true, CFormat(_("Cannot convert magnet link to eD2k: %s")) % link);
 			return false;
 		}
 	}
@@ -1323,7 +1335,7 @@ bool CDownloadQueue::AddED2KLink( const wxString& link, int category )
 
 		return AddED2KLink( uri.get(), category );
 	} catch ( const wxString& err ) {
-		AddLogLineM( true, CFormat( _("Invalid ed2k link! Error: %s")) % err);
+		AddLogLineM( true, CFormat( _("Invalid eD2k link! ERROR: %s")) % err);
 	}
 	
 	return false;
@@ -1358,6 +1370,16 @@ bool CDownloadQueue::AddED2KLink( const CED2KFileLink* link, int category )
 			return false;
 		}
 	} else {
+		if (link->GetSize() > OLD_MAX_FILE_SIZE) {
+			if (!PlatformSpecific::CanFSHandleLargeFiles(thePrefs::GetTempDir())) {
+				AddLogLineM(true, _("Filesystem for Temp directory cannot handle large files."));
+				return false;
+			} else if (!PlatformSpecific::CanFSHandleLargeFiles(theApp->glob_prefs->GetCatPath(category))) {
+				AddLogLineM(true, _("Filesystem for Incoming directory cannot handle large files."));
+				return false;
+			}
+		}
+
 		file = new CPartFile(link);
 	
 		if (file->GetStatus() == PS_ERROR) {
@@ -1501,15 +1523,34 @@ void CDownloadQueue::KademliaSearchFile(uint32 searchID, const Kademlia::CUInt12
 			ctemp->SetBuddyPort(serverport);
 			break;
 		}
+		case 6: {
+			// firewalled source which supports direct udp callback
+			// if we are firewalled ourself, the source is useless to us
+			if (theApp->IsFirewalled()) {
+				break;
+			}
+
+			if ((byCryptOptions & 0x08) == 0){
+				AddDebugLogLineM(false, logKadSearch, CFormat(wxT("Received Kad source type 6 (direct callback) which has the direct callback flag not set (%s)")) % Uint32toStringIP(ED2KID));
+				break;
+			}
+			
+			ctemp = new CUpDownClient(tcp, 1, 0, 0, temp, false, true);
+			ctemp->SetSourceFrom(SF_KADEMLIA);
+			ctemp->SetKadPort(udp);
+			ctemp->SetIP(ED2KID); // need to set the Ip address, which cannot be used for TCP but for UDP
+			byte cID[16];
+			pcontactID->ToByteArray(cID);
+			ctemp->SetUserHash(CMD4Hash(cID));
+			pbuddyID->ToByteArray(cID);
+		}
 	}
 
 	if (ctemp) {
 		// add encryption settings
-		ctemp->SetCryptLayerSupport((byCryptOptions & 0x01) != 0);
-		ctemp->SetCryptLayerRequest((byCryptOptions & 0x02) != 0);
-		ctemp->SetCryptLayerRequires((byCryptOptions & 0x04) != 0);
+		ctemp->SetConnectOptions(byCryptOptions);
 
-		AddDebugLogLineM(false, logKadSearch, CFormat(wxT("Happily adding a source (%s) type %d")) % Uint32_16toStringIP_Port(ip, ctemp->GetUserPort()) % type);
+		AddDebugLogLineM(false, logKadSearch, CFormat(wxT("Happily adding a source (%s) type %d")) % Uint32_16toStringIP_Port(ED2KID, ctemp->GetUserPort()) % type);
 		CheckAndAddSource(temp, ctemp);
 	}
 }

@@ -722,10 +722,16 @@ void CDownloadListCtrl::OnGetFeedback(wxCommandEvent& WXUNUSED(event))
 {
 	wxString feed;
 	ItemList files = ::GetSelectedItems(this, itFILES);
+
 	for (ItemList::iterator it = files.begin(); it != files.end(); ++it) {
-		CPartFile* file = (*it)->GetFile();
-		feed += file->GetFeedback();
+		if (feed.IsEmpty()) {
+			feed = CFormat(_("Feedback from: %s (%s)\n\n")) % thePrefs::GetUserNick() % GetFullMuleVersion();
+		} else {
+			feed += wxT("\n");
+		}
+		feed += (*it)->GetFile()->GetFeedback();
 	}
+
 	if (!feed.IsEmpty()) {
 		theApp->CopyTextToClipboard(feed);
 	}
@@ -934,7 +940,7 @@ void CDownloadListCtrl::OnMouseRightClick(wxListEvent& evt)
 		m_menu->Append(MP_GETMAGNETLINK,
 			_("Copy magnet URI to clipboard"));
 		m_menu->Append(MP_GETED2KLINK,
-			_("Copy ED2k &link to clipboard"));
+			_("Copy eD2k &link to clipboard"));
 		m_menu->Append(MP_WS,
 			_("Copy feedback to clipboard"));
 		//-----------------------------------------------------
@@ -957,19 +963,28 @@ void CDownloadListCtrl::OnMouseRightClick(wxListEvent& evt)
 
 		CPartFile* file = item->GetFile();
 		// then set state
-		const bool canStop =
-			(file->GetStatus() != PS_ERROR) &&
-			(file->GetStatus() != PS_COMPLETE) &&
-			(file->IsStopped() != true);
-		const bool canPause =
-			(file->GetStatus() != PS_PAUSED) && canStop;
-		const bool fileResumable =
-			(file->GetStatus() == PS_PAUSED) ||
-			(file->GetStatus() == PS_ERROR) ||
-			(file->GetStatus() == PS_INSUFFICIENT);
-		
+		bool canStop;
+		bool canPause;
+		bool canCancel;
+		bool fileResumable;
+		if (file->GetStatus(true) != PS_ALLOCATING) {
+			const uint8_t fileStatus = file->GetStatus();
+			canStop =
+				(fileStatus != PS_ERROR) &&
+				(fileStatus != PS_COMPLETE) &&
+				(file->IsStopped() != true);
+			canPause = (file->GetStatus() != PS_PAUSED) && canStop;
+			fileResumable =
+				(fileStatus == PS_PAUSED) ||
+				(fileStatus == PS_ERROR) ||
+				(fileStatus == PS_INSUFFICIENT);
+			canCancel = fileStatus != PS_COMPLETE;
+		} else {
+			canStop = canPause = canCancel = fileResumable = false;
+		}
+
 		wxMenu* menu = m_menu;
-		menu->Enable( MP_CANCEL,	( file->GetStatus() != PS_COMPLETE ) );
+		menu->Enable( MP_CANCEL,	canCancel );
 		menu->Enable( MP_PAUSE,		canPause );
 		menu->Enable( MP_STOP,		canStop );
 		menu->Enable( MP_RESUME, 	fileResumable );
@@ -1012,7 +1027,7 @@ void CDownloadListCtrl::OnMouseRightClick(wxListEvent& evt)
 		// Only enable the Swap option for A4AF sources
 		m_menu->Enable(MP_CHANGE2FILE, (item->GetType() == A4AF_SOURCE));
 		// We need a valid IP if we are to message the client
-		m_menu->Enable(MP_SENDMESSAGE, client->GetIP());
+		m_menu->Enable(MP_SENDMESSAGE, (client->GetIP() != 0));
 		
 		m_menu->Enable(MP_SHOWLIST, !client->HasDisabledSharedFiles());
 		
@@ -2065,7 +2080,6 @@ void CDownloadListCtrl::DrawFileStatusBar(
 	s_ChunkBar.SetHeight(rect.height);
 	s_ChunkBar.SetWidth(rect.width); 
 	s_ChunkBar.SetFileSize( file->GetFileSize() );
-	s_ChunkBar.Fill( crHave );
 	s_ChunkBar.Set3dDepth( thePrefs::Get3DDepth() );
 
 
@@ -2079,11 +2093,17 @@ void CDownloadListCtrl::DrawFileStatusBar(
 	// Part availability ( of missing parts )
 	const CPartFile::CGapPtrList& gaplist = file->GetGapList();
 	CPartFile::CGapPtrList::const_iterator it = gaplist.begin();
+	uint64 lastGapEnd = 0;
 	for (; it != gaplist.end(); ++it) {
 		Gap_Struct* gap = *it;
 
 		// Start position
 		uint32 start = ( gap->start / PARTSIZE );
+		// fill the Have-Part (between this gap and the last)
+		if (gap->start) {
+		  s_ChunkBar.FillRange(lastGapEnd + 1, gap->start - 1,  crHave);
+		}
+		lastGapEnd = gap->end;
 		// End position
 		uint32 end   = ( gap->end / PARTSIZE ) + 1;
 
@@ -2107,21 +2127,35 @@ void CDownloadListCtrl::DrawFileStatusBar(
 			}
 			
 			uint64 gap_begin = ( i == start   ? gap->start : PARTSIZE * i );
-			uint64 gap_end   = ( i == end - 1 ? gap->end   : PARTSIZE * ( i + 1 ) );
+			uint64 gap_end   = ( i == end - 1 ? gap->end   : PARTSIZE * ( i + 1 ) - 1 );
 		
 			s_ChunkBar.FillRange( gap_begin, gap_end,  color);
 		}
 	}
+	// fill the last Have-Part (between this gap and the last)
+	s_ChunkBar.FillRange(lastGapEnd + 1, file->GetFileSize() - 1,  crHave);
 	
 	
 	// Pending parts
 	const CPartFile::CReqBlockPtrList& requestedblocks_list = file->GetRequestedBlockList();
 	CPartFile::CReqBlockPtrList::const_iterator it2 = requestedblocks_list.begin();
+	// adjacing pending parts must be joined to avoid bright lines between them
+	uint64 lastStartOffset = 0;
+	uint64 lastEndOffset = 0;
+	COLORREF color = file->IsStopped() ? DarkenColour( crPending, 2 ) : crPending;
 	for (; it2 != requestedblocks_list.end(); ++it2) {
-		COLORREF color = ( file->IsStopped() ? DarkenColour( crPending, 2 ) : crPending );
 		
-		s_ChunkBar.FillRange( (*it2)->StartOffset, (*it2)->EndOffset, color );
+		if ((*it2)->StartOffset > lastEndOffset + 1) { 
+			// not adjacing, draw last block
+			s_ChunkBar.FillRange(lastStartOffset, lastEndOffset, color);
+			lastStartOffset = (*it2)->StartOffset;
+			lastEndOffset   = (*it2)->EndOffset;
+		} else {
+			// adjacing, grow block
+			lastEndOffset   = (*it2)->EndOffset;
+		}
 	}
+	s_ChunkBar.FillRange(lastStartOffset, lastEndOffset, color);
 
 
 	// Draw the progress-bar
@@ -2154,9 +2188,9 @@ void CDownloadListCtrl::DrawSourceStatusBar(
 {
 	static CBarShader s_StatusBar(16);
 
-	uint32 crBoth		= ( bFlat ? RGB(   0, 150,   0 ) : RGB(   0, 192,   0 ) );
+	uint32 crBoth			= ( bFlat ? RGB(   0, 150,   0 ) : RGB(   0, 192,   0 ) );
 	uint32 crNeither		= ( bFlat ? RGB( 224, 224, 224 ) : RGB( 240, 240, 240 ) );
-	uint32 crClientOnly	= ( bFlat ? RGB(   0,   0,   0 ) : RGB( 104, 104, 104 ) );
+	uint32 crClientOnly		= ( bFlat ? RGB(   0,   0,   0 ) : RGB( 104, 104, 104 ) );
 	uint32 crPending		= ( bFlat ? RGB( 255, 208,   0 ) : RGB( 255, 208,   0 ) );
 	uint32 crNextPending	= ( bFlat ? RGB( 255, 255, 100 ) : RGB( 255, 255, 100 ) );
 
@@ -2165,7 +2199,6 @@ void CDownloadListCtrl::DrawSourceStatusBar(
 	s_StatusBar.SetFileSize( reqfile->GetFileSize() );
 	s_StatusBar.SetHeight(rect.height);
 	s_StatusBar.SetWidth(rect.width);
-	s_StatusBar.Fill(crNeither);
 	s_StatusBar.Set3dDepth( thePrefs::Get3DDepth() );
 
 	// Barry - was only showing one part from client, even when reserved bits from 2 parts
@@ -2173,35 +2206,34 @@ void CDownloadListCtrl::DrawSourceStatusBar(
 
 	const BitVector& partStatus = source->GetPartStatus();
 
+	uint64 uEnd = 0;
 	for ( uint64 i = 0; i < partStatus.size(); i++ ) {
-		if ( partStatus[i]) {
-			uint64 uEnd;
-			if (PARTSIZE*(i+1u) > reqfile->GetFileSize()) {
-				uEnd = reqfile->GetFileSize();
-			} else {
-				uEnd = PARTSIZE*(i+1u);
-			}
-			
-			uint32 color = 0;
-			if ( reqfile->IsComplete(PARTSIZE*i,PARTSIZE*(i+1)-1)) {
-				color = crBoth;
-			} else if (	source->GetDownloadState() == DS_DOWNLOADING &&
-					source->GetLastBlockOffset() < uEnd &&
-					source->GetLastBlockOffset() >= PARTSIZE*i) {
-				color = crPending;
-			} else if (gettingParts.GetChar((uint16)i) == 'Y') {
-				color = crNextPending;
-			} else {
-				color = crClientOnly;
-			}
+		uint64 uStart = PARTSIZE * i;
+		uEnd = wxMin(reqfile->GetFileSize(), uStart + PARTSIZE) - 1;
 
-			if ( source->GetRequestFile()->IsStopped() ) {
-				color = DarkenColour( color, 2 );
-			}
-
-			s_StatusBar.FillRange( PARTSIZE*i, uEnd, color );
+		uint32 color = 0;
+		if (!partStatus[i]) {
+			color = crNeither;
+		} else if ( reqfile->IsComplete(uStart, uEnd)) {
+			color = crBoth;
+		} else if (	source->GetDownloadState() == DS_DOWNLOADING &&
+				source->GetLastBlockOffset() <= uEnd &&
+				source->GetLastBlockOffset() >= uStart) {
+			color = crPending;
+		} else if (gettingParts.GetChar((uint16)i) == 'Y') {
+			color = crNextPending;
+		} else {
+			color = crClientOnly;
 		}
+
+		if ( source->GetRequestFile()->IsStopped() ) {
+			color = DarkenColour( color, 2 );
+		}
+
+		s_StatusBar.FillRange(uStart, uEnd, color);
 	}
+	// fill the rest (if partStatus is empty)
+	s_StatusBar.FillRange(uEnd + 1, reqfile->GetFileSize() - 1, crNeither);
 
 	s_StatusBar.Draw(dc, rect.x, rect.y, bFlat);
 }
@@ -2219,8 +2251,7 @@ void CDownloadListCtrl::PreviewFile(CPartFile* file)
 	// And please, do a warning also :P
 	if (thePrefs::GetVideoPlayer().IsEmpty()) {
 		wxMessageBox(_(
-			"Please set your preferred video player on preferences.\n"
-			"Meanwhile, aMule will attempt to use mplayer and you will get this warning on every preview"),
+			"To prevent this warning to show up in every preview,\nset your preferred video player in preferences (default is mplayer)."),
 			_("File preview"), wxOK, this);
 		// Since newer versions for some reason mplayer does not automatically
 		// select video output device and needs a parameter, go figure...

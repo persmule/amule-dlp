@@ -45,13 +45,14 @@ DIST_COMMON = $(noinst_HEADERS) $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/build-tools.m4 \
 	$(top_srcdir)/m4/codeset.m4 $(top_srcdir)/m4/cryptopp.m4 \
-	$(top_srcdir)/m4/gdlib.m4 $(top_srcdir)/m4/gettext.m4 \
-	$(top_srcdir)/m4/glibc21.m4 $(top_srcdir)/m4/iconv.m4 \
-	$(top_srcdir)/m4/intdiv0.m4 $(top_srcdir)/m4/inttypes-pri.m4 \
-	$(top_srcdir)/m4/inttypes.m4 $(top_srcdir)/m4/inttypes_h.m4 \
-	$(top_srcdir)/m4/lcmessage.m4 $(top_srcdir)/m4/lib-ld.m4 \
-	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
-	$(top_srcdir)/m4/libpng.m4 $(top_srcdir)/m4/progtest.m4 \
+	$(top_srcdir)/m4/fallocate.m4 $(top_srcdir)/m4/gdlib.m4 \
+	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/glibc21.m4 \
+	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intdiv0.m4 \
+	$(top_srcdir)/m4/inttypes-pri.m4 $(top_srcdir)/m4/inttypes.m4 \
+	$(top_srcdir)/m4/inttypes_h.m4 $(top_srcdir)/m4/lcmessage.m4 \
+	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
+	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libpng.m4 \
+	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/progtest.m4 \
 	$(top_srcdir)/m4/readline.m4 $(top_srcdir)/m4/stdint_h.m4 \
 	$(top_srcdir)/m4/uintmax_t.m4 $(top_srcdir)/m4/ulonglong.m4 \
 	$(top_srcdir)/m4/wxwin.m4 $(top_srcdir)/m4/zlib.m4 \
@@ -65,13 +66,9 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 libmulecommon_a_AR = $(AR) $(ARFLAGS)
 libmulecommon_a_LIBADD =
-am_libmulecommon_a_OBJECTS = libmulecommon_a-Format.$(OBJEXT) \
-	libmulecommon_a-MD5Sum.$(OBJEXT) \
-	libmulecommon_a-MuleDebug.$(OBJEXT) \
-	libmulecommon_a-StringFunctions.$(OBJEXT) \
-	libmulecommon_a-FileFunctions.$(OBJEXT) \
-	libmulecommon_a-TextFile.$(OBJEXT) \
-	libmulecommon_a-Path.$(OBJEXT)
+am_libmulecommon_a_OBJECTS = Format.$(OBJEXT) MD5Sum.$(OBJEXT) \
+	MuleDebug.$(OBJEXT) StringFunctions.$(OBJEXT) \
+	FileFunctions.$(OBJEXT) TextFile.$(OBJEXT) Path.$(OBJEXT)
 libmulecommon_a_OBJECTS = $(am_libmulecommon_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -111,8 +108,8 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BFD_FLAGS = @BFD_FLAGS@
-BFD_LIB = @BFD_LIB@
+BFD_CPPFLAGS = @BFD_CPPFLAGS@
+BFD_LIBS = @BFD_LIBS@
 BUILD_CC = @BUILD_CC@
 BUILD_CFLAGS = @BUILD_CFLAGS@
 BUILD_CPPFLAGS = @BUILD_CPPFLAGS@
@@ -125,7 +122,6 @@ CAS_MANPAGES = @CAS_MANPAGES@
 CAS_TRUE = @CAS_TRUE@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@
-CCACHE = @CCACHE@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 COMPILE_CMD_FALSE = @COMPILE_CMD_FALSE@
@@ -134,22 +130,16 @@ COMPILE_NLS_FALSE = @COMPILE_NLS_FALSE@
 COMPILE_NLS_TRUE = @COMPILE_NLS_TRUE@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CRYPTOLIBS = @CRYPTOLIBS@
-CRYPTO_PP_CXXFLAGS = @CRYPTO_PP_CXXFLAGS@
-CRYPTO_PP_INCLUDE_PREFIX = @CRYPTO_PP_INCLUDE_PREFIX@
-CRYPTO_PP_LDFLAGS = @CRYPTO_PP_LDFLAGS@
-CRYPTO_PP_LIB_NAME = @CRYPTO_PP_LIB_NAME@
-CRYPTO_PP_PREFIX = @CRYPTO_PP_PREFIX@
-CRYPTO_PP_STYLE = @CRYPTO_PP_STYLE@
-CRYPTO_PP_VERSION_NUMBER = @CRYPTO_PP_VERSION_NUMBER@
-CRYPTO_PP_VERSION_STRING = @CRYPTO_PP_VERSION_STRING@
+CRYPTOPP_CPPFLAGS = @CRYPTOPP_CPPFLAGS@
+CRYPTOPP_LDFLAGS = @CRYPTOPP_LDFLAGS@
+CRYPTOPP_LIBS = @CRYPTOPP_LIBS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DATADIRNAME = @DATADIRNAME@
-DEFS = -DHAVE_CONFIG_H
+DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
@@ -170,12 +160,12 @@ GDLIB_LIBS = @GDLIB_LIBS@
 GENCAT = @GENCAT@
 GENERATE_FLEX_HEADER_FALSE = @GENERATE_FLEX_HEADER_FALSE@
 GENERATE_FLEX_HEADER_TRUE = @GENERATE_FLEX_HEADER_TRUE@
-GEOIP_INCLUDE = @GEOIP_INCLUDE@
-GEOIP_LIB = @GEOIP_LIB@
+GEOIP_CPPFLAGS = @GEOIP_CPPFLAGS@
+GEOIP_LDFLAGS = @GEOIP_LDFLAGS@
+GEOIP_LIBS = @GEOIP_LIBS@
 GLIBC21 = @GLIBC21@
 GMSGFMT = @GMSGFMT@
-HAVE_FLEX_EXTENDED = @HAVE_FLEX_EXTENDED@
-HAVE_GETTEXT = @HAVE_GETTEXT@
+INCINTL = @INCINTL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -195,7 +185,6 @@ LIBINTL = @LIBINTL@
 LIBOBJS = @LIBOBJS@
 LIBPNG_CFLAGS = @LIBPNG_CFLAGS@
 LIBPNG_CONFIG_PATH = @LIBPNG_CONFIG_PATH@
-LIBPNG_CXXFLAGS = @LIBPNG_CXXFLAGS@
 LIBPNG_LDFLAGS = @LIBPNG_LDFLAGS@
 LIBPNG_LIBS = @LIBPNG_LIBS@
 LIBS = @LIBS@
@@ -212,6 +201,11 @@ MONOLITHIC_MANPAGES = @MONOLITHIC_MANPAGES@
 MONOLITHIC_TRUE = @MONOLITHIC_TRUE@
 MSGFMT = @MSGFMT@
 MSGMERGE = @MSGMERGE@
+MULECFLAGS = @MULECFLAGS@
+MULECPPFLAGS = @MULECPPFLAGS@
+MULECXXFLAGS = @MULECXXFLAGS@
+MULELDFLAGS = @MULELDFLAGS@
+MULERCFLAGS = @MULERCFLAGS@
 NEED_CORESERVICES_FALSE = @NEED_CORESERVICES_FALSE@
 NEED_CORESERVICES_TRUE = @NEED_CORESERVICES_TRUE@
 NEED_RC_FALSE = @NEED_RC_FALSE@
@@ -230,6 +224,7 @@ RANLIB = @RANLIB@
 RC = @RC@
 RCFLAGS = @RCFLAGS@
 READLINE_LIBS = @READLINE_LIBS@
+REGEX_LIBS = @REGEX_LIBS@
 RESOLV_LIB = @RESOLV_LIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -243,8 +238,7 @@ VERSION = @VERSION@
 WEB_FALSE = @WEB_FALSE@
 WEB_MANPAGES = @WEB_MANPAGES@
 WEB_TRUE = @WEB_TRUE@
-WXBASE_CFLAGS = @WXBASE_CFLAGS@
-WXBASE_CXXFLAGS = @WXBASE_CXXFLAGS@
+WXBASE_CPPFLAGS = @WXBASE_CPPFLAGS@
 WXBASE_LIBS = @WXBASE_LIBS@
 WXCAS_FALSE = @WXCAS_FALSE@
 WXCAS_MANPAGES = @WXCAS_MANPAGES@
@@ -268,6 +262,9 @@ WX_VERSION_MINOR = @WX_VERSION_MINOR@
 X11LIBS = @X11LIBS@
 XGETTEXT = @XGETTEXT@
 YACC = @YACC@
+ZLIB_CPPFLAGS = @ZLIB_CPPFLAGS@
+ZLIB_LDFLAGS = @ZLIB_LDFLAGS@
+ZLIB_LIBS = @ZLIB_LIBS@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_BUILD_CC = @ac_ct_BUILD_CC@
 ac_ct_CC = @ac_ct_CC@
@@ -291,8 +288,6 @@ build_alias = @build_alias@
 build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
-ccache = @ccache@
-ccache_prefix = @ccache_prefix@
 datadir = @datadir@
 docdir = @docdir@
 exec_prefix = @exec_prefix@
@@ -316,6 +311,8 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
+AM_CPPFLAGS = $(MULECPPFLAGS) $(BFD_CPPFLAGS) $(WX_CPPFLAGS)
+AM_CXXFLAGS = $(MULECXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
 
 # Sources
 noinst_LIBRARIES = \
@@ -332,8 +329,6 @@ libmulecommon_a_SOURCES = \
 	TextFile.cpp \
 	Path.cpp
 
-libmulecommon_a_CFLAGS = $(WX_CXXFLAGS) $(BFD_FLAGS) 
-libmulecommon_a_CXXFLAGS = $(WX_CXXFLAGS) $(BFD_FLAGS) 
 noinst_HEADERS = \
 		Format.h \
 		MD5Sum.h \
@@ -391,13 +386,13 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmulecommon_a-FileFunctions.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmulecommon_a-Format.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmulecommon_a-MD5Sum.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmulecommon_a-MuleDebug.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmulecommon_a-Path.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmulecommon_a-StringFunctions.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmulecommon_a-TextFile.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/FileFunctions.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Format.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MD5Sum.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MuleDebug.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Path.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StringFunctions.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TextFile.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -412,104 +407,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-libmulecommon_a-Format.o: Format.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -MT libmulecommon_a-Format.o -MD -MP -MF "$(DEPDIR)/libmulecommon_a-Format.Tpo" -c -o libmulecommon_a-Format.o `test -f 'Format.cpp' || echo '$(srcdir)/'`Format.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libmulecommon_a-Format.Tpo" "$(DEPDIR)/libmulecommon_a-Format.Po"; else rm -f "$(DEPDIR)/libmulecommon_a-Format.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Format.cpp' object='libmulecommon_a-Format.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libmulecommon_a-Format.o `test -f 'Format.cpp' || echo '$(srcdir)/'`Format.cpp
-
-libmulecommon_a-Format.obj: Format.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -MT libmulecommon_a-Format.obj -MD -MP -MF "$(DEPDIR)/libmulecommon_a-Format.Tpo" -c -o libmulecommon_a-Format.obj `if test -f 'Format.cpp'; then $(CYGPATH_W) 'Format.cpp'; else $(CYGPATH_W) '$(srcdir)/Format.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libmulecommon_a-Format.Tpo" "$(DEPDIR)/libmulecommon_a-Format.Po"; else rm -f "$(DEPDIR)/libmulecommon_a-Format.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Format.cpp' object='libmulecommon_a-Format.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libmulecommon_a-Format.obj `if test -f 'Format.cpp'; then $(CYGPATH_W) 'Format.cpp'; else $(CYGPATH_W) '$(srcdir)/Format.cpp'; fi`
-
-libmulecommon_a-MD5Sum.o: MD5Sum.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -MT libmulecommon_a-MD5Sum.o -MD -MP -MF "$(DEPDIR)/libmulecommon_a-MD5Sum.Tpo" -c -o libmulecommon_a-MD5Sum.o `test -f 'MD5Sum.cpp' || echo '$(srcdir)/'`MD5Sum.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libmulecommon_a-MD5Sum.Tpo" "$(DEPDIR)/libmulecommon_a-MD5Sum.Po"; else rm -f "$(DEPDIR)/libmulecommon_a-MD5Sum.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='MD5Sum.cpp' object='libmulecommon_a-MD5Sum.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libmulecommon_a-MD5Sum.o `test -f 'MD5Sum.cpp' || echo '$(srcdir)/'`MD5Sum.cpp
-
-libmulecommon_a-MD5Sum.obj: MD5Sum.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -MT libmulecommon_a-MD5Sum.obj -MD -MP -MF "$(DEPDIR)/libmulecommon_a-MD5Sum.Tpo" -c -o libmulecommon_a-MD5Sum.obj `if test -f 'MD5Sum.cpp'; then $(CYGPATH_W) 'MD5Sum.cpp'; else $(CYGPATH_W) '$(srcdir)/MD5Sum.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libmulecommon_a-MD5Sum.Tpo" "$(DEPDIR)/libmulecommon_a-MD5Sum.Po"; else rm -f "$(DEPDIR)/libmulecommon_a-MD5Sum.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='MD5Sum.cpp' object='libmulecommon_a-MD5Sum.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libmulecommon_a-MD5Sum.obj `if test -f 'MD5Sum.cpp'; then $(CYGPATH_W) 'MD5Sum.cpp'; else $(CYGPATH_W) '$(srcdir)/MD5Sum.cpp'; fi`
-
-libmulecommon_a-MuleDebug.o: MuleDebug.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -MT libmulecommon_a-MuleDebug.o -MD -MP -MF "$(DEPDIR)/libmulecommon_a-MuleDebug.Tpo" -c -o libmulecommon_a-MuleDebug.o `test -f 'MuleDebug.cpp' || echo '$(srcdir)/'`MuleDebug.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libmulecommon_a-MuleDebug.Tpo" "$(DEPDIR)/libmulecommon_a-MuleDebug.Po"; else rm -f "$(DEPDIR)/libmulecommon_a-MuleDebug.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='MuleDebug.cpp' object='libmulecommon_a-MuleDebug.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libmulecommon_a-MuleDebug.o `test -f 'MuleDebug.cpp' || echo '$(srcdir)/'`MuleDebug.cpp
-
-libmulecommon_a-MuleDebug.obj: MuleDebug.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -MT libmulecommon_a-MuleDebug.obj -MD -MP -MF "$(DEPDIR)/libmulecommon_a-MuleDebug.Tpo" -c -o libmulecommon_a-MuleDebug.obj `if test -f 'MuleDebug.cpp'; then $(CYGPATH_W) 'MuleDebug.cpp'; else $(CYGPATH_W) '$(srcdir)/MuleDebug.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libmulecommon_a-MuleDebug.Tpo" "$(DEPDIR)/libmulecommon_a-MuleDebug.Po"; else rm -f "$(DEPDIR)/libmulecommon_a-MuleDebug.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='MuleDebug.cpp' object='libmulecommon_a-MuleDebug.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libmulecommon_a-MuleDebug.obj `if test -f 'MuleDebug.cpp'; then $(CYGPATH_W) 'MuleDebug.cpp'; else $(CYGPATH_W) '$(srcdir)/MuleDebug.cpp'; fi`
-
-libmulecommon_a-StringFunctions.o: StringFunctions.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -MT libmulecommon_a-StringFunctions.o -MD -MP -MF "$(DEPDIR)/libmulecommon_a-StringFunctions.Tpo" -c -o libmulecommon_a-StringFunctions.o `test -f 'StringFunctions.cpp' || echo '$(srcdir)/'`StringFunctions.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libmulecommon_a-StringFunctions.Tpo" "$(DEPDIR)/libmulecommon_a-StringFunctions.Po"; else rm -f "$(DEPDIR)/libmulecommon_a-StringFunctions.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='StringFunctions.cpp' object='libmulecommon_a-StringFunctions.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libmulecommon_a-StringFunctions.o `test -f 'StringFunctions.cpp' || echo '$(srcdir)/'`StringFunctions.cpp
-
-libmulecommon_a-StringFunctions.obj: StringFunctions.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -MT libmulecommon_a-StringFunctions.obj -MD -MP -MF "$(DEPDIR)/libmulecommon_a-StringFunctions.Tpo" -c -o libmulecommon_a-StringFunctions.obj `if test -f 'StringFunctions.cpp'; then $(CYGPATH_W) 'StringFunctions.cpp'; else $(CYGPATH_W) '$(srcdir)/StringFunctions.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libmulecommon_a-StringFunctions.Tpo" "$(DEPDIR)/libmulecommon_a-StringFunctions.Po"; else rm -f "$(DEPDIR)/libmulecommon_a-StringFunctions.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='StringFunctions.cpp' object='libmulecommon_a-StringFunctions.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libmulecommon_a-StringFunctions.obj `if test -f 'StringFunctions.cpp'; then $(CYGPATH_W) 'StringFunctions.cpp'; else $(CYGPATH_W) '$(srcdir)/StringFunctions.cpp'; fi`
-
-libmulecommon_a-FileFunctions.o: FileFunctions.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -MT libmulecommon_a-FileFunctions.o -MD -MP -MF "$(DEPDIR)/libmulecommon_a-FileFunctions.Tpo" -c -o libmulecommon_a-FileFunctions.o `test -f 'FileFunctions.cpp' || echo '$(srcdir)/'`FileFunctions.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libmulecommon_a-FileFunctions.Tpo" "$(DEPDIR)/libmulecommon_a-FileFunctions.Po"; else rm -f "$(DEPDIR)/libmulecommon_a-FileFunctions.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='FileFunctions.cpp' object='libmulecommon_a-FileFunctions.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libmulecommon_a-FileFunctions.o `test -f 'FileFunctions.cpp' || echo '$(srcdir)/'`FileFunctions.cpp
-
-libmulecommon_a-FileFunctions.obj: FileFunctions.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -MT libmulecommon_a-FileFunctions.obj -MD -MP -MF "$(DEPDIR)/libmulecommon_a-FileFunctions.Tpo" -c -o libmulecommon_a-FileFunctions.obj `if test -f 'FileFunctions.cpp'; then $(CYGPATH_W) 'FileFunctions.cpp'; else $(CYGPATH_W) '$(srcdir)/FileFunctions.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libmulecommon_a-FileFunctions.Tpo" "$(DEPDIR)/libmulecommon_a-FileFunctions.Po"; else rm -f "$(DEPDIR)/libmulecommon_a-FileFunctions.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='FileFunctions.cpp' object='libmulecommon_a-FileFunctions.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libmulecommon_a-FileFunctions.obj `if test -f 'FileFunctions.cpp'; then $(CYGPATH_W) 'FileFunctions.cpp'; else $(CYGPATH_W) '$(srcdir)/FileFunctions.cpp'; fi`
-
-libmulecommon_a-TextFile.o: TextFile.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -MT libmulecommon_a-TextFile.o -MD -MP -MF "$(DEPDIR)/libmulecommon_a-TextFile.Tpo" -c -o libmulecommon_a-TextFile.o `test -f 'TextFile.cpp' || echo '$(srcdir)/'`TextFile.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libmulecommon_a-TextFile.Tpo" "$(DEPDIR)/libmulecommon_a-TextFile.Po"; else rm -f "$(DEPDIR)/libmulecommon_a-TextFile.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TextFile.cpp' object='libmulecommon_a-TextFile.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libmulecommon_a-TextFile.o `test -f 'TextFile.cpp' || echo '$(srcdir)/'`TextFile.cpp
-
-libmulecommon_a-TextFile.obj: TextFile.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -MT libmulecommon_a-TextFile.obj -MD -MP -MF "$(DEPDIR)/libmulecommon_a-TextFile.Tpo" -c -o libmulecommon_a-TextFile.obj `if test -f 'TextFile.cpp'; then $(CYGPATH_W) 'TextFile.cpp'; else $(CYGPATH_W) '$(srcdir)/TextFile.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libmulecommon_a-TextFile.Tpo" "$(DEPDIR)/libmulecommon_a-TextFile.Po"; else rm -f "$(DEPDIR)/libmulecommon_a-TextFile.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TextFile.cpp' object='libmulecommon_a-TextFile.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libmulecommon_a-TextFile.obj `if test -f 'TextFile.cpp'; then $(CYGPATH_W) 'TextFile.cpp'; else $(CYGPATH_W) '$(srcdir)/TextFile.cpp'; fi`
-
-libmulecommon_a-Path.o: Path.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -MT libmulecommon_a-Path.o -MD -MP -MF "$(DEPDIR)/libmulecommon_a-Path.Tpo" -c -o libmulecommon_a-Path.o `test -f 'Path.cpp' || echo '$(srcdir)/'`Path.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libmulecommon_a-Path.Tpo" "$(DEPDIR)/libmulecommon_a-Path.Po"; else rm -f "$(DEPDIR)/libmulecommon_a-Path.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Path.cpp' object='libmulecommon_a-Path.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libmulecommon_a-Path.o `test -f 'Path.cpp' || echo '$(srcdir)/'`Path.cpp
-
-libmulecommon_a-Path.obj: Path.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -MT libmulecommon_a-Path.obj -MD -MP -MF "$(DEPDIR)/libmulecommon_a-Path.Tpo" -c -o libmulecommon_a-Path.obj `if test -f 'Path.cpp'; then $(CYGPATH_W) 'Path.cpp'; else $(CYGPATH_W) '$(srcdir)/Path.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libmulecommon_a-Path.Tpo" "$(DEPDIR)/libmulecommon_a-Path.Po"; else rm -f "$(DEPDIR)/libmulecommon_a-Path.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Path.cpp' object='libmulecommon_a-Path.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmulecommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libmulecommon_a-Path.obj `if test -f 'Path.cpp'; then $(CYGPATH_W) 'Path.cpp'; else $(CYGPATH_W) '$(srcdir)/Path.cpp'; fi`
 uninstall-info-am:
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)

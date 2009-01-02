@@ -31,9 +31,17 @@
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #undef HAVE_ARPA_INET_H
 
+/* Define to 1 if you have the <cxxabi.h> header which declares
+   abi::__cxa_demangle() */
+#undef HAVE_CXXABI
+
 /* Define if the GNU dcgettext() function is already present or preinstalled.
    */
 #undef HAVE_DCGETTEXT
+
+/* Define to 1 if you have the declaration of `strerror_r', and to 0 if you
+   don't. */
+#undef HAVE_DECL_STRERROR_R
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
@@ -44,6 +52,13 @@
 
 /* Define to 1 if you have the `endpwent' function. */
 #undef HAVE_ENDPWENT
+
+/* Define to 1 if you have the <execinfo.h> header which declares backtrace()
+   */
+#undef HAVE_EXECINFO
+
+/* Define to 1 if you have the fallocate() function. */
+#undef HAVE_FALLOCATE
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
@@ -89,9 +104,6 @@
 
 /* Define to 1 if you have the `getmntent' function. */
 #undef HAVE_GETMNTENT
-
-/* Define to 1 if you have the `getmntinfo' function. */
-#undef HAVE_GETMNTINFO
 
 /* Define to 1 if you have the `getpagesize' function. */
 #undef HAVE_GETPAGESIZE
@@ -201,6 +213,9 @@
 /* Define to 1 if you have the <nl_types.h> header file. */
 #undef HAVE_NL_TYPES_H
 
+/* Define to 1 if you have posix_fallocate() and it should be used. */
+#undef HAVE_POSIX_FALLOCATE
+
 /* Define to 1 if you have the `pow' function. */
 #undef HAVE_POW
 
@@ -285,6 +300,9 @@
 /* Define to 1 if you have the `strerror' function. */
 #undef HAVE_STRERROR
 
+/* Define to 1 if you have the `strerror_r' function. */
+#undef HAVE_STRERROR_R
+
 /* Define to 1 if you have the `strftime' function. */
 #undef HAVE_STRFTIME
 
@@ -306,6 +324,9 @@
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
    */
 #undef HAVE_SYS_DIR_H
+
+/* Define to 1 if you have the SYS_fallocate syscall number. */
+#undef HAVE_SYS_FALLOCATE
 
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
 #undef HAVE_SYS_IOCTL_H
@@ -444,6 +465,9 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
+
+/* Define to 1 if strerror_r returns char *. */
+#undef STRERROR_R_CHAR_P
 
 /* Define if you want GeoIP support. */
 #undef SUPPORT_GEOIP

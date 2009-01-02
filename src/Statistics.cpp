@@ -160,6 +160,7 @@ CStatTreeItemPackets*		CStatistics::s_fileReqUpOverhead;
 CStatTreeItemPackets*		CStatistics::s_sourceXchgUpOverhead;
 CStatTreeItemPackets*		CStatistics::s_serverUpOverhead;
 CStatTreeItemPackets*		CStatistics::s_kadUpOverhead;
+CStatTreeItemCounter*		CStatistics::s_cryptUpOverhead;
 CStatTreeItemNativeCounter*	CStatistics::s_activeUploads;
 CStatTreeItemNativeCounter*	CStatistics::s_waitingUploads;
 CStatTreeItemCounter*		CStatistics::s_totalSuccUploads;
@@ -173,6 +174,7 @@ CStatTreeItemPackets*		CStatistics::s_fileReqDownOverhead;
 CStatTreeItemPackets*		CStatistics::s_sourceXchgDownOverhead;
 CStatTreeItemPackets*		CStatistics::s_serverDownOverhead;
 CStatTreeItemPackets*		CStatistics::s_kadDownOverhead;
+CStatTreeItemCounter*		CStatistics::s_cryptDownOverhead;
 CStatTreeItemNativeCounter*	CStatistics::s_foundSources;
 CStatTreeItemNativeCounter*	CStatistics::s_activeDownloads;
 
@@ -655,6 +657,8 @@ void CStatistics::InitStatsTree()
 	s_totalUpOverhead->AddPacketCounter(s_serverUpOverhead);
 	s_kadUpOverhead = (CStatTreeItemPackets*)tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("Kad Overhead (Packets): %s")));
 	s_totalUpOverhead->AddPacketCounter(s_kadUpOverhead);
+	s_cryptUpOverhead = (CStatTreeItemCounter*)tmpRoot2->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Crypt overhead (UDP): %s")));
+	s_cryptUpOverhead->SetDisplayMode(dmBytes);
 	s_activeUploads = (CStatTreeItemNativeCounter*)tmpRoot2->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Active Uploads: %s")));
 	s_waitingUploads = (CStatTreeItemNativeCounter*)tmpRoot2->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Waiting Uploads: %s")));
 	s_totalSuccUploads = (CStatTreeItemCounter*)tmpRoot2->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Total successful upload sessions: %s")));
@@ -674,16 +678,18 @@ void CStatistics::InitStatsTree()
 	s_totalDownOverhead->AddPacketCounter(s_serverDownOverhead);
 	s_kadDownOverhead = (CStatTreeItemPackets*)tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("Kad Overhead (Packets): %s")));
 	s_totalDownOverhead->AddPacketCounter(s_kadDownOverhead);
+	s_cryptDownOverhead = (CStatTreeItemCounter*)tmpRoot2->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Crypt overhead (UDP): %s")));
+	s_cryptDownOverhead->SetDisplayMode(dmBytes);
 	s_foundSources = (CStatTreeItemNativeCounter*)tmpRoot2->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Found Sources: %s"), stSortChildren | stSortByValue));
 	s_activeDownloads = (CStatTreeItemNativeCounter*)tmpRoot2->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Active Downloads (chunks): %s")));
 
 	tmpRoot1->AddChild(new CStatTreeItemRatio(wxTRANSLATE("Session UL:DL Ratio (Total): %s"), s_sessionUpload, s_sessionDownload), 3);
 
 	tmpRoot1 = s_statTree->AddChild(new CStatTreeItemBase(wxTRANSLATE("Connection")));
-	tmpRoot1->AddChild(new CStatTreeItemAverageSpeed(wxTRANSLATE("Average Downloadrate (Session): %s"), s_sessionDownload, s_uptime));
-	tmpRoot1->AddChild(new CStatTreeItemAverageSpeed(wxTRANSLATE("Average Uploadrate (Session): %s"), s_sessionUpload, s_uptime));
-	s_downloadrate = (CStatTreeItemRateCounter*)tmpRoot1->AddChild(new CStatTreeItemRateCounter(wxTRANSLATE("Max Downloadrate (Session): %s"), true, 30000));
-	s_uploadrate = (CStatTreeItemRateCounter*)tmpRoot1->AddChild(new CStatTreeItemRateCounter(wxTRANSLATE("Max Uploadrate (Session): %s"), true, 30000));
+	tmpRoot1->AddChild(new CStatTreeItemAverageSpeed(wxTRANSLATE("Average download rate (Session): %s"), s_sessionDownload, s_uptime));
+	tmpRoot1->AddChild(new CStatTreeItemAverageSpeed(wxTRANSLATE("Average upload rate (Session): %s"), s_sessionUpload, s_uptime));
+	s_downloadrate = (CStatTreeItemRateCounter*)tmpRoot1->AddChild(new CStatTreeItemRateCounter(wxTRANSLATE("Max download rate (Session): %s"), true, 30000));
+	s_uploadrate = (CStatTreeItemRateCounter*)tmpRoot1->AddChild(new CStatTreeItemRateCounter(wxTRANSLATE("Max upload rate (Session): %s"), true, 30000));
 	s_reconnects = (CStatTreeItemReconnects*)tmpRoot1->AddChild(new CStatTreeItemReconnects(wxTRANSLATE("Reconnects: %i")));
 	s_sinceFirstTransfer = (CStatTreeItemTimer*)tmpRoot1->AddChild(new CStatTreeItemTimer(wxTRANSLATE("Time Since First Transfer: %s"), stHideIfZero));
 	s_sinceConnected = (CStatTreeItemTimer*)tmpRoot1->AddChild(new CStatTreeItemTimer(wxTRANSLATE("Connected To Server Since: %s")));
@@ -694,14 +700,14 @@ void CStatistics::InitStatsTree()
 	tmpRoot1->AddChild(new CStatTreeItemPeakConnections(wxTRANSLATE("Peak Connections (estimate): %i")));
 
 	s_clients = (CStatTreeItemHiddenCounter*)s_statTree->AddChild(new CStatTreeItemHiddenCounter(wxTRANSLATE("Clients"), stSortChildren | stSortByValue));
-	s_unknown = (CStatTreeItemCounter*)s_clients->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Unknown") wxT(": %s")), 6);
+	s_unknown = (CStatTreeItemCounter*)s_clients->AddChild(new CStatTreeItemCounter(wxString(wxTRANSLATE("Unknown")) + wxT(": %s")), 6);
 	//s_lowID = (CStatTreeItem*)s_clients->AddChild(new CStatTreeItem(wxTRANSLATE("LowID: %u (%.2f%% Total %.2f%% Known)")), 5);
 	//s_secIdentOnOff = (CStatTreeItem*)s_clients->AddChild(new CStatTreeItem(wxTRANSLATE("SecIdent On/Off: %u (%.2f%%) : %u (%.2f%%)")), 4);
 #ifdef __DEBUG__
 	s_hasSocket = (CStatTreeItemNativeCounter*)s_clients->AddChild(new CStatTreeItemNativeCounter(wxT("HasSocket: %s")), 3);
 #endif
-	s_filtered = (CStatTreeItemNativeCounter*)s_clients->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Filtered") wxT(": %s")), 2);
-	s_banned = (CStatTreeItemNativeCounter*)s_clients->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Banned") wxT(": %s")), 1);
+	s_filtered = (CStatTreeItemNativeCounter*)s_clients->AddChild(new CStatTreeItemNativeCounter(wxString(wxTRANSLATE("Filtered")) +  wxT(": %s")), 2);
+	s_banned = (CStatTreeItemNativeCounter*)s_clients->AddChild(new CStatTreeItemNativeCounter(wxString(wxTRANSLATE("Banned")) + wxT(": %s")), 1);
 	s_clients->AddChild(new CStatTreeItemTotalClients(wxTRANSLATE("Total: %i Known: %i"), s_clients, s_unknown), 0x80000000);
 
 	// TODO: Use counters?
@@ -722,7 +728,7 @@ void CStatistics::InitStatsTree()
 	s_numberOfShared = (CStatTreeItemCounter*)tmpRoot1->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Number of Shared Files: %s")));
 	s_sizeOfShare = (CStatTreeItemCounter*)tmpRoot1->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Total size of Shared Files: %s")));
 	s_sizeOfShare->SetDisplayMode(dmBytes);
-	tmpRoot1->AddChild(new CStatTreeItemAverage(wxTRANSLATE("Average filesize: %s"), s_sizeOfShare, s_numberOfShared, dmBytes));
+	tmpRoot1->AddChild(new CStatTreeItemAverage(wxTRANSLATE("Average file size: %s"), s_sizeOfShare, s_numberOfShared, dmBytes));
 }
 
 
@@ -736,11 +742,6 @@ void CStatistics::UpdateStatsTree()
 	// TODO: sort OS_Info subtrees.
 
 	s_avgConnections->SetValue(theApp->listensocket->GetAverageConnections());
-
-#if 0
-	(*cli13) = wxString::Format(_("LowID: %u (%.2f%% Total %.2f%% Known)"),#lowid , (#total>0)?((double)100*#lowid/#total):0, (double)100*#knownLowID/#known);
-	(*cli14) = wxString::Format(_("SecIdent On/Off: %u (%.2f%%) : %u (%.2f%%)"), #secOn , ((#eMule+#aMule)>0)?((double)100*#secOn / (#eMule+#aMule)):0, #secOff, ((#eMule+#aMule)>0)?((double)100*#secOff /(#eMule+#aMule) ):0);
-#endif
 
 	// get serverstats
 	// TODO: make these realtime, too

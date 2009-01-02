@@ -28,13 +28,8 @@
 
 #include <tags/FileTags.h>
 
-#include <wx/utils.h>
 #include <wx/filename.h>	// Needed for wxFileName
 #include <wx/log.h>		// Needed for wxLogNull
-
-#ifdef __WXMSW__
-	#include <wx/msw/registry.h> // Do_not_auto_remove
-#endif
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"		// Needed for a number of defines
@@ -57,10 +52,6 @@
 #else
 	#include <wx/utils.h>
 #endif	
-
-#if !defined(AMULE_DAEMON) && (!defined(EC_REMOTE) || defined(CLIENT_GUI))
-#include "amule.h"		// Needed for theApp
-#endif
 
 
 wxString GetMuleVersion()
@@ -128,7 +119,7 @@ wxString CastItoXBytes( uint64 count )
 	else
 		return wxString::Format( wxT("%.3f "), (float)count/1099511627776LL) + _("TB") ;
 
-	return _("Error");
+	return _("ERROR");
 }
 
 
@@ -146,7 +137,7 @@ wxString CastItoIShort(uint64 count)
 	else if (count < 1000000000000000LL)
 		return wxString::Format(wxT("%.2f"),(float)count/1000000000000LL) + _("T");
 
-	return _("Error");
+	return _("ERROR");
 }
 
 
@@ -200,7 +191,7 @@ wxString CastSecondsToHM(uint64 count, uint16 msecs)
 			(count % 3600)/60) + _("hours");
 	}
 		
-	return _("Error");
+	return _("ERROR");
 }
 
 
@@ -292,44 +283,7 @@ wxString GetFiletypeByName(const CPath& filename, bool translated)
 }
 
 
-// Get the max number of connections that the OS supports, or -1 for default
-int GetMaxConnections()
-{
-	int maxconn = -1;
-#ifdef __WXMSW__
-	// Try to get the max connection value in the registry
-	wxRegKey key( wxT("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\VxD\\MSTCP\\MaxConnections") );
-	wxString value;
-	if ( key.Exists() ) {
-		value = key.QueryDefaultValue();
-	}
-	if ( !value.IsEmpty() && value.IsNumber() ) {
-		long mc;
-		value.ToLong(&mc);
-		maxconn = (int)mc;
-	} else {
-		switch (wxGetOsVersion()) {
-		case wxOS_WINDOWS_9X:
-			// This includes all Win9x versions
-			maxconn = 50;
-			break;
-		case wxOS_WINDOWS_NT:
-			// This includes NT based windows
-			maxconn = 500;
-			break;
-		default:
-			// Anything else. Let aMule decide...
-			break;
-		}
-	}
-#else
-	// Any other OS can just use the default number of connections
-#endif
-	return maxconn;
-}
-
-
-// Return the text assosiated with a rating of a file
+// Return the text associated with a rating of a file
 wxString GetRateString(uint16 rate)
 {
 	switch ( rate ) {
@@ -1074,28 +1028,6 @@ void DumpMem_DW(const uint32 *ptr, int count)
 }
 
 
-void MilliSleep(uint32 msecs)
-{
-	#ifdef __WXBASE__
-		#ifdef __WXMSW__
-			if (msecs) {
-				wxSleep(msecs);
-			}
-		#else
-			struct timespec waittime;
-				waittime.tv_sec = 0;
-				waittime.tv_nsec = msecs * 1000 /*micro*/* 1000 /*nano*/;
-			struct timespec remtime;
-			while ((nanosleep(&waittime,&remtime)==-1) && (errno == EINTR)) {
-				memcpy(&waittime,&remtime,sizeof(struct timespec));
-			}
-		#endif
-	#else
-		wxMilliSleep(msecs);
-	#endif
-}
-
-
 wxString GetConfigDir()
 {
 	// Cache the path.
@@ -1147,9 +1079,8 @@ void InitLocale(wxLocale& locale, int language)
 	
 	if (language != wxLANGUAGE_CUSTOM) {
 
-#if defined(__WXMAC__)
-		wxStandardPathsBase &spb(wxStandardPaths::Get());
-		locale.AddCatalogLookupPathPrefix(JoinPaths(spb.GetDataDir(), wxT("locale")));
+#if defined(__WXMAC__) || defined(__WXMSW__)
+		locale.AddCatalogLookupPathPrefix(JoinPaths(wxStandardPaths::Get().GetDataDir(), wxT("locale")));
 #endif
 		locale.AddCatalog(wxT(PACKAGE));
 
@@ -1218,24 +1149,4 @@ CMD4Hash password;
 return password.Encode();
 }
 
-#if !defined(AMULE_DAEMON) && (!defined(EC_REMOTE) || defined(CLIENT_GUI))
-
-bool IsLocaleAvailable(int id)
-{
-	// This supresses error-messages about invalid locales.
-	wxLogNull	logTarget;
-	wxLocale 	locale_to_check;
-
-	if (id == wxLANGUAGE_DEFAULT || id == theApp->m_locale.GetLanguage())
-		return true;
-
-	InitLocale(locale_to_check, id);
-	if (locale_to_check.IsOk()) {
-		return locale_to_check.IsLoaded(wxT(PACKAGE));
-	} else {
-		return false;
-	}
-}
-
-#endif /* !AMULE_DEAMON && (!EC_REMOTE || CLIENT_GUI) */
 // File_checked_for_headers

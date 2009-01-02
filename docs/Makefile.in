@@ -42,13 +42,14 @@ DIST_COMMON = README $(dist_doc_DATA) $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/build-tools.m4 \
 	$(top_srcdir)/m4/codeset.m4 $(top_srcdir)/m4/cryptopp.m4 \
-	$(top_srcdir)/m4/gdlib.m4 $(top_srcdir)/m4/gettext.m4 \
-	$(top_srcdir)/m4/glibc21.m4 $(top_srcdir)/m4/iconv.m4 \
-	$(top_srcdir)/m4/intdiv0.m4 $(top_srcdir)/m4/inttypes-pri.m4 \
-	$(top_srcdir)/m4/inttypes.m4 $(top_srcdir)/m4/inttypes_h.m4 \
-	$(top_srcdir)/m4/lcmessage.m4 $(top_srcdir)/m4/lib-ld.m4 \
-	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
-	$(top_srcdir)/m4/libpng.m4 $(top_srcdir)/m4/progtest.m4 \
+	$(top_srcdir)/m4/fallocate.m4 $(top_srcdir)/m4/gdlib.m4 \
+	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/glibc21.m4 \
+	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intdiv0.m4 \
+	$(top_srcdir)/m4/inttypes-pri.m4 $(top_srcdir)/m4/inttypes.m4 \
+	$(top_srcdir)/m4/inttypes_h.m4 $(top_srcdir)/m4/lcmessage.m4 \
+	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
+	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libpng.m4 \
+	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/progtest.m4 \
 	$(top_srcdir)/m4/readline.m4 $(top_srcdir)/m4/stdint_h.m4 \
 	$(top_srcdir)/m4/uintmax_t.m4 $(top_srcdir)/m4/ulonglong.m4 \
 	$(top_srcdir)/m4/wxwin.m4 $(top_srcdir)/m4/zlib.m4 \
@@ -103,8 +104,8 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BFD_FLAGS = @BFD_FLAGS@
-BFD_LIB = @BFD_LIB@
+BFD_CPPFLAGS = @BFD_CPPFLAGS@
+BFD_LIBS = @BFD_LIBS@
 BUILD_CC = @BUILD_CC@
 BUILD_CFLAGS = @BUILD_CFLAGS@
 BUILD_CPPFLAGS = @BUILD_CPPFLAGS@
@@ -117,7 +118,6 @@ CAS_MANPAGES = @CAS_MANPAGES@
 CAS_TRUE = @CAS_TRUE@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@
-CCACHE = @CCACHE@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 COMPILE_CMD_FALSE = @COMPILE_CMD_FALSE@
@@ -126,15 +126,9 @@ COMPILE_NLS_FALSE = @COMPILE_NLS_FALSE@
 COMPILE_NLS_TRUE = @COMPILE_NLS_TRUE@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CRYPTOLIBS = @CRYPTOLIBS@
-CRYPTO_PP_CXXFLAGS = @CRYPTO_PP_CXXFLAGS@
-CRYPTO_PP_INCLUDE_PREFIX = @CRYPTO_PP_INCLUDE_PREFIX@
-CRYPTO_PP_LDFLAGS = @CRYPTO_PP_LDFLAGS@
-CRYPTO_PP_LIB_NAME = @CRYPTO_PP_LIB_NAME@
-CRYPTO_PP_PREFIX = @CRYPTO_PP_PREFIX@
-CRYPTO_PP_STYLE = @CRYPTO_PP_STYLE@
-CRYPTO_PP_VERSION_NUMBER = @CRYPTO_PP_VERSION_NUMBER@
-CRYPTO_PP_VERSION_STRING = @CRYPTO_PP_VERSION_STRING@
+CRYPTOPP_CPPFLAGS = @CRYPTOPP_CPPFLAGS@
+CRYPTOPP_LDFLAGS = @CRYPTOPP_LDFLAGS@
+CRYPTOPP_LIBS = @CRYPTOPP_LIBS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -162,12 +156,12 @@ GDLIB_LIBS = @GDLIB_LIBS@
 GENCAT = @GENCAT@
 GENERATE_FLEX_HEADER_FALSE = @GENERATE_FLEX_HEADER_FALSE@
 GENERATE_FLEX_HEADER_TRUE = @GENERATE_FLEX_HEADER_TRUE@
-GEOIP_INCLUDE = @GEOIP_INCLUDE@
-GEOIP_LIB = @GEOIP_LIB@
+GEOIP_CPPFLAGS = @GEOIP_CPPFLAGS@
+GEOIP_LDFLAGS = @GEOIP_LDFLAGS@
+GEOIP_LIBS = @GEOIP_LIBS@
 GLIBC21 = @GLIBC21@
 GMSGFMT = @GMSGFMT@
-HAVE_FLEX_EXTENDED = @HAVE_FLEX_EXTENDED@
-HAVE_GETTEXT = @HAVE_GETTEXT@
+INCINTL = @INCINTL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -187,7 +181,6 @@ LIBINTL = @LIBINTL@
 LIBOBJS = @LIBOBJS@
 LIBPNG_CFLAGS = @LIBPNG_CFLAGS@
 LIBPNG_CONFIG_PATH = @LIBPNG_CONFIG_PATH@
-LIBPNG_CXXFLAGS = @LIBPNG_CXXFLAGS@
 LIBPNG_LDFLAGS = @LIBPNG_LDFLAGS@
 LIBPNG_LIBS = @LIBPNG_LIBS@
 LIBS = @LIBS@
@@ -204,6 +197,11 @@ MONOLITHIC_MANPAGES = @MONOLITHIC_MANPAGES@
 MONOLITHIC_TRUE = @MONOLITHIC_TRUE@
 MSGFMT = @MSGFMT@
 MSGMERGE = @MSGMERGE@
+MULECFLAGS = @MULECFLAGS@
+MULECPPFLAGS = @MULECPPFLAGS@
+MULECXXFLAGS = @MULECXXFLAGS@
+MULELDFLAGS = @MULELDFLAGS@
+MULERCFLAGS = @MULERCFLAGS@
 NEED_CORESERVICES_FALSE = @NEED_CORESERVICES_FALSE@
 NEED_CORESERVICES_TRUE = @NEED_CORESERVICES_TRUE@
 NEED_RC_FALSE = @NEED_RC_FALSE@
@@ -222,6 +220,7 @@ RANLIB = @RANLIB@
 RC = @RC@
 RCFLAGS = @RCFLAGS@
 READLINE_LIBS = @READLINE_LIBS@
+REGEX_LIBS = @REGEX_LIBS@
 RESOLV_LIB = @RESOLV_LIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -235,8 +234,7 @@ VERSION = @VERSION@
 WEB_FALSE = @WEB_FALSE@
 WEB_MANPAGES = @WEB_MANPAGES@
 WEB_TRUE = @WEB_TRUE@
-WXBASE_CFLAGS = @WXBASE_CFLAGS@
-WXBASE_CXXFLAGS = @WXBASE_CXXFLAGS@
+WXBASE_CPPFLAGS = @WXBASE_CPPFLAGS@
 WXBASE_LIBS = @WXBASE_LIBS@
 WXCAS_FALSE = @WXCAS_FALSE@
 WXCAS_MANPAGES = @WXCAS_MANPAGES@
@@ -260,6 +258,9 @@ WX_VERSION_MINOR = @WX_VERSION_MINOR@
 X11LIBS = @X11LIBS@
 XGETTEXT = @XGETTEXT@
 YACC = @YACC@
+ZLIB_CPPFLAGS = @ZLIB_CPPFLAGS@
+ZLIB_LDFLAGS = @ZLIB_LDFLAGS@
+ZLIB_LIBS = @ZLIB_LIBS@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_BUILD_CC = @ac_ct_BUILD_CC@
 ac_ct_CC = @ac_ct_CC@
@@ -283,8 +284,6 @@ build_alias = @build_alias@
 build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
-ccache = @ccache@
-ccache_prefix = @ccache_prefix@
 datadir = @datadir@
 docdir = @docdir@
 exec_prefix = @exec_prefix@

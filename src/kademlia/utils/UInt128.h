@@ -1,6 +1,7 @@
-//
+//								-*- C++ -*-
 // This file is part of the aMule Project.
 //
+// Copyright (c) 2008 Dévai Tamás (GonoszTopi) ( gonosztopi@amule.org )
 // Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
 // Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
@@ -45,78 +46,182 @@ there client on the eMule forum..
 namespace Kademlia {
 ////////////////////////////////////////
 
-class CUInt128 
+class CUInt128
 {
 public:
+	CUInt128(const CUInt128& value) throw()
+	{
+		SetValue(value);
+	}
 
-	CUInt128();
-	explicit CUInt128(bool fill);
-	explicit CUInt128(uint32 value);
-	explicit CUInt128(const byte *valueBE);
+	explicit CUInt128(bool fill = false) throw()
+	{
+		m_data[0] = m_data[1] = m_data[2] = m_data[3] = (fill ? (uint32_t)-1 : 0);
+	}
+
+	explicit CUInt128(uint32_t value) throw()
+	{
+		SetValue(value);
+	}
+
+	explicit CUInt128(const uint8_t *valueBE) throw()
+	{
+		SetValueBE(valueBE);
+	}
+
 	/**
 	 * Generates a new number, copying the most significant 'numBits' bits from 'value'.
 	 * The remaining bits are randomly generated.
 	 */
-	CUInt128(const CUInt128 &value, uint32 numBits = 128);
-
-	~CUInt128() {};
-	
-	const byte* GetData() const { return (byte*)m_data; }
-	byte* GetDataPtr() const { return (byte*)m_data; }
+	CUInt128(const CUInt128& value, uint32_t numBits) throw();
 
 	/** Bit at level 0 being most significant. */
-	uint32 GetBitNumber(uint32 bit) const;
-	int CompareTo(const CUInt128 &other) const;
-	int CompareTo(uint32 value) const;
+	unsigned GetBitNumber(unsigned bit) const throw()
+	{
+		return bit <= 127 ? (m_data[bit / 32] >> (31 - (bit % 32))) & 1 : 0;
+	}
 
-	wxString ToHexString(void) const;
+	int CompareTo(const CUInt128& other) const throw();
+	int CompareTo(uint32_t value) const throw();
+
+	wxString ToHexString() const;
 	wxString ToBinaryString(bool trim = false) const;
-	void ToByteArray(byte *b) const;
+	void ToByteArray(uint8_t *b) const throw();
 
-	uint32 Get32BitChunk(int val) const {return m_data[val];}
+	uint32_t Get32BitChunk(unsigned val) const throw()
+	{
+		wxASSERT(val < 4);
 
-	CUInt128& SetValue(const CUInt128 &value);
-	CUInt128& SetValue(uint32 value);
-	CUInt128& SetValueBE(const byte *valueBE);
+		return m_data[val];
+	}
 
-	CUInt128& SetValueRandom(void);
-//	CUInt128& SetValueGUID(void);
+	void Set32BitChunk(unsigned chunk, uint32_t value) throw()
+	{
+		wxASSERT(chunk < 4);
 
-	CUInt128& SetBitNumber(uint32 bit, uint32 value);
-	CUInt128& ShiftLeft(uint32 bits);
+		m_data[chunk] = value;
+	}
 
-	CUInt128& Add(const CUInt128 &value);
-	CUInt128& Add(uint32 value);
-	CUInt128& Subtract(const CUInt128 &value);
-	CUInt128& Subtract(uint32 value);
+	CUInt128& SetValue(const CUInt128& value) throw()
+	{
+		m_data[0] = value.m_data[0];
+		m_data[1] = value.m_data[1];
+		m_data[2] = value.m_data[2];
+		m_data[3] = value.m_data[3];
+		return *this;
+	}
 
-	CUInt128& XOR(const CUInt128 &value);
-	CUInt128& XORBE(const byte *valueBE);
+	CUInt128& SetValue(uint32_t value) throw()
+	{
+		m_data[0] = m_data[1] = m_data[2] = 0;
+		m_data[3] = value;
+		return *this;
+	}
 
-	void operator+  (const CUInt128 &value) {Add(value);}
-	void operator-  (const CUInt128 &value) {Subtract(value);}
-	void operator=  (const CUInt128 &value) {SetValue(value);}
-	bool operator<  (const CUInt128 &value) const {return (CompareTo(value) <  0);}
-	bool operator>  (const CUInt128 &value) const {return (CompareTo(value) >  0);}
-	bool operator<= (const CUInt128 &value) const {return (CompareTo(value) <= 0);}
-	bool operator>= (const CUInt128 &value) const {return (CompareTo(value) >= 0);}
-	bool operator== (const CUInt128 &value) const {return (CompareTo(value) == 0);}
-	bool operator!= (const CUInt128 &value) const {return (CompareTo(value) != 0);}
+	CUInt128& SetValueBE(const uint8_t *valueBE) throw();
 
-	void operator+  (uint32 value) {Add(value);}
-	void operator-  (uint32 value) {Subtract(value);}
-	void operator=  (uint32 value) {SetValue(value);}
-	bool operator<  (uint32 value) const {return (CompareTo(value) <  0);}
-	bool operator>  (uint32 value) const {return (CompareTo(value) >  0);}
-	bool operator<= (uint32 value) const {return (CompareTo(value) <= 0);}
-	bool operator>= (uint32 value) const {return (CompareTo(value) >= 0);}
-	bool operator== (uint32 value) const {return (CompareTo(value) == 0);}
-	bool operator!= (uint32 value) const {return (CompareTo(value) != 0);}
+	CUInt128& SetValueRandom();
+
+	/**
+	 * Stores value used by the crypt functions.
+	 *
+	 * Since eMule started to use the value as-is (four little-endian 32-bit integers in big-endian order),
+	 * we have to reproduce that same representation on every platform.
+	 *
+	 * @param buf Buffer to hold the value. Must be large enough to hold the data (16 bytes at least),
+	 *	and must not be NULL.
+	 */
+	void StoreCryptValue(uint8_t *buf) const throw();
+
+	/** Bit at level 0 being most significant. */
+	CUInt128& SetBitNumber(unsigned bit, unsigned value) throw()
+	{
+		wxASSERT(bit <= 127);
+
+		if (value)
+			m_data[bit / 32] |= 1 << (31 - (bit % 32));
+		else
+			m_data[bit / 32] &= ~(1 << (31 - (bit % 32)));
+
+		return *this;
+	}
+
+	CUInt128& ShiftLeft(unsigned bits) throw();
+
+	CUInt128& Add(const CUInt128& value) throw();
+	CUInt128& Add(uint32_t value) throw()
+	{
+		return value ? Add(CUInt128(value)) : *this;
+	}
+
+	CUInt128& Subtract(const CUInt128& value) throw();
+	CUInt128& Subtract(uint32_t value) throw()
+	{
+		return value ? Subtract(CUInt128(value)) : *this;
+	}
+
+	CUInt128& XOR(const CUInt128& value) throw()
+	{
+		m_data[0] ^= value.m_data[0];
+		m_data[1] ^= value.m_data[1];
+		m_data[2] ^= value.m_data[2];
+		m_data[3] ^= value.m_data[3];
+		return *this;
+	}
+
+	CUInt128& XORBE(const uint8_t *valueBE) throw() { return XOR(CUInt128(valueBE)); }
+
+	bool operator<  (const CUInt128& value) const throw() {return (CompareTo(value) <  0);}
+	bool operator>  (const CUInt128& value) const throw() {return (CompareTo(value) >  0);}
+	bool operator<= (const CUInt128& value) const throw() {return (CompareTo(value) <= 0);}
+	bool operator>= (const CUInt128& value) const throw() {return (CompareTo(value) >= 0);}
+	bool operator== (const CUInt128& value) const throw() {return (CompareTo(value) == 0);}
+	bool operator!= (const CUInt128& value) const throw() {return (CompareTo(value) != 0);}
+
+	CUInt128& operator= (const CUInt128& value) throw() { return SetValue(value); }
+	CUInt128& operator+=(const CUInt128& value) throw() { return Add(value); }
+	CUInt128& operator-=(const CUInt128& value) throw() { return Subtract(value); }
+	CUInt128& operator^=(const CUInt128& value) throw() { return XOR(value); }
+	CUInt128  operator+ (const CUInt128& value) const throw() { return CUInt128(*this).Add(value); }
+	CUInt128  operator- (const CUInt128& value) const throw() { return CUInt128(*this).Subtract(value); }
+	CUInt128  operator^ (const CUInt128& value) const throw() { return CUInt128(*this).XOR(value); }
+
+	bool operator<  (uint32_t value) const throw() {return (CompareTo(value) <  0);}
+	bool operator>  (uint32_t value) const throw() {return (CompareTo(value) >  0);}
+	bool operator<= (uint32_t value) const throw() {return (CompareTo(value) <= 0);}
+	bool operator>= (uint32_t value) const throw() {return (CompareTo(value) >= 0);}
+	bool operator== (uint32_t value) const throw() {return (CompareTo(value) == 0);}
+	bool operator!= (uint32_t value) const throw() {return (CompareTo(value) != 0);}
+
+	CUInt128& operator= (uint32_t value) throw() { return SetValue(value); }
+	CUInt128& operator+=(uint32_t value) throw() { return Add(value); }
+	CUInt128& operator-=(uint32_t value) throw() { return Subtract(value); }
+	CUInt128& operator^=(uint32_t value) throw() { return value ? XOR(CUInt128(value)) : *this; }
+	CUInt128  operator+ (uint32_t value) const throw() { return CUInt128(*this).Add(value); }
+	CUInt128  operator- (uint32_t value) const throw() { return CUInt128(*this).Subtract(value); }
+	CUInt128  operator^ (uint32_t value) const throw() { return value ? CUInt128(*this).XOR(CUInt128(value)) : *this; }
+
+	CUInt128  operator<< (uint32_t bits) const throw() { return CUInt128(*this).ShiftLeft(bits); }
+	CUInt128& operator<<=(uint32_t bits) throw() { return ShiftLeft(bits); }
 
 private:
+	bool IsZero() const throw()
+	{
+		return (m_data[0] | m_data[1] | m_data[2] | m_data[3]) == 0;
+	}
 
-	uint32 m_data[4];
+	uint32_t m_data[4];
 };
+
+inline bool operator==(uint32_t x, const CUInt128& y) throw() { return y.operator==(x); }
+inline bool operator!=(uint32_t x, const CUInt128& y) throw() { return y.operator!=(x); }
+inline bool operator<(uint32_t x, const CUInt128& y) throw() { return y.operator>(x); }
+inline bool operator>(uint32_t x, const CUInt128& y) throw() { return y.operator<(x); }
+inline bool operator<=(uint32_t x, const CUInt128& y) throw() { return y.operator>=(x); }
+inline bool operator>=(uint32_t x, const CUInt128& y) throw() { return y.operator<=(x); }
+inline CUInt128 operator+(uint32_t x, const CUInt128& y) throw() { return y.operator+(x); }
+inline CUInt128 operator-(uint32_t x, const CUInt128& y) throw() { return CUInt128(x).Subtract(y); }
+inline CUInt128 operator^(uint32_t x, const CUInt128& y) throw() { return y.operator^(x); }
 
 } // End namespace
 

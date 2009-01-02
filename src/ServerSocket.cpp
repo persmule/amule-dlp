@@ -256,7 +256,7 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 						} else {	
 							servername = _("Server");
 						}
-						AddLogLineM(false, CFormat( _("Error: %s (%s) - %s") )
+						AddLogLineM(false, CFormat( _("ERROR: %s (%s) - %s") )
 							% servername
 							% Uint32_16toStringIP_Port(cur_server->GetIP(), cur_server->GetPort())
 							% message.Mid(5,message.Len()).Trim(wxT(" :")));
@@ -271,7 +271,7 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 						} else {	
 							servername = _("Server");
 						}
-						AddLogLineM(false, CFormat( _("Warning: %s (%s) - %s") )
+						AddLogLineM(false, CFormat( _("WARNING: %s (%s) - %s") )
 							% servername
 							% Uint32_16toStringIP_Port(cur_server->GetIP(), cur_server->GetPort())
 							% message.Mid(5,message.Len()).Trim(wxT(" :")));
@@ -567,15 +567,11 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 							client->SetCryptLayerSupport(false);
 							client->SetCryptLayerRequires(false);
 						} else {
-							client->SetCryptLayerSupport((byCryptOptions & 0x01) != 0);
-							client->SetCryptLayerRequest((byCryptOptions & 0x02) != 0);
-							client->SetCryptLayerRequires((byCryptOptions & 0x04) != 0);
+							client->SetConnectOptions(byCryptOptions, true, false);
 						}
 					} else if (size >= 23) {
 						client->SetUserHash(achUserHash);
-						client->SetCryptLayerSupport((byCryptOptions & 0x01) != 0);
-						client->SetCryptLayerRequest((byCryptOptions & 0x02) != 0);
-						client->SetCryptLayerRequires((byCryptOptions & 0x04) != 0);
+						client->SetConnectOptions(byCryptOptions, true, false);
 					}
 					
 					if (client) {

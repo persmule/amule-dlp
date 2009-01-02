@@ -169,7 +169,7 @@ void CSearchListCtrl::AddResult(CSearchFile* toshow)
 		CSearchFile* parent = toshow->GetParent();
 
 		if (newid > 0) {
-			CSearchFile* before = (CSearchFile*)GetItemData(newid - 1);			
+			CSearchFile* before = (CSearchFile*)GetItemData(newid - 1);
 			wxASSERT(before);
 			if (parent) {
 				wxASSERT((before->GetParent() == parent) || (before == parent));
@@ -197,6 +197,13 @@ void CSearchListCtrl::AddResult(CSearchFile* toshow)
 
 	// Source count
 	wxString temp = wxString::Format( wxT("%d (%d)"), toshow->GetSourceCount(), toshow->GetCompleteSourceCount() );
+#ifdef __DEBUG__
+	if (toshow->GetKadPublishInfo() == 0) {
+		temp += wxT(" | -");
+	} else {
+		temp += wxString::Format(wxT(" | N:%u, P:%u, T:%0.2f"), (toshow->GetKadPublishInfo() & 0xFF000000) >> 24, (toshow->GetKadPublishInfo() & 0x00FF0000) >> 16, (toshow->GetKadPublishInfo() & 0x0000FFFF) / 100.0);
+	}
+#endif
 	SetItem( newid, ID_SEARCH_COL_SOURCES, temp );
 
 	// File-type
@@ -232,13 +239,20 @@ void CSearchListCtrl::UpdateResult(CSearchFile* toupdate)
 	if (index != -1) {
 		// Update the filename, which may be changed in case of multiple variants.
 		SetItem(index, ID_SEARCH_COL_NAME, toupdate->GetFileName().GetPrintable());
-		
+
 		wxString temp = wxString::Format( wxT("%d (%d)"), toupdate->GetSourceCount(), toupdate->GetCompleteSourceCount());
+#ifdef __DEBUG__
+		if (toupdate->GetKadPublishInfo() == 0) {
+			temp += wxT(" | -");
+		} else {
+			temp += wxString::Format(wxT(" | N:%u, P:%u, T:%0.2f"), (toupdate->GetKadPublishInfo() & 0xFF000000) >> 24, (toupdate->GetKadPublishInfo() & 0x00FF0000) >> 16, (toupdate->GetKadPublishInfo() & 0x0000FFFF) / 100.0);
+		}
+#endif
 		SetItem(index, ID_SEARCH_COL_SOURCES, temp);
-		
+
 		UpdateItemColor(index);
-		
-		// Deletions of items causes rather large ammount of flicker, so to
+
+		// Deletions of items causes rather large amount of flicker, so to
 		// avoid this, we resort the list to ensure correct ordering.
 		if (!IsItemSorted(index)) {
 			SortList();
@@ -433,7 +447,7 @@ int CSearchListCtrl::SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData)
 
 	// Modifies the result, 1 for ascending, -1 for decending
 	int modifier = (sortData & CMuleListCtrl::SORT_DES) ? -1 : 1;
-	bool alternate = (sortData & CMuleListCtrl::SORT_ALT);
+	bool alternate = (sortData & CMuleListCtrl::SORT_ALT) != 0;
 
 	// Decide if which should files we should sort by.
 	wxUIntPtr parent1 = reinterpret_cast<wxUIntPtr>(file1->GetParent());
@@ -565,7 +579,7 @@ void CSearchListCtrl::OnRightClick(wxListEvent& event)
 		menu.Append(MP_RAZORSTATS, _("Get Razorback 2's stats for this file"));
 		menu.AppendSeparator();
 */
-		menu.Append(MP_SEARCHRELATED, _("Search related files (ED2k, local server)"));
+		menu.Append(MP_SEARCHRELATED, _("Search related files (eD2k, local server)"));
 		menu.AppendSeparator();
 
 //#warning Uncomment this here to test the MP_MARK_AS_KNOWN feature. Beware! You are on your own here, this might break "known.met"
@@ -574,10 +588,10 @@ void CSearchListCtrl::OnRightClick(wxListEvent& event)
 		menu.AppendSeparator();
 #endif
 
-		menu.Append(MP_GETED2KLINK, _("Copy ED2k link to clipboard"));
+		menu.Append(MP_GETED2KLINK, _("Copy eD2k link to clipboard"));
 
 		// These should only be enabled for single-selections
-		bool enable = GetSelectedItemCount();
+		bool enable = (GetSelectedItemCount() == 1);
 		menu.Enable(MP_GETED2KLINK, enable);
 		menu.Enable(MP_MENU_CATS, (theApp->glob_prefs->GetCatCount() > 1));
 
@@ -877,7 +891,7 @@ void CSearchListCtrl::OnDrawItem(
 		CSearchFile* parent = file->GetParent();
 
 		if (item > 0) {
-			CSearchFile* before = (CSearchFile*)GetItemData(item - 1);			
+			CSearchFile* before = (CSearchFile*)GetItemData(item - 1);
 			wxASSERT(before);
 			if (parent) {
 				wxASSERT((before->GetParent() == parent) || (before == parent));

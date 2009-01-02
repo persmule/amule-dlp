@@ -59,9 +59,10 @@
 #include "Logger.h"
 #include <common/Format.h>	// Needed for CFormat
 #include <common/FileFunctions.h>	// Needed for GetLastModificationTime
-#include "ThreadTasks.h"	// Needed for CHashingTask/CCompletionTask
+#include "ThreadTasks.h"	// Needed for CHashingTask/CCompletionTask/CAllocateFileTask
 #include "GuiEvents.h"		// Needed for Notify_*
 #include "DataToText.h"		// Needed for OriginToText()
+#include "PlatformSpecific.h"	// Needed for CreateSparseFile()
 
 #include "kademlia/kademlia/Kademlia.h"
 #include "kademlia/kademlia/Search.h"
@@ -259,6 +260,7 @@ CPartFile::~CPartFile()
 
 void CPartFile::CreatePartFile()
 {
+#ifndef CLIENT_GUI
 	// use lowest free partfilenumber for free file (InterCeptor)
 	int i = 0; 
 	do { 
@@ -277,29 +279,32 @@ void CPartFile::CreatePartFile()
 	m_gaplist.push_back(gap);
 	
 	CPath partPath = m_fullname.RemoveExt();
-	if (m_hpartfile.Create(partPath, true)) {
+	bool fileCreated;
+	if (thePrefs::GetAllocFullFile()) {
+		fileCreated = m_hpartfile.Create(partPath.GetRaw(), true);
 		m_hpartfile.Close();
-
-		if(!m_hpartfile.Open(partPath, CFile::read_write)) {
-			AddLogLineM(false,_("ERROR: Failed to open partfile)"));
-			SetPartFileStatus(PS_ERROR);
-		}
 	} else {
+		fileCreated = PlatformSpecific::CreateSparseFile(partPath, GetFileSize());
+	}
+	if (!fileCreated) {
 		AddLogLineM(false,_("ERROR: Failed to create partfile)"));
 		SetPartFileStatus(PS_ERROR);
 	}
 
 	SetFilePath(thePrefs::GetTempDir());
 			
-	if (thePrefs::GetAllocFullPart()) {
-		//#warning Code for full file alloc - should be done on thread.
+	if (thePrefs::GetAllocFullFile()) {
+		SetPartFileStatus(PS_ALLOCATING);
+		CThreadScheduler::AddTask(new CAllocateFileTask(this, thePrefs::AddNewFilesPaused()));
+	} else {
+		AllocationFinished();
 	}
 	
-	
-	m_hashsetneeded = GetED2KPartHashCount();
+	m_hashsetneeded = (GetED2KPartHashCount() > 0);
 	
 	SavePartFile(true);
 	SetActive(theApp->IsConnected());
+#endif
 }
 
 
@@ -326,13 +331,13 @@ uint8 CPartFile::LoadPartFile(const CPath& in_directory, const CPath& filename, 
 	try {
 		CFile metFile(curMetFilename, CFile::read);
 		if (!metFile.IsOpened()) {
-			AddLogLineM(false, CFormat( _("Error: Failed to open part.met file: %s ==> %s") )
+			AddLogLineM(false, CFormat( _("ERROR: Failed to open part.met file: %s ==> %s") )
 				% curMetFilename
 				% GetFileName() );
 
 			return false;
 		} else if (metFile.GetLength() == 0) {
-			AddLogLineM(false, CFormat( _("Error: part.met file is 0 size: %s ==> %s") )
+			AddLogLineM(false, CFormat( _("ERROR: part.met file is 0 size: %s ==> %s") )
 				% m_partmetfilename
 				% GetFileName() );
 			
@@ -343,7 +348,7 @@ uint8 CPartFile::LoadPartFile(const CPath& in_directory, const CPath& filename, 
 		if (version != PARTFILE_VERSION && version != PARTFILE_SPLITTEDVERSION && version != PARTFILE_VERSION_LARGEFILE){
 			metFile.Close();
 			//if (version == 83) return ImportShareazaTempFile(...)
-			AddLogLineM(false, CFormat( _("Error: Invalid part.met fileversion: %s ==> %s") )
+			AddLogLineM(false, CFormat( _("ERROR: Invalid part.met fileversion: %s ==> %s") )
 				% m_partmetfilename 
 				% GetFileName() );
 			return false;
@@ -439,7 +444,7 @@ uint8 CPartFile::LoadPartFile(const CPath& in_directory, const CPath& filename, 
 						break;
 					}
 					case FT_STATUS: {
-						m_paused = newtag.GetInt();
+						m_paused = (newtag.GetInt() == 1);
 						m_stopped = m_paused;
 						break;
 					}
@@ -592,8 +597,8 @@ uint8 CPartFile::LoadPartFile(const CPath& in_directory, const CPath& filename, 
 			% m_partmetfilename
 			% e.what() );
 		return false;
-	} catch (const CEOFException& e) {
-		AddLogLineM(true, CFormat( _("Error: %s (%s) is corrupt (wrong tagcount), unable to load file.") )
+	} catch (const CEOFException& WXUNUSED(e)) {
+		AddLogLineM(true, CFormat( _("ERROR: %s (%s) is corrupt (wrong tagcount), unable to load file.") )
 			% m_partmetfilename
 			% GetFileName() );
 		AddLogLineM(true, _("Trying to recover file info..."));
@@ -700,7 +705,7 @@ uint8 CPartFile::LoadPartFile(const CPath& in_directory, const CPath& filename, 
 			// It's pointless to rehash an empty file, since the case
 			// where a user has zero'd a file is handled above ...
 			if (m_hpartfile.GetLength()) {
-				AddLogLineM(false, CFormat( _("Warning: %s might be corrupted (%i)") )
+				AddLogLineM(false, CFormat( _("WARNING: %s might be corrupted (%i)") )
 					% partFilePath
 					% (m_lastDateChanged - file_date) );
 				// rehash
@@ -1235,14 +1240,16 @@ void CPartFile::AddGap(uint64 start, uint64 end)
 			m_gaplist.erase(it2);
 			delete cur_gap;
 			continue;
-		} else if (cur_gap->start >= start && cur_gap->start <= end) {
-			// a part of this gap is in the new gap - extend limit and delete
+		} else if (cur_gap->start >= start && cur_gap->start <= end + 1) {
+			// head of this gap is in the new gap, or this gap is
+			// directly behind the new gap - extend limit and delete
 			end = cur_gap->end;
 			m_gaplist.erase(it2);
 			delete cur_gap;
 			continue;
-		} else if (cur_gap->end <= end && cur_gap->end >= start) {
-			// a part of this gap is in the new gap - extend limit and delete
+		} else if (cur_gap->end <= end && cur_gap->end >= start - 1) {
+			// tail of this gap is in the new gap, or this gap is
+			// directly before the new gap - extend limit and delete
 			start = cur_gap->start;
 			m_gaplist.erase(it2);
 			delete cur_gap;
@@ -1250,13 +1257,18 @@ void CPartFile::AddGap(uint64 start, uint64 end)
 		} else if (start >= cur_gap->start && end <= cur_gap->end){
 			// new gap is already inside this gap - return
 			return;
+		// now all cases of overlap are ruled out
+		} else if (cur_gap->start > start) {
+			// this gap is the first behind the new gap -> insert before it
+			it = it2;
+			break;
 		}
 	}
 	
 	Gap_Struct* new_gap = new Gap_Struct;
 	new_gap->start = start;
 	new_gap->end = end;
-	m_gaplist.push_back(new_gap);
+	m_gaplist.insert(it, new_gap);
 	UpdateDisplayedInfo();
 }
 
@@ -1703,7 +1715,7 @@ bool CPartFile::CanAddSource(uint32 userid, uint16 port, uint32 serverip, uint16
 	return true;
 }
 
-void CPartFile::AddSources(CMemFile& sources,uint32 serverip, uint16 serverport, unsigned /*origin*/, bool bWithObfuscationAndHash)
+void CPartFile::AddSources(CMemFile& sources,uint32 serverip, uint16 serverport, unsigned origin, bool bWithObfuscationAndHash)
 {
 	uint8 count = sources.ReadUInt8();
 	uint8 debug_lowiddropped = 0;
@@ -1755,10 +1767,10 @@ void CPartFile::AddSources(CMemFile& sources,uint32 serverip, uint16 serverport,
 		if(thePrefs::GetMaxSourcePerFile() > GetSourceCount()) {
 			++debug_possiblesources;
 			CUpDownClient* newsource = new CUpDownClient(port,userid,serverip,serverport,this, true, true);
-			
-			newsource->SetCryptLayerSupport((byCryptOptions & 0x01) != 0);
-			newsource->SetCryptLayerRequest((byCryptOptions & 0x02) != 0);
-			newsource->SetCryptLayerRequires((byCryptOptions & 0x04) != 0);
+
+			newsource->SetSourceFrom((ESourceFrom)origin);
+			newsource->SetConnectOptions(byCryptOptions, true, false);
+
 			if ((byCryptOptions & 0x80) != 0) {
 				newsource->SetUserHash(achUserHash);
 			}
@@ -2227,7 +2239,7 @@ void CPartFile::CompleteFileEnded(bool errorOccured, const CPath& newname)
 	if (errorOccured) {
 		m_paused = true;
 		SetPartFileStatus(PS_ERROR);
-		AddLogLineM(true, CFormat( _("Unexpected file error while completing %s. File paused") )% GetFileName() );
+		AddLogLineM(true, CFormat( _("Unexpected error while completing %s. File paused") )% GetFileName() );
 	} else {
 		m_fullname = newname;
 
@@ -2371,12 +2383,12 @@ bool CPartFile::HashSinglePart(uint16 partnumber)
 {
 	if ((GetHashCount() <= partnumber) && (GetPartCount() > 1)) {
 		AddLogLineM(true,
-			CFormat( _("Warning: Unable to hash downloaded part - hashset incomplete for '%s'") )
+			CFormat( _("WARNING: Unable to hash downloaded part - hashset incomplete for '%s'") )
 				% GetFileName() );
 		m_hashsetneeded = true;
 		return true;
 	} else if ((GetHashCount() <= partnumber) && GetPartCount() != 1) {
-		AddLogLineM(true, CFormat( _("Error: Unable to hash downloaded part - hashset incomplete (%s). This should never happen")) % GetFileName() );
+		AddLogLineM(true, CFormat( _("ERROR: Unable to hash downloaded part - hashset incomplete (%s). This should never happen")) % GetFileName() );
 		m_hashsetneeded = true;
 		return true;		
 	} else {
@@ -2886,9 +2898,7 @@ void CPartFile::AddClientSources(CMemFile* sources, unsigned nSourceFrom, uint8 
 			}
 			
 			if (uPacketSXVersion >= 4) {
-				newsource->SetCryptLayerSupport((byCryptOptions & 0x01) != 0);
-				newsource->SetCryptLayerRequest((byCryptOptions & 0x02) != 0);
-				newsource->SetCryptLayerRequires((byCryptOptions & 0x04) != 0);
+				newsource->SetConnectOptions(byCryptOptions, true, false);
 			}
 
 			newsource->SetSourceFrom((ESourceFrom)nSourceFrom);
@@ -3229,6 +3239,9 @@ void CPartFile::UpdateFileRatingCommentAvail()
 		CUpDownClient* cur_src = *it;
 		
 		if (!cur_src->GetFileComment().IsEmpty()) {
+			if (thePrefs::IsCommentFiltered(cur_src->GetFileComment())) {
+				continue;
+			}
 			m_hasComment = true;
 		}
 
@@ -3827,7 +3840,9 @@ wxString CPartFile::getPartfileStatus() const
 	wxString mybuffer; 
 
 	if ((status == PS_HASHING) || (status == PS_WAITINGFORHASH)) {
-		mybuffer=_("Hashing");		
+		mybuffer=_("Hashing");
+	} else if (status == PS_ALLOCATING) {
+		mybuffer = _("Allocating");
 	} else {	
 		switch (GetStatus()) {
 			case PS_COMPLETING:
@@ -3843,7 +3858,7 @@ wxString CPartFile::getPartfileStatus() const
 				mybuffer=_("Erroneous");
 				break;
 			case PS_INSUFFICIENT:
-				mybuffer = _("Insufficient Diskspace");
+				mybuffer = _("Insufficient disk space");
 				break;
 			default:
 				if (GetTransferingSrcCount()>0) {
@@ -3888,24 +3903,14 @@ int CPartFile::getPartfileStatusRang() const
 } 
 
 
-wxString CPartFile::GetFeedback()
+wxString CPartFile::GetFeedback() const
 {
-	wxString retval
-		= CFormat(wxT("Feedback from: %s (%s)\n")) % thePrefs::GetUserNick() % GetFullMuleVersion()
-		+ CFormat(wxT("File name: %s\n")) % GetFileName()
-		+ CFormat(wxT("File size: %s\n")) % CastItoXBytes(GetFileSize());
-
-	if (GetStatus() == PS_COMPLETE) {
-		retval += wxT("Downloaded: Complete\n");
-	} else {
-		retval += CFormat(wxT("Downloaded: %s (%.2f%%)\n")) % CastItoXBytes(GetCompletedSize()) % GetPercentCompleted()
-			+ CFormat(wxT("Transferred: %s (%s)\n")) % CastItoXBytes(statistic.GetTransferred()) % CastItoXBytes(statistic.GetAllTimeTransferred())
-			+ CFormat(wxT("Requested: %u (%u)\n")) % statistic.GetRequests() % statistic.GetAllTimeRequests()
-			+ CFormat(wxT("Accepted: %d (%d)\n")) % statistic.GetAccepts() % statistic.GetAllTimeAccepts()
-			+ CFormat(wxT("Sources: %u\n")) % GetSourceCount();
+	wxString retval = CKnownFile::GetFeedback();
+	if (GetStatus() != PS_COMPLETE) {
+		retval += wxString(_("Downloaded")) + wxT(": ") + CastItoXBytes(GetCompletedSize()) + wxString::Format(wxT(" (%.2f%%)\n"), GetPercentCompleted())
+			+ _("Sources") + CFormat(wxT(": %u\n")) % GetSourceCount();
 	}
-	
-	return retval + wxString::Format(wxT("Complete Sources: %u\n"), m_nCompleteSourcesCount);
+	return retval + _("Status") + wxT(": ") + getPartfileStatus() + wxT("\n");
 }
 
 
@@ -4130,6 +4135,14 @@ CUpDownClient* CPartFile::GetSlowerDownloadingClient(uint32 speed, CUpDownClient
 	}	
 //	printf("End slower source calculation\n");
 	return NULL;
+}
+
+void CPartFile::AllocationFinished()
+{
+	if (!m_hpartfile.Open(GetFullName().RemoveExt(), CFile::read_write)) {
+		AddLogLineM(false, CFormat(_("ERROR: Failed to open partfile '%s'")) % GetFullName());
+		SetPartFileStatus(PS_ERROR);
+	}
 }
 
 #endif

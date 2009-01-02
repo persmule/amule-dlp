@@ -53,7 +53,7 @@
 
 void CServerConnect::TryAnotherConnectionrequest()
 {
-	if ( connectionattemps.size() < (( thePrefs::IsSafeServerConnectEnabled()) ? 1 : 2) ) {
+	if ( connectionattemps.size() < (unsigned)(( thePrefs::IsSafeServerConnectEnabled()) ? 1 : 2) ) {
 	
 		CServer*  next_server = used_list->GetNextServer(m_bTryObfuscated);
 
@@ -85,7 +85,7 @@ void CServerConnect::TryAnotherConnectionrequest()
 void CServerConnect::ConnectToAnyServer(bool prioSort, bool bNoCrypt)
 {
 	if (!thePrefs::GetNetworkED2K()){
-		AddLogLineM(true,_("ED2K network disabled on preferences, not connecting."));
+		AddLogLineM(true,_("eD2k network disabled on preferences, not connecting."));
 		return;
 	}
 
@@ -108,7 +108,7 @@ void CServerConnect::ConnectToAnyServer(bool prioSort, bool bNoCrypt)
 		}
 		if (!anystatic) {
 			connecting = false;
-			AddLogLineM(true,_("No valid servers to connect in serverlist found"));
+			AddLogLineM(true,_("No valid servers to which to connect found in server list"));
 			return;
 		}
 	}
@@ -121,7 +121,7 @@ void CServerConnect::ConnectToAnyServer(bool prioSort, bool bNoCrypt)
 
 	if (used_list->GetServerCount()==0 ) {
 		connecting = false;
-		AddLogLineM(true,_("No valid servers to connect in serverlist found"));
+		AddLogLineM(true,_("No valid servers to which to connect found in server list"));
 		return;
 	}
 	
@@ -134,7 +134,7 @@ void CServerConnect::ConnectToAnyServer(bool prioSort, bool bNoCrypt)
 void CServerConnect::ConnectToServer(CServer* server, bool multiconnect, bool bNoCrypt)
 {	
 	if (!thePrefs::GetNetworkED2K()){
-		AddLogLineM(true,_("ED2K network disabled on preferences, not connecting."));
+		AddLogLineM(true,_("eD2k network disabled on preferences, not connecting."));
 		return;
 	}
 	
@@ -173,16 +173,6 @@ void CServerConnect::StopConnectionTry()
 			DestroySocket(pSck);
 	}
 }
-
-#define CAPABLE_ZLIB				0x01
-#define CAPABLE_IP_IN_LOGIN_FRAME	0x02
-#define CAPABLE_AUXPORT				0x04
-#define CAPABLE_NEWTAGS				0x08
-#define CAPABLE_UNICODE				0x10
-#define CAPABLE_LARGEFILES			0x100
-#define SRVCAP_SUPPORTCRYPT     0x0200
-#define SRVCAP_REQUESTCRYPT     0x0400
-#define SRVCAP_REQUIRECRYPT     0x0800
 
 void CServerConnect::ConnectionEstablished(CServerSocket* sender)
 {
@@ -457,7 +447,7 @@ void CServerConnect::CheckForTimeout()
 	ServerSocketMap::iterator it = connectionattemps.begin();
 	while ( it != connectionattemps.end() ){
 		if ( !it->second ) {
-			AddLogLineM(false, _("Error: Socket invalid at timeoutcheck"));
+			AddLogLineM(false, _("ERROR: Socket invalid at timeout check"));
 			connectionattemps.erase( it );
 			return;
 		}

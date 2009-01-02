@@ -47,13 +47,14 @@ DIST_COMMON = $(noinst_HEADERS) $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/build-tools.m4 \
 	$(top_srcdir)/m4/codeset.m4 $(top_srcdir)/m4/cryptopp.m4 \
-	$(top_srcdir)/m4/gdlib.m4 $(top_srcdir)/m4/gettext.m4 \
-	$(top_srcdir)/m4/glibc21.m4 $(top_srcdir)/m4/iconv.m4 \
-	$(top_srcdir)/m4/intdiv0.m4 $(top_srcdir)/m4/inttypes-pri.m4 \
-	$(top_srcdir)/m4/inttypes.m4 $(top_srcdir)/m4/inttypes_h.m4 \
-	$(top_srcdir)/m4/lcmessage.m4 $(top_srcdir)/m4/lib-ld.m4 \
-	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
-	$(top_srcdir)/m4/libpng.m4 $(top_srcdir)/m4/progtest.m4 \
+	$(top_srcdir)/m4/fallocate.m4 $(top_srcdir)/m4/gdlib.m4 \
+	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/glibc21.m4 \
+	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intdiv0.m4 \
+	$(top_srcdir)/m4/inttypes-pri.m4 $(top_srcdir)/m4/inttypes.m4 \
+	$(top_srcdir)/m4/inttypes_h.m4 $(top_srcdir)/m4/lcmessage.m4 \
+	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
+	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libpng.m4 \
+	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/progtest.m4 \
 	$(top_srcdir)/m4/readline.m4 $(top_srcdir)/m4/stdint_h.m4 \
 	$(top_srcdir)/m4/uintmax_t.m4 $(top_srcdir)/m4/ulonglong.m4 \
 	$(top_srcdir)/m4/wxwin.m4 $(top_srcdir)/m4/zlib.m4 \
@@ -66,10 +67,9 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_wxcas_OBJECTS = wxcas-onlinesig.$(OBJEXT) wxcas-linuxmon.$(OBJEXT) \
-	wxcas-wxcas.$(OBJEXT) wxcas-wxcasprint.$(OBJEXT) \
-	wxcas-wxcasframe.$(OBJEXT) wxcas-wxcasprefs.$(OBJEXT) \
-	wxcas-wxcascte.$(OBJEXT) wxcas-wxcaspix.$(OBJEXT)
+am_wxcas_OBJECTS = onlinesig.$(OBJEXT) linuxmon.$(OBJEXT) \
+	wxcas.$(OBJEXT) wxcasprint.$(OBJEXT) wxcasframe.$(OBJEXT) \
+	wxcasprefs.$(OBJEXT) wxcascte.$(OBJEXT) wxcaspix.$(OBJEXT)
 wxcas_OBJECTS = $(am_wxcas_OBJECTS)
 am__DEPENDENCIES_1 =
 @NEED_RC_TRUE@am__DEPENDENCIES_2 = wxcasrc.$(OBJEXT)
@@ -112,8 +112,8 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BFD_FLAGS = @BFD_FLAGS@
-BFD_LIB = @BFD_LIB@
+BFD_CPPFLAGS = @BFD_CPPFLAGS@
+BFD_LIBS = @BFD_LIBS@
 BUILD_CC = @BUILD_CC@
 BUILD_CFLAGS = @BUILD_CFLAGS@
 BUILD_CPPFLAGS = @BUILD_CPPFLAGS@
@@ -126,7 +126,6 @@ CAS_MANPAGES = @CAS_MANPAGES@
 CAS_TRUE = @CAS_TRUE@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@
-CCACHE = @CCACHE@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 COMPILE_CMD_FALSE = @COMPILE_CMD_FALSE@
@@ -135,15 +134,9 @@ COMPILE_NLS_FALSE = @COMPILE_NLS_FALSE@
 COMPILE_NLS_TRUE = @COMPILE_NLS_TRUE@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CRYPTOLIBS = @CRYPTOLIBS@
-CRYPTO_PP_CXXFLAGS = @CRYPTO_PP_CXXFLAGS@
-CRYPTO_PP_INCLUDE_PREFIX = @CRYPTO_PP_INCLUDE_PREFIX@
-CRYPTO_PP_LDFLAGS = @CRYPTO_PP_LDFLAGS@
-CRYPTO_PP_LIB_NAME = @CRYPTO_PP_LIB_NAME@
-CRYPTO_PP_PREFIX = @CRYPTO_PP_PREFIX@
-CRYPTO_PP_STYLE = @CRYPTO_PP_STYLE@
-CRYPTO_PP_VERSION_NUMBER = @CRYPTO_PP_VERSION_NUMBER@
-CRYPTO_PP_VERSION_STRING = @CRYPTO_PP_VERSION_STRING@
+CRYPTOPP_CPPFLAGS = @CRYPTOPP_CPPFLAGS@
+CRYPTOPP_LDFLAGS = @CRYPTOPP_LDFLAGS@
+CRYPTOPP_LIBS = @CRYPTOPP_LIBS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -171,12 +164,12 @@ GDLIB_LIBS = @GDLIB_LIBS@
 GENCAT = @GENCAT@
 GENERATE_FLEX_HEADER_FALSE = @GENERATE_FLEX_HEADER_FALSE@
 GENERATE_FLEX_HEADER_TRUE = @GENERATE_FLEX_HEADER_TRUE@
-GEOIP_INCLUDE = @GEOIP_INCLUDE@
-GEOIP_LIB = @GEOIP_LIB@
+GEOIP_CPPFLAGS = @GEOIP_CPPFLAGS@
+GEOIP_LDFLAGS = @GEOIP_LDFLAGS@
+GEOIP_LIBS = @GEOIP_LIBS@
 GLIBC21 = @GLIBC21@
 GMSGFMT = @GMSGFMT@
-HAVE_FLEX_EXTENDED = @HAVE_FLEX_EXTENDED@
-HAVE_GETTEXT = @HAVE_GETTEXT@
+INCINTL = @INCINTL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -196,7 +189,6 @@ LIBINTL = @LIBINTL@
 LIBOBJS = @LIBOBJS@
 LIBPNG_CFLAGS = @LIBPNG_CFLAGS@
 LIBPNG_CONFIG_PATH = @LIBPNG_CONFIG_PATH@
-LIBPNG_CXXFLAGS = @LIBPNG_CXXFLAGS@
 LIBPNG_LDFLAGS = @LIBPNG_LDFLAGS@
 LIBPNG_LIBS = @LIBPNG_LIBS@
 LIBS = @LIBS@
@@ -213,6 +205,11 @@ MONOLITHIC_MANPAGES = @MONOLITHIC_MANPAGES@
 MONOLITHIC_TRUE = @MONOLITHIC_TRUE@
 MSGFMT = @MSGFMT@
 MSGMERGE = @MSGMERGE@
+MULECFLAGS = @MULECFLAGS@
+MULECPPFLAGS = @MULECPPFLAGS@
+MULECXXFLAGS = @MULECXXFLAGS@
+MULELDFLAGS = @MULELDFLAGS@
+MULERCFLAGS = @MULERCFLAGS@
 NEED_CORESERVICES_FALSE = @NEED_CORESERVICES_FALSE@
 NEED_CORESERVICES_TRUE = @NEED_CORESERVICES_TRUE@
 NEED_RC_FALSE = @NEED_RC_FALSE@
@@ -231,6 +228,7 @@ RANLIB = @RANLIB@
 RC = @RC@
 RCFLAGS = @RCFLAGS@
 READLINE_LIBS = @READLINE_LIBS@
+REGEX_LIBS = @REGEX_LIBS@
 RESOLV_LIB = @RESOLV_LIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -244,8 +242,7 @@ VERSION = @VERSION@
 WEB_FALSE = @WEB_FALSE@
 WEB_MANPAGES = @WEB_MANPAGES@
 WEB_TRUE = @WEB_TRUE@
-WXBASE_CFLAGS = @WXBASE_CFLAGS@
-WXBASE_CXXFLAGS = @WXBASE_CXXFLAGS@
+WXBASE_CPPFLAGS = @WXBASE_CPPFLAGS@
 WXBASE_LIBS = @WXBASE_LIBS@
 WXCAS_FALSE = @WXCAS_FALSE@
 WXCAS_MANPAGES = @WXCAS_MANPAGES@
@@ -269,6 +266,9 @@ WX_VERSION_MINOR = @WX_VERSION_MINOR@
 X11LIBS = @X11LIBS@
 XGETTEXT = @XGETTEXT@
 YACC = @YACC@
+ZLIB_CPPFLAGS = @ZLIB_CPPFLAGS@
+ZLIB_LDFLAGS = @ZLIB_LDFLAGS@
+ZLIB_LIBS = @ZLIB_LIBS@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_BUILD_CC = @ac_ct_BUILD_CC@
 ac_ct_CC = @ac_ct_CC@
@@ -292,8 +292,6 @@ build_alias = @build_alias@
 build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
-ccache = @ccache@
-ccache_prefix = @ccache_prefix@
 datadir = @datadir@
 docdir = @docdir@
 exec_prefix = @exec_prefix@
@@ -317,6 +315,9 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
+AM_CPPFLAGS = $(MULECPPFLAGS) $(WX_CPPFLAGS)
+AM_CXXFLAGS = $(MULECXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
+AM_LDFLAGS = $(MULELDFLAGS)
 wxcas_SOURCES = onlinesig.cpp \
 		linuxmon.cpp \
 		wxcas.cpp \
@@ -335,8 +336,6 @@ noinst_HEADERS = onlinesig.h \
 		wxcascte.h \
 		wxcaspix.h
 
-wxcas_CFLAGS = $(WX_CFLAGS)
-wxcas_CXXFLAGS = $(WX_CXXFLAGS)
 wxcas_LDADD = $(WX_LIBS) $(am__append_1)
 
 # Resources
@@ -409,14 +408,14 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wxcas-linuxmon.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wxcas-onlinesig.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wxcas-wxcas.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wxcas-wxcascte.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wxcas-wxcasframe.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wxcas-wxcaspix.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wxcas-wxcasprefs.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wxcas-wxcasprint.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linuxmon.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/onlinesig.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wxcas.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wxcascte.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wxcasframe.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wxcaspix.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wxcasprefs.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wxcasprint.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -431,118 +430,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-wxcas-onlinesig.o: onlinesig.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-onlinesig.o -MD -MP -MF "$(DEPDIR)/wxcas-onlinesig.Tpo" -c -o wxcas-onlinesig.o `test -f 'onlinesig.cpp' || echo '$(srcdir)/'`onlinesig.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-onlinesig.Tpo" "$(DEPDIR)/wxcas-onlinesig.Po"; else rm -f "$(DEPDIR)/wxcas-onlinesig.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='onlinesig.cpp' object='wxcas-onlinesig.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-onlinesig.o `test -f 'onlinesig.cpp' || echo '$(srcdir)/'`onlinesig.cpp
-
-wxcas-onlinesig.obj: onlinesig.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-onlinesig.obj -MD -MP -MF "$(DEPDIR)/wxcas-onlinesig.Tpo" -c -o wxcas-onlinesig.obj `if test -f 'onlinesig.cpp'; then $(CYGPATH_W) 'onlinesig.cpp'; else $(CYGPATH_W) '$(srcdir)/onlinesig.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-onlinesig.Tpo" "$(DEPDIR)/wxcas-onlinesig.Po"; else rm -f "$(DEPDIR)/wxcas-onlinesig.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='onlinesig.cpp' object='wxcas-onlinesig.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-onlinesig.obj `if test -f 'onlinesig.cpp'; then $(CYGPATH_W) 'onlinesig.cpp'; else $(CYGPATH_W) '$(srcdir)/onlinesig.cpp'; fi`
-
-wxcas-linuxmon.o: linuxmon.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-linuxmon.o -MD -MP -MF "$(DEPDIR)/wxcas-linuxmon.Tpo" -c -o wxcas-linuxmon.o `test -f 'linuxmon.cpp' || echo '$(srcdir)/'`linuxmon.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-linuxmon.Tpo" "$(DEPDIR)/wxcas-linuxmon.Po"; else rm -f "$(DEPDIR)/wxcas-linuxmon.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='linuxmon.cpp' object='wxcas-linuxmon.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-linuxmon.o `test -f 'linuxmon.cpp' || echo '$(srcdir)/'`linuxmon.cpp
-
-wxcas-linuxmon.obj: linuxmon.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-linuxmon.obj -MD -MP -MF "$(DEPDIR)/wxcas-linuxmon.Tpo" -c -o wxcas-linuxmon.obj `if test -f 'linuxmon.cpp'; then $(CYGPATH_W) 'linuxmon.cpp'; else $(CYGPATH_W) '$(srcdir)/linuxmon.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-linuxmon.Tpo" "$(DEPDIR)/wxcas-linuxmon.Po"; else rm -f "$(DEPDIR)/wxcas-linuxmon.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='linuxmon.cpp' object='wxcas-linuxmon.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-linuxmon.obj `if test -f 'linuxmon.cpp'; then $(CYGPATH_W) 'linuxmon.cpp'; else $(CYGPATH_W) '$(srcdir)/linuxmon.cpp'; fi`
-
-wxcas-wxcas.o: wxcas.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-wxcas.o -MD -MP -MF "$(DEPDIR)/wxcas-wxcas.Tpo" -c -o wxcas-wxcas.o `test -f 'wxcas.cpp' || echo '$(srcdir)/'`wxcas.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-wxcas.Tpo" "$(DEPDIR)/wxcas-wxcas.Po"; else rm -f "$(DEPDIR)/wxcas-wxcas.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='wxcas.cpp' object='wxcas-wxcas.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-wxcas.o `test -f 'wxcas.cpp' || echo '$(srcdir)/'`wxcas.cpp
-
-wxcas-wxcas.obj: wxcas.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-wxcas.obj -MD -MP -MF "$(DEPDIR)/wxcas-wxcas.Tpo" -c -o wxcas-wxcas.obj `if test -f 'wxcas.cpp'; then $(CYGPATH_W) 'wxcas.cpp'; else $(CYGPATH_W) '$(srcdir)/wxcas.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-wxcas.Tpo" "$(DEPDIR)/wxcas-wxcas.Po"; else rm -f "$(DEPDIR)/wxcas-wxcas.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='wxcas.cpp' object='wxcas-wxcas.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-wxcas.obj `if test -f 'wxcas.cpp'; then $(CYGPATH_W) 'wxcas.cpp'; else $(CYGPATH_W) '$(srcdir)/wxcas.cpp'; fi`
-
-wxcas-wxcasprint.o: wxcasprint.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-wxcasprint.o -MD -MP -MF "$(DEPDIR)/wxcas-wxcasprint.Tpo" -c -o wxcas-wxcasprint.o `test -f 'wxcasprint.cpp' || echo '$(srcdir)/'`wxcasprint.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-wxcasprint.Tpo" "$(DEPDIR)/wxcas-wxcasprint.Po"; else rm -f "$(DEPDIR)/wxcas-wxcasprint.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='wxcasprint.cpp' object='wxcas-wxcasprint.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-wxcasprint.o `test -f 'wxcasprint.cpp' || echo '$(srcdir)/'`wxcasprint.cpp
-
-wxcas-wxcasprint.obj: wxcasprint.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-wxcasprint.obj -MD -MP -MF "$(DEPDIR)/wxcas-wxcasprint.Tpo" -c -o wxcas-wxcasprint.obj `if test -f 'wxcasprint.cpp'; then $(CYGPATH_W) 'wxcasprint.cpp'; else $(CYGPATH_W) '$(srcdir)/wxcasprint.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-wxcasprint.Tpo" "$(DEPDIR)/wxcas-wxcasprint.Po"; else rm -f "$(DEPDIR)/wxcas-wxcasprint.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='wxcasprint.cpp' object='wxcas-wxcasprint.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-wxcasprint.obj `if test -f 'wxcasprint.cpp'; then $(CYGPATH_W) 'wxcasprint.cpp'; else $(CYGPATH_W) '$(srcdir)/wxcasprint.cpp'; fi`
-
-wxcas-wxcasframe.o: wxcasframe.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-wxcasframe.o -MD -MP -MF "$(DEPDIR)/wxcas-wxcasframe.Tpo" -c -o wxcas-wxcasframe.o `test -f 'wxcasframe.cpp' || echo '$(srcdir)/'`wxcasframe.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-wxcasframe.Tpo" "$(DEPDIR)/wxcas-wxcasframe.Po"; else rm -f "$(DEPDIR)/wxcas-wxcasframe.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='wxcasframe.cpp' object='wxcas-wxcasframe.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-wxcasframe.o `test -f 'wxcasframe.cpp' || echo '$(srcdir)/'`wxcasframe.cpp
-
-wxcas-wxcasframe.obj: wxcasframe.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-wxcasframe.obj -MD -MP -MF "$(DEPDIR)/wxcas-wxcasframe.Tpo" -c -o wxcas-wxcasframe.obj `if test -f 'wxcasframe.cpp'; then $(CYGPATH_W) 'wxcasframe.cpp'; else $(CYGPATH_W) '$(srcdir)/wxcasframe.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-wxcasframe.Tpo" "$(DEPDIR)/wxcas-wxcasframe.Po"; else rm -f "$(DEPDIR)/wxcas-wxcasframe.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='wxcasframe.cpp' object='wxcas-wxcasframe.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-wxcasframe.obj `if test -f 'wxcasframe.cpp'; then $(CYGPATH_W) 'wxcasframe.cpp'; else $(CYGPATH_W) '$(srcdir)/wxcasframe.cpp'; fi`
-
-wxcas-wxcasprefs.o: wxcasprefs.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-wxcasprefs.o -MD -MP -MF "$(DEPDIR)/wxcas-wxcasprefs.Tpo" -c -o wxcas-wxcasprefs.o `test -f 'wxcasprefs.cpp' || echo '$(srcdir)/'`wxcasprefs.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-wxcasprefs.Tpo" "$(DEPDIR)/wxcas-wxcasprefs.Po"; else rm -f "$(DEPDIR)/wxcas-wxcasprefs.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='wxcasprefs.cpp' object='wxcas-wxcasprefs.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-wxcasprefs.o `test -f 'wxcasprefs.cpp' || echo '$(srcdir)/'`wxcasprefs.cpp
-
-wxcas-wxcasprefs.obj: wxcasprefs.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-wxcasprefs.obj -MD -MP -MF "$(DEPDIR)/wxcas-wxcasprefs.Tpo" -c -o wxcas-wxcasprefs.obj `if test -f 'wxcasprefs.cpp'; then $(CYGPATH_W) 'wxcasprefs.cpp'; else $(CYGPATH_W) '$(srcdir)/wxcasprefs.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-wxcasprefs.Tpo" "$(DEPDIR)/wxcas-wxcasprefs.Po"; else rm -f "$(DEPDIR)/wxcas-wxcasprefs.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='wxcasprefs.cpp' object='wxcas-wxcasprefs.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-wxcasprefs.obj `if test -f 'wxcasprefs.cpp'; then $(CYGPATH_W) 'wxcasprefs.cpp'; else $(CYGPATH_W) '$(srcdir)/wxcasprefs.cpp'; fi`
-
-wxcas-wxcascte.o: wxcascte.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-wxcascte.o -MD -MP -MF "$(DEPDIR)/wxcas-wxcascte.Tpo" -c -o wxcas-wxcascte.o `test -f 'wxcascte.cpp' || echo '$(srcdir)/'`wxcascte.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-wxcascte.Tpo" "$(DEPDIR)/wxcas-wxcascte.Po"; else rm -f "$(DEPDIR)/wxcas-wxcascte.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='wxcascte.cpp' object='wxcas-wxcascte.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-wxcascte.o `test -f 'wxcascte.cpp' || echo '$(srcdir)/'`wxcascte.cpp
-
-wxcas-wxcascte.obj: wxcascte.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-wxcascte.obj -MD -MP -MF "$(DEPDIR)/wxcas-wxcascte.Tpo" -c -o wxcas-wxcascte.obj `if test -f 'wxcascte.cpp'; then $(CYGPATH_W) 'wxcascte.cpp'; else $(CYGPATH_W) '$(srcdir)/wxcascte.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-wxcascte.Tpo" "$(DEPDIR)/wxcas-wxcascte.Po"; else rm -f "$(DEPDIR)/wxcas-wxcascte.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='wxcascte.cpp' object='wxcas-wxcascte.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-wxcascte.obj `if test -f 'wxcascte.cpp'; then $(CYGPATH_W) 'wxcascte.cpp'; else $(CYGPATH_W) '$(srcdir)/wxcascte.cpp'; fi`
-
-wxcas-wxcaspix.o: wxcaspix.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-wxcaspix.o -MD -MP -MF "$(DEPDIR)/wxcas-wxcaspix.Tpo" -c -o wxcas-wxcaspix.o `test -f 'wxcaspix.cpp' || echo '$(srcdir)/'`wxcaspix.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-wxcaspix.Tpo" "$(DEPDIR)/wxcas-wxcaspix.Po"; else rm -f "$(DEPDIR)/wxcas-wxcaspix.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='wxcaspix.cpp' object='wxcas-wxcaspix.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-wxcaspix.o `test -f 'wxcaspix.cpp' || echo '$(srcdir)/'`wxcaspix.cpp
-
-wxcas-wxcaspix.obj: wxcaspix.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -MT wxcas-wxcaspix.obj -MD -MP -MF "$(DEPDIR)/wxcas-wxcaspix.Tpo" -c -o wxcas-wxcaspix.obj `if test -f 'wxcaspix.cpp'; then $(CYGPATH_W) 'wxcaspix.cpp'; else $(CYGPATH_W) '$(srcdir)/wxcaspix.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wxcas-wxcaspix.Tpo" "$(DEPDIR)/wxcas-wxcaspix.Po"; else rm -f "$(DEPDIR)/wxcas-wxcaspix.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='wxcaspix.cpp' object='wxcas-wxcaspix.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wxcas_CXXFLAGS) $(CXXFLAGS) -c -o wxcas-wxcaspix.obj `if test -f 'wxcaspix.cpp'; then $(CYGPATH_W) 'wxcaspix.cpp'; else $(CYGPATH_W) '$(srcdir)/wxcaspix.cpp'; fi`
 uninstall-info-am:
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
@@ -720,7 +607,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-info-am
 @NEED_RC_TRUE@		abs_builddir=`pwd` ; \
 @NEED_RC_TRUE@		abs_top_srcdir=`cd $(top_srcdir) ; pwd` ; \
 @NEED_RC_TRUE@		cd $(<D) ; \
-@NEED_RC_TRUE@		$(RC) $(RCFLAGS) -I$${abs_top_srcdir} -D__WIN95__ -D__WIN32__ -D__GNUWIN32__ -O COFF -o "$${abs_builddir}/$@" ; \
+@NEED_RC_TRUE@		$(RC) $(MULERCFLAGS) -I$${abs_top_srcdir} $(RCFLAGS) -O COFF -o "$${abs_builddir}/$@" ; \
 @NEED_RC_TRUE@	)
 
 @NEED_RC_TRUE@wxcas-version.rc: $(top_builddir)/version.rc

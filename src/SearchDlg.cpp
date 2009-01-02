@@ -46,7 +46,6 @@
 // just to keep compiler happy
 static wxCommandEvent nullEvent;
 
-
 BEGIN_EVENT_TABLE(CSearchDlg, wxPanel)
 	EVT_BUTTON(		IDC_STARTS,		CSearchDlg::OnBnClickedStart)
 	EVT_TEXT_ENTER(	IDC_SEARCHNAME,	CSearchDlg::OnBnClickedStart)
@@ -104,15 +103,18 @@ CSearchDlg::CSearchDlg(wxWindow* pParent)
 #endif
 	
 	// Sanity sanity
-	wxASSERT(CastChild( ID_SEARCHTYPE, wxChoice )->GetString(0) == _("Local"));
-	wxASSERT(CastChild( ID_SEARCHTYPE, wxChoice )->GetString(2) == _("Kad"));
-
-	if (thePrefs::GetNetworkED2K()){
-		CastChild( ID_SEARCHTYPE, wxChoice )->SetSelection(0);
-	} else {
-		CastChild( ID_SEARCHTYPE, wxChoice )->SetSelection(2);
-	}
+	wxChoice* searchchoice = CastChild( ID_SEARCHTYPE, wxChoice );
+	wxASSERT(searchchoice);
+	wxASSERT(searchchoice->GetString(0) == _("Local"));
+	wxASSERT(searchchoice->GetString(2) == _("Kad"));
+	wxASSERT(searchchoice->GetCount() == 4);
 	
+	m_searchchoices = searchchoice->GetStrings();
+	
+	// Let's break it now.
+
+	FixSearchTypes();
+
 	CastChild( IDC_TypeSearch, wxChoice )->SetSelection(0);
 	CastChild( IDC_SEARCHMINSIZE, wxChoice )->SetSelection(2);
 	CastChild( IDC_SEARCHMAXSIZE, wxChoice )->SetSelection(2);
@@ -129,6 +131,29 @@ CSearchDlg::~CSearchDlg()
 {
 }
 
+void CSearchDlg::FixSearchTypes()
+{
+	wxChoice* searchchoice = CastChild( ID_SEARCHTYPE, wxChoice );
+	
+	searchchoice->Clear();
+	
+	// We should have only filedonkey now. Let's insert stuff.
+	
+	int pos = 0;
+	
+	if (thePrefs::GetNetworkED2K()){
+		searchchoice->Insert(m_searchchoices[0], pos++);
+		searchchoice->Insert(m_searchchoices[1], pos++);
+	}
+
+	if (thePrefs::GetNetworkKademlia()) {
+		searchchoice->Insert(m_searchchoices[2], pos++);
+	}
+
+	searchchoice->Insert(m_searchchoices[3], pos++);
+	
+	searchchoice->SetSelection(0);
+}
 
 CSearchListCtrl* CSearchDlg::GetSearchList( wxUIntPtr id )
 {
@@ -239,7 +264,7 @@ void CSearchDlg::OnSearchPageChanged(wxNotebookEvent& WXUNUSED(evt))
 	if ( selection != -1 ) {
 		CSearchListCtrl *ctrl = dynamic_cast<CSearchListCtrl*>(m_notebook->GetPage(selection));
 
-		bool enable = ctrl->GetSelectedItemCount();
+		bool enable = (ctrl->GetSelectedItemCount() > 0);
 		FindWindow(IDC_SDOWNLOAD)->Enable( enable );
 
 		// set IDC_SEARCHNAME control to search text of currently selected tab
@@ -278,8 +303,19 @@ void CSearchDlg::OnBnClickedStart(wxCommandEvent& WXUNUSED(evt))
 
 	wxChoice* choice = CastChild( ID_SEARCHTYPE, wxChoice );
 
-	// Web seaches
-	switch ( choice->GetSelection() ) {
+	// Magic.
+	
+	int searchtype = choice->GetSelection();
+	
+	if (!thePrefs::GetNetworkED2K()) {
+		searchtype += 2;
+	}
+	
+	if (!thePrefs::GetNetworkKademlia()) {
+		searchtype += 1;
+	}
+
+	switch ( searchtype ) {
 		// Local Search
 		case 0: 
 		// Global Search
@@ -481,10 +517,10 @@ void CSearchDlg::StartNewSearch()
 		uint32 sizemax = GetTypeSize( (uint8) CastChild( IDC_SEARCHMAXSIZE, wxChoice )->GetSelection() );
 
 		// Parameter Minimum Size
-		params.minSize = CastChild( IDC_SPINSEARCHMIN, wxSpinCtrl )->GetValue() * sizemin;
+		params.minSize = (uint64_t)(CastChild( IDC_SPINSEARCHMIN, wxSpinCtrl )->GetValue()) * (uint64_t)sizemin;
 
 		// Parameter Maximum Size
-		params.maxSize = CastChild( IDC_SPINSEARCHMAX, wxSpinCtrl )->GetValue() * sizemax;
+		params.maxSize = (uint64_t)(CastChild( IDC_SPINSEARCHMAX, wxSpinCtrl )->GetValue()) * (uint64_t)sizemax;
 
 		if ((params.maxSize < params.minSize) && (params.maxSize)) {
 			wxMessageDialog dlg(this,
@@ -517,21 +553,33 @@ void CSearchDlg::StartNewSearch()
 	}
 
 	SearchType search_type = KadSearch;
-	switch (CastChild( ID_SEARCHTYPE, wxChoice )->GetSelection()) {
-	case 0: // Local Search	
-		search_type = LocalSearch;
-		break;
-	case 1: // Global Search
-		search_type = GlobalSearch;
-		break;
-	case 2: // Kad search 
-		search_type = KadSearch;
-		break;
-	default:
-		// Should never happen
-		wxASSERT(0);
-		break;
+	
+	int selection = CastChild( ID_SEARCHTYPE, wxChoice )->GetSelection();
+	
+	if (!thePrefs::GetNetworkED2K()) {
+		selection += 2;
 	}
+	
+	if (!thePrefs::GetNetworkKademlia()) {
+		selection += 1;
+	}
+	
+	switch (selection) {
+		case 0: // Local Search	
+			search_type = LocalSearch;
+			break;
+		case 1: // Global Search
+			search_type = GlobalSearch;
+			break;
+		case 2: // Kad search 
+			search_type = KadSearch;
+			break;
+		default:
+			// Should never happen
+			wxASSERT(0);
+			break;
+	}
+	
 	uint32 real_id = m_nSearchID;
 	wxString error = theApp->searchlist->StartNewSearch(&real_id, search_type, params);
 	if (!error.IsEmpty()) {

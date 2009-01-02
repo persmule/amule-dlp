@@ -1,4 +1,4 @@
-//
+//								-*- C++ -*-
 // This file is part of the aMule Project.
 //
 // Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
@@ -41,6 +41,13 @@ there client on the eMule forum..
 
 
 #include "../utils/UInt128.h"
+#include "../../Tag.h"
+#include <time.h>
+#include <list>
+#include <map>
+
+struct SSearchTerm;
+class CFileDataIO;
 
 ////////////////////////////////////////
 namespace Kademlia {
@@ -48,60 +55,91 @@ namespace Kademlia {
 
 class CEntry
 {
+protected:
+	struct sFileNameEntry {
+		wxString m_filename;
+		uint32_t m_popularityIndex;
+	};
+
 public:
 	CEntry()
 	{
-		m_iIP = 0;
-		m_iTCPport = 0;
-		m_iUDPport = 0;
-		m_iSize = 0;
+		m_uIP = 0;
+		m_uTCPport = 0;
+		m_uUDPport = 0;
+		m_uSize = 0;
 		m_tLifeTime = time(NULL);
 		m_bSource = false;
 	}
-	~CEntry()
-	{
-		TagPtrList::const_iterator it;
-		for (it = m_lTagList.begin(); it != m_lTagList.end(); ++it) {
-			delete *it;
-		}
-	}
-	
-	uint32 GetIntTagValue(const wxString& tagname) const
-	{
-		TagPtrList::const_iterator it;
-		CTag* tag;
-		for (it = m_lTagList.begin(); it != m_lTagList.end(); ++it) {
-			tag = *it;
-			if ((tag->GetName() == tagname) && tag->IsInt()) {
-				return tag->GetInt();
-			}
-		}
-		return 0;
-	}
 
-	wxString GetStrTagValue(const wxString& tagname) const
-	{
-		TagPtrList::const_iterator it;
-		CTag* tag;
-		for (it = m_lTagList.begin(); it != m_lTagList.end(); ++it) {
-			tag = *it;
-			if ((tag->GetName() == tagname) && tag->IsStr()) {
-				return tag->GetStr();
-			}
-		}
-		return wxEmptyString;
-	}	
+	virtual		~CEntry();
+	virtual CEntry*	Copy() const;
+	virtual bool	IsKeyEntry() const throw()	{ return false; }
 	
-	uint32 m_iIP;
-	uint16 m_iTCPport;
-	uint16 m_iUDPport;
-	CUInt128 m_iKeyID;
-	CUInt128 m_iSourceID;
-	wxString m_sFileName; // NOTE: this always holds the string in LOWERCASE!!!
-	uint32	m_iSize;
-	TagPtrList m_lTagList;
+	uint64_t GetIntTagValue(const wxString& tagname, bool includeVirtualTags = true) const;
+	bool	 GetIntTagValue(const wxString& tagname, uint64_t& value, bool includeVirtualTags = true) const;
+	wxString GetStrTagValue(const wxString& tagname) const;
+
+	void	 AddTag(CTag *tag)			{ m_taglist.push_back(tag); }
+	uint32_t GetTagCount() const			{ return m_taglist.size() + ((m_uSize != 0) ? 1 : 0) + (GetCommonFileName().IsEmpty() ? 0 : 1); }
+	void	 WriteTagList(CFileDataIO* data)	{ WriteTagListInc(data, 0); }
+
+	wxString GetCommonFileNameLowerCase() const	{ return GetCommonFileName().MakeLower(); }
+	wxString GetCommonFileName() const;
+	void	 SetFileName(const wxString& name);
+
+	uint32_t m_uIP;
+	uint16_t m_uTCPport;
+	uint16_t m_uUDPport;
+	CUInt128 m_uKeyID;
+	CUInt128 m_uSourceID;
+	uint64_t m_uSize;
 	time_t m_tLifeTime;
 	bool m_bSource;
+
+protected:
+	void	WriteTagListInc(CFileDataIO *data, uint32_t increaseTagNumber = 0);
+	typedef std::list<sFileNameEntry>	FileNameList;
+	FileNameList	m_filenames;
+	TagPtrList	m_taglist;
+};
+
+class CKeyEntry : public CEntry
+{
+      protected:
+	struct sPublishingIP {
+		uint32_t m_ip;
+		time_t	 m_lastPublish;
+	};
+
+      public:
+	CKeyEntry();
+	virtual ~CKeyEntry();
+
+	virtual CEntry*	Copy() const			{ return CEntry::Copy(); }
+	virtual bool	IsKeyEntry() const throw()	{ return true; }
+
+	bool	SearchTermsMatch(const SSearchTerm *searchTerm) const;
+	void	MergeIPsAndFilenames(CKeyEntry* fromEntry);
+	void	CleanUpTrackedPublishers();
+	double	GetTrustValue();
+	void	WritePublishTrackingDataToFile(CFileDataIO *data);
+	void	ReadPublishTrackingDataFromFile(CFileDataIO *data);
+	void	DirtyDeletePublishData();
+	void	WriteTagListWithPublishInfo(CFileDataIO *data);
+	static void	ResetGlobalTrackingMap()	{ s_globalPublishIPs.clear(); }
+
+      protected:
+	void	ReCalculateTrustValue();
+	static void	AdjustGlobalPublishTracking(uint32_t ip, bool increase, const wxString& dbgReason);
+
+	typedef std::list<sPublishingIP>	PublishingIPList;
+	typedef std::map<uint32_t, uint32_t>	GlobalPublishIPMap;
+
+	uint32_t m_lastTrustValueCalc;
+	double	 m_trustValue;
+	PublishingIPList *		m_publishingIPs;
+	static GlobalPublishIPMap	s_globalPublishIPs;	// tracks count of publishings for each 255.255.255.0/24 subnet
 };
 
 }

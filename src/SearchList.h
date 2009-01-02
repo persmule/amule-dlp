@@ -69,11 +69,11 @@ public:
 		//! The filename extension. May be empty.
 		wxString extension;
 		//! The smallest filesize in bytes to accept, zero for any.
-		uint32 minSize;
+		uint64_t minSize;
 		//! The largest filesize in bytes to accept, zero for any.
-		uint32 maxSize;
+		uint64_t maxSize;
 		//! The minumum available (source-count), zero for any.
-		uint32 availability;
+		uint32_t availability;
 	};
 
 	/** Constructor. */	
@@ -154,13 +154,14 @@ public:
 	 * Adds a result in the form of a kad search-keyword to the specified result-list.
 	 *
 	 * @param searchID The search to which this result belongs.
-	 * @param pfileID The hash of the result-file.
+	 * @param fileID The hash of the result-file.
 	 * @param name The filename of the result.
 	 * @param size The filesize of the result.
 	 * @param type The filetype of the result (TODO: Not used?)
-	 * @param taglist List of additional tags assosiated with the search-result.
+	 * @param kadPublishInfo The kademlia publish information of the result.
+	 * @param taglist List of additional tags associated with the search-result.
 	 */
-	void	KademliaSearchKeyword(uint32 searchID, const Kademlia::CUInt128* pfileID, const wxString& name, uint64 size, const wxString& type, const TagPtrList& taglist);
+	void	KademliaSearchKeyword(uint32_t searchID, const Kademlia::CUInt128 *fileID, const wxString& name, uint64_t size, const wxString& type, uint32_t kadPublishInfo, const TagPtrList& taglist);
 	
 	
 private:
@@ -183,7 +184,7 @@ private:
 	typedef std::auto_ptr<CMemFile> CMemFilePtr;
 
 	/** Create a basic search-packet for the given search-type. */ 	
-	CMemFilePtr CreateSearchData(const CSearchParams& params, SearchType type);
+	CMemFilePtr CreateSearchData(const CSearchParams& params, SearchType type, bool supports64bit, bool& packetUsing64bit);
 	
 	
 	//! Timer used for global search intervals.
@@ -200,6 +201,9 @@ private:
 	
 	//! The current packet used for searches.
 	CPacket*	m_searchPacket;
+
+	//! Does the current search packet contain 64bit values?
+	bool		m_64bitSearchPacket;
 
 	//! Queue of servers to ask when doing global searches.
 	//! TODO: Replace with 'cookie' system.

@@ -117,10 +117,10 @@ void CFriendList::LoadList()
 				}				
 			}
 		} else {
-			AddLogLineM(false, _("Failed to open friendlist file 'emfriends.met' for reading!"));
+			AddLogLineM(false, _("Failed to open friend list file 'emfriends.met' for reading!"));
 		}
 	} catch (const CInvalidPacket& e) {
-		AddDebugLogLineM(true, logGeneral, wxT("Invalid entry in friendlist, file may be corrupt: ") + e.what());		
+		AddDebugLogLineM(true, logGeneral, wxT("Invalid entry in friend list, file may be corrupt: ") + e.what());		
 	} catch (const CSafeIOException& e) {
 		AddDebugLogLineM(true, logGeneral, wxT("IO error while reading 'emfriends.met': ") + e.what());
 	}
@@ -143,7 +143,7 @@ void CFriendList::SaveList()
 			AddDebugLogLineM(true, logGeneral, wxT("IO failure while saving 'emfriends.met': ") + e.what());
 		}
 	} else {
-		AddLogLineM(false, _("Failed to open friendlist file 'emfriends.met' for writing!"));
+		AddLogLineM(false, _("Failed to open friend list file 'emfriends.met' for writing!"));
 	}
 }
 
@@ -172,7 +172,7 @@ CFriend* CFriendList::FindFriend(const CMD4Hash& userhash, uint32 dwIP, uint16 n
 
 bool CFriendList::IsAlreadyFriend( uint32 dwLastUsedIP, uint32 nLastUsedPort )
 {
-	return FindFriend( CMD4Hash(), dwLastUsedIP, nLastUsedPort );
+	return (FindFriend( CMD4Hash(), dwLastUsedIP, nLastUsedPort ) != NULL);
 }
 
 

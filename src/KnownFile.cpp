@@ -252,8 +252,7 @@ void CAbstractFile::AddNote(Kademlia::CEntry *pEntry)
 	CKadEntryPtrList::iterator it = m_kadNotes.begin();
 	for (; it != m_kadNotes.end(); ++it) {
 		Kademlia::CEntry* entry = *it;
-		if(entry->m_iIP == pEntry->m_iIP ||
-		   !entry->m_iSourceID.CompareTo(pEntry->m_iSourceID)) {
+		if(entry->m_uIP == pEntry->m_uIP || entry->m_uSourceID == pEntry->m_uSourceID) {
 			delete pEntry;
 			return;
 		}
@@ -1098,7 +1097,7 @@ void CKnownFile::SetFileRating(int8 iNewRating)
 		SetLastPublishTimeKadNotes(0);	
 		wxString strCfgPath = wxT("/") + m_abyFileHash.Encode() + wxT("/");
 		wxConfigBase* cfg = wxConfigBase::Get();
-		cfg->Write( strCfgPath + wxT("Rate"), iNewRating);
+		cfg->Write( strCfgPath + wxT("Rate"), (int)iNewRating);
 		m_iRating = iNewRating; 
 
 		SourceSet::iterator it = m_ClientUploadList.begin();
@@ -1355,4 +1354,14 @@ bool CKnownFile::HasProperAICHHashSet() const
 #endif
 }
 
+wxString CKnownFile::GetFeedback() const
+{
+	return	  wxString(_("File name")) + wxT(": ") + GetFileName().GetPrintable() + wxT("\n")
+		+ _("File size") + wxT(": ") + CastItoXBytes(GetFileSize()) + wxT("\n")
+		+ _("Share ratio") + wxString::Format(wxT(": %.2f%%\n"), (((double)statistic.GetAllTimeTransferred() / (double)GetFileSize()) * 100.0))
+		+ _("Uploaded") + wxT(": ") + CastItoXBytes(statistic.GetTransferred()) + wxT(" (") + CastItoXBytes(statistic.GetAllTimeTransferred()) + wxT(")\n")
+		+ _("Requested") + CFormat(wxT(": %u (%u)\n")) % statistic.GetRequests() % statistic.GetAllTimeRequests()
+		+ _("Accepted") + CFormat(wxT(": %u (%u)\n")) % statistic.GetAccepts() % statistic.GetAllTimeAccepts()
+		+ _("Complete sources") + CFormat(wxT(": %u\n")) % m_nCompleteSourcesCount;
+}
 // File_checked_for_headers
