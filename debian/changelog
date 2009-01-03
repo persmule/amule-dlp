@@ -1,4 +1,4 @@
-amule (2.2.3-1) UNRELEASED; urgency=low
+amule (2.2.3-1) experimental; urgency=low
 
   * "The Cactus Where Your Heart Should Be" release.
 
@@ -9,7 +9,7 @@ amule (2.2.3-1) UNRELEASED; urgency=low
   * Change section of packages to net (from x11, heh).
   * Add a paragraph to amule-daemon/README.Debian about its init script.
 
- -- Adeodato Simó <dato@net.com.org.es>  Sat, 03 Jan 2009 12:30:24 +0100
+ -- Adeodato Simó <dato@net.com.org.es>  Sat, 03 Jan 2009 13:00:48 +0100
 
 amule (2.2.2-2) experimental; urgency=low
 
