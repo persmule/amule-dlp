@@ -62,4 +62,12 @@ with the following command:
 The address to access the page is http://localhost:4711 if accessing from
 the same computer, or http://IP_OR_REMOTE_NAME:4711 if not.
 
- -- Adeodato Simó <dato@net.com.org.es>, 2006-06-07
+
+Init script
+===========
+
+The amule-daemon package ships an init script in /etc/init.d. You can
+use this script to automatically start amuled on every system boot. To
+enable it, edit the file /etc/default/amule-daemon and give a value to
+the AMULED_USER variable (this should be normally your username, or some
+other if you wish to run amuled under a separate account).
