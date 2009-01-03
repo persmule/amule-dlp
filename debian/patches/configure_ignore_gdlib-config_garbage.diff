@@ -1,6 +1,6 @@
 --- a/configure.in
 +++ b/configure.in
-@@ -194,7 +194,7 @@
+@@ -169,7 +169,7 @@
  	# Check for gd
  	MULE_CHECK_GDLIB([2.0.0], [
  		CAS_DEFS="-D__GD__"
@@ -11,7 +11,7 @@
  		AC_MSG_WARN([
 --- a/configure
 +++ b/configure
-@@ -6334,7 +6334,7 @@
+@@ -6311,7 +6311,7 @@
  	if test -n "$GDLIB_VERSION"; then
  
  		CAS_DEFS="-D__GD__"
