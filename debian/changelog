@@ -3,6 +3,8 @@ amule (2.2.3-1) UNRELEASED; urgency=low
   * "The Cactus Where Your Heart Should Be" release.
 
   * New upstream release. (Closes: #510257)
+    + drop manpages_spelling_fixes.diff, merged upstream.
+
   * Bump debian/compat to 5.
   * Change section of packages to net (from x11, heh).
   * Add a paragraph to amule-daemon/README.Debian about its init script.
