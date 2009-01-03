@@ -660,6 +660,7 @@ static LangInfo aMuleLanguages[] = {
 	{ wxLANGUAGE_SPANISH,				true,	wxEmptyString,	wxTRANSLATE("Spanish") },
 	{ wxLANGUAGE_SWEDISH,				true,	wxEmptyString,	wxTRANSLATE("Swedish") },
 	{ wxLANGUAGE_TURKISH,				true,	wxEmptyString,	wxTRANSLATE("Turkish") },
+	{ wxLANGUAGE_UKRAINIAN,				true,	wxEmptyString,	wxTRANSLATE("Ukrainian") },
 };
 
 
@@ -1013,7 +1014,7 @@ void CPreferences::BuildItemList( const wxString& appdir )
 	 **/
 	NewCfgItem(IDC_TEMPFILES,	(new Cfg_Path(  wxT("/eMule/TempDir"), 	s_tempdir, appdir + wxT("Temp") )));
 	
-	#if defined(__WXMAC__) || defined(__WINDOWS__)
+	#if defined(__WXMAC__) || defined(__WXMSW__)
 		wxString incpath = wxStandardPaths::Get().GetDocumentsDir();
 		if (incpath.IsEmpty()) {
 			// There is a built-in possibility for this call to fail, though I can't imagine a reason for that.

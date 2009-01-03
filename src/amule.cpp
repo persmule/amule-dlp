@@ -386,7 +386,7 @@ std::pair<bool, CPath> CheckMuleDirectory(const wxString& desc, const CPath& dir
 	} 
 	
 	theApp->ShowAlert(msg, wxT("Fatal error."), wxICON_ERROR | wxOK);
-	return std::pair<bool, wxString>(false, wxEmptyString);
+	return std::pair<bool, CPath>(false, CPath(wxEmptyString));
 }
 
 
@@ -431,7 +431,7 @@ bool CamuleApp::OnInit()
 	OSType = OSDescription.BeforeFirst( wxT(' ') );
 	if ( OSType.IsEmpty() ) {
 		OSType = wxT("Unknown");
-	}	
+	}
 
 	// Handle uncaught exceptions
 	InstallMuleExceptionHandler();
@@ -506,9 +506,7 @@ bool CamuleApp::OnInit()
 	}
 	
 	if ( cmdline.Found(wxT("version")) ) {
-		printf("%s (OS: %s)\n",
-			(const char*)unicode2char(GetFullMuleVersion()),
-			(const char*)unicode2char(OSType));
+		printf("%s (OS: %s)\n", strFullMuleVersion, (const char*)unicode2char(OSType));
 		
 		return false;
 	}
@@ -522,8 +520,7 @@ bool CamuleApp::OnInit()
 	}
 #endif
 
-
-	printf("Initialising aMule\n");
+	printf("Initialising %s\n", strFullMuleVersion);
 
 	// Ensure that "~/.aMule/" is accessible.
 	if (!CheckMuleDirectory(wxT("configuration"), CPath(ConfigDir), wxEmptyString).first) {
@@ -601,6 +598,9 @@ bool CamuleApp::OnInit()
 		// failure to open log is serious problem
 		return false;
 	}
+
+	// This cannot be translated, as localization is not set up yet.
+	AddLogLineM(false, wxT("Starting ") + FullMuleVersion);
 
 	// Load Preferences
 	CPreferences::BuildItemList(ConfigDir);
@@ -845,10 +845,7 @@ bool CamuleApp::OnInit()
 		} else {
 			delete p;
 			ShowAlert(_(
-				"You requested to run web server on startup, "
-				"but the amuleweb binary cannot be run. "
-				"Please install the package containing aMule web server, "
-				"or compile aMule using --enable-webserver and run make install"),
+				"You requested to run web server on startup, but the amuleweb binary cannot be run. Please install the package containing aMule web server, or compile aMule using --enable-webserver and run make install"),
 				_("ERROR"), wxOK | wxICON_ERROR);
 		}
 	}
@@ -1239,7 +1236,7 @@ void CamuleApp::OnlineSig(bool zero /* reset stats (used on shutdown) */)
 
 	// amule version
 #ifdef SVNDATE
-	amulesig_out.AddLine(wxT(VERSION " " SVNDATE));
+	amulesig_out.AddLine(wxT(VERSION) wxT(" ") wxT(SVNDATE));
 #else
 	amulesig_out.AddLine(wxT(VERSION));
 #endif

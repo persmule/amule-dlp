@@ -1,4 +1,58 @@
-Version 2.2.2 - The "Similarity." version
+Version 2.2.3 - The "Late Christmas present" version.
+----------
+2008-12-28
+
+	Alfred:
+		* Fixes to compile with Sun Studio 12.
+
+	Gerd78:
+		* Fix for linking with a static bfd library.
+
+	GonoszTopi:
+		* Fixed improper handling of EC connection failures.
+		* Fix for shells not properly handling empty lists.
+		* POSIX fixes in shell code.
+		* Made not finding GeoIP non-fatal.
+		* Check if --enable-geoip-static can be fulfilled.
+		* Fixed loading of zipped ipfilter files. Thanks to CtrlAltDel
+		  for the investigation of the problem.
+		* Fixed alc progress bar for files >4GB.
+		* Fixed #1056: amulegui: incorrect results when searching with
+		  min size >= 4GB
+		* Disable automatic sorting of dowload list while there is a
+		  pop-up menu or file detail dialog displayed.
+		* MinGW compilation fix.
+		* Fixed GTK crash on closing search tabs. Thanks to btkaos.
+
+	LittleAbacus:
+		* Support multiple selections on CSearchListCtrl::OnMarkAsKnown().
+
+	Skolnick:
+		* Fix alc and alcc to work with files bigger than 4GB
+
+	Stu Redman:
+		* Fix crash when last category was removed with a completed file in it
+		* Fix wrong ordering/placing of clients in the download window
+		* Fix available fileparts display for large files
+		* Don't open server UDP socked if ED2K is disabled
+		* Reordered preferences, disabled ED2K/UPnP prefs if ED2K/UPnP is disabled
+		* MSVC: solution for MSVC 2008 Express edition, 
+		  project for ed2k and fileview
+		* Fix wrong file download rates in transfer window
+		* Windows: fix broken core timer, use precise tickcount
+		  and so fix download limit
+
+	Wuischke:
+		* Add checks to cas to prevent segfaults
+		* Fix wxCas save file dialog for file types
+		* Fix a buffer overflow error in cas
+
+	Special Thanks to:
+		* btkaos and CtrlAltDel for their invaluable help in tracking off bugs.
+
+--------------------------------------------------------------------------------
+
+Version 2.2.2 - The "Similarity." version.
 ----------
 2008-08-08
 
@@ -102,6 +156,10 @@ Version 2.2.2 - The "Similarity." version
 		* Splitter bar position in transfer window is restored again
 		* Fixed a GDI resource leak for Windows
 
+	Vollstrecker:
+		* Made possible to deactivate xas
+		* Various Updates in debian/ see debian/changelog
+
 	Wuischke:
 		* Show connection status in toolbar when changing skin, thanks to greek
 
@@ -111,7 +169,6 @@ Version 2.2.2 - The "Similarity." version
 		  Fixes aMuleGUI not updating after a while.
 
 --------------------------------------------------------------------------------
-
 
 Version 2.2.1 - The "Excuse me, have you seen my 2.2.0 release anywhere?" version.
 ----------

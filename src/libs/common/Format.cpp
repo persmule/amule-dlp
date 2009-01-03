@@ -32,7 +32,7 @@ enum Modifiers
 	modNone,
 	//! Argument is interpreted as short int (integer types).
 	modShort,
-	//! Argument is interpreted as long int (interger types).
+	//! Argument is interpreted as long int (integer types).
 	modLong,
 	//! Two 'long' modifieres, arguments is interpreted as long long (integer types).
 	modLongLong,
@@ -114,7 +114,7 @@ bool isIntChar(wxChar c)
 }
 
 
-/** Returns true if the cahr is a valid length modifier. */
+/** Returns true if the char is a valid length modifier. */
 bool isLengthChar(wxChar c)
 {
 	switch (c) {
@@ -406,6 +406,33 @@ CFormat& CFormat::operator%(const wxString& val)
 	} else {
 		SetCurrentField(field);
 		wxFAIL_MSG(wxT("Malformed string format field: ") + m_format);
+	}
+
+	return *this;
+}
+
+CFormat& CFormat::operator%(void * value)
+{
+	wxString field = GetCurrentField();
+	
+	if (field.IsEmpty()) {
+		// We've already asserted in GetCurrentField.
+	} else if (field.Last() != wxT('p')) {
+		wxFAIL_MSG(wxT("Pointer value passed to non-pointer format string: ") + m_format);
+		SetCurrentField(field);
+	} else if (field != wxT("%p")) {
+		wxFAIL_MSG(wxT("Modifiers are not allowed for pointer format string: ") + m_format);
+		SetCurrentField(field);
+	} else {
+		// built-in Format for pointer is not optimal:
+		// - Windows: uppercase, no leading 0x
+		// - Linux:   leading zeros missing 
+		// -> format it as hex
+		if (sizeof (void *) == 8) { // 64 bit
+			SetCurrentField(wxString::Format(wxT("0x%016x"), (uintptr_t) value));
+		} else { // 32 bit
+			SetCurrentField(wxString::Format(wxT("0x%08x"),  (uintptr_t) value));
+		}
 	}
 
 	return *this;
