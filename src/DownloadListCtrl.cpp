@@ -911,24 +911,19 @@ void CDownloadListCtrl::OnMouseRightClick(wxListEvent& evt)
 		m_menu->AppendSeparator();
 		//-----------------------------------------------------
 		wxMenu* extendedmenu = new wxMenu();
-		extendedmenu->Append(MP_SWAP_A4AF_TO_THIS,
-			_("Swap every A4AF to this file now"));
-		extendedmenu->AppendCheckItem(MP_SWAP_A4AF_TO_THIS_AUTO,
-			_("Swap every A4AF to this file (Auto)"));
+		extendedmenu->Append(MP_SWAP_A4AF_TO_THIS, _("Swap every A4AF to this file now"));
+		extendedmenu->AppendCheckItem(MP_SWAP_A4AF_TO_THIS_AUTO, _("Swap every A4AF to this file (Auto)"));
 		//-----------------------------------------------------
 		extendedmenu->AppendSeparator();
 		//-----------------------------------------------------
-		extendedmenu->Append(MP_SWAP_A4AF_TO_ANY_OTHER,
-			_("Swap every A4AF to any other file now"));
+		extendedmenu->Append(MP_SWAP_A4AF_TO_ANY_OTHER, _("Swap every A4AF to any other file now"));
 		//-----------------------------------------------------
-		m_menu->Append(MP_MENU_EXTD,
-			_("Extended Options"), extendedmenu);
+		m_menu->Append(MP_MENU_EXTD, _("Extended Options"), extendedmenu);
 		//-----------------------------------------------------
 		m_menu->AppendSeparator();
 		//-----------------------------------------------------
 /* Commented out till RB2 is back 
-		m_menu->Append( MP_RAZORSTATS,
-			_("Get Razorback 2's stats for this file"));
+		m_menu->Append( MP_RAZORSTATS, _("Get Razorback 2's stats for this file"));
 		//-----------------------------------------------------
 		m_menu->AppendSeparator();
 		//-----------------------------------------------------
@@ -940,12 +935,9 @@ void CDownloadListCtrl::OnMouseRightClick(wxListEvent& evt)
 		//-----------------------------------------------------
 		m_menu->AppendSeparator();
 		//-----------------------------------------------------
-		m_menu->Append(MP_GETMAGNETLINK,
-			_("Copy magnet URI to clipboard"));
-		m_menu->Append(MP_GETED2KLINK,
-			_("Copy eD2k &link to clipboard"));
-		m_menu->Append(MP_WS,
-			_("Copy feedback to clipboard"));
+		m_menu->Append(MP_GETMAGNETLINK, _("Copy magnet URI to clipboard"));
+		m_menu->Append(MP_GETED2KLINK, _("Copy eD2k &link to clipboard"));
+		m_menu->Append(MP_WS, _("Copy feedback to clipboard"));
 		//-----------------------------------------------------
 		m_menu->AppendSeparator();
 		//-----------------------------------------------------	
@@ -1007,37 +999,35 @@ void CDownloadListCtrl::OnMouseRightClick(wxListEvent& evt)
 
 		int priority = file->IsAutoDownPriority() ?
 			PR_AUTO : file->GetDownPriority();
-		
+
 		priomenu->Check( MP_PRIOHIGH,	priority == PR_HIGH );
 		priomenu->Check( MP_PRIONORMAL, priority == PR_NORMAL );
 		priomenu->Check( MP_PRIOLOW,	priority == PR_LOW );
 		priomenu->Check( MP_PRIOAUTO,	priority == PR_AUTO );
 
 		menu->Enable( MP_MENU_EXTD, canPause );
-	
-		PopupMenu(m_menu, evt.GetPoint());
-
 	} else {
 		CUpDownClient* client = item->GetSource();
-		
+
 		m_menu = new wxMenu(wxT("Clients"));
 		m_menu->Append(MP_DETAIL, _("Show &Details"));
 		m_menu->Append(MP_ADDFRIEND, client->IsFriend() ? _("Remove from friends") : _("Add to Friends"));
 		m_menu->Append(MP_SHOWLIST, _("View Files"));
 		m_menu->Append(MP_SENDMESSAGE, _("Send message"));
 		m_menu->Append(MP_CHANGE2FILE, _("Swap to this file"));
-		
+
 		// Only enable the Swap option for A4AF sources
 		m_menu->Enable(MP_CHANGE2FILE, (item->GetType() == A4AF_SOURCE));
 		// We need a valid IP if we are to message the client
 		m_menu->Enable(MP_SENDMESSAGE, (client->GetIP() != 0));
-		
+
 		m_menu->Enable(MP_SHOWLIST, !client->HasDisabledSharedFiles());
-		
-		PopupMenu(m_menu, evt.GetPoint());
-					
 	}
-	
+
+	bool autosort = thePrefs::AutoSortDownload(false);
+	PopupMenu(m_menu, evt.GetPoint());
+	thePrefs::AutoSortDownload(autosort);
+
 	delete m_menu;
 	m_menu = NULL;
 	
@@ -1053,12 +1043,14 @@ void CDownloadListCtrl::OnMouseMiddleClick(wxListEvent& evt)
 	}
 
 	CtrlItem_Struct* item = (CtrlItem_Struct*)GetItemData( index );
-	
+
+	bool autosort = thePrefs::AutoSortDownload(false);
 	if ( item->GetType() == FILE_TYPE ) {
 		CFileDetailDialog(this, item->GetFile()).ShowModal();
 	} else {
 		CClientDetailDialog(this, item->GetSource()).ShowModal();
 	}
+	thePrefs::AutoSortDownload(autosort);
 }
 
 
@@ -1824,12 +1816,8 @@ int CDownloadListCtrl::Compare( const CPartFile* file1, const CPartFile* file2, 
 	int result = 0;
 
 	switch (lParamSort) {
-	// Sort by filename
-	case 0:
-		result = CmpAny(
-			file1->GetFileName(),
-			file2->GetFileName() );
-		break;
+	// Sort by filename is done in the end, when result is still 0
+	// case 0:
 
 	// Sort by size
 	case 1:
@@ -1919,6 +1907,23 @@ int CDownloadListCtrl::Compare( const CPartFile* file1, const CPartFile* file2, 
 			file1->GetLastChangeDatetime(),
 			file2->GetLastChangeDatetime() );
 		break;
+	}
+
+	// Files must never be treated as equal on sort.
+	// When a file has sources visible, and another one is equal, 
+	// then the sources can be assigned to the wrong file.
+	// So sort by filename in this case (which should not be equal).
+	if (result == 0) {
+		result = CmpAny(
+			file1->GetFileName(),
+			file2->GetFileName() );
+	}
+	// Last resort if names ARE equal (maybe same name in two cats)
+	// - take the hash
+	if (result == 0) {
+		result = CmpAny(
+			file1->GetFileHash(),
+			file2->GetFileHash() );
 	}
 
 	return result;
@@ -2039,6 +2044,27 @@ void CDownloadListCtrl::ClearCompleted()
 			
 			if ( file->IsPartFile() == false ) {
 				RemoveFile(file);
+			}
+		}
+	}
+}
+
+
+void CDownloadListCtrl::ResetCatParts(uint8 cat)
+{
+	// Go through all files
+	for ( ListItems::iterator it = m_ListItems.begin(); it != m_ListItems.end(); ) {
+		CtrlItem_Struct* item = it->second; ++it;
+		
+		if ( item->GetType() == FILE_TYPE ) {
+			CPartFile* file = item->GetFile();
+			
+			if ( file->GetCategory() == cat ) {
+				// Reset the category
+				file->SetCategory( 0 );
+			} else if ( file->GetCategory() > cat ) {
+				// Set to the new position of the original category
+				file->SetCategory( file->GetCategory() - 1 );
 			}
 		}
 	}

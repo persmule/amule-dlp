@@ -146,6 +146,7 @@ m_tblist(32,32),
 m_prefsVisible(false),
 m_wndToolbar(NULL),
 m_wndTaskbarNotifier(NULL),
+m_TrayIcon(false),
 m_nActiveDialog(DT_NETWORKS_WND),
 m_is_safe_state(false),
 m_BlinkMessages(false),
@@ -288,12 +289,12 @@ m_clientSkinNames(CLIENT_SKIN_SIZE)
 	wxASSERT(logs_notebook->GetPageCount() == 4);
 	wxASSERT(networks_notebook->GetPageCount() == 2);
 	
-	for (int i = 0; i < logs_notebook->GetPageCount(); ++i) {
+	for (size_t i = 0; i < logs_notebook->GetPageCount(); ++i) {
 		m_logpages[i].page = logs_notebook->GetPage(i);
 		m_logpages[i].name = logs_notebook->GetPageText(i);
 	}
 
-	for (int i = 0; i < networks_notebook->GetPageCount(); ++i) {
+	for (size_t i = 0; i < networks_notebook->GetPageCount(); ++i) {
 		m_networkpages[i].page = networks_notebook->GetPage(i);
 		m_networkpages[i].name = networks_notebook->GetPageText(i);
 	}
@@ -370,10 +371,11 @@ void CamuleDlg::UpdateTrayIcon(int percent)
 		
 void CamuleDlg::CreateSystray()
 {
-	wxCHECK_RET(m_wndTaskbarNotifier == NULL,
+	wxCHECK_RET(m_TrayIcon == false,
 		wxT("Systray already created"));
 
 	m_wndTaskbarNotifier = new CMuleTrayIcon();
+	m_TrayIcon = true;
 	// This will effectively show the Tray Icon.
 	UpdateTrayIcon(0);
 }	
@@ -383,6 +385,7 @@ void CamuleDlg::RemoveSystray()
 {
 	delete m_wndTaskbarNotifier;
 	m_wndTaskbarNotifier = NULL;
+	m_TrayIcon = false;
 }
 
 
@@ -825,8 +828,8 @@ void CamuleDlg::ShowTransferRate()
 		SetTitle(theApp->m_FrameTitle + UpDownSpeed);
 	}
 
-	wxASSERT((m_wndTaskbarNotifier != NULL) == thePrefs::UseTrayIcon());
-	if (m_wndTaskbarNotifier) {
+	wxASSERT(m_TrayIcon == thePrefs::UseTrayIcon());
+	if (m_TrayIcon) {
 		// set trayicon-icon
 		int percentDown = (int)ceil((kBpsDown*100) / thePrefs::GetMaxGraphDownloadRate());
 		UpdateTrayIcon( ( percentDown > 100 ) ? 100 : percentDown);
@@ -992,7 +995,7 @@ bool CamuleDlg::SaveGUIPrefs()
 
 void CamuleDlg::DoIconize(bool iconize) 
 {
-	if (m_wndTaskbarNotifier && thePrefs::DoMinToTray()) {
+	if (m_TrayIcon && thePrefs::DoMinToTray()) {
 		if (iconize) {
 			// Skip() will do it.
 			//Iconize(true);
@@ -1012,14 +1015,14 @@ void CamuleDlg::DoIconize(bool iconize)
 void CamuleDlg::OnMinimize(wxIconizeEvent& evt)
 {
 // Evil Hack: check if the mouse is inside the window
-#ifndef __WINDOWS__
+#ifndef __WXMSW__
        if (GetScreenRect().Contains(wxGetMousePosition()))
 #endif
        {
 		if (m_prefsDialog && m_prefsDialog->IsShown()) {
 			// Veto.
 		} else {
-			if (m_wndTaskbarNotifier) {
+			if (m_TrayIcon) {
 				DoIconize(evt.Iconized());
 			}
 			evt.Skip();

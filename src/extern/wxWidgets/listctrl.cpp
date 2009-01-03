@@ -3,7 +3,7 @@
 // Purpose:     generic implementation of wxListCtrl
 // Author:      Robert Roebling
 //              Vadim Zeitlin (virtual list control support)
-// Id:          $Id: listctrl.cpp 8318 2008-04-01 18:41:23Z gonosztopi $
+// Id:          $Id: listctrl.cpp 9137 2008-09-27 20:15:09Z gonosztopi $
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -93,6 +93,8 @@ static const int IMAGE_MARGIN_IN_REPORT_MODE = 5;
 
 // the space between the image and the text in the report mode in header
 static const int HEADER_IMAGE_MARGIN_IN_REPORT_MODE = 2;
+
+const wxChar wxListCtrlNameStr[] = wxT("listCtrl");
 
 // ============================================================================
 // private classes

@@ -131,7 +131,7 @@ public:
 	
 	void	UpdateCompletedInfos();
 
-	bool	GetNextRequestedBlock(CUpDownClient* sender,Requested_Block_Struct** newblocks,uint16* count);
+	bool	GetNextRequestedBlock(CUpDownClient* sender, std::vector<Requested_Block_Struct*>& toadd, uint16& count);
 	void	WritePartStatus(CMemFile* file);
 	void	WriteCompleteSourcesCount(CMemFile* file);
 	static bool 	CanAddSource(uint32 userid, uint16 port, uint32 serverip, uint16 serverport, uint8* pdebug_lowiddropped = NULL, bool ed2kID = true);
@@ -192,7 +192,7 @@ public:
 	void    AddClientSources(CMemFile* sources, unsigned nSourceFrom, uint8 uClientSXVersion, bool bSourceExchange2, const CUpDownClient* pClient = NULL);
 
 	bool	PreviewAvailable();
-	uint8	GetAvailablePartCount() const	{ return m_availablePartsCount; }
+	uint16	GetAvailablePartCount() const	{ return m_availablePartsCount; }
 	uint32	GetLastAnsweredTime() const	{ return m_ClientSrcAnswered; }
 	void	SetLastAnsweredTime();
 	void	SetLastAnsweredTimeTimeout();
@@ -351,7 +351,7 @@ private:
 	CReqBlockPtrList m_requestedblocks_list;
 	double	percentcompleted;
 	std::list<uint16> m_corrupted_list;
-	uint8	m_availablePartsCount;
+	uint16	m_availablePartsCount;
 	uint32	m_ClientSrcAnswered;
 	bool	m_bPercentUpdated;
 

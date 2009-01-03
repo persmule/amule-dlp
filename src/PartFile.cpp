@@ -1909,9 +1909,9 @@ void CPartFile::UpdatePartsInfo()
 	UpdateDisplayedInfo();
 }	
 
-// Kry - Updated to 0.42e + bugfix
 // [Maella -Enhanced Chunk Selection- (based on jicxicmic)]
-bool CPartFile::GetNextRequestedBlock(CUpDownClient* sender, Requested_Block_Struct** newblocks, uint16* count)
+bool CPartFile::GetNextRequestedBlock(CUpDownClient* sender, 
+							std::vector<Requested_Block_Struct*>& toadd, uint16& count)
 {
 
 	// The purpose of this function is to return a list of blocks (~180KB) to
@@ -1962,9 +1962,6 @@ bool CPartFile::GetNextRequestedBlock(CUpDownClient* sender, Requested_Block_Str
 	//
 
 	// Check input parameters
-	if(count == NULL) {
-		return false;
-	}
 	if ( sender->GetPartStatus().empty() ) {
 		return false;
 	}
@@ -1974,7 +1971,7 @@ bool CPartFile::GetNextRequestedBlock(CUpDownClient* sender, Requested_Block_Str
 	
 	// Main loop
 	uint16 newBlockCount = 0;
-	while(newBlockCount != *count) {
+	while(newBlockCount != count) {
 		// Create a request block stucture if a chunk has been previously selected
 		if(sender->GetLastPartAsked() != 0xffff) {
 			Requested_Block_Struct* pBlock = new Requested_Block_Struct;
@@ -1982,7 +1979,8 @@ bool CPartFile::GetNextRequestedBlock(CUpDownClient* sender, Requested_Block_Str
 				// Keep a track of all pending requested blocks
 				m_requestedblocks_list.push_back(pBlock);
 				// Update list of blocks to return
-				newblocks[newBlockCount++] = pBlock;
+				toadd.push_back(pBlock);
+				newBlockCount++;
 				// Skip end of loop (=> CPU load)
 				continue;
 			} else {
@@ -2170,12 +2168,11 @@ bool CPartFile::GetNextRequestedBlock(CUpDownClient* sender, Requested_Block_Str
 		}
 	}
 	// Return the number of the blocks 
-	*count = newBlockCount;
+	count = newBlockCount;
 	// Return
 	return (newBlockCount > 0);
 }
 // Maella end
-// Kry EOI
 
 
 void  CPartFile::RemoveBlockFromList(uint64 start,uint64 end)
@@ -3769,6 +3766,13 @@ CPartFile::~CPartFile()
 const FileRatingList &CPartFile::GetRatingAndComments() 
 { 
 	return m_FileRatingList; 
+}
+
+void CPartFile::SetCategory(uint8 cat)
+{
+	wxASSERT( cat < theApp->glob_prefs->GetCatCount() );
+	
+	m_category = cat; 
 }
 #endif // !CLIENT_GUI
 
