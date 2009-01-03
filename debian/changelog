@@ -1,3 +1,11 @@
+amule (2.2.3-1) UNRELEASED; urgency=low
+
+  * "The Cactus Where Your Heart Should Be" release.
+
+  * New upstream release. (Closes: #510257)
+
+ -- Adeodato Simó <dato@net.com.org.es>  Sat, 03 Jan 2009 12:30:24 +0100
+
 amule (2.2.2-2) experimental; urgency=low
 
   * The "The Luckiest Guy on the Lower East Side" release.
