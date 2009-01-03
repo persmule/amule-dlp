@@ -1,5 +1,5 @@
 Source: amule
-Section: x11
+Section: net
 Priority: optional
 Maintainer: Adeodato Simó <dato@net.com.org.es>
 Build-Depends:
