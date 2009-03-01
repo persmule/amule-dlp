@@ -1,3 +1,10 @@
+amule (2.2.3-2) UNRELEASED; urgency=low
+
+  * The "I Think I Need a New Heart" release.
+  * Upload to unstable.
+
+ -- Adeodato Simó <dato@net.com.org.es>  Sun, 01 Mar 2009 13:56:19 +0100
+
 amule (2.2.3-1) experimental; urgency=low
 
   * "The Cactus Where Your Heart Should Be" release.
