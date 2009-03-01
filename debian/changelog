@@ -1,7 +1,10 @@
 amule (2.2.3-2) UNRELEASED; urgency=low
 
   * The "I Think I Need a New Heart" release.
+
   * Upload to unstable.
+  * Use xdg-open as default preview program instead of mplayer.
+    (Closes: #418273)
 
  -- Adeodato Simó <dato@net.com.org.es>  Sun, 01 Mar 2009 13:56:19 +0100
 
