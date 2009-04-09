@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -199,7 +199,7 @@ void CKademlia::Process()
 		m_nextFindBuddy = MIN2S(20) + now;
 	}
 
-	if (m_externPortLookup <= now && CUDPFirewallTester::IsFWCheckUDPRunning() && GetPrefs()->GetExternalKadPort() == 0) {
+	if (m_externPortLookup <= now && CUDPFirewallTester::IsFWCheckUDPRunning() && GetPrefs()->FindExternKadPort(false)) {
 		// If our UDP firewallcheck is running and we don't know our external port, we send a request every 15 seconds
 		CContact *contact = GetRoutingZone()->GetRandomContact(3, 6);
 		if (contact != NULL) {

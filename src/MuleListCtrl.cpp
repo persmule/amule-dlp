@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -175,8 +175,16 @@ void CMuleListCtrl::LoadSettings()
 		}
 	}
 	
-	// Must have at least one sort-order specified
-	if (m_sort_orders.empty()) {
+	// Make sure that sort by name is in the sort order list, 
+	// so clients don't get sorted under the wrong download.
+	// (It should always be anyway, but you can remove it by editing the config.)
+	// This also makes sure there's at least one entry in the list.
+	CSortingList::const_iterator it = m_sort_orders.begin();
+	bool ok = false;
+	for (; !ok && it != m_sort_orders.end(); ++it) {
+		ok = it->first == 0;
+	}
+	if (!ok) { // not found - append sort by name to the end
 		m_sort_orders.push_back(CColPair(0, 0));
 	}
 

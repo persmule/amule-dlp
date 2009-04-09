@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -253,15 +253,20 @@ void CSearch::ProcessResponse(uint32_t fromIP, uint16_t fromPort, ContactList *r
 {
 	AddDebugLogLineM(false, logKadSearch, wxT("Processing search response from ") + Uint32_16toStringIP_Port(wxUINT32_SWAP_ALWAYS(fromIP), fromPort));
 
-	if (results) {
-		m_lastResponse = time(NULL);
-	}
-
 	ContactList::iterator response;
 	// Remember the contacts to be deleted when finished
 	for (response = results->begin(); response != results->end(); ++response) {
 		m_delete.push_back(*response);
 	}
+
+	// Make sure the node is not sending more results than we requested, which is not only a protocol violation
+	// but most likely a malicious answer
+	if (results->size() > GetRequestContactCount()) {
+		AddDebugLogLineM(false, logKadSearch, wxT("Node ") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(fromIP)) + wxT(" sent more contacts than requested on a routing query, ignoring response"));
+		return;
+	}
+
+	m_lastResponse = time(NULL);
 
 	if (m_type == NODEFWCHECKUDP) {
 		m_answers++;
@@ -290,6 +295,10 @@ void CSearch::ProcessResponse(uint32_t fromIP, uint16_t fromPort, ContactList *r
 			m_responded[fromDistance] = from;
 
 			std::map<uint32_t, uint32_t> mapReceivedIPs;
+			std::map<uint32_t, uint32_t> mapReceivedSubnets;
+			// A node is not allowed to answer with contacts to itself
+			mapReceivedIPs[fromIP] = 1;
+			mapReceivedSubnets[fromIP & 0xFFFFFF00] = 1;
 			// Loop through their responses
 			for (response = results->begin(); response != results->end(); ++response) {
 				CContact *c = *response;
@@ -297,21 +306,34 @@ void CSearch::ProcessResponse(uint32_t fromIP, uint16_t fromPort, ContactList *r
 
 				// Ignore this contact if already known or tried it.
 				if (m_possible.count(distance) > 0) {
-					// AddDebugLogLineM(false, logKadSearch, wxT("Search result from already known client: ignore"));
+					AddDebugLogLineM(false, logKadSearch, wxT("Search result from already known client: ignore"));
 					continue;
 				}
 				if (m_tried.count(distance) > 0) {
-					// AddDebugLogLineM(false, logKadSearch, wxT("Search result from already tried client: ignore"));
+					AddDebugLogLineM(false, logKadSearch, wxT("Search result from already tried client: ignore"));
 					continue;
 				}
 
 				// We only accept unique IPs in the answer, having multiple IDs pointing to one IP in the routing tables
 				// is no longer allowed since eMule0.49a, aMule-2.2.1 anyway
 				if (mapReceivedIPs.count(c->GetIPAddress()) > 0) {
-					AddDebugLogLineM(false, logKadSearch, wxT("Multiple KadIDs pointing to same IP(") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(c->GetIPAddress())) + wxT(") in Kad(2)Res answer - ignored, sent by ") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(from->GetIPAddress())));
+					AddDebugLogLineM(false, logKadSearch, wxT("Multiple KadIDs pointing to same IP (") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(c->GetIPAddress())) + wxT(") in Kad(2)Res answer - ignored, sent by ") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(from->GetIPAddress())));
 					continue;
 				} else {
 					mapReceivedIPs[c->GetIPAddress()] = 1;
+				}
+				// and no more than 2 IPs from the same /24 subnet
+				if (mapReceivedSubnets.count(c->GetIPAddress() & 0xFFFFFF00) > 0 && !::IsLanIP(wxUINT32_SWAP_ALWAYS(c->GetIPAddress()))) {
+					wxASSERT(mapReceivedSubnets.find(c->GetIPAddress() & 0xFFFFFF00) != mapReceivedSubnets.end());
+					int subnetCount = mapReceivedSubnets.find(c->GetIPAddress() & 0xFFFFFF00)->second;
+					if (subnetCount >= 2) {
+						AddDebugLogLineM(false, logKadSearch, wxT("More than 2 KadIDs pointing to same subnet (") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(c->GetIPAddress() & 0xFFFFFF00)) + wxT("/24) in Kad(2)Res answer - ignored, sent by ") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(from->GetIPAddress())));
+						continue;
+					} else {
+						mapReceivedSubnets[c->GetIPAddress() & 0xFFFFFF00] = subnetCount + 1;
+					}
+				} else {
+					mapReceivedSubnets[c->GetIPAddress() & 0xFFFFFF00] = 1;
 				}
 
 				// Add to possible
@@ -1030,28 +1052,11 @@ void CSearch::SendFindValue(CContact *contact)
 
 		CMemFile packetdata(33);
 		// The number of returned contacts is based on the type of search.
-		switch(m_type){
-			case NODE:
-			case NODECOMPLETE:
-			case NODESPECIAL:
-			case NODEFWCHECKUDP:
-				packetdata.WriteUInt8(KADEMLIA_FIND_NODE);
-				break;
-			case FILE:
-			case KEYWORD:
-			case FINDSOURCE:
-			case NOTES:
-				packetdata.WriteUInt8(KADEMLIA_FIND_VALUE);
-				break;
-			case FINDBUDDY:
-			case STOREFILE:
-			case STOREKEYWORD:
-			case STORENOTES:
-				packetdata.WriteUInt8(KADEMLIA_STORE);
-				break;
-			default:
-				AddDebugLogLineM(false, logKadSearch, wxT("Invalid search type. (CSearch::sendFindValue)"));
-				return;
+		uint8_t contactCount = GetRequestContactCount();
+		if (contactCount > 0) {
+			packetdata.WriteUInt8(contactCount);
+		} else {
+			return;
 		}
 		// Put the target we want into the packet.
 		packetdata.WriteUInt128(m_target);
@@ -1243,4 +1248,29 @@ void CSearch::SetSearchTermData(uint32_t searchTermsDataSize, const uint8_t *sea
 	m_searchTermsData = new uint8_t [searchTermsDataSize];
 	memcpy(m_searchTermsData, searchTermsData, searchTermsDataSize);
 }
-// File_checked_for_headers
+
+uint8_t CSearch::GetRequestContactCount() const throw()
+{
+	// Returns the amount of contacts we request on routing queries based on the search type
+	switch (m_type) {
+		case NODE:
+		case NODECOMPLETE:
+		case NODESPECIAL:
+		case NODEFWCHECKUDP:
+			return KADEMLIA_FIND_NODE;
+		case FILE:
+		case KEYWORD:
+		case FINDSOURCE:
+		case NOTES:
+			return KADEMLIA_FIND_VALUE;
+		case FINDBUDDY:
+		case STOREFILE:
+		case STOREKEYWORD:
+		case STORENOTES:
+			return KADEMLIA_STORE;
+		default:
+			AddDebugLogLineM(false, logKadSearch, wxT("Invalid search type. (CSearch::GetRequestContactCount())"));
+			wxFAIL;
+			return 0;
+	}
+}

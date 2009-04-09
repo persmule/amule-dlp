@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2008 Kry ( elkry@sourceforge.net / http://www.amule.org )
-// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2009 Kry ( elkry@sourceforge.net / http://www.amule.org )
+// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -100,7 +100,6 @@ const CECPacket *CECServerSocket::OnPacketReceived(const CECPacket *packet)
 		if (reply->GetOpCode() != EC_OP_AUTH_OK) {
 			// Access denied!
 			AddLogLineM(false, _("Unauthorized access attempt. Connection closed."));
-			DestroySocket();
 		} else {
 			m_authenticated = true;
 		}

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -495,7 +495,7 @@ unsigned int DecodeBase32(const wxString &base32Buffer, unsigned int base32BufLe
  * Base64 encoding/decoding command line filter
  *
  * Copyright (c) 2002 Matthias Gaertner 29.06.2002
- * Adapted by (C) 2005-2008 Phoenix to use wxWidgets.
+ * Adapted by (C) 2005-2009 Phoenix to use wxWidgets.
  *
  */
 static const wxString to_b64(
@@ -1059,13 +1059,20 @@ void InitCustomLanguages()
 	CustomLanguage.CanonicalName = wxT("it_NA");
 	CustomLanguage.Description = wxT("sNeo's Custom Napolitan Language");
 	wxLocale::AddLanguage(CustomLanguage);
+
+	CustomLanguage.Language = wxLANGUAGE_ASTURIAN;
+	CustomLanguage.CanonicalName = wxT("ast_ES");
+	CustomLanguage.Description = wxT("Asturian");
+	wxLocale::AddLanguage(CustomLanguage);
 }
 
 
 void InitLocale(wxLocale& locale, int language)
 {
 	int language_flags = 0;
-	if (language != wxLANGUAGE_CUSTOM && language != wxLANGUAGE_ITALIAN_NAPOLITAN) {
+	if ((wxLANGUAGE_CUSTOM != language) && 
+		(wxLANGUAGE_ASTURIAN != language) &&
+		(wxLANGUAGE_ITALIAN_NAPOLITAN != language)) {
 		language_flags = wxLOCALE_LOAD_DEFAULT | wxLOCALE_CONV_ENCODING;
 	}
 	

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -541,9 +541,11 @@ bool CamuleApp::OnInit()
 #else
 	printf("Checking if there is an instance already running...\n");
 
-	m_singleInstance = new wxSingleInstanceChecker(wxT("muleLock"), ConfigDir);
-	if (m_singleInstance->IsAnotherRunning()) {
+	m_singleInstance = new wxSingleInstanceChecker();
+	if (m_singleInstance->Create(wxT("muleLock"), ConfigDir)
+		&& m_singleInstance->IsAnotherRunning()) {
 		printf("There is an instance of aMule already running\n");
+		printf("%s", (const char*)unicode2UTF8(wxString(CFormat(wxT("(lock file: %s%s)")) % ConfigDir % wxT("muleLock"))));
 		
 		// This is very tricky. The most secure way to communicate is via ED2K links file
 		wxTextFile ed2kFile(ConfigDir + wxT("ED2KLinks"));
@@ -644,24 +646,6 @@ bool CamuleApp::OnInit()
 		printf("Password set and external connections enabled.\n");
 	}
 	
-	// Display notification on new version or first run
-	wxTextFile vfile( ConfigDir + wxT("lastversion") );
-	wxString newMule(wxT( VERSION ));
-	
-	// Test if there's any new version
-	if (thePrefs::CheckNewVersion()) {
-		// We use the thread base because I don't want a dialog to pop up.
-		CHTTPDownloadThread* version_check = 
-			new CHTTPDownloadThread(wxT("http://amule.sourceforge.net/lastversion"),
-				theApp->ConfigDir + wxT("last_version_check"), HTTP_VersionCheck, false);
-		version_check->Create();
-		version_check->Run();
-	}
-
-	if ( !wxFileExists( vfile.GetName() ) ) {
-		vfile.Create();
-	}
-
 #ifndef __WXMSW__
 	if (getuid() == 0) {
 		wxString msg = 
@@ -678,6 +662,14 @@ bool CamuleApp::OnInit()
 	}
 #endif
 	
+	// Display notification on new version or first run
+	wxTextFile vfile( ConfigDir + wxT("lastversion") );
+	wxString newMule(wxT( VERSION ));
+	
+	if ( !wxFileExists( vfile.GetName() ) ) {
+		vfile.Create();
+	}
+
 	if ( vfile.Open() ) {
 		// Check if this version has been run before
 		bool found = false;
@@ -733,6 +725,16 @@ bool CamuleApp::OnInit()
 	wxString msg;
 	if (!ReinitializeNetwork(&msg)) {
 		printf("\n%s\n", (const char *)unicode2char(msg));
+	}
+
+	// Test if there's any new version
+	if (thePrefs::CheckNewVersion()) {
+		// We use the thread base because I don't want a dialog to pop up.
+		CHTTPDownloadThread* version_check = 
+			new CHTTPDownloadThread(wxT("http://amule.sourceforge.net/lastversion"),
+				theApp->ConfigDir + wxT("last_version_check"), HTTP_VersionCheck, false);
+		version_check->Create();
+		version_check->Run();
 	}
 
 	// Create main dialog, or fork to background (daemon).
@@ -1028,6 +1030,7 @@ wxString CamuleApp::CreateMagnetLink(const CAbstractFile *f)
 
 	uri.AddField(wxT("dn"), f->GetFileName().Cleanup(false).GetPrintable());
 	uri.AddField(wxT("xt"), wxString(wxT("urn:ed2k:")) + f->GetFileHash().Encode().Lower());
+	uri.AddField(wxT("xt"), wxString(wxT("urn:ed2khash:")) + f->GetFileHash().Encode().Lower());
 	uri.AddField(wxT("xl"), wxString::Format(wxT("%") wxLongLongFmtSpec wxT("u"), f->GetFileSize()));
 
 	return uri.GetLink();
@@ -1086,10 +1089,11 @@ wxString CamuleApp::CreateED2kAICHLink(const CKnownFile* f)
 	wxString strURL = CreateED2kLink(f);
 	// Append the AICH info
 	if (f->HasProperAICHHashSet()) {
-	     	strURL << wxT("|h=") << f->GetAICHMasterHash() << wxT("|/");
+		strURL.RemoveLast();		// remove trailing '/'
+		strURL << wxT("h=") << f->GetAICHMasterHash() << wxT("|/");
 	}	
 
-	// Result is "ed2k://|file|<filename>|<size>|<hash>|/|h=<AICH master hash>|/"
+	// Result is "ed2k://|file|<filename>|<size>|<hash>|h=<AICH master hash>|/"
 	return strURL;
 }
 

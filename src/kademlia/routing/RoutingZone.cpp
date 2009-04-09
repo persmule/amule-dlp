@@ -1,8 +1,8 @@
 //
 // This file is part of aMule Project
 //
-// Copyright (c) 2004-2008 Angel Vidal ( kry@amule.org )
-// Copyright (c) 2004-2008 aMule Project ( http://www.amule-project.net )
+// Copyright (c) 2004-2009 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2009 aMule Project ( http://www.amule-project.net )
 // Copyright (C)2003 Barry Dunne (http://www.emule-project.net)
 // Copyright (C)2007-2008 Merkur ( strEmail.Format("%s@%s", "devteam", "emule-project.net") / http://www.emule-project.net )
 
@@ -837,4 +837,22 @@ void CRoutingZone::SetAllContactsVerified()
 		m_subZones[0]->SetAllContactsVerified();
 		m_subZones[1]->SetAllContactsVerified();
 	}
+}
+
+bool CRoutingZone::IsAcceptableContact(const CContact *toCheck) const
+{
+	// Check if we know a contact with the same ID or IP but notmatching IP/ID and other limitations, similar checks like when adding a node to the table except allowing duplicates
+	// we use this to check KADEMLIA_RES routing answers on searches
+	CContact *duplicate = GetContact(toCheck->GetClientID());
+	if (duplicate != NULL) {
+		if (duplicate->IsIPVerified() && duplicate->GetIPAddress() != toCheck->GetIPAddress() || duplicate->GetUDPPort() != toCheck->GetUDPPort()) {
+			// already existing verified node with different IP
+			return false;
+		} else {
+			// node exists already in our routing table, that's fine
+			return true;
+		}
+	}
+	// if the node is not yet known, check if our IP limitations would hit
+	return CRoutingBin::CheckGlobalIPLimits(toCheck->GetIPAddress(), toCheck->GetUDPPort());
 }

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -628,6 +628,7 @@ static LangInfo aMuleLanguages[] = {
 	{ wxLANGUAGE_DEFAULT,				true,	wxEmptyString,	wxTRANSLATE("System default") },
 	{ wxLANGUAGE_ALBANIAN,				true,	wxEmptyString,	wxTRANSLATE("Albanian") },
 	{ wxLANGUAGE_ARABIC,				true,	wxEmptyString,	wxTRANSLATE("Arabic") },
+	{ wxLANGUAGE_ASTURIAN,				true,	wxEmptyString,	wxTRANSLATE("Asturian") },
 	{ wxLANGUAGE_BASQUE,				true,	wxEmptyString,	wxTRANSLATE("Basque") },
 	{ wxLANGUAGE_BULGARIAN,				true,	wxEmptyString,	wxTRANSLATE("Bulgarian") },
 	{ wxLANGUAGE_CATALAN,				true,	wxEmptyString,	wxTRANSLATE("Catalan") },

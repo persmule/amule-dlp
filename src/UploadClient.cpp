@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -247,8 +247,10 @@ void CUpDownClient::CreateNextBlockPackage()
 			}
 		
 			uint64 togo;
-			if (currentblock->StartOffset > currentblock->EndOffset){
-				togo = currentblock->EndOffset + (srcfile->GetFileSize() - currentblock->StartOffset);
+			if (currentblock->EndOffset >= srcfile->GetFileSize()) {
+				throw wxString(wxT("Asked for data beyond end of file"));
+			} else if (currentblock->StartOffset > currentblock->EndOffset) { 
+				throw wxString(wxT("Asked for invalid block (start > end)"));
 			} else {
 				togo = currentblock->EndOffset - currentblock->StartOffset;
 				

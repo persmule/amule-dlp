@@ -3,7 +3,7 @@
 #
 # This file is part of the aMule Project.
 #
-# Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+# Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 #
 # Any parts of this program derived from the xMule, lMule or eMule project,
 # or contributed by third-party developers are copyrighted by their
@@ -24,7 +24,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 #
 
-AC_INIT([aMule], [2.2.3], [admin@amule.org])
+AC_INIT([aMule], [2.2.4], [admin@amule.org])
 AM_INIT_AUTOMAKE
 
 AC_CONFIG_SRCDIR([src/amule.cpp])
@@ -208,6 +208,10 @@ AS_IF([test x$AMULE_GUI = xyes], [need_gui=yes])
 AS_IF([test x${need_gui:+set} != xset], [need_gui=no])
 AC_MSG_RESULT($need_gui)
 
+# Check if we need to install skins
+AS_IF([test x$MONOLITHIC = xyes], [INSTALL_SKINS=yes])
+AS_IF([test x$AMULE_GUI = xyes], [INSTALL_SKINS=yes])
+AS_IF([test x${INSTALL_SKINS:+set} != xset], [INSTALL_SKINS=no])
 
 # Check for GeoIP (required for IP2Country capability)
 MULE_CHECK_GEOIP
@@ -283,10 +287,6 @@ MULE_CHECK_EXCEPTIONS
 
 MULE_CHECK_CXXABI
 AC_LANG_POP([C++])
-
-# Check for bfd.h (to have proper backtraces without using wxExecute)
-MULE_CHECK_BFD
-MULE_CHECK_EXECINFO
 
 # Ok, we have all needed libs, now checking for other stuff
 AS_IF([test "$LEX" = "flex"], [MULE_CHECK_FLEX_EXTENDED], [HAVE_FLEX_EXTENDED=no])
@@ -378,6 +378,10 @@ dnl AM_GNU_GETTEXT_VERSION *must not* be moved away from configure.in!
 AM_GNU_GETTEXT_VERSION(0.11.5)
 MULE_CHECK_NLS
 
+# Check for bfd.h (to have proper backtraces without using wxExecute)
+MULE_CHECK_BFD
+MULE_CHECK_EXECINFO
+
 # Flush standard test results for speeding cache
 AC_CACHE_SAVE
 
@@ -427,6 +431,7 @@ AM_CONDITIONAL(NEED_RC, test x$SYS = xwin32 -a "$RC" != ":")
 AM_CONDITIONAL(NEED_CORESERVICES, test x$SYS = xdarwin)
 AM_CONDITIONAL(COMPILE_NLS, test x$USE_NLS = xyes)
 AM_CONDITIONAL(GENERATE_FLEX_HEADER, test x$HAVE_FLEX_EXTENDED = xyes)
+AM_CONDITIONAL(INSTALL_SKINS, test x$INSTALL_SKINS = xyes)
 
 # Check for readline library
 if test x$AMULECMD = xyes -o x$WEB = xyes; then

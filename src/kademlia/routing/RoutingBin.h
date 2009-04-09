@@ -1,8 +1,8 @@
 //								-*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -75,6 +75,8 @@ public:
 	void	  PushToBottom(CContact *contact); // puts an existing contact from X to the end of the list
 	CContact *GetRandomContact(uint32_t maxType, uint32_t minKadVersion) const throw();
 	void	  SetAllContactsVerified();
+
+	static bool	CheckGlobalIPLimits(uint32_t ip, uint16_t port);
 
 	bool m_dontDeleteContacts;
 

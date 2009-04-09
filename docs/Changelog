@@ -1,3 +1,78 @@
+Version 2.2.4 - The "we didn't have a .4 version since... well... long ago" version.
+----------
+2009-04-03
+
+	freddy77:
+		* Plugged various memory leaks.
+
+	FreeToGo:
+		* Add comment to desktop file to allow autostart in Gnome
+
+	gabrielix:
+		* Compilation fix for gcc-4.3.2.
+
+	Gaznevada:
+		* Compilation fix for IRIX.
+		* Fixed file handles on IRIX.
+
+	GonoszTopi:
+		* Fixed compilation of Format.cpp for some platforms.
+		* Fixed wxWidgets socket library initialization.
+		* Fixed partfile importer destroying imported data.
+		* Separated GUI and core code in partfile importer, thus fixing
+		  occasional crashes/hangs.
+		* Fixed GeoIP-enabled builds crashing on 64b boxes.
+		* Added another common URN ID to the Magnet link handler.
+		* Switch to the 'busy' cursor while bringing up the preferences
+		  window.
+		* Ported several Kademlia fixes and improvements from eMule0.49c:
+			- Fixes on handling incoming packets with port zero.
+			- The Kad UDP firewalltest now asks several clients for
+			  its external port, avoiding to get a wrong "Open"
+			  state on NATs which change the source port on each
+			  request but behave like a Full-Cone otherwise.
+			- Made sure a received Kad routing answer doesn't
+			  contain more contacts than requested. [Xin Sun]
+			- Kad no longer allows more than 2 IPs from the same
+			  subnet within one routing query reply (except on LANs).
+			- Kad routing query contacts are checked against the
+			  routing table.
+		* Implemented non-interactive mode for amulecmd/amuleweb.
+		* Fixed detection of crypto++ library for versions >= 5.6.0.
+		* Fixed saving wrong window position when exiting while minimized.
+		* Fixed rare case when we tried to connect to a LowID client.
+		* MSW: detect WinSock API version needed by GeoIP.
+		* Fixed libbfd sometimes depends on libintl, with help from PacoBell.
+
+	iz0bbz:
+		* Fixed static linking with GeoIP on MinGW/MSYS.
+		* Fixed detecting GeoIP library when building for MinGW.
+		* Compilation fix with GeoIP-1.4.6.
+
+	Stu Redman:
+		* Fix crash on global search on Windows
+		* Fix splitter bar position in transfer window not restored properly
+		* Caught some insane upload requests
+		* Fixed finished files sometimes getting rehashed (thanks to Skolnick)
+		* Added restart warning if the ED2K network was re-enabled.
+		* Fixed Windows lag when opening preferences dialog
+		* Fixed creation of ED2K links with AICH (thanks to Archmage)
+		* Remote Gui shows a dialog box with a reason on connection failure
+		* Changed fix for wrong ordering/placing of clients in the download window
+		  so that sort order is again like in 2.2.2.
+
+	Wuischke:
+		* Add Asturian language
+		* Updated INSTALL file
+		* When EC authentication fails, close connection before we send
+		  the response.
+		* Tell the user why the EC connection failed.
+
+	Special Thanks To:
+		* wires for the strenuous testing on 64-bit
+
+--------------------------------------------------------------------------------
+
 Version 2.2.3 - The "Late Christmas present" version.
 ----------
 2008-12-28

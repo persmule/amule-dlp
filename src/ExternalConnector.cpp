@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -196,6 +196,7 @@ CaMuleExternalConnector::CaMuleExternalConnector()
 	  m_port(-1),
 	  m_KeepQuiet(false),
 	  m_Verbose(false),
+	  m_interactive(false),
 	  m_commands(*this),
 	  m_ECClient(NULL),
 	  m_InputLine(NULL),
@@ -397,6 +398,9 @@ void CaMuleExternalConnector::ConnectAndRun(const wxString &ProgName, const wxSt
 		// ConnectToCore is blocking since m_ECClient was initialized with NULL
 		if (!m_ECClient->ConnectToCore(m_host, m_port, wxT("foobar"), m_password.Encode(), ProgName, ProgVersion)) {
 			// no connection => close gracefully
+			if (!m_ECClient->GetServerReply().IsEmpty()) {
+					Show(CFormat(wxT("%s\n")) % m_ECClient->GetServerReply());
+			}
 			Show(CFormat(_("Connection Failed. Unable to connect to %s:%d\n")) % m_host % m_port);
 		} else {
 			// Authenticate ourselves
@@ -404,11 +408,15 @@ void CaMuleExternalConnector::ConnectAndRun(const wxString &ProgName, const wxSt
 			//m_ECClient->ConnectionEstablished();
 			Show(m_ECClient->GetServerReply()+wxT("\n"));
 			if (m_ECClient->IsSocketConnected()) {
-				ShowGreet();
+				if (m_interactive) {
+					ShowGreet();
+				}
 				Pre_Shell();
 				TextShell(ProgName);
 				Post_Shell();
-				Show(CFormat(_("\nOk, exiting %s...\n")) % ProgName);
+				if (m_interactive) {
+					Show(CFormat(_("\nOk, exiting %s...\n")) % ProgName);
+				}
 			}
 		}
 		m_ECClient->DestroySocket();
