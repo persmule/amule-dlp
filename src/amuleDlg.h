@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -206,9 +206,7 @@ protected:
 	void OnToolBarButton(wxCommandEvent& ev);
 	void OnAboutButton(wxCommandEvent& ev);
 	void OnPrefButton(wxCommandEvent& ev);
-#ifndef CLIENT_GUI	
 	void OnImportButton(wxCommandEvent& ev);
-#endif
 	void OnMinimize(wxIconizeEvent& evt);
 	void OnBnClickedFast(wxCommandEvent& evt);
 	void OnGUITimer(wxTimerEvent& evt);
@@ -221,7 +219,6 @@ private:
 	wxToolBar *m_wndToolbar;
 	wxTimer *gui_timer;
 	CMuleTrayIcon *m_wndTaskbarNotifier;
-	bool m_TrayIcon;
 	DialogType m_nActiveDialog;
 	bool m_is_safe_state;
 	bool m_BlinkMessages;

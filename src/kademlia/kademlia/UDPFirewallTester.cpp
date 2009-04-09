@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2008 Dévai Tamás ( gonosztopi@amule.org )
-// Copyright (c) 2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2008-2009 Dévai Tamás ( gonosztopi@amule.org )
+// Copyright (c) 2008-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002-2008 Merkur ( strEmail.Format("%s@%s", "devteam", "emule-project.net") / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -141,7 +141,7 @@ void CUDPFirewallTester::SetUDPFWCheckResult(bool succeeded, bool testCancelled,
 			if (incomingPort == CKademlia::GetPrefs()->GetInternKadPort()) {
 				CKademlia::GetPrefs()->SetUseExternKadPort(false);
 				AddDebugLogLineM(false, logKadUdpFwTester, wxT("New Kad Firewallstate (UDP): Open, using intern port"));
-			} else if (incomingPort == CKademlia::GetPrefs()->GetExternalKadPort()) {
+			} else if (incomingPort == CKademlia::GetPrefs()->GetExternalKadPort() && incomingPort != 0) {
 				CKademlia::GetPrefs()->SetUseExternKadPort(true);
 				AddDebugLogLineM(false, logKadUdpFwTester, wxT("New Kad Firewallstate (UDP): Open, using extern port"));
 			}
@@ -178,7 +178,7 @@ void CUDPFirewallTester::ReCheckFirewallUDP(bool setUnverified)
 	m_isFWVerifiedUDP = (m_isFWVerifiedUDP && !setUnverified);
 	CSearchManager::FindNodeFWCheckUDP(); // start a lookup for a random node to find suitable IPs
 	m_nodeSearchStarted = true;
-	CKademlia::GetPrefs()->SetExternKadPort(0);
+	CKademlia::GetPrefs()->FindExternKadPort(true);
 }
 
 void CUDPFirewallTester::Connected()
@@ -210,7 +210,7 @@ void CUDPFirewallTester::Reset()
 
 void CUDPFirewallTester::QueryNextClient()
 {	// try the next available client for the firewallcheck
-	if (!IsFWCheckUDPRunning() || !GetUDPCheckClientsNeeded() || CKademlia::GetPrefs()->GetExternalKadPort() == 0) {
+	if (!IsFWCheckUDPRunning() || !GetUDPCheckClientsNeeded() || CKademlia::GetPrefs()->FindExternKadPort(false)) {
 		return; // check if more tests are needed and wait till we know our extern port
 	}
 

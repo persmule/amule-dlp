@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -2242,6 +2242,7 @@ void CPartFile::CompleteFileEnded(bool errorOccured, const CPath& newname)
 
 		SetFilePath(m_fullname.GetPath());
 		SetFileName(m_fullname.GetFullName());
+		m_lastDateChanged = CPath::GetModificationTime(m_fullname);
 		
 		SetPartFileStatus(PS_COMPLETE);
 		m_paused = false;

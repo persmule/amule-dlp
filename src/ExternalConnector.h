@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -158,6 +158,7 @@ protected:
 	CMD4Hash	m_password;
 	bool		m_KeepQuiet;
 	bool		m_Verbose;
+	bool		m_interactive;
 	CCommandTree	m_commands;
 
 #if !wxUSE_GUI && defined(__WXMAC__)

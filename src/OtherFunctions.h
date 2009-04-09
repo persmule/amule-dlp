@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -350,7 +350,7 @@ void DumpMem_DW(const uint32 *ptr, int count);
 
 
 
-inline const long int make_full_ed2k_version(int a, int b, int c) {
+inline long int make_full_ed2k_version(int a, int b, int c) {
 	return ((a << 17) | (b << 10) | (c << 7));
 }
 
@@ -359,6 +359,7 @@ wxString GetConfigDir();
 
 #define  wxLANGUAGE_CUSTOM 		wxLANGUAGE_USER_DEFINED+1
 #define  wxLANGUAGE_ITALIAN_NAPOLITAN 	wxLANGUAGE_USER_DEFINED+2
+#define  wxLANGUAGE_ASTURIAN 	wxLANGUAGE_USER_DEFINED+3
 
 /**
  * Adds aMule's custom languages to db.

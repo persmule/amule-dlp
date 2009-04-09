@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2006-2008 Marcelo Roberto Jimenez ( phoenix@amule.org )
-// Copyright (c) 2006-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2006-2009 Marcelo Roberto Jimenez ( phoenix@amule.org )
+// Copyright (c) 2006-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -44,8 +44,6 @@
 #define IP2COUNTRY_H
 
 
-#include <GeoIP.h>
-
 #include <map>
 
 #include <wx/bitmap.h>
@@ -68,7 +66,7 @@ public:
 	const CountryData& GetCountryData(const wxString& ip);
 
 private:
-	GeoIP *m_geoip;
+	struct GeoIPTag *m_geoip;
 	CountryDataMap m_CountryDataMap;
 };
 

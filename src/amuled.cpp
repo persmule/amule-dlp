@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -28,7 +28,22 @@
 #include <include/common/EventIDs.h>
 
 #ifdef HAVE_CONFIG_H
-	#include "config.h"		// Needed for HAVE_SYS_RESOURCE_H, HAVE_STRERROR_R and STRERROR_R_CHAR_P
+	#include "config.h"		// Needed for HAVE_SYS_RESOURCE_H, HAVE_STRERROR_R and STRERROR_R_CHAR_P, etc
+#endif
+
+// Include the necessary headers for select(2), properly guarded
+#if defined HAVE_SYS_SELECT_H && !defined __IRIX__
+#	include <sys/select.h>
+#else
+#	ifdef HAVE_SYS_TIME_H
+#		include <sys/time.h>
+#	endif
+#	ifdef HAVE_SYS_TYPES_H
+#		include <sys/types.h>
+#	endif
+#	ifdef HAVE_UNISTD_H
+#		include <unistd.h>
+#	endif
 #endif
 
 // Prefer the POSIX interface to strerror_r()

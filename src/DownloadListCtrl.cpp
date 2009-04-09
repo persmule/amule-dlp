@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -1816,8 +1816,17 @@ int CDownloadListCtrl::Compare( const CPartFile* file1, const CPartFile* file2, 
 	int result = 0;
 
 	switch (lParamSort) {
-	// Sort by filename is done in the end, when result is still 0
-	// case 0:
+	// Sort by filename
+	case 0:
+		result = CmpAny(
+			file1->GetFileName(),
+			file2->GetFileName() );
+		// Filename shouldn't be equal. If it IS, definitely choose one, so comparison result
+		// is always defined. (Fallback in MuleListCtrl is wrong for client comparison.)
+		if (!result) {
+			result = CmpAny(file1, file2);
+		}
+		break;
 
 	// Sort by size
 	case 1:
@@ -1907,23 +1916,6 @@ int CDownloadListCtrl::Compare( const CPartFile* file1, const CPartFile* file2, 
 			file1->GetLastChangeDatetime(),
 			file2->GetLastChangeDatetime() );
 		break;
-	}
-
-	// Files must never be treated as equal on sort.
-	// When a file has sources visible, and another one is equal, 
-	// then the sources can be assigned to the wrong file.
-	// So sort by filename in this case (which should not be equal).
-	if (result == 0) {
-		result = CmpAny(
-			file1->GetFileName(),
-			file2->GetFileName() );
-	}
-	// Last resort if names ARE equal (maybe same name in two cats)
-	// - take the hash
-	if (result == 0) {
-		result = CmpAny(
-			file1->GetFileHash(),
-			file2->GetFileHash() );
 	}
 
 	return result;

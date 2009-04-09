@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2008 Angel Vidal (Kry) ( kry@amule.org / http://www.amule.org )
-// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2009 Angel Vidal (Kry) ( kry@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -137,6 +137,7 @@ void CamulecmdApp::OnInitCmdLine(wxCmdLineParser& parser)
 bool CamulecmdApp::OnCmdLineParsed(wxCmdLineParser& parser)
 {
 	m_HasCmdOnCmdLine = parser.Found(wxT("command"), &m_CmdString);
+	m_interactive = !m_HasCmdOnCmdLine;
 	return CaMuleExternalConnector::OnCmdLineParsed(parser);
 }
 

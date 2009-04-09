@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (C) 2005-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (C) 2005-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -298,12 +298,16 @@ bool CamuleRemoteGuiApp::ShowConnectionDialog() {
 void CamuleRemoteGuiApp::OnECConnection(wxEvent& event) {
 	wxECSocketEvent& evt = *((wxECSocketEvent*)&event);
 	printf("Remote GUI EC event handler\n");
-	AddLogLineM(true,evt.GetServerReply());
+	wxString reply = evt.GetServerReply();
+	AddLogLineM(true, reply);
 	if (evt.GetResult() == true) {
 		// Connected - go to next init step
 		glob_prefs->LoadRemote();
 	} else {
 		printf("Going down\n");
+		wxMessageBox(
+			(CFormat(_("Connection Failed. Unable to connect to %s:%d\n")) % dialog->Host() % dialog->Port()) + reply,
+			_("ERROR"), wxOK);
 		ExitMainLoop();
 	}
 }
@@ -430,6 +434,7 @@ wxString CamuleRemoteGuiApp::CreateMagnetLink(const CAbstractFile* f)
 
 	uri.AddField(wxT("dn"), f->GetFileName().Cleanup(false).GetPrintable());
 	uri.AddField(wxT("xt"), wxString(wxT("urn:ed2k:")) + f->GetFileHash().Encode().Lower());
+	uri.AddField(wxT("xt"), wxString(wxT("urn:ed2khash:")) + f->GetFileHash().Encode().Lower());
 	uri.AddField(wxT("xl"), wxString::Format(wxT("%") wxLongLongFmtSpec wxT("u"), f->GetFileSize()));
 
 	return uri.GetLink();
@@ -491,10 +496,11 @@ wxString CamuleRemoteGuiApp::CreateED2kAICHLink(const CKnownFile* f)
 	wxString strURL = CreateED2kLink(f);
 	// Append the AICH info
 	if (f->HasProperAICHHashSet()) {
-	     	strURL << wxT("|h=") << f->GetAICHMasterHash() << wxT("|/");
+		strURL.RemoveLast();		// remove trailing '/'
+		strURL << wxT("h=") << f->GetAICHMasterHash() << wxT("|/");
 	}	
 
-	// Result is "ed2k://|file|<filename>|<size>|<hash>|/|h=<AICH master hash>|/"
+	// Result is "ed2k://|file|<filename>|<size>|<hash>|h=<AICH master hash>|/"
 	return strURL;
 }
 

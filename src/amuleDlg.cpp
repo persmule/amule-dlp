@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -38,6 +38,7 @@
 #include <wx/zipstrm.h>
 #include <wx/sysopt.h>
 #include <wx/wupdlock.h>	// Needed for wxWindowUpdateLocker
+#include <wx/utils.h>		// Needed for wxBusyCursor
 
 #include <common/EventIDs.h>
 
@@ -70,9 +71,7 @@
 #include "StatisticsDlg.h"	// Needed for CStatisticsDlg
 #include "TerminationProcess.h"	// Needed for CTerminationProcess
 #include "TransferWnd.h"	// Needed for CTransferWnd
-#ifndef CLIENT_GUI
-#include "PartFileConvert.h"
-#endif
+#include "PartFileConvertDlg.h"
 
 #ifndef __WXMSW__
 #include "aMule.xpm"
@@ -95,9 +94,7 @@ BEGIN_EVENT_TABLE(CamuleDlg, wxFrame)
 	EVT_TOOL(ID_ABOUT, CamuleDlg::OnAboutButton)
 
 	EVT_TOOL(ID_BUTTONNEWPREFERENCES, CamuleDlg::OnPrefButton)
-#ifndef CLIENT_GUI
 	EVT_TOOL(ID_BUTTONIMPORT, CamuleDlg::OnImportButton)
-#endif
 
 	EVT_TOOL(ID_BUTTONCONNECT, CamuleDlg::OnBnConnect)
 
@@ -146,7 +143,6 @@ m_tblist(32,32),
 m_prefsVisible(false),
 m_wndToolbar(NULL),
 m_wndTaskbarNotifier(NULL),
-m_TrayIcon(false),
 m_nActiveDialog(DT_NETWORKS_WND),
 m_is_safe_state(false),
 m_BlinkMessages(false),
@@ -245,8 +241,6 @@ m_clientSkinNames(CLIENT_SKIN_SIZE)
 	// Set transfers as active window
 	Create_Toolbar(thePrefs::VerticalToolbar());
 	SetActiveDialog(DT_TRANSFER_WND, m_transferwnd);
-	// Prepare the dialog, sets the splitter-position
-	m_transferwnd->Prepare();
 	m_wndToolbar->ToggleTool(ID_BUTTONTRANSFER, true );
 
 	bool override_where = (where != wxDefaultPosition);
@@ -258,6 +252,9 @@ m_clientSkinNames(CLIENT_SKIN_SIZE)
 		AddLogLineM( true, wxT("Error! Unable to load Preferences") );
 		return;
 	}
+
+	// Prepare the dialog, sets the splitter-position (AFTER window size is set)
+	m_transferwnd->Prepare();
 
 	m_is_safe_state = true;
 
@@ -371,11 +368,10 @@ void CamuleDlg::UpdateTrayIcon(int percent)
 		
 void CamuleDlg::CreateSystray()
 {
-	wxCHECK_RET(m_TrayIcon == false,
+	wxCHECK_RET(m_wndTaskbarNotifier == NULL,
 		wxT("Systray already created"));
 
 	m_wndTaskbarNotifier = new CMuleTrayIcon();
-	m_TrayIcon = true;
 	// This will effectively show the Tray Icon.
 	UpdateTrayIcon(0);
 }	
@@ -385,7 +381,6 @@ void CamuleDlg::RemoveSystray()
 {
 	delete m_wndTaskbarNotifier;
 	m_wndTaskbarNotifier = NULL;
-	m_TrayIcon = false;
 }
 
 
@@ -471,7 +466,7 @@ void CamuleDlg::OnAboutButton(wxCommandEvent& WXUNUSED(ev))
 		_(" Forum: http://forum.amule.org \n") << 
 		_(" FAQ: http://wiki.amule.org \n\n") <<
 		_(" Contact: admin@amule.org (administrative issues) \n") <<
-		_(" Copyright (C) 2003-2008 aMule Team \n\n") <<
+		_(" Copyright (C) 2003-2009 aMule Team \n\n") <<
 		_(" Part of aMule is based on \n") <<
 		_("Kademlia: Peer-to-peer routing based on the XOR metric.\n") <<
 		_(" Copyright (C) 2002 Petar Maymounkov\n") <<
@@ -486,6 +481,7 @@ void CamuleDlg::OnAboutButton(wxCommandEvent& WXUNUSED(ev))
 void CamuleDlg::OnPrefButton(wxCommandEvent& WXUNUSED(ev))
 {
 	if (m_is_safe_state) {
+		wxBusyCursor busyCursor;
 		if (m_prefsDialog == NULL) {
 			m_prefsDialog = new PrefsUnifiedDlg(this);
 		}
@@ -497,14 +493,13 @@ void CamuleDlg::OnPrefButton(wxCommandEvent& WXUNUSED(ev))
 }
 
 
-#ifndef CLIENT_GUI
 void CamuleDlg::OnImportButton(wxCommandEvent& WXUNUSED(ev))
 {
-	if ( m_is_safe_state ) {
-		CPartFileConvert::ShowGUI(NULL);
+	if (m_is_safe_state) {
+		CPartFileConvertDlg::ShowGUI(NULL);
 	}
 }
-#endif
+
 
 CamuleDlg::~CamuleDlg()
 {
@@ -828,8 +823,8 @@ void CamuleDlg::ShowTransferRate()
 		SetTitle(theApp->m_FrameTitle + UpDownSpeed);
 	}
 
-	wxASSERT(m_TrayIcon == thePrefs::UseTrayIcon());
-	if (m_TrayIcon) {
+	wxASSERT((m_wndTaskbarNotifier != NULL) == thePrefs::UseTrayIcon());
+	if (m_wndTaskbarNotifier) {
 		// set trayicon-icon
 		int percentDown = (int)ceil((kBpsDown*100) / thePrefs::GetMaxGraphDownloadRate());
 		UpdateTrayIcon( ( percentDown > 100 ) ? 100 : percentDown);
@@ -968,19 +963,21 @@ bool CamuleDlg::SaveGUIPrefs()
 	// The section where to save in in file
 	wxString section = wxT("/Razor_Preferences/");
 
-	// Main window location and size
-	int x1, y1, x2, y2;
-	GetPosition(&x1, &y1);
-	GetSize(&x2, &y2);
+	if (!IsIconized()) {
+		// Main window location and size
+		int x1, y1, x2, y2;
+		GetPosition(&x1, &y1);
+		GetSize(&x2, &y2);
 
-	// Saving window size and position
-	config->Write(section+wxT("MAIN_X_POS"), (long) x1);
-	config->Write(section+wxT("MAIN_Y_POS"), (long) y1);
+		// Saving window size and position
+		config->Write(section+wxT("MAIN_X_POS"), (long) x1);
+		config->Write(section+wxT("MAIN_Y_POS"), (long) y1);
 
-	config->Write(section+wxT("MAIN_X_SIZE"), (long) x2);
-	config->Write(section+wxT("MAIN_Y_SIZE"), (long) y2);
+		config->Write(section+wxT("MAIN_X_SIZE"), (long) x2);
+		config->Write(section+wxT("MAIN_Y_SIZE"), (long) y2);
 
-	config->Write(section+wxT("Maximized"), (long) (IsMaximized() ? 1 : 0));
+		config->Write(section+wxT("Maximized"), (long) (IsMaximized() ? 1 : 0));
+	}
 
 	// Saving sash position of splitter in server window
 	config->Write(section+wxT("SRV_SPLITTER_POS"), (long) m_srv_split_pos);
@@ -995,7 +992,7 @@ bool CamuleDlg::SaveGUIPrefs()
 
 void CamuleDlg::DoIconize(bool iconize) 
 {
-	if (m_TrayIcon && thePrefs::DoMinToTray()) {
+	if (m_wndTaskbarNotifier && thePrefs::DoMinToTray()) {
 		if (iconize) {
 			// Skip() will do it.
 			//Iconize(true);
@@ -1022,7 +1019,7 @@ void CamuleDlg::OnMinimize(wxIconizeEvent& evt)
 		if (m_prefsDialog && m_prefsDialog->IsShown()) {
 			// Veto.
 		} else {
-			if (m_TrayIcon) {
+			if (m_wndTaskbarNotifier) {
 				DoIconize(evt.Iconized());
 			}
 			evt.Skip();

@@ -3,10 +3,14 @@ AM_CFLAGS = $(MULECFLAGS)
 AM_CXXFLAGS = $(MULECXXFLAGS)
 AM_LDFLAGS = $(MULELDFLAGS)
 
-SUBDIRS = libs utils pixmaps skins
+SUBDIRS = libs utils pixmaps
 
 if WEB
 SUBDIRS += webserver
+endif
+
+if INSTALL_SKINS
+SUBDIRS += skins
 endif
 
 EXTRA_DIST = \
@@ -110,7 +114,7 @@ libmuleappgui_a_SOURCES = \
 	MuleCollection.cpp \
 	muuli_wdr.cpp 
 
-libmuleappgui_a_CPPFLAGS = $(AM_CPPFLAGS) $(WX_CPPFLAGS) -I$(srcdir)/libs -I$(srcdir)/include $(LIBUPNP_CPPFLAGS)
+libmuleappgui_a_CPPFLAGS = $(AM_CPPFLAGS) $(WX_CPPFLAGS) -I$(srcdir)/libs -I$(srcdir)/include $(LIBUPNP_CPPFLAGS) $(GEOIP_CPPFLAGS)
 
 core_sources = \
 	RC4Encrypt.cpp \
@@ -134,6 +138,7 @@ core_sources = \
 	KnownFileList.cpp \
 	ListenSocket.cpp \
 	MuleUDPSocket.cpp \
+	PartFileConvert.cpp \
 	SearchFile.cpp \
 	SearchList.cpp \
 	ServerConnect.cpp \
@@ -171,7 +176,7 @@ gui_sources = \
 	FileDetailDialog.cpp \
 	KadDlg.cpp \
 	OScopeCtrl.cpp \
-	PartFileConvert.cpp \
+	PartFileConvertDlg.cpp \
 	PrefsUnifiedDlg.cpp \
 	SearchDlg.cpp \
 	ServerWnd.cpp \
@@ -379,6 +384,7 @@ noinst_HEADERS = \
 		Packet.h \
 		Parser.hpp \
 		PartFileConvert.h \
+		PartFileConvertDlg.h \
 		PartFile.h \
 		PlatformSpecific.h \
 		Preferences.h \

@@ -1,8 +1,8 @@
 //								-*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -43,6 +43,7 @@ there client on the eMule forum..
 #include "../../Preferences.h"
 #include <protocol/kad/Constants.h>
 #include <time.h>
+#include <vector>
 
 ////////////////////////////////////////
 namespace Kademlia {
@@ -111,7 +112,8 @@ public:
 
 	uint16_t GetExternalKadPort() const throw()		{ return m_externKadPort; }
 	uint16_t GetInternKadPort() const throw()		{ return thePrefs::GetUDPPort(); }
-	void	 SetExternKadPort(uint16_t port) throw()	{ m_externKadPort = port; }
+	void	 SetExternKadPort(uint16_t port, uint32_t fromIP);
+	bool	 FindExternKadPort(bool reset = false);
 
 	static uint8_t	GetMyConnectOptions(bool encryption = true, bool callback = true);
 	static uint32_t GetUDPVerifyKey(uint32_t targetIP) throw();
@@ -145,6 +147,8 @@ private:
 	bool		m_lastFirewallState;
 	bool		m_useExternKadPort;
 	uint16_t	m_externKadPort;
+	std::vector<uint32_t>	m_externPortIPs;
+	std::vector<uint16_t>	m_externPorts;
 
 	// Statistics
 	uint32_t	m_statsUDPOpenNodes;

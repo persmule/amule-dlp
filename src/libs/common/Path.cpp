@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2008-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -27,7 +27,7 @@
 #include "StringFunctions.h"
 
 #include <wx/file.h>
-#ifdef __WXMSW__
+#if defined __WXMSW__ || defined __IRIX__
 #	include <wx/ffile.h>
 #endif
 #include <wx/utils.h>
@@ -612,7 +612,7 @@ bool CPath::BackupFile(const CPath& src, const wxString& appendix)
 		// Try to ensure that the backup gets physically written 
 		// Now - does this have any effect reopening a already closed file
 		// to flush it ???
-#ifdef __WXMSW__
+#if defined __WXMSW__ || defined __IRIX__
 		wxFFile backupFile;
 #else
 		wxFile backupFile;

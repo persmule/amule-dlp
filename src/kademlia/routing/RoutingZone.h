@@ -1,8 +1,8 @@
 //								-*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -84,6 +84,9 @@ public:
 	CContact *GetRandomContact(uint32_t maxType, uint32_t minKadVersion) const throw();
 	uint32_t GetNumContacts() const throw();
 	void	 GetNumContacts(uint32_t& nInOutContacts, uint32_t& nInOutFilteredContacts, uint8_t minVersion) const;
+
+	// Check if we know a contact with the same IP or ID but not matching IP/ID and other limitations, similar checks like when adding a node to the table except allowing duplicates
+	bool	IsAcceptableContact(const CContact *toCheck) const;
 
 	// Returns a list of all contacts in all leafs of this zone.
 	void	 GetAllEntries(ContactList *result, bool emptyFirst = true) const;

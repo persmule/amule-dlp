@@ -1,8 +1,8 @@
 //
 // This file is part of aMule Project
 //
-// Copyright (c) 2004-2008 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2008 aMule Project ( http://www.amule-project.net )
+// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
+// Copyright (c) 2004-2009 aMule Project ( http://www.amule-project.net )
 // Copyright (C)2003 Barry Dunne (http://www.emule-project.net)
 // Copyright (C)2007-2008 Merkur ( strEmail.Format("%s@%s", "devteam", "emule-project.net") / http://www.emule-project.net )
 
@@ -725,7 +725,7 @@ void CKademliaUDPListener::Process2HelloRequest(const uint8_t *packetData, uint3
 			wxFAIL;
 		}
 #endif
-	} else if (CKademlia::GetPrefs()->GetExternalKadPort() == 0 && contactVersion > 5) {	// do we need to find out our extern port?
+	} else if (CKademlia::GetPrefs()->FindExternKadPort(false) && contactVersion > 5) {	// do we need to find out our extern port?
 		DebugSend(Kad2Ping, ip, port);
 		SendNullPacket(KADEMLIA2_PING, ip, port, senderKey, NULL);
 	}
@@ -821,7 +821,7 @@ void CKademliaUDPListener::Process2HelloResponse(const uint8_t *packetData, uint
 	}
 
 	// do we need to find out our extern port?
-	if (CKademlia::GetPrefs()->GetExternalKadPort() == 0 && contactVersion > 5) {
+	if (CKademlia::GetPrefs()->FindExternKadPort(false) && contactVersion > 5) {
 		DebugSend(Kad2Ping, ip, port);
 		SendNullPacket(KADEMLIA2_PING, ip, port, senderKey, NULL);
 	}
@@ -981,6 +981,7 @@ void CKademliaUDPListener::ProcessKademliaResponse(const uint8_t *packetData, ui
 	// Verify packet is expected size
 	CHECK_PACKET_EXACT_SIZE(16+1 + (16+4+2+2+1)*numContacts);
 
+	uint32_t ignoredCount = 0;
 	CScopedPtr<ContactList> results(new ContactList);
 	
 	for (uint16_t i = 0; i < numContacts; i++) {
@@ -997,10 +998,20 @@ void CKademliaUDPListener::ProcessKademliaResponse(const uint8_t *packetData, ui
 				// the contact to the routing table. If this should be an old Kad1 contact, we won't be able to keep it, but
 				// we avoid having to send double hello packets to the 90% Kad2 nodes
 				// This is the first step of dropping Kad1 support
-				routingZone->AddUnfiltered(id, contactIP, contactPort, tport, 2, 0, verified, false, false, false);
-				results->push_back(new CContact(id, contactIP, contactPort, tport, 0, 0, false, target));
+				bool wasAdded = routingZone->AddUnfiltered(id, contactIP, contactPort, tport, 2, 0, verified, false, false, false);
+				CContact *temp = new CContact(id, contactIP, contactPort, tport, 0, 0, false, target);
+				if (wasAdded || routingZone->IsAcceptableContact(temp)) {
+					results->push_back(temp);
+				} else {
+					ignoredCount++;
+					delete temp;
+				}
 			}
 		}
+	}
+
+	if (ignoredCount > 0) {
+		AddDebugLogLineM(false, logClientKadUDP, wxString::Format(wxT("Ignored %u bad contacts in routing answer from "), ignoredCount) + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(ip)));
 	}
 
 	CSearchManager::ProcessResponse(target, ip, port, results.release());
@@ -1050,6 +1061,7 @@ void CKademliaUDPListener::ProcessKademlia2Response(const uint8_t *packetData, u
 		isFirewallUDPCheckSearch = true;
 	}
 
+	uint32_t ignoredCount = 0;
 	CScopedPtr<ContactList> results(new ContactList);
 	for (uint8_t i = 0; i < numContacts; i++) {
 		CUInt128 id = bio.ReadUInt128();
@@ -1069,11 +1081,21 @@ void CKademliaUDPListener::ProcessKademlia2Response(const uint8_t *packetData, u
 					CUDPFirewallTester::AddPossibleTestContact(id, contactIP, contactPort, tport, target, version, 0, false);
 				} else {
 					bool verified = false;
-					routingZone->AddUnfiltered(id, contactIP, contactPort, tport, version, 0, verified, false, false, false);
-					results->push_back(new CContact(id, contactIP, contactPort, tport, version, 0, false, target));
+					bool wasAdded = routingZone->AddUnfiltered(id, contactIP, contactPort, tport, version, 0, verified, false, false, false);
+					CContact *temp = new CContact(id, contactIP, contactPort, tport, version, 0, false, target);
+					if (wasAdded || routingZone->IsAcceptableContact(temp)) {
+						results->push_back(temp);
+					} else {
+						ignoredCount++;
+						delete temp;
+					}
 				}
 			}
 		}
+	}
+
+	if (ignoredCount > 0) {
+		AddDebugLogLineM(false, logClientKadUDP, wxString::Format(wxT("Ignored %u bad contacts in routing answer from "), ignoredCount) + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(ip)));
 	}
 
 	CSearchManager::ProcessResponse(target, ip, port, results.release());
@@ -2215,13 +2237,12 @@ void CKademliaUDPListener::Process2Pong(const uint8_t *packetData, uint32_t lenP
 		return;	// we do not actually care for its other content
 	}
 
-	if (CKademlia::GetPrefs()->GetExternalKadPort() == 0) {
+	if (CKademlia::GetPrefs()->FindExternKadPort(false)) {
 		// the reported port doesn't always have to be our true external port, esp. if we used our intern port
 		// and communicated recently with the client some routers might remember this and assign the intern port as source
 		// but this shouldn't be a problem because we prefer intern ports anyway.
 		// might have to be reviewed in later versions when more data is available
-		CKademlia::GetPrefs()->SetExternKadPort(PeekUInt16(packetData));
-		AddDebugLogLineM(false, logKadMain, wxString::Format(wxT("Set external Kad Port to %u"), CKademlia::GetPrefs()->GetExternalKadPort()));
+		CKademlia::GetPrefs()->SetExternKadPort(PeekUInt16(packetData), ip);
 
 		if (CUDPFirewallTester::IsFWCheckUDPRunning()) {
 			CUDPFirewallTester::QueryNextClient();
@@ -2238,7 +2259,7 @@ void CKademliaUDPListener::Process2FirewallUDP(const uint8_t *packetData, uint32
 
 	uint8_t errorCode = PeekUInt8(packetData);
 	uint16_t incomingPort = PeekUInt16(packetData + 1);
-	if (incomingPort != CKademlia::GetPrefs()->GetExternalKadPort() && incomingPort != CKademlia::GetPrefs()->GetInternKadPort()) {
+	if (incomingPort != CKademlia::GetPrefs()->GetExternalKadPort() && incomingPort != CKademlia::GetPrefs()->GetInternKadPort() || incomingPort == 0) {
 		AddDebugLogLineM(false, logClientKadUDP, wxString::Format(wxT("Received UDP FirewallCheck on unexpected incoming port %u (") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(ip)) + wxT(")"), incomingPort));
 		CUDPFirewallTester::SetUDPFWCheckResult(false, true, ip, 0);
 	} else if (errorCode == 0) {

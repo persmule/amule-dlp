@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2006-2008 Marcelo Roberto Jimenez ( phoenix@amule.org )
-// Copyright (c) 2006-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2006-2009 Marcelo Roberto Jimenez ( phoenix@amule.org )
+// Copyright (c) 2006-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -40,8 +40,6 @@
 // Contact: mjames@gmail.com
 //
 
-#include "IP2Country.h"
-
 
 #include "Logger.h"			// For AddLogLineM()
 #include <common/Format.h>		// For CFormat()
@@ -55,6 +53,9 @@
 	#include <CoreFoundation/CFBundle.h>
 	#include <wx/mac/corefoundation/cfstring.h>
 #endif
+
+#include <GeoIP.h>
+#include "IP2Country.h"
 
 CIP2Country::CIP2Country()
 {

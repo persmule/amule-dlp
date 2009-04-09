@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2008 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
 // Original author: Emilio Sandoz
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -458,6 +458,8 @@ bool PrefsUnifiedDlg::TransferToWindow()
 	FindWindow(IDC_UPNP_WEBSERVER_ENABLED)->Enable(false);	
 	FindWindow(IDC_WEBUPNPTCPPORT)->Enable(false);
 	thePrefs::SetUPnPWebServerEnabled(false);
+	FindWindow(IDC_UPNP_EC_ENABLED)->Enable(false);
+	thePrefs::SetUPnPECEnabled(false);
 #endif
 
 #ifdef __DEBUG__
@@ -580,6 +582,11 @@ void PrefsUnifiedDlg::OnOk(wxCommandEvent& WXUNUSED(event))
 	if (CfgChanged(IDC_TEMPFILES)) {
 		restart_needed = true;
 		restart_needed_msg += _("- Temp folder changed.\n");
+	}
+
+	if (CfgChanged(IDC_NETWORKED2K) && thePrefs::GetNetworkED2K()) {
+		restart_needed = true;
+		restart_needed_msg += _("- ED2K network enabled.\n");
 	}
 
 	if (CfgChanged(IDC_INCFILES) || CfgChanged(IDC_TEMPFILES) || m_ShareSelector->HasChanged ) {
@@ -988,6 +995,9 @@ void PrefsUnifiedDlg::OnPrefsPageChange(wxListEvent& event)
 	m_CurrentPanel->Show( false );
 
 	m_CurrentPanel = (wxPanel *) m_PrefsIcons->GetItemData(event.GetIndex());
+	if (pages[event.GetIndex()].m_function == PreferencesDirectoriesTab) {
+		CastChild(IDC_SHARESELECTOR, CDirectoryTreeCtrl)->Init();
+	}
 
 	prefs_sizer->Add( m_CurrentPanel, 0, wxGROW|wxEXPAND );
 	m_CurrentPanel->Show( true );

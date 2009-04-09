@@ -1,8 +1,8 @@
 //                                                       -*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2007-2008 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2007-2008 Dévai Tamás ( gonosztopi@amule.org )
+// Copyright (c) 2007-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2007-2009 Dévai Tamás ( gonosztopi@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -100,7 +100,9 @@ bool CMagnetED2KConverter::CanConvertToED2K() const
 			continue;
 		}
 		if (it->first.compare(_T("xt")) == 0) {
-			if (it->second.compare(0, 9, _T("urn:ed2k:")) == 0) {
+			if ((it->second.compare(0, 9, _T("urn:ed2k:")) == 0) ||
+			    (it->second.compare(0, 13, _T("urn:ed2khash:")) == 0))
+			{
 				has_urn = true;
 				continue;
 			}
@@ -126,9 +128,13 @@ STRING CMagnetED2KConverter::GetED2KLink() const
 			dn = _T("FileName.ext");
 		}
 		Value_List urn_list = GetField(_T("xt"));
+		// Use the first ed2k-hash found.
 		for (Value_List::iterator it = urn_list.begin(); it != urn_list.end(); ++it) {
 			if (it->compare(0, 9, _T("urn:ed2k:")) == 0) {
 				hash = it->substr(9);
+				break;
+			} else if (it->compare(0, 13, _T("urn:ed2khash:")) == 0) {
+				hash = it->substr(13);
 				break;
 			}
 		}
