@@ -4,6 +4,11 @@ amule (2.2.4-1) UNRELEASED; urgency=low
 
   * New upstream release.
 
+  * Bump Standards-Version to 3.8.1 (no changes needed).
+
+  * Drop version constraint in debhelper build-dependency, since the required
+    version is in stable now.
+
  -- Adeodato Simó <dato@net.com.org.es>  Thu, 09 Apr 2009 13:55:59 +0200
 
 amule (2.2.3-2) unstable; urgency=low
