@@ -1,4 +1,5 @@
 .pc
+po/*.gmo
 
 debian/tmp
 debian/files
