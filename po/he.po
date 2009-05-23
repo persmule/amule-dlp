@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: amule 2.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-02 16:50+0200\n"
+"POT-Creation-Date: 2009-05-16 09:38+0200\n"
 "PO-Revision-Date: 2008-04-11 00:21+0300\n"
 "Last-Translator: Peace Kramer <kpeace1@gmail.com>\n"
 "Language-Team: Hebrew\n"
@@ -143,7 +143,7 @@ msgstr "הניסיון לקבל את רשימת הקבצים המשותפים מ
 #: src/ClientListCtrl.cpp:704 src/ClientListCtrl.cpp:867
 #: src/ClientDetailDialog.cpp:83 src/ClientDetailDialog.cpp:84
 #: src/ClientDetailDialog.cpp:85 src/ClientDetailDialog.cpp:120
-#: src/ClientDetailDialog.cpp:121 src/MuleTrayIcon.cpp:406
+#: src/ClientDetailDialog.cpp:121 src/MuleTrayIcon.cpp:416
 msgid "Unknown"
 msgstr "לא ידוע"
 
@@ -1039,7 +1039,7 @@ msgid "LowID"
 msgstr "מ\"ז נמוך (LowID)"
 
 #: src/utils/wxCas/src/onlinesig.cpp:272 src/ServerWnd.cpp:189
-#: src/MuleTrayIcon.cpp:398
+#: src/MuleTrayIcon.cpp:408
 msgid "Not Connected"
 msgstr "מנותק"
 
@@ -1149,7 +1149,7 @@ msgstr "שמור"
 msgid "Copy to clipboard"
 msgstr "העתק ללוח"
 
-#: src/utils/aLinkCreator/src/alcframe.cpp:234 src/MuleTrayIcon.cpp:558
+#: src/utils/aLinkCreator/src/alcframe.cpp:234 src/MuleTrayIcon.cpp:568
 msgid "Exit"
 msgstr "יציאה"
 
@@ -1865,7 +1865,7 @@ msgstr "קאד: מכובה"
 msgid "Stop the current connection attempts"
 msgstr "הפסק את ניסיונות ההתחברות הנוכחיים"
 
-#: src/amuleDlg.cpp:757 src/muuli_wdr.cpp:2850 src/MuleTrayIcon.cpp:537
+#: src/amuleDlg.cpp:757 src/muuli_wdr.cpp:2850 src/MuleTrayIcon.cpp:547
 msgid "Disconnect"
 msgstr "מנותק"
 
@@ -1874,7 +1874,7 @@ msgid "Disconnect from the currently connected networks"
 msgstr "התנתק מהרשתות שאליהם אתה מחובר כעת"
 
 #: src/amuleDlg.cpp:763 src/muuli_wdr.cpp:3033 src/muuli_wdr.cpp:3466
-#: src/muuli_wdr.cpp:3668 src/MuleTrayIcon.cpp:540
+#: src/muuli_wdr.cpp:3668 src/MuleTrayIcon.cpp:550
 msgid "Connect"
 msgstr "התחבר"
 
@@ -2454,12 +2454,12 @@ msgstr ""
 msgid "Invalid opcode (wrong protocol version?)"
 msgstr "קוד-פעולה לא תקף (גרסת פרוטקול שגויה?)"
 
-#: src/UploadClient.cpp:271
+#: src/UploadClient.cpp:273
 #, c-format
 msgid "Failed to open file (%s), removing from list of shared files."
 msgstr "נכשל בפתיחת הקובץ (%s), מסיר מרשימת הקבצים המשותפים."
 
-#: src/UploadClient.cpp:716
+#: src/UploadClient.cpp:718
 #, c-format
 msgid "Hashset requested for unknown file: %s"
 msgstr "התבקשה קבוצת הגיבובים של קובץ לא ידוע: %s"
@@ -2546,7 +2546,7 @@ msgstr "ממוצע קבצים:"
 msgid "Not running"
 msgstr "לא פועל"
 
-#: src/Statistics.cpp:644 src/MuleTrayIcon.cpp:447
+#: src/Statistics.cpp:644 src/MuleTrayIcon.cpp:457
 #, c-format
 msgid "Uptime: %s"
 msgstr "זמן פעולה: %s"
@@ -3168,7 +3168,7 @@ msgstr ""
 msgid "File preview"
 msgstr "תקדימון לקובץ"
 
-#: src/DownloadListCtrl.cpp:2312
+#: src/DownloadListCtrl.cpp:2318
 #, c-format
 msgid "ERROR: Failed to execute external media-player! Command: `%s'"
 msgstr "שגיאה: הרצת נגן הסרטים נכשלה! הפקודה: '%s'"
@@ -3639,8 +3639,8 @@ msgstr "עם מ\"ז גבוהה (HighID)"
 msgid "Now connecting"
 msgstr "מתחבר עכשיו"
 
-#: src/TextClient.cpp:703 src/TextClient.cpp:716 src/MuleTrayIcon.cpp:383
-#: src/MuleTrayIcon.cpp:397
+#: src/TextClient.cpp:703 src/TextClient.cpp:716 src/MuleTrayIcon.cpp:393
+#: src/MuleTrayIcon.cpp:407
 msgid "Not connected"
 msgstr "לא מחובר"
 
@@ -6461,136 +6461,136 @@ msgstr ""
 msgid "Search warning"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:121 src/MuleTrayIcon.cpp:142 src/MuleTrayIcon.cpp:492
-#: src/MuleTrayIcon.cpp:513
+#: src/MuleTrayIcon.cpp:121 src/MuleTrayIcon.cpp:147 src/MuleTrayIcon.cpp:502
+#: src/MuleTrayIcon.cpp:523
 msgid "Unlimited"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:330
+#: src/MuleTrayIcon.cpp:340
 msgid "aMule Tray Menu"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:336
+#: src/MuleTrayIcon.cpp:346
 msgid "Speed limits:"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:341
-msgid "UL: None"
-msgstr ""
-
-#: src/MuleTrayIcon.cpp:344
-#, c-format
-msgid "UL: %u"
-msgstr ""
-
 #: src/MuleTrayIcon.cpp:351
-msgid "DL: None"
+msgid "UL: None"
 msgstr ""
 
 #: src/MuleTrayIcon.cpp:354
 #, c-format
+msgid "UL: %u"
+msgstr ""
+
+#: src/MuleTrayIcon.cpp:361
+msgid "DL: None"
+msgstr ""
+
+#: src/MuleTrayIcon.cpp:364
+#, c-format
 msgid "DL: %u"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:358
+#: src/MuleTrayIcon.cpp:368
 #, c-format
 msgid "Download speed: %.1f"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:360
+#: src/MuleTrayIcon.cpp:370
 #, c-format
 msgid "Upload speed: %.1f"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:366
+#: src/MuleTrayIcon.cpp:376
 msgid "Client Information"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:370
+#: src/MuleTrayIcon.cpp:380
 #, c-format
 msgid "Nickname: %s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:370
+#: src/MuleTrayIcon.cpp:380
 msgid "No Nickname Selected!"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:377
+#: src/MuleTrayIcon.cpp:387
 msgid "ClientID: "
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:390
+#: src/MuleTrayIcon.cpp:400
 msgid "ServerName: "
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:391
+#: src/MuleTrayIcon.cpp:401
 msgid "ServerIP: "
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:406
+#: src/MuleTrayIcon.cpp:416
 #, c-format
 msgid "IP: %s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:415
+#: src/MuleTrayIcon.cpp:425
 #, c-format
 msgid "TCP port: %d"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:417
+#: src/MuleTrayIcon.cpp:427
 msgid "TCP port: Not ready"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:426
+#: src/MuleTrayIcon.cpp:436
 #, c-format
 msgid "UDP port: %d"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:428
+#: src/MuleTrayIcon.cpp:438
 msgid "UDP port: Not ready"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:437
+#: src/MuleTrayIcon.cpp:447
 msgid "Online Signature: Enabled"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:440
+#: src/MuleTrayIcon.cpp:450
 msgid "Online Signature: Disabled"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:453
+#: src/MuleTrayIcon.cpp:463
 #, c-format
 msgid "Shared files: %d"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:459
+#: src/MuleTrayIcon.cpp:469
 #, c-format
 msgid "Queued clients: %d"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:466
+#: src/MuleTrayIcon.cpp:476
 #, c-format
 msgid "Total DL: %s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:473
+#: src/MuleTrayIcon.cpp:483
 #, c-format
 msgid "Total UL: %s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:484
+#: src/MuleTrayIcon.cpp:494
 msgid "Upload limit"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:488
+#: src/MuleTrayIcon.cpp:498
 msgid "Download limit"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:548
+#: src/MuleTrayIcon.cpp:558
 msgid "Hide aMule"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:551
+#: src/MuleTrayIcon.cpp:561
 msgid "Show aMule"
 msgstr ""
 
