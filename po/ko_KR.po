@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ko_KR\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-02 16:50+0200\n"
+"POT-Creation-Date: 2009-05-16 09:38+0200\n"
 "PO-Revision-Date: 2007-09-12 16:04+0900\n"
 "Last-Translator: Hyunju Kang <rexington@gmail.com>\n"
 "Language-Team: Korean <hoenny@daum.net>\n"
@@ -144,7 +144,7 @@ msgstr "사용자 %s로부터 공유파일을 찾지 못했습니다."
 #: src/ClientListCtrl.cpp:704 src/ClientListCtrl.cpp:867
 #: src/ClientDetailDialog.cpp:83 src/ClientDetailDialog.cpp:84
 #: src/ClientDetailDialog.cpp:85 src/ClientDetailDialog.cpp:120
-#: src/ClientDetailDialog.cpp:121 src/MuleTrayIcon.cpp:406
+#: src/ClientDetailDialog.cpp:121 src/MuleTrayIcon.cpp:416
 msgid "Unknown"
 msgstr "알수없는"
 
@@ -1051,7 +1051,7 @@ msgid "LowID"
 msgstr "낮은아이디"
 
 #: src/utils/wxCas/src/onlinesig.cpp:272 src/ServerWnd.cpp:189
-#: src/MuleTrayIcon.cpp:398
+#: src/MuleTrayIcon.cpp:408
 msgid "Not Connected"
 msgstr "아직 연결되지 않았습니다."
 
@@ -1164,7 +1164,7 @@ msgstr "저장"
 msgid "Copy to clipboard"
 msgstr "클립보드로 복사"
 
-#: src/utils/aLinkCreator/src/alcframe.cpp:234 src/MuleTrayIcon.cpp:558
+#: src/utils/aLinkCreator/src/alcframe.cpp:234 src/MuleTrayIcon.cpp:568
 msgid "Exit"
 msgstr "종료"
 
@@ -1889,7 +1889,7 @@ msgstr " Kad: "
 msgid "Stop the current connection attempts"
 msgstr "현재 연결시도를 멈춤"
 
-#: src/amuleDlg.cpp:757 src/muuli_wdr.cpp:2850 src/MuleTrayIcon.cpp:537
+#: src/amuleDlg.cpp:757 src/muuli_wdr.cpp:2850 src/MuleTrayIcon.cpp:547
 msgid "Disconnect"
 msgstr "연결 끊기"
 
@@ -1899,7 +1899,7 @@ msgid "Disconnect from the currently connected networks"
 msgstr "통신망으로부터 연결을 끊습니다."
 
 #: src/amuleDlg.cpp:763 src/muuli_wdr.cpp:3033 src/muuli_wdr.cpp:3466
-#: src/muuli_wdr.cpp:3668 src/MuleTrayIcon.cpp:540
+#: src/muuli_wdr.cpp:3668 src/MuleTrayIcon.cpp:550
 msgid "Connect"
 msgstr "연결"
 
@@ -2480,12 +2480,12 @@ msgstr ""
 msgid "Invalid opcode (wrong protocol version?)"
 msgstr "유효하지 않은 실행코드(잘못된 프로토콜 버젼?)"
 
-#: src/UploadClient.cpp:271
+#: src/UploadClient.cpp:273
 #, c-format
 msgid "Failed to open file (%s), removing from list of shared files."
 msgstr "파일 (%s)을 열수없어 공유 파일 목록으로부터 제거합니다."
 
-#: src/UploadClient.cpp:716
+#: src/UploadClient.cpp:718
 #, c-format
 msgid "Hashset requested for unknown file: %s"
 msgstr "알수 없는 파일의 해시설정이 요청되었습니다: %s"
@@ -2572,7 +2572,7 @@ msgstr "평균 파일:"
 msgid "Not running"
 msgstr "동작되지 않음"
 
-#: src/Statistics.cpp:644 src/MuleTrayIcon.cpp:447
+#: src/Statistics.cpp:644 src/MuleTrayIcon.cpp:457
 #, c-format
 msgid "Uptime: %s"
 msgstr "올려주기 시간: %s"
@@ -3196,7 +3196,7 @@ msgstr ""
 msgid "File preview"
 msgstr "미리보기"
 
-#: src/DownloadListCtrl.cpp:2312
+#: src/DownloadListCtrl.cpp:2318
 #, fuzzy, c-format
 msgid "ERROR: Failed to execute external media-player! Command: `%s'"
 msgstr "오류: 외부 재생기를 실행하지 못했습니다."
@@ -3674,8 +3674,8 @@ msgstr "높은아이디로"
 msgid "Now connecting"
 msgstr "지금 연결중"
 
-#: src/TextClient.cpp:703 src/TextClient.cpp:716 src/MuleTrayIcon.cpp:383
-#: src/MuleTrayIcon.cpp:397
+#: src/TextClient.cpp:703 src/TextClient.cpp:716 src/MuleTrayIcon.cpp:393
+#: src/MuleTrayIcon.cpp:407
 msgid "Not connected"
 msgstr "연결 안됨"
 
@@ -6560,136 +6560,136 @@ msgstr "최소 크기가 최대 크기보다 작아야 합니다. 최대 크기�
 msgid "Search warning"
 msgstr "검색 경고"
 
-#: src/MuleTrayIcon.cpp:121 src/MuleTrayIcon.cpp:142 src/MuleTrayIcon.cpp:492
-#: src/MuleTrayIcon.cpp:513
+#: src/MuleTrayIcon.cpp:121 src/MuleTrayIcon.cpp:147 src/MuleTrayIcon.cpp:502
+#: src/MuleTrayIcon.cpp:523
 msgid "Unlimited"
 msgstr "무제한"
 
-#: src/MuleTrayIcon.cpp:330
+#: src/MuleTrayIcon.cpp:340
 msgid "aMule Tray Menu"
 msgstr "어뮬 트레이 메뉴"
 
-#: src/MuleTrayIcon.cpp:336
+#: src/MuleTrayIcon.cpp:346
 msgid "Speed limits:"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:341
+#: src/MuleTrayIcon.cpp:351
 msgid "UL: None"
 msgstr "올려주기: 없음"
 
-#: src/MuleTrayIcon.cpp:344
+#: src/MuleTrayIcon.cpp:354
 #, c-format
 msgid "UL: %u"
 msgstr "올려주기: %u"
 
-#: src/MuleTrayIcon.cpp:351
+#: src/MuleTrayIcon.cpp:361
 msgid "DL: None"
 msgstr "내려받기: 없음"
 
-#: src/MuleTrayIcon.cpp:354
+#: src/MuleTrayIcon.cpp:364
 #, c-format
 msgid "DL: %u"
 msgstr "내려받기: %u"
 
-#: src/MuleTrayIcon.cpp:358
+#: src/MuleTrayIcon.cpp:368
 #, c-format
 msgid "Download speed: %.1f"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:360
+#: src/MuleTrayIcon.cpp:370
 #, c-format
 msgid "Upload speed: %.1f"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:366
+#: src/MuleTrayIcon.cpp:376
 msgid "Client Information"
 msgstr "클라이언트 정보"
 
-#: src/MuleTrayIcon.cpp:370
+#: src/MuleTrayIcon.cpp:380
 #, c-format
 msgid "Nickname: %s"
 msgstr "별명: %s"
 
-#: src/MuleTrayIcon.cpp:370
+#: src/MuleTrayIcon.cpp:380
 msgid "No Nickname Selected!"
 msgstr "별명이 선택되지 않음!"
 
-#: src/MuleTrayIcon.cpp:377
+#: src/MuleTrayIcon.cpp:387
 msgid "ClientID: "
 msgstr "클라이언트 아이디: "
 
-#: src/MuleTrayIcon.cpp:390
+#: src/MuleTrayIcon.cpp:400
 msgid "ServerName: "
 msgstr "서버 이름: "
 
-#: src/MuleTrayIcon.cpp:391
+#: src/MuleTrayIcon.cpp:401
 msgid "ServerIP: "
 msgstr "서버 IP: "
 
-#: src/MuleTrayIcon.cpp:406
+#: src/MuleTrayIcon.cpp:416
 #, c-format
 msgid "IP: %s"
 msgstr "IP: %s"
 
-#: src/MuleTrayIcon.cpp:415
+#: src/MuleTrayIcon.cpp:425
 #, c-format
 msgid "TCP port: %d"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:417
+#: src/MuleTrayIcon.cpp:427
 msgid "TCP port: Not ready"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:426
+#: src/MuleTrayIcon.cpp:436
 #, c-format
 msgid "UDP port: %d"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:428
+#: src/MuleTrayIcon.cpp:438
 msgid "UDP port: Not ready"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:437
+#: src/MuleTrayIcon.cpp:447
 msgid "Online Signature: Enabled"
 msgstr "온라인 서명: 활성화"
 
-#: src/MuleTrayIcon.cpp:440
+#: src/MuleTrayIcon.cpp:450
 msgid "Online Signature: Disabled"
 msgstr "온라인 서명: 비활성화"
 
-#: src/MuleTrayIcon.cpp:453
+#: src/MuleTrayIcon.cpp:463
 #, c-format
 msgid "Shared files: %d"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:459
+#: src/MuleTrayIcon.cpp:469
 #, c-format
 msgid "Queued clients: %d"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:466
+#: src/MuleTrayIcon.cpp:476
 #, c-format
 msgid "Total DL: %s"
 msgstr "전체 내려받기: %s"
 
-#: src/MuleTrayIcon.cpp:473
+#: src/MuleTrayIcon.cpp:483
 #, c-format
 msgid "Total UL: %s"
 msgstr "전체 올려주기: %s"
 
-#: src/MuleTrayIcon.cpp:484
+#: src/MuleTrayIcon.cpp:494
 msgid "Upload limit"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:488
+#: src/MuleTrayIcon.cpp:498
 msgid "Download limit"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp:548
+#: src/MuleTrayIcon.cpp:558
 msgid "Hide aMule"
 msgstr "어뮬 숨기기"
 
-#: src/MuleTrayIcon.cpp:551
+#: src/MuleTrayIcon.cpp:561
 msgid "Show aMule"
 msgstr "어뮬 보이기"
 
