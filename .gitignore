@@ -1,10 +1,11 @@
 .pc
+*-stamp
 po/*.gmo
 
 debian/tmp
 debian/files
 debian/*.substvars
-debian/*.debhelper
+debian/*.debhelper*
 debian/stamp-patched
 
 debian/amule
