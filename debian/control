@@ -26,7 +26,7 @@ XS-X-Collab-Maint: commit-branch upload-10
 Package: amule
 Architecture: any
 Depends: amule-common (= ${source:Version}), ${shlibs:Depends}, ${misc:Depends}
-Recommends: amule-utils
+Recommends: amule-utils, unzip
 Suggests: amule-utils-gui
 Replaces: amule-common (<< 2.2.0~svn20080525-1)
 Description: client for the eD2k and Kad networks, like eMule
@@ -94,7 +94,7 @@ Description: graphic utilities for aMule
 Package: amule-daemon
 Architecture: any
 Depends: amule-common (= ${source:Version}), ${shlibs:Depends}, ${misc:Depends}
-Recommends: amule-utils
+Recommends: amule-utils, unzip
 Description: non-graphic version of aMule, a client for the eD2k and Kad networks
  This package contains a daemonized version of aMule, amuled, that does
  not need a graphic environment to run, and can run in the background as
