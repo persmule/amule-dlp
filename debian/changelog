@@ -1,3 +1,11 @@
+amule (2.2.5-1) unstable; urgency=low
+
+  +++ The "Fido, Your Leash Is Too Long" release.
+
+  * New upstream release. (Thanks, DEHS.)
+
+ -- Adeodato Simó <dato@net.com.org.es>  Sat, 23 May 2009 10:45:57 +0200
+
 amule (2.2.4-1) unstable; urgency=low
 
   +++ "The Book of Love" release.
