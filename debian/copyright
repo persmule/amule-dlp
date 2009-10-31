@@ -1,13 +1,14 @@
 Debianized by Julien Delange <julien@gunnm.org>			2003-09-27
-New co-maintainer Adeodato Simó <dato@net.com.org.es>		2006-06-04
+The current Debian Co-maintainer is Adrian Yanes  <devel@ayanes.com> 
+The current Debian Co-maintainer is Cristian Greco <cristian@regolo.cc>
 
 It was downloaded from:
 
-    <http://prdownloads.sourceforge.net/amule>
+    <http://www.amule.org/files/index.php>
 
 Snapshot versions are downloaded from:
 
-    <http://www.hirnriss.net/?area=cvs>
+    <http://www.amule.org/files/index.php>
 
 And the project homepage is:
 
@@ -64,7 +65,7 @@ Copyright:
 
   - The aMule sources from src, src/kademlia, src/libs, and src/webserver are:
 
-    | Copyright (c) 2003-2006 aMule Team ( admin@amule.org / http://www.amule.org )
+    | Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
     | Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
     | Copyright (c) 2003-2006 Angel Vidal (Kry) ( kry@amule.org )
     | Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
