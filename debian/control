@@ -1,7 +1,8 @@
 Source: amule
 Section: net
 Priority: optional
-Maintainer: Adeodato Simó <dato@net.com.org.es>
+Maintainer: Debian aMule Team <pkg-amule-devel@lists.alioth.debian.org>
+Uploaders: Adrian Yanes <devel@ayanes.com>, Cristian Greco <cristian@regolo.cc>, Sandro Tosi <morph@debian.org>
 Build-Depends:
  autotools-dev,
  debhelper,
