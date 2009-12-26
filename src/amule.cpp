@@ -531,7 +531,7 @@ bool CamuleApp::OnInit()
 		// Make a backup first.
 		wxRemoveFile(ConfigDir + wxT("amule.conf.backup"));
 		wxRenameFile(ConfigDir + wxT("amule.conf"), ConfigDir + wxT("amule.conf.backup"));
-		printf("Your settings have ben resetted to default values.\nOld config file has been saved as amule.conf.backup\n");
+		printf("Your settings have been reset to default values.\nOld config file has been saved as amule.conf.backup\n");
 	}
 	
 #if defined(__WXMAC__) && defined(AMULE_DAEMON)
@@ -1279,7 +1279,7 @@ void CamuleApp::OnFatalException()
 	fprintf(stderr, "circumstances of this crash. The forum is located here:\n");
 	fprintf(stderr, "    http://forum.amule.org/index.php?board=67.0\n");
 	fprintf(stderr, "If possible, please try to generate a real backtrace of this crash:\n");
-	fprintf(stderr, "    http://www.amule.org/wiki/index.php/Backtraces\n\n");
+	fprintf(stderr, "    http://wiki.amule.org/index.php/Backtraces\n\n");
 	fprintf(stderr, "----------------------------=| BACKTRACE FOLLOWS: |=----------------------------\n");
 	fprintf(stderr, "Current version is: %s\n", strFullMuleVersion);
 	fprintf(stderr, "Running on: %s\n\n", strOSDescription);

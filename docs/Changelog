@@ -1,3 +1,38 @@
+Version 2.2.6 - The "we don't have holidays" version.
+----------
+2009-09-16
+
+	GonoszTopi:
+		* Fixed obfuscated server UDP communication.
+		* Fixed cross-endian Kad node verification.
+		* Fixed name conflict in builtin PHP parser.
+		* Fixed configure finding unwanted Crypto++ installations.
+
+	Marcell:
+		* Properly update transfers tab's bottom pane's title.
+
+	mr_hyde:
+		* Fixed a bug in detecting and using the fallocate() function.
+
+	Sam Hocevar:
+		* Now really fixed that security issue.
+
+	Stu Redman:
+		* Fixed HTTP download if server transmits no content-length
+		* Fixed several cases of amulecmd printing zero on big endian machines
+		* Fixed amuleweb crashing on tiny downloads
+		* Added version resources to MSVC binaries
+		* Fixed wrong search text in search dialog after deleting a tab
+		* Fixed download limit in amuled (which was 50% of what was set)
+
+	Wuischke:
+		* Fix amuleweb progress bar display for files > 4GB
+
+	Special Thanks To:
+		* stefanero and his bleeding-edge system
+
+--------------------------------------------------------------------------------
+
 Version 2.2.5 - The "never say never" version.
 ----------
 2009-05-16

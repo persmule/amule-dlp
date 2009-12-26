@@ -1,7 +1,7 @@
-.TH AMULEWEB 1 "September 2009" "aMule webserver v2.2.6" "aMule utilities"
-.SH NAME
-amuleweb \- aMule web server
-.SH SYNOPSIS
+.TH AMULEWEB 1 "Settembre 2009" "aMule webserver v2.2.6" "aMule utilities"
+.SH NOME
+amuleweb \- Server web aMule
+.SH SINOPSI
 .B amuleweb
 .RB [ \-h " " \fI<host> ]
 .RB [ \-p " " \fI<port> ]
@@ -35,35 +35,35 @@ amuleweb \- aMule web server
 .B amuleweb \-\-amule\-config\-file=\fI<path>
 .PP
 .B amuleweb \-\-no\-php
-.SH DESCRIPTION
-\fBamuleweb\fR manages your access to amule through a web browser.
-You can start amuleweb together with \fBamule\fR(1), or separately, any time later.
-Options can be specified via command-line or via config-file.
-Command-line options take precedence over config-file options.
+.SH DESCRIZIONE
+\fBamuleweb\fR gestisce il tuo accesso ad amule attraverso un browser web.
+Puoi avviare amuleweb assieme ad \fBamule\fR(1), o separatamente, in tempi successivi.
+Le opzioni possono essere specificate tramite linea di comando oppure tramite file di configurazione.
+Le opzioni da linea di comando hanno la precedenza sulle opzioni da file di configurazione.
 .TP
 \fB\-h\fR, \fB\-\-host\fR=\fI<host>\fR
-Host where aMule is running (default: \fIlocalhost\fR).
-\fI<host>\fR might be an IP address or a DNS name.
+L'host in cui aMule è in esecuzione (predefinito: \fIlocalhost\fR).
+\fI<host>\fR potrebbe essere un indirizzo IP o un nome DNS.
 .TP
 \fB\-p\fR, \fB\-\-port\fR=\fI<port>\fR
-aMule's port for External Connections, as set in Preferences->Remote Controls (default: \fI4712\fR).
+La porta di aMule per connessioni esterne, come impostato in Preferenze->Controlli remoti (predefinita: \fI4712\fR).
 .TP
 \fB\-P\fR, \fB\-\-password\fR=\fI<passwd>\fR.
-External Connections password.
+Password per le connessioni esterne.
 .TP
 \fB\-f\fR, \fB\-\-config\-file\fR=\fI<path>\fR
-Uses the given configuration file.
-Default configuration file is \fI~/.aMule/remote.conf\fR .
+Utilizza il file di configurazione fornito.
+Il file di configurazione predefinito è \fI~/.aMule/remote.conf\fR .
 .TP
 \fB\-q\fR, \fB\-\-quiet\fR
-Does not print any output to stdout.
+Non mostrare alcun output in stdout.
 You may want to use \fB\-q\fR to daemonize the webserver, i.e. running as '\fBamuleweb \-q &\fR'.
 .TP
 \fB\-v\fR, \fB\-\-verbose\fR
-Be verbose \- show also debug messages.
+Sii prolisso \- mostra anche i messaggi di debug.
 .TP
 \fB\-l\fR, \fB\-\-locale\fR=\fI<lang>\fR
-Sets program locale (language).
+Imposta il locale del programma (lingua).
 See section \fBLANGUAGES\fR for the description of the \fI<lang>\fR parameter.
 .TP
 \fB\-w\fR, \fB\-\-write\-config\fR
@@ -77,13 +77,13 @@ Loads the template named \fI<name>\fR. See also the section
 .B SKIN SUPPORT.
 .TP
 \fB\-s\fR, \fB\-\-server\-port\fR=\fI<port>\fR
-Webserver's HTTP port. This is the port you can point your browser to (default: \fI4711\fR).
+Porta HTTP del server web. Questa è la porta su cui puoi pontare il tuo browser (predefinita: \fI4711\fR).
 .TP
 \fB\-z\fR, \fB\-\-enable\-upnp\fR
-Enables use of UPnP port forwarding on web server port.
+Abilita l'utilizzo dell'inoltro di una porta UPnP sulla porta del server web.
 .TP
 \fB\-U\fR, \fB\-\-upnp\-port\fR
-UPnP port.
+Porta UPnP.
 .TP
 \fB\-z\fR, \fB\-\-enable\-gzip\fR
 Enables using gzip compression in HTTP traffic to save bandwidth.
@@ -95,13 +95,13 @@ Disables using gzip compression (this is the default).
 Full access password for webserver.
 .TP
 \fB\-G\fR, \fB\-\-guest\-pass\fR=\fI<passwd>\fR
-Guest password for webserver.
+Password ospite per il server web.
 .TP
 \fB\-a\fR, \fB\-\-allow\-guest\fR
-Allows guest access.
+Permette l'accesso di ospiti.
 .TP
 \fB\-d\fR, \fB\-\-deny\-guest\fR
-Denies guest access (default).
+Nega l'accesso di ospiti (predefinito).
 .TP
 \fB\-L\fR, \fB\-\-load\-settings\fR
 Load/save webserver settings from/to remote aMule.
@@ -119,12 +119,12 @@ aMule uses this option when starting amuleweb at aMule startup.
 This option causes all other command-line and config-file settings to be ignored, preferences to be read from the given config file, and also implies the \fB\-q \-L\fR options.
 .TP
 \fB\-\-help\fR
-Prints a short usage description.
+Mostra una breve descrizione di utilizzo.
 .TP
 \fB\-\-version\fR
-Displays the current version number.
-.SH NOTES
-.SS Paths
+Mostra il numero di versione corrente.
+.SH NOTE
+.SS Percorsi
 For all options which take a \fI<path>\fR value, if the \fIpath\fR contains no
 directory part (i.e. just a plain filename), then it is considered to be under
 the aMule configuration directory, \fI~/.aMule\fR.
@@ -135,7 +135,7 @@ where \fIlang\fR is the primary language, \fILANG\fR is a sublanguage/territory,
 "allows the user to select a specific instance of localization data within a
 single category".
 .PP
-For example, the following strings are valid:
+Per esempio, le stringhe seguenti sono valide:
 .br
 de
 .br
@@ -164,13 +164,13 @@ Each template must be in a subdirectory of the template name, and this directory
 The actual template filename must be aMule.tmpl.
 .PP
 For example, the default template (named 'default') is in webserver/default/, and this directory contains aMule.tmpl amongst a lot of image files.
-.SH FILES
+.SH FILE
 ~/.aMule/remote.conf
 .br
 ~/.aMule/webserver/
 .br
 \fI$(pkgdatadir)\fR/webserver/
-.SH EXAMPLE
+.SH ESEMPIO
 Typically amuleweb will be first run as:
 .PP
 \fBamuleweb\fR \fB\-h\fR \fIhostname\fR \fB\-p\fR \fIECport\fR \fB\-P\fR \fIECpassword\fR \fB\-s\fR \fIHTTPport\fR \fB\-A\fR \fIAdminPassword\fR \fB\-w\fR
@@ -184,10 +184,10 @@ These will save settings to \fI$HOME/.aMule/remote.conf\fR, and later you only n
 .B amuleweb
 .PP
 Of course, you may specify any more or less options on the first example line, and you may also totally omit it.
-.SH REPORTING BUGS
+.SH SEGNALARE BUG
 Please report bugs either on our forum (\fIhttp://forum.amule.org/\fR), or in our bugtracker (\fIhttp://bugs.amule.org/\fR).
 Please do not report bugs in e-mail, neither to our mailing list nor directly to any team member.
 .SH COPYRIGHT
-aMule and all of its related utilities are distributed under the GNU General Public License.
-.SH SEE ALSO
+aMule e tutte le sue utilità correlate sono distribuite sotto la GNU General Public License.
+.SH CONSULTA ANCHE
 \fBamule\fR(1), \fBamulecmd\fR(1)

@@ -1066,8 +1066,8 @@ void CProgressImage::CreateSpan()
 				color = RGB( 0, ( blue < 0 ? 0 : blue ), 255 );
 			}
 
-			uint32 fill_gap_begin = ( (i == start)   ? gap_start: PARTSIZE * i );
-			uint32 fill_gap_end   = ( (i == (end - 1)) ? gap_end   : PARTSIZE * ( i + 1 ) );
+			uint64 fill_gap_begin = ( (i == start)   ? gap_start: PARTSIZE * i );
+			uint64 fill_gap_end   = ( (i == (end - 1)) ? gap_end   : PARTSIZE * ( i + 1 ) );
 			
 			wxASSERT(colored_gaps_size < color_gaps_alloc);
 			
@@ -1098,7 +1098,7 @@ void CProgressImage::CreateSpan()
 			}
 		} else if ( colored_gaps_size ) {
 			for(int i = 0; i < m_width; ++i) {
-				m_ColorLine[i] = colored_gaps[0].color;
+				m_ColorLine[i] = colored_gaps[1].color;
 			}
 		}
 	} else {

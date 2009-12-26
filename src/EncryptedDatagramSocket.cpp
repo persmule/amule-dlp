@@ -248,6 +248,8 @@ int CEncryptedDatagramSocket::DecryptReceivedClient(uint8_t *bufIn, int bufLen, 
 			// read the verify keys
 			receivebuffer.RC4Crypt(bufIn + CRYPT_HEADER_WITHOUTPADDING + padLen, (uint8_t*)receiverVerifyKey, 4);
 			receivebuffer.RC4Crypt(bufIn + CRYPT_HEADER_WITHOUTPADDING + padLen + 4, (uint8_t*)senderVerifyKey, 4);
+			ENDIAN_SWAP_I_32(*receiverVerifyKey);
+			ENDIAN_SWAP_I_32(*senderVerifyKey);
 			result -= 8;
 		}
 
@@ -362,6 +364,8 @@ int CEncryptedDatagramSocket::EncryptSendClient(uint8_t **buf, int bufLen, const
 	}
 
 	if (kad) {
+		ENDIAN_SWAP_I_32(receiverVerifyKey);
+		ENDIAN_SWAP_I_32(senderVerifyKey);
 		sendbuffer.RC4Crypt((uint8_t*)&receiverVerifyKey, cryptedBuffer + CRYPT_HEADER_WITHOUTPADDING + padLen, 4);
 		sendbuffer.RC4Crypt((uint8_t*)&senderVerifyKey, cryptedBuffer + CRYPT_HEADER_WITHOUTPADDING + padLen + 4, 4);
 	}
@@ -449,7 +453,7 @@ int CEncryptedDatagramSocket::EncryptSendServer(uint8** ppbyBuf, int nBufLen, ui
 	PokeUInt16(achKeyData + 5, nRandomKeyPart);
 	MD5Sum md5(achKeyData, sizeof(achKeyData));
 	CRC4EncryptableBuffer sendbuffer;
-	sendbuffer.SetKey(md5);
+	sendbuffer.SetKey(md5, true);
 
 	// create the semi random byte encryption header
 	uint8 bySemiRandomNotProtocolMarker = 0;
