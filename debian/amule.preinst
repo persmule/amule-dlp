@@ -1,6 +1,6 @@
 #! /bin/sh
 
-set +e # yada yada
+set -e
 
 DIVERSIONS=`env LC_ALL=C /usr/sbin/dpkg-divert --list | grep -E 'by amule(-utils)?$'`
 
