@@ -1,6 +1,6 @@
 --- a/src/utils/cas/configfile.c
 +++ b/src/utils/cas/configfile.c
-@@ -44,9 +44,9 @@
+@@ -44,9 +44,9 @@ int writeconfig(void)
  		"# font_size - size the font\n",
  		"# source_image - image where the text will be writen\n",
  		"# *_line - x,y,[1/0] enabled or disabled\n\n",
@@ -12,7 +12,7 @@
  		"first_line 23,17,1\n",
  		"second_line 23,34,1\n",
  		"third_line 23,51,1\n",
-@@ -54,7 +54,7 @@
+@@ -54,7 +54,7 @@ int writeconfig(void)
  		"fifth_line 23,85,1\n",
  		"sixth_line 23,102,1\n",
  		"seventh_line 23,119,1\n",
