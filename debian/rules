@@ -121,7 +121,6 @@ binary-common:
 	dh_installinit
 	dh_installman
 	dh_icons
-	dh_desktop
 	dh_link
 	dh_strip
 	dh_compress
