@@ -1,0 +1,12 @@
+Typo #525265
+--- a/docs/man/ed2k.1
++++ b/docs/man/ed2k.1
+@@ -20,7 +20,7 @@ Sends the given \fI<ED2k_link>\fR to aMu
+ Prints a short usage description.
+ .TP
+ \fB\-c\fR, \fB\-\-config\-dir\fR=\fI<dir>\fR 
+-Specifies the aMule configuration directory. This must be writeable by the user running \fBed2k\fR.
++Specifies the aMule configuration directory. This must be writable by the user running \fBed2k\fR.
+ .TP
+ \fB\-e\fR, \fB\-\-emulecollection \fI<file>\fR
+ Loads all links of the emulecollection passed as parameter.
