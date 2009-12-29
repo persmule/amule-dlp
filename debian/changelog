@@ -1,3 +1,9 @@
+amule (2.2.6+debian0-2) unstable; urgency=low
+
+  * [996f825] Fixed preinst scripts exit code.
+
+ -- Giuseppe Iuculano <iuculano@debian.org>  Tue, 29 Dec 2009 18:47:34 +0100
+
 amule (2.2.6+debian0-1) unstable; urgency=low
 
   [ Adeodato Simó ]
