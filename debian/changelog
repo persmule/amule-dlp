@@ -1,3 +1,38 @@
+amule (2.2.6+debian0-1) unstable; urgency=low
+
+  [ Adeodato Simó ]
+  * [2939566] Make amule and amule-daemon Recommend: unzip. (Closes: #530249)
+
+  [ Cristian Greco ]
+  * [b83afce] debian/control: update Vcs-* fields.
+
+  [ Adrián Yanes ]
+  * [4257b3b] Update Co-Maintainers and Authors
+    - Thanks to Adeodato Simó for the prior work on amule (Closes: #548352)
+
+  [ Cristian Greco ]
+  * [09c1e6d] debian/control: set list as maintainer, project members as
+    uploaders.
+
+  [ Giuseppe Iuculano ]
+  * [aa9a541] Imported Upstream version 2.2.6+debian0 (Closes: #547293)
+  * [1c01c81] Added Giuseppe Iuculano in Uploaders
+  * [91c0944] Replace libreadline5-dev build dependency with
+    libreadline-dev (Closes: #553716)
+  * [5b8227f] Fixed a typo in alc man page (Closes: #525264) - thanks to
+    A. Costa
+  * [0ca373f] Refreshed patches
+  * [57dd562] Fixed a typo in ed2k man page (Closes: #525265) - thanks
+    to A. Costa
+  * [9c06762] debian/rules: Removed deprecated dh_desktop
+  * [1659d98] Bump to debhelper 7 compatibility levels
+  * [150d9ee] Updated to standards version 3.8.3
+  * [77d2a5c] debian/control: Removed XS-X-Collab-Maint field
+  * [4e7c2e3] Updated watch file
+  * [89d9555] Do not ignore preinst errors
+
+ -- Giuseppe Iuculano <iuculano@debian.org>  Tue, 29 Dec 2009 09:20:46 +0100
+
 amule (2.2.5-2) UNRELEASED; urgency=low
 
   * Make amule and amule-daemon Recommend: unzip, which is used to extract IP
