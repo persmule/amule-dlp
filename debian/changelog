@@ -1,3 +1,11 @@
+amule (2.2.6+debian0-3) unstable; urgency=low
+
+  * [6220bf6] Updated VCS control fields
+  * [6d07590] Disable fallocate and fix FTBFS on alpha and hppa
+    (Closes: #562992)
+
+ -- Giuseppe Iuculano <iuculano@debian.org>  Tue, 05 Jan 2010 08:46:46 +0100
+
 amule (2.2.6+debian0-2) unstable; urgency=low
 
   * [996f825] Fixed preinst scripts exit code.
