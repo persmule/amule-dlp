@@ -1,3 +1,10 @@
+amule (2.2.6+debian0-4) unstable; urgency=low
+
+  * [ee905f0] Disable fallocate only on alpha and hppa, amd64 and ia64
+    need it
+
+ -- Giuseppe Iuculano <iuculano@debian.org>  Tue, 05 Jan 2010 12:44:58 +0100
+
 amule (2.2.6+debian0-3) unstable; urgency=low
 
   * [6220bf6] Updated VCS control fields
