@@ -10,7 +10,7 @@ http://www.amule.org/abugs/view.php?id=1572
  #include <errno.h>
  
 +// #562992
-+#if !defined(__alpha__) && !defined(__hppa__)
++#if defined(__alpha__) || defined(__hppa__)
 +#undef HAVE_FALLOCATE
 +#endif
 +
