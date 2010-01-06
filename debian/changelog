@@ -1,3 +1,9 @@
+amule (2.2.6+debian0-5) unstable; urgency=low
+
+  * [06240cb] Really disable fallocate only on alpha and hppa
+
+ -- Giuseppe Iuculano <iuculano@debian.org>  Wed, 06 Jan 2010 09:45:44 +0100
+
 amule (2.2.6+debian0-4) unstable; urgency=low
 
   * [ee905f0] Disable fallocate only on alpha and hppa, amd64 and ia64
