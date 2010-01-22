@@ -121,6 +121,7 @@ binary-common:
 	dh_installinit
 	dh_installman
 	dh_icons
+	dh_gconf -pamule-gnome-support
 	dh_link
 	dh_strip
 	dh_compress

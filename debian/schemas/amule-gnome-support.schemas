@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<gconfschemafile>
+  <schemalist>
+
+     <schema>
+       <key>/schemas/desktop/gnome/url-handlers/ed2k/command</key>
+       <applyto>/desktop/gnome/url-handlers/ed2k/command</applyto>
+       <owner>amule</owner>
+       <type>string</type>
+       <default>ed2k "%s"</default>
+       <locale name="C">
+	 <short>The command to handle ed2k URLs</short>
+	 <long>The command to handle ed2k URLs.</long>
+       </locale>
+       <locale name="es">
+	 <short>El comando para capturar enlaces ed2k.</short>
+	 <long>El comando para capturar enlaces ed2k.</long>
+       </locale>
+     </schema>
+
+     <schema>
+       <key>/schemas/desktop/gnome/url-handlers/ed2k/needs_terminal</key>
+       <applyto>/desktop/gnome/url-handlers/ed2k/needs_terminal</applyto>
+       <owner>amule</owner>
+       <type>bool</type>
+       <default>false</default>
+       <locale name="C">
+	 <short>Whether command to handle ed2k URLs needs a terminal</short>
+	 <long>Whether command to handle ed2k URLs needs a terminal.</long>
+       </locale>
+       <locale name="es">
+	 <short>El comando necesita una terminal para capturar enlaces ed2k.</short>
+	 <long>El comando necesita una terminal para capturar enlaces ed2k.</long>
+       </locale>
+     </schema>
+
+     <schema>
+       <key>/schemas/desktop/gnome/url-handlers/ed2k/enabled</key>
+       <applyto>/desktop/gnome/url-handlers/ed2k/enabled</applyto>
+       <owner>amule</owner>
+       <type>bool</type>
+       <default>true</default>
+       <locale name="C">
+	 <short>Whether command to handle ed2k URLs is enabled</short>
+	 <long>Whether command to handle ed2k URLs is enabled.</long>
+       </locale>
+       <locale name="es">
+	 <short>El comando para capturar enlaces ed2k está habilitado.</short>
+	 <long>El comando para capturar enlaces ed2k está habilitado.</long>
+       </locale>
+     </schema>
+
+   </schemalist>
+</gconfschemafile>

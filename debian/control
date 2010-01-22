@@ -60,6 +60,7 @@ Package: amule-utils
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: amule-common, ttf-dejavu-core
+Suggests: amule-gnome-support
 Replaces: amule-common (<< 2.1.2-3), amule (<< 2.1.2-1)
 Conflicts: xmule (<= 1.10.0b-1)
 Description: utilities for aMule (command-line version)
@@ -109,3 +110,12 @@ Description: non-graphic version of aMule, a client for the eD2k and Kad network
  .
  See the description of the amule package for a list of features, and
  /usr/share/doc/amule-daemon/README.Debian for some basic usage notes.
+
+Package: amule-gnome-support
+Architecture: all
+Depends: amule-utils, ${misc:Depends}
+Recommends: amule | amule-daemon
+Description: ed2k links handling support for GNOME web browsers
+ This package contains a schemas file that allows ed2k links handling support
+ with any GNOME web browser that use GConf. For example: Firefox, Epiphany,
+ Flock, Seamonkey or Galeon.
