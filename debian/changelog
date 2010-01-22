@@ -1,3 +1,10 @@
+amule (2.2.6+debian0-7) unstable; urgency=low
+
+  * [3e1a262] Merge from Ubuntu: New amule-gnome-support package.
+    (Closes: #313579)
+
+ -- Giuseppe Iuculano <iuculano@debian.org>  Fri, 22 Jan 2010 18:10:32 +0100
+
 amule (2.2.6+debian0-6) unstable; urgency=low
 
   * [404dea9] Disabled also SYS_fallocate in hppa
