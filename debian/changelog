@@ -1,3 +1,9 @@
+amule (2.2.6+debian0-8) unstable; urgency=low
+
+  * [e0427d0] added autopoint to build-depends, Closes: #583470
+
+ -- Sandro Tosi <morph@debian.org>  Thu, 03 Jun 2010 22:35:21 +0200
+
 amule (2.2.6+debian0-7) unstable; urgency=low
 
   * [3e1a262] Merge from Ubuntu: New amule-gnome-support package.
