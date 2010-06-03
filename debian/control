@@ -5,6 +5,7 @@ Maintainer: Debian aMule Team <pkg-amule-devel@lists.alioth.debian.org>
 Uploaders: Adrian Yanes <devel@ayanes.com>, Cristian Greco <cristian@regolo.cc>, Sandro Tosi <morph@debian.org>, Giuseppe Iuculano <iuculano@debian.org>
 Build-Depends:
  autotools-dev,
+ autopoint,
  debhelper (>= 7),
  quilt,
 ##
