@@ -53,8 +53,8 @@ Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Replaces: amule-utils (<< 2.0.3-4), amule-daemon (<< 2.1.2-3)
 Description: common files for the rest of aMule packages
- This package contains localization files and webserver templates for
- aMule. You probably don't want to install this package alone, but amule
+ This package contains localization files and webserver templates and GUI skins
+ for aMule. You probably don't want to install this package alone, but amule
  or amule-daemon instead.
 
 Package: amule-utils
