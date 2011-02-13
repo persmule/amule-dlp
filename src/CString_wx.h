@@ -9,7 +9,7 @@
 //#include <wx/wx.h>
 #include <wx/string.h>
 
-class CString: public wxString{
+class CString : public wxString{
 	public:
 		CString(){}
 		CString(wxChar c, size_t n=1): wxString(c, n){}
@@ -17,10 +17,6 @@ class CString: public wxString{
 		CString(const wxString& str): wxString(str){}
 		CString(const CString& str): wxString(str){}
 		//---------------------
-		//bad overload function
-		/*friend CString operator+(const CString& str1, const CString& str2){
-			return str1 + str2;
-		}*/
 		CString& operator=(const wxChar* str){
 			wxString::operator=(str);
 			return *this;
@@ -31,23 +27,22 @@ class CString: public wxString{
 		//IsEmpty() from wxString;
 		CString& TrimLeft(wxChar c){
 			size_t pos = find_first_not_of(c);
-			if(pos == 0)	return *this;
-
+			if(pos == 0)
+				return *this;
 			erase(0, pos);
 			return *this;
 		}
 		CString& TrimRight(wxChar c){
 			size_t pos = find_last_not_of(c) + 1;
-			if(pos == Length())	return *this;
-
+			if(pos == Length())
+				return *this;
 			erase(pos, Length() - pos);
 			return *this;
 		}
 		CString Trim(){
 			CString ret(*this);
-			wxString* pret = &ret;
-			pret->Trim(false);
-			pret->Trim(true);
+			ret.wxString::Trim(false);        /* wxString::Trim(bool fromright = true) */
+			ret.wxString::Trim(true);
 			return ret;
 		}
 		//Find(wxChar) and Find(wxChar*) from wxString;
@@ -58,8 +53,7 @@ class CString: public wxString{
 		CString Right(size_t len)const{	return wxString::Right(len);	}
 		CString Left(size_t len)const{	return wxString::Left(len);	}
 		CString Mid(size_t first, size_t count = wxSTRING_MAXLEN)const{
-			CString ret(wxString::Mid(first, count));
-			return ret;
+			return wxString::Mid(first, count);
 		}
 };
 #endif
