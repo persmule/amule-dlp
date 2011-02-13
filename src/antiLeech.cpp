@@ -20,6 +20,7 @@
 //#include <atlstr.h>
 #include "CString_wx.h"
 #include "antiLeech.h"
+#include "antiLeech_wx.cpp"
 #define __declspec(var)	CantiLeech::
 
 #ifdef _DEBUG
