@@ -550,20 +550,6 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 				SecIdentSupRec +=  1;
 				//Dynamic Leecher Proctect - Bill Lee
 				bIsFakeShareaza = !bWasUDPPortSent;
-				/*if(!IsBanned()){
-					//zz_fly :: Fake Shareaza Detection
-					if(!bWasUDPPortSent && (thePrefs::GetDLPCheckMask() & PF_HELLOTAG)){
-						const char* ret = "Fake Shareaza";
-						char info[1024] = {0};
-						char tmp[1024] = {0};
-						
-						strncpy(tmp, GetClientFullInfo().mb_str(wxConvUTF8), 1000);
-						snprintf(info, 1000, "[%s] %s", ret, tmp);
-						Ban();
-						wxString winfo(info, wxConvUTF8);
-						theApp->AddDLPMessageLine(winfo);
-					}
-				}*/
 					
 				break;
 			}
@@ -2741,15 +2727,6 @@ bool CUpDownClient::DLPCheck(){
 		}
 	}
 	
-	//easyMule2 and miniMule is listed in antiLeech 
-	/*
-	// Check easyMule2
-	if ((prefs & PF_EASYMULE) && (tmp == NULL)) {
-		if ((tmp = DLPCheckEasyMule(modver)) != NULL) {
-			snprintf(ret, 500, "[easyMule2]"); //Modified by Bill Lee
-		}
-	}
-	*/
 
 	// Check VeryCD eMule
 	if ((prefs & PF_VERYCDEMULE) && (tmp == NULL)) {
@@ -2759,30 +2736,12 @@ bool CUpDownClient::DLPCheck(){
 		}
 	}
 	
-	/*
-	// Check VeryCD miniMule. Bill Lee start
-	if ((prefs & PF_MINIMULE) && (tmp == NULL)) {
-		if ((tmp = DLPCheckminiMule(modver)) != NULL) {
-			snprintf(ret, 500, "[miniMule]");
-		}
-	}
-	// Bill Lee end
-	*/
 	if (tmp != NULL) {
 		ret = tmp;
 		wxString wxInfo;
 		wxInfo.Printf(wxT("[%s] %s"), ret.c_str(), GetClientFullInfo().c_str());
 		Ban();
 		theApp->AddDLPMessageLine(wxInfo);
-		/*
-		char info[1024] = {0};
-		char clientinfo[1024] = {0};
-		strncpy(clientinfo, GetClientFullInfo().mb_str(wxConvUTF8), 1000);
-		snprintf(info, 1000, "[%s] %s", wxString(tmp).mb_str(wxConvUTF8), clientinfo);
-		Ban();
-		wxString winfo(info, wxConvUTF8);
-		theApp->AddDLPMessageLine(winfo);
-		*/
 		return true;
 	}
 
