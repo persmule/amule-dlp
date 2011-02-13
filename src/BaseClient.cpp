@@ -732,17 +732,18 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 	}
 
 	//Dynamic Leecher Protection - Added by Bill Lee
-	if(!IsBanned() && bIsFakeShareaza && m_clientSoft == SO_EMULE && (thePrefs::GetDLPCheckMask() & PF_HELLOTAG) ){
-		const char* ret = "Fake Shareaza";
-		char info[1024] = {0};
-		char tmp[1024] = {0};
-		
-		strncpy(tmp, GetClientFullInfo().mb_str(wxConvUTF8), 1000);
-		snprintf(info, 1000, "[%s] %s", ret, tmp);
-		Ban();
-		wxString winfo(info, wxConvUTF8);
-		theApp->AddDLPMessageLine(winfo);
-	}
+	//	It doesn't work properly for unknown reason
+//	if(!IsBanned() && bIsFakeShareaza && m_clientSoft == SO_EMULE && (thePrefs::GetDLPCheckMask() & PF_HELLOTAG) ){
+//		const char* ret = "Fake Shareaza";
+//		char info[1024] = {0};
+//		char tmp[1024] = {0};
+//		
+//		strncpy(tmp, GetClientFullInfo().mb_str(wxConvUTF8), 1000);
+//		snprintf(info, 1000, "[%s] %s", ret, tmp);
+//		Ban();
+//		wxString winfo(info, wxConvUTF8);
+//		theApp->AddDLPMessageLine(winfo);
+//	}
 	if(!IsBanned()){
 		if(wronghello && (thePrefs::GetDLPCheckMask() & PF_HELLOTAG) ){
 			const char* ret = "[Wrong Hello Order: German Leecher]";
