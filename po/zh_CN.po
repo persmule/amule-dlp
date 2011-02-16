@@ -1842,6 +1842,12 @@ msgstr " 版权所有 (C) 2002 Petar Maymounkov\n"
 msgid " http://kademlia.scs.cs.nyu.edu\n"
 msgstr " http://kademlia.scs.cs.nyu.edu\n"
 
+msgid "\nDynamic Leech Protection\n"
+msgstr "\n动态吸血保护\n"
+
+msgid " Homepage: http://amule-dlp.googlecode.com \n"
+msgstr " 主页：http://amule-dlp.googlecode.com \n"
+
 #: src/amuleDlg.cpp:476 src/PrefsUnifiedDlg.cpp:561
 #: src/PrefsUnifiedDlg.cpp:661 src/PrefsUnifiedDlg.cpp:750 src/KadDlg.cpp:177
 #: src/PartFile.cpp:922 src/PartFile.cpp:930
