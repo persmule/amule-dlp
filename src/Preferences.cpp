@@ -50,7 +50,7 @@
 
 #include "UserEvents.h"
 
-#include "antiLeech_amule.h"
+#include "DLPPref.h"
 #include "antiLeech.h"
 
 #ifndef AMULE_DAEMON

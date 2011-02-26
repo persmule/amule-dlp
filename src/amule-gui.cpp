@@ -324,7 +324,7 @@ void CamuleGuiApp::AddServerMessageLine(wxString &msg)
 	CamuleApp::AddServerMessageLine(msg);
 }
 
-void CamuleGuiApp::AddDLPMessageLine(wxString &msg)
+void CamuleGuiApp::AddDLPMessageLine(const wxString &msg)
 {
 	wxString message;
 	time_t rawtime;

@@ -644,7 +644,7 @@ void CamuleDlg::AddServerMessageLine(wxString& message)
 	}
 }
 
-void CamuleDlg::AddDLPMessageLine(wxString& msg)
+void CamuleDlg::AddDLPMessageLine(const wxString& msg) /* modified by Bill Lee */
 {
 	wxTextCtrl* cv = CastByID( ID_DLPINFO, m_serverwnd, wxTextCtrl );
 	if(cv) {
