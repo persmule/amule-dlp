@@ -2761,7 +2761,7 @@ int CUpDownClient::ReloadAntiLeech(){
 	//Unloading
 	AddLogLineM(false,  wxT("Checking if there is a antiLeech working..."));
 	if(antiLeechLib){
-		Destoryer fn = (Destoryer)(antiLeechLib->GetSymbol( _("destoryAntiLeechInstant")));
+		Destoryer fn = (Destoryer)(antiLeechLib->GetSymbol( wxT("destoryAntiLeechInstant")));
 		wxASSERT(fn);
 		AddLogLineM(false,  wxT("Unload previous antiLeech..."));
 		fn(antiLeech);
@@ -2773,13 +2773,13 @@ int CUpDownClient::ReloadAntiLeech(){
 		AddLogLineM(false,  wxT("No working antiLeech exists."));
 	//Try to load lib;
 	AddLogLineM(false,  wxT("Trying to load antiLeech..."));
-	antiLeechLib = new wxDynamicLibrary( _("antiLeech") );
+	antiLeechLib = new wxDynamicLibrary( wxT("antiLeech") );
 	if(!antiLeechLib){
 		AddLogLineM(true,  wxT("AntiLeech not found!"));
 		return 1;	//Not found
 	}
 	//Searching symbol "createAntiLeechInstant"
-	Creator fn = (Creator)(antiLeechLib->GetSymbol( _("createAntiLeechInstant") ));
+	Creator fn = (Creator)(antiLeechLib->GetSymbol( wxT("createAntiLeechInstant") ));
 	if(!fn){
 		delete antiLeechLib;
 		antiLeechLib = NULL;
@@ -2789,12 +2789,14 @@ int CUpDownClient::ReloadAntiLeech(){
 	//Try to create antiLeech
 	antiLeech = fn();
 	if(antiLeech){
-		AddLogLineM(true, wxT("Succeed loading antiLeech"));
+		wxString logline;
+		logline.Printf(wxT("Succeed loading antiLeech! Version: %d"), antiLeech->GetDLPVersion());
+		AddLogLineM(true, logline);
 		return 0;
 	}
 	//else
 	delete antiLeechLib;
 	antiLeechLib = NULL;
-	AddLogLineM(false,  wxT("FAIL! An error occur when setting up"));
+	AddLogLineM(true,  wxT("FAIL! An error occur when setting up antiLeech."));
 	return 3;	//Fail to create antiLeech instant
 }
