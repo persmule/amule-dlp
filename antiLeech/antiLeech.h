@@ -24,7 +24,7 @@ public:
 	virtual LPCTSTR DLPCheckModstring_Soft(LPCTSTR modversion, LPCTSTR clientversion) = 0;
 	virtual LPCTSTR DLPCheckUsername_Hard(LPCTSTR username) = 0;
 	virtual LPCTSTR DLPCheckUsername_Soft(LPCTSTR username) = 0;
-	virtual LPCTSTR DLPCheckNameAndHashAndMod(CString username, CString& userhash, CString& modversion) = 0;
+	virtual LPCTSTR DLPCheckNameAndHashAndMod(const CString username, const CString& userhash, const CString& modversion) = 0;
 	virtual LPCTSTR DLPCheckMessageSpam(LPCTSTR messagetext) = 0;
 
 
