@@ -19,7 +19,7 @@
 
 //#include <atlstr.h>
 #include "CString_wx.h"
-#include "antiLeech.h"
+#include "../src/antiLeech.h"
 #define __declspec(var)	CantiLeech::
 
 #ifdef _DEBUG
@@ -1198,7 +1198,7 @@ LPCTSTR __declspec(dllexport) DLPCheckUsername_Soft(LPCTSTR username)
 	return NULL;
 }
 
-LPCTSTR __declspec(dllexport) DLPCheckNameAndHashAndMod(CString username, CString& userhash, CString& modversion)
+LPCTSTR __declspec(dllexport) DLPCheckNameAndHashAndMod(const CString& username, const CString& userhash, const CString& modversion)
 {
 	if(username.IsEmpty() || userhash.IsEmpty())
 		return NULL;
