@@ -2004,53 +2004,45 @@ wxSizer *PreferencesServerTab( wxWindow *parent, bool call_fit, bool set_sizer )
 
 wxSizer *PreferencesDLPTab( wxWindow *parent, bool call_fit, bool set_sizer )
 {
-    wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Dynamic Leecher Protection Options") );
-    wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
+	wxButton* btnReload = new wxButton( parent, IDC_RELOADANTILEECH, _("Reload"), wxDefaultPosition, wxDefaultSize, 0 ); //Bill Lee
 
-    wxCheckBox *item4 = new wxCheckBox( parent, IDC_CHECKMODSTRING, _("Check bad modstring"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item4, 0, wxALIGN_CENTER_VERTICAL, 5 );
+	wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Dynamic Leecher Protection Options") );
+	wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
 
-    wxCheckBox *item5 = new wxCheckBox( parent, IDC_CHECKUSERNAME, _("Check bad username"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item5, 0, wxALIGN_CENTER_VERTICAL, 5 );
+	wxCheckBox *item4 = new wxCheckBox( parent, IDC_CHECKMODSTRING, _("Check bad modstring"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item4, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item6 = new wxCheckBox( parent, IDC_CHECKUSERHASH, _("Check bad userhash"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item6, 0, wxALIGN_CENTER_VERTICAL, 5 );
+	wxCheckBox *item5 = new wxCheckBox( parent, IDC_CHECKUSERNAME, _("Check bad username"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item5, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item7 = new wxCheckBox( parent, IDC_CHECKHELLOTAG, _("Check bad hello tag"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item7, 0, wxALIGN_CENTER_VERTICAL, 5 );
+	wxCheckBox *item6 = new wxCheckBox( parent, IDC_CHECKUSERHASH, _("Check bad userhash"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item6, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item8 = new wxCheckBox( parent, IDC_CHECKINFOTAG, _("Check bad info tag"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item8, 0, wxALIGN_CENTER_VERTICAL, 5 );
-    
-    wxCheckBox *item9 = new wxCheckBox( parent, IDC_CHECKGHOSTMOD, _("Check ghost mod"), wxDefaultPosition, wxDefaultSize, 0);
+	wxCheckBox *item7 = new wxCheckBox( parent, IDC_CHECKHELLOTAG, _("Check bad hello tag"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item7, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    /*
-    wxCheckBox *item9 = new wxCheckBox( parent, IDC_CHECKEASYMULE, _("Ban VeryCD easyMule2"), wxDefaultPosition, wxDefaultSize, 0 ); //Modified by Bill Lee.
-    */
-    item1->Add( item9, 0, wxALIGN_CENTER_VERTICAL, 5 );
-    
-    wxCheckBox *item10 = new wxCheckBox( parent, IDC_CHECKVERYCDMOD, _("Ban eMule VeryCD mod(Please consider carefully whether to use)"), wxDefaultPosition, wxDefaultSize, 0 ); //Modified by Bill Lee
-    item1->Add( item10, 0, wxALIGN_CENTER_VERTICAL, 5 );
-    
-    /*
-    //Bill Lee start
-    wxCheckBox *item11 = new wxCheckBox( parent, IDC_CHECKMINIMULE, _("Ban VeryCD miniMule"), wxDefaultPosition, wxDefaultSize, 0);
-    item1->Add( item11, 0, wxALIGN_CENTER_VERTICAL, 5);
-    //Bill Lee end
-    */
- 
-    item0->Add( item1, 0, wxGROW|wxALL, 5 );
+	wxCheckBox *item8 = new wxCheckBox( parent, IDC_CHECKINFOTAG, _("Check bad info tag"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item8, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    if (set_sizer)
-    {
-        parent->SetSizer( item0 );
-        if (call_fit)
-            item0->SetSizeHints( parent );
-    }
-    
-    return item0;
+	wxCheckBox *item9 = new wxCheckBox( parent, IDC_CHECKGHOSTMOD, _("Check ghost mod"), wxDefaultPosition, wxDefaultSize, 0);
+	item1->Add( item9, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	wxCheckBox *item10 = new wxCheckBox( parent, IDC_CHECKVERYCDMOD, _("Ban eMule VeryCD mod(Please consider carefully whether to use)"), wxDefaultPosition, wxDefaultSize, 0 ); //Modified by Bill Lee
+	item1->Add( item10, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	item0->Add( btnReload, 0, wxGROW|wxALL, 5); //Bill Lee
+	item0->Add( item1, 0, wxGROW|wxALL, 5 );
+
+	if (set_sizer)
+	{
+	parent->SetSizer( item0 );
+	if (call_fit)
+	    item0->SetSizeHints( parent );
+	}
+
+	return item0;
 }
 
 wxSizer *PreferencesFilesTab( wxWindow *parent, bool call_fit, bool set_sizer )

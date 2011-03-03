@@ -440,6 +440,7 @@ wxSizer *PreferencesDebug( wxWindow *parent, bool call_fit = TRUE, bool set_size
 #define IDC_CHECKVERYCDMOD 11007
 #define IDC_CHECKMINIMULE 11008
 #define IDC_CHECKGHOSTMOD 11009
+#define IDC_RELOADANTILEECH 11010 //Bill Lee
 wxSizer *PreferencesDLPTab( wxWindow *parent, bool call_fit = TRUE, bool set_sizer = TRUE );
 
 extern wxSizer *IDC_CURJOB;
