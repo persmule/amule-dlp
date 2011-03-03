@@ -623,7 +623,7 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 						const wxChar* dlp_result = CantiLeech().DLPCheckHelloTag(temptag.GetNameID());
 						if(dlp_result != NULL) {
 							wxString ret;
-							ret.Printf(wxT("[HelloTag %s(%.2x)] %s"), dlp_result, temptag.GetNameID(), GetClientFullInfo().c_str());
+							ret.Printf(wxT("[%s] %s"), dlp_result, GetClientFullInfo().c_str());
 							Ban();
 							theApp->AddDLPMessageLine(ret);
 						}
@@ -1008,7 +1008,7 @@ bool CUpDownClient::ProcessMuleInfoPacket(const byte* pachPacket, uint32 nSize)
 							const wxChar* dlp_result = CantiLeech().DLPCheckInfoTag(temptag.GetNameID());
 							if(dlp_result != NULL) {
 								wxString ret;
-								ret.Printf(wxT("[InfoTag %s(%.2x)] %s"), dlp_result, temptag.GetNameID(), GetClientFullInfo().c_str());
+								ret.Printf(wxT("[%s] %s"), dlp_result, GetClientFullInfo().c_str());
 								Ban();
 								theApp->AddDLPMessageLine(ret);
 							}
