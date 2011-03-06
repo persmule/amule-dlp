@@ -2705,7 +2705,7 @@ bool CUpDownClient::DLPCheck(){
 	//CheckGhostMod
 	if(prefs & PF_GHOSTMOD) {
 		if(dlp_nonofficalopcodes && (modver.IsEmpty())) {
-			ret = wxT("Ghost Mod");
+			ret = wxT("GhostMod");
 			tmp = ret.c_str(); //char pointer
 		}
 	}
@@ -2774,8 +2774,8 @@ int CUpDownClient::ReloadAntiLeech(){
 	//Try to load lib;
 	AddLogLineM(false,  wxT("Trying to load antiLeech..."));
 	antiLeechLib = new wxDynamicLibrary( wxT("antiLeech") );
-	if(!antiLeechLib){
-		AddLogLineM(true,  wxT("AntiLeech not found!"));
+	if(!antiLeechLib){                      /* If object antiLeechLib can't be create, it is an internal error instead of antiLeech's not exsisting. */
+		AddLogLineM(true,  wxT("Internal error happened when loading antiLeech!"));
 		return 1;	//Not found
 	}
 	//Searching symbol "createAntiLeechInstant"
@@ -2783,8 +2783,8 @@ int CUpDownClient::ReloadAntiLeech(){
 	if(!fn){
 		delete antiLeechLib;
 		antiLeechLib = NULL;
-		AddLogLineM(true,  wxT("Invalid antiLeech found!"));
-		return 2;	//Found, but isn't antiLeech
+		AddLogLineM(true,  wxT("No antiLeech available!"));
+		return 2;	//Not found or found, but isn't antiLeech
 	}
 	//Try to create antiLeech
 	antiLeech = fn();
