@@ -2006,7 +2006,7 @@ wxSizer *PreferencesDLPTab( wxWindow *parent, bool call_fit, bool set_sizer )
 {
 	wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-	wxButton* btnReload = new wxButton( parent, IDC_RELOADANTILEECH, _("Reload"), wxDefaultPosition, wxDefaultSize, 0 ); //Bill Lee
+	wxButton* btnReload = new wxButton( parent, IDC_RELOADANTILEECH, _("Reload antiLeech"), wxDefaultPosition, wxDefaultSize, 0 ); //Bill Lee
 
 	wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Dynamic Leecher Protection Options") );
 	wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );

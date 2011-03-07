@@ -625,7 +625,7 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 						const wxChar* dlp_result = antiLeech->DLPCheckHelloTag(temptag.GetNameID());
 						if(dlp_result != NULL) {
 							wxString ret;
-							ret.Printf(wxT("[HelloTag %s(%.2x)] %s"), dlp_result, temptag.GetNameID(), GetClientFullInfo().c_str());
+							ret.Printf(_("[HelloTag %s(%.2x)] %s"), dlp_result, temptag.GetNameID(), GetClientFullInfo().c_str());
 							Ban();
 							theApp->AddDLPMessageLine(ret);
 						}
@@ -1010,7 +1010,7 @@ bool CUpDownClient::ProcessMuleInfoPacket(const byte* pachPacket, uint32 nSize)
 							const wxChar* dlp_result = antiLeech->DLPCheckInfoTag(temptag.GetNameID());
 							if(dlp_result != NULL) {
 								wxString ret;
-								ret.Printf(wxT("[InfoTag %s(%.2x)] %s"), dlp_result, temptag.GetNameID(), GetClientFullInfo().c_str());
+								ret.Printf(_("[InfoTag %s(%.2x)] %s"), dlp_result, temptag.GetNameID(), GetClientFullInfo().c_str());
 								Ban();
 								theApp->AddDLPMessageLine(ret);
 							}
@@ -2705,7 +2705,7 @@ bool CUpDownClient::DLPCheck(){
 	//CheckGhostMod
 	if(prefs & PF_GHOSTMOD) {
 		if(dlp_nonofficalopcodes && (modver.IsEmpty())) {
-			ret = wxT("GhostMod");
+			ret = _("GhostMod");
 			tmp = ret.c_str(); //char pointer
 		}
 	}
@@ -2732,7 +2732,7 @@ bool CUpDownClient::DLPCheck(){
 	// Check VeryCD eMule
 	if ((prefs & PF_VERYCDEMULE) && (tmp == NULL)) {
 		if(modver.Find(wxT("VeryCD")) != wxNOT_FOUND){
-			ret = wxT("VeryCD Mod");
+			ret = _("VeryCD Mod");
 			tmp = ret.c_str();
 		}
 	}
@@ -2759,23 +2759,23 @@ int CUpDownClient::ReloadAntiLeech(){
 	typedef IantiLeech* (*Creator)();
 	typedef int (*Destoryer)(IantiLeech*);
 	//Unloading
-	AddLogLineM(false,  wxT("Checking if there is a antiLeech working..."));
+	AddLogLineM(false,  _("Checking if there is a antiLeech working..."));
 	if(antiLeechLib){
 		Destoryer fn = (Destoryer)(antiLeechLib->GetSymbol( wxT("destoryAntiLeechInstant")));
 		wxASSERT(fn);
-		AddLogLineM(false,  wxT("Unload previous antiLeech..."));
+		AddLogLineM(false,  _("Unload previous antiLeech..."));
 		fn(antiLeech);
 		antiLeech = NULL;
 		delete antiLeechLib;
 		antiLeechLib = NULL;
 	}
 	else
-		AddLogLineM(false,  wxT("No working antiLeech exists."));
+		AddLogLineM(false,  _("No working antiLeech exists."));
 	//Try to load lib;
-	AddLogLineM(false,  wxT("Trying to load antiLeech..."));
+	AddLogLineM(false,  _("Trying to load antiLeech..."));
 	antiLeechLib = new wxDynamicLibrary( wxT("antiLeech") );
 	if(!antiLeechLib){                      /* If object antiLeechLib can't be create, it is an internal error instead of antiLeech's not exsisting. */
-		AddLogLineM(true,  wxT("Internal error happened when loading antiLeech!"));
+		AddLogLineM(true,  _("Internal error happened when loading antiLeech!"));
 		return 1;	//Not found
 	}
 	//Searching symbol "createAntiLeechInstant"
@@ -2783,20 +2783,20 @@ int CUpDownClient::ReloadAntiLeech(){
 	if(!fn){
 		delete antiLeechLib;
 		antiLeechLib = NULL;
-		AddLogLineM(true,  wxT("No antiLeech available!"));
+		AddLogLineM(true,  _("No antiLeech available!"));
 		return 2;	//Not found or found, but isn't antiLeech
 	}
 	//Try to create antiLeech
 	antiLeech = fn();
 	if(antiLeech){
 		wxString logline;
-		logline.Printf(wxT("Succeed loading antiLeech! Version: %d"), antiLeech->GetDLPVersion());
+		logline.Printf(_("Succeed loading antiLeech! Version: %d"), antiLeech->GetDLPVersion());
 		AddLogLineM(true, logline);
 		return 0;
 	}
 	//else
 	delete antiLeechLib;
 	antiLeechLib = NULL;
-	AddLogLineM(true,  wxT("FAIL! An error occur when setting up antiLeech."));
+	AddLogLineM(true,  _("FAIL! An error occur when setting up antiLeech."));
 	return 3;	//Fail to create antiLeech instant
 }
