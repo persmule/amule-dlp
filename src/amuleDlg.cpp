@@ -475,8 +475,7 @@ void CamuleDlg::OnAboutButton(wxCommandEvent& WXUNUSED(ev))
 		_(" Homepage: http://amule-dlp.googlecode.com \n") <<
 		_(" Copyright (C) 2002-2007 Xtreme-Mod \n") <<
 		_(" Copyright (C) 2009 greensea \n") <<
-		_(" Copyright (C) 2009-2011 Bill Lee \n") <<
-		_(" Copyright (C) 2011 Orzogc \n");
+		_(" Copyright (C) 2009-2011 Bill Lee \n");
 	
 	if (m_is_safe_state) {
 		wxMessageBox(msg, _("Message"), wxOK | wxICON_INFORMATION, this);

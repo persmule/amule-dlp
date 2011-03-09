@@ -996,7 +996,10 @@ void PrefsUnifiedDlg::OnButtonIPFilterUpdate(wxCommandEvent& WXUNUSED(event))
 
 //Bill Lee
 void PrefsUnifiedDlg::OnButtonReloadAntiLeech(wxCommandEvent& WXUNUSED(event)){
-	CUpDownClient::ReloadAntiLeech();
+	if( CUpDownClient::ReloadAntiLeech() )
+		wxMessageBox(_("Cannot load antiLeech!"), _("Message"), wxOK | wxICON_EXCLAMATION, this);
+	else
+		wxMessageBox(_("Succeed loading antiLeech!"), _("Message"), wxOK | wxICON_INFORMATION, this);
 }
 
 
