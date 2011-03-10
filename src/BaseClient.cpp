@@ -431,14 +431,6 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 	m_bUnicodeSupport = false;
 	uint32 dwEmuleTags = 0;
 
-	//Dynamic Leecher Protect - Bill Lee
-	bool wronghello = false; //Xman Anti-Leecher
-	uint32 hellotagorder = 1; //Xman Anti-Leecher
-	//zz_fly :: Fake Shareaza Detection
-	bool bWasUDPPortSent = false;
-	bool bIsFakeShareaza = false;
-	//zz_fly :: Fake Shareaza Detection end
-
 	CMD4Hash hash = data.ReadHash();
 	SetUserHash( hash );
 	SetUserIDHybrid( data.ReadUInt32() );
@@ -449,20 +441,10 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 		switch(temptag.GetNameID()){
 			case CT_NAME:
 				m_Username = temptag.GetStr();
-				//Xman Anti-Leecher
-				if(hellotagorder!=1)
-					wronghello=true;
-				hellotagorder++;
-				//Xman end
 				break;
 				
 			case CT_VERSION:
 				m_nClientVersion = temptag.GetInt();
-				//Xman Anti-Leecher
-				if(hellotagorder!=2)
-					wronghello=true;
-				hellotagorder++;
-				//Xman end
 				break;
 				
 			case ET_MOD_VERSION:
@@ -489,8 +471,6 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 				#ifdef __PACKET_DEBUG__
 				printf("Hello type packet processing with eMule ports UDP=%i KAD=%i\n",m_nUDPPort,m_nKadPort);
 				#endif
-				//Dynamic Leecher Protect - Bill Lee
-				bWasUDPPortSent = true; //zz_fly :: Fake Shareaza Detection
 				break;
 				
 			case CT_EMULE_BUDDYIP:
@@ -550,9 +530,6 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 				printf("That's all.\n");
 				#endif
 				SecIdentSupRec +=  1;
-				//Dynamic Leecher Proctect - Bill Lee
-				bIsFakeShareaza = !bWasUDPPortSent;
-					
 				break;
 			}
 
@@ -625,7 +602,7 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 						const wxChar* dlp_result = antiLeech->DLPCheckHelloTag(temptag.GetNameID());
 						if(dlp_result != NULL) {
 							wxString ret;
-							ret.Printf(_("[HelloTag %s(%.2x)] %s"), dlp_result, temptag.GetNameID(), GetClientFullInfo().c_str());
+							ret.Printf(_("[%s] %s"), dlp_result, GetClientFullInfo().c_str());
 							Ban();
 							theApp->AddDLPMessageLine(ret);
 						}
@@ -733,17 +710,6 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 //		theApp->AddDLPMessageLine(winfo);
 //	}
 	if(!IsBanned()){
-		if(wronghello && (thePrefs::GetDLPCheckMask() & PF_HELLOTAG) ){
-			const char* ret = "[Wrong Hello Order: German Leecher]";
-			char info[1024] = {0};
-			char tmp[1024] = {0};
-			
-			strncpy(tmp, GetClientFullInfo().mb_str(wxConvUTF8), 1000);
-			snprintf(info, 1000, "%s %s", ret, tmp);
-			Ban();
-			wxString winfo(info, wxConvUTF8);
-			theApp->AddDLPMessageLine(winfo);
-		}
 	if(antiLeech)	DLPCheck();
 	}
 	//Bill Lee end
@@ -1010,7 +976,7 @@ bool CUpDownClient::ProcessMuleInfoPacket(const byte* pachPacket, uint32 nSize)
 							const wxChar* dlp_result = antiLeech->DLPCheckInfoTag(temptag.GetNameID());
 							if(dlp_result != NULL) {
 								wxString ret;
-								ret.Printf(_("[InfoTag %s(%.2x)] %s"), dlp_result, temptag.GetNameID(), GetClientFullInfo().c_str());
+								ret.Printf(_("[%s] %s"), dlp_result, GetClientFullInfo().c_str());
 								Ban();
 								theApp->AddDLPMessageLine(ret);
 							}
@@ -2691,7 +2657,6 @@ void CUpDownClient::SetConnectOptions(uint8_t options, bool encryption, bool cal
 // File_checked_for_headers
 
 bool CUpDownClient::DLPCheck(){
-	//Before calling this function, check the pointer antiLeech first
 	const wxChar* tmp = NULL;
 	wxString ret;
 	
