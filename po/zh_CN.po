@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the PACKAGE package.
 # Chen Nan, 2004.
 # xiaoqiao <29551030@qq.com>, 2007, 2008.
+# Bill Lee <bill.lee.y@gmail.com>, 2010, 2011.
 #
 msgid ""
 msgstr ""
@@ -7086,6 +7087,9 @@ msgstr "为写入而打开好友列表文件emfriends.met失败"
 msgid "Dynamic Leecher Protection Options"
 msgstr "动态反吸血保护选项"
 
+msgid "Reload antiLeech"
+msgstr "重新装载 antiLeech"
+
 msgid "Check bad modstring"
 msgstr "根据 Mod 名字检测吸血驴"
 
@@ -7112,6 +7116,15 @@ msgstr "屏蔽 VeryCD eMule（请慎重考虑是否使用）"
 
 #~ msgid "Ban VeryCD miniMule"
 #~ msgstr "屏蔽 VeryCD miniMule"
+
+msgid "Trying to load antiLeech..."
+msgstr "尝试加载 antiLeech..."
+
+msgid "No antiLeech available!"
+msgstr "未找到 antiLeech!"
+
+msgid "Succeed loading antiLeech! Version: %d"
+msgstr "成功加载 antiLeech! 版本： %d"
 
 #~ msgid "Fetching status..."
 #~ msgstr "正在获取状态..."

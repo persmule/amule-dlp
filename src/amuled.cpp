@@ -764,7 +764,7 @@ void CamuleDaemonApp::OnLoggingEvent(CLoggingEvent& evt)
 	CamuleApp::AddLogLine(evt.Message());
 }
 
-void CamuleDaemonApp::AddDLPMessageLine(wxString &msg)
+void CamuleDaemonApp::AddDLPMessageLine(const wxString &msg)
 {
 }
 

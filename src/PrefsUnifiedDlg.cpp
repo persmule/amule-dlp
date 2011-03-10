@@ -51,6 +51,8 @@
 #include "ServerList.h"
 #include "UserEvents.h"
 
+#include "updownclient.h"                      /* Dynamic Leech Protect - Bill Lee */
+
 BEGIN_EVENT_TABLE(PrefsUnifiedDlg,wxDialog)
 	// Events
 #define USEREVENTS_EVENT(ID, NAME, VARS) \
@@ -107,6 +109,9 @@ BEGIN_EVENT_TABLE(PrefsUnifiedDlg,wxDialog)
 	EVT_CHOICE(IDC_COLORSELECTOR,		PrefsUnifiedDlg::OnColorCategorySelected)
 	EVT_CHOICE(IDC_BROWSER,			PrefsUnifiedDlg::OnBrowserChange)
 	EVT_LIST_ITEM_SELECTED(ID_PREFSLISTCTRL,PrefsUnifiedDlg::OnPrefsPageChange)
+
+	//Dynamic Leech Protect - Bill Lee
+	EVT_BUTTON(IDC_RELOADANTILEECH,		PrefsUnifiedDlg::OnButtonReloadAntiLeech)
 
 	EVT_INIT_DIALOG(PrefsUnifiedDlg::OnInitDialog)
 
@@ -987,6 +992,14 @@ void PrefsUnifiedDlg::OnButtonIPFilterReload(wxCommandEvent& WXUNUSED(event))
 void PrefsUnifiedDlg::OnButtonIPFilterUpdate(wxCommandEvent& WXUNUSED(event))
 {
 	theApp->ipfilter->Update( CastChild( IDC_IPFILTERURL, wxTextCtrl )->GetValue() );
+}
+
+//Bill Lee
+void PrefsUnifiedDlg::OnButtonReloadAntiLeech(wxCommandEvent& WXUNUSED(event)){
+	if( CUpDownClient::ReloadAntiLeech() )
+		wxMessageBox(_("Cannot load antiLeech!"), _("Message"), wxOK | wxICON_EXCLAMATION, this);
+	else
+		wxMessageBox(_("Succeed loading antiLeech!"), _("Message"), wxOK | wxICON_INFORMATION, this);
 }
 
 

@@ -122,7 +122,9 @@ enum ECOpCodes {
 	EC_OP_DISCONNECT                    = 0x4B,
 	EC_OP_GET_DLOAD_QUEUE_DETAIL        = 0x4C,
 	EC_OP_KAD_UPDATE_FROM_URL           = 0x4D,
-	EC_OP_KAD_BOOTSTRAP_FROM_IP         = 0x4E
+	EC_OP_KAD_BOOTSTRAP_FROM_IP         = 0x4E,
+	//UnOfficial OpCodes
+	EC_OP_ANTILEECH_RELOAD		= 0x80  /* Dynamic Leech Protect - Bill Lee */
 };
 
 enum ECTagNames {

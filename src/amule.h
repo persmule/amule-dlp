@@ -347,7 +347,7 @@ public:
 	wxString GetLog(bool reset = false);
 	wxString GetServerLog(bool reset = false);
 	void AddServerMessageLine(wxString &msg);
-	void AddDLPMessageLine(wxString &msg);
+	void AddDLPMessageLine(const wxString &msg);
 	DECLARE_EVENT_TABLE()
 };
 
@@ -471,7 +471,7 @@ public:
 	
 	void OnLoggingEvent(CLoggingEvent& evt);
 	
-	void AddDLPMessageLine(wxString &msg);
+	void AddDLPMessageLine(const wxString &msg);
 	
 	DECLARE_EVENT_TABLE()
 	

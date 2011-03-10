@@ -19,13 +19,14 @@
 
 //#include <atlstr.h>
 #include "CString_wx.h"
-#include "antiLeech.h"
-#include "antiLeech_wx.cpp"
+#include "../src/antiLeech.h"
 #define __declspec(var)	CantiLeech::
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+
+const DWORD CantiLeech::DLPVersion = 4302;
 
 //>>> eWombat [SNAFU_V3]
 LPCTSTR apszSnafuTag[]=
@@ -1197,7 +1198,7 @@ LPCTSTR __declspec(dllexport) DLPCheckUsername_Soft(LPCTSTR username)
 	return NULL;
 }
 
-LPCTSTR __declspec(dllexport) DLPCheckNameAndHashAndMod(CString username, CString& userhash, CString& modversion)
+LPCTSTR __declspec(dllexport) DLPCheckNameAndHashAndMod(const CString& username, const CString& userhash, const CString& modversion)
 {
 	if(username.IsEmpty() || userhash.IsEmpty())
 		return NULL;

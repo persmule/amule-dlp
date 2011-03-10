@@ -721,6 +721,9 @@ bool CamuleApp::OnInit()
 	uploadqueue	= new CUploadQueue();
 	ipfilter	= new CIPFilter();
 
+	//DLP initialization - Bill Lee
+	CUpDownClient::ReloadAntiLeech();
+
 	// Creates all needed listening sockets
 	wxString msg;
 	if (!ReinitializeNetwork(&msg)) {

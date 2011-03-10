@@ -1227,6 +1227,11 @@ CECPacket *ExternalConn::ProcessRequest2(const CECPacket *request,
 			theApp->ipfilter->Reload();
 			response = new CECPacket(EC_OP_NOOP);
 			break;
+		//Dynamic Leech Protect - Bill Lee
+		case EC_OP_ANTILEECH_RELOAD:
+			CUpDownClient::ReloadAntiLeech();
+			response = new CECPacket(EC_OP_NOOP);
+			break;
 		//
 		// Search
 		//

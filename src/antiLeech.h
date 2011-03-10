@@ -1,45 +1,82 @@
 #ifndef ANTILEECH_H
 #define ANTILEECH_H
-#define DLPVERSION 42
 
 
 #pragma once
 
 #include "antiLeech_wx.h"
 #include "CString_wx.h"
-#define __declspec(var)
 
-class CantiLeech 
+class IantiLeech 
+{
+public:
+	virtual ~IantiLeech(){};                /* Bill Lee: Not be used currently */
+	//BOOL WINAPI DllMain(HINSTANCE hinstDLL,DWORD,LPVOID);
+	virtual DWORD GetDLPVersion() = 0;
+	//old versions to keep compatible
+	/* //drop old version support
+	virtual LPCTSTR DLPCheckModstring(LPCTSTR modversion, LPCTSTR clientversion);
+	virtual LPCTSTR DLPCheckUsername(LPCTSTR username);
+	virtual LPCTSTR DLPCheckNameAndHash(CString username, CString& userhash);
+	*/
+	//new versions
+	virtual LPCTSTR DLPCheckModstring_Hard(LPCTSTR modversion, LPCTSTR clientversion) = 0;
+	virtual LPCTSTR DLPCheckModstring_Soft(LPCTSTR modversion, LPCTSTR clientversion) = 0;
+	virtual LPCTSTR DLPCheckUsername_Hard(LPCTSTR username) = 0;
+	virtual LPCTSTR DLPCheckUsername_Soft(LPCTSTR username) = 0;
+	virtual LPCTSTR DLPCheckNameAndHashAndMod(const CString& username, const CString& userhash, const CString& modversion) = 0;
+	virtual LPCTSTR DLPCheckMessageSpam(LPCTSTR messagetext) = 0;
+
+
+	virtual LPCTSTR DLPCheckUserhash(const PBYTE userhash) = 0;
+
+
+	virtual LPCTSTR DLPCheckHelloTag(UINT tagnumber) = 0;
+	virtual LPCTSTR DLPCheckInfoTag(UINT tagnumber) = 0;
+
+	//void  TestFunc();
+
+//Bill Lee: no need in interface abstract class
+//private:
+//	static bool IsTypicalHex (const CString& addon);
+};
+
+//Bill Lee: never call delete on IantiLeech, use destoryAntiLeechInstat instead.
+extern "C" IantiLeech* createAntiLeechInstant();
+extern "C" int destoryAntiLeechInstant(IantiLeech*);
+
+#ifdef BUILD_ANTILEECH
+class CantiLeech: public IantiLeech
 {
 public:
 	//BOOL WINAPI DllMain(HINSTANCE hinstDLL,DWORD,LPVOID);
-	DWORD	__declspec(dllexport) GetDLPVersion(){return DLPVERSION;}
+	virtual DWORD GetDLPVersion(){	return DLPVersion;	}
 	//old versions to keep compatible
 	/* //drop old version support
-	LPCTSTR __declspec(dllexport) DLPCheckModstring(LPCTSTR modversion, LPCTSTR clientversion);
-	LPCTSTR __declspec(dllexport) DLPCheckUsername(LPCTSTR username);
-	LPCTSTR __declspec(dllexport) DLPCheckNameAndHash(CString username, CString& userhash);
+	virtual LPCTSTR DLPCheckModstring(LPCTSTR modversion, LPCTSTR clientversion);
+	virtual LPCTSTR DLPCheckUsername(LPCTSTR username);
+	virtual LPCTSTR DLPCheckNameAndHash(CString username, CString& userhash);
 	*/
 	//new versions
-	LPCTSTR __declspec(dllexport) DLPCheckModstring_Hard(LPCTSTR modversion, LPCTSTR clientversion);
-	LPCTSTR __declspec(dllexport) DLPCheckModstring_Soft(LPCTSTR modversion, LPCTSTR clientversion);
-	LPCTSTR __declspec(dllexport) DLPCheckUsername_Hard(LPCTSTR username);
-	LPCTSTR __declspec(dllexport) DLPCheckUsername_Soft(LPCTSTR username);
-	LPCTSTR __declspec(dllexport) DLPCheckNameAndHashAndMod(CString username, CString& userhash, CString& modversion);
-	LPCTSTR __declspec(dllexport) DLPCheckMessageSpam(LPCTSTR messagetext);
+	virtual LPCTSTR DLPCheckModstring_Hard(LPCTSTR modversion, LPCTSTR clientversion);
+	virtual LPCTSTR DLPCheckModstring_Soft(LPCTSTR modversion, LPCTSTR clientversion);
+	virtual LPCTSTR DLPCheckUsername_Hard(LPCTSTR username);
+	virtual LPCTSTR DLPCheckUsername_Soft(LPCTSTR username);
+	virtual LPCTSTR DLPCheckNameAndHashAndMod(const CString& username, const CString& userhash, const CString& modversion);
+	virtual LPCTSTR DLPCheckMessageSpam(LPCTSTR messagetext);
 
 
-	LPCTSTR __declspec(dllexport) DLPCheckUserhash(const PBYTE userhash);
+	virtual LPCTSTR DLPCheckUserhash(const PBYTE userhash);
 
 
-	LPCTSTR __declspec(dllexport) DLPCheckHelloTag(UINT tagnumber);
-	LPCTSTR __declspec(dllexport) DLPCheckInfoTag(UINT tagnumber);
+	virtual LPCTSTR DLPCheckHelloTag(UINT tagnumber);
+	virtual LPCTSTR DLPCheckInfoTag(UINT tagnumber);
 
-	//void __declspec(dllexport)  TestFunc();
-
+	//void  TestFunc();
 
 private:
-	bool IsTypicalHex (const CString& addon);
+	static const DWORD DLPVersion;
+	static bool IsTypicalHex (const CString& addon);
 };
 
 //<<< new tags from eMule 0.04x
@@ -120,8 +157,7 @@ private:
 #define ET_MOD_UNKNOWNxC9		0xC9 // Bionic 0.20 Beta]
 #define ET_MOD_UNKNOWNxDA		0xDA // Rumata (rus)(Plus v1f) - leecher mod?
 //>>> eWombat [SNAFU_V3]
-
-#include "antiLeech_amule.h"
+#endif //BUILD_ANTILEECH
 
 #undef __declspec
 #endif

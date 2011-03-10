@@ -115,7 +115,7 @@ public:
 
 	void AddLogLine(bool addtostatusbar, const wxString& line);
 	void AddServerMessageLine(wxString& message);
-	void AddDLPMessageLine(wxString& msg);
+	void AddDLPMessageLine(const wxString& msg); /* Modified by Bill Lee */
 	void ResetLog(int id);
 	
 	void ShowUserCount(const wxString& info = wxEmptyString);

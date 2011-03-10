@@ -124,6 +124,7 @@ protected:
 	void OnTCPClientPortChange(wxSpinEvent& event);
 	void OnUserEventSelected(wxListEvent& event);
 	void CreateEventPanels(const int idx, const wxString& vars, wxWindow* parent);
+	void OnButtonReloadAntiLeech(wxCommandEvent &event); /* Dynamic Leech Protect - Bill Lee */
 
 	void OnInitDialog( wxInitDialogEvent& evt );
 

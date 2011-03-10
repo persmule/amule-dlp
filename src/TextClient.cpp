@@ -75,6 +75,7 @@ enum {
 	CMD_ID_DISCONNECT_KAD,
 	CMD_ID_RELOAD_SHARED,
 	CMD_ID_RELOAD_IPFILTER,
+	CMD_ID_RELOAD_ANTILEECH, /* Only used internally - Dynamic Leech Protect - Bill Lee */
 	CMD_ID_SET_IPFILTER_ON,
 	CMD_ID_SET_IPFILTER_OFF,
  	CMD_ID_SET_IPFILTER_CLIENTS_ON,
@@ -108,7 +109,6 @@ enum {
 	CMD_ID_DOWNLOAD,
 	// IDs for deprecated commands
 	CMD_ID_SET_IPFILTER
-
 };
 
 // method to create a SearchFile
@@ -242,6 +242,10 @@ int CamulecmdApp::ProcessCommand(int CmdId)
 
 		case CMD_ID_RELOAD_IPFILTER:
 			request_list.push_back(new CECPacket(EC_OP_IPFILTER_RELOAD));
+			break;
+		//Dynamic Leech Protect - Bill Lee
+		case CMD_ID_RELOAD_ANTILEECH:
+			request_list.push_back(new CECPacket(EC_OP_ANTILEECH_RELOAD));
 			break;
 
 		case CMD_ID_SET_IPFILTER_ON:
@@ -850,6 +854,7 @@ void CamulecmdApp::OnInitCommandSet()
 	tmp = m_commands.AddCommand(wxT("Reload"), CMD_ERR_INCOMPLETE, wxTRANSLATE("Reloads the given object."), wxEmptyString, CMD_PARAM_NEVER);
 	tmp->AddCommand(wxT("Shared"), CMD_ID_RELOAD_SHARED, wxTRANSLATE("Reloads shared files list."), wxEmptyString, CMD_PARAM_NEVER);
 	tmp->AddCommand(wxT("IPFilter"), CMD_ID_RELOAD_IPFILTER, wxTRANSLATE("Reloads IP Filter table from file."), wxEmptyString, CMD_PARAM_NEVER);
+	tmp->AddCommand(wxT("AntiLeech"), CMD_ID_RELOAD_ANTILEECH, wxTRANSLATE("Reloads antiLeech."), wxEmptyString, CMD_PARAM_NEVER); //Bill Lee
 
 	tmp = m_commands.AddCommand(wxT("Connect"), CMD_ID_CONNECT, wxTRANSLATE("Connect to the network."),
 				    wxTRANSLATE("This will connect to all networks that are enabled in Preferences.\nYou may also optionally specify a server address in IP:Port form, to connect to\nthat server only. The IP must be a dotted decimal IPv4 address,\nor a resolvable DNS name."), CMD_PARAM_OPTIONAL);
