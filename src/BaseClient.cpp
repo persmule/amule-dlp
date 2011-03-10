@@ -429,8 +429,6 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 	m_bUnicodeSupport = false;
 	uint32 dwEmuleTags = 0;
 
-	//Dynamic Leecher Protect - Bill Lee
-
 	CMD4Hash hash = data.ReadHash();
 	SetUserHash( hash );
 	SetUserIDHybrid( data.ReadUInt32() );
