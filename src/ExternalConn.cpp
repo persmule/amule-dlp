@@ -1229,8 +1229,10 @@ CECPacket *ExternalConn::ProcessRequest2(const CECPacket *request,
 			break;
 		//Dynamic Leech Protect - Bill Lee
 		case EC_OP_ANTILEECH_RELOAD:
-			CUpDownClient::ReloadAntiLeech();
-			response = new CECPacket(EC_OP_NOOP);
+			if( CUpDownClient::ReloadAntiLeech() )
+				response = new CECPacket(EC_OP_FAILED);
+			else
+				response = new CECPacket(EC_OP_NOOP);
 			break;
 		//
 		// Search
