@@ -19,7 +19,7 @@
 
 //#include <atlstr.h>
 #include "CString_wx.h"
-#include "../src/antiLeech.h"
+#include "antiLeech.h"
 #define __declspec(var)	CantiLeech::
 
 #ifdef _DEBUG

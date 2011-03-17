@@ -16,7 +16,7 @@
  */
 
 /* #####   HEADER FILE INCLUDES   ################################################### */
-#include "../src/antiLeech.h"
+#include "antiLeech.h"
 
 /* #####   FUNCTION DEFINITIONS  -  EXPORTED FUNCTIONS   ############################ */
 extern "C" IantiLeech* createAntiLeechInstant(){
