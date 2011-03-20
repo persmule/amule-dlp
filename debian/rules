@@ -82,7 +82,7 @@ clean: unpatch
 
 	rm -f amule.xpm
 
-	dh_clean
+	dh_clean .gitignore
 
 #
 
