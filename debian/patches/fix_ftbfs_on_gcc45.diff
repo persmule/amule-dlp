@@ -1,0 +1,22 @@
+# Subject: Fix FTBFS on gcc 4.5 (new in ubuntu natty)
+# Origin: other, http://bugs.amule.org/view.php?id=1624
+# Bug-ubuntu: https://bugs.launchpad.net/ubuntu/+source/amule/+bug/685584
+# Forwarded: upstream claims it's in their current svn code
+Index: amule-2.2.6+debian0/src/utils/wxCas/src/wxcasframe.cpp
+===================================================================
+--- amule-2.2.6+debian0.orig/src/utils/wxCas/src/wxcasframe.cpp	2010-12-15 16:46:18.435693002 +0000
++++ amule-2.2.6+debian0/src/utils/wxCas/src/wxcasframe.cpp	2010-12-15 16:47:07.151693001 +0000
+@@ -285,11 +285,11 @@
+ #ifdef __WXMSW__
+ 
+ 	memdc.
+-	SetFont ( wxFont::wxFont ( 6, wxSWISS, wxNORMAL, wxBOLD ) );
++	SetFont ( wxFont ( 6, wxSWISS, wxNORMAL, wxBOLD ) );
+ #else
+ 
+ 	memdc.
+-	SetFont ( wxFont::wxFont ( 8, wxSWISS, wxNORMAL, wxBOLD ) );
++	SetFont ( wxFont ( 8, wxSWISS, wxNORMAL, wxBOLD ) );
+ #endif
+ 
+ 	memdc.
