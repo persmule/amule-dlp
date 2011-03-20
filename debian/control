@@ -19,7 +19,7 @@ Build-Depends:
  libwxgtk2.8-dev,
  wx2.8-i18n,
  zlib1g-dev,
-Standards-Version: 3.8.3
+Standards-Version: 3.9.1
 Homepage: http://www.amule.org
 Vcs-Git: git://git.debian.org/git/pkg-amule/amule.git
 Vcs-Browser: http://git.debian.org/?p=pkg-amule/amule.git
@@ -63,7 +63,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: amule-common, ttf-dejavu-core
 Suggests: amule-gnome-support
 Replaces: amule-common (<< 2.1.2-3), amule (<< 2.1.2-1)
-Conflicts: xmule (<= 1.10.0b-1)
+Breaks: xmule (<= 1.10.0b-1)
 Description: utilities for aMule (command-line version)
  This package contains a set of command-line utilities related to aMule,
  the eD2k network client:
