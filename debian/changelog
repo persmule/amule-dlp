@@ -1,3 +1,26 @@
+amule (2.2.6+debian0-9) unstable; urgency=low
+
+  [ Giuseppe Iuculano ]
+  * [60136ec] Install skins files.
+    Thanks to Luís Picciochi Oliveira (Closes: #498693)
+  * [c2f0bcf] Remove skins from amule main package
+  * [6af73cc] debian/control: Fixed some typos in description.
+    Thanks to Luís Picciochi Oliveira
+
+  [ Cristian Greco ]
+  * [61dbf70] debian/control: remove myself from Uploaders.
+
+  [ Giuseppe Iuculano ]
+  * [0d4b071] Fix FTBFS with gcc 4.5 , patch from Ubuntu.
+    Thanks to shankao (Closes: #564853)
+  * [c998ccf] Disable NewVersionCheck by default (Closes: #554623)
+  * [c1f4946] Update to Standards-Version 3.9.1: Break with xmule instead of
+    conflicting
+  * [bb971b5] Switch to dpkg-source 3.0 (quilt) format
+  * [04668de] Remove .gitignore on clean target
+
+ -- Giuseppe Iuculano <iuculano@debian.org>  Sun, 20 Mar 2011 12:59:50 +0100
+
 amule (2.2.6+debian0-8) unstable; urgency=low
 
   * [e0427d0] added autopoint to build-depends, Closes: #583470
