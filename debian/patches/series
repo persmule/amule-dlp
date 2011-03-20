@@ -5,3 +5,4 @@ alc_man_typo.diff
 ed2k_man_typo.diff
 fallocate.diff
 fix_ftbfs_on_gcc45.diff
+version_check.diff
