@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal Veiga (kry@users.sourceforge.net)
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -82,7 +82,13 @@ bool CMuleNotebook::DeletePage(int nPage)
 	// is identical with deleted page (wx sends a page change event during deletion, 
 	// but the control is still the one to be deleted at that moment).
 	if (GetPageCount()) {
-		wxNotebookEvent event( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED, GetId(), nPage );
+		// Select the tab that took the place of the one we just deleted.
+		size_t page = nPage;
+		// Except if we deleted the last one - then select the one that is last now.
+		if (page == GetPageCount()) {
+			page--;
+		}
+		wxNotebookEvent event( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED, GetId(), page );
 		event.SetEventObject(this);
 		ProcessEvent( event );
 	} else {
@@ -156,7 +162,7 @@ void CMuleNotebook::OnRMButton(wxMouseEvent& event)
 		evt.m_x = point.x;
 		evt.m_y = point.y;
 			
-		m_popup_widget->AddPendingEvent( evt );
+		m_popup_widget->GetEventHandler()->AddPendingEvent( evt );
 	} else {
 		wxMenu menu(_("Close"));
 		menu.Append(MP_CLOSE_TAB, wxString(_("Close tab")));

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2004-2009 Marcelo Jimenez ( phoenix@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Marcelo Roberto Jimenez ( phoenix@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -29,7 +29,7 @@
 #include <common/EventIDs.h>
 
 #include "ArchSpecific.h"	/* for ENDIAN_HTONS()		*/
-#include "Logger.h"		/* for AddDebugLogLineM		*/
+#include "Logger.h"		/* for AddDebugLogLineN		*/
 #include "OtherFunctions.h"	/* for EncodeBase64()		*/
 #include <common/StringFunctions.h>	/* for unicode2char */
 
@@ -174,8 +174,8 @@ bool CProxyStateMachine::Start(const wxIPaddress &peerAddress, wxSocketClient *p
 		m_peerAddress = new amuleIPV4Address(peer);
 	} catch (const std::bad_cast& WXUNUSED(e)) {
 		// Should process other types of wxIPAddres before quitting
-		AddDebugLogLineM(false, logProxy, wxT("(1)bad_cast exception!"));
-		wxASSERT(false);
+		AddDebugLogLineN(logProxy, wxT("(1)bad_cast exception!"));
+		wxFAIL;
 		return false;
 	}
 	
@@ -190,28 +190,28 @@ t_sm_state CProxyStateMachine::HandleEvent(t_sm_event event)
 	switch(event)
 	{
 	case wxSOCKET_CONNECTION:
-		AddDebugLogLineM(false, logProxy, wxT("Connection event"));
+		AddDebugLogLineN(logProxy, wxT("Connection event"));
 		m_isConnected = true;
 		break;
 		
 	case wxSOCKET_INPUT:
-		AddDebugLogLineM(false, logProxy, wxT("Input event"));
+		AddDebugLogLineN(logProxy, wxT("Input event"));
 		m_canReceive = true;
 		break;
 		
 	case wxSOCKET_OUTPUT:
-		AddDebugLogLineM(false, logProxy, wxT("Output event"));
+		AddDebugLogLineN(logProxy, wxT("Output event"));
 		m_canSend = true;
 		break;
 		
 	case wxSOCKET_LOST:
-		AddDebugLogLineM(false, logProxy, wxT("Lost connection event"));
+		AddDebugLogLineN(logProxy, wxT("Lost connection event"));
 		m_isLost = true;
 		m_ok = false;
 		break;
 		
 	default:
-		AddDebugLogLineM(false, logProxy, wxT("Unknown event"));
+		AddDebugLogLineN(logProxy, wxT("Unknown event"));
 		break;
 	}
 	
@@ -255,7 +255,7 @@ void CProxyStateMachine::ReactivateSocket()
 	// If that is not true, we are in serious trouble...
 	wxASSERT(s);
 	if (CDatagramSocketProxy *udp = s->GetUDPSocket()) {
-		// The original socket was an UDP socket
+		// The original socket was a UDP socket
 		if(m_ok) {
 			// From now on, the UDP socket can be used,
 			// remove the protection.
@@ -317,6 +317,24 @@ wxSocketBase &CProxyStateMachine::ProxyRead(wxSocketBase &socket, void *buffer)
 	}
 	
 	return ret;
+}
+
+bool CProxyStateMachine::CanReceive() const	
+{
+#ifdef AMULE_DAEMON
+	return true;
+#else
+	return m_canReceive; 
+#endif
+}
+
+bool CProxyStateMachine::CanSend() const	
+{
+#ifdef AMULE_DAEMON
+	return true;
+#else
+	return m_canSend; 
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -403,7 +421,7 @@ void CSocks5StateMachine::process_state(t_sm_state state, bool entry)
 	if (entry) {
 		DumpMem(m_buffer, n, m_state_name[state], m_ok);
 	} else {
-		AddDebugLogLineM(false, logProxy,
+		AddDebugLogLineN(logProxy,
 			wxString(wxT("wait state -- ")) << m_state_name[state]);
 	}
 #endif // __DEBUG__
@@ -459,7 +477,7 @@ t_sm_state CSocks5StateMachine::next_state(t_sm_event event)
 					break;
 				}
 			} else {
-				AddDebugLogLineM(false, logProxy, wxT("Cant send"));
+				AddDebugLogLineN(logProxy, wxT("Can't send"));
 			}
 		} else {
 			ret = SOCKS5_STATE_END;
@@ -809,7 +827,7 @@ void CSocks4StateMachine::process_state(t_sm_state state, bool entry)
 	if (entry) {
 		DumpMem(m_buffer, n, m_state_name[state], m_ok);
 	} else {
-		AddDebugLogLineM(false, logProxy,
+		AddDebugLogLineN(logProxy,
 			wxString(wxT("wait state -- ")) << m_state_name[state]);
 	}
 #endif // __DEBUG__
@@ -1004,7 +1022,7 @@ void CHttpStateMachine::process_state(t_sm_state state, bool entry)
 	if (entry) {
 		DumpMem(m_buffer, n, m_state_name[state], m_ok);
 	} else {
-		AddDebugLogLineM(false, logProxy,
+		AddDebugLogLineN(logProxy,
 			wxString(wxT("wait state -- ")) << m_state_name[state]);
 	}
 #endif // __DEBUG__
@@ -1070,7 +1088,7 @@ void CHttpStateMachine::process_send_command_request(bool entry)
 		if (m_proxyData.m_enablePassword) {
 			userPass = m_proxyData.m_userName + wxT(":") + m_proxyData.m_password;
 			userPassEncoded =
-				EncodeBase64(unicode2char(userPass), PROXY_BUFFER_SIZE);
+				EncodeBase64(unicode2char(userPass), userPass.Length());
 		}
 		wxString msg;
 		
@@ -1083,9 +1101,8 @@ void CHttpStateMachine::process_send_command_request(bool entry)
 				msg << 
 				wxT("Authorization: Basic ")       << userPassEncoded << wxT("\r\n") <<
 				wxT("Proxy-Authorization: Basic ") << userPassEncoded << wxT("\r\n");
-			} else {
-				msg << wxT("\r\n");
 			}
+			msg << wxT("\r\n");
 			break;
 			
 		case PROXY_CMD_BIND:
@@ -1375,9 +1392,9 @@ wxDatagramSocket &CDatagramSocketProxy::RecvFrom(
 					a.Hostname( PeekUInt32( m_proxyTCPSocket.GetBuffer()+4 ) );
 					a.Service( ENDIAN_NTOHS( RawPeekUInt16( m_proxyTCPSocket.GetBuffer()+8) ) );
 				} catch (const std::bad_cast& WXUNUSED(e)) {
-					AddDebugLogLineM(false, logProxy,
+					AddDebugLogLineN(logProxy,
 						wxT("(2)bad_cast exception!"));
-					wxASSERT(false);
+					wxFAIL;
 				}
 			}
 				break;

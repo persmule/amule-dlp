@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -28,7 +28,7 @@
 
 #include <wx/dialog.h>		// Needed for wxDialog
 
-class CUpDownClient;
+#include "ClientRef.h"		// Needed for CClientRef
 
 /**
  * The ClientDetailDialog class is responsible for showing the info about a client.
@@ -49,7 +49,7 @@ public:
 	 * @param parent The window that created the dialog.
 	 * @param client The client whose details we're showing.
 	 */
-	CClientDetailDialog(wxWindow*parent,CUpDownClient* client);   
+	CClientDetailDialog(wxWindow*parent, const CClientRef& client);   
 	
 	/**
 	 * Destructor. 
@@ -78,8 +78,8 @@ protected:
 
 private:
 	
-	//! The CUpDownClient whose data is drawn
-	CUpDownClient* m_client;
+	//! The client whose data is drawn
+	CClientRef m_client;
 };
 #endif // CLIENTDETAILDIALOG_H
 // File_checked_for_headers

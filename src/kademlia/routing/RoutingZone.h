@@ -1,9 +1,9 @@
 //								-*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -72,8 +72,8 @@ public:
 	void	 OnSmallTimer();
 	uint32_t Consolidate();
 
-	bool	 Add(const CUInt128 &id, uint32_t ip, uint16_t port, uint16_t tport, uint8_t version, const CKadUDPKey& key, bool& ipVerified, bool update, bool fromNodesDat, bool fromHello);
-	bool	 AddUnfiltered(const CUInt128 &id, uint32_t ip, uint16_t port, uint16_t tport, uint8_t version, const CKadUDPKey& key, bool& ipVerified, bool update, bool fromNodesDat, bool fromHello);
+	bool	 Add(const CUInt128 &id, uint32_t ip, uint16_t port, uint16_t tport, uint8_t version, const CKadUDPKey& key, bool& ipVerified, bool update, bool fromHello);
+	bool	 AddUnfiltered(const CUInt128 &id, uint32_t ip, uint16_t port, uint16_t tport, uint8_t version, const CKadUDPKey& key, bool& ipVerified, bool update, bool fromHello);
 	bool	 Add(CContact *contact, bool& update, bool& outIpVerified);
 
 	void	 ReadFile(const wxString& specialNodesdat = wxEmptyString);
@@ -81,9 +81,9 @@ public:
 	bool	 VerifyContact(const CUInt128& id, uint32_t ip);
 	CContact *GetContact(const CUInt128& id) const throw();
 	CContact *GetContact(uint32_t ip, uint16_t port, bool tcpPort) const throw();
-	CContact *GetRandomContact(uint32_t maxType, uint32_t minKadVersion) const throw();
+	CContact *GetRandomContact(uint32_t maxType, uint32_t minKadVersion) const;
 	uint32_t GetNumContacts() const throw();
-	void	 GetNumContacts(uint32_t& nInOutContacts, uint32_t& nInOutFilteredContacts, uint8_t minVersion) const;
+	void	 GetNumContacts(uint32_t& nInOutContacts, uint32_t& nInOutFilteredContacts, uint8_t minVersion) const throw();
 
 	// Check if we know a contact with the same IP or ID but not matching IP/ID and other limitations, similar checks like when adding a node to the table except allowing duplicates
 	bool	IsAcceptableContact(const CContact *toCheck) const;
@@ -98,7 +98,8 @@ public:
 	// In practice: returns the contacts from the top (2^{logBase+1}) buckets.
 	uint32_t GetBootstrapContacts(ContactList *results, uint32_t maxRequired) const;
 
-	uint32_t EstimateCount() const throw();
+	uint32_t EstimateCount() const;
+	bool	 HasOnlyLANNodes() const throw();
 
 	time_t	 m_nextBigTimer;
 	time_t	 m_nextSmallTimer;
@@ -108,6 +109,9 @@ private:
 	CRoutingZone(CRoutingZone *super_zone, int level, const CUInt128& zone_index) { Init(super_zone, level, zone_index); }
 	void Init(CRoutingZone *super_zone, int level, const CUInt128& zone_index);
 	void ReadBootstrapNodesDat(CFileDataIO& file);
+#if 0
+	void WriteBootstrapFile();
+#endif
 
 	void WriteFile();
 

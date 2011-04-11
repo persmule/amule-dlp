@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -35,10 +35,12 @@
 	#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 #endif
 
-#ifdef HAVE_CONFIG_H
-	#include "config.h"	// Needed for CRYPTOPP_INCLUDE_PREFIX
-#else
-	#define CRYPTOPP_INCLUDE_PREFIX	cryptopp
+#ifndef CRYPTOPP_INCLUDE_PREFIX
+	#ifdef HAVE_CONFIG_H
+		#include "config.h"	// Needed for CRYPTOPP_INCLUDE_PREFIX
+	#else
+		#define CRYPTOPP_INCLUDE_PREFIX	cryptopp
+	#endif
 #endif
 
 #define noinline	noinline

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal Veiga - Kry (kry@amule.org)
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -23,17 +23,47 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-
-#define STRINGFUNCTIONS_CPP
-
-
 #include "StringFunctions.h"
-#include "Path.h"
 
 #include <wx/filename.h>	// Needed for wxFileName
 #include <wx/uri.h>		// Needed for wxURI
 
+#include <cstring>		// Needed for std::strlen()
+
 // Implementation of the non-inlines
+
+//
+// Conversion of wxString so it can be used by printf() in a console
+// On some platforms (Windows) the console allows only "plain" characters,
+// so try to convert as much as possible and replace the others with '?'.
+// On other platforms (some Linux) wxConvLocal silently converts to UTF8
+// so the console can show even Chinese chars.
+//
+Unicode2CharBuf unicode2char(const wxChar* s)
+{
+	// First try the straight way.
+	Unicode2CharBuf buf1(wxConvLocal.cWX2MB(s));
+	if ((const char *) buf1) {
+		return buf1;
+	}
+	// Failed. Try to convert as much as possible.
+	size_t len = wxStrlen(s);
+	size_t maxlen = len * 4;		// Allow for an encoding of up to 4 byte per char.
+	wxCharBuffer buf(maxlen + 1);	// This is wasteful, but the string is used temporary anyway.
+	char * data = buf.data();
+	for (size_t i = 0, pos = 0; i < len; i++) {
+		size_t len_char = wxConvLocal.FromWChar(data + pos, maxlen - pos, s + i, 1);
+		if (len_char != wxCONV_FAILED) {
+			pos += len_char - 1;
+		} else if (pos < maxlen) {
+			data[pos++] = '?';
+			data[pos] = 0;
+		}
+	}
+	return buf;
+}
+
+
 static byte base16Chars[17] = "0123456789ABCDEF";
 
 wxString URLEncode(const wxString& sIn)
@@ -59,83 +89,6 @@ wxString URLEncode(const wxString& sIn)
 	return sOut;
 }
 
-wxString TruncateFilename(const CPath& filename, size_t length, bool isFilePath)
-{
-	wxString file = filename.GetPrintable();
-
-	// Check if there's anything to do
-	if (file.Length() <= length)
-		return file;
-	
-	// If the filename is a path, then prefer to remove from the path, rather than the filename
-	if ( isFilePath ) {
-		wxString path = wxFileName(file).GetPath();
-		file          = wxFileName(file).GetFullName();
-
-		if ( path.Length() >= length ) {
-			path.Clear();
-		} else if ( file.Length() >= length ) {
-			path.Clear();
-		} else {
-			// Minus 6 for "[...]" + separator
-			int pathlen = (int)(length - file.Length() - 6);
-			
-			if ( pathlen > 0 ) {
-				path = wxT("[...]") + path.Right( pathlen );
-			} else {
-				path.Clear();
-			}
-		}
-		
-		file = JoinPaths(path, file);
-	}
-
-	if ( file.Length() > length ) {
-		if ( length > 5 ) {		
-			file = file.Left( length - 5 ) + wxT("[...]");
-		} else {
-			file.Clear();
-		}
-	}
-	
-
-	return file;
-}
-
-
-
-wxString StripSeparators(wxString path, wxString::stripType type)
-{
-	wxASSERT((type == wxString::leading) || (type == wxString::trailing));
-	const wxString seps = wxFileName::GetPathSeparators();
-
-	while (!path.IsEmpty()) {
-		size_t pos = ((type == wxString::leading) ? 0 : path.Length() - 1);
-
-		if (seps.Contains(path.GetChar(pos))) {
-			path.Remove(pos, 1);
-		} else {
-			break;
-		}
-	}
-	
-	return path;
-}
-
-
-wxString JoinPaths(const wxString& path, const wxString& file)
-{
-	if (path.IsEmpty()) {
-		return file;
-	} else if (file.IsEmpty()) {
-		return path;
-	} 
-
-	return StripSeparators(path, wxString::trailing)
-	   + wxFileName::GetPathSeparator()
-	   + StripSeparators(file, wxString::leading);
-}
-
 
 wxChar HexToDec( const wxString& hex )
 {
@@ -159,27 +112,37 @@ wxChar HexToDec( const wxString& hex )
 }
 
 
-wxString UnescapeHTML( const wxString& str )
+wxString UnescapeHTML(const wxString& str)
 {
-	wxString result;
-	result.Alloc( str.Len() );
-	
-	for ( size_t i = 0; i < str.Len(); ++i ) {
-		if ( str.GetChar(i) == wxT('%') && ( i + 2 < str.Len() ) ) {
-			wxChar unesc = HexToDec( str.Mid( i + 1, 2 ) );
+	wxWritableCharBuffer buf = str.char_str(wxConvUTF8);
 
-			if ( unesc ) {
+	// Work around wxWritableCharBuffer's operator[] not being writable
+	char *buffer = (char *)buf;
+
+	size_t len = std::strlen(buffer);
+	size_t j = 0;
+	for (size_t i = 0; i < len; ++i, ++j) {
+		if (buffer[i] == '%' && (len > i + 2)) {
+			wxChar unesc = HexToDec(str.Mid(i + 1, 2));
+			if (unesc) {
 				i += 2;
-
-				result += unesc;
+				buffer[j] = (char)unesc;
 			} else {
 				// If conversion failed, then we just add the escape-code
 				// and continue past it like nothing happened.
-				result += str.at(i);
+				buffer[j] = buffer[i];
 			}
 		} else {
-			result += str.at(i);
+			buffer[j] = buffer[i];
 		}
+	}
+	buffer[j] = '\0';
+
+	// Try to interpret the result as UTF-8
+	wxString result(buffer, wxConvUTF8);
+	if (len > 0 && result.length() == 0) {
+		// Fall back to ISO-8859-1
+		result = wxString(buffer, wxConvISO8859_1);
 	}
 
 	return result;
@@ -309,6 +272,3 @@ size_t CSimpleTokenizer::tokenCount() const
 {
 	return m_count;
 }
-
-
-// File_checked_for_headers

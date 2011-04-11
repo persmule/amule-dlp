@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -26,7 +26,6 @@
 #include "SharedFileList.h"	// Interface declarations  // Do_not_auto_remove
 
 #include <protocol/Protocols.h>
-#include <protocol/ed2k/ClientSoftware.h>
 #include <protocol/kad/Constants.h>
 #include <tags/FileTags.h>
 
@@ -42,7 +41,6 @@
 #include "amule.h"		// Needed for theApp
 #include "PartFile.h"		// Needed for PartFile
 #include "Server.h"		// Needed for CServer
-#include "updownclient.h"
 #include "Statistics.h"		// Needed for theStats
 #include "Logger.h"
 #include <common/Format.h>
@@ -88,7 +86,7 @@ public:
 
 	bool AddRef(CKnownFile* pFile) {
 		if (std::find(m_aFiles.begin(), m_aFiles.end(), pFile) != m_aFiles.end()) {
-			wxASSERT(0);
+			wxFAIL;
 			return false;
 		}
 		m_aFiles.push_back(pFile);
@@ -132,7 +130,9 @@ public:
 	CPublishKeywordList();
 	~CPublishKeywordList();
 
+	void AddKeyword(const wxString& keyword, CKnownFile *file);
 	void AddKeywords(CKnownFile* pFile);
+	void RemoveKeyword(const wxString& keyword, CKnownFile *file);
 	void RemoveKeywords(CKnownFile* pFile);
 	void RemoveAllKeywords();
 
@@ -202,20 +202,40 @@ CPublishKeyword* CPublishKeywordList::FindKeyword(const wxString& rstrKeyword, C
 	return NULL;
 }
 
+void CPublishKeywordList::AddKeyword(const wxString& keyword, CKnownFile *file)
+{
+	CPublishKeyword* pubKw = FindKeyword(keyword);
+	if (pubKw == NULL) {
+		pubKw = new CPublishKeyword(keyword);
+		m_lstKeywords.push_back(pubKw);
+		SetNextPublishTime(0);
+	}
+	pubKw->AddRef(file);
+}
+
 void CPublishKeywordList::AddKeywords(CKnownFile* pFile)
 {
 	const Kademlia::WordList& wordlist = pFile->GetKadKeywords();
 
 	Kademlia::WordList::const_iterator it;
 	for (it = wordlist.begin(); it != wordlist.end(); ++it) {
-		const wxString& strKeyword = *it;
-		CPublishKeyword* pPubKw = FindKeyword(strKeyword);
-		if (pPubKw == NULL) {
-			pPubKw = new CPublishKeyword(strKeyword);
-			m_lstKeywords.push_back(pPubKw);
+		AddKeyword(*it, pFile);
+	}
+}
+
+void CPublishKeywordList::RemoveKeyword(const wxString& keyword, CKnownFile *file)
+{
+	CKeyWordList::iterator pos;
+	CPublishKeyword* pubKw = FindKeyword(keyword, &pos);
+	if (pubKw != NULL) {
+		if (pubKw->RemoveRef(file) == 0) {
+			if (pos == m_posNextKeyword) {
+				++m_posNextKeyword;
+			}
+			m_lstKeywords.erase(pos);
+			delete pubKw;
 			SetNextPublishTime(0);
 		}
-		pPubKw->AddRef(pFile);
 	}
 }
 
@@ -224,19 +244,7 @@ void CPublishKeywordList::RemoveKeywords(CKnownFile* pFile)
 	const Kademlia::WordList& wordlist = pFile->GetKadKeywords();
 	Kademlia::WordList::const_iterator it;
 	for (it = wordlist.begin(); it != wordlist.end(); ++it) {
-		const wxString& strKeyword = *it;
-		CKeyWordList::iterator pos;
-		CPublishKeyword* pPubKw = FindKeyword(strKeyword, &pos);
-		if (pPubKw != NULL) {
-			if (pPubKw->RemoveRef(pFile) == 0) {
-				if (pos == m_posNextKeyword) {
-					++m_posNextKeyword;
-				}
-				m_lstKeywords.erase(pos);
-				delete pPubKw;
-				SetNextPublishTime(0);
-			}
-		}
+		RemoveKeyword(*it, pFile);
 	}
 }
 
@@ -321,8 +329,8 @@ void CSharedFileList::FindSharedFiles()
 		CPartFile* file = theApp->downloadqueue->GetFileByIndex( i );
 		
 		if ( file->GetStatus(true) == PS_READY ) {
-			printf("Adding file %s to shares\n",
-				(const char *)unicode2char(file->GetFullName().GetPrintable()));
+			AddLogLineNS(CFormat(_("Adding file %s to shares"))
+				% file->GetFullName().GetPrintable());
 			AddFile(file);
 		}
 	}
@@ -342,20 +350,22 @@ void CSharedFileList::FindSharedFiles()
 	sharedPaths.sort();
 	sharedPaths.unique();
 
+	filelist->PrepareIndex();
 	unsigned addedFiles = 0;
 	std::list<CPath>::iterator it = sharedPaths.begin();
 	for (; it != sharedPaths.end(); ++it) {
 		addedFiles += AddFilesFromDirectory(*it);
 	}
+	filelist->ReleaseIndex();
 	
 	if (addedFiles == 0) {
-		AddLogLineM(false, wxString::Format(wxPLURAL("Found %i known shared file", "Found %i known shared files", GetCount()), GetCount()));
+		AddLogLineN(CFormat(wxPLURAL("Found %i known shared file", "Found %i known shared files", GetCount())) % GetCount());
 
 		// Make sure the AICH-hashes are up to date.
 		CThreadScheduler::AddTask(new CAICHSyncTask());
 	} else {	
 		// New files, AICH thread will be run at the end of the hashing thread.
-		AddLogLineM(false, wxString::Format(wxPLURAL("Found %i known shared file, %i unknown", "Found %i known shared files, %i unknown", GetCount()), GetCount(), addedFiles));
+		AddLogLineN(CFormat(wxPLURAL("Found %i known shared file, %i unknown", "Found %i known shared files, %i unknown", GetCount())) % GetCount() % addedFiles);
 	}
 }
 
@@ -364,7 +374,7 @@ void CSharedFileList::FindSharedFiles()
 bool CheckDirectory(const wxString& a, const CPath& b)
 {
 	if (CPath(a).IsSameDir(b)) {
-		AddLogLineM(true, CFormat( _("ERROR: Attempted to share %s") ) % a);
+		AddLogLineC(CFormat( _("ERROR: Attempted to share %s") ) % a);
 
 		return true;
 	}
@@ -388,8 +398,8 @@ unsigned CSharedFileList::AddFilesFromDirectory(const CPath& directory)
 	}
 
 	if (!directory.DirExists()) {
-		printf("Shared directory not found, skipping: %s\n",
-			(const char *)unicode2char(directory.GetPrintable()));
+		AddLogLineNS(CFormat(_("Shared directory not found, skipping: %s"))
+			% directory.GetPrintable());
 		
 		return 0;
 	}
@@ -409,14 +419,14 @@ unsigned CSharedFileList::AddFilesFromDirectory(const CPath& directory)
 		CPath fullPath = directory.JoinPaths(fname);
 	
 		if (!fullPath.FileExists()) {
-			AddDebugLogLineM(false, logKnownFiles,
+			AddDebugLogLineN(logKnownFiles,
 				CFormat(wxT("Shared file does not exist (possibly a broken link): %s")) % fullPath);
 			
 			fname = SharedDir.GetNextFile();
 			continue;
 		}
 
-		AddDebugLogLineM(false, logKnownFiles,
+		AddDebugLogLineN(logKnownFiles,
 			CFormat(wxT("Found shared file: %s")) % fullPath);
 
 		time_t fdate = CPath::GetModificationTime(fullPath);
@@ -424,7 +434,7 @@ unsigned CSharedFileList::AddFilesFromDirectory(const CPath& directory)
 
 		// This will also catch files with too strict permissions.
 		if ((fdate == (time_t)-1) || (fsize == wxInvalidOffset)) {
-			AddDebugLogLineM(false, logKnownFiles,
+			AddDebugLogLineN(logKnownFiles,
 				CFormat(wxT("Failed to retrive modification time or size for '%s', skipping.")) % fullPath);
 			
 			fname = SharedDir.GetNextFile();
@@ -436,19 +446,19 @@ unsigned CSharedFileList::AddFilesFromDirectory(const CPath& directory)
 		if (toadd) {
 			knownFiles++;
 			if (AddFile(toadd)) {
-				AddDebugLogLineM(false, logKnownFiles,
+				AddDebugLogLineN(logKnownFiles,
 					CFormat(wxT("Added known file '%s' to shares"))
 						% fname);
 
 				toadd->SetFilePath(directory);
 			} else {
-				AddDebugLogLineM(false, logKnownFiles,
+				AddDebugLogLineN(logKnownFiles,
 					CFormat(wxT("File already shared, skipping: %s"))
 						% fname);
 			}
 		} else {
 			//not in knownfilelist - start adding thread to hash file
-			AddDebugLogLineM(false, logKnownFiles,
+			AddDebugLogLineN(logKnownFiles,
 				CFormat(wxT("Hashing new unknown shared file '%s'")) % fname);
 			
 			if (CThreadScheduler::AddTask(new CHashingTask(directory, fname))) {
@@ -460,8 +470,8 @@ unsigned CSharedFileList::AddFilesFromDirectory(const CPath& directory)
 	}
 
 	if ((addedFiles == 0) && (knownFiles == 0)) {
-		printf("No shareable files found in directory: %s\n",
-			(const char *)unicode2char(directory.GetPrintable()));
+		AddLogLineNS(CFormat(_("No shareable files found in directory: %s"))
+			% directory.GetPrintable());
 	}
 
 	return addedFiles;
@@ -525,7 +535,10 @@ void CSharedFileList::Reload()
 		
 		/* All Kad keywords must be removed */
 		m_keywords->RemoveAllKeywordReferences();
-		
+
+		/* Public identifiers must be erased as they might be invalid now */
+		m_PublicSharedDirNames.clear();
+
 		FindSharedFiles();
 		
 		/* And now the unreferenced keywords must be removed also */
@@ -572,13 +585,13 @@ short CSharedFileList::GetFilePriorityByID(const CMD4Hash& filehash)
 }
 
 
-void CSharedFileList::CopyFileList(std::vector<CKnownFile*>& out_list)
+void CSharedFileList::CopyFileList(std::vector<CKnownFile*>& out_list) const
 {
 	wxMutexLocker lock(list_mut);
 
 	out_list.reserve(m_Files_map.size());
 	for (
-		CKnownFileMap::iterator it = m_Files_map.begin();
+		CKnownFileMap::const_iterator it = m_Files_map.begin();
 		it != m_Files_map.end();
 		++it
 		) {
@@ -711,7 +724,7 @@ void CSharedFileList::SendListToServer(){
 	for ( ; (sorted_it != SortedList.end()) && (count < limit); ++sorted_it ) {
 		CKnownFile* file = *sorted_it;
 		if (!file->IsLargeFile() || (server && server->SupportsLargeFilesTCP())) {
-			CreateOfferedFilePacket(file, &files, server, NULL);
+			file->CreateOfferedFilePacket(&files, server, NULL);
 		}
 		file->SetPublishedED2K(true);	
 		++count;
@@ -732,153 +745,6 @@ void CSharedFileList::SendListToServer(){
 
 	theStats::AddUpOverheadServer(packet->GetPacketSize());
 	theApp->serverconnect->SendPacket(packet,true);
-}
-
-
-void CSharedFileList::CreateOfferedFilePacket(
-	CKnownFile *cur_file,
-	CMemFile *files,
-	CServer *pServer,
-	CUpDownClient *pClient) {
-		
-	// This function is used for offering files to the local server and for sending
-	// shared files to some other client. In each case we send our IP+Port only, if
-	// we have a HighID.
-
-	wxASSERT(!(pClient && pServer));
-		
-	cur_file->SetPublishedED2K(true);
-	files->WriteHash(cur_file->GetFileHash());
-
-	uint32 nClientID = 0;
-	uint16 nClientPort = 0;
-
-	if (pServer) {
-		if (pServer->GetTCPFlags() & SRV_TCPFLG_COMPRESSION) {
-			#define FILE_COMPLETE_ID		0xfbfbfbfb
-			#define FILE_COMPLETE_PORT	0xfbfb
-			#define FILE_INCOMPLETE_ID	0xfcfcfcfc
-			#define FILE_INCOMPLETE_PORT	0xfcfc
-			// complete   file: ip 251.251.251 (0xfbfbfbfb) port 0xfbfb
-			// incomplete file: op 252.252.252 (0xfcfcfcfc) port 0xfcfc
-			if (cur_file->GetStatus() == PS_COMPLETE) {
-				nClientID = FILE_COMPLETE_ID;
-				nClientPort = FILE_COMPLETE_PORT;
-			} else {
-				nClientID = FILE_INCOMPLETE_ID;
-				nClientPort = FILE_INCOMPLETE_PORT;
-			}
-		} else {
-			if (theApp->IsConnectedED2K() && !::IsLowID(theApp->GetED2KID())){
-				nClientID = theApp->GetID();
-				nClientPort = thePrefs::GetPort();
-			}
-		}
-	} else {
-		// Do not merge this with the above case - this one
-		// also checks Kad status.
-		if (theApp->IsConnected() && !theApp->IsFirewalled()) {
-			nClientID = theApp->GetID();
-			nClientPort = thePrefs::GetPort();
-		}		
-	}
-
-	files->WriteUInt32(nClientID);
-	files->WriteUInt16(nClientPort);
-	
-	TagPtrList tags;
-
-	// The printable filename is used because it's destined for another user.
-	tags.push_back(new CTagString(FT_FILENAME, cur_file->GetFileName().GetPrintable()));
-	
-	if (pClient && pClient->GetVBTTags()) {
-		tags.push_back(new CTagVarInt(FT_FILESIZE, cur_file->GetFileSize()));
-	} else {
-		if (!cur_file->IsLargeFile()){
-			tags.push_back(new CTagInt32(FT_FILESIZE, cur_file->GetFileSize()));
-		} else {
-			// Large file
-			// we send 2*32 bit tags to servers, but a real 64 bit tag to other clients.
-			if (pServer) {
-				if (!pServer->SupportsLargeFilesTCP()){
-					wxASSERT( false );
-					tags.push_back(new CTagInt32(FT_FILESIZE, 0));
-				}else {
-					tags.push_back(new CTagInt32(FT_FILESIZE, (uint32)cur_file->GetFileSize()));
-					tags.push_back(new CTagInt32(FT_FILESIZE_HI, (uint32)(cur_file->GetFileSize() >> 32)));
-				}
-			} else {
-				if (!pClient->SupportsLargeFiles()) {
-					wxASSERT( false );
-					tags.push_back(new CTagInt32(FT_FILESIZE, 0));
-				} else {
-					tags.push_back(new CTagInt64(FT_FILESIZE, cur_file->GetFileSize()));
-				}
-			}		
-		}
-	}
-	
-	if (cur_file->GetFileRating()) {
-		tags.push_back(new CTagVarInt(FT_FILERATING, cur_file->GetFileRating(), (pClient && pClient->GetVBTTags()) ? 0 : 32));
-	}
-
-	// NOTE: Archives and CD-Images are published+searched with file type "Pro"
-	bool bAddedFileType = false;
-	if (pServer && (pServer->GetTCPFlags() & SRV_TCPFLG_TYPETAGINTEGER)) {
-		// Send integer file type tags to newer servers
-		EED2KFileType eFileType = GetED2KFileTypeSearchID(GetED2KFileTypeID(cur_file->GetFileName()));
-		if (eFileType >= ED2KFT_AUDIO && eFileType <= ED2KFT_CDIMAGE) {
-			tags.push_back(new CTagInt32(FT_FILETYPE, eFileType));
-			bAddedFileType = true;
-		}
-	}
-	if (!bAddedFileType) {
-		// Send string file type tags to:
-		//	- newer servers, in case there is no integer type available for the file type (e.g. emulecollection)
-		//	- older servers
-		//	- all clients
-		wxString strED2KFileType(GetED2KFileTypeSearchTerm(GetED2KFileTypeID(cur_file->GetFileName())));
-		if (!strED2KFileType.IsEmpty()) {
-			tags.push_back(new CTagString(FT_FILETYPE, strED2KFileType));
-		}
-	}
-
-	// There, we could add MetaData info, if we ever get to have that.
-	
-	EUtf8Str eStrEncode;
-
-	bool unicode_support = 
-		// eservers that support UNICODE.
-		(pServer && (pServer->GetUnicodeSupport()))
-		||
-		// clients that support unicode
-		(pClient && pClient->GetUnicodeSupport());
-	eStrEncode = unicode_support ? utf8strRaw : utf8strNone;
-	
-	files->WriteUInt32(tags.size());
-
-	// Sadly, eMule doesn't use a MISCOPTIONS flag on hello packet for this, so we
-	// have to identify the support for new tags by version.
-	bool new_ed2k = 	
-		// eMule client > 0.42f
-		(pClient && pClient->IsEmuleClient() && pClient->GetVersion()  >= MAKE_CLIENT_VERSION(0,42,7))
-		||
-		// aMule >= 2.0.0rc8. Sadly, there's no way to check the rcN number, so I checked
-		// the rc8 changelog. On rc8 OSInfo was introduced, so...
-		(pClient && pClient->GetClientSoft() == SO_AMULE && !pClient->GetClientOSInfo().IsEmpty())
-		||
-		// eservers use a flag for this, at least.
-		(pServer && (pServer->GetTCPFlags() & SRV_TCPFLG_NEWTAGS));
-	
-	for (TagPtrList::iterator it = tags.begin(); it != tags.end(); ++it ) {
-		CTag* pTag = *it;
-		if (new_ed2k) {
-			pTag->WriteNewEd2kTag(files, eStrEncode);
-		} else {
-			pTag->WriteTagToFile(files, eStrEncode);
-		}
-		delete pTag;		
-	}
 }
 
 
@@ -1036,27 +902,160 @@ bool CSharedFileList::RenameFile(CKnownFile* file, const CPath& newName)
 			return true;
 		}
 	} else {
-//#warning Renaming of completed files causes problems on kad. Enable when reviewed.
-#if 0
-		wxString oldPath = JoinPaths(file->GetFilePath(), file->GetFileName());
-		wxString newPath = JoinPaths(file->GetFilePath(), newName);
+		CPath oldPath = file->GetFilePath().JoinPaths(file->GetFileName());
+		CPath newPath = file->GetFilePath().JoinPaths(newName);
 
-		if (UTF8_MoveFile(oldPath, newPath)) {
-			RemoveKeywords(file);
+		if (CPath::RenameFile(oldPath, newPath)) {
+			// Must create a copy of the word list because:
+			// 1) it will be reset on SetFileName()
+			// 2) we will want to edit it
+			Kademlia::WordList oldwords = file->GetKadKeywords();
 			file->SetFileName(newName);
-			AddKeywords(file);
 			theApp->knownfiles->Save();
 			UpdateItem(file);
 			RepublishFile(file);
+
+			const Kademlia::WordList& newwords = file->GetKadKeywords();
+			Kademlia::WordList::iterator itold;
+			Kademlia::WordList::const_iterator itnew;
+			// compare keywords in old and new names
+			for (itnew = newwords.begin(); itnew != newwords.end(); ++itnew) {
+				for (itold = oldwords.begin(); itold != oldwords.end(); ++itold) {
+					if (*itold == *itnew) {
+						break;
+					}
+				}
+				if (itold != oldwords.end()) {
+					// Remove keyword from old name which also exist in new name
+					oldwords.erase(itold);
+				} else {
+					// This is a new keyword not present in the old name
+					m_keywords->AddKeyword(*itnew, file);
+				}
+			}
+			// Remove all remaining old keywords not present in the new name
+			for (itold = oldwords.begin(); itold != oldwords.end(); ++itold) {
+				m_keywords->RemoveKeyword(*itold, file);
+			}
 
 			Notify_DownloadCtrlUpdateItem(file);
 			Notify_SharedFilesUpdateItem(file);
 			
 			return true;
 		}
-#endif
 	}
 	
+	return false;
+}
+
+
+const CPath* CSharedFileList::GetDirForPublicSharedDirName(const wxString& strSharedDir) const
+{
+	StringPathMap::const_iterator it = m_PublicSharedDirNames.find(strSharedDir);
+
+	if (it != m_PublicSharedDirNames.end()) {
+		return &(it->second);
+	} else {
+		return NULL;
+	}
+}
+
+
+wxString CSharedFileList::GetPublicSharedDirName(const CPath& dir)
+{
+	// safety check: is the directory supposed to be shared after all?
+	if (!IsShared(dir))	{
+		wxFAIL;
+		return wxT("");
+	}
+	// check if the public name for the directory is cached in our Map
+	StringPathMap::const_iterator it;
+	for (it = m_PublicSharedDirNames.begin(); it != m_PublicSharedDirNames.end(); ++it) {
+		if (it->second.IsSameDir(dir)) {
+			// public name for directory was determined earlier
+			return it->first;
+		}
+	}
+
+	// we store the path separator (forward or back slash) for quick access
+	wxChar cPathSepa = wxFileName::GetPathSeparator();
+
+	// determine and cache the public name for "dir" ...
+	// We need to use the 'raw' filename, so the receiving client can recognize it.
+	wxString strDirectoryTmp = dir.GetRaw();
+	if (strDirectoryTmp.EndsWith(&cPathSepa)) {
+		strDirectoryTmp.RemoveLast();
+	}
+	
+	wxString strPublicName;
+	int iPos;
+	// check all the subdirectories in the path for being shared
+	// the public name will consist of these concatenated
+	while ((iPos = strDirectoryTmp.Find( cPathSepa, true )) != wxNOT_FOUND)	{
+		strPublicName = strDirectoryTmp.Right(strDirectoryTmp.Length() - iPos) + strPublicName;
+		strDirectoryTmp.Truncate(iPos);
+		if (!IsShared(CPath(strDirectoryTmp)))
+			break;
+	}
+	if (!strPublicName.IsEmpty()) {
+		// remove first path separator ???
+		wxASSERT( strPublicName.GetChar(0) == cPathSepa );
+		strPublicName = strPublicName.Right(strPublicName.Length() - 1);
+	} else {
+		// must be a rootdirectory on Windos
+		wxASSERT( strDirectoryTmp.Length() == 2 );
+		strPublicName = strDirectoryTmp;
+	}
+	// we have the name, make sure it is unique by appending an index if necessary
+	if (m_PublicSharedDirNames.find(strPublicName) != m_PublicSharedDirNames.end())	{
+		wxString strUniquePublicName;
+		for (iPos = 2; ; ++iPos) {
+			strUniquePublicName = CFormat(wxT("%s_%i")) % strPublicName % iPos;
+
+			if (m_PublicSharedDirNames.find(strUniquePublicName) == m_PublicSharedDirNames.end()) {
+				AddDebugLogLineN(logClient, CFormat(wxT("Using public name '%s' for directory '%s'"))
+				                            % strUniquePublicName
+				                            % dir.GetPrintable());
+				m_PublicSharedDirNames.insert(std::pair<wxString, CPath> (strUniquePublicName, dir));
+				return strUniquePublicName;
+			}
+			// This is from eMule and it checks if there are more than 200 shared folders with the same public name.
+			// The condition can be true if many shared subfolders with the same name exist in folders that are not
+			// shared. So they get the names of each shared subfolders concatenated. But those might all be the same!
+			// It's here for safety reasons so we should not run out of memory.
+			else if (iPos > 200)  // Only 200 identical names are indexed.
+			{
+				wxASSERT( false );
+				return wxT("");
+			}
+		}
+	} else {
+		AddDebugLogLineN(logClient, CFormat(wxT("Using public name '%s' for directory '%s'")) % strPublicName % dir.GetPrintable());
+		m_PublicSharedDirNames.insert(std::pair<wxString, CPath> (strPublicName, dir));
+		return strPublicName;
+	}
+}
+
+
+bool CSharedFileList::IsShared(const CPath& path) const
+{ 
+	if( path.IsDir(CPath::exists) ) {
+		// check if it's a shared folder
+		const unsigned folderCount = theApp->glob_prefs->shareddir_list.size();
+		for (unsigned i = 0; i < folderCount; ++i) {
+			if (path.IsSameDir(theApp->glob_prefs->shareddir_list[i])) {
+				return true;
+			}
+		}
+	
+		// check if it's one of the categories folders (category 0 = incoming)
+		for (unsigned i = 0; i < theApp->glob_prefs->GetCatCount(); ++i) {
+			if (path.IsSameDir(theApp->glob_prefs->GetCategory(i)->path)) {
+				return true;
+			}
+		}
+	}
+
 	return false;
 }
 

@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2008-2009 Dévai Tamás ( gonosztopi@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2008-2011 Dévai Tamás ( gonosztopi@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -55,9 +55,7 @@ CKeyEntry::GlobalPublishIPMap	CKeyEntry::s_globalPublishIPs;
 ////// CEntry
 CEntry::~CEntry()
 {
-	for (TagPtrList::const_iterator it = m_taglist.begin(); it != m_taglist.end(); ++it) {
-		delete *it;
-	}
+	deleteTagPtrListEntries(&m_taglist);
 }
 
 CEntry* CEntry::Copy() const
@@ -78,13 +76,6 @@ CEntry* CEntry::Copy() const
 		entry->m_taglist.push_back((*it)->CloneTag());
 	}
 	return entry;
-}
-
-uint64_t CEntry::GetIntTagValue(const wxString& tagname, bool includeVirtualTags) const
-{
-	uint64_t result = 0;
-	GetIntTagValue(tagname, result, includeVirtualTags);
-	return result;
 }
 
 bool CEntry::GetIntTagValue(const wxString& tagname, uint64_t& value, bool includeVirtualTags) const
@@ -325,11 +316,11 @@ bool CKeyEntry::SearchTermsMatch(const SSearchTerm* searchTerm) const
 	return false;
 }
 
-void CKeyEntry::AdjustGlobalPublishTracking(uint32_t ip, bool increase, const wxString& dbgReason)
+void CKeyEntry::AdjustGlobalPublishTracking(uint32_t ip, bool increase, const wxString& DEBUG_ONLY(dbgReason))
 {
 	uint32_t count = 0;
 	bool found = false;
-	GlobalPublishIPMap::const_iterator it = s_globalPublishIPs.find(ip & 0xFFFFFF00 /* /24 netmask, take care of endian if needed*/);
+	GlobalPublishIPMap::const_iterator it = s_globalPublishIPs.find(ip & 0xFFFFFF00 /* /24 netmask, take care of endian if needed */ );
 	if (it != s_globalPublishIPs.end()) {
 		count = it->second;
 		found = true;
@@ -341,14 +332,19 @@ void CKeyEntry::AdjustGlobalPublishTracking(uint32_t ip, bool increase, const wx
 		count--;
 	}
 
-	if (found || increase) {
+	if (count > 0) {
 		s_globalPublishIPs[ip & 0xFFFFFF00] = count;
+	} else if (found) {
+		s_globalPublishIPs.erase(ip & 0xFFFFFF00);
 	} else {
 		wxFAIL;
 	}
-	//LOGTODO
-	//if (!dbgReason.IsEmpty())
-	//	AddDebugLogLineM(false, logKadEntryTracking, (increase ? wxT("Adding ") : wxT("Removing ")) + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(ip & 0xFFFFFF00)) + wxT(" (") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(ip)) + wxT(") - (") + dbgReason + wxString::Format(wxT("), new count %u"),count));
+#ifdef __DEBUG__
+	if (!dbgReason.IsEmpty()) {
+		AddDebugLogLineN(logKadEntryTracking, CFormat(wxT("%s %s (%s) - (%s), new count %u"))
+			% (increase ? wxT("Adding") : wxT("Removing")) % KadIPToString(ip & 0xFFFFFF00) % KadIPToString(ip) % dbgReason % count);
+	}
+#endif
 }
 
 void CKeyEntry::MergeIPsAndFilenames(CKeyEntry* fromEntry)
@@ -373,8 +369,6 @@ void CKeyEntry::MergeIPsAndFilenames(CKeyEntry* fromEntry)
 		}
 		// update the global track map below
 	} else {
-		delete m_publishingIPs; // should be always NULL, already ASSERTed above if not
-
 		// merge the tracked IPs, add this one if not already on the list
 		m_publishingIPs = fromEntry->m_publishingIPs;
 		fromEntry->m_publishingIPs = NULL;	
@@ -383,7 +377,7 @@ void CKeyEntry::MergeIPsAndFilenames(CKeyEntry* fromEntry)
 			if (it->m_ip == m_uIP) {
 				refresh = true;
 				if ((time(NULL) - it->m_lastPublish) < (KADEMLIAREPUBLISHTIMES - HR2S(1))) {
-					//AddDebugLogLineM(false, logKadEntryTracking, wxT("FastRefresh publish, ip: ") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(m_uIP)));
+					AddDebugLogLineN(logKadEntryTracking, wxT("FastRefresh publish, ip: ") + KadIPToString(m_uIP));
 					fastRefresh = true; // refreshed faster than expected, will not count into filenamepopularity index
 				}
 				it->m_lastPublish = time(NULL);
@@ -441,9 +435,8 @@ void CKeyEntry::MergeIPsAndFilenames(CKeyEntry* fromEntry)
 		// since we added a new publisher, we want to (re)calculate the trust value for this entry		
 		ReCalculateTrustValue();
 	}
-// #ifdef __DEBUG__
-// 	AddDebugLogLineM(false, logKadEntryTracking, wxString(wxT("Indexed Keyword, Refresh: ")) + (refresh ? wxT("Yes") : wxT("No")) + wxT(", Current Publisher: ") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(m_uIP)) + wxString::Format(wxT(", Total Publishers: %u, Total different Names: %u, TrustValue: %.2f, file: "), m_publishingIPs->size(), m_filenames.size(), m_trustValue) + m_uSourceID.ToHexString());
-// #endif
+	AddDebugLogLineN(logKadEntryTracking, CFormat(wxT("Indexed Keyword, Refresh: %s, Current Publisher: %s, Total Publishers: %u, Total different Names: %u, TrustValue: %.2f, file: %s"))
+		% (refresh ? wxT("Yes") : wxT("No")) % KadIPToString(m_uIP) % m_publishingIPs->size() % m_filenames.size() % m_trustValue % m_uSourceID.ToHexString());
 }
 
 void CKeyEntry::ReCalculateTrustValue()
@@ -478,7 +471,7 @@ void CKeyEntry::ReCalculateTrustValue()
 		if (count > 0) {
 			m_trustValue += PUBLISHPOINTSSPERSUBNET / count;
 		} else {
-			AddDebugLogLineM(false, logKadEntryTracking, wxT("Inconsistency in RecalcualteTrustValue()"));
+			AddDebugLogLineN(logKadEntryTracking, wxT("Inconsistency in RecalcualteTrustValue()"));
 			wxFAIL;
 		}
 	}
@@ -549,14 +542,18 @@ void CKeyEntry::ReadPublishTrackingDataFromFile(CFileDataIO* data)
 	wxASSERT(m_publishingIPs == NULL);
 	m_publishingIPs = new PublishingIPList();
 	uint32_t ipCount = data->ReadUInt32();
+#ifdef __WXDEBUG__
 	uint32_t dbgLastTime = 0;
+#endif
 	for (uint32_t i = 0; i < ipCount; i++) {
 		sPublishingIP toAdd;
 		toAdd.m_ip = data->ReadUInt32();
 		wxASSERT(toAdd.m_ip != 0);
 		toAdd.m_lastPublish = data->ReadUInt32();
+#ifdef __WXDEBUG__
 		wxASSERT(dbgLastTime <= (uint32_t)toAdd.m_lastPublish); // should always be sorted oldest first
 		dbgLastTime = toAdd.m_lastPublish;
+#endif
 
 		AdjustGlobalPublishTracking(toAdd.m_ip, true, wxEmptyString);
 
@@ -565,7 +562,8 @@ void CKeyEntry::ReadPublishTrackingDataFromFile(CFileDataIO* data)
 	ReCalculateTrustValue();
 // #ifdef __DEBUG__
 // 	if (GetTrustValue() < 1.0) {
-// 		AddDebugLogLineM(false, logKadEntryTracking, wxString::Format(wxT("Loaded %u different names, %u different publishIPs (trustvalue = %.2f) for file "), nameCount, ipCount, GetTrustValue()) + m_uSourceID.ToHexString());
+// 		AddDebugLogLineN(logKadEntryTracking,CFormat(wxT("Loaded %u different names, %u different publishIPs (trustvalue = %.2f) for file %s"))
+// 			% nameCount % ipCount % GetTrustValue() % m_uSourceID.ToHexString());
 // 	}
 // #endif
 }

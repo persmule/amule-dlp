@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 // 
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -28,7 +28,7 @@
 #include "muuli_wdr.h"		// Needed for addFriendDlg
 #include "amule.h"		// Needed for theApp
 #include "amuleDlg.h"	// Needed for amuleDlg
-#include "ChatWnd.h"
+#include "FriendList.h"
 #include "NetworkFunctions.h"
 #include "OtherFunctions.h"
 #include "MD4Hash.h"
@@ -73,7 +73,7 @@ void CAddFriend::OnAddBtn(wxCommandEvent& WXUNUSED(evt))
 		name = fullip;
 	}
 
-	theApp->amuledlg->m_chatwnd->AddFriend( userhash,name, ip, port);
+	theApp->friendlist->AddFriend(userhash, ip, port, name);
 	
 	EndModal(true); // Friend added
 }

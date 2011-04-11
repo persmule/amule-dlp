@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -62,14 +62,15 @@
 #include <ec/cpp/ECFileConfig.h>	// Needed for CECFileConfig
 #include <common/MD5Sum.h>
 
+#ifdef _MSC_VER  // silly warnings about deprecated functions
+#pragma warning(disable:4996)
+#endif
+
 //-------------------------------------------------------------------
 
 CCommandTree::~CCommandTree()
 {
-	for (CmdPos_t it = m_subcommands.begin(); it != m_subcommands.end(); ++it) {
-		delete *it;
-	}
-	m_subcommands.clear();
+	DeleteContents(m_subcommands);
 }
 
 
@@ -201,15 +202,19 @@ CaMuleExternalConnector::CaMuleExternalConnector()
 	  m_ECClient(NULL),
 	  m_InputLine(NULL),
 	  m_NeedsConfigSave(false),
-	  m_locale(NULL)
+	  m_locale(NULL),
+	  m_strFullVersion(NULL),
+	  m_strOSDescription(NULL)
 {
-	SetAppName(wxT("aMule"));
+	SetAppName(wxT("aMule"));	// Do not change!
 }
 
 CaMuleExternalConnector::~CaMuleExternalConnector()
 {
 	delete m_configFile;
 	delete m_locale;
+	free(m_strFullVersion);
+	free(m_strOSDescription);
 }
 
 void CaMuleExternalConnector::OnInitCommandSet()
@@ -312,18 +317,17 @@ void CaMuleExternalConnector::GetCommand(const wxString &prompt, char* buffer, s
 		m_InputLine = text;
 #else
 		Show(prompt + wxT("$ "));
-		fflush(stdin);
-		fgets(buffer, buffer_size, stdin);
-		const char *text = buffer;
+		const char *text = fgets(buffer, buffer_size, stdin);	// == buffer if ok, NULL if eof
 #endif /* HAVE_LIBREADLINE */
 		if ( text ) {
 			size_t len = strlen(text);
-			if (len > buffer_size - 2) {
-				len = buffer_size - 2;
+			if (len > buffer_size - 1) {
+				len = buffer_size - 1;
 			}
-			strncpy(buffer, text, len);
-			buffer[len] = '\n';
-			buffer[len + 1] = 0;
+			if (buffer != text) {
+				strncpy(buffer, text, len);
+			}
+			buffer[len] = 0;
 		} else {
 			strncpy(buffer, "quit", buffer_size);
 		}
@@ -331,12 +335,12 @@ void CaMuleExternalConnector::GetCommand(const wxString &prompt, char* buffer, s
 
 void CaMuleExternalConnector::TextShell(const wxString &prompt)
 {
-	char buffer[256];
+	char buffer[2048];
 	wxString buf;
 
 	bool The_End = false;
 	do {
-		GetCommand(prompt, buffer, 256);
+		GetCommand(prompt, buffer, sizeof buffer);
 		buf = char2unicode(buffer);
 		The_End = Parse_Command(buf);
 	} while ((!The_End) && (m_ECClient->IsSocketConnected()));
@@ -349,19 +353,10 @@ void CaMuleExternalConnector::ConnectAndRun(const wxString &ProgName, const wxSt
 		return;
 	}
 
-	wxString appName =
-		// Find out Application Name
-		#ifdef WEBSERVERDIR
-			wxT("amuleweb")
-		#else
-			wxT("amulecmd")
-		#endif
-	;
-
 	#ifdef SVNDATE
-		Show(CFormat(_("This is %s %s %s\n")) % appName % wxT(VERSION) % wxT(SVNDATE));
+		Show(CFormat(_("This is %s %s %s\n")) % wxString::FromAscii(m_appname) % wxT(VERSION) % wxT(SVNDATE));
 	#else
-		Show(CFormat(_("This is %s %s\n")) % appName % wxT(VERSION));
+		Show(CFormat(_("This is %s %s\n")) % wxString::FromAscii(m_appname) % wxT(VERSION));
 	#endif
 
 	// HostName, Port and Password
@@ -394,6 +389,7 @@ void CaMuleExternalConnector::ConnectAndRun(const wxString &ProgName, const wxSt
 		// Create the socket
 		Show(_("\nCreating client...\n"));
 		m_ECClient = new CRemoteConnect(NULL);
+		m_ECClient->SetCapabilities(m_ZLIB, true, false);	// ZLIB, UTF8 numbers, notification
 
 		// ConnectToCore is blocking since m_ECClient was initialized with NULL
 		if (!m_ECClient->ConnectToCore(m_host, m_port, wxT("foobar"), m_password.Encode(), ProgName, ProgVersion)) {
@@ -425,8 +421,10 @@ void CaMuleExternalConnector::ConnectAndRun(const wxString &ProgName, const wxSt
 	}
 }
 
-void CaMuleExternalConnector::OnInitCmdLine(wxCmdLineParser& parser)
+void CaMuleExternalConnector::OnInitCmdLine(wxCmdLineParser& parser, const char* appname)
 {
+	m_appname = appname;
+
 	parser.AddSwitch(wxEmptyString, wxT("help"),
 		_("Show this help text."),
 		wxCMD_LINE_PARAM_OPTIONAL);
@@ -465,15 +463,7 @@ void CaMuleExternalConnector::OnInitCmdLine(wxCmdLineParser& parser)
 bool CaMuleExternalConnector::OnCmdLineParsed(wxCmdLineParser& parser)
 {
 	if (parser.Found(wxT("version"))) {
-		const char *appName =
-			// Find out Application Name
-			#ifdef WEBSERVERDIR
-				"amuleweb"
-			#else
-				"amulecmd"
-			#endif
-		;
-		printf("%s %s\n", appName, (const char *)unicode2char(GetMuleVersion()));
+		printf("%s %s\n", m_appname, (const char *)unicode2char(GetMuleVersion()));
 		return false;
 	}
 
@@ -553,6 +543,7 @@ void CaMuleExternalConnector::LoadConfigFile()
 		m_host = m_configFile->Read(wxT("/EC/Host"), wxEmptyString);
 		m_port = m_configFile->Read(wxT("/EC/Port"), 4712l);
 		m_configFile->ReadHash(wxT("/EC/Password"), &m_password);
+		m_ZLIB = m_configFile->Read(wxT("/EC/ZLIB"), 1l) != 0;
 	}
 }
 
@@ -574,6 +565,19 @@ void CaMuleExternalConnector::SaveConfigFile()
 
 bool CaMuleExternalConnector::OnInit()
 {
+#ifndef __WXMSW__
+	#if wxUSE_ON_FATAL_EXCEPTION
+		// catch fatal exceptions
+		wxHandleFatalExceptions(true);
+	#endif
+#endif
+
+	m_strFullVersion = strdup((const char *)unicode2char(GetMuleVersion()));
+	m_strOSDescription = strdup((const char *)unicode2char(wxGetOsDescription()));
+
+	// Handle uncaught exceptions
+	InstallMuleExceptionHandler();
+
 	bool retval = wxApp::OnInit();
 	OnInitCommandSet();
 	InitCustomLanguages();
@@ -595,7 +599,7 @@ wxString CaMuleExternalConnector::SetLocale(const wxString& language)
 	return m_locale == NULL ? wxString() : m_locale->GetCanonicalName();
 }
 
-#if !wxUSE_GUI && defined(__WXMAC__)
+#if !wxUSE_GUI && defined(__WXMAC__) && !wxCHECK_VERSION(2, 9, 0)
 
 #include <wx/apptrait.h> // Do_not_auto_remove
 #include <wx/stdpaths.h> // Do_not_auto_remove
@@ -619,5 +623,46 @@ wxAppTraits* CaMuleExternalConnector::CreateTraits()
 	return new CaMuleExternalConnectorTraits;
 }
 
+#endif
+
+#if wxUSE_ON_FATAL_EXCEPTION
+// Gracefully handle fatal exceptions and print backtrace if possible
+void CaMuleExternalConnector::OnFatalException()
+{
+	/* Print the backtrace */
+	fprintf(stderr, "\n--------------------------------------------------------------------------------\n");	
+	fprintf(stderr, "A fatal error has occurred and %s has crashed.\n", m_appname);
+	fprintf(stderr, "Please assist us in fixing this problem by posting the backtrace below in our\n");
+	fprintf(stderr, "'aMule Crashes' forum and include as much information as possible regarding the\n");
+	fprintf(stderr, "circumstances of this crash. The forum is located here:\n");
+	fprintf(stderr, "    http://forum.amule.org/index.php?board=67.0\n");
+	fprintf(stderr, "If possible, please try to generate a real backtrace of this crash:\n");
+	fprintf(stderr, "    http://wiki.amule.org/index.php/Backtraces\n\n");
+	fprintf(stderr, "----------------------------=| BACKTRACE FOLLOWS: |=----------------------------\n");
+	fprintf(stderr, "Current version is: %s %s\n", m_appname, m_strFullVersion);
+	fprintf(stderr, "Running on: %s\n\n", m_strOSDescription);
+	
+	print_backtrace(1); // 1 == skip this function.
+	
+	fprintf(stderr, "\n--------------------------------------------------------------------------------\n");	
+}
+#endif
+
+#ifdef __WXDEBUG__
+void CaMuleExternalConnector::OnAssertFailure(const wxChar *file, int line, const wxChar *func, const wxChar *cond, const wxChar *msg)
+{
+#if !defined wxUSE_STACKWALKER || !wxUSE_STACKWALKER
+	wxString errmsg = CFormat( wxT("%s:%s:%d: Assertion '%s' failed. %s") ) % file % func % line % cond % ( msg ? msg : wxT("") );
+
+	fprintf(stderr, "Assertion failed: %s\n", (const char*)unicode2char(errmsg));
+
+	// Skip the function-calls directly related to the assert call.
+	fprintf(stderr, "\nBacktrace follows:\n");
+	print_backtrace(3);
+	fprintf(stderr, "\n");
+#else
+	wxApp::OnAssertFailure(file, line, func, cond, msg);
+#endif
+}
 #endif
 // File_checked_for_headers

@@ -1,10 +1,10 @@
 //
 // This file is part of aMule Project
 //
-// Copyright (c) 2004-2009 Angel Vidal ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Project ( http://www.amule-project.net )
-// Copyright (C)2003 Barry Dunne (http://www.emule-project.net)
-// Copyright (C)2007-2008 Merkur ( strEmail.Format("%s@%s", "devteam", "emule-project.net") / http://www.emule-project.net )
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne ( http://www.emule-project.net )
+// Copyright (C)2007-2011 Merkur ( strEmail.Format("%s@%s", "devteam", "emule-project.net") / http://www.emule-project.net )
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@
 
 // This work is based on the java implementation of the Kademlia protocol.
 // Kademlia: Peer-to-peer routing based on the XOR metric
-// Copyright (C) 2002  Petar Maymounkov [petar@post.harvard.edu]
+// Copyright (c) 2002-2011  Petar Maymounkov ( petar@post.harvard.edu )
 // http://kademlia.scs.cs.nyu.edu
 
 // Note To Mods //
@@ -167,20 +167,20 @@ void CRoutingZone::ReadFile(const wxString& specialNodesdat)
 						numContacts = file.ReadUInt32();
 					}
 				}
+			} else {
+				// Don't read version 0 nodes.dat files, because they can't tell the kad version of the contacts stored.
+				AddLogLineC(_("Failed to read nodes.dat file - too old. This version (0) is not supported anymore."));
+				numContacts = 0;
 			}
+			DEBUG_ONLY( unsigned kad1Count = 0; )
 			if (numContacts != 0 && numContacts * 25 <= (file.GetLength() - file.GetPosition())) {
 				for (uint32_t i = 0; i < numContacts; i++) {
 					CUInt128 id = file.ReadUInt128();
 					uint32_t ip = file.ReadUInt32();
 					uint16_t udpPort = file.ReadUInt16();
 					uint16_t tcpPort = file.ReadUInt16();
-					uint8_t type = 0;
 					uint8_t contactVersion = 0;
-					if (fileVersion >= 1) {
-						contactVersion = file.ReadUInt8();
-					} else {
-						type = file.ReadUInt8();
-					}
+					contactVersion = file.ReadUInt8();
 					CKadUDPKey kadUDPKey;
 					bool verified = false;
 					if (fileVersion >= 2) {
@@ -191,31 +191,38 @@ void CRoutingZone::ReadFile(const wxString& specialNodesdat)
 						}
 					}
 					// IP appears valid
-					if (type < 4) {
+					if (contactVersion > 1) {
 						if(IsGoodIPPort(wxUINT32_SWAP_ALWAYS(ip),udpPort)) {
 							if (!theApp->ipfilter->IsFiltered(wxUINT32_SWAP_ALWAYS(ip)) &&
 							    !(udpPort == 53 && contactVersion <= 5 /*No DNS Port without encryption*/)) {
 								// This was not a dead contact, inc counter if add was successful
-								if (AddUnfiltered(id, ip, udpPort, tcpPort, contactVersion, kadUDPKey, verified, false, true, false)) {
+								if (AddUnfiltered(id, ip, udpPort, tcpPort, contactVersion, kadUDPKey, verified, false, false)) {
 									validContacts++;
 								}
 							}
 						}
+					} else {
+						DEBUG_ONLY( kad1Count++; )
 					}
 				}
 			}
 			file.Close();
-			AddLogLineM(false, wxString::Format(wxPLURAL("Read %u Kad contact", "Read %u Kad contacts", validContacts), validContacts));
+			AddLogLineN(CFormat(wxPLURAL("Read %u Kad contact", "Read %u Kad contacts", validContacts)) % validContacts);
+#ifdef __DEBUG__
+			if (kad1Count > 0) {
+				AddDebugLogLineN(logKadRouting, CFormat(wxT("Ignored %u kad1 %s in nodes.dat file.")) % kad1Count % (kad1Count > 1 ? wxT("contacts"): wxT("contact")));
+			}
+#endif
 			if (!doHaveVerifiedContacts) {
-				AddDebugLogLineM(false, logKadRouting, wxT("No verified contacts found in nodes.dat - might be an old file version. Setting all contacts verified for this time to speed up Kad bootstrapping."));
+				AddDebugLogLineN(logKadRouting, wxT("No verified contacts found in nodes.dat - might be an old file version. Setting all contacts verified for this time to speed up Kad bootstrapping."));
 				SetAllContactsVerified();
 			}
 		}
-		if (numContacts == 0) {
-			AddDebugLogLineM(false, logKadRouting, wxT("Error while reading Kad contacts - 0 entries"));
+		if (validContacts == 0) {
+			AddLogLineC(_("No contacts found, please bootstrap, or download a nodes.dat file."));
 		}
-	} catch (const CSafeIOException& e) {
-		AddDebugLogLineM(false, logKadRouting, wxT("IO error in CRoutingZone::readFile: ") + e.what());
+	} catch (const CSafeIOException& DEBUG_ONLY(e)) {
+		AddDebugLogLineN(logKadRouting, wxT("IO error in CRoutingZone::readFile: ") + e.what());
 	}
 }
 
@@ -275,8 +282,11 @@ void CRoutingZone::ReadBootstrapNodesDat(CFileDataIO& file)
 			}
 			numContacts--;
 		}
-		AddLogLineM(false, wxString::Format(wxPLURAL("Read %u Kad contact", "Read %u Kad contacts", CKademlia::s_bootstrapList.size()), CKademlia::s_bootstrapList.size()));
-		AddDebugLogLineM(false, logKadRouting, wxString::Format(wxT("Loaded Bootstrap nodes.dat, selected %u out of %u valid contacts"), CKademlia::s_bootstrapList.size(), validContacts));
+		AddLogLineN(CFormat(wxPLURAL("Read %u Kad contact", "Read %u Kad contacts", CKademlia::s_bootstrapList.size())) % CKademlia::s_bootstrapList.size());
+		AddDebugLogLineN(logKadRouting, CFormat(wxT("Loaded Bootstrap nodes.dat, selected %u out of %u valid contacts")) % CKademlia::s_bootstrapList.size() % validContacts);
+	}
+	if (CKademlia::s_bootstrapList.size() == 0) {
+		AddLogLineC(_("No contacts found, please bootstrap, or download a nodes.dat file."));
 	}
 }
 
@@ -284,7 +294,7 @@ void CRoutingZone::WriteFile()
 {
 	// don't overwrite a bootstrap nodes.dat with an empty one, if we didn't finish probing
 	if (!CKademlia::s_bootstrapList.empty() && GetNumContacts() == 0) {
-		AddDebugLogLineM(false, logKadRouting, wxT("Skipped storing nodes.dat, because we have an unfinished bootstrap of the nodes.dat version and no contacts in our routing table"));
+		AddDebugLogLineN(logKadRouting, wxT("Skipped storing nodes.dat, because we have an unfinished bootstrap of the nodes.dat version and no contacts in our routing table"));
 		return;
 	}
 
@@ -294,7 +304,7 @@ void CRoutingZone::WriteFile()
 	ContactList::size_type numContacts = contacts.size();
 	numContacts = std::min<ContactList::size_type>(numContacts, CONTACT_FILE_LIMIT); // safety precaution, should not be above
 	if (numContacts < 25) {
-		AddLogLineM(false, wxString::Format(wxPLURAL("Only %d Kad contact available, nodes.dat not written", "Only %d Kad contacts available, nodes.dat not written", numContacts), numContacts));
+		AddLogLineN(CFormat(wxPLURAL("Only %d Kad contact available, nodes.dat not written", "Only %d Kad contacts available, nodes.dat not written", numContacts)) % numContacts);
 		return;
 	}
 	try {
@@ -305,6 +315,7 @@ void CRoutingZone::WriteFile()
 			file.WriteUInt32(0);
 			// Now tag it with a version which happens to be 2.
 			file.WriteUInt32(2);
+			// file.WriteUInt32(0); // if we would use version >= 3 this would mean that this is a normal nodes.dat
 			file.WriteUInt32(numContacts);
 			for (ContactList::const_iterator it = contacts.begin(); it != contacts.end(); ++it) {
 				CContact *c = *it;
@@ -323,11 +334,60 @@ void CRoutingZone::WriteFile()
 				file.WriteUInt8(c->IsIPVerified() ? 1 : 0);
 			}
 		}
-		AddLogLineM(false, wxString::Format(wxPLURAL("Wrote %d Kad contact", "Wrote %d Kad contacts", count), count));
+		AddLogLineN(CFormat(wxPLURAL("Wrote %d Kad contact", "Wrote %d Kad contacts", count)) % count);
 	} catch (const CIOFailureException& e) {
-		AddDebugLogLineM(true, logKadRouting, wxT("IO failure in CRoutingZone::writeFile: ") + e.what());
+		AddDebugLogLineC(logKadRouting, wxT("IO failure in CRoutingZone::writeFile: ") + e.what());
 	}
 }
+
+#if 0
+void CRoutingZone::WriteBootstrapFile()
+{
+	AddDebugLogLineC(logKadRouting, wxT("Writing special bootstrap nodes.dat - not intended for normal use"));
+	try {
+		// Write a saved contact list.
+		CUInt128 id;
+		CFile file;
+		if (file.Open(m_filename, CFile::write)) {
+			// The bootstrap method gets a very nice sample of contacts to save.
+			ContactMap mapContacts;
+			CUInt128 random(CUInt128((uint32_t)0), 0);
+			CUInt128 distance = random;
+			distance ^= me;
+			GetClosestTo(2, random, distance, 1200, &mapContacts, false, false);
+			// filter out Kad1 nodes
+			for (ContactMap::iterator it = mapContacts.begin(); it != mapContacts.end(); ) {
+				ContactMap::iterator itCur = it++;
+				CContact* contact = itCur->second;
+				if (contact->GetVersion() <= 1) {
+					mapContacts.erase(itCur);
+				}
+			}
+			// Start file with 0 to prevent older clients from reading it.
+			file.WriteUInt32(0);
+			// Now tag it with a version which happens to be 3.
+			file.WriteUInt32(3);
+			file.WriteUInt32(1); // using version >= 3, this means that this is not a normal nodes.dat
+			file.WriteUInt32((uint32_t)mapContacts.size());
+			for (ContactMap::const_iterator it = mapContacts.begin(); it != mapContacts.end(); ++it)
+			{
+				CContact* contact = it->second;
+				file.WriteUInt128(contact->GetClientID());
+				file.WriteUInt32(contact->GetIPAddress());
+				file.WriteUInt16(contact->GetUDPPort());
+				file.WriteUInt16(contact->GetTCPPort());
+				file.WriteUInt8(contact->GetVersion());
+			}
+			file.Close();
+			AddDebugLogLineN(logKadRouting, CFormat(wxT("Wrote %u contacts to bootstrap file.")) % mapContacts.size());
+		} else {
+			AddDebugLogLineC(logKadRouting, wxT("Unable to store Kad file: ") + m_filename);
+		}
+	} catch (const CIOFailureException& e) {
+		AddDebugLogLineC(logKadRouting, wxT("CFileException in CRoutingZone::writeFile") + e.what());
+	}
+}
+#endif
 
 bool CRoutingZone::CanSplit() const throw()
 {
@@ -341,24 +401,22 @@ bool CRoutingZone::CanSplit() const throw()
 }
 
 // Returns true if a contact was added or updated, false if the routing table was not touched.
-bool CRoutingZone::Add(const CUInt128& id, uint32_t ip, uint16_t port, uint16_t tport, uint8_t version, const CKadUDPKey& key, bool& ipVerified, bool update, bool fromNodesDat, bool fromHello)
+bool CRoutingZone::Add(const CUInt128& id, uint32_t ip, uint16_t port, uint16_t tport, uint8_t version, const CKadUDPKey& key, bool& ipVerified, bool update, bool fromHello)
 {
 	if (IsGoodIPPort(wxUINT32_SWAP_ALWAYS(ip), port)) {
 		if (!theApp->ipfilter->IsFiltered(wxUINT32_SWAP_ALWAYS(ip)) && !(port == 53 && version <= 5) /*No DNS Port without encryption*/) {
-			return AddUnfiltered(id, ip, port, tport, version, key, ipVerified, update, fromNodesDat, fromHello);
+			return AddUnfiltered(id, ip, port, tport, version, key, ipVerified, update, fromHello);
 		}
 	}
 	return false;
 }
 
 // Returns true if a contact was added or updated, false if the routing table was not touched.
-bool CRoutingZone::AddUnfiltered(const CUInt128& id, uint32_t ip, uint16_t port, uint16_t tport, uint8_t version, const CKadUDPKey& key, bool& ipVerified, bool update, bool fromNodesDat, bool fromHello)
+bool CRoutingZone::AddUnfiltered(const CUInt128& id, uint32_t ip, uint16_t port, uint16_t tport, uint8_t version, const CKadUDPKey& key, bool& ipVerified, bool update, bool fromHello)
 {
 	if (id != me) {
 		CContact *contact = new CContact(id, ip, port, tport, version, key, ipVerified);
-		if (fromNodesDat) {
-			contact->CheckIfKad2();	// do not test nodes which we loaded from our nodes.dat for Kad2 again
-		} else if (fromHello) {
+		if (fromHello) {
 			contact->SetReceivedHelloPacket();
 		}
 		if (Add(contact, update, ipVerified)) {
@@ -387,7 +445,7 @@ bool CRoutingZone::Add(CContact *contact, bool& update, bool& outIpVerified)
 					// except if our IP has changed recently, we demand that the key is the same as the key we received
 					// from the packet which wants to update this contact in order to make sure this is not a try to
 					// hijack this entry
-					AddDebugLogLineM(false, logKadRouting, wxT("Sender (") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(contact->GetIPAddress())) + wxT(") tried to update contact entry but failed to provide the proper sender key (Sent Empty: ") + (contact->GetUDPKey().GetKeyValue(theApp->GetPublicIP(false)) == 0 ? wxT("Yes") : wxT("No")) + wxT(") for the entry (") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(contactUpdate->GetIPAddress())) + wxT(") - denying update"));
+					AddDebugLogLineN(logKadRouting, wxT("Sender (") + KadIPToString(contact->GetIPAddress()) + wxT(") tried to update contact entry but failed to provide the proper sender key (Sent Empty: ") + (contact->GetUDPKey().GetKeyValue(theApp->GetPublicIP(false)) == 0 ? wxT("Yes") : wxT("No")) + wxT(") for the entry (") + KadIPToString(contactUpdate->GetIPAddress()) + wxT(") - denying update"));
 					update = false;
 				} else if (contactUpdate->GetVersion() >= 1 && contactUpdate->GetVersion() < 6 && contactUpdate->GetReceivedHelloPacket()) {
 					// legacy kad2 contacts are allowed only to update their RefreshTimer to avoid having them hijacked/corrupted by an attacker
@@ -397,9 +455,10 @@ bool CRoutingZone::Add(CContact *contact, bool& update, bool& outIpVerified)
 						wxASSERT(!contact->IsIPVerified());	// legacy kad2 nodes should be unable to verify their IP on a HELLO
 						outIpVerified = contactUpdate->IsIPVerified();
 						m_bin->SetAlive(contactUpdate);
-						AddDebugLogLineM(false, logKadRouting, wxString::Format(wxT("Updated kad contact refreshtimer only for legacy kad2 contact (") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(contactUpdate->GetIPAddress())) + wxT(", %u)"), contactUpdate->GetVersion()));
+						AddDebugLogLineN(logKadRouting, CFormat(wxT("Updated kad contact refreshtimer only for legacy kad2 contact (%s, %u)")) % KadIPToString(contactUpdate->GetIPAddress()) % contactUpdate->GetVersion());
 					} else {
-						AddDebugLogLineM(false, logKadRouting, wxString::Format(wxT("Rejected value update for legacy kad2 contact (") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(contactUpdate->GetIPAddress())) + wxT(" -> ") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(contact->GetIPAddress())) + wxT(", %u -> %u)"), contactUpdate->GetVersion(), contact->GetVersion()));
+						AddDebugLogLineN(logKadRouting, CFormat(wxT("Rejected value update for legacy kad2 contact (%s -> %s, %u -> %u)")) 
+							% KadIPToString(contactUpdate->GetIPAddress()) % KadIPToString(contact->GetIPAddress()) % contactUpdate->GetVersion() % contact->GetVersion());
 						update = false;
 					}
 				} else {
@@ -408,15 +467,16 @@ bool CRoutingZone::Add(CContact *contact, bool& update, bool& outIpVerified)
 					//debug logging stuff - remove later
 					if (contact->GetUDPKey().GetKeyValue(theApp->GetPublicIP(false)) == 0) {
 						if (contact->GetVersion() >= 6 && contact->GetType() < 2) {
-							AddDebugLogLineM(false, logKadRouting, wxT("Updating > 0.49a + type < 2 contact without valid key stored ") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(contact->GetIPAddress())));
+							AddDebugLogLineN(logKadRouting, wxT("Updating > 0.49a + type < 2 contact without valid key stored ") + KadIPToString(contact->GetIPAddress()));
 						}
 					} else {
-						AddDebugLogLineM(false, logKadRouting, wxT("Updating contact, passed key check ") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(contact->GetIPAddress())));
+						AddDebugLogLineN(logKadRouting, wxT("Updating contact, passed key check ") + KadIPToString(contact->GetIPAddress()));
 					}
 
 					if (contactUpdate->GetVersion() >= 1 && contactUpdate->GetVersion() < 6) {
 						wxASSERT(!contactUpdate->GetReceivedHelloPacket());
-						AddDebugLogLineM(false, logKadRouting, wxString::Format(wxT("Accepted update for legacy kad2 contact, because of first HELLO (") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(contactUpdate->GetIPAddress())) + wxT(" -> ") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(contact->GetIPAddress())) + wxT(", %u -> %u)"), contactUpdate->GetVersion(), contact->GetVersion()));
+						AddDebugLogLineN(logKadRouting, CFormat(wxT("Accepted update for legacy kad2 contact, because of first HELLO (%s -> %s, %u -> %u)"))
+							% KadIPToString(contactUpdate->GetIPAddress()) % KadIPToString(contact->GetIPAddress()) % contactUpdate->GetVersion() % contact->GetVersion());
 					}
 #endif
 					// All other nodes (Kad1, Kad2 > 0.49a with UDPKey checked or not set, first hello updates) are allowed to do full updates
@@ -477,7 +537,7 @@ CContact *CRoutingZone::GetContact(uint32_t ip, uint16_t port, bool tcpPort) con
 	}
 }
 
-CContact *CRoutingZone::GetRandomContact(uint32_t maxType, uint32_t minKadVersion) const throw()
+CContact *CRoutingZone::GetRandomContact(uint32_t maxType, uint32_t minKadVersion) const
 {
 	if (IsLeaf()) {
 		return m_bin->GetRandomContact(maxType, minKadVersion);
@@ -651,7 +711,7 @@ bool CRoutingZone::OnBigTimer() const
 //This is used when we find a leaf and want to know what this sample looks like.
 //We fall back two levels and take a sample to try to minimize any areas of the 
 //tree that will give very bad results.
-uint32_t CRoutingZone::EstimateCount() const throw()
+uint32_t CRoutingZone::EstimateCount() const
 {
 	if (!IsLeaf()) {
 		return 0;
@@ -674,10 +734,10 @@ uint32_t CRoutingZone::EstimateCount() const throw()
 	// Modify count by assuming 20% of the users are firewalled and can't be a contact for < 0.49b nodes
 	// Modify count by actual statistics of Firewalled ratio for >= 0.49b if we are not firewalled ourself
 	// Modify count by 40% for >= 0.49b if we are firewalled ourself (the actual Firewalled count at this date on kad is 35-55%)
-	const float firewalledModifyOld = 1.20;
+	const float firewalledModifyOld = 1.20f;
 	float firewalledModifyNew = 0;
 	if (CUDPFirewallTester::IsFirewalledUDP(true)) {
-		firewalledModifyNew = 1.40;	// we are firewalled and can't get the real statistics, assume 40% firewalled >=0.49b nodes
+		firewalledModifyNew = 1.40f;	// we are firewalled and can't get the real statistics, assume 40% firewalled >=0.49b nodes
 	} else if (CKademlia::GetPrefs()->StatsGetFirewalledRatio(true) > 0) {
 		firewalledModifyNew = 1.0 + (CKademlia::GetPrefs()->StatsGetFirewalledRatio(true));	// apply the firewalled ratio to the modify
 		wxASSERT(firewalledModifyNew > 1.0 && firewalledModifyNew < 1.90);
@@ -751,12 +811,7 @@ void CRoutingZone::OnSmallTimer()
 			CKademlia::GetUDPListener()->SendMyDetails(KADEMLIA2_HELLO_REQ, c->GetIPAddress(), c->GetUDPPort(), c->GetVersion(), 0, NULL, false);
 			wxASSERT(c->GetUDPKey() == CKadUDPKey(0));
 		} else {
-			DebugSend(KadHelloReq, c->GetIPAddress(), c->GetUDPPort());
-			CKademlia::GetUDPListener()->SendMyDetails(KADEMLIA_HELLO_REQ, c->GetIPAddress(), c->GetUDPPort(), 0, 0, NULL, false);
-			if (c->CheckIfKad2()) {
-				DebugSend(Kad2HelloReq, c->GetIPAddress(), c->GetUDPPort());
-				CKademlia::GetUDPListener()->SendMyDetails(KADEMLIA2_HELLO_REQ, c->GetIPAddress(), c->GetUDPPort(), 1, 0, NULL, false);
-			}
+			wxFAIL;
 		}
 	}
 }
@@ -780,7 +835,7 @@ uint32_t CRoutingZone::GetNumContacts() const throw()
 	}
 }
 
-void CRoutingZone::GetNumContacts(uint32_t& nInOutContacts, uint32_t& nInOutFilteredContacts, uint8_t minVersion) const
+void CRoutingZone::GetNumContacts(uint32_t& nInOutContacts, uint32_t& nInOutFilteredContacts, uint8_t minVersion) const throw()
 {
 	if (IsLeaf()) {
 		m_bin->GetNumContacts(nInOutContacts, nInOutFilteredContacts, minVersion);
@@ -821,7 +876,7 @@ bool CRoutingZone::VerifyContact(const CUInt128& id, uint32_t ip)
 		return false;
 	} else {
 		if (contact->IsIPVerified()) {
-			AddDebugLogLineM(false, logKadRouting, wxT("Sender already verified (sender: ") + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(ip)) + wxT(")"));
+			AddDebugLogLineN(logKadRouting, wxT("Sender already verified (sender: ") + KadIPToString(ip) + wxT(")"));
 		} else {
 			contact->SetIPVerified(true);
 		}
@@ -843,9 +898,13 @@ bool CRoutingZone::IsAcceptableContact(const CContact *toCheck) const
 {
 	// Check if we know a contact with the same ID or IP but notmatching IP/ID and other limitations, similar checks like when adding a node to the table except allowing duplicates
 	// we use this to check KADEMLIA_RES routing answers on searches
+	if (toCheck->GetVersion() <= 1) {
+		// No Kad1 contacts allowed
+		return false;
+	}
 	CContact *duplicate = GetContact(toCheck->GetClientID());
 	if (duplicate != NULL) {
-		if (duplicate->IsIPVerified() && duplicate->GetIPAddress() != toCheck->GetIPAddress() || duplicate->GetUDPPort() != toCheck->GetUDPPort()) {
+		if ((duplicate->IsIPVerified() && duplicate->GetIPAddress() != toCheck->GetIPAddress()) || duplicate->GetUDPPort() != toCheck->GetUDPPort()) {
 			// already existing verified node with different IP
 			return false;
 		} else {
@@ -855,4 +914,13 @@ bool CRoutingZone::IsAcceptableContact(const CContact *toCheck) const
 	}
 	// if the node is not yet known, check if our IP limitations would hit
 	return CRoutingBin::CheckGlobalIPLimits(toCheck->GetIPAddress(), toCheck->GetUDPPort());
+}
+
+bool CRoutingZone::HasOnlyLANNodes() const throw()
+{
+	if (IsLeaf()) {
+		return m_bin->HasOnlyLANNodes();
+	} else {
+		return m_subZones[0]->HasOnlyLANNodes() && m_subZones[1]->HasOnlyLANNodes();
+	}
 }

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2006-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2006-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -46,6 +46,8 @@ static struct {
 	wxString gui_command;
 } s_EventList[] = {
 	USEREVENTS_EVENTLIST()
+	/* This macro expands to initialise the list of user event types. Example:
+	   { wxT("NewChatSession"), wxTRANSLATE("New chat session started"), false, wxEmptyString, false, wxEmptyString }, */
 };
 #undef USEREVENTS_EVENT
 
@@ -121,6 +123,11 @@ static void ExecuteCommand(
 	wxString command = cmd;
 	switch (event) {
 		USEREVENTS_EVENTLIST()
+		/* This macro expands to handle all user event types. Example:
+		   case CUserEvents::NewChatSession: {
+		       command.Replace( wxT("%SENDER"), *((wxString*)object) );
+			   break;
+		   } */
 	}
 	if (!command.empty()) {
 		CTerminationProcess *p = new CTerminationProcess(cmd);
@@ -128,8 +135,7 @@ static void ExecuteCommand(
 			// If wxExecute fails, we need to delete the CTerminationProcess
 			// otherwise it will leak.
 			delete p;
-			AddLogLineM(true,
-				CFormat(_("Failed to execute command `%s' on `%s' event.")) %
+			AddLogLineC(CFormat(_("Failed to execute command `%s' on `%s' event.")) %
 				command % s_EventList[event].name);
 		}
 	}

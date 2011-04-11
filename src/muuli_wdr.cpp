@@ -35,6 +35,7 @@
 // Custom source
 #include "ServerListCtrl.h"
 #include "DownloadListCtrl.h"
+#include "SourceListCtrl.h"
 #include "SharedFilesCtrl.h"
 #include "OScopeCtrl.h"
 #include "ColorFrameCtrl.h"
@@ -43,8 +44,8 @@
 #include "MuleGifCtrl.h"
 #include "ChatSelector.h"
 #include "DirectoryTreeCtrl.h"	// Needed for CDirectoryTreeCtrl
-#include "ClientListCtrl.h"
 #include "KadDlg.h"
+#include "SharedFilePeersListCtrl.h"
 
 // Make source compatible to wx 2.8 without 2.6 backward compatibility
 #ifndef wxGA_PROGRESSBAR
@@ -67,7 +68,8 @@ wxSizer *muleDlg( wxWindow *parent, bool call_fit, bool set_sizer )
 
     item0->Add( item1, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxBoxSizer *item2 = new wxBoxSizer( wxHORIZONTAL );
+    wxFlexGridSizer *item2 = new wxFlexGridSizer( 3, 0, 0 );
+    item2->AddGrowableCol( 1 );
     s_fed2klh = item2;
 
     wxStaticText *item3 = new wxStaticText( parent, -1, _("eD2k Link: "), wxDefaultPosition, wxDefaultSize, 0 );
@@ -75,7 +77,7 @@ wxSizer *muleDlg( wxWindow *parent, bool call_fit, bool set_sizer )
 
     CMuleTextCtrl *item4 = new CMuleTextCtrl( parent, -1, wxT(""), wxDefaultPosition, wxSize(-1,20), wxTE_MULTILINE );
     item4->SetName( wxT("FastEd2kLinks") );
-    item2->Add( item4, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+    item2->Add( item4, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 0 );
 
     wxButton *item5 = new wxButton( parent, ID_BUTTON_FAST, _("Commit"), wxDefaultPosition, wxDefaultSize, 0 );
     item5->SetToolTip( _("Click here to add the eD2k link in the text control to your download queue.") );
@@ -85,12 +87,11 @@ wxSizer *muleDlg( wxWindow *parent, bool call_fit, bool set_sizer )
 
     wxBoxSizer *item6 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxStaticBitmap *item7 = new wxStaticBitmap( parent, ID_STATICBITMAP, amuleDlgImages( 31 ), wxDefaultPosition, wxDefaultSize );
+    wxStaticBitmap *item7 = new wxStaticBitmap( parent, -1, amuleDlgImages( 31 ), wxDefaultPosition, wxDefaultSize );
     item7->SetToolTip( _("Events are displayed here. For a complete list of events, refer to the log in the Servers-tab.") );
-    item6->Add( item7, 0, wxALIGN_CENTER|wxRIGHT|wxTOP|wxBOTTOM, 5 );
+    item6->Add( item7, 0, wxALIGN_CENTER, 5 );
 
     wxStaticText *item8 = new wxStaticText( parent, -1, _("Loading ..."), wxDefaultPosition, wxSize(140,-1), wxST_NO_AUTORESIZE );
-    item8->SetToolTip( _("Events are displayed here. For a complete list of events, refer to the log in the Servers-tab.") );
     item8->SetName( wxT("infoLabel") );
     item6->Add( item8, 1, wxFIXED_MINSIZE|wxALIGN_CENTER|wxLEFT, 5 );
 
@@ -417,27 +418,24 @@ wxSizer *transferTopPane( wxWindow *parent, bool call_fit, bool set_sizer )
 
     wxBoxSizer *item1 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxStaticBitmap *item2 = new wxStaticBitmap( parent, -1, amuleDlgImages( 10 ), wxDefaultPosition, wxDefaultSize );
-    item1->Add( item2, 0, wxALIGN_CENTER|wxLEFT, 5 );
+    wxBitmapButton *item2 = new wxBitmapButton( parent, ID_BTNCLRCOMPL, amuleDlgImages( 17 ), wxDefaultPosition, wxSize(30,30) );
+    item2->SetToolTip( _("Clears completed downloads") );
+    item2->Enable( false );
+    item1->Add( item2, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
     wxStaticText *item3 = new wxStaticText( parent, -1, _("Downloads"), wxDefaultPosition, wxDefaultSize, 0 );
     item3->SetName( wxT("downloadsLabel") );
     item1->Add( item3, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
-    wxBitmapButton *item4 = new wxBitmapButton( parent, ID_BTNCLRCOMPL, amuleDlgImages( 17 ), wxDefaultPosition, wxSize(30,30) );
-    item4->SetToolTip( _("Clears completed downloads") );
-    item4->Enable( false );
-    item1->Add( item4, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
-
-    CMuleNotebook *item5 = new CMuleNotebook( parent, ID_CATEGORIES, wxDefaultPosition, wxSize(15,30), 0 );
-    wxASSERT( item5 );
-    item1->Add( item5, 1, wxFIXED_MINSIZE|wxALIGN_CENTER, 5 );
+    CMuleNotebook *item4 = new CMuleNotebook( parent, ID_CATEGORIES, wxDefaultPosition, wxSize(15,MULE_NOTEBOOK_TAB_HEIGHT), 0 );
+    wxASSERT( item4 );
+    item1->Add( item4, 1, wxFIXED_MINSIZE|wxALIGN_CENTER, 5 );
 
     item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    CDownloadListCtrl *item6 = new CDownloadListCtrl( parent, ID_DLOADLIST, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxSUNKEN_BORDER );
-    item6->SetName( wxT("downloadList") );
-    item0->Add( item6, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    CDownloadListCtrl *item5 = new CDownloadListCtrl( parent, ID_DLOADLIST, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxSUNKEN_BORDER );
+    item5->SetName( wxT("downloadList") );
+    item0->Add( item5, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
     if (set_sizer)
     {
@@ -452,35 +450,32 @@ wxSizer *transferTopPane( wxWindow *parent, bool call_fit, bool set_sizer )
 wxSizer *s_clientlistHeader;
 wxSizer *transferBottomPane( wxWindow *parent, bool call_fit, bool set_sizer )
 {
-    wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
+    wxFlexGridSizer *item0 = new wxFlexGridSizer( 2, 0, 0, 0 );
+    item0->AddGrowableCol( 0 );
+    item0->AddGrowableRow( 1 );
 
-    wxBoxSizer *item1 = new wxBoxSizer( wxHORIZONTAL );
+    wxFlexGridSizer *item1 = new wxFlexGridSizer( 3, 0, 1 );
+    item1->AddGrowableCol( 1 );
     s_clientlistHeader = item1;
 
     wxBitmapButton *item2 = new wxBitmapButton( parent, ID_CLIENTTOGGLE, amuleDlgImages( 10 ), wxDefaultPosition, wxDefaultSize );
-    item1->Add( item2, 0, wxALIGN_CENTER|wxALL, 5 );
+    item1->Add( item2, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxBitmapButton *item3 = new wxBitmapButton( parent, ID_BTNSWITCHUP, amuleDlgImages( 19 ), wxDefaultPosition, wxDefaultSize );
-    item3->SetToolTip( _("Shows Upload / Up-queue") );
-    item1->Add( item3, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxBoxSizer *item3 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxStaticText *item4 = new wxStaticText( parent, -1, _("Uploads"), wxDefaultPosition, wxDefaultSize, 0 );
-    item4->SetName( wxT("uploadTitle") );
-    item1->Add( item4, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxStaticText *item4 = new wxStaticText( parent, -1, _("File sources:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item3->Add( item4, 0, wxALIGN_CENTER, 5 );
 
-    item1->Add( 20, 20, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+    wxStaticText *item5 = new wxStaticText( parent, ID_CLIENTCOUNT, wxT("0"), wxDefaultPosition, wxDefaultSize, wxST_NO_AUTORESIZE );
+    item5->SetForegroundColour( *wxBLUE );
+    item3->Add( item5, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
 
-    wxStaticText *item5 = new wxStaticText( parent, -1, _("Clients on queue :"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item5, 0, wxALIGN_CENTER, 5 );
-
-    wxStaticText *item6 = new wxStaticText( parent, ID_CLIENTCOUNT, wxT("0"), wxDefaultPosition, wxDefaultSize, wxST_NO_AUTORESIZE );
-    item6->SetForegroundColour( *wxBLUE );
-    item1->Add( item6, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
+    item1->Add( item3, 0, wxALIGN_CENTER, 5 );
 
     item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    CClientListCtrl *item7 = new CClientListCtrl( parent, ID_CLIENTLIST, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxSUNKEN_BORDER );
-    item0->Add( item7, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    CSourceListCtrl *item6 = new CSourceListCtrl( parent, ID_CLIENTLIST, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxSUNKEN_BORDER );
+    item0->Add( item6, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
     if (set_sizer)
     {
@@ -494,62 +489,17 @@ wxSizer *transferBottomPane( wxWindow *parent, bool call_fit, bool set_sizer )
 
 wxSizer *messagePage( wxWindow *parent, bool call_fit, bool set_sizer )
 {
-    wxBoxSizer *item0 = new wxBoxSizer( wxHORIZONTAL );
+    wxStaticBox *item1 = new wxStaticBox( parent, -1, wxT("") );
+    wxStaticBoxSizer *item0 = new wxStaticBoxSizer( item1, wxVERTICAL );
 
-    wxStaticBox *item2 = new wxStaticBox( parent, -1, wxT("") );
-    wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
-
-    wxBoxSizer *item3 = new wxBoxSizer( wxHORIZONTAL );
-
-    wxStaticBitmap *item4 = new wxStaticBitmap( parent, -1, amuleDlgImages( 14 ), wxDefaultPosition, wxDefaultSize );
-    item3->Add( item4, 0, wxALIGN_CENTER, 5 );
-
-    wxStaticText *item5 = new wxStaticText( parent, -1, _("Friends"), wxDefaultPosition, wxDefaultSize, 0 );
-    item3->Add( item5, 0, wxALIGN_CENTER|wxLEFT|wxTOP|wxBOTTOM, 5 );
-
-    item1->Add( item3, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
-
-    CFriendListCtrl *item6 = new CFriendListCtrl( parent, ID_FRIENDLIST, wxDefaultPosition, wxSize(160,120), wxLC_REPORT|wxSUNKEN_BORDER );
-    item1->Add( item6, 1, wxFIXED_MINSIZE|wxGROW|wxALIGN_CENTER_VERTICAL|wxRIGHT|wxBOTTOM, 5 );
-
-    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
-
-    wxStaticBox *item8 = new wxStaticBox( parent, -1, wxT("") );
-    wxStaticBoxSizer *item7 = new wxStaticBoxSizer( item8, wxVERTICAL );
-
-    wxBoxSizer *item9 = new wxBoxSizer( wxHORIZONTAL );
-
-    wxStaticBitmap *item10 = new wxStaticBitmap( parent, -1, amuleDlgImages( 15 ), wxDefaultPosition, wxDefaultSize );
-    item9->Add( item10, 0, wxALIGN_CENTER, 5 );
-
-    wxStaticText *item11 = new wxStaticText( parent, -1, _("Messages"), wxDefaultPosition, wxDefaultSize, 0 );
-    item9->Add( item11, 0, wxALIGN_CENTER|wxALL, 5 );
-
-    item7->Add( item9, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
-
-    CChatSelector *item12 = new CChatSelector(parent, IDC_CHATSELECTOR,wxDefaultPosition,wxSize(200,32),0L);
-    wxASSERT( item12 );
-    item7->Add( item12, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 0 );
-
-    wxBoxSizer *item13 = new wxBoxSizer( wxHORIZONTAL );
-
-    CMuleTextCtrl *item14 = new CMuleTextCtrl( parent, IDC_CMESSAGE, wxT(""), wxDefaultPosition, wxSize(80,-1), wxTE_PROCESS_ENTER );
-    item14->Enable( false );
-    item13->Add( item14, 1, wxALIGN_CENTER, 5 );
-
-    wxButton *item15 = new wxButton( parent, IDC_CSEND, _("Send"), wxDefaultPosition, wxDefaultSize, 0 );
-    item15->SetToolTip( _("Sends the specified message.") );
-    item15->Enable( false );
-    item13->Add( item15, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
-
-    wxButton *item16 = new wxButton( parent, IDC_CCLOSE, _("Close"), wxDefaultPosition, wxDefaultSize, 0 );
-    item16->SetToolTip( _("Close this chat-session.") );
-    item16->Enable( false );
-    item13->Add( item16, 0, wxALIGN_CENTER, 5 );
-
-    item7->Add( item13, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM, 5 );
-
-    item0->Add( item7, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
+    wxSplitterWindow *item2 = new wxSplitterWindow( parent, ID_MESSAGESPLATTER, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE );
+    item2->SetMinimumPaneSize( 20 );
+    wxPanel *item3 = new wxPanel( item2, -1 );
+    messagePageFriends( item3, FALSE, TRUE );
+    wxPanel *item4 = new wxPanel( item2, -1 );
+    messagePageMessages( item4, FALSE, TRUE );
+    item2->SplitVertically( item3, item4 );
+    item0->Add( item2, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
     if (set_sizer)
     {
@@ -886,6 +836,7 @@ wxSizer *commentDlg( wxWindow *parent, bool call_fit, bool set_sizer )
     wxBoxSizer *item3 = new wxBoxSizer( wxHORIZONTAL );
 
     CMuleTextCtrl *item4 = new CMuleTextCtrl( parent, IDC_CMT_TEXT, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
+    item4->SetToolTip( _("For a film you can say its length, its story, language ...\\n\\nand if it's a fake, you can tell that to other users of aMule.") );
     item3->Add( item4, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
     wxButton *item5 = new wxButton( parent, IDC_FC_CLEAR, _("Clear"), wxDefaultPosition, wxDefaultSize, 0 );
@@ -893,19 +844,14 @@ wxSizer *commentDlg( wxWindow *parent, bool call_fit, bool set_sizer )
 
     item1->Add( item3, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxStaticText *item6 = new wxStaticText( parent, -1, 
-        _("For a film you can say its length, its story, language ...\nand if it's a fake, you can tell that to other users of aMule."),
-        wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item6, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
     item0->Add( item1, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP, 5 );
 
-    wxBoxSizer *item7 = new wxBoxSizer( wxHORIZONTAL );
+    wxBoxSizer *item6 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxStaticBox *item9 = new wxStaticBox( parent, -1, _("File Quality") );
-    wxStaticBoxSizer *item8 = new wxStaticBoxSizer( item9, wxVERTICAL );
+    wxStaticBox *item8 = new wxStaticBox( parent, -1, _("File Quality") );
+    wxStaticBoxSizer *item7 = new wxStaticBoxSizer( item8, wxVERTICAL );
 
-    wxString strs10[] = 
+    wxString strs9[] = 
     {
         _("Not rated"), 
         _("Invalid / Corrupt / Fake"), 
@@ -914,22 +860,20 @@ wxSizer *commentDlg( wxWindow *parent, bool call_fit, bool set_sizer )
         _("Good"), 
         _("Excellent")
     };
-    wxChoice *item10 = new wxChoice( parent, IDC_RATELIST, wxDefaultPosition, wxDefaultSize, 6, strs10, 0 );
-    item8->Add( item10, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxChoice *item9 = new wxChoice( parent, IDC_RATELIST, wxDefaultPosition, wxDefaultSize, 6, strs9, 0 );
+    item9->SetToolTip( _("Choose the file rating or advice users if the file is invalid ...") );
+    item7->Add( item9, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-    wxStaticText *item11 = new wxStaticText( parent, -1, _("Choose the file rating or advice users if the file is invalid ..."), wxDefaultPosition, wxDefaultSize, 0 );
-    item8->Add( item11, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
+    item6->Add( item7, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 0 );
 
-    item7->Add( item8, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 0 );
+    wxButton *item10 = new wxButton( parent, IDCOK, _("Apply"), wxDefaultPosition, wxDefaultSize, 0 );
+    item10->SetDefault();
+    item6->Add( item10, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    wxButton *item12 = new wxButton( parent, IDCOK, _("Apply"), wxDefaultPosition, wxDefaultSize, 0 );
-    item12->SetDefault();
-    item7->Add( item12, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxButton *item11 = new wxButton( parent, IDCCANCEL, _("Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
+    item6->Add( item11, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    wxButton *item13 = new wxButton( parent, IDCCANCEL, _("Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
-    item7->Add( item13, 0, wxALIGN_CENTER|wxALL, 5 );
-
-    item0->Add( item7, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
+    item0->Add( item6, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
 
     if (set_sizer)
     {
@@ -1083,111 +1027,17 @@ wxSizer *addFriendDlg( wxWindow *parent, bool call_fit, bool set_sizer )
 
 wxSizer *sharedfilesDlg( wxWindow *parent, bool call_fit, bool set_sizer )
 {
-    wxStaticBox *item1 = new wxStaticBox( parent, -1, wxT("") );
-    wxStaticBoxSizer *item0 = new wxStaticBoxSizer( item1, wxVERTICAL );
+    wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxBoxSizer *item2 = new wxBoxSizer( wxHORIZONTAL );
-
-    wxStaticBitmap *item3 = new wxStaticBitmap( parent, -1, moreImages( 0 ), wxDefaultPosition, wxDefaultSize );
-    item2->Add( item3, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxLEFT|wxTOP|wxBOTTOM, 5 );
-
-    wxStaticText *item4 = new wxStaticText( parent, -1, _("Shared Files"), wxDefaultPosition, wxDefaultSize, 0 );
-    item4->SetName( wxT("sharedFilesLabel") );
-    item2->Add( item4, 0, wxALIGN_CENTER|wxLEFT, 5 );
-
-    wxBitmapButton *item5 = new wxBitmapButton( parent, ID_BTNRELSHARED, amuleDlgImages( 18 ), wxDefaultPosition, wxSize(32,32) );
-    item5->SetToolTip( _("Reload your shared files") );
-    item2->Add( item5, 0, wxALIGN_CENTER|wxLEFT, 5 );
-
-    item0->Add( item2, 0, wxALIGN_CENTER_VERTICAL|wxALL, 0 );
-
-    CSharedFilesCtrl *item6 = new CSharedFilesCtrl( parent, ID_SHFILELIST, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxSUNKEN_BORDER );
-    item6->SetName( wxT("sharedFilesCt") );
-    item0->Add( item6, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
-
-    wxStaticBox *item8 = new wxStaticBox( parent, -1, _("Statistics") );
-    wxStaticBoxSizer *item7 = new wxStaticBoxSizer( item8, wxVERTICAL );
-
-    wxFlexGridSizer *item9 = new wxFlexGridSizer( 6, 0, 0 );
-
-    wxStaticBitmap *item10 = new wxStaticBitmap( parent, -1, moreImages( 1 ), wxDefaultPosition, wxDefaultSize );
-    item9->Add( item10, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
-
-    wxStaticText *item11 = new wxStaticText( parent, -1, _("Current Session"), wxDefaultPosition, wxDefaultSize, 0 );
-    item9->Add( item11, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
-
-    item9->Add( 20, 20, 0, wxALIGN_CENTER, 5 );
-
-    item9->Add( 20, 20, 0, wxALIGN_CENTER, 5 );
-
-    wxStaticText *item12 = new wxStaticText( parent, -1, _("Total"), wxDefaultPosition, wxDefaultSize, 0 );
-    item9->Add( item12, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
-
-    item9->Add( 20, 20, 0, wxALIGN_CENTER, 5 );
-
-    item9->Add( 20, 20, 0, wxALIGN_CENTER, 5 );
-
-    wxStaticText *item13 = new wxStaticText( parent, -1, _("Requested :"), wxDefaultPosition, wxDefaultSize, 0 );
-    item9->Add( item13, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
-    wxStaticText *item14 = new wxStaticText( parent, IDC_SREQUESTED, _("N/A"), wxDefaultPosition, wxDefaultSize, 0 );
-    item14->SetForegroundColour( *wxBLUE );
-    item9->Add( item14, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
-    wxGauge *item15 = new wxGauge( parent, -1, 100, wxDefaultPosition, wxSize(200,-1), 0 );
-    item15->SetName( wxT("popbar") );
-    item9->Add( item15, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
-
-    wxStaticText *item16 = new wxStaticText( parent, -1, _("Requested :"), wxDefaultPosition, wxDefaultSize, 0 );
-    item9->Add( item16, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
-    wxStaticText *item17 = new wxStaticText( parent, IDC_SREQUESTED2, _("N/A"), wxDefaultPosition, wxDefaultSize, 0 );
-    item17->SetForegroundColour( *wxBLUE );
-    item9->Add( item17, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
-    item9->Add( 20, 20, 0, wxALIGN_CENTER, 5 );
-
-    wxStaticText *item18 = new wxStaticText( parent, -1, _("Active Uploads :"), wxDefaultPosition, wxDefaultSize, 0 );
-    item9->Add( item18, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
-    wxStaticText *item19 = new wxStaticText( parent, IDC_SACCEPTED, _("N/A"), wxDefaultPosition, wxDefaultSize, 0 );
-    item19->SetForegroundColour( *wxBLUE );
-    item9->Add( item19, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
-    wxGauge *item20 = new wxGauge( parent, -1, 100, wxDefaultPosition, wxSize(200,-1), 0 );
-    item20->SetName( wxT("popbarAccept") );
-    item9->Add( item20, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxTOP, 5 );
-
-    wxStaticText *item21 = new wxStaticText( parent, -1, _("Active Uploads :"), wxDefaultPosition, wxDefaultSize, 0 );
-    item9->Add( item21, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
-    wxStaticText *item22 = new wxStaticText( parent, IDC_SACCEPTED2, _("N/A"), wxDefaultPosition, wxDefaultSize, 0 );
-    item22->SetForegroundColour( *wxBLUE );
-    item9->Add( item22, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
-    item9->Add( 20, 20, 0, wxALIGN_CENTER, 5 );
-
-    wxStaticText *item23 = new wxStaticText( parent, -1, _("Transferred :"), wxDefaultPosition, wxDefaultSize, 0 );
-    item9->Add( item23, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
-    wxStaticText *item24 = new wxStaticText( parent, IDC_STRANSFERRED, _("N/A"), wxDefaultPosition, wxDefaultSize, 0 );
-    item24->SetForegroundColour( *wxBLUE );
-    item9->Add( item24, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
-    wxGauge *item25 = new wxGauge( parent, -1, 100, wxDefaultPosition, wxSize(200,-1), 0 );
-    item25->SetName( wxT("popbarTrans") );
-    item9->Add( item25, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxTOP, 5 );
-
-    wxStaticText *item26 = new wxStaticText( parent, -1, _("Transferred :"), wxDefaultPosition, wxDefaultSize, 0 );
-    item9->Add( item26, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
-    wxStaticText *item27 = new wxStaticText( parent, IDC_STRANSFERRED2, _("N/A"), wxDefaultPosition, wxDefaultSize, 0 );
-    item27->SetForegroundColour( *wxBLUE );
-    item9->Add( item27, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
-    item7->Add( item9, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    item0->Add( item7, 0, wxALIGN_CENTER|wxTOP, 5 );
+    wxSplitterWindow *item1 = new wxSplitterWindow( parent, ID_SHARESSPLATTER, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE );
+    item1->SetMinimumPaneSize( 20 );
+    wxPanel *item2 = new wxPanel( item1, -1 );
+    sharedfilesTopDlg( item2, FALSE, TRUE );
+    wxPanel *item3 = new wxPanel( item1, -1 );
+    sharedfilesBottomDlg( item3, FALSE, TRUE );
+    item1->SplitHorizontally( item2, item3 );
+    item1->SetName( wxT("sharedsplitterWnd") );
+    item0->Add( item1, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
     if (set_sizer)
     {
@@ -1567,10 +1417,10 @@ wxSizer *clientDetails( wxWindow *parent, bool call_fit, bool set_sizer )
     item51->SetForegroundColour( *wxBLUE );
     item47->Add( item51, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-    wxStaticText *item52 = new wxStaticText( parent, -1, _("Rating (total):"), wxDefaultPosition, wxDefaultSize, 0 );
+    wxStaticText *item52 = new wxStaticText( parent, -1, _("Queue rank:"), wxDefaultPosition, wxDefaultSize, 0 );
     item47->Add( item52, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
 
-    wxStaticText *item53 = new wxStaticText( parent, ID_DRATING, _("N/A"), wxDefaultPosition, wxDefaultSize, 0 );
+    wxStaticText *item53 = new wxStaticText( parent, ID_QUEUERANK, _("N/A"), wxDefaultPosition, wxDefaultSize, 0 );
     item53->SetForegroundColour( *wxBLUE );
     item47->Add( item53, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
 
@@ -1605,127 +1455,104 @@ wxSizer *PreferencesGeneralTab( wxWindow *parent, bool call_fit, bool set_sizer 
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxGridSizer *item1 = new wxGridSizer( 2, 0, 0 );
+    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Nick") );
+    wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
 
-    wxStaticBox *item3 = new wxStaticBox( parent, -1, _("Nick") );
-    wxStaticBoxSizer *item2 = new wxStaticBoxSizer( item3, wxVERTICAL );
+    CMuleTextCtrl *item3 = new CMuleTextCtrl( parent, IDC_NICK, _("http://www.aMule.org - the multi-platform Mule"), wxDefaultPosition, wxSize(90,-1), 0 );
+    item3->SetToolTip( _("This is the name that other users will see when connecting to you.") );
+    item1->Add( item3, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    CMuleTextCtrl *item4 = new CMuleTextCtrl( parent, IDC_NICK, _("http://www.aMule.org - the Linux Mule"), wxDefaultPosition, wxSize(90,-1), 0 );
-    item4->SetToolTip( _("This is the name that other users will see when connecting to you.") );
-    item2->Add( item4, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL, 0 );
 
-    item1->Add( item2, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
+    wxFlexGridSizer *item4 = new wxFlexGridSizer( 2, 0, 0 );
+    item4->AddGrowableCol( 1 );
 
-    wxStaticBox *item6 = new wxStaticBox( parent, -1, _("Language") );
-    wxStaticBoxSizer *item5 = new wxStaticBoxSizer( item6, wxVERTICAL );
+    wxStaticText *item5 = new wxStaticText( parent, -1, _("Language: "), wxDefaultPosition, wxDefaultSize, 0 );
+    item5->SetToolTip( _("The delay before showing tool-tips.") );
+    item4->Add( item5, 1, wxALIGN_CENTER, 0 );
 
-    wxString *strs7 = (wxString*) NULL;
-    wxChoice *item7 = new wxChoice( parent, IDC_LANGUAGE, wxDefaultPosition, wxSize(100,30), 0, strs7, 0 );
-    item7->SetToolTip( _("This specifies the language used on controls.") );
-    item5->Add( item7, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    wxString *strs6 = (wxString*) NULL;
+    wxChoice *item6 = new wxChoice( parent, IDC_LANGUAGE, wxDefaultPosition, wxDefaultSize, 0, strs6, 0 );
+    item6->SetToolTip( _("This specifies the language used on controls.") );
+    item4->Add( item6, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
 
-    item1->Add( item5, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
+    item0->Add( item4, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL, 0 );
 
-    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxCheckBox *item7 = new wxCheckBox( parent, IDC_NEWVERSION, _("Check for new version at startup"), wxDefaultPosition, wxDefaultSize, 0 );
+    item7->SetToolTip( _("Enabling this will make aMule check for new version at startup") );
+    item0->Add( item7, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxStaticBox *item9 = new wxStaticBox( parent, -1, _("Misc Options") );
-    wxStaticBoxSizer *item8 = new wxStaticBoxSizer( item9, wxVERTICAL );
+    wxCheckBox *item8 = new wxCheckBox( parent, IDC_STARTMIN, _("Start minimized"), wxDefaultPosition, wxDefaultSize, 0 );
+    item8->SetToolTip( _("Enabling this makes aMule minimize itself upon start.") );
+    item0->Add( item8, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxCheckBox *item10 = new wxCheckBox( parent, IDC_NEWVERSION, _("Check for new version at startup"), wxDefaultPosition, wxDefaultSize, 0 );
-    item10->SetToolTip( _("Enabling this will make aMule check for new version at startup") );
-    item8->Add( item10, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxCheckBox *item9 = new wxCheckBox( parent, IDC_EXIT, _("Prompt on exit"), wxDefaultPosition, wxDefaultSize, 0 );
+    item9->SetValue( TRUE );
+    item9->SetToolTip( _("Makes aMule prompt before exiting.") );
+    item0->Add( item9, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxCheckBox *item11 = new wxCheckBox( parent, IDC_STARTMIN, _("Start minimized"), wxDefaultPosition, wxDefaultSize, 0 );
-    item11->SetToolTip( _("Enabling this makes aMule minimize itself upon start.") );
-    item8->Add( item11, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxCheckBox *item10 = new wxCheckBox( parent, IDC_ENABLETRAYICON, _("Enable Tray Icon"), wxDefaultPosition, wxDefaultSize, 0 );
+    item10->SetToolTip( _("This Enables/Disables the system tray (or taskbar) icon.") );
+    item0->Add( item10, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxCheckBox *item12 = new wxCheckBox( parent, IDC_EXIT, _("Prompt on exit"), wxDefaultPosition, wxDefaultSize, 0 );
-    item12->SetValue( TRUE );
-    item12->SetToolTip( _("Makes aMule promt before exiting.") );
-    item8->Add( item12, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxCheckBox *item11 = new wxCheckBox( parent, IDC_MINTRAY, _("Minimize to Tray Icon"), wxDefaultPosition, wxDefaultSize, 0 );
+    item11->SetToolTip( _("Enabling this will make aMule minimize to the System Tray, rather than the taskbar.") );
+    item0->Add( item11, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxCheckBox *item13 = new wxCheckBox( parent, IDC_ENABLETRAYICON, _("Enable Tray Icon"), wxDefaultPosition, wxDefaultSize, 0 );
-    item13->SetToolTip( _("This Enables/Disables the system tray (or taskbar) icon.") );
-    item8->Add( item13, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
+    wxBoxSizer *item12 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxCheckBox *item14 = new wxCheckBox( parent, IDC_MINTRAY, _("Minimize to Tray Icon"), wxDefaultPosition, wxDefaultSize, 0 );
-    item14->SetToolTip( _("Enabling this will make aMule minimize to the System Tray, rather than the taskbar.") );
-    item8->Add( item14, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxStaticText *item13 = new wxStaticText( parent, -1, _("Tooltip delay time: "), wxDefaultPosition, wxDefaultSize, 0 );
+    item13->SetToolTip( _("The delay before showing tool-tips.") );
+    item12->Add( item13, 1, wxALIGN_CENTER, 0 );
 
-    wxBoxSizer *item15 = new wxBoxSizer( wxHORIZONTAL );
+    wxSpinCtrl *item14 = new wxSpinCtrl( parent, IDC_TOOLTIPDELAY, wxT("1"), wxDefaultPosition, wxSize(40,-1), 0, 0, 9, 1 );
+    item14->SetToolTip( _("The delay before showing tool-tips.") );
+    item12->Add( item14, 0, wxALIGN_CENTER|wxLEFT, 5 );
 
-    wxStaticText *item16 = new wxStaticText( parent, -1, _("Tooltip Delay Time in secs"), wxDefaultPosition, wxDefaultSize, 0 );
-    item16->SetToolTip( _("The delay before showing tool-tips.") );
-    item15->Add( item16, 1, wxALIGN_CENTER|wxLEFT, 5 );
+    wxStaticText *item15 = new wxStaticText( parent, -1, _("seconds"), wxDefaultPosition, wxDefaultSize, 0 );
+    item15->SetToolTip( _("The delay before showing tool-tips.") );
+    item12->Add( item15, 1, wxALIGN_CENTER|wxLEFT, 5 );
 
-    wxSpinCtrl *item17 = new wxSpinCtrl( parent, IDC_TOOLTIPDELAY, wxT("1"), wxDefaultPosition, wxSize(40,-1), 0, 0, 30, 1 );
-    item17->SetToolTip( _("The delay before showing tool-tips.") );
-    item15->Add( item17, 0, wxALIGN_CENTER|wxRIGHT, 5 );
+    item0->Add( item12, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    item8->Add( item15, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    wxStaticBox *item17 = new wxStaticBox( parent, -1, _("Browser Selection") );
+    wxStaticBoxSizer *item16 = new wxStaticBoxSizer( item17, wxVERTICAL );
 
-    item0->Add( item8, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxBoxSizer *item18 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxStaticBox *item19 = new wxStaticBox( parent, -1, _("Browser Selection") );
-    wxStaticBoxSizer *item18 = new wxStaticBoxSizer( item19, wxVERTICAL );
+    CMuleTextCtrl *item19 = new CMuleTextCtrl( parent, IDC_BROWSERSELF, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
+    item19->SetToolTip( _("Enter your browser name here. Leave this field empty to use the system default browser.") );
+    item18->Add( item19, 1, wxGROW, 0 );
 
-    wxString strs20[] = 
-    {
-        _("System Default"), 
-        _("Konqueror"), 
-        _("Mozilla"), 
-        _("Firefox"), 
-        _("Firebird"), 
-        _("Opera"), 
-        _("Netscape"), 
-        _("Galeon"), 
-        _("Epiphany"), 
-        _("User Defined")
-    };
-    wxChoice *item20 = new wxChoice( parent, IDC_BROWSER, wxDefaultPosition, wxSize(100,-1), 10, strs20, 0 );
-    item20->SetToolTip( _("Select your browser here") );
-    item18->Add( item20, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    wxButton *item20 = new wxButton( parent, IDC_SELBROWSER, _("Browse"), wxDefaultPosition, wxDefaultSize, 0 );
+    item18->Add( item20, 0, wxGROW, 0 );
 
-    wxFlexGridSizer *item21 = new wxFlexGridSizer( 3, 0, 0 );
-    item21->AddGrowableCol( 1 );
+    item16->Add( item18, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxStaticText *item22 = new wxStaticText( parent, -1, _("Custom Browser:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item21->Add( item22, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxCheckBox *item21 = new wxCheckBox( parent, IDC_BROWSERTABS, _("Open in new tab if possible"), wxDefaultPosition, wxDefaultSize, 0 );
+    item21->SetValue( TRUE );
+    item21->SetToolTip( _("Open the web page in a new tab instead of in a new window when possible") );
+    item16->Add( item21, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
-    CMuleTextCtrl *item23 = new CMuleTextCtrl( parent, IDC_BROWSERSELF, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
-    item23->SetToolTip( _("Enter your browser name here. To use the custom browser, select the Custom menu-item from the dropdown-menu above.") );
-    item23->Enable( false );
-    item21->Add( item23, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item16, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxButton *item24 = new wxButton( parent, IDC_SELBROWSER, _("Browse"), wxDefaultPosition, wxDefaultSize, 0 );
-    item21->Add( item24, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM, 5 );
+    wxStaticBox *item23 = new wxStaticBox( parent, -1, _("Video Player") );
+    wxStaticBoxSizer *item22 = new wxStaticBoxSizer( item23, wxVERTICAL );
 
-    item18->Add( item21, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    wxBoxSizer *item24 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxCheckBox *item25 = new wxCheckBox( parent, IDC_BROWSERTABS, _("Open in new tab if possible"), wxDefaultPosition, wxDefaultSize, 0 );
-    item25->SetValue( TRUE );
-    item25->SetToolTip( _("Open the web page in a new tab instead of in a new window when possible") );
-    item18->Add( item25, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    CMuleTextCtrl *item25 = new CMuleTextCtrl( parent, IDC_VIDEOPLAYER, wxT("mplayer -idx"), wxDefaultPosition, wxSize(80,-1), 0 );
+    item24->Add( item25, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
 
-    item0->Add( item18, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxButton *item26 = new wxButton( parent, IDC_BROWSEV, _("Browse"), wxDefaultPosition, wxDefaultSize, 0 );
+    item24->Add( item26, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
 
-    wxStaticBox *item27 = new wxStaticBox( parent, -1, _("Video Player") );
-    wxStaticBoxSizer *item26 = new wxStaticBoxSizer( item27, wxVERTICAL );
+    item22->Add( item24, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxBoxSizer *item28 = new wxBoxSizer( wxHORIZONTAL );
+    wxStaticText *item27 = new wxStaticText( parent, IDC_PREVIEW_NOTE, wxT(""), wxDefaultPosition, wxDefaultSize, 0 );
+    item22->Add( item27, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-    CMuleTextCtrl *item29 = new CMuleTextCtrl( parent, IDC_VIDEOPLAYER, wxT("mplayer -idx"), wxDefaultPosition, wxSize(80,-1), 0 );
-    item28->Add( item29, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
-
-    wxButton *item30 = new wxButton( parent, IDC_BROWSEV, _("Browse"), wxDefaultPosition, wxDefaultSize, 0 );
-    item28->Add( item30, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
-
-    item26->Add( item28, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
-
-    wxCheckBox *item31 = new wxCheckBox( parent, IDC_VIDEOBACKUP, _("Create Backup for preview"), wxDefaultPosition, wxDefaultSize, 0 );
-    item26->Add( item31, 0, wxALIGN_CENTER_VERTICAL, 5 );
-
-    item0->Add( item26, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item22, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
     if (set_sizer)
     {
@@ -1741,189 +1568,141 @@ wxSizer *PreferencesConnectionTab( wxWindow *parent, bool call_fit, bool set_siz
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxGridSizer *item1 = new wxGridSizer( 2, 0, 5 );
+    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Bandwidth limits") );
+    wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
 
-    wxStaticBox *item3 = new wxStaticBox( parent, -1, _("Bandwith limits") );
-    wxStaticBoxSizer *item2 = new wxStaticBoxSizer( item3, wxVERTICAL );
+    wxFlexGridSizer *item3 = new wxFlexGridSizer( 3, 0, 0 );
+    item3->AddGrowableCol( 0 );
 
     wxStaticText *item4 = new wxStaticText( parent, -1, _("Download"), wxDefaultPosition, wxDefaultSize, 0 );
-    item2->Add( item4, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    item3->Add( item4, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxBoxSizer *item5 = new wxBoxSizer( wxHORIZONTAL );
+    wxSpinCtrl *item5 = new wxSpinCtrl( parent, IDC_MAXDOWN, wxT("0"), wxDefaultPosition, wxSize(100,-1), 0, 0, 19375, 0 );
+    item3->Add( item5, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxSpinCtrl *item6 = new wxSpinCtrl( parent, IDC_MAXDOWN, wxT("0"), wxDefaultPosition, wxSize(100,-1), 0, 0, 19375, 0 );
-    item5->Add( item6, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxStaticText *item6 = new wxStaticText( parent, -1, _("kB/s"), wxDefaultPosition, wxDefaultSize, 0 );
+    item3->Add( item6, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    wxStaticText *item7 = new wxStaticText( parent, -1, _("kB/s"), wxDefaultPosition, wxDefaultSize, 0 );
-    item5->Add( item7, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+    wxStaticText *item7 = new wxStaticText( parent, -1, _("Upload"), wxDefaultPosition, wxDefaultSize, 0 );
+    item3->Add( item7, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
-    item2->Add( item5, 0, wxALIGN_CENTER, 5 );
+    wxSpinCtrl *item8 = new wxSpinCtrl( parent, IDC_MAXUP, wxT("10"), wxDefaultPosition, wxSize(100,-1), 0, 0, 19375, 10 );
+    item3->Add( item8, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxStaticText *item8 = new wxStaticText( parent, -1, _("Upload"), wxDefaultPosition, wxDefaultSize, 0 );
-    item2->Add( item8, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxStaticText *item9 = new wxStaticText( parent, -1, _("kB/s"), wxDefaultPosition, wxDefaultSize, 0 );
+    item3->Add( item9, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    wxBoxSizer *item9 = new wxBoxSizer( wxHORIZONTAL );
+    wxStaticText *item10 = new wxStaticText( parent, -1, _("Slot Allocation"), wxDefaultPosition, wxDefaultSize, 0 );
+    item3->Add( item10, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 20 );
 
-    wxSpinCtrl *item10 = new wxSpinCtrl( parent, IDC_MAXUP, wxT("10"), wxDefaultPosition, wxSize(100,-1), 0, 0, 19375, 10 );
-    item9->Add( item10, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxSpinCtrl *item11 = new wxSpinCtrl( parent, IDC_SLOTALLOC, wxT("4"), wxDefaultPosition, wxSize(100,-1), 0, 1, 100, 4 );
+    item3->Add( item11, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxStaticText *item11 = new wxStaticText( parent, -1, _("kB/s"), wxDefaultPosition, wxDefaultSize, 0 );
-    item9->Add( item11, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+    wxStaticText *item12 = new wxStaticText( parent, -1, _("kB/s"), wxDefaultPosition, wxDefaultSize, 0 );
+    item3->Add( item12, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    item2->Add( item9, 0, wxALIGN_CENTER, 5 );
+    item1->Add( item3, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxStaticText *item12 = new wxStaticText( parent, -1, _("Slot Allocation"), wxDefaultPosition, wxDefaultSize, 0 );
-    item2->Add( item12, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL, 0 );
 
-    wxBoxSizer *item13 = new wxBoxSizer( wxHORIZONTAL );
+    wxStaticBox *item14 = new wxStaticBox( parent, -1, _("Ports") );
+    wxStaticBoxSizer *item13 = new wxStaticBoxSizer( item14, wxVERTICAL );
 
-    wxSpinCtrl *item14 = new wxSpinCtrl( parent, IDC_SLOTALLOC, wxT("4"), wxDefaultPosition, wxSize(100,-1), 0, 1, 100, 4 );
-    item13->Add( item14, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxFlexGridSizer *item15 = new wxFlexGridSizer( 2, 0, 0 );
+    item15->AddGrowableCol( 0 );
 
-    wxStaticText *item15 = new wxStaticText( parent, -1, _("kB/s"), wxDefaultPosition, wxDefaultSize, 0 );
-    item13->Add( item15, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+    wxStaticText *item16 = new wxStaticText( parent, -1, _("Standard TCP Port "), wxDefaultPosition, wxDefaultSize, 0 );
+    item15->Add( item16, 0, wxALIGN_CENTER_VERTICAL, 10 );
 
-    item2->Add( item13, 0, wxALIGN_CENTER, 5 );
+    wxSpinCtrl *item17 = new wxSpinCtrl( parent, IDC_PORT, wxT("4662"), wxDefaultPosition, wxSize(100,-1), 0, 0, 65531, 4662 );
+    item17->SetToolTip( _("This is the standard eD2k port and cannot be disabled.") );
+    item15->Add( item17, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    item1->Add( item2, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 0 );
+    wxStaticText *item18 = new wxStaticText( parent, -1, _("UDP port for server requests (TCP+3):"), wxDefaultPosition, wxDefaultSize, 0 );
+    item15->Add( item18, 0, wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxBoxSizer *item16 = new wxBoxSizer( wxVERTICAL );
+    wxStaticText *item19 = new wxStaticText( parent, ID_TEXT_CLIENT_UDP_PORT, _("4665"), wxDefaultPosition, wxDefaultSize, 0 );
+    item15->Add( item19, 0, wxALIGN_CENTER_VERTICAL, 10 );
 
-    wxStaticBox *item18 = new wxStaticBox( parent, -1, _("Standard client TCP Port:") );
-    wxStaticBoxSizer *item17 = new wxStaticBoxSizer( item18, wxVERTICAL );
+    wxCheckBox *item20 = new wxCheckBox( parent, IDC_UDPENABLE, _("Extended UDP port (Kad / global search) "), wxDefaultPosition, wxDefaultSize, 0 );
+    item15->Add( item20, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxSpinCtrl *item19 = new wxSpinCtrl( parent, IDC_PORT, wxT("4662"), wxDefaultPosition, wxSize(100,-1), 0, 0, 65531, 4662 );
-    item19->SetToolTip( _("This is the standard eD2k port and cannot be disabled.") );
-    item17->Add( item19, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxSpinCtrl *item21 = new wxSpinCtrl( parent, IDC_UDPPORT, wxT("4672"), wxDefaultPosition, wxSize(100,-1), 0, 0, 65535, 4672 );
+    item21->SetToolTip( _("This UDP port is used for extended eD2k requests and Kad network") );
+    item15->Add( item21, 0, wxALIGN_CENTER, 5 );
 
-    item16->Add( item17, 1, wxGROW, 5 );
+    wxCheckBox *item22 = new wxCheckBox( parent, IDC_UPNP_ENABLED, _("Enable UPnP for router port forwarding"), wxDefaultPosition, wxDefaultSize, 0 );
+    item15->Add( item22, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxStaticBox *item21 = new wxStaticBox( parent, -1, _("Extended client UDP Port:") );
-    wxStaticBoxSizer *item20 = new wxStaticBoxSizer( item21, wxHORIZONTAL );
+    item15->Add( 20, 20, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    wxSpinCtrl *item22 = new wxSpinCtrl( parent, IDC_UDPPORT, wxT("4672"), wxDefaultPosition, wxSize(100,-1), 0, 0, 65535, 4672 );
-    item22->SetToolTip( _("This UDP port is used for extended ed2k requests and Kad network") );
-    item20->Add( item22, 0, wxALIGN_CENTER, 5 );
+    wxStaticText *item23 = new wxStaticText( parent, IDC_UPNPTCPPORTTEXT, _("UPnP TCP Port (Optional):"), wxDefaultPosition, wxDefaultSize, 0 );
+    item15->Add( item23, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 20 );
 
-    wxCheckBox *item23 = new wxCheckBox( parent, IDC_UDPDISABLE, _("disable"), wxDefaultPosition, wxDefaultSize, 0 );
-    item20->Add( item23, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL, 5 );
+    wxSpinCtrl *item24 = new wxSpinCtrl( parent, IDC_UPNPTCPPORT, wxT("50000"), wxDefaultPosition, wxSize(100,-1), 0, 0, 65535, 50000 );
+    item15->Add( item24, 0, wxALIGN_CENTER, 5 );
 
-    item16->Add( item20, 1, wxGROW, 5 );
+    item13->Add( item15, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    item1->Add( item16, 0, wxGROW|wxLEFT|wxRIGHT, 5 );
+    item0->Add( item13, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
 
-    item0->Add( item1, 0, wxGROW|wxALL, 5 );
+    wxFlexGridSizer *item25 = new wxFlexGridSizer( 2, 0, 0 );
+    item25->AddGrowableCol( 1 );
 
-    wxStaticBox *item25 = new wxStaticBox( parent, -1, _("Bind Address") );
-    wxStaticBoxSizer *item24 = new wxStaticBoxSizer( item25, wxVERTICAL );
+    wxStaticText *item26 = new wxStaticText( parent, -1, _("Bind local address to IP (empty for any):"), wxDefaultPosition, wxDefaultSize, 0 );
+    item25->Add( item26, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
 
-    wxTextCtrl *item26 = new wxTextCtrl( parent, IDC_ADDRESS, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
-    item24->Add( item26, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
+    wxTextCtrl *item27 = new wxTextCtrl( parent, IDC_ADDRESS, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
+    item27->SetToolTip( _("Advanced users only: If you have multiple network interfaces, enter the address of the interface to which aMule should be bound.") );
+    item25->Add( item27, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL, 0 );
 
-    item0->Add( item24, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
+    item0->Add( item25, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 0 );
 
-    wxStaticBox *item28 = new wxStaticBox( parent, -1, wxT("") );
-    wxStaticBoxSizer *item27 = new wxStaticBoxSizer( item28, wxVERTICAL );
+    wxFlexGridSizer *item28 = new wxFlexGridSizer( 2, 0, 0 );
+    item28->AddGrowableCol( 0 );
 
-    wxStaticText *item29 = new wxStaticText( parent, ID_TEXT_CLIENT_UDP_PORT, _("UDP port for extended server requests (TCP+3): 4665"), wxDefaultPosition, wxDefaultSize, 0 );
-    item27->Add( item29, 0, wxALIGN_CENTER, 5 );
+    wxStaticText *item29 = new wxStaticText( parent, ID_TEXT, _("Max sources per downloading file:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item28->Add( item29, 0, wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    item0->Add( item27, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
+    wxSpinCtrl *item30 = new wxSpinCtrl( parent, IDC_MAXSOURCEPERFILE, wxT("300"), wxDefaultPosition, wxSize(100,-1), 0, 40, 5000, 300 );
+    item28->Add( item30, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxGridSizer *item30 = new wxGridSizer( 2, 0, 5 );
+    wxStaticText *item31 = new wxStaticText( parent, ID_TEXT, _("Max simultaneous connections:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item28->Add( item31, 0, wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxStaticBox *item32 = new wxStaticBox( parent, -1, _("Max Sources per File") );
-    wxStaticBoxSizer *item31 = new wxStaticBoxSizer( item32, wxVERTICAL );
+    wxSpinCtrl *item32 = new wxSpinCtrl( parent, IDC_MAXCON, wxT("500"), wxDefaultPosition, wxSize(100,-1), 0, 5, 7500, 500 );
+    item28->Add( item32, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 0 );
 
-    wxBoxSizer *item33 = new wxBoxSizer( wxVERTICAL );
+    item0->Add( item28, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxStaticText *item34 = new wxStaticText( parent, -1, _("Hard limit"), wxDefaultPosition, wxDefaultSize, 0 );
-    item33->Add( item34, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxBoxSizer *item33 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxSpinCtrl *item35 = new wxSpinCtrl( parent, IDC_MAXSOURCEPERFILE, wxT("300"), wxDefaultPosition, wxSize(100,-1), 0, 40, 5000, 300 );
-    item33->Add( item35, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxStaticBox *item35 = new wxStaticBox( parent, -1, _("Networks") );
+    wxStaticBoxSizer *item34 = new wxStaticBoxSizer( item35, wxHORIZONTAL );
 
-    item31->Add( item33, 0, wxALIGN_CENTER, 0 );
+    wxCheckBox *item36 = new wxCheckBox( parent, IDC_NETWORKKAD, _("Kademlia"), wxDefaultPosition, wxDefaultSize, 0 );
+    item36->SetValue( TRUE );
+    item34->Add( item36, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
 
-    item30->Add( item31, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    wxCheckBox *item37 = new wxCheckBox( parent, IDC_NETWORKED2K, _("ED2K"), wxDefaultPosition, wxDefaultSize, 0 );
+    item37->SetValue( TRUE );
+    item34->Add( item37, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
 
-    wxStaticBox *item37 = new wxStaticBox( parent, -1, _("Connection limits") );
-    wxStaticBoxSizer *item36 = new wxStaticBoxSizer( item37, wxVERTICAL );
+    item33->Add( item34, 1, wxGROW|wxLEFT|wxRIGHT, 0 );
 
-    wxBoxSizer *item38 = new wxBoxSizer( wxVERTICAL );
+    wxStaticBox *item39 = new wxStaticBox( parent, -1, wxT("") );
+    wxStaticBoxSizer *item38 = new wxStaticBoxSizer( item39, wxVERTICAL );
 
-    wxStaticText *item39 = new wxStaticText( parent, -1, _("Max Connections"), wxDefaultPosition, wxDefaultSize, 0 );
-    item38->Add( item39, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxCheckBox *item40 = new wxCheckBox( parent, IDC_AUTOCONNECT, _("Autoconnect on startup"), wxDefaultPosition, wxDefaultSize, 0 );
+    item38->Add( item40, 0, wxALIGN_CENTER_VERTICAL, 10 );
 
-    wxSpinCtrl *item40 = new wxSpinCtrl( parent, IDC_MAXCON, wxT("500"), wxDefaultPosition, wxSize(100,-1), 0, 5, 7500, 500 );
-    item38->Add( item40, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxCheckBox *item41 = new wxCheckBox( parent, IDC_RECONN, _("Reconnect on loss"), wxDefaultPosition, wxDefaultSize, 0 );
+    item41->SetValue( TRUE );
+    item38->Add( item41, 0, wxALIGN_CENTER_VERTICAL, 10 );
 
-    item36->Add( item38, 0, wxALIGN_CENTER, 5 );
+    item33->Add( item38, 0, wxGROW|wxLEFT|wxRIGHT, 5 );
 
-    item30->Add( item36, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
-
-    item0->Add( item30, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
-
-    wxStaticBox *item42 = new wxStaticBox( parent, -1, _("Networks") );
-    wxStaticBoxSizer *item41 = new wxStaticBoxSizer( item42, wxVERTICAL );
-
-    wxFlexGridSizer *item43 = new wxFlexGridSizer( 1, 0, 0, 0 );
-    item43->AddGrowableCol( 0 );
-    item43->AddGrowableCol( 1 );
-    item43->AddGrowableCol( 2 );
-    item43->AddGrowableCol( 3 );
-    item43->AddGrowableCol( 4 );
-    item43->AddGrowableCol( 5 );
-    item43->AddGrowableCol( 6 );
-
-    wxCheckBox *item44 = new wxCheckBox( parent, IDC_NETWORKED2K, _("ED2K"), wxDefaultPosition, wxDefaultSize, 0 );
-    item44->SetValue( TRUE );
-    item43->Add( item44, 0, wxALIGN_CENTER|wxLEFT, 40 );
-
-    wxStaticLine *item45 = new wxStaticLine( parent, -1, wxDefaultPosition, wxSize(-1,20), wxLI_VERTICAL );
-    item43->Add( item45, 0, wxALIGN_CENTER, 5 );
-
-    wxCheckBox *item46 = new wxCheckBox( parent, IDC_NETWORKKAD, _("Kademlia"), wxDefaultPosition, wxDefaultSize, 0 );
-    item46->SetValue( TRUE );
-    item43->Add( item46, 0, wxALIGN_CENTER|wxRIGHT, 15 );
-
-    item41->Add( item43, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
-
-    item0->Add( item41, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
-
-    wxBoxSizer *item47 = new wxBoxSizer( wxHORIZONTAL );
-
-    wxStaticBox *item49 = new wxStaticBox( parent, -1, _("Universal Plug and Play") );
-    wxStaticBoxSizer *item48 = new wxStaticBoxSizer( item49, wxVERTICAL );
-
-    wxCheckBox *item50 = new wxCheckBox( parent, IDC_UPNP_ENABLED, _("Enable UPnP"), wxDefaultPosition, wxDefaultSize, 0 );
-    item48->Add( item50, 0, wxALIGN_CENTER, 5 );
-
-    wxStaticText *item51 = new wxStaticText( parent, -1, _("UPnP TCP Port:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item48->Add( item51, 0, wxALIGN_CENTER, 5 );
-
-    wxSpinCtrl *item52 = new wxSpinCtrl( parent, IDC_UPNPTCPPORT, wxT("50000"), wxDefaultPosition, wxSize(100,-1), 0, 0, 65535, 50000 );
-    item48->Add( item52, 0, wxALIGN_CENTER, 5 );
-
-    item47->Add( item48, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
-
-    wxStaticBox *item54 = new wxStaticBox( parent, -1, wxT("") );
-    wxStaticBoxSizer *item53 = new wxStaticBoxSizer( item54, wxVERTICAL );
-
-    wxCheckBox *item55 = new wxCheckBox( parent, IDC_AUTOCONNECT, _("Autoconnect on startup"), wxDefaultPosition, wxDefaultSize, 0 );
-    item53->Add( item55, 0, wxALIGN_CENTER_VERTICAL, 10 );
-
-    wxCheckBox *item56 = new wxCheckBox( parent, IDC_RECONN, _("Reconnect on loss"), wxDefaultPosition, wxDefaultSize, 0 );
-    item56->SetValue( TRUE );
-    item53->Add( item56, 0, wxALIGN_CENTER_VERTICAL, 10 );
-
-    wxCheckBox *item57 = new wxCheckBox( parent, IDC_SHOWOVERHEAD, _("Show overhead bandwith"), wxDefaultPosition, wxDefaultSize, 0 );
-    item57->SetValue( TRUE );
-    item53->Add( item57, 0, wxALIGN_CENTER_VERTICAL, 5 );
-
-    item47->Add( item53, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
-
-    item0->Add( item47, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item33, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
     if (set_sizer)
     {
@@ -1939,58 +1718,53 @@ wxSizer *PreferencesServerTab( wxWindow *parent, bool call_fit, bool set_sizer )
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Server Options") );
-    wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
+    wxBoxSizer *item1 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxBoxSizer *item3 = new wxBoxSizer( wxHORIZONTAL );
+    wxCheckBox *item2 = new wxCheckBox( parent, IDC_REMOVEDEAD, _("Remove dead server after"), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->Add( item2, 0, wxALIGN_CENTER|wxRIGHT, 5 );
 
-    wxCheckBox *item4 = new wxCheckBox( parent, IDC_REMOVEDEAD, _("Remove dead server after"), wxDefaultPosition, wxDefaultSize, 0 );
-    item3->Add( item4, 0, wxALIGN_CENTER|wxRIGHT, 5 );
+    wxSpinCtrl *item3 = new wxSpinCtrl( parent, IDC_SERVERRETRIES, wxT("2"), wxDefaultPosition, wxSize(40,-1), 0, 1, 10, 2 );
+    item1->Add( item3, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxSpinCtrl *item5 = new wxSpinCtrl( parent, IDC_SERVERRETRIES, wxT("2"), wxDefaultPosition, wxSize(40,-1), 0, 1, 10, 2 );
-    item3->Add( item5, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL, 5 );
+    wxStaticText *item4 = new wxStaticText( parent, -1, _("retries"), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->Add( item4, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    wxStaticText *item6 = new wxStaticText( parent, -1, _("retries"), wxDefaultPosition, wxDefaultSize, 0 );
-    item3->Add( item6, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
+    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
 
-    item1->Add( item3, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    wxBoxSizer *item5 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxBoxSizer *item7 = new wxBoxSizer( wxHORIZONTAL );
+    wxCheckBox *item6 = new wxCheckBox( parent, IDC_AUTOSERVER, _("Auto-update server list at startup"), wxDefaultPosition, wxDefaultSize, 0 );
+    item5->Add( item6, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item8 = new wxCheckBox( parent, IDC_AUTOSERVER, _("Auto-update server list at startup"), wxDefaultPosition, wxDefaultSize, 0 );
-    item7->Add( item8, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxButton *item7 = new wxButton( parent, IDC_EDITADR, _("List"), wxDefaultPosition, wxDefaultSize, 0 );
+    item5->Add( item7, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    wxButton *item9 = new wxButton( parent, IDC_EDITADR, _("List"), wxDefaultPosition, wxDefaultSize, 0 );
-    item7->Add( item9, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+    item0->Add( item5, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    item1->Add( item7, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    wxCheckBox *item8 = new wxCheckBox( parent, IDC_UPDATESERVERCONNECT, _("Update server list when connecting to a server"), wxDefaultPosition, wxDefaultSize, 0 );
+    item0->Add( item8, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item10 = new wxCheckBox( parent, IDC_UPDATESERVERCONNECT, _("Update server list when connecting to a server"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item10, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxCheckBox *item9 = new wxCheckBox( parent, IDC_UPDATESERVERCLIENT, _("Update server list when a client connects"), wxDefaultPosition, wxDefaultSize, 0 );
+    item0->Add( item9, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item11 = new wxCheckBox( parent, IDC_UPDATESERVERCLIENT, _("Update server list when a client connects"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item11, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxCheckBox *item10 = new wxCheckBox( parent, IDC_SCORE, _("Use priority system"), wxDefaultPosition, wxDefaultSize, 0 );
+    item10->SetValue( TRUE );
+    item0->Add( item10, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item12 = new wxCheckBox( parent, IDC_SCORE, _("Use priority system"), wxDefaultPosition, wxDefaultSize, 0 );
+    wxCheckBox *item11 = new wxCheckBox( parent, IDC_SMARTIDCHECK, _("Use smart LowID check on connect"), wxDefaultPosition, wxDefaultSize, 0 );
+    item11->SetValue( TRUE );
+    item0->Add( item11, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+    wxCheckBox *item12 = new wxCheckBox( parent, IDC_SAFESERVERCONNECT, _("Safe connect"), wxDefaultPosition, wxDefaultSize, 0 );
     item12->SetValue( TRUE );
-    item1->Add( item12, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    item0->Add( item12, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item13 = new wxCheckBox( parent, IDC_SMARTIDCHECK, _("Use smart LowID check on connect"), wxDefaultPosition, wxDefaultSize, 0 );
-    item13->SetValue( TRUE );
-    item1->Add( item13, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxCheckBox *item13 = new wxCheckBox( parent, IDC_AUTOCONNECTSTATICONLY, _("Autoconnect to servers in static list only"), wxDefaultPosition, wxDefaultSize, 0 );
+    item0->Add( item13, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item14 = new wxCheckBox( parent, IDC_SAFESERVERCONNECT, _("Safe connect"), wxDefaultPosition, wxDefaultSize, 0 );
+    wxCheckBox *item14 = new wxCheckBox( parent, IDC_MANUALSERVERHIGHPRIO, _("Set manually added servers to High Priority"), wxDefaultPosition, wxDefaultSize, 0 );
     item14->SetValue( TRUE );
-    item1->Add( item14, 0, wxALIGN_CENTER_VERTICAL, 5 );
-
-    wxCheckBox *item15 = new wxCheckBox( parent, IDC_AUTOCONNECTSTATICONLY, _("Autoconnect to servers in static list only"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item15, 0, wxALIGN_CENTER_VERTICAL, 5 );
-
-    wxCheckBox *item16 = new wxCheckBox( parent, IDC_MANUALSERVERHIGHPRIO, _("Set manually added servers to High Priority"), wxDefaultPosition, wxDefaultSize, 0 );
-    item16->SetValue( TRUE );
-    item1->Add( item16, 0, wxALIGN_CENTER_VERTICAL, 5 );
-
-    item0->Add( item1, 0, wxGROW|wxALL, 5 );
+    item0->Add( item14, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
     if (set_sizer)
     {
@@ -2006,79 +1780,74 @@ wxSizer *PreferencesFilesTab( wxWindow *parent, bool call_fit, bool set_sizer )
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Intelligent Corruption Handling") );
+    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Intelligent Corruption Handling (I.C.H.)") );
     wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
 
-    wxCheckBox *item3 = new wxCheckBox( parent, IDC_ICH, _("I.C.H. active"), wxDefaultPosition, wxSize(160,-1), 0 );
+    wxCheckBox *item3 = new wxCheckBox( parent, IDC_ICH, _("Enable"), wxDefaultPosition, wxDefaultSize, 0 );
     item3->SetValue( TRUE );
-    item1->Add( item3, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
+    item1->Add( item3, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 0 );
 
-    wxCheckBox *item4 = new wxCheckBox( parent, IDC_AICHTRUST, _("AICH trusts every hash (not recomended)"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item4, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxCheckBox *item4 = new wxCheckBox( parent, IDC_AICHTRUST, _("Advanced I.C.H. trusts every hash (not recommended)"), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->Add( item4, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
-    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxStaticBox *item6 = new wxStaticBox( parent, -1, wxT("") );
+    wxStaticBox *item6 = new wxStaticBox( parent, -1, _("Downloads") );
     wxStaticBoxSizer *item5 = new wxStaticBoxSizer( item6, wxVERTICAL );
 
     wxCheckBox *item7 = new wxCheckBox( parent, IDC_ADDNEWFILESPAUSED, _("Add files to download in pause mode"), wxDefaultPosition, wxDefaultSize, 0 );
-    item5->Add( item7, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
+    item5->Add( item7, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 0 );
 
     wxCheckBox *item8 = new wxCheckBox( parent, IDC_DAP, _("Add files to download with auto priority"), wxDefaultPosition, wxDefaultSize, 0 );
-    item5->Add( item8, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    item5->Add( item8, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
     wxCheckBox *item9 = new wxCheckBox( parent, IDC_PREVIEWPRIO, _("Try to download first and last chunks first"), wxDefaultPosition, wxDefaultSize, 0 );
     item9->SetValue( TRUE );
-    item5->Add( item9, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
+    item5->Add( item9, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 0 );
 
-    wxCheckBox *item10 = new wxCheckBox( parent, IDC_UAP, _("Add new shared files with auto priority"), wxDefaultPosition, wxDefaultSize, 0 );
-    item5->Add( item10, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
+    wxCheckBox *item10 = new wxCheckBox( parent, IDC_STARTNEXTFILE, _("Start next paused file when a file completes"), wxDefaultPosition, wxDefaultSize, 0 );
+    item10->SetValue( TRUE );
+    item5->Add( item10, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 0 );
 
-    wxCheckBox *item11 = new wxCheckBox( parent, IDC_FULLCHUNKTRANS, _("Try to transfer full chunks to all uploads"), wxDefaultPosition, wxDefaultSize, 0 );
-    item11->SetValue( TRUE );
-    item5->Add( item11, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
+    wxCheckBox *item11 = new wxCheckBox( parent, IDC_STARTNEXTFILE_SAME, _("From the same category"), wxDefaultPosition, wxDefaultSize, 0 );
+    item5->Add( item11, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 20 );
 
-    wxCheckBox *item12 = new wxCheckBox( parent, IDC_STARTNEXTFILE, _("Start next paused file when a file completed"), wxDefaultPosition, wxDefaultSize, 0 );
-    item12->SetValue( TRUE );
-    item5->Add( item12, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
+    wxCheckBox *item12 = new wxCheckBox( parent, IDC_STARTNEXTFILE_ALPHA, _("In alphabetic order"), wxDefaultPosition, wxDefaultSize, 0 );
+    item5->Add( item12, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 20 );
 
-    wxCheckBox *item13 = new wxCheckBox( parent, IDC_STARTNEXTFILE_SAME, _("From the same category"), wxDefaultPosition, wxDefaultSize, 0 );
-    item5->Add( item13, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 20 );
+    wxCheckBox *item13 = new wxCheckBox( parent, IDC_ALLOCFULLFILE, _("Preallocate disk space for new files"), wxDefaultPosition, wxDefaultSize, 0 );
+    item13->SetToolTip( _("For new files preallocates disk space for the whole file, thus reduces fragmentation") );
+    item5->Add( item13, 0, wxALIGN_CENTER_VERTICAL|wxTOP, 0 );
 
-    wxCheckBox *item14 = new wxCheckBox( parent, IDC_SRCSEEDS, _("Save 10 sources on rare files (< 20 sources)"), wxDefaultPosition, wxDefaultSize, 0 );
-    item14->SetValue( TRUE );
-    item5->Add( item14, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
+    wxFlexGridSizer *item14 = new wxFlexGridSizer( 3, 0, 0 );
+    item14->AddGrowableCol( 0 );
 
-    item0->Add( item5, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxCheckBox *item15 = new wxCheckBox( parent, IDC_CHECKDISKSPACE, _("Stop downloads when free disk space reaches "), wxDefaultPosition, wxDefaultSize, 0 );
+    item15->SetToolTip( _("Select this if you want aMule to check your disk space") );
+    item14->Add( item15, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxStaticBox *item16 = new wxStaticBox( parent, -1, _("Disk space") );
-    wxStaticBoxSizer *item15 = new wxStaticBoxSizer( item16, wxVERTICAL );
+    wxSpinCtrl *item16 = new wxSpinCtrl( parent, IDC_MINDISKSPACE, wxT("1"), wxDefaultPosition, wxSize(100,-1), 0, 1, 1000000, 1 );
+    item16->SetToolTip( _("Enter here the min disk space desired.") );
+    item14->Add( item16, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxCheckBox *item17 = new wxCheckBox( parent, IDC_CHECKDISKSPACE, _("Check disk space"), wxDefaultPosition, wxDefaultSize, 0 );
-    item17->SetToolTip( _("Select this if you want aMule to check your disk space") );
-    item15->Add( item17, 0, wxALIGN_CENTER_VERTICAL, 0 );
+    wxStaticText *item17 = new wxStaticText( parent, -1, _("MB"), wxDefaultPosition, wxDefaultSize, 0 );
+    item14->Add( item17, 0, wxALIGN_CENTER|wxLEFT, 5 );
 
-    wxBoxSizer *item18 = new wxBoxSizer( wxHORIZONTAL );
+    item5->Add( item14, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
 
-    item18->Add( 20, 20, 0, wxALIGN_CENTER|wxALL, 0 );
+    wxCheckBox *item18 = new wxCheckBox( parent, IDC_SRCSEEDS, _("Save 10 sources on rare files (< 20 sources)"), wxDefaultPosition, wxDefaultSize, 0 );
+    item18->SetValue( TRUE );
+    item5->Add( item18, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxStaticText *item19 = new wxStaticText( parent, -1, _("Min disk space:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item18->Add( item19, 0, wxALIGN_CENTER|wxRIGHT, 5 );
+    item0->Add( item5, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxSpinCtrl *item20 = new wxSpinCtrl( parent, IDC_MINDISKSPACE, wxT("1"), wxDefaultPosition, wxSize(100,-1), 0, 1, 1000000, 1 );
-    item20->SetToolTip( _("Enter here the min disk space desired.") );
-    item18->Add( item20, 0, wxALIGN_CENTER_VERTICAL, 0 );
+    wxStaticBox *item20 = new wxStaticBox( parent, -1, _("Uploads") );
+    wxStaticBoxSizer *item19 = new wxStaticBoxSizer( item20, wxVERTICAL );
 
-    wxStaticText *item21 = new wxStaticText( parent, -1, _("MB"), wxDefaultPosition, wxDefaultSize, 0 );
-    item18->Add( item21, 0, wxALIGN_CENTER|wxLEFT, 5 );
+    wxCheckBox *item21 = new wxCheckBox( parent, IDC_UAP, _("Add new shared files with auto priority"), wxDefaultPosition, wxDefaultSize, 0 );
+    item19->Add( item21, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 0 );
 
-    item15->Add( item18, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
-
-    wxCheckBox *item22 = new wxCheckBox( parent, IDC_ALLOCFULLFILE, _("Preallocate disk space for new files"), wxDefaultPosition, wxDefaultSize, 0 );
-    item22->SetToolTip( _("For new files preallocates disk space for the whole file, thus reduces fragmentation") );
-    item15->Add( item22, 0, wxALIGN_CENTER_VERTICAL|wxTOP, 10 );
-
-    item0->Add( item15, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item19, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 0 );
 
     if (set_sizer)
     {
@@ -2094,7 +1863,7 @@ wxSizer *PreferencesDirectoriesTab( wxWindow *parent, bool call_fit, bool set_si
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Incoming") );
+    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Destination folder for downloads") );
     wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxHORIZONTAL );
 
     CMuleTextCtrl *item3 = new CMuleTextCtrl( parent, IDC_INCFILES, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
@@ -2103,9 +1872,9 @@ wxSizer *PreferencesDirectoriesTab( wxWindow *parent, bool call_fit, bool set_si
     wxButton *item4 = new wxButton( parent, IDC_SELINCDIR, _("Browse"), wxDefaultPosition, wxDefaultSize, 0 );
     item1->Add( item4, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
 
-    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxStaticBox *item6 = new wxStaticBox( parent, -1, _("Temporary") );
+    wxStaticBox *item6 = new wxStaticBox( parent, -1, _("Folder for temporary download files") );
     wxStaticBoxSizer *item5 = new wxStaticBoxSizer( item6, wxHORIZONTAL );
 
     CMuleTextCtrl *item7 = new CMuleTextCtrl( parent, IDC_TEMPFILES, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
@@ -2114,23 +1883,23 @@ wxSizer *PreferencesDirectoriesTab( wxWindow *parent, bool call_fit, bool set_si
     wxButton *item8 = new wxButton( parent, IDC_SELTEMPDIR, _("Browse"), wxDefaultPosition, wxDefaultSize, 0 );
     item5->Add( item8, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
 
-    item0->Add( item5, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item5, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxStaticBox *item10 = new wxStaticBox( parent, -1, _("Shared") );
+    wxStaticBox *item10 = new wxStaticBox( parent, -1, _("Shared folders") );
     wxStaticBoxSizer *item9 = new wxStaticBoxSizer( item10, wxVERTICAL );
 
     wxStaticText *item11 = new wxStaticText( parent, -1, _("(Right click on folder icon for recursive share)"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE );
-    item9->Add( item11, 0, wxALIGN_CENTER, 5 );
+    item9->Add( item11, 0, wxALIGN_CENTER, 0 );
 
-    CDirectoryTreeCtrl *item12 = new CDirectoryTreeCtrl(parent, IDC_SHARESELECTOR,wxPoint(0,0),  wxSize(100, 100), wxSUNKEN_BORDER|wxTR_DEFAULT_STYLE|wxTR_HIDE_ROOT);
+    CDirectoryTreeCtrl *item12 = new CDirectoryTreeCtrl(parent, IDC_SHARESELECTOR, wxPoint(0,0), wxSize(100,100), wxSUNKEN_BORDER|wxTR_DEFAULT_STYLE|wxTR_HIDE_ROOT );
     wxASSERT( item12 );
     item9->Add( item12, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
     wxCheckBox *item13 = new wxCheckBox( parent, IDC_SHAREHIDDENFILES, _("Share hidden files"), wxDefaultPosition, wxDefaultSize, 0 );
     item13->SetValue( TRUE );
-    item9->Add( item13, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    item9->Add( item13, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
-    item0->Add( item9, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item9, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
     if (set_sizer)
     {
@@ -2167,12 +1936,36 @@ wxSizer *PreferencesStatisticsTab( wxWindow *parent, bool call_fit, bool set_siz
     wxSlider *item8 = new wxSlider( parent, IDC_SLIDER4, 100, 2, 200, wxDefaultPosition, wxSize(100,-1), wxSL_HORIZONTAL );
     item1->Add( item8, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxStaticText *item9 = new wxStaticText( parent, -1, _("Select Statistics Colors"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item9, 0, wxALIGN_CENTER_VERTICAL|wxTOP, 5 );
+    wxFlexGridSizer *item9 = new wxFlexGridSizer( 3, 0, 0 );
+    item9->AddGrowableCol( 0 );
 
-    wxBoxSizer *item10 = new wxBoxSizer( wxHORIZONTAL );
+    wxStaticText *item10 = new wxStaticText( parent, -1, _("Download graph scale:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item9->Add( item10, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxString strs11[] = 
+    wxSpinCtrl *item11 = new wxSpinCtrl( parent, IDC_DOWNLOAD_CAP, wxT("3"), wxDefaultPosition, wxSize(100,-1), 0, 3, 19375, 3 );
+    item9->Add( item11, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+    wxStaticText *item12 = new wxStaticText( parent, -1, _("kB/s"), wxDefaultPosition, wxDefaultSize, 0 );
+    item9->Add( item12, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+
+    wxStaticText *item13 = new wxStaticText( parent, -1, _("Upload graph scale:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item9->Add( item13, 0, wxALIGN_CENTER_VERTICAL|wxTOP, 5 );
+
+    wxSpinCtrl *item14 = new wxSpinCtrl( parent, IDC_UPLOAD_CAP, wxT("3"), wxDefaultPosition, wxSize(100,-1), 0, 3, 19375, 3 );
+    item9->Add( item14, 0, wxALIGN_CENTER_VERTICAL|wxTOP, 5 );
+
+    wxStaticText *item15 = new wxStaticText( parent, -1, _("kB/s"), wxDefaultPosition, wxDefaultSize, 0 );
+    item9->Add( item15, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxTOP, 5 );
+
+    item1->Add( item9, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxTOP, 5 );
+
+    wxFlexGridSizer *item16 = new wxFlexGridSizer( 3, 0, 0 );
+    item16->AddGrowableCol( 0 );
+
+    wxStaticText *item17 = new wxStaticText( parent, -1, _("Colours: "), wxDefaultPosition, wxDefaultSize, 0 );
+    item16->Add( item17, 0, wxALIGN_CENTER_VERTICAL|wxTOP, 5 );
+
+    wxString strs18[] = 
     {
         _("Background"), 
         _("Grid"), 
@@ -2190,66 +1983,36 @@ wxSizer *PreferencesStatisticsTab( wxWindow *parent, bool call_fit, bool set_siz
         _("Kad-nodes running"), 
         _("Kad-nodes session")
     };
-    wxChoice *item11 = new wxChoice( parent, IDC_COLORSELECTOR, wxDefaultPosition, wxDefaultSize, 15, strs11, 0 );
-    item10->Add( item11, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxRIGHT, 5 );
+    wxChoice *item18 = new wxChoice( parent, IDC_COLORSELECTOR, wxDefaultPosition, wxDefaultSize, 15, strs18, 0 );
+    item16->Add( item18, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxRIGHT, 5 );
 
-    wxButton *item12 = new wxButton( parent, IDC_COLOR_BUTTON, _("Select"), wxDefaultPosition, wxDefaultSize, 0 );
-    item10->Add( item12, 0, wxGROW|wxLEFT, 5 );
+    wxButton *item19 = new wxButton( parent, IDC_COLOR_BUTTON, _("Select"), wxDefaultPosition, wxDefaultSize, 0 );
+    item16->Add( item19, 0, wxGROW|wxLEFT, 5 );
 
-    item1->Add( item10, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    item1->Add( item16, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxStaticBox *item14 = new wxStaticBox( parent, -1, _("Statistics Tree") );
-    wxStaticBoxSizer *item13 = new wxStaticBoxSizer( item14, wxVERTICAL );
-
-    wxStaticText *item15 = new wxStaticText( parent, IDC_SLIDERINFO2, _("Update delay : 5 secs"), wxDefaultPosition, wxDefaultSize, 0 );
-    item13->Add( item15, 0, wxALIGN_CENTER_VERTICAL, 5 );
-
-    wxSlider *item16 = new wxSlider( parent, IDC_SLIDER2, 5, 5, 100, wxDefaultPosition, wxSize(100,-1), wxSL_HORIZONTAL );
-    item13->Add( item16, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
-
-    wxBoxSizer *item17 = new wxBoxSizer( wxHORIZONTAL );
-
-    wxStaticText *item18 = new wxStaticText( parent, -1, _("Number of Client Versions shown (0=unlimited)"), wxDefaultPosition, wxDefaultSize, 0 );
-    item17->Add( item18, 0, wxALIGN_CENTER|wxALL, 5 );
-
-    wxSpinCtrl *item19 = new wxSpinCtrl( parent, IDC_CLIENTVERSIONS, wxT("0"), wxDefaultPosition, wxDefaultSize, 0, 0, 255, 0 );
-    item17->Add( item19, 0, wxALIGN_CENTER|wxALL, 5 );
-
-    item13->Add( item17, 0, wxALIGN_CENTER_VERTICAL, 5 );
-
-    item0->Add( item13, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    wxStaticBox *item21 = new wxStaticBox( parent, -1, _("Line Capacities") );
+    wxStaticBox *item21 = new wxStaticBox( parent, -1, _("Tree") );
     wxStaticBoxSizer *item20 = new wxStaticBoxSizer( item21, wxVERTICAL );
 
-    wxGridSizer *item22 = new wxGridSizer( 3, 0, 0 );
+    wxStaticText *item22 = new wxStaticText( parent, IDC_SLIDERINFO2, _("Update delay : 5 secs"), wxDefaultPosition, wxDefaultSize, 0 );
+    item20->Add( item22, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxStaticText *item23 = new wxStaticText( parent, -1, _("Download"), wxDefaultPosition, wxDefaultSize, 0 );
-    item22->Add( item23, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxSlider *item23 = new wxSlider( parent, IDC_SLIDER2, 5, 5, 100, wxDefaultPosition, wxSize(100,-1), wxSL_HORIZONTAL );
+    item20->Add( item23, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxSpinCtrl *item24 = new wxSpinCtrl( parent, IDC_DOWNLOAD_CAP, wxT("3"), wxDefaultPosition, wxSize(100,-1), 0, 3, 19375, 3 );
-    item22->Add( item24, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxBoxSizer *item24 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxStaticText *item25 = new wxStaticText( parent, -1, _("kB/s"), wxDefaultPosition, wxDefaultSize, 0 );
-    item22->Add( item25, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+    wxStaticText *item25 = new wxStaticText( parent, -1, _("Number of Client Versions shown (0=unlimited)"), wxDefaultPosition, wxDefaultSize, 0 );
+    item24->Add( item25, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    wxStaticText *item26 = new wxStaticText( parent, -1, _("Upload"), wxDefaultPosition, wxDefaultSize, 0 );
-    item22->Add( item26, 0, wxALIGN_CENTER_VERTICAL, 20 );
+    wxSpinCtrl *item26 = new wxSpinCtrl( parent, IDC_CLIENTVERSIONS, wxT("0"), wxDefaultPosition, wxDefaultSize, 0, 0, 255, 0 );
+    item24->Add( item26, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    wxSpinCtrl *item27 = new wxSpinCtrl( parent, IDC_UPLOAD_CAP, wxT("3"), wxDefaultPosition, wxSize(100,-1), 0, 3, 19375, 3 );
-    item22->Add( item27, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    item20->Add( item24, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxStaticText *item28 = new wxStaticText( parent, -1, _("kB/s"), wxDefaultPosition, wxDefaultSize, 0 );
-    item22->Add( item28, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
-
-    item20->Add( item22, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
-
-    wxStaticText *item29 = new wxStaticText( parent, -1, _("Note: These values are only used for statistics."), wxDefaultPosition, wxDefaultSize, 0 );
-    item20->Add( item29, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxTOP, 5 );
-
-    item0->Add( item20, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+    item0->Add( item20, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
     if (set_sizer)
     {
@@ -2274,15 +2037,13 @@ wxSizer *PreferencesaMuleTweaksTab( wxWindow *parent, bool call_fit, bool set_si
     item2->SetFont( wxFont( 24, wxROMAN, wxNORMAL, wxNORMAL ) );
     item1->Add( item2, 0, wxALIGN_CENTER, 5 );
 
-    wxStaticText *item3 = new wxStaticText( parent, -1, 
-        _("Do not change these setting unless you know\nwhat you are doing, otherwise you can easily\nmake things worse for yourself.\n\naMule will run fine without adjusting any of\nthese settings."),
-        wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE );
+    wxStaticText *item3 = new wxStaticText( parent, IDC_AMULE_TWEAKS_WARNING, wxT(""), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE );
     item3->SetForegroundColour( *wxRED );
     item1->Add( item3, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
     item0->Add( item1, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    wxStaticBox *item5 = new wxStaticBox( parent, -1, _("Advanced Settings") );
+    wxStaticBox *item5 = new wxStaticBox( parent, -1, wxT("") );
     wxStaticBoxSizer *item4 = new wxStaticBoxSizer( item5, wxVERTICAL );
 
     wxStaticText *item6 = new wxStaticText( parent, -1, _("Max new connections / 5 secs"), wxDefaultPosition, wxDefaultSize, 0 );
@@ -2309,6 +2070,9 @@ wxSizer *PreferencesaMuleTweaksTab( wxWindow *parent, bool call_fit, bool set_si
     wxSlider *item13 = new wxSlider( parent, IDC_SERVERKEEPALIVE, 0, 0, 30, wxDefaultPosition, wxSize(100,-1), wxSL_HORIZONTAL );
     item4->Add( item13, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
+    wxCheckBox *item14 = new wxCheckBox( parent, IDC_PREVENT_SLEEP, _("Disable computer's timed standby mode"), wxDefaultPosition, wxDefaultSize, 0 );
+    item4->Add( item14, 0, wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM, 5 );
+
     item0->Add( item4, 0, wxGROW|wxALL, 5 );
 
     if (set_sizer)
@@ -2325,97 +2089,79 @@ wxSizer *PreferencesGuiTweaksTab( wxWindow *parent, bool call_fit, bool set_size
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Download Queue Files Progress") );
-    wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
+    wxBoxSizer *item1 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxCheckBox *item3 = new wxCheckBox( parent, IDC_PERCENT, _("Show percentage"), wxDefaultPosition, wxDefaultSize, 0 );
-    item3->SetValue( TRUE );
-    item1->Add( item3, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
+    wxStaticText *item2 = new wxStaticText( parent, -1, _("Skin to use: "), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->Add( item2, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item4 = new wxCheckBox( parent, IDC_PROGBAR, _("Show progressbar "), wxDefaultPosition, wxDefaultSize, 0 );
+    wxString strs3[] = 
+    {
+        _("- default -")
+    };
+    wxChoice *item3 = new wxChoice( parent, IDC_SKIN, wxDefaultPosition, wxSize(200,-1), 1, strs3, 0 );
+    item1->Add( item3, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 0 );
+
+    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM, 5 );
+
+    wxCheckBox *item4 = new wxCheckBox( parent, IDC_FED2KLH, _("Show \"Fast eD2k Links Handler\" in every window."), wxDefaultPosition, wxDefaultSize, 0 );
     item4->SetValue( TRUE );
-    item1->Add( item4, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
+    item0->Add( item4, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxFlexGridSizer *item5 = new wxFlexGridSizer( 2, 0, 0 );
+    wxCheckBox *item5 = new wxCheckBox( parent, IDC_EXTCATINFO, _("Show extended info on categories tabs"), wxDefaultPosition, wxDefaultSize, 0 );
+    item5->SetValue( TRUE );
+    item0->Add( item5, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxStaticText *item6 = new wxStaticText( parent, -1, _("Progressbar Style"), wxDefaultPosition, wxDefaultSize, 0 );
-    item5->Add( item6, 1, wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
+    wxCheckBox *item6 = new wxCheckBox( parent, IDC_SHOWRATEONTITLE, _("Show transfer rates on title"), wxDefaultPosition, wxDefaultSize, 0 );
+    item0->Add( item6, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxBoxSizer *item7 = new wxBoxSizer( wxVERTICAL );
+    wxRadioButton *item7 = new wxRadioButton( parent, IDC_RATESBEFORETITLE, _("Before application name"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP );
+    item0->Add( item7, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 20 );
 
-    wxSlider *item8 = new wxSlider( parent, IDC_3DDEPTH, 5, 0, 5, wxDefaultPosition, wxSize(200,-1), wxSL_HORIZONTAL );
-    item7->Add( item8, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    wxRadioButton *item8 = new wxRadioButton( parent, IDC_RATESAFTERTITLE, _("After application name"), wxDefaultPosition, wxDefaultSize, 0 );
+    item8->SetValue( TRUE );
+    item0->Add( item8, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 20 );
 
-    wxGridSizer *item9 = new wxGridSizer( 1, 0, 0, 0 );
+    wxCheckBox *item9 = new wxCheckBox( parent, IDC_SHOWOVERHEAD, _("Show overhead bandwidth"), wxDefaultPosition, wxDefaultSize, 0 );
+    item9->SetValue( TRUE );
+    item0->Add( item9, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxStaticText *item10 = new wxStaticText( parent, -1, _("Flat"), wxDefaultPosition, wxDefaultSize, 0 );
-    item9->Add( item10, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+    wxCheckBox *item10 = new wxCheckBox( parent, IDC_VERTTOOLBAR, _("Vertical toolbar orientation"), wxDefaultPosition, wxDefaultSize, 0 );
+    item0->Add( item10, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxStaticText *item11 = new wxStaticText( parent, -1, _("Round"), wxDefaultPosition, wxDefaultSize, 0 );
-    item9->Add( item11, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
+    wxCheckBox *item11 = new wxCheckBox( parent, IDC_SHOW_COUNTRY_FLAGS, _("Show country flags for clients"), wxDefaultPosition, wxDefaultSize, 0 );
+    item0->Add( item11, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    item7->Add( item9, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
-
-    item5->Add( item7, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
-
-    item1->Add( item5, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
-
-    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    wxStaticBox *item13 = new wxStaticBox( parent, -1, _("Skin Support") );
+    wxStaticBox *item13 = new wxStaticBox( parent, -1, _("Download Queue Files") );
     wxStaticBoxSizer *item12 = new wxStaticBoxSizer( item13, wxVERTICAL );
 
-    wxCheckBox *item14 = new wxCheckBox( parent, IDC_USESKINFILES, _("Enable skin support "), wxDefaultPosition, wxDefaultSize, 0 );
-    item12->Add( item14, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxCheckBox *item14 = new wxCheckBox( parent, IDC_PERCENT, _("Show progress percentage"), wxDefaultPosition, wxDefaultSize, 0 );
+    item14->SetValue( TRUE );
+    item12->Add( item14, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxBoxSizer *item15 = new wxBoxSizer( wxHORIZONTAL );
+    wxFlexGridSizer *item15 = new wxFlexGridSizer( 4, 0, 0 );
+    item15->AddGrowableCol( 0 );
 
-    wxStaticText *item16 = new wxStaticText( parent, -1, _("Skin:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item15->Add( item16, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxCheckBox *item16 = new wxCheckBox( parent, IDC_PROGBAR, _("Show progress bar"), wxDefaultPosition, wxDefaultSize, 0 );
+    item16->SetValue( TRUE );
+    item15->Add( item16, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
 
-    wxString strs17[] = 
-    {
-        _("- no skins available -")
-    };
-    wxChoice *item17 = new wxChoice( parent, IDC_SKIN, wxDefaultPosition, wxSize(200,-1), 1, strs17, 0 );
-    item15->Add( item17, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxStaticText *item17 = new wxStaticText( parent, -1, _("Flat"), wxDefaultPosition, wxDefaultSize, 0 );
+    item15->Add( item17, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    item12->Add( item15, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
+    wxSlider *item18 = new wxSlider( parent, IDC_3DDEPTH, 5, 0, 5, wxDefaultPosition, wxSize(200,-1), wxSL_HORIZONTAL );
+    item15->Add( item18, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    item0->Add( item12, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxStaticText *item19 = new wxStaticText( parent, -1, _("Round"), wxDefaultPosition, wxDefaultSize, 0 );
+    item15->Add( item19, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
 
-    wxStaticBox *item19 = new wxStaticBox( parent, -1, _("Column Sorting") );
-    wxStaticBoxSizer *item18 = new wxStaticBoxSizer( item19, wxVERTICAL );
+    item12->Add( item15, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item20 = new wxCheckBox( parent, IDC_AUTOSORT, _("Auto-sort files in the download queue (high CPU)"), wxDefaultPosition, wxDefaultSize, 0 );
+    wxCheckBox *item20 = new wxCheckBox( parent, IDC_AUTOSORT, _("Auto-sort files (high CPU)"), wxDefaultPosition, wxDefaultSize, 0 );
     item20->SetValue( TRUE );
     item20->SetToolTip( _("aMule will sort the columns in your download list automatically") );
-    item18->Add( item20, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    item12->Add( item20, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
 
-    item0->Add( item18, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    wxStaticBox *item22 = new wxStaticBox( parent, -1, _("Misc Gui Tweaks") );
-    wxStaticBoxSizer *item21 = new wxStaticBoxSizer( item22, wxVERTICAL );
-
-    wxCheckBox *item23 = new wxCheckBox( parent, IDC_FED2KLH, _("Show Fast eD2k Links Handler"), wxDefaultPosition, wxDefaultSize, 0 );
-    item23->SetValue( TRUE );
-    item21->Add( item23, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
-
-    wxCheckBox *item24 = new wxCheckBox( parent, IDC_EXTCATINFO, _("Show extended info on categories tabs"), wxDefaultPosition, wxDefaultSize, 0 );
-    item24->SetValue( TRUE );
-    item21->Add( item24, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
-
-    wxCheckBox *item25 = new wxCheckBox( parent, IDC_SHOWRATEONTITLE, _("Show transfer rates on title"), wxDefaultPosition, wxDefaultSize, 0 );
-    item25->SetValue( TRUE );
-    item21->Add( item25, 0, wxALIGN_CENTER_VERTICAL, 5 );
-
-    wxCheckBox *item26 = new wxCheckBox( parent, IDC_VERTTOOLBAR, _("Vertical toolbar orientation"), wxDefaultPosition, wxDefaultSize, 0 );
-    item21->Add( item26, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
-
-    wxCheckBox *item27 = new wxCheckBox( parent, IDC_SHOWPARTFILENUMBER, _("Show part file number before file name"), wxDefaultPosition, wxDefaultSize, 0 );
-    item21->Add( item27, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
-
-    item0->Add( item21, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item12, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
     if (set_sizer)
     {
@@ -2431,124 +2177,125 @@ wxSizer *PreferencesRemoteControlsTab( wxWindow *parent, bool call_fit, bool set
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Web server parameters") );
+    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("External Connection Parameters") );
     wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
 
-    wxCheckBox *item3 = new wxCheckBox( parent, IDC_ENABLE_WEB, _("Run amuleweb on startup"), wxDefaultPosition, wxDefaultSize, 0 );
+    wxCheckBox *item3 = new wxCheckBox( parent, IDC_EXT_CONN_ACCEPT, _("Accept external connections"), wxDefaultPosition, wxDefaultSize, 0 );
     item1->Add( item3, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxBoxSizer *item4 = new wxBoxSizer( wxHORIZONTAL );
+    wxFlexGridSizer *item4 = new wxFlexGridSizer( 2, 0, 0 );
+    item4->AddGrowableCol( 0 );
+    item4->AddGrowableCol( 1 );
 
-    wxStaticText *item5 = new wxStaticText( parent, -1, _("Web server port"), wxDefaultPosition, wxDefaultSize, 0 );
-    item4->Add( item5, 1, wxALIGN_CENTER_VERTICAL, 5 );
+    wxStaticText *item5 = new wxStaticText( parent, -1, _("IP of the listening interface:"), wxDefaultPosition, wxDefaultSize, wxST_NO_AUTORESIZE );
+    item4->Add( item5, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    wxSpinCtrl *item6 = new wxSpinCtrl( parent, IDC_WEB_PORT, wxT("10000"), wxDefaultPosition, wxSize(100,-1), 0, 1025, 65535, 10000 );
-    item4->Add( item6, 0, wxALIGN_CENTER, 5 );
+    CMuleTextCtrl *item6 = new CMuleTextCtrl( parent, IDC_EXT_CONN_IP, wxT(""), wxDefaultPosition, wxDefaultSize, 0 );
+    item6->SetToolTip( _("Enter here a valid ip in the a.b.c.d format for the listening EC interface. An empty field or 0.0.0.0 will mean any interface.") );
+    item4->Add( item6, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
     item1->Add( item4, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item7 = new wxCheckBox( parent, IDC_UPNP_WEBSERVER_ENABLED, _("Enable UPnP port forwarding on the web server port"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item7, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxFlexGridSizer *item7 = new wxFlexGridSizer( 2, 0, 0 );
+    item7->AddGrowableCol( 0 );
 
-    wxBoxSizer *item8 = new wxBoxSizer( wxHORIZONTAL );
+    wxStaticText *item8 = new wxStaticText( parent, -1, _("TCP port:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item7->Add( item8, 1, wxALIGN_CENTER_VERTICAL|wxRIGHT, 0 );
 
-    wxStaticText *item9 = new wxStaticText( parent, -1, _("Web server UPnP TCP port"), wxDefaultPosition, wxDefaultSize, 0 );
-    item8->Add( item9, 1, wxALIGN_CENTER|wxRIGHT, 5 );
+    wxSpinCtrl *item9 = new wxSpinCtrl( parent, IDC_EXT_CONN_TCP_PORT, wxT("10000"), wxDefaultPosition, wxSize(100,-1), 0, 1025, 65535, 10000 );
+    item7->Add( item9, 0, wxALIGN_CENTER, 5 );
 
-    wxSpinCtrl *item10 = new wxSpinCtrl( parent, IDC_WEBUPNPTCPPORT, wxT("10000"), wxDefaultPosition, wxSize(100,-1), 0, 1025, 65535, 10000 );
-    item8->Add( item10, 0, wxALIGN_CENTER, 5 );
+    item1->Add( item7, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    item1->Add( item8, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    wxCheckBox *item10 = new wxCheckBox( parent, IDC_UPNP_EC_ENABLED, _("Enable UPnP port forwarding on the EC port"), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->Add( item10, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
     wxBoxSizer *item11 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxStaticText *item12 = new wxStaticText( parent, -1, _("Page Refresh Time (in secs)"), wxDefaultPosition, wxDefaultSize, 0 );
-    item11->Add( item12, 1, wxALIGN_CENTER, 5 );
+    wxStaticText *item12 = new wxStaticText( parent, -1, _("Password"), wxDefaultPosition, wxDefaultSize, 0 );
+    item11->Add( item12, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
-    wxSpinCtrl *item13 = new wxSpinCtrl( parent, IDC_WEB_REFRESH_TIMEOUT, wxT("120"), wxDefaultPosition, wxSize(100,-1), 0, 120, 600, 120 );
-    item11->Add( item13, 0, wxALIGN_CENTER, 5 );
+    CMuleTextCtrl *item13 = new CMuleTextCtrl( parent, IDC_EXT_CONN_PASSWD, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_PASSWORD );
+    item11->Add( item13, 1, wxALIGN_CENTER|wxLEFT, 5 );
 
     item1->Add( item11, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item14 = new wxCheckBox( parent, IDC_WEB_GZIP, _("Enable Gzip compression"), wxDefaultPosition, wxDefaultSize, 0 );
-    item14->SetValue( TRUE );
-    item1->Add( item14, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    item0->Add( item1, 0, wxGROW|wxALL, 0 );
 
-    wxCheckBox *item15 = new wxCheckBox( parent, IDC_ENABLE_WEB_LOW, _("Enable Low rights User"), wxDefaultPosition, wxDefaultSize, 0 );
-    item15->SetValue( TRUE );
-    item1->Add( item15, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxStaticBox *item15 = new wxStaticBox( parent, -1, _("Web server parameters") );
+    wxStaticBoxSizer *item14 = new wxStaticBoxSizer( item15, wxVERTICAL );
 
-    wxFlexGridSizer *item16 = new wxFlexGridSizer( 2, 0, 0 );
-    item16->AddGrowableCol( 1 );
+    wxCheckBox *item16 = new wxCheckBox( parent, IDC_ENABLE_WEB, _("Run webserver on startup"), wxDefaultPosition, wxDefaultSize, 0 );
+    item14->Add( item16, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxStaticText *item17 = new wxStaticText( parent, -1, _("Full rights password"), wxDefaultPosition, wxDefaultSize, 0 );
-    item16->Add( item17, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
+    wxFlexGridSizer *item17 = new wxFlexGridSizer( 2, 0, 0 );
+    item17->AddGrowableCol( 1 );
 
-    CMuleTextCtrl *item18 = new CMuleTextCtrl( parent, IDC_WEB_PASSWD, wxT(""), wxDefaultPosition, wxSize(80,-1), wxTE_PASSWORD );
-    item16->Add( item18, 1, wxGROW|wxALIGN_RIGHT, 5 );
+    wxStaticText *item18 = new wxStaticText( parent, -1, _("Web template"), wxDefaultPosition, wxDefaultSize, 0 );
+    item17->Add( item18, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
 
-    wxStaticText *item19 = new wxStaticText( parent, -1, _("Low rights password"), wxDefaultPosition, wxDefaultSize, 0 );
-    item16->Add( item19, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
+    wxString *strs19 = (wxString*) NULL;
+    wxChoice *item19 = new wxChoice( parent, IDC_WEBTEMPLATE, wxDefaultPosition, wxSize(200,-1), 0, strs19, 0 );
+    item17->Add( item19, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL, 5 );
 
-    CMuleTextCtrl *item20 = new CMuleTextCtrl( parent, IDC_WEB_PASSWD_LOW, wxT(""), wxDefaultPosition, wxSize(80,-1), wxTE_PASSWORD );
-    item16->Add( item20, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    wxStaticText *item20 = new wxStaticText( parent, -1, _("Full rights password"), wxDefaultPosition, wxDefaultSize, 0 );
+    item17->Add( item20, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
 
-    wxStaticText *item21 = new wxStaticText( parent, -1, _("Web template"), wxDefaultPosition, wxDefaultSize, 0 );
-    item16->Add( item21, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
+    CMuleTextCtrl *item21 = new CMuleTextCtrl( parent, IDC_WEB_PASSWD, wxT(""), wxDefaultPosition, wxSize(80,-1), wxTE_PASSWORD );
+    item17->Add( item21, 1, wxGROW|wxALIGN_RIGHT, 5 );
 
-    wxString *strs22 = (wxString*) NULL;
-    wxChoice *item22 = new wxChoice( parent, IDC_WEBTEMPLATE, wxDefaultPosition, wxSize(200,-1), 0, strs22, 0 );
-    item16->Add( item22, 0, wxALIGN_CENTER, 5 );
+    wxCheckBox *item22 = new wxCheckBox( parent, IDC_ENABLE_WEB_LOW, _("Enable Low rights User"), wxDefaultPosition, wxDefaultSize, 0 );
+    item22->SetValue( TRUE );
+    item17->Add( item22, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    item1->Add( item16, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    item17->Add( 20, 20, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    item0->Add( item1, 0, wxGROW|wxALL, 5 );
+    wxStaticText *item23 = new wxStaticText( parent, -1, _("Low rights password"), wxDefaultPosition, wxDefaultSize, 0 );
+    item17->Add( item23, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 20 );
 
-    wxStaticBox *item24 = new wxStaticBox( parent, -1, _("External Connection Parameters") );
-    wxStaticBoxSizer *item23 = new wxStaticBoxSizer( item24, wxVERTICAL );
+    CMuleTextCtrl *item24 = new CMuleTextCtrl( parent, IDC_WEB_PASSWD_LOW, wxT(""), wxDefaultPosition, wxSize(80,-1), wxTE_PASSWORD );
+    item17->Add( item24, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item25 = new wxCheckBox( parent, IDC_EXT_CONN_ACCEPT, _("Accept external connections"), wxDefaultPosition, wxDefaultSize, 0 );
-    item23->Add( item25, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    item14->Add( item17, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxBoxSizer *item26 = new wxBoxSizer( wxHORIZONTAL );
+    wxBoxSizer *item25 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxStaticText *item27 = new wxStaticText( parent, -1, _("Password"), wxDefaultPosition, wxDefaultSize, 0 );
-    item26->Add( item27, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
+    wxStaticText *item26 = new wxStaticText( parent, -1, _("TCP port:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item25->Add( item26, 1, wxALIGN_CENTER_VERTICAL, 5 );
 
-    CMuleTextCtrl *item28 = new CMuleTextCtrl( parent, IDC_EXT_CONN_PASSWD, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_PASSWORD );
-    item26->Add( item28, 1, wxALIGN_CENTER|wxLEFT, 5 );
+    wxSpinCtrl *item27 = new wxSpinCtrl( parent, IDC_WEB_PORT, wxT("10000"), wxDefaultPosition, wxSize(100,-1), 0, 1025, 65535, 10000 );
+    item25->Add( item27, 0, wxALIGN_CENTER, 5 );
 
-    item23->Add( item26, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    item14->Add( item25, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxFlexGridSizer *item29 = new wxFlexGridSizer( 2, 0, 0 );
-    item29->AddGrowableCol( 0 );
-    item29->AddGrowableCol( 1 );
+    wxCheckBox *item28 = new wxCheckBox( parent, IDC_UPNP_WEBSERVER_ENABLED, _("Enable UPnP port forwarding of the web server port"), wxDefaultPosition, wxDefaultSize, 0 );
+    item14->Add( item28, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxStaticText *item30 = new wxStaticText( parent, -1, 
-        _("IP of the listening interface\n(empty for any)"),
-        wxDefaultPosition, wxDefaultSize, wxST_NO_AUTORESIZE );
-    item29->Add( item30, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
+    wxBoxSizer *item29 = new wxBoxSizer( wxHORIZONTAL );
 
-    CMuleTextCtrl *item31 = new CMuleTextCtrl( parent, IDC_EXT_CONN_IP, wxT(""), wxDefaultPosition, wxDefaultSize, 0 );
-    item31->SetToolTip( _("Enter here a valid ip in the a.b.c.d format for the listening EC interface. An empty field or 0.0.0.0 will mean any interface.") );
-    item29->Add( item31, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+    wxStaticText *item30 = new wxStaticText( parent, IDC_WEBUPNPTCPPORTTEXT, _("Web server UPnP TCP port (Optional)"), wxDefaultPosition, wxDefaultSize, 0 );
+    item29->Add( item30, 1, wxALIGN_CENTER|wxRIGHT, 5 );
 
-    item23->Add( item29, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    wxSpinCtrl *item31 = new wxSpinCtrl( parent, IDC_WEBUPNPTCPPORT, wxT("10000"), wxDefaultPosition, wxSize(100,-1), 0, 1025, 65535, 10000 );
+    item29->Add( item31, 0, wxALIGN_CENTER, 5 );
+
+    item14->Add( item29, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 20 );
 
     wxBoxSizer *item32 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxStaticText *item33 = new wxStaticText( parent, -1, _("TCP port"), wxDefaultPosition, wxDefaultSize, 0 );
-    item32->Add( item33, 1, wxALIGN_CENTER|wxRIGHT, 5 );
+    wxStaticText *item33 = new wxStaticText( parent, -1, _("Page Refresh Time (in secs)"), wxDefaultPosition, wxDefaultSize, 0 );
+    item32->Add( item33, 1, wxALIGN_CENTER, 5 );
 
-    wxSpinCtrl *item34 = new wxSpinCtrl( parent, IDC_EXT_CONN_TCP_PORT, wxT("10000"), wxDefaultPosition, wxSize(100,-1), 0, 1025, 65535, 10000 );
+    wxSpinCtrl *item34 = new wxSpinCtrl( parent, IDC_WEB_REFRESH_TIMEOUT, wxT("120"), wxDefaultPosition, wxSize(100,-1), 0, 120, 600, 120 );
     item32->Add( item34, 0, wxALIGN_CENTER, 5 );
 
-    item23->Add( item32, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item14->Add( item32, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
-    wxCheckBox *item35 = new wxCheckBox( parent, IDC_UPNP_EC_ENABLED, _("Enable UPnP port forwarding on the EC port"), wxDefaultPosition, wxDefaultSize, 0 );
-    item23->Add( item35, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+    wxCheckBox *item35 = new wxCheckBox( parent, IDC_WEB_GZIP, _("Enable Gzip compression"), wxDefaultPosition, wxDefaultSize, 0 );
+    item35->SetValue( TRUE );
+    item14->Add( item35, 0, wxALIGN_CENTER_VERTICAL, 5 );
 
-    item0->Add( item23, 0, wxGROW|wxALL, 5 );
+    item0->Add( item14, 0, wxGROW|wxALL, 0 );
 
     if (set_sizer)
     {
@@ -2634,7 +2381,7 @@ wxSizer *CategoriesEditWindow( wxWindow *parent, bool call_fit, bool set_sizer )
     CMuleTextCtrl *item11 = new CMuleTextCtrl( parent, IDC_INCOMING, wxT(""), wxDefaultPosition, wxDefaultSize, 0 );
     item9->Add( item11, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
 
-    wxButton *item12 = new wxButton( parent, IDC_BROWSE, _("..."), wxDefaultPosition, wxDefaultSize, 0 );
+    wxButton *item12 = new wxButton( parent, IDC_BROWSE, wxT("..."), wxDefaultPosition, wxDefaultSize, 0 );
     item9->Add( item12, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
     item1->Add( item9, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxBOTTOM, 5 );
@@ -2646,7 +2393,7 @@ wxSizer *CategoriesEditWindow( wxWindow *parent, bool call_fit, bool set_sizer )
 
     wxString strs15[] = 
     {
-        _("Dont change"), 
+        _("Don't change"), 
         _("Low"), 
         _("Normal"), 
         _("High"), 
@@ -2705,7 +2452,7 @@ wxSizer *transferDlg( wxWindow *parent, bool call_fit, bool set_sizer )
     wxStaticBox *item1 = new wxStaticBox( parent, -1, wxT("") );
     wxStaticBoxSizer *item0 = new wxStaticBoxSizer( item1, wxVERTICAL );
 
-    wxSplitterWindow *item2 = new wxSplitterWindow( parent, ID_SPLATTER, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE );
+    wxSplitterWindow *item2 = new wxSplitterWindow( parent, ID_DOWNLOADSSPLATTER, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE );
     item2->SetMinimumPaneSize( 20 );
     wxPanel *item3 = new wxPanel( item2, -1 );
     transferTopPane( item3, FALSE, TRUE );
@@ -2731,25 +2478,14 @@ wxSizer *ServerInfoLog( wxWindow *parent, bool call_fit, bool set_sizer )
 
     wxBoxSizer *item1 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxStaticBitmap *item2 = new wxStaticBitmap( parent, -1, amuleDlgImages( 2 ), wxDefaultPosition, wxDefaultSize );
-    item2->SetToolTip( _("Display server motd when connected ...") );
-    item1->Add( item2, 0, wxALIGN_CENTER|wxALL, 5 );
+    CMuleTextCtrl *item2 = new CMuleTextCtrl( parent, ID_SERVERINFO, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxVSCROLL );
+    item1->Add( item2, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
 
-    wxStaticText *item3 = new wxStaticText( parent, -1, _("Server Info"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item3, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxButton *item3 = new wxButton( parent, ID_BTN_RESET_SERVER, _("Reset"), wxDefaultPosition, wxDefaultSize, 0 );
+    item3->SetToolTip( _("Click this button to reset the log.") );
+    item1->Add( item3, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
 
-    item0->Add( item1, 0, wxALIGN_CENTER_VERTICAL, 5 );
-
-    wxBoxSizer *item4 = new wxBoxSizer( wxHORIZONTAL );
-
-    CMuleTextCtrl *item5 = new CMuleTextCtrl( parent, ID_SERVERINFO, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxVSCROLL );
-    item4->Add( item5, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
-
-    wxButton *item6 = new wxButton( parent, ID_BTN_RESET_SERVER, _("Reset"), wxDefaultPosition, wxDefaultSize, 0 );
-    item6->SetToolTip( _("Click this button to reset the log.") );
-    item4->Add( item6, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
-
-    item0->Add( item4, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    item0->Add( item1, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
     if (set_sizer)
     {
@@ -2767,24 +2503,14 @@ wxSizer *aMuleLog( wxWindow *parent, bool call_fit, bool set_sizer )
 
     wxBoxSizer *item1 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxStaticBitmap *item2 = new wxStaticBitmap( parent, -1, amuleDlgImages( 3 ), wxDefaultPosition, wxDefaultSize );
-    item1->Add( item2, 0, wxALIGN_CENTER|wxALL, 5 );
+    CMuleTextCtrl *item2 = new CMuleTextCtrl( parent, ID_LOGVIEW, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxVSCROLL|wxTE_RICH2 );
+    item1->Add( item2, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
 
-    wxStaticText *item3 = new wxStaticText( parent, -1, _("aMule Log"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item3, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxButton *item3 = new wxButton( parent, ID_BTN_RESET, _("Reset"), wxDefaultPosition, wxDefaultSize, 0 );
+    item3->SetToolTip( _("Click this button to reset the log.") );
+    item1->Add( item3, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
 
-    item0->Add( item1, 0, wxALIGN_CENTER_VERTICAL, 5 );
-
-    wxBoxSizer *item4 = new wxBoxSizer( wxHORIZONTAL );
-
-    CMuleTextCtrl *item5 = new CMuleTextCtrl( parent, ID_LOGVIEW, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxVSCROLL );
-    item4->Add( item5, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
-
-    wxButton *item6 = new wxButton( parent, ID_BTN_RESET, _("Reset"), wxDefaultPosition, wxDefaultSize, 0 );
-    item6->SetToolTip( _("Click this button to reset the log.") );
-    item4->Add( item6, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
-
-    item0->Add( item4, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+    item0->Add( item1, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
     if (set_sizer)
     {
@@ -3038,9 +2764,7 @@ item9->SetName(wxT("kadScope"));
 
     item20->Add( 20, 20, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    wxButton *item37 = new wxButton( parent, ID_KNOWNNODECONNECT, 
-        _("Bootstrap from \nknown clients"),
-        wxDefaultPosition, wxDefaultSize, 0 );
+    wxButton *item37 = new wxButton( parent, ID_KNOWNNODECONNECT, _("Bootstrap from known clients"), wxDefaultPosition, wxDefaultSize, 0 );
     item20->Add( item37, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
     item20->Add( 20, 20, 0, wxALIGN_CENTER|wxALL, 5 );
@@ -3066,18 +2790,8 @@ wxSizer *ED2K_Info( wxWindow *parent, bool call_fit, bool set_sizer )
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxBoxSizer *item1 = new wxBoxSizer( wxHORIZONTAL );
-
-    wxStaticBitmap *item2 = new wxStaticBitmap( parent, -1, amuleDlgImages( 28 ), wxDefaultPosition, wxDefaultSize );
-    item1->Add( item2, 0, wxALIGN_CENTER|wxALL, 5 );
-
-    wxStaticText *item3 = new wxStaticText( parent, -1, _("eD2k Info"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item3, 0, wxALIGN_CENTER|wxALL, 5 );
-
-    item0->Add( item1, 0, wxALIGN_CENTER_VERTICAL, 5 );
-
-    wxListCtrl *item4 = new wxListCtrl( parent, ID_ED2KINFO, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER );
-    item0->Add( item4, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxListCtrl *item1 = new wxListCtrl( parent, ID_ED2KINFO, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER );
+    item0->Add( item1, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
     if (set_sizer)
     {
@@ -3093,115 +2807,110 @@ wxSizer *PreferencesSecurityTab( wxWindow *parent, bool call_fit, bool set_sizer
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Protocol Obfuscation") );
-    wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
+    wxCheckBox *item1 = new wxCheckBox( parent, IDC_SECIDENT, _("Use Secure User Identification"), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->SetValue( TRUE );
+    item1->SetToolTip( _("It is recommended to enable this option. You will not receive credits if SUI is not enabled.") );
+    item0->Add( item1, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    wxCheckBox *item3 = new wxCheckBox( parent, IDC_SUPPORT_PO, _("Support Protocol Obfuscation"), wxDefaultPosition, wxDefaultSize, 0 );
-    item3->SetValue( TRUE );
-    item3->SetToolTip( _("This option enabled Protocol Obfuscation, and makes aMule accept obfuscated connections from other clients.") );
-    item1->Add( item3, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+    wxStaticBox *item3 = new wxStaticBox( parent, -1, _("Protocol Obfuscation") );
+    wxStaticBoxSizer *item2 = new wxStaticBoxSizer( item3, wxVERTICAL );
 
-    wxCheckBox *item4 = new wxCheckBox( parent, IDC_ENABLE_PO_OUTGOING, _("Use obfuscation for outgoing connections"), wxDefaultPosition, wxDefaultSize, 0 );
+    wxCheckBox *item4 = new wxCheckBox( parent, IDC_SUPPORT_PO, _("Support Protocol Obfuscation"), wxDefaultPosition, wxDefaultSize, 0 );
     item4->SetValue( TRUE );
-    item4->SetToolTip( _("This option makes aMule use Protocol Obfuscation when connecting other clients/servers.") );
-    item1->Add( item4, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 25 );
+    item4->SetToolTip( _("This option enabled Protocol Obfuscation, and makes aMule accept obfuscated connections from other clients.") );
+    item2->Add( item4, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    wxCheckBox *item5 = new wxCheckBox( parent, IDC_ENFORCE_PO_INCOMING, _("Accept only obfuscated connections"), wxDefaultPosition, wxDefaultSize, 0 );
-    item5->SetToolTip( _("This option makes aMule only accept obfuscated connections. You will have less sources, but all your traffic will be obfuscated") );
-    item1->Add( item5, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 25 );
+    wxCheckBox *item5 = new wxCheckBox( parent, IDC_ENABLE_PO_OUTGOING, _("Use obfuscation for outgoing connections"), wxDefaultPosition, wxDefaultSize, 0 );
+    item5->SetValue( TRUE );
+    item5->SetToolTip( _("This option makes aMule use Protocol Obfuscation when connecting other clients/servers.") );
+    item2->Add( item5, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 25 );
 
-    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxCheckBox *item6 = new wxCheckBox( parent, IDC_ENFORCE_PO_INCOMING, _("Accept only obfuscated connections"), wxDefaultPosition, wxDefaultSize, 0 );
+    item6->SetToolTip( _("This option makes aMule only accept obfuscated connections. You will have less sources, but all your traffic will be obfuscated") );
+    item2->Add( item6, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 25 );
 
-    wxStaticBox *item7 = new wxStaticBox( parent, -1, _("File Options") );
-    wxStaticBoxSizer *item6 = new wxStaticBoxSizer( item7, wxVERTICAL );
+    item0->Add( item2, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP, 0 );
 
-    wxString strs8[] = 
+    wxString strs7[] = 
     {
         _("Everybody"), 
         _("Friends"), 
         _("No one")
     };
-    wxRadioBox *item8 = new wxRadioBox( parent, IDC_SEESHARES, _("Who can see shared files:"), wxDefaultPosition, wxDefaultSize, 3, strs8, 1, wxRA_SPECIFY_COLS );
-    item8->SetToolTip( _("Select who can request to view a list of your shared files.") );
-    item6->Add( item8, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxRadioBox *item7 = new wxRadioBox( parent, IDC_SEESHARES, _("Who can see my shared files:"), wxDefaultPosition, wxDefaultSize, 3, strs7, 1, wxRA_SPECIFY_COLS );
+    item7->SetToolTip( _("Select who can request to view a list of your shared files.") );
+    item0->Add( item7, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    item0->Add( item6, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxStaticBox *item9 = new wxStaticBox( parent, -1, _("IP-Filtering") );
+    wxStaticBoxSizer *item8 = new wxStaticBoxSizer( item9, wxVERTICAL );
 
-    wxStaticBox *item10 = new wxStaticBox( parent, -1, _("IP-Filtering") );
-    wxStaticBoxSizer *item9 = new wxStaticBoxSizer( item10, wxVERTICAL );
+    wxBoxSizer *item10 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxBoxSizer *item11 = new wxBoxSizer( wxHORIZONTAL );
+    wxBoxSizer *item11 = new wxBoxSizer( wxVERTICAL );
 
-    wxBoxSizer *item12 = new wxBoxSizer( wxVERTICAL );
+    wxCheckBox *item12 = new wxCheckBox( parent, IDC_IPFCLIENTS, _("Filter clients"), wxDefaultPosition, wxDefaultSize, 0 );
+    item12->SetValue( TRUE );
+    item12->SetToolTip( _("Enable filtering of the client IPs defined in the file ~/.aMule/ipfilter.dat.") );
+    item11->Add( item12, 0, wxGROW|wxALL, 0 );
 
-    wxCheckBox *item13 = new wxCheckBox( parent, IDC_IPFCLIENTS, _("Filter clients"), wxDefaultPosition, wxDefaultSize, 0 );
+    wxCheckBox *item13 = new wxCheckBox( parent, IDC_IPFSERVERS, _("Filter servers"), wxDefaultPosition, wxDefaultSize, 0 );
     item13->SetValue( TRUE );
-    item13->SetToolTip( _("Enable filtering of the client IPs defined in the file ~/.aMule/ipfilter.dat.") );
-    item12->Add( item13, 0, wxGROW|wxALL, 0 );
+    item13->SetToolTip( _("Enable filtering of the server IPs defined in the file ~/.aMule/ipfilter.dat.") );
+    item11->Add( item13, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxCheckBox *item14 = new wxCheckBox( parent, IDC_IPFSERVERS, _("Filter servers"), wxDefaultPosition, wxDefaultSize, 0 );
-    item14->SetValue( TRUE );
-    item14->SetToolTip( _("Enable filtering of the server IPs defined in the file ~/.aMule/ipfilter.dat.") );
-    item12->Add( item14, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
+    item10->Add( item11, 0, wxALIGN_CENTER|wxALL, 0 );
 
-    item11->Add( item12, 0, wxALIGN_CENTER|wxALL, 5 );
+    item10->Add( 10, 10, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 0 );
 
-    item11->Add( 10, 10, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 0 );
+    wxButton *item14 = new wxButton( parent, IDC_IPFRELOAD, _("Reload List"), wxDefaultPosition, wxDefaultSize, 0 );
+    item14->SetToolTip( _("Reload the list of IPs to filter from the file ~/.aMule/ipfilter.dat") );
+    item10->Add( item14, 0, wxALIGN_CENTER|wxRIGHT|wxTOP|wxBOTTOM, 5 );
 
-    wxButton *item15 = new wxButton( parent, IDC_IPFRELOAD, _("Reload List"), wxDefaultPosition, wxDefaultSize, 0 );
-    item15->SetToolTip( _("Reload the list of IPs to filter from the file ~/.aMule/ipfilter.dat") );
-    item11->Add( item15, 0, wxALIGN_CENTER|wxALL, 5 );
+    item8->Add( item10, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    item9->Add( item11, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+    wxFlexGridSizer *item15 = new wxFlexGridSizer( 3, 0, 0 );
+    item15->AddGrowableCol( 1 );
 
-    wxFlexGridSizer *item16 = new wxFlexGridSizer( 3, 0, 0 );
-    item16->AddGrowableCol( 1 );
+    wxStaticText *item16 = new wxStaticText( parent, -1, _("URL:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item15->Add( item16, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
-    wxStaticText *item17 = new wxStaticText( parent, -1, _("URL:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item16->Add( item17, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
+    wxTextCtrl *item17 = new wxTextCtrl( parent, IDC_IPFILTERURL, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
+    item15->Add( item17, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
 
-    wxTextCtrl *item18 = new wxTextCtrl( parent, IDC_IPFILTERURL, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
-    item16->Add( item18, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
+    wxButton *item18 = new wxButton( parent, IDC_IPFILTERUPDATE, _("Update now"), wxDefaultPosition, wxDefaultSize, 0 );
+    item15->Add( item18, 0, wxALIGN_CENTER|wxLEFT, 5 );
 
-    wxButton *item19 = new wxButton( parent, IDC_IPFILTERUPDATE, _("Update now"), wxDefaultPosition, wxDefaultSize, 0 );
-    item16->Add( item19, 0, wxALIGN_CENTER|wxLEFT, 5 );
+    item8->Add( item15, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    item9->Add( item16, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxCheckBox *item19 = new wxCheckBox( parent, IDC_AUTOIPFILTER, _("Auto-update ipfilter at startup"), wxDefaultPosition, wxDefaultSize, 0 );
+    item8->Add( item19, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    wxCheckBox *item20 = new wxCheckBox( parent, IDC_AUTOIPFILTER, _("Auto-update ipfilter at startup"), wxDefaultPosition, wxDefaultSize, 0 );
-    item9->Add( item20, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+    wxBoxSizer *item20 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxBoxSizer *item21 = new wxBoxSizer( wxHORIZONTAL );
+    wxStaticText *item21 = new wxStaticText( parent, -1, _("Filtering Level:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item20->Add( item21, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    wxStaticText *item22 = new wxStaticText( parent, -1, _("Filtering Level:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item21->Add( item22, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item20->Add( 10, 10, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
 
-    item21->Add( 10, 10, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+    wxSpinCtrl *item22 = new wxSpinCtrl( parent, ID_IPFILTERLEVEL, wxT("0"), wxDefaultPosition, wxDefaultSize, 0, 0, 255, 0 );
+    item20->Add( item22, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    wxSpinCtrl *item23 = new wxSpinCtrl( parent, ID_IPFILTERLEVEL, wxT("0"), wxDefaultPosition, wxDefaultSize, 0, 0, 255, 0 );
-    item21->Add( item23, 0, wxALIGN_CENTER|wxALL, 5 );
+    item8->Add( item20, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 0 );
 
-    item9->Add( item21, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 0 );
+    wxCheckBox *item23 = new wxCheckBox( parent, IDC_FILTERLAN, _("Always filter LAN IPs"), wxDefaultPosition, wxDefaultSize, 0 );
+    item23->SetValue( TRUE );
+    item8->Add( item23, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    wxCheckBox *item24 = new wxCheckBox( parent, IDC_FILTERLAN, _("Always filter LAN IPs"), wxDefaultPosition, wxDefaultSize, 0 );
+    wxCheckBox *item24 = new wxCheckBox( parent, IDC_PARANOID, _("Paranoid handling of non-matching IPs"), wxDefaultPosition, wxDefaultSize, 0 );
     item24->SetValue( TRUE );
-    item9->Add( item24, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+    item24->SetToolTip( _("Rejects packet if the client ip is different from the ip where the packet is received from. Use with caution.") );
+    item8->Add( item24, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    wxCheckBox *item25 = new wxCheckBox( parent, IDC_PARANOID, _("Paranoid handling of non-matching IPs"), wxDefaultPosition, wxDefaultSize, 0 );
-    item25->SetValue( TRUE );
-    item25->SetToolTip( _("Rejects packet if the client ip is different from the ip where the packet is received from. Use with caution.") );
-    item9->Add( item25, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+    wxCheckBox *item25 = new wxCheckBox( parent, IDC_IPFILTERSYS, _("Use system-wide ipfilter.dat if available"), wxDefaultPosition, wxDefaultSize, 0 );
+    item25->SetToolTip( _("If there's no local ipfilter.dat found, allow usage of a systemwide ipfilter file.") );
+    item8->Add( item25, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
 
-    wxCheckBox *item26 = new wxCheckBox( parent, IDC_IPFILTERSYS, _("Use system-wide ipfilter.dat if available"), wxDefaultPosition, wxDefaultSize, 0 );
-    item26->SetToolTip( _("If there's no local ipfilter.dat found, allow usage of a systemwide ipfilter file.") );
-    item9->Add( item26, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
-
-    wxCheckBox *item27 = new wxCheckBox( parent, IDC_SECIDENT, _("Use Secure User Identification"), wxDefaultPosition, wxDefaultSize, 0 );
-    item27->SetValue( TRUE );
-    item27->SetToolTip( _("It is recommended to enable this option. You will not receive credits if SUI is not enabled.") );
-    item9->Add( item27, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
-
-    item0->Add( item9, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item8, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
     if (set_sizer)
     {
@@ -3217,39 +2926,37 @@ wxSizer *PreferencesOnlineSigTab( wxWindow *parent, bool call_fit, bool set_size
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxStaticBox *item2 = new wxStaticBox( parent, -1, wxT("") );
-    wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
+    wxCheckBox *item1 = new wxCheckBox( parent, IDC_ONLINESIG, _("Enable Online-Signature"), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->SetValue( TRUE );
+    item1->SetToolTip( _("Enables the writing of the OS file, which can be used by external apps to create signatures and the like.") );
+    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxTOP, 0 );
 
-    wxCheckBox *item3 = new wxCheckBox( parent, IDC_ONLINESIG, _("Enable Online-Signature"), wxDefaultPosition, wxDefaultSize, 0 );
-    item3->SetValue( TRUE );
-    item3->SetToolTip( _("Enables the writing of the OS file, which can be used by external apps to create signatures and the like.") );
-    item1->Add( item3, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxBoxSizer *item2 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxBoxSizer *item4 = new wxBoxSizer( wxHORIZONTAL );
+    wxStaticText *item3 = new wxStaticText( parent, -1, _("Update Frequency (Secs):"), wxDefaultPosition, wxDefaultSize, 0 );
+    item2->Add( item3, 0, wxALIGN_CENTER|wxALL, 0 );
 
-    wxStaticText *item5 = new wxStaticText( parent, -1, _("Update Frequency (Secs):"), wxDefaultPosition, wxDefaultSize, 0 );
-    item4->Add( item5, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxSpinCtrl *item4 = new wxSpinCtrl( parent, IDC_OSUPDATE, wxT("5"), wxDefaultPosition, wxSize(60,-1), 0, 0, 600, 5 );
+    item4->SetToolTip( _("Change the frequency (in seconds) of Online Signature updates.") );
+    item4->Enable( false );
+    item2->Add( item4, 0, wxALIGN_CENTER|wxALL, 0 );
 
-    wxSpinCtrl *item6 = new wxSpinCtrl( parent, IDC_OSUPDATE, wxT("5"), wxDefaultPosition, wxSize(60,-1), 0, 0, 600, 5 );
-    item6->SetToolTip( _("Change the frequency (in seconds) of Online Signature updates.") );
-    item6->Enable( false );
-    item4->Add( item6, 0, wxALIGN_CENTER|wxALL, 5 );
+    item0->Add( item2, 0, wxALIGN_CENTER_VERTICAL, 0 );
 
-    item1->Add( item4, 0, wxALIGN_CENTER_VERTICAL, 5 );
+    wxFlexGridSizer *item5 = new wxFlexGridSizer( 3, 0, 0 );
+    item5->AddGrowableCol( 1 );
 
-    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxStaticText *item6 = new wxStaticText( parent, -1, _("Save online signature file in: "), wxDefaultPosition, wxDefaultSize, 0 );
+    item5->Add( item6, 0, wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxStaticBox *item8 = new wxStaticBox( parent, -1, _("Online Signature Directory:") );
-    wxStaticBoxSizer *item7 = new wxStaticBoxSizer( item8, wxHORIZONTAL );
+    CMuleTextCtrl *item7 = new CMuleTextCtrl( parent, IDC_OSDIR, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
+    item5->Add( item7, 0, wxALIGN_CENTER, 5 );
 
-    CMuleTextCtrl *item9 = new CMuleTextCtrl( parent, IDC_OSDIR, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
-    item7->Add( item9, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+    wxButton *item8 = new wxButton( parent, IDC_SELOSDIR, _("Browse"), wxDefaultPosition, wxDefaultSize, 0 );
+    item8->SetToolTip( _("Click here to select the directory containing the the Online Signature files.") );
+    item5->Add( item8, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 0 );
 
-    wxButton *item10 = new wxButton( parent, IDC_SELOSDIR, _("Browse"), wxDefaultPosition, wxDefaultSize, 0 );
-    item10->SetToolTip( _("Click here to select the directory containing the the Online Signature files.") );
-    item7->Add( item10, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
-
-    item0->Add( item7, 0, wxGROW|wxALL, 5 );
+    item0->Add( item5, 0, wxGROW|wxALL, 0 );
 
     if (set_sizer)
     {
@@ -3261,60 +2968,48 @@ wxSizer *PreferencesOnlineSigTab( wxWindow *parent, bool call_fit, bool set_size
     return item0;
 }
 
-wxSizer *PreferencesMessagesTab( wxWindow *parent, bool call_fit, bool set_sizer )
+wxSizer *PreferencesFilteringTab( wxWindow *parent, bool call_fit, bool set_sizer )
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Disable/Enable") );
+    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Messages") );
     wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
 
     wxCheckBox *item3 = new wxCheckBox( parent, IDC_MSGFILTER, _("Filter incoming messages (except current chat):"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item3, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item1->Add( item3, 0, wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxStaticBox *item5 = new wxStaticBox( parent, -1, _("Filtering Options:") );
-    wxStaticBoxSizer *item4 = new wxStaticBoxSizer( item5, wxVERTICAL );
+    wxCheckBox *item4 = new wxCheckBox( parent, IDC_MSGFILTER_ALL, _("Filter all messages"), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->Add( item4, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 25 );
 
-    wxCheckBox *item6 = new wxCheckBox( parent, IDC_MSGFILTER_ALL, _("Filter all messages"), wxDefaultPosition, wxDefaultSize, 0 );
-    item4->Add( item6, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 25 );
+    wxCheckBox *item5 = new wxCheckBox( parent, IDC_MSGFILTER_NONFRIENDS, _("Filter messages from people not on your friend list"), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->Add( item5, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 25 );
 
-    wxCheckBox *item7 = new wxCheckBox( parent, IDC_MSGFILTER_NONFRIENDS, _("Filter messages from people not on your friend list"), wxDefaultPosition, wxDefaultSize, 0 );
-    item4->Add( item7, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 25 );
+    wxCheckBox *item6 = new wxCheckBox( parent, IDC_MSGFILTER_NONSECURE, _("Filter messages from unknown clients"), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->Add( item6, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 25 );
 
-    wxCheckBox *item8 = new wxCheckBox( parent, IDC_MSGFILTER_NONSECURE, _("Filter messages from unknown clients"), wxDefaultPosition, wxDefaultSize, 0 );
-    item4->Add( item8, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 25 );
+    wxCheckBox *item7 = new wxCheckBox( parent, IDC_MSGFILTER_WORD, _("Filter messages containing (use ',' as separator):"), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->Add( item7, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 25 );
 
-    wxCheckBox *item9 = new wxCheckBox( parent, IDC_MSGFILTER_WORD, _("Filter messages containing (use ',' as separator):"), wxDefaultPosition, wxDefaultSize, 0 );
-    item4->Add( item9, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 25 );
+    wxTextCtrl *item8 = new wxTextCtrl( parent, IDC_MSGWORD, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
+    item8->SetToolTip( _("add here the words amule should filter and block messages including it") );
+    item1->Add( item8, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 50 );
 
-    wxTextCtrl *item10 = new wxTextCtrl( parent, IDC_MSGWORD, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
-    item10->SetToolTip( _("add here the words amule should filter and block messages including it") );
-    item4->Add( item10, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 50 );
+    wxCheckBox *item9 = new wxCheckBox( parent, IDC_MSGLOG, _("Show received messages in the log"), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->Add( item9, 0, wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    item1->Add( item4, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxStaticBox *item11 = new wxStaticBox( parent, -1, _("Comments") );
+    wxStaticBoxSizer *item10 = new wxStaticBoxSizer( item11, wxVERTICAL );
 
-    wxBoxSizer *item11 = new wxBoxSizer( wxHORIZONTAL );
+    wxCheckBox *item12 = new wxCheckBox( parent, IDC_FILTERCOMMENTS, _("Filter comments containing (use ',' as separator):"), wxDefaultPosition, wxDefaultSize, 0 );
+    item10->Add( item12, 0, wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxStaticBitmap *item12 = new wxStaticBitmap( parent, -1, amuleSpecial( 23 ), wxDefaultPosition, wxDefaultSize );
-    item11->Add( item12, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxTextCtrl *item13 = new wxTextCtrl( parent, IDC_COMMENTWORD, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
+    item13->SetToolTip( _("add here the words amule should filter and block messages including it") );
+    item10->Add( item13, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 50 );
 
-    wxStaticText *item13 = new wxStaticText( parent, -1, _("Comments"), wxDefaultPosition, wxDefaultSize, 0 );
-    item11->Add( item13, 0, wxALIGN_CENTER|wxALL, 5 );
-
-    item0->Add( item11, 0, wxALIGN_CENTER_VERTICAL, 5 );
-
-    wxStaticBox *item15 = new wxStaticBox( parent, -1, _("Disable/Enable") );
-    wxStaticBoxSizer *item14 = new wxStaticBoxSizer( item15, wxVERTICAL );
-
-    wxCheckBox *item16 = new wxCheckBox( parent, IDC_FILTERCOMMENTS, _("Filter comments containing (use ',' as separator):"), wxDefaultPosition, wxDefaultSize, 0 );
-    item14->Add( item16, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    wxTextCtrl *item17 = new wxTextCtrl( parent, IDC_COMMENTWORD, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
-    item17->SetToolTip( _("add here the words amule should filter and block messages including it") );
-    item14->Add( item17, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 50 );
-
-    item0->Add( item14, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item10, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
     if (set_sizer)
     {
@@ -3330,80 +3025,66 @@ wxSizer *PreferencesProxyTab( wxWindow *parent, bool call_fit, bool set_sizer )
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("General") );
-    wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
+    wxCheckBox *item1 = new wxCheckBox( parent, ID_PROXY_AUTO_SERVER_CONNECT_WITHOUT_PROXY, _("Automatic server connect without proxy"), wxDefaultPosition, wxDefaultSize, 0 );
+    item0->Add( item1, 0, wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxFlexGridSizer *item3 = new wxFlexGridSizer( 2, 0, 0 );
-    item3->AddGrowableCol( 1 );
+    wxFlexGridSizer *item2 = new wxFlexGridSizer( 2, 0, 0 );
+    item2->AddGrowableCol( 1 );
 
-    wxCheckBox *item4 = new wxCheckBox( parent, ID_PROXY_ENABLE_PROXY, _("Enable Proxy"), wxDefaultPosition, wxDefaultSize, 0 );
-    item4->SetToolTip( _("Enable/disable proxy support") );
-    item3->Add( item4, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxCheckBox *item3 = new wxCheckBox( parent, ID_PROXY_ENABLE_PASSWORD, _("Enable authentication"), wxDefaultPosition, wxDefaultSize, 0 );
+    item3->SetToolTip( _("Enable/disable username/password authentication") );
+    item2->Add( item3, 0, wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    item3->Add( 20, 20, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item2->Add( 20, 20, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-    wxStaticText *item5 = new wxStaticText( parent, -1, _("Proxy type:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item3->Add( item5, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxStaticText *item4 = new wxStaticText( parent, -1, _("Username: "), wxDefaultPosition, wxDefaultSize, 0 );
+    item2->Add( item4, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 20 );
 
-    wxString strs6[] = 
+    wxTextCtrl *item5 = new wxTextCtrl( parent, ID_PROXY_USER, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
+    item5->SetToolTip( _("The username to use to connect to the proxy") );
+    item2->Add( item5, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
+
+    wxStaticText *item6 = new wxStaticText( parent, -1, _("Password:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item2->Add( item6, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 20 );
+
+    wxTextCtrl *item7 = new wxTextCtrl( parent, ID_PROXY_PASSWORD, wxT(""), wxDefaultPosition, wxSize(80,-1), wxTE_PASSWORD );
+    item7->SetToolTip( _("The password to use to connect to the proxy") );
+    item2->Add( item7, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
+
+    wxCheckBox *item8 = new wxCheckBox( parent, ID_PROXY_ENABLE_PROXY, _("Enable Proxy"), wxDefaultPosition, wxDefaultSize, 0 );
+    item8->SetToolTip( _("Enable/disable proxy support") );
+    item2->Add( item8, 0, wxALIGN_CENTER_VERTICAL|wxALL, 0 );
+
+    item2->Add( 20, 20, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+    wxStaticText *item9 = new wxStaticText( parent, -1, _("Proxy type:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item2->Add( item9, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 20 );
+
+    wxString strs10[] = 
     {
-        _("SOCKS5"), 
-        _("SOCKS4"), 
-        _("HTTP"), 
-        _("SOCKS4a")
+        wxT("SOCKS5"), 
+        wxT("SOCKS4"), 
+        wxT("HTTP"), 
+        wxT("SOCKS4a")
     };
-    wxChoice *item6 = new wxChoice( parent, ID_PROXY_TYPE, wxDefaultPosition, wxSize(100,-1), 4, strs6, 0 );
-    item6->SetToolTip( _("The type of proxy you are connecting to") );
-    item3->Add( item6, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxChoice *item10 = new wxChoice( parent, ID_PROXY_TYPE, wxDefaultPosition, wxSize(100,-1), 4, strs10, 0 );
+    item2->Add( item10, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxTOP, 5 );
 
-    wxStaticText *item7 = new wxStaticText( parent, -1, _("Proxy host:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item3->Add( item7, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxStaticText *item11 = new wxStaticText( parent, -1, _("Proxy host:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item2->Add( item11, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 20 );
 
-    wxTextCtrl *item8 = new wxTextCtrl( parent, ID_PROXY_NAME, wxT(""), wxDefaultPosition, wxDefaultSize, 0 );
-    item8->SetToolTip( _("The proxy host name") );
-    item3->Add( item8, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxTextCtrl *item12 = new wxTextCtrl( parent, ID_PROXY_NAME, wxT(""), wxDefaultPosition, wxDefaultSize, 0 );
+    item12->SetToolTip( _("The proxy host name") );
+    item2->Add( item12, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxTOP, 5 );
 
-    wxStaticText *item9 = new wxStaticText( parent, -1, _("Proxy port:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item3->Add( item9, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxStaticText *item13 = new wxStaticText( parent, -1, _("Proxy port:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item2->Add( item13, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 20 );
 
-    wxTextCtrl *item10 = new wxTextCtrl( parent, ID_PROXY_PORT, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
-    item10->SetToolTip( _("The proxy port") );
-    item3->Add( item10, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxTextCtrl *item14 = new wxTextCtrl( parent, ID_PROXY_PORT, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
+    item14->SetToolTip( _("The proxy port") );
+    item2->Add( item14, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxTOP, 5 );
 
-    item1->Add( item3, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    wxStaticBox *item12 = new wxStaticBox( parent, -1, _("Authentication") );
-    wxStaticBoxSizer *item11 = new wxStaticBoxSizer( item12, wxVERTICAL );
-
-    wxCheckBox *item13 = new wxCheckBox( parent, ID_PROXY_ENABLE_PASSWORD, _("Enable authentication"), wxDefaultPosition, wxDefaultSize, 0 );
-    item13->SetToolTip( _("Enable/disable username/password authentication") );
-    item11->Add( item13, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    wxFlexGridSizer *item14 = new wxFlexGridSizer( 2, 0, 0 );
-    item14->AddGrowableCol( 1 );
-
-    wxStaticText *item15 = new wxStaticText( parent, -1, _("Username:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item14->Add( item15, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    wxTextCtrl *item16 = new wxTextCtrl( parent, ID_PROXY_USER, wxT(""), wxDefaultPosition, wxSize(80,-1), 0 );
-    item16->SetToolTip( _("The username to use to connect to the proxy") );
-    item14->Add( item16, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    wxStaticText *item17 = new wxStaticText( parent, -1, _("Password:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item14->Add( item17, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    wxTextCtrl *item18 = new wxTextCtrl( parent, ID_PROXY_PASSWORD, wxT(""), wxDefaultPosition, wxSize(80,-1), wxTE_PASSWORD );
-    item18->SetToolTip( _("The password to use to connect to the proxy") );
-    item14->Add( item18, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    item11->Add( item14, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    item0->Add( item11, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    wxCheckBox *item19 = new wxCheckBox( parent, ID_PROXY_AUTO_SERVER_CONNECT_WITHOUT_PROXY, _("Automatic server connect without proxy"), wxDefaultPosition, wxSize(350,-1), 0 );
-    item0->Add( item19, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item2, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
     if (set_sizer)
     {
@@ -3486,22 +3167,17 @@ wxSizer *PreferencesDebug( wxWindow *parent, bool call_fit, bool set_sizer )
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Disable/Enable") );
-    wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
+    wxCheckBox *item1 = new wxCheckBox( parent, ID_VERBOSEDEBUG, _("Enable Verbose Debug-Logging."), wxDefaultPosition, wxDefaultSize, 0 );
+    item0->Add( item1, 0, wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
-    wxCheckBox *item3 = new wxCheckBox( parent, ID_VERBOSEDEBUG, _("Enable Verbose Debug-Logging."), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item3, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxStaticBox *item3 = new wxStaticBox( parent, -1, _("Message Categories:") );
+    wxStaticBoxSizer *item2 = new wxStaticBoxSizer( item3, wxVERTICAL );
 
-    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxWindow *item4 = new wxCheckListBox( parent, ID_DEBUGCATS );
+    wxASSERT( item4 );
+    item2->Add( item4, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-    wxStaticBox *item5 = new wxStaticBox( parent, -1, _("Message Categories:") );
-    wxStaticBoxSizer *item4 = new wxStaticBoxSizer( item5, wxVERTICAL );
-
-    wxWindow *item6 = new wxCheckListBox( parent, ID_DEBUGCATS );
-    wxASSERT( item6 );
-    item4->Add( item6, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    item0->Add( item4, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    item0->Add( item2, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 );
 
     if (set_sizer)
     {
@@ -3576,18 +3252,8 @@ wxSizer *Kad_Info( wxWindow *parent, bool call_fit, bool set_sizer )
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
 
-    wxBoxSizer *item1 = new wxBoxSizer( wxHORIZONTAL );
-
-    wxStaticBitmap *item2 = new wxStaticBitmap( parent, -1, amuleDlgImages( 28 ), wxDefaultPosition, wxDefaultSize );
-    item1->Add( item2, 0, wxALIGN_CENTER|wxALL, 5 );
-
-    wxStaticText *item3 = new wxStaticText( parent, -1, _("Kad Info"), wxDefaultPosition, wxDefaultSize, 0 );
-    item1->Add( item3, 0, wxALIGN_CENTER|wxALL, 5 );
-
-    item0->Add( item1, 0, wxALIGN_CENTER_VERTICAL, 5 );
-
-    wxListCtrl *item4 = new wxListCtrl( parent, ID_KADINFO, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER );
-    item0->Add( item4, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    wxListCtrl *item1 = new wxListCtrl( parent, ID_KADINFO, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER );
+    item0->Add( item1, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
     if (set_sizer)
     {
@@ -3636,16 +3302,213 @@ item4->SetName(wxT("kadWnd"));
 wxSizer *IDC_PREFS_EVENTS_PAGE;
 wxSizer *PreferencesEventsTab( wxWindow *parent, bool call_fit, bool set_sizer )
 {
-    wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
+    wxStaticBox *item1 = new wxStaticBox( parent, -1, _("Event Types") );
+    wxStaticBoxSizer *item0 = new wxStaticBoxSizer( item1, wxVERTICAL );
     IDC_PREFS_EVENTS_PAGE = item0;
 
-    wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Event types") );
-    wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
+    wxListCtrl *item2 = new wxListCtrl( parent, IDC_EVENTLIST, wxDefaultPosition, wxSize(160,120), wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL|wxSUNKEN_BORDER );
+    item0->Add( item2, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-    wxListCtrl *item3 = new wxListCtrl( parent, IDC_EVENTLIST, wxDefaultPosition, wxSize(160,120), wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL|wxSUNKEN_BORDER );
-    item1->Add( item3, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    if (set_sizer)
+    {
+        parent->SetSizer( item0 );
+        if (call_fit)
+            item0->SetSizeHints( parent );
+    }
+    
+    return item0;
+}
 
-    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+wxSizer *s_sharedfilespeerHeader;
+wxSizer *sharedfilesBottomDlg( wxWindow *parent, bool call_fit, bool set_sizer )
+{
+    wxStaticBox *item1 = new wxStaticBox( parent, -1, _("Statistics and queued clients for selected file(s) : Session / All time") );
+    wxStaticBoxSizer *item0 = new wxStaticBoxSizer( item1, wxVERTICAL );
+
+    wxFlexGridSizer *item2 = new wxFlexGridSizer( 4, 0, 0 );
+    item2->AddGrowableCol( 1 );
+    item2->AddGrowableCol( 2 );
+    item2->AddGrowableCol( 3 );
+    s_sharedfilespeerHeader = item2;
+
+    wxBitmapButton *item3 = new wxBitmapButton( parent, ID_SHAREDCLIENTTOGGLE, amuleDlgImages( 10 ), wxDefaultPosition, wxDefaultSize );
+    item2->Add( item3, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+    wxFlexGridSizer *item4 = new wxFlexGridSizer( 3, 0, 0 );
+    item4->AddGrowableCol( 1 );
+    item4->AddGrowableCol( 2 );
+
+    wxStaticText *item5 = new wxStaticText( parent, -1, _("Requested"), wxDefaultPosition, wxDefaultSize, 0 );
+    item4->Add( item5, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
+
+    wxStaticText *item6 = new wxStaticText( parent, IDC_SREQUESTED, _("N/A"), wxDefaultPosition, wxDefaultSize, 0 );
+    item6->SetForegroundColour( *wxBLUE );
+    item4->Add( item6, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
+
+    item2->Add( item4, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxFlexGridSizer *item7 = new wxFlexGridSizer( 3, 0, 0 );
+
+    wxStaticText *item8 = new wxStaticText( parent, -1, _("Active Uploads"), wxDefaultPosition, wxDefaultSize, 0 );
+    item7->Add( item8, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
+
+    wxStaticText *item9 = new wxStaticText( parent, IDC_SACCEPTED, _("N/A"), wxDefaultPosition, wxDefaultSize, 0 );
+    item9->SetForegroundColour( *wxBLUE );
+    item7->Add( item9, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
+
+    item2->Add( item7, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxFlexGridSizer *item10 = new wxFlexGridSizer( 3, 0, 0 );
+
+    wxStaticText *item11 = new wxStaticText( parent, -1, _("Transferred"), wxDefaultPosition, wxDefaultSize, 0 );
+    item10->Add( item11, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
+
+    wxStaticText *item12 = new wxStaticText( parent, IDC_STRANSFERRED, _("N/A"), wxDefaultPosition, wxDefaultSize, 0 );
+    item12->SetForegroundColour( *wxBLUE );
+    item10->Add( item12, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
+
+    item2->Add( item10, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxStaticText *item13 = new wxStaticText( parent, -1, _("Percent of total files"), wxDefaultPosition, wxDefaultSize, 0 );
+    item2->Add( item13, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
+
+    wxGauge *item14 = new wxGauge( parent, -1, 100, wxDefaultPosition, wxSize(200,18), 0 );
+    item14->SetName( wxT("popbar") );
+    item2->Add( item14, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
+
+    wxGauge *item15 = new wxGauge( parent, -1, 100, wxDefaultPosition, wxSize(200,18), 0 );
+    item15->SetName( wxT("popbarAccept") );
+    item2->Add( item15, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
+
+    wxGauge *item16 = new wxGauge( parent, -1, 100, wxDefaultPosition, wxSize(200,18), 0 );
+    item16->SetName( wxT("popbarTrans") );
+    item2->Add( item16, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
+
+    item0->Add( item2, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+
+    wxStaticLine *item17 = new wxStaticLine( parent, ID_LINE, wxDefaultPosition, wxSize(20,-1), wxLI_HORIZONTAL );
+    item0->Add( item17, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+    CSharedFilePeersListCtrl *item18 = new CSharedFilePeersListCtrl( parent, ID_SHAREDCLIENTLIST, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxSUNKEN_BORDER );
+    item18->SetName( wxT("sharedFilesSrcCt") );
+    item0->Add( item18, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+
+    if (set_sizer)
+    {
+        parent->SetSizer( item0 );
+        if (call_fit)
+            item0->SetSizeHints( parent );
+    }
+    
+    return item0;
+}
+
+wxSizer *sharedfilesTopDlg( wxWindow *parent, bool call_fit, bool set_sizer )
+{
+    wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
+
+    wxFlexGridSizer *item1 = new wxFlexGridSizer( 4, 0, 0 );
+    item1->AddGrowableCol( 1 );
+
+    wxStaticText *item2 = new wxStaticText( parent, -1, _("Shared files"), wxDefaultPosition, wxDefaultSize, 0 );
+    item2->SetName( wxT("sharedFilesLabel") );
+    item1->Add( item2, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+
+    wxString strs3[] = 
+    {
+        _("All files"), 
+        _("Selected files"), 
+        _("Active uploads only")
+    };
+    wxRadioBox *item3 = new wxRadioBox( parent, ID_SHOW_CLIENTS_MODE, _("Show Clients for"), wxDefaultPosition, wxDefaultSize, 3, strs3, 1, wxNO_BORDER|wxRA_SPECIFY_ROWS );
+    item1->Add( item3, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxStaticText *item4 = new wxStaticText( parent, -1, _("Reload:"), wxDefaultPosition, wxDefaultSize, 0 );
+    item4->SetName( wxT("sharedFilesLabel") );
+    item1->Add( item4, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5 );
+
+    wxBitmapButton *item5 = new wxBitmapButton( parent, ID_BTNRELSHARED, amuleDlgImages( 18 ), wxDefaultPosition, wxSize(32,32) );
+    item5->SetToolTip( _("Reload your shared files") );
+    item1->Add( item5, 0, wxALIGN_CENTER_VERTICAL, 0 );
+
+    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 0 );
+
+    CSharedFilesCtrl *item6 = new CSharedFilesCtrl( parent, ID_SHFILELIST, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxSUNKEN_BORDER );
+    item6->SetName( wxT("sharedFilesCt") );
+    item0->Add( item6, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+
+    if (set_sizer)
+    {
+        parent->SetSizer( item0 );
+        if (call_fit)
+            item0->SetSizeHints( parent );
+    }
+    
+    return item0;
+}
+
+wxSizer *messagePageFriends( wxWindow *parent, bool call_fit, bool set_sizer )
+{
+    wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
+
+    wxBoxSizer *item1 = new wxBoxSizer( wxHORIZONTAL );
+
+    wxStaticBitmap *item2 = new wxStaticBitmap( parent, -1, amuleDlgImages( 14 ), wxDefaultPosition, wxDefaultSize );
+    item1->Add( item2, 0, wxALIGN_CENTER, 5 );
+
+    wxStaticText *item3 = new wxStaticText( parent, -1, _("Friends"), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->Add( item3, 0, wxALIGN_CENTER|wxLEFT|wxTOP|wxBOTTOM, 5 );
+
+    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+
+    CFriendListCtrl *item4 = new CFriendListCtrl( parent, ID_FRIENDLIST, wxDefaultPosition, wxSize(160,150), wxLC_REPORT|wxSUNKEN_BORDER );
+    item0->Add( item4, 1, wxFIXED_MINSIZE|wxGROW|wxALIGN_CENTER_VERTICAL|wxRIGHT|wxBOTTOM, 5 );
+
+    if (set_sizer)
+    {
+        parent->SetSizer( item0 );
+        if (call_fit)
+            item0->SetSizeHints( parent );
+    }
+    
+    return item0;
+}
+
+wxSizer *messagePageMessages( wxWindow *parent, bool call_fit, bool set_sizer )
+{
+    wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
+
+    wxBoxSizer *item1 = new wxBoxSizer( wxHORIZONTAL );
+
+    wxStaticBitmap *item2 = new wxStaticBitmap( parent, -1, amuleDlgImages( 15 ), wxDefaultPosition, wxDefaultSize );
+    item1->Add( item2, 0, wxALIGN_CENTER, 5 );
+
+    wxStaticText *item3 = new wxStaticText( parent, -1, _("Messages"), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->Add( item3, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+
+    CChatSelector *item4 = new CChatSelector(parent, IDC_CHATSELECTOR,wxDefaultPosition,wxSize(200,32),0L);
+    wxASSERT( item4 );
+    item0->Add( item4, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT, 0 );
+
+    wxBoxSizer *item5 = new wxBoxSizer( wxHORIZONTAL );
+
+    CMuleTextCtrl *item6 = new CMuleTextCtrl( parent, IDC_CMESSAGE, wxT(""), wxDefaultPosition, wxSize(80,-1), wxTE_PROCESS_ENTER );
+    item6->Enable( false );
+    item5->Add( item6, 1, wxALIGN_CENTER, 5 );
+
+    wxButton *item7 = new wxButton( parent, IDC_CSEND, _("Send"), wxDefaultPosition, wxDefaultSize, 0 );
+    item7->SetToolTip( _("Sends the specified message.") );
+    item7->Enable( false );
+    item5->Add( item7, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
+
+    wxButton *item8 = new wxButton( parent, IDC_CCLOSE, _("Close"), wxDefaultPosition, wxDefaultSize, 0 );
+    item8->SetToolTip( _("Close this chat-session.") );
+    item8->Enable( false );
+    item5->Add( item8, 0, wxALIGN_CENTER, 5 );
+
+    item0->Add( item5, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM, 5 );
 
     if (set_sizer)
     {
@@ -3669,8 +3532,8 @@ void muleToolbar( wxToolBar *parent )
     parent->AddSeparator();
     parent->AddTool( ID_BUTTONNETWORKS, _("Networks"), amuleDlgImages( 20 ), wxNullBitmap, wxITEM_CHECK, _("Networks Window") );
     parent->AddTool( ID_BUTTONSEARCH, _("Searches"), amuleDlgImages( 22 ), wxNullBitmap, wxITEM_CHECK, _("Searches Window") );
-    parent->AddTool( ID_BUTTONTRANSFER, _("Transfers"), amuleDlgImages( 21 ), wxNullBitmap, wxITEM_CHECK, _("Files Transfers Window") );
-    parent->ToggleTool( ID_BUTTONTRANSFER, TRUE );
+    parent->AddTool( ID_BUTTONDOWNLOADS, _("Downloads"), amuleDlgImages( 21 ), wxNullBitmap, wxITEM_CHECK, _("Downloads Window") );
+    parent->ToggleTool( ID_BUTTONDOWNLOADS, TRUE );
     parent->AddTool( ID_BUTTONSHARED, _("Shared Files"), amuleDlgImages( 23 ), wxNullBitmap, wxITEM_CHECK, _("Shared Files Window") );
     parent->AddTool( ID_BUTTONMESSAGES, _("Messages"), amuleDlgImages( 24 ), wxNullBitmap, wxITEM_CHECK, _("Messages Window") );
     parent->AddTool( ID_BUTTONSTATISTICS, _("Statistics"), amuleDlgImages( 25 ), wxNullBitmap, wxITEM_CHECK, _("Statistics Graph Window") );
@@ -3690,40 +3553,40 @@ wxBitmap clientImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,0,0,0,0,0,0,
-            0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,0,0,0,0,0,0,233,250,233,246,255,246,246,255,246,233,250,
-            233,0,0,0,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,0,0,0,202,237,202,216,242,215,202,237,202,202,237,202,202,237,202,202,237,202,216,
-            242,215,208,239,208,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,0,0,0,0,0,0,0,0,0,
+            0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,0,0,0,0,0,0,233,250,233,246,255,246,246,255,246,233,250,
+            233,0,0,0,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,0,0,0,202,237,202,216,242,215,202,237,202,202,237,202,202,237,202,202,237,202,216,
+            242,215,208,239,208,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,0,0,
             0,114,201,112,159,224,158,146,223,144,148,226,146,148,226,146,148,226,146,148,226,146,148,226,146,
-            159,224,158,114,201,112,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,73,
+            159,224,158,114,201,112,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,0,0,0,73,
             193,70,98,212,95,0,0,0,0,0,0,93,217,90,93,217,90,0,0,0,0,0,0,98,212,
-            95,73,193,70,0,0,0,212,208,200,212,208,200,212,208,200,0,0,0,8,165,4,26,187,21,
+            95,73,193,70,0,0,0,236,233,216,236,233,216,236,233,216,0,0,0,8,165,4,26,187,21,
             50,206,46,0,0,0,0,0,0,52,220,46,49,213,45,0,0,0,0,0,0,50,206,46,26,
-            187,21,8,165,4,0,0,0,212,208,200,212,208,200,0,0,0,18,178,14,19,193,14,27,206,
+            187,21,8,165,4,0,0,0,236,233,216,236,233,216,0,0,0,18,178,14,19,193,14,27,206,
             22,27,216,22,27,216,22,27,216,22,27,216,22,27,216,22,27,216,22,27,206,22,19,193,14,
-            18,178,14,0,0,0,212,208,200,212,208,200,0,0,0,26,187,21,27,206,22,32,218,27,34,
+            18,178,14,0,0,0,236,233,216,236,233,216,0,0,0,26,187,21,27,206,22,32,218,27,34,
             226,29,34,226,29,34,226,29,34,226,29,34,226,29,34,226,29,32,218,27,27,206,22,26,187,
-            21,0,0,0,212,208,200,212,208,200,0,0,0,37,196,34,42,216,37,0,0,0,54,240,47,
+            21,0,0,0,236,233,216,236,233,216,0,0,0,37,196,34,42,216,37,0,0,0,54,240,47,
             57,243,49,57,243,49,57,243,49,57,243,49,54,240,47,0,0,0,42,216,37,37,196,34,0,
-            0,0,212,208,200,212,208,200,212,208,200,0,0,0,52,220,46,61,237,54,0,0,0,72,250,
-            64,72,250,64,72,250,64,72,250,64,0,0,0,61,237,54,49,213,45,0,0,0,212,208,200,
-            212,208,200,212,208,200,212,208,200,0,0,0,61,223,55,68,233,62,77,246,69,0,0,0,0,
-            0,0,0,0,0,0,0,0,77,246,69,61,223,55,53,205,48,0,0,0,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,0,0,0,68,233,62,79,243,74,88,252,82,88,252,82,
-            88,252,82,83,247,79,76,235,72,65,214,61,0,0,0,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,0,0,0,0,0,0,79,243,74,83,247,79,83,247,
-            79,76,235,72,0,0,0,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,0,0,0,0,0,0,0,
-            0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            0,0,236,233,216,236,233,216,236,233,216,0,0,0,52,220,46,61,237,54,0,0,0,72,250,
+            64,72,250,64,72,250,64,72,250,64,0,0,0,61,237,54,49,213,45,0,0,0,236,233,216,
+            236,233,216,236,233,216,236,233,216,0,0,0,61,223,55,68,233,62,77,246,69,0,0,0,0,
+            0,0,0,0,0,0,0,0,77,246,69,61,223,55,53,205,48,0,0,0,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,0,0,0,68,233,62,79,243,74,88,252,82,88,252,82,
+            88,252,82,83,247,79,76,235,72,65,214,61,0,0,0,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,0,0,0,0,0,0,79,243,74,83,247,79,83,247,
+            79,76,235,72,0,0,0,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,0,0,0,0,0,0,0,0,0,0,
+            0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 236, 233, 216);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -3731,40 +3594,40 @@ wxBitmap clientImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,0,0,0,0,0,0,
-            0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,0,0,0,0,0,0,247,233,233,255,248,248,255,248,248,248,237,
-            237,0,0,0,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,0,0,0,230,205,205,238,220,220,234,212,212,232,208,208,234,212,212,234,212,212,234,
-            212,212,234,212,212,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,0,0,0,0,0,0,0,0,0,
+            0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,0,0,0,0,0,0,247,233,233,255,248,248,255,248,248,248,237,
+            237,0,0,0,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,0,0,0,230,205,205,238,220,220,234,212,212,232,208,208,234,212,212,234,212,212,234,
+            212,212,234,212,212,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,0,0,
             0,181,116,116,212,166,166,211,156,156,211,156,156,212,156,156,212,156,156,212,156,156,212,166,166,
-            212,166,166,189,129,129,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,170,
+            212,166,166,189,129,129,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,0,0,0,170,
             82,82,191,110,110,0,0,0,0,0,0,197,106,106,197,106,106,0,0,0,0,0,0,191,110,
-            110,175,88,88,0,0,0,212,208,200,212,208,200,212,208,200,0,0,0,142,21,21,159,36,36,
+            110,175,88,88,0,0,0,236,233,216,236,233,216,236,233,216,0,0,0,142,21,21,159,36,36,
             181,61,61,0,0,0,0,0,0,189,62,62,189,62,62,0,0,0,0,0,0,187,62,62,163,
-            41,41,144,21,21,0,0,0,212,208,200,212,208,200,0,0,0,154,24,24,169,28,28,183,33,
+            41,41,144,21,21,0,0,0,236,233,216,236,233,216,0,0,0,154,24,24,169,28,28,183,33,
             33,193,37,37,193,37,37,193,37,37,193,37,37,193,37,37,193,37,37,185,31,31,169,28,28,
-            154,24,24,0,0,0,212,208,200,212,208,200,0,0,0,169,28,28,185,31,31,205,37,37,211,
+            154,24,24,0,0,0,236,233,216,236,233,216,0,0,0,169,28,28,185,31,31,205,37,37,211,
             39,39,211,39,39,211,39,39,211,39,39,211,39,39,211,39,39,205,37,37,185,31,31,169,28,
-            28,0,0,0,212,208,200,212,208,200,0,0,0,185,31,31,210,35,35,232,43,43,233,48,48,
+            28,0,0,0,236,233,216,236,233,216,0,0,0,185,31,31,210,35,35,232,43,43,233,48,48,
             237,50,50,237,50,50,237,50,50,237,50,50,233,48,48,221,42,42,205,37,37,180,30,30,0,
-            0,0,212,208,200,212,208,200,212,208,200,0,0,0,210,35,35,237,50,50,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0,0,232,43,43,205,37,37,0,0,0,212,208,200,
-            212,208,200,212,208,200,212,208,200,0,0,0,210,35,35,236,41,41,245,50,50,253,50,50,253,
-            53,53,253,53,53,253,50,50,237,50,50,221,42,42,199,33,33,0,0,0,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,0,0,0,226,38,38,241,43,43,245,45,45,253,50,50,
-            253,50,50,241,43,43,232,43,43,210,35,35,0,0,0,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,0,0,0,0,0,0,241,43,43,241,43,43,245,45,
-            45,236,41,41,0,0,0,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,0,0,0,0,0,0,0,
-            0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            0,0,236,233,216,236,233,216,236,233,216,0,0,0,210,35,35,237,50,50,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,232,43,43,205,37,37,0,0,0,236,233,216,
+            236,233,216,236,233,216,236,233,216,0,0,0,210,35,35,236,41,41,245,50,50,253,50,50,253,
+            53,53,253,53,53,253,50,50,237,50,50,221,42,42,199,33,33,0,0,0,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,0,0,0,226,38,38,241,43,43,245,45,45,253,50,50,
+            253,50,50,241,43,43,232,43,43,210,35,35,0,0,0,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,0,0,0,0,0,0,241,43,43,241,43,43,245,45,
+            45,236,41,41,0,0,0,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,0,0,0,0,0,0,0,0,0,0,
+            0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 236, 233, 216);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -3772,40 +3635,40 @@ wxBitmap clientImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,0,0,0,0,0,0,
-            0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,0,0,0,0,0,0,254,247,233,255,254,246,255,254,246,254,247,
-            233,0,0,0,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,0,0,0,246,239,202,248,243,213,246,239,202,246,239,202,246,239,202,246,239,202,248,
-            243,213,248,243,213,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,0,0,0,0,0,0,0,0,0,
+            0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,0,0,0,0,0,0,254,247,233,255,254,246,255,254,246,254,247,
+            233,0,0,0,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,0,0,0,246,239,202,248,243,213,246,239,202,246,239,202,246,239,202,246,239,202,248,
+            243,213,248,243,213,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,0,0,
             0,221,204,105,240,229,157,242,228,144,246,232,146,246,232,146,246,232,146,246,232,146,242,228,144,
-            240,229,157,225,210,119,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,228,
+            240,229,157,225,210,119,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,0,0,0,228,
             200,70,241,221,94,0,0,0,0,0,0,252,229,90,252,229,90,0,0,0,0,0,0,241,221,
-            94,228,200,70,0,0,0,212,208,200,212,208,200,212,208,200,0,0,0,209,181,6,230,203,20,
+            94,228,200,70,0,0,0,236,233,216,236,233,216,236,233,216,0,0,0,209,181,6,230,203,20,
             244,218,47,0,0,0,0,0,0,253,227,46,253,227,46,0,0,0,0,0,0,244,218,47,230,
-            203,20,209,181,6,0,0,0,212,208,200,212,208,200,0,0,0,215,190,17,230,203,20,246,220,
+            203,20,209,181,6,0,0,0,236,233,216,236,233,216,0,0,0,215,190,17,230,203,20,246,220,
             23,254,229,26,254,229,26,254,229,26,254,229,26,254,229,26,254,229,26,246,220,23,230,203,20,
-            215,190,17,0,0,0,212,208,200,212,208,200,0,0,0,220,199,27,237,217,31,249,230,34,255,
+            215,190,17,0,0,0,236,233,216,236,233,216,0,0,0,220,199,27,237,217,31,249,230,34,255,
             238,37,255,238,37,255,238,37,255,238,37,255,238,37,255,238,37,249,230,34,237,217,31,220,199,
-            27,0,0,0,212,208,200,212,208,200,0,0,0,223,205,39,239,224,45,255,238,37,255,247,59,
+            27,0,0,0,236,233,216,236,233,216,0,0,0,223,205,39,239,224,45,255,238,37,255,247,59,
             255,247,59,255,247,59,255,247,59,255,247,59,255,247,59,255,238,37,239,224,45,223,205,39,0,
-            0,0,212,208,200,212,208,200,212,208,200,0,0,0,237,227,57,255,238,37,0,0,0,255,252,
-            80,255,252,80,255,252,80,255,252,80,0,0,0,246,220,23,232,218,57,0,0,0,212,208,200,
-            212,208,200,212,208,200,212,208,200,0,0,0,238,227,64,246,238,78,255,238,37,0,0,0,0,
-            0,0,0,0,0,0,0,0,255,238,37,241,231,72,232,218,57,0,0,0,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,0,0,0,246,238,78,251,243,91,254,252,98,254,252,98,
-            254,253,103,254,252,98,244,237,85,233,223,76,0,0,0,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,0,0,0,0,0,0,254,251,92,254,252,98,254,252,
-            98,251,243,91,0,0,0,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,0,0,0,0,0,0,0,
-            0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            0,0,236,233,216,236,233,216,236,233,216,0,0,0,237,227,57,255,238,37,0,0,0,255,252,
+            80,255,252,80,255,252,80,255,252,80,0,0,0,246,220,23,232,218,57,0,0,0,236,233,216,
+            236,233,216,236,233,216,236,233,216,0,0,0,238,227,64,246,238,78,255,238,37,0,0,0,0,
+            0,0,0,0,0,0,0,0,255,238,37,241,231,72,232,218,57,0,0,0,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,0,0,0,246,238,78,251,243,91,254,252,98,254,252,98,
+            254,253,103,254,252,98,244,237,85,233,223,76,0,0,0,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,0,0,0,0,0,0,254,251,92,254,252,98,254,252,
+            98,251,243,91,0,0,0,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,0,0,0,0,0,0,0,0,0,0,
+            0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 236, 233, 216);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -3813,40 +3676,40 @@ wxBitmap clientImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,0,0,0,0,0,0,
-            0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,0,0,0,0,0,0,232,232,232,244,243,244,244,243,244,232,232,
-            232,0,0,0,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,0,0,0,213,213,213,222,222,222,213,213,213,213,213,213,222,222,222,213,213,213,222,
-            222,222,222,222,222,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,0,0,0,0,0,0,0,0,0,
+            0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,0,0,0,0,0,0,232,232,232,244,243,244,244,243,244,232,232,
+            232,0,0,0,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,0,0,0,213,213,213,222,222,222,213,213,213,213,213,213,222,222,222,213,213,213,222,
+            222,222,222,222,222,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,0,0,
             0,141,141,141,185,184,185,178,177,178,178,177,178,185,184,185,178,177,178,178,177,178,178,177,178,
-            185,184,185,158,158,158,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,126,
+            185,184,185,158,158,158,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,0,0,0,126,
             126,126,145,145,145,0,0,0,0,0,0,145,145,145,145,145,145,0,0,0,0,0,0,145,145,
-            145,133,133,133,0,0,0,212,208,200,212,208,200,212,208,200,0,0,0,89,89,89,98,98,98,
+            145,133,133,133,0,0,0,236,233,216,236,233,216,236,233,216,0,0,0,89,89,89,98,98,98,
             126,126,126,0,0,0,0,0,0,126,126,126,126,126,126,0,0,0,0,0,0,126,126,126,105,
-            105,105,89,89,89,0,0,0,212,208,200,212,208,200,0,0,0,89,89,89,105,105,105,113,113,
+            105,105,89,89,89,0,0,0,236,233,216,236,233,216,0,0,0,89,89,89,105,105,105,113,113,
             113,113,113,113,126,126,126,113,113,113,126,126,126,113,113,113,121,121,121,113,113,113,102,102,102,
-            94,94,94,0,0,0,212,208,200,212,208,200,0,0,0,98,98,98,113,113,113,133,133,133,133,
+            94,94,94,0,0,0,236,233,216,236,233,216,0,0,0,98,98,98,113,113,113,133,133,133,133,
             133,133,133,133,133,133,133,133,133,133,133,133,133,133,133,133,133,126,126,126,113,113,113,105,105,
-            105,0,0,0,212,208,200,212,208,200,0,0,0,113,113,113,133,133,133,141,141,141,145,145,145,
+            105,0,0,0,236,233,216,236,233,216,0,0,0,113,113,113,133,133,133,141,141,141,145,145,145,
             158,158,158,158,158,158,153,153,153,153,153,153,145,145,145,145,145,145,126,126,126,113,113,113,0,
-            0,0,212,208,200,212,208,200,212,208,200,0,0,0,133,133,133,158,158,158,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0,0,145,145,145,133,133,133,0,0,0,212,208,200,
-            212,208,200,212,208,200,212,208,200,0,0,0,141,141,141,0,0,0,158,158,158,169,168,168,178,
-            177,178,178,177,178,166,166,166,158,158,158,0,0,0,126,126,126,0,0,0,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,0,0,0,145,145,145,165,164,163,169,168,168,178,177,178,
-            169,168,168,169,168,168,153,153,153,138,138,138,0,0,0,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,0,0,0,0,0,0,165,164,163,169,168,168,165,164,
-            163,158,158,158,0,0,0,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,0,0,0,0,0,0,0,
-            0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            0,0,236,233,216,236,233,216,236,233,216,0,0,0,133,133,133,158,158,158,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,145,145,145,133,133,133,0,0,0,236,233,216,
+            236,233,216,236,233,216,236,233,216,0,0,0,141,141,141,0,0,0,158,158,158,169,168,168,178,
+            177,178,178,177,178,166,166,166,158,158,158,0,0,0,126,126,126,0,0,0,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,0,0,0,145,145,145,165,164,163,169,168,168,178,177,178,
+            169,168,168,169,168,168,153,153,153,138,138,138,0,0,0,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,0,0,0,0,0,0,165,164,163,169,168,168,165,164,
+            163,158,158,158,0,0,0,0,0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,0,0,0,0,0,0,0,0,0,0,
+            0,0,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 236, 233, 216);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -3867,10 +3730,10 @@ wxBitmap clientImages( size_t index )
         "h c #BF7220",
         "i c #D5D5D5",
         "j c #F8F7F8",
-        "k c #ECECEC",
-        "l c #F1DECB",
-        "m c #C37A33",
-        "n c #DEDEDE",
+        "l c #ECECEC",
+        "m c #F1DECB",
+        "n c #C37A33",
+        "o c #DEDEDE",
         "p c #BE6A13",
         "q c #F2F1F2",
         "r c #DBB68F",
@@ -3884,15 +3747,15 @@ wxBitmap clientImages( size_t index )
         "      aaaa      ",
         "    aavvvvaa    ",
         "   asssrrqssa   ",
-        "  agkrppppldfa  ",
-        "  ainhplrptdia  ",
-        " acidekqupudica ",
-        " agnkssupmsknia ",
+        "  aglrppppmdfa  ",
+        "  aiohpmrptdia  ",
+        " acidelqupudica ",
+        " agolssupnsloia ",
         " aidssvppvsqdia ",
-        " anksvvvvvvvkna ",
-        "  akvvvwbvvska  ",
-        "  aksvvpwvjqda  ",
-        "   asvvvvvska   ",
+        " aolsvvvvvvvloa ",
+        "  alvvvwbvvsla  ",
+        "  alsvvpwvjqda  ",
+        "   asvvvvvsla   ",
         "    aavvvvaa    ",
         "      aaaa      ",
         "                "
@@ -3905,22 +3768,20 @@ wxBitmap clientImages( size_t index )
         /* XPM */
         static const char *xpm_data[] = {
         /* columns rows colors chars-per-pixel */
-        "16 16 6 1",
+        "16 16 4 1",
         "  c None",
         "a c Black",
-        "b c #101010",
-        "c c #74EC48",
-        "d c #222222",
-        "f c #0D0D0D",
+        "c c #222222",
+        "d c #FF0000",
         /* pixels */
-        "          aaaa  ",
-        "          acca  ",
-        "        aaaccaaa",
-        "        acccccca",
-        "        acccccca",
-        "        adaccaaa",
-        "          fccb  ",
-        "          aaaa  ",
+        "                ",
+        "                ",
+        "        aaaaaaaa",
+        "        adddddda",
+        "        adddddda",
+        "        acaaaaaa",
+        "                ",
+        "                ",
         "                ",
         "                ",
         "                ",
@@ -3940,7 +3801,7 @@ wxBitmap clientImages( size_t index )
         /* columns rows colors chars-per-pixel */
         "16 16 3 1",
         "  c None",
-        "a c #FF0000",
+        "b c #FF0000",
         "c c #A52A2A",
         /* pixels */
         "                ",
@@ -3953,12 +3814,12 @@ wxBitmap clientImages( size_t index )
         "                ",
         "                ",
         "                ",
-        "      a         ",
-        "     aa         ",
-        "a   aac         ",
-        "aa aac          ",
-        "caaac           ",
-        " cac            "
+        "      b         ",
+        "     bb         ",
+        "b   bbc         ",
+        "bb bbc          ",
+        "cbbbc           ",
+        " cbc            "
         };
         wxBitmap bitmap( xpm_data );
         return bitmap;
@@ -3970,25 +3831,25 @@ wxBitmap clientImages( size_t index )
         /* columns rows colors chars-per-pixel */
         "16 16 3 1",
         "  c None",
-        "a c #CC3232",
-        "b c #FF0000",
+        "b c #CC3232",
+        "c c #FF0000",
         /* pixels */
         "                ",
-        "ba            ab",
-        " ba          ab ",
-        "  ba        ab  ",
-        "   ba      ab   ",
-        "    ba    ab    ",
-        "     ba  ab     ",
-        "      baab      ",
-        "       aa       ",
-        "      abba      ",
-        "     ab  ba     ",
-        "    ab    ba    ",
-        "   ab      ba   ",
-        "  ab        ba  ",
-        " ab          ba ",
-        "ab            ba"
+        "cb            bc",
+        " cb          bc ",
+        "  cb        bc  ",
+        "   cb      bc   ",
+        "    cb    bc    ",
+        "     cb  bc     ",
+        "      cbbc      ",
+        "       bb       ",
+        "      bccb      ",
+        "     bc  cb     ",
+        "    bc    cb    ",
+        "   bc      cb   ",
+        "  bc        cb  ",
+        " bc          cb ",
+        "bc            cb"
         };
         wxBitmap bitmap( xpm_data );
         return bitmap;
@@ -4007,8 +3868,8 @@ wxBitmap clientImages( size_t index )
         "e c #CDCDCC",
         "f c #CDCDCD",
         "g c #C6C6C4",
-        "h c #CECECE",
-        "i c #CFCFCF",
+        "i c #CECECE",
+        "j c #CFCFCF",
         "k c #C6C2C1",
         "l c #C9C9C8",
         "m c #C2C2C2",
@@ -4016,11 +3877,11 @@ wxBitmap clientImages( size_t index )
         "           a    ",
         "          aga   ",
         "       aaadddaaa",
-        "       abbdiibma",
-        "        alcihfa ",
+        "       abbdjjbma",
+        "        alcjifa ",
         "         afffa  ",
-        "        aefahha ",
-        "        aha aka ",
+        "        aefaiia ",
+        "        aia aka ",
         "        aa   aa ",
         "                ",
         "                ",
@@ -4037,40 +3898,40 @@ wxBitmap clientImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,85,85,85,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,85,85,85,251,225,54,99,98,78,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,85,85,85,85,85,85,99,98,
-            78,253,244,13,255,248,7,252,235,31,85,85,85,85,85,85,85,85,85,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,85,85,85,238,222,51,255,241,41,253,
-            250,0,252,249,0,253,249,3,251,230,42,235,217,58,99,98,78,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,120,116,64,233,224,28,253,250,0,
-            253,250,0,251,242,12,227,216,37,120,118,66,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,121,120,65,255,248,8,251,239,
-            21,252,235,32,120,118,66,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,99,98,78,241,229,35,252,236,27,159,144,90,252,
-            236,31,233,214,64,97,96,79,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,80,84,80,203,194,47,98,97,78,212,208,200,85,85,85,
-            217,210,34,87,86,84,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,80,84,80,96,96,72,212,208,200,212,208,200,212,208,200,96,96,
-            72,85,85,85,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,85,85,85,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,85,85,85,251,225,54,99,98,78,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,85,85,85,85,85,85,99,98,
+            78,253,244,13,255,248,7,252,235,31,85,85,85,85,85,85,85,85,85,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,85,85,85,238,222,51,255,241,41,253,
+            250,0,252,249,0,253,249,3,251,230,42,235,217,58,99,98,78,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,120,116,64,233,224,28,253,250,0,
+            253,250,0,251,242,12,227,216,37,120,118,66,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,121,120,65,255,248,8,251,239,
+            21,252,235,32,120,118,66,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,99,98,78,241,229,35,252,236,27,159,144,90,252,
+            236,31,233,214,64,97,96,79,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,80,84,80,203,194,47,98,97,78,236,233,216,85,85,85,
+            217,210,34,87,86,84,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,80,84,80,96,96,72,236,233,216,236,233,216,236,233,216,96,96,
+            72,85,85,85,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 236, 233, 216);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -4082,16 +3943,16 @@ wxBitmap clientImages( size_t index )
         "16 16 3 1",
         "  c None",
         "a c #FFFF00",
-        "b c #323834",
+        "c c #323834",
         /* pixels */
-        "           b    ",
-        "          bab   ",
-        "         baaab  ",
-        "        baaaaab ",
-        "       baaaaaaab",
-        "       bbbaaabbb",
-        "         baaab  ",
-        "         bbbbb  ",
+        "           c    ",
+        "          cac   ",
+        "         caaac  ",
+        "        caaaaac ",
+        "       caaaaaaac",
+        "       cccaaaccc",
+        "         caaac  ",
+        "         ccccc  ",
         "                ",
         "                ",
         "                ",
@@ -4108,40 +3969,40 @@ wxBitmap clientImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,9,84,125,8,73,108,7,65,97,7,
-            65,97,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,9,84,125,16,149,221,27,164,239,15,139,206,10,90,133,
-            6,52,77,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,9,84,125,16,149,221,255,255,255,130,205,246,67,180,242,14,132,196,10,94,
-            140,6,52,77,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,9,84,125,27,164,239,162,218,249,93,191,244,67,180,242,16,149,221,13,121,180,6,
-            52,77,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,7,65,97,15,139,206,67,180,242,67,180,242,33,167,240,16,149,221,13,121,180,6,52,77,
-            6,52,77,6,52,77,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,6,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,9,84,125,8,73,108,7,65,97,7,
+            65,97,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,9,84,125,16,149,221,27,164,239,15,139,206,10,90,133,
+            6,52,77,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,9,84,125,16,149,221,255,255,255,130,205,246,67,180,242,14,132,196,10,94,
+            140,6,52,77,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,9,84,125,27,164,239,162,218,249,93,191,244,67,180,242,16,149,221,13,121,180,6,
+            52,77,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,7,65,97,15,139,206,67,180,242,67,180,242,33,167,240,16,149,221,13,121,180,6,52,77,
+            6,52,77,6,52,77,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,6,
             52,77,10,94,140,15,139,206,16,149,221,16,149,221,13,126,187,10,90,133,6,52,77,8,73,
-            108,7,65,97,6,52,77,212,208,200,212,208,200,212,208,200,212,208,200,9,84,125,6,58,86,
+            108,7,65,97,6,52,77,236,233,216,236,233,216,236,233,216,236,233,216,9,84,125,6,58,86,
             6,52,77,9,84,125,12,116,172,12,116,172,10,90,133,6,52,77,9,78,116,10,90,133,9,
-            84,125,6,52,77,212,208,200,212,208,200,212,208,200,9,84,125,12,111,165,10,94,140,7,62,
+            84,125,6,52,77,236,233,216,236,233,216,236,233,216,9,84,125,12,111,165,10,94,140,7,62,
             92,6,52,77,6,52,77,6,52,77,6,52,77,121,0,0,121,0,0,9,84,125,121,0,0,
-            121,0,0,212,208,200,212,208,200,9,84,125,78,185,243,104,195,244,14,132,196,12,116,172,10,
+            121,0,0,236,233,216,236,233,216,9,84,125,78,185,243,104,195,244,14,132,196,12,116,172,10,
             94,140,10,94,140,10,94,140,121,0,0,242,84,90,237,28,36,121,0,0,237,28,36,237,28,
-            36,68,1,0,212,208,200,9,84,125,186,227,250,63,179,242,13,121,180,16,149,221,63,179,242,
+            36,68,1,0,236,233,216,9,84,125,186,227,250,63,179,242,13,121,180,16,149,221,63,179,242,
             27,164,239,121,0,0,242,84,90,251,199,201,245,122,126,239,49,56,245,117,122,243,100,105,237,
             28,36,68,1,0,9,84,125,104,195,244,27,164,239,10,94,140,33,167,240,231,245,253,113,198,
             245,121,0,0,245,130,134,254,241,241,248,170,173,244,109,113,248,167,170,245,117,122,226,26,34,
             68,1,0,9,84,125,78,185,243,16,149,221,7,62,92,33,167,240,231,245,253,113,198,245,121,
             0,0,242,84,90,251,199,201,247,156,160,246,145,149,245,122,126,242,89,95,195,21,27,68,1,
             0,9,84,125,44,171,240,16,149,221,6,52,77,33,167,240,207,236,252,93,191,244,67,180,242,
-            121,0,0,241,67,74,247,156,160,245,132,136,243,97,103,219,25,33,68,1,0,212,208,200,9,
+            121,0,0,241,67,74,247,156,160,245,132,136,243,97,103,219,25,33,68,1,0,236,233,216,9,
             84,125,16,149,221,16,149,221,6,52,77,33,167,240,138,209,247,72,182,242,44,171,240,44,171,
-            240,121,0,0,237,28,36,245,126,130,219,25,33,68,1,0,212,208,200,212,208,200,7,65,97,
+            240,121,0,0,237,28,36,245,126,130,219,25,33,68,1,0,236,233,216,236,233,216,7,65,97,
             16,149,221,16,149,221,6,52,77,16,149,221,85,187,243,54,175,241,15,144,215,6,52,77,6,
-            52,77,121,0,0,179,14,18,68,1,0,212,208,200,212,208,200,212,208,200,7,65,97,6,52,
-            77,6,52,77,212,208,200,6,52,77,6,52,77,6,52,77,6,52,77,212,208,200,212,208,200,
-            212,208,200,68,1,0,212,208,200,212,208,200,212,208,200,212,208,200
+            52,77,121,0,0,179,14,18,68,1,0,236,233,216,236,233,216,236,233,216,7,65,97,6,52,
+            77,6,52,77,236,233,216,6,52,77,6,52,77,6,52,77,6,52,77,236,233,216,236,233,216,
+            236,233,216,68,1,0,236,233,216,236,233,216,236,233,216,236,233,216
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 236, 233, 216);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -4149,40 +4010,40 @@ wxBitmap clientImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,100,41,9,100,41,9,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,100,41,9,100,41,9,129,63,18,212,208,200,100,41,9,100,41,9,100,41,9,100,41,
-            9,100,41,9,100,41,9,100,41,9,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            236,233,216,236,233,216,236,233,216,236,233,216,100,41,9,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,100,41,9,100,41,9,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,100,41,9,100,41,9,129,63,18,236,233,216,100,41,9,100,41,9,100,41,9,100,41,
+            9,100,41,9,100,41,9,100,41,9,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
             100,41,9,191,111,45,129,63,18,100,41,9,242,220,175,233,195,143,223,170,110,206,130,64,174,
-            98,39,100,41,9,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,129,63,
+            98,39,100,41,9,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,100,41,9,129,63,
             18,167,93,36,100,41,9,242,220,175,223,170,110,213,147,84,191,111,45,100,41,9,100,41,9,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,142,74,26,206,
-            130,64,223,170,110,215,150,87,149,79,29,100,41,9,100,41,9,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,199,118,49,187,109,45,
-            166,94,38,134,69,27,100,41,9,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,100,41,9,100,41,9,185,108,46,187,109,45,93,45,
-            14,222,170,125,180,123,80,128,64,23,100,41,9,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,203,124,57,190,111,46,223,174,133,255,
-            255,255,0,0,0,147,106,72,167,96,42,50,55,62,50,55,62,50,55,62,212,208,200,212,208,
-            200,212,208,200,212,208,200,100,41,9,100,41,9,210,138,74,217,154,92,217,154,92,236,236,235,
-            65,64,65,194,119,57,204,145,78,230,210,186,255,255,255,196,196,192,50,55,62,212,208,200,212,
-            208,200,212,208,200,212,208,200,100,41,9,223,170,110,242,220,175,223,170,110,217,154,92,180,104,
-            44,191,119,50,193,140,87,107,108,111,23,22,20,255,255,255,50,55,62,212,208,200,212,208,200,
-            212,208,200,100,41,9,110,49,12,217,154,92,223,170,110,223,170,110,210,138,74,180,104,44,168,
-            94,37,193,160,128,198,198,194,160,160,159,235,235,233,50,55,62,212,208,200,212,208,200,212,208,
-            200,100,41,9,110,49,12,166,92,35,210,138,74,210,138,74,199,119,49,171,96,38,168,94,37,
-            197,179,159,228,228,225,228,228,225,231,231,229,50,55,62,212,208,200,212,208,200,212,208,200,100,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,100,41,9,142,74,26,206,
+            130,64,223,170,110,215,150,87,149,79,29,100,41,9,100,41,9,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,100,41,9,199,118,49,187,109,45,
+            166,94,38,134,69,27,100,41,9,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,100,41,9,100,41,9,185,108,46,187,109,45,93,45,
+            14,222,170,125,180,123,80,128,64,23,100,41,9,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,100,41,9,203,124,57,190,111,46,223,174,133,255,
+            255,255,0,0,0,147,106,72,167,96,42,50,55,62,50,55,62,50,55,62,236,233,216,236,233,
+            216,236,233,216,236,233,216,100,41,9,100,41,9,210,138,74,217,154,92,217,154,92,236,236,235,
+            65,64,65,194,119,57,204,145,78,230,210,186,255,255,255,196,196,192,50,55,62,236,233,216,236,
+            233,216,236,233,216,236,233,216,100,41,9,223,170,110,242,220,175,223,170,110,217,154,92,180,104,
+            44,191,119,50,193,140,87,107,108,111,23,22,20,255,255,255,50,55,62,236,233,216,236,233,216,
+            236,233,216,100,41,9,110,49,12,217,154,92,223,170,110,223,170,110,210,138,74,180,104,44,168,
+            94,37,193,160,128,198,198,194,160,160,159,235,235,233,50,55,62,236,233,216,236,233,216,236,233,
+            216,100,41,9,110,49,12,166,92,35,210,138,74,210,138,74,199,119,49,171,96,38,168,94,37,
+            197,179,159,228,228,225,228,228,225,231,231,229,50,55,62,236,233,216,236,233,216,236,233,216,100,
             41,9,128,63,19,100,41,9,100,41,9,100,41,9,100,41,9,100,41,9,114,116,118,160,160,
-            158,170,170,166,164,165,162,50,55,62,212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,
-            141,73,25,172,101,39,163,91,33,127,62,19,100,41,9,212,208,200,50,55,62,50,55,62,50,
-            55,62,50,55,62,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,143,75,
-            26,193,116,45,193,116,45,154,83,30,100,41,9,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            158,170,170,166,164,165,162,50,55,62,236,233,216,236,233,216,236,233,216,236,233,216,100,41,9,
+            141,73,25,172,101,39,163,91,33,127,62,19,100,41,9,236,233,216,50,55,62,50,55,62,50,
+            55,62,50,55,62,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,100,41,9,143,75,
+            26,193,116,45,193,116,45,154,83,30,100,41,9,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 236, 233, 216);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -4190,18 +4051,18 @@ wxBitmap clientImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,174,174,174,165,165,165,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,120,
-            215,116,85,213,79,212,208,200,212,208,200,153,153,153,143,143,143,153,153,153,153,153,153,142,142,
-            142,151,151,151,190,190,190,212,208,200,81,211,75,139,216,134,212,208,200,212,208,200,212,208,200,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,174,174,174,165,165,165,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,120,
+            215,116,85,213,79,236,233,216,236,233,216,153,153,153,143,143,143,153,153,153,153,153,153,142,142,
+            142,151,151,151,190,190,190,236,233,216,81,211,75,139,216,134,236,233,216,236,233,216,236,233,216,
             94,191,89,92,211,85,168,173,168,193,193,193,211,211,211,179,179,179,179,179,179,211,211,211,196,
-            196,196,171,187,171,67,201,60,112,191,108,212,208,200,212,208,200,212,208,200,129,129,129,156,168,
+            196,196,171,187,171,67,201,60,112,191,108,236,233,216,236,233,216,236,233,216,129,129,129,156,168,
             155,63,197,55,136,206,132,202,204,203,190,206,188,135,209,131,135,209,131,187,206,185,202,204,203,
-            104,203,100,71,186,65,152,159,151,129,129,129,212,208,200,212,208,200,120,120,120,95,96,96,137,
+            104,203,100,71,186,65,152,159,151,129,129,129,236,233,216,236,233,216,120,120,120,95,96,96,137,
             171,133,66,194,55,102,209,93,75,192,66,82,187,74,93,188,87,71,189,62,92,208,78,68,194,
-            60,144,167,143,94,94,94,119,119,119,212,208,200,157,157,157,75,75,75,71,71,71,139,140,139,
+            60,144,167,143,94,94,94,119,119,119,236,233,216,157,157,157,75,75,75,71,71,71,139,140,139,
             108,179,102,73,197,63,133,154,132,139,140,139,139,140,139,138,152,137,76,196,65,98,180,91,146,
             146,146,82,82,82,75,75,75,157,157,157,63,63,63,14,14,14,101,101,101,190,190,190,134,148,
             133,81,194,68,131,153,128,193,193,193,198,198,198,139,156,137,84,227,66,124,158,121,190,190,190,
@@ -4213,17 +4074,17 @@ wxBitmap clientImages( size_t index )
             89,98,135,90,108,124,104,116,217,100,90,126,81,206,206,207,215,215,215,123,123,123,101,101,101,
             147,147,147,174,174,174,129,129,129,123,123,123,171,171,171,211,211,211,165,165,165,87,130,79,88,
             161,74,79,125,69,102,176,87,126,126,126,206,206,207,179,178,179,126,126,126,130,130,130,174,174,
-            174,212,208,200,175,175,175,135,135,135,153,153,153,142,142,142,186,186,186,78,88,75,119,191,102,
-            108,194,89,76,108,68,157,157,157,145,144,145,151,151,151,137,137,137,174,174,174,212,208,200,212,
-            208,200,212,208,200,186,186,186,139,139,139,157,157,157,196,196,196,120,120,120,90,126,81,95,162,
-            82,80,87,80,193,193,193,151,151,151,134,134,134,186,186,186,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,193,193,193,151,151,151,179,179,179,193,193,193,94,94,94,88,90,88,159,
-            159,159,179,179,179,151,151,151,196,196,196,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,186,186,186,161,161,161,148,148,148,148,148,148,161,161,161,
-            186,186,186,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            174,236,233,216,175,175,175,135,135,135,153,153,153,142,142,142,186,186,186,78,88,75,119,191,102,
+            108,194,89,76,108,68,157,157,157,145,144,145,151,151,151,137,137,137,174,174,174,236,233,216,236,
+            233,216,236,233,216,186,186,186,139,139,139,157,157,157,196,196,196,120,120,120,90,126,81,95,162,
+            82,80,87,80,193,193,193,151,151,151,134,134,134,186,186,186,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,193,193,193,151,151,151,179,179,179,193,193,193,94,94,94,88,90,88,159,
+            159,159,179,179,179,151,151,151,196,196,196,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,186,186,186,161,161,161,148,148,148,148,148,148,161,161,161,
+            186,186,186,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 236, 233, 216);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -4231,40 +4092,40 @@ wxBitmap clientImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,176,176,176,168,168,168,172,172,172,168,168,168,166,166,
-            166,172,172,172,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,163,164,166,188,188,189,198,198,199,201,201,202,201,201,202,201,201,202,185,
-            186,188,162,163,165,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,142,142,143,166,166,166,175,176,178,182,183,185,185,186,188,187,188,190,182,183,185,181,182,183,
-            164,165,167,144,144,144,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,148,148,149,142,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,176,176,176,168,168,168,172,172,172,168,168,168,166,166,
+            166,172,172,172,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,163,164,166,188,188,189,198,198,199,201,201,202,201,201,202,201,201,202,185,
+            186,188,162,163,165,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,142,142,143,166,166,166,175,176,178,182,183,185,185,186,188,187,188,190,182,183,185,181,182,183,
+            164,165,167,144,144,144,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,148,148,149,142,
             142,143,163,164,166,168,169,171,170,171,173,170,171,173,170,171,173,170,171,173,170,171,173,163,164,
-            166,144,144,144,155,156,156,212,208,200,212,208,200,212,208,200,212,208,200,134,134,136,175,176,178,
+            166,144,144,144,155,156,156,236,233,216,236,233,216,236,233,216,236,233,216,134,134,136,175,176,178,
             189,190,192,189,190,192,189,190,192,189,190,192,189,190,192,187,188,190,187,188,190,187,188,190,176,
-            176,176,135,136,135,212,208,200,212,208,200,212,208,200,166,166,166,152,152,153,166,166,168,179,180,
+            176,176,135,136,135,236,233,216,236,233,216,236,233,216,166,166,166,152,152,153,166,166,168,179,180,
             182,182,183,185,175,176,178,182,183,185,179,180,182,172,172,172,182,183,185,180,181,183,169,170,170,
-            152,152,153,172,172,172,212,208,200,212,208,200,195,195,195,200,200,200,175,175,175,198,198,198,204,
+            152,152,153,172,172,172,236,233,216,236,233,216,195,195,195,200,200,200,175,175,175,198,198,198,204,
             204,204,172,172,172,201,201,202,199,199,199,172,172,172,204,204,204,198,198,198,175,175,175,201,201,
-            202,199,199,199,212,208,200,212,208,200,199,199,199,198,198,198,198,198,198,200,200,200,199,199,199,
+            202,199,199,199,236,233,216,236,233,216,199,199,199,198,198,198,198,198,198,200,200,200,199,199,199,
             198,198,198,198,198,198,196,196,196,196,196,196,199,199,199,199,199,199,193,193,193,193,193,193,199,
-            199,199,212,208,200,212,208,200,201,201,202,198,198,198,195,195,195,201,201,202,199,199,199,195,195,
+            199,199,236,233,216,236,233,216,201,201,202,198,198,198,195,195,195,201,201,202,199,199,199,195,195,
             195,198,198,198,196,196,196,187,188,190,191,191,191,198,198,198,193,193,193,193,193,193,199,199,199,
-            212,208,200,212,208,200,200,200,200,199,199,199,192,192,192,192,192,192,199,199,199,193,193,193,201,
-            201,202,199,199,199,191,191,191,213,213,213,199,199,199,188,188,189,184,184,184,199,199,199,212,208,
-            200,212,208,200,200,200,200,184,184,184,215,215,215,188,188,189,204,204,204,195,195,195,212,208,200,
-            188,188,189,192,192,192,195,195,195,207,207,207,188,188,188,212,208,200,201,201,202,212,208,200,212,
-            208,200,188,188,189,212,208,200,203,203,203,212,208,200,198,198,198,188,188,189,212,208,200,212,208,
-            200,188,188,189,207,207,207,198,198,198,204,204,204,212,208,200,184,184,184,212,208,200,188,188,189,
-            212,208,200,212,208,200,198,198,198,212,208,200,212,208,200,201,201,202,211,211,211,212,208,200,204,
-            204,204,204,204,204,212,208,200,213,213,213,198,198,198,213,213,213,188,188,189,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            236,233,216,236,233,216,200,200,200,199,199,199,192,192,192,192,192,192,199,199,199,193,193,193,201,
+            201,202,199,199,199,191,191,191,213,213,213,199,199,199,188,188,189,184,184,184,199,199,199,236,233,
+            216,236,233,216,200,200,200,184,184,184,215,215,215,188,188,189,204,204,204,195,195,195,236,233,216,
+            188,188,189,192,192,192,195,195,195,207,207,207,188,188,188,236,233,216,201,201,202,236,233,216,236,
+            233,216,188,188,189,236,233,216,203,203,203,236,233,216,198,198,198,188,188,189,236,233,216,236,233,
+            216,188,188,189,207,207,207,198,198,198,204,204,204,236,233,216,184,184,184,236,233,216,188,188,189,
+            236,233,216,236,233,216,198,198,198,236,233,216,236,233,216,201,201,202,211,211,211,236,233,216,204,
+            204,204,204,204,204,236,233,216,213,213,213,198,198,198,213,213,213,188,188,189,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 236, 233, 216);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -4272,40 +4133,40 @@ wxBitmap clientImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,140,128,115,212,208,200,212,208,200,212,208,200,212,208,200,142,125,108,176,159,142,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,162,149,136,212,174,136,212,208,200,212,208,200,130,130,130,255,217,178,183,157,132,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,64,100,144,212,208,200,212,208,200,212,208,200,212,
-            208,200,196,183,170,170,144,119,85,85,85,238,225,212,255,128,115,183,106,157,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,162,149,136,153,153,153,246,183,144,255,128,153,110,110,110,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,119,119,
-            119,230,231,230,238,238,238,212,174,162,142,91,125,212,208,200,212,208,200,136,136,136,85,85,85,
-            136,136,136,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,110,110,110,234,234,234,251,
+            236,233,216,140,128,115,236,233,216,236,233,216,236,233,216,236,233,216,142,125,108,176,159,142,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,162,149,136,212,174,136,236,233,216,236,233,216,130,130,130,255,217,178,183,157,132,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,64,100,144,236,233,216,236,233,216,236,233,216,236,
+            233,216,196,183,170,170,144,119,85,85,85,238,225,212,255,128,115,183,106,157,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,162,149,136,153,153,153,246,183,144,255,128,153,110,110,110,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,119,119,
+            119,230,231,230,238,238,238,212,174,162,142,91,125,236,233,216,236,233,216,136,136,136,85,85,85,
+            136,136,136,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,110,110,110,234,234,234,251,
             251,251,251,251,251,208,208,208,187,187,187,110,110,110,162,162,162,234,234,234,242,242,242,230,231,
-            230,170,170,170,110,110,110,212,208,200,212,208,200,212,208,200,174,174,174,255,255,255,255,255,255,
+            230,170,170,170,110,110,110,236,233,216,236,233,216,236,233,216,174,174,174,255,255,255,255,255,255,
             149,123,200,157,106,170,246,246,246,191,191,191,246,246,246,255,255,255,255,255,255,255,255,255,251,
-            251,251,238,238,238,147,147,147,212,208,200,110,110,110,212,212,212,225,212,200,238,238,238,208,170,
+            251,251,238,238,238,147,147,147,236,233,216,110,110,110,212,212,212,225,212,200,238,238,238,208,170,
             196,255,217,242,251,251,251,238,238,238,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
-            255,255,255,196,196,196,212,208,200,212,208,200,174,162,149,178,166,153,234,234,234,255,255,255,234,
+            255,255,255,196,196,196,236,233,216,236,233,216,174,162,149,178,166,153,234,234,234,255,255,255,234,
             234,234,183,183,183,246,246,246,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
-            255,230,231,230,85,85,85,212,208,200,85,85,85,128,128,128,140,140,140,132,132,132,174,174,174,
+            255,230,231,230,85,85,85,236,233,216,85,85,85,128,128,128,140,140,140,132,132,132,174,174,174,
             221,221,221,255,255,255,255,255,255,255,255,255,251,251,251,255,255,255,255,255,255,255,255,255,238,
-            238,238,170,170,170,212,208,200,85,85,85,191,191,191,178,178,178,200,200,200,242,242,242,255,255,
+            238,238,170,170,170,236,233,216,85,85,85,191,191,191,178,178,178,200,200,200,242,242,242,255,255,
             255,255,255,255,251,251,251,251,251,251,200,200,200,238,238,238,255,255,255,255,255,255,234,234,234,
-            144,144,144,212,208,200,136,136,136,221,221,221,221,221,221,242,242,242,255,255,255,255,255,255,246,
+            144,144,144,236,233,216,136,136,136,221,221,221,221,221,221,242,242,242,255,255,255,255,255,255,246,
             246,246,208,208,208,225,225,225,178,178,178,208,208,208,230,231,230,238,238,238,217,217,217,170,170,
-            170,212,208,200,212,208,200,130,130,130,183,183,183,234,234,234,251,251,251,242,242,242,225,225,225,
-            149,149,149,187,187,187,128,128,128,178,178,178,187,187,187,212,212,212,204,204,204,110,110,110,212,
-            208,200,85,85,85,200,200,200,204,204,204,170,170,170,208,208,208,242,242,242,204,204,204,106,106,
-            106,128,128,128,106,106,106,85,85,85,128,128,128,178,178,178,125,125,125,212,208,200,162,162,162,
+            170,236,233,216,236,233,216,130,130,130,183,183,183,234,234,234,251,251,251,242,242,242,225,225,225,
+            149,149,149,187,187,187,128,128,128,178,178,178,187,187,187,212,212,212,204,204,204,110,110,110,236,
+            233,216,85,85,85,200,200,200,204,204,204,170,170,170,208,208,208,242,242,242,204,204,204,106,106,
+            106,128,128,128,106,106,106,85,85,85,128,128,128,178,178,178,125,125,125,236,233,216,162,162,162,
             191,191,191,200,200,200,128,128,128,130,130,130,123,123,123,217,217,217,149,149,149,170,170,170,162,
-            162,162,85,85,85,174,174,174,238,238,238,162,162,162,212,208,200,212,208,200,212,208,200,85,85,
-            85,136,136,136,212,208,200,110,110,110,162,162,162,119,119,119,85,85,85,136,136,136,212,208,200,
-            212,208,200,119,119,119,130,130,130,212,208,200,212,208,200,212,208,200
+            162,162,85,85,85,174,174,174,238,238,238,162,162,162,236,233,216,236,233,216,236,233,216,85,85,
+            85,136,136,136,236,233,216,110,110,110,162,162,162,119,119,119,85,85,85,136,136,136,236,233,216,
+            236,233,216,119,119,119,130,130,130,236,233,216,236,233,216,236,233,216
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 236, 233, 216);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -4313,40 +4174,40 @@ wxBitmap clientImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,94,153,160,87,148,157,105,157,164,109,157,164,88,149,157,86,148,157,
-            86,148,156,89,150,157,64,100,144,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,93,153,157,90,150,156,90,150,156,89,150,156,91,152,160,91,152,160,93,152,160,91,152,
-            160,90,151,159,87,149,157,212,208,200,212,208,200,212,208,200,88,152,152,212,208,200,212,208,200,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,94,153,160,87,148,157,105,157,164,109,157,164,88,149,157,86,148,157,
+            86,148,156,89,150,157,64,100,144,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,93,153,157,90,150,156,90,150,156,89,150,156,91,152,160,91,152,160,93,152,160,91,152,
+            160,90,151,159,87,149,157,236,233,216,236,233,216,236,233,216,88,152,152,236,233,216,236,233,216,
             93,152,157,101,157,166,97,155,163,96,155,163,97,155,165,98,157,164,99,156,165,98,156,165,96,
-            154,163,92,152,160,86,148,156,212,208,200,212,208,200,56,132,144,212,208,200,75,121,124,36,54,
+            154,163,92,152,160,86,148,156,236,233,216,236,233,216,56,132,144,236,233,216,75,121,124,36,54,
             57,105,160,168,99,157,165,100,157,166,100,157,166,172,201,206,129,176,182,101,158,167,99,157,165,
-            95,154,162,87,149,157,71,137,148,58,132,144,56,132,144,212,208,200,140,184,187,176,204,208,32,
+            95,154,162,87,149,157,71,137,148,58,132,144,56,132,144,236,233,216,140,184,187,176,204,208,32,
             52,56,108,119,121,184,210,213,118,169,177,118,169,176,160,194,199,102,158,167,100,158,166,96,155,
-            163,86,148,157,71,138,147,58,132,144,212,208,200,212,208,200,107,161,169,106,161,169,110,163,172,
+            163,86,148,157,71,138,147,58,132,144,236,233,216,236,233,216,107,161,169,106,161,169,110,163,172,
             181,208,212,221,233,236,175,205,208,123,172,178,195,217,219,120,169,177,97,156,162,95,154,162,83,
-            147,155,67,136,146,72,138,147,212,208,200,97,156,161,104,159,167,99,157,165,97,156,163,99,157,
+            147,155,67,136,146,72,138,147,236,233,216,97,156,161,104,159,167,99,157,165,97,156,163,99,157,
             164,171,201,206,221,233,235,204,222,225,196,218,220,103,159,168,99,157,165,91,151,159,78,143,152,
-            60,132,142,59,130,140,212,208,200,92,153,158,63,136,146,99,156,160,115,168,173,112,165,173,120,
+            60,132,142,59,130,140,236,233,216,92,153,158,63,136,146,99,156,160,115,168,173,112,165,173,120,
             171,177,127,175,181,125,173,179,103,159,167,99,157,165,94,153,161,84,147,155,69,137,147,51,126,
-            137,68,135,144,212,208,200,92,153,158,77,142,152,160,182,184,132,167,172,80,145,154,93,153,162,
-            99,156,165,98,156,165,97,155,163,91,152,160,83,146,155,72,139,148,56,128,140,38,118,129,212,
-            208,200,212,208,200,212,208,200,68,138,150,56,132,144,212,208,200,109,157,163,91,151,159,93,153,
-            161,91,151,159,86,149,157,78,144,152,68,137,147,55,128,139,39,119,130,38,118,129,212,208,200,
-            212,208,200,212,208,200,88,152,152,88,152,152,212,208,200,130,167,172,97,152,160,81,145,154,73,
-            141,152,70,138,148,60,131,142,47,123,134,34,115,126,25,109,121,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,83,141,150,63,132,142,58,130,142,
-            51,126,137,40,119,130,28,112,123,19,104,116,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,51,121,132,24,107,119,16,103,
-            116,12,100,113,9,94,107,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,53,113,124,59,115,125,18,
-            80,92,44,92,102,15,71,81,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            137,68,135,144,236,233,216,92,153,158,77,142,152,160,182,184,132,167,172,80,145,154,93,153,162,
+            99,156,165,98,156,165,97,155,163,91,152,160,83,146,155,72,139,148,56,128,140,38,118,129,236,
+            233,216,236,233,216,236,233,216,68,138,150,56,132,144,236,233,216,109,157,163,91,151,159,93,153,
+            161,91,151,159,86,149,157,78,144,152,68,137,147,55,128,139,39,119,130,38,118,129,236,233,216,
+            236,233,216,236,233,216,88,152,152,88,152,152,236,233,216,130,167,172,97,152,160,81,145,154,73,
+            141,152,70,138,148,60,131,142,47,123,134,34,115,126,25,109,121,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,83,141,150,63,132,142,58,130,142,
+            51,126,137,40,119,130,28,112,123,19,104,116,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,51,121,132,24,107,119,16,103,
+            116,12,100,113,9,94,107,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,53,113,124,59,115,125,18,
+            80,92,44,92,102,15,71,81,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 236, 233, 216);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -4354,40 +4215,40 @@ wxBitmap clientImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,201,168,153,205,141,133,208,159,151,201,162,139,
-            200,147,130,192,142,138,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,201,161,156,209,150,131,245,181,158,227,114,101,236,154,138,244,216,196,248,230,
-            206,239,208,178,188,135,102,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,201,168,153,205,141,133,208,159,151,201,162,139,
+            200,147,130,192,142,138,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,201,161,156,209,150,131,245,181,158,227,114,101,236,154,138,244,216,196,248,230,
+            206,239,208,178,188,135,102,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
             200,149,123,210,159,115,248,208,192,241,128,114,235,94,80,227,95,88,228,115,108,238,169,151,249,
-            218,193,245,218,170,208,135,90,184,127,95,212,208,200,212,208,200,212,208,200,212,208,200,207,138,
+            218,193,245,218,170,208,135,90,184,127,95,236,233,216,236,233,216,236,233,216,236,233,216,207,138,
             87,245,204,157,242,173,140,229,95,82,233,130,93,240,167,97,233,159,85,213,122,81,221,126,116,
-            237,193,158,244,197,140,194,122,63,212,208,200,212,208,200,212,208,200,188,128,82,236,167,87,251,
+            237,193,158,244,197,140,194,122,63,236,233,216,236,233,216,236,233,216,188,128,82,236,167,87,251,
             189,155,237,107,91,241,156,103,242,220,93,226,206,86,237,217,84,227,177,79,207,90,66,212,102,
-            89,236,136,100,233,144,72,173,106,65,212,208,200,212,208,200,204,127,61,238,171,85,243,131,104,
+            89,236,136,100,233,144,72,173,106,65,236,233,216,236,233,216,204,127,61,238,171,85,243,131,104,
             230,95,73,249,207,112,204,150,62,196,100,71,196,119,69,189,119,70,203,88,67,209,88,66,204,
-            86,56,204,88,36,190,99,44,212,208,200,207,179,155,227,148,71,233,131,62,235,83,59,224,85,
+            86,56,204,88,36,190,99,44,236,233,216,207,179,155,227,148,71,233,131,62,235,83,59,224,85,
             58,238,175,76,222,171,71,239,183,86,230,184,86,217,163,83,212,118,62,202,77,58,193,80,54,
             202,89,38,214,123,53,177,144,122,200,173,152,233,133,63,235,85,36,238,70,47,232,70,56,210,
             78,53,214,139,58,196,137,57,181,94,50,194,83,56,216,138,82,191,75,51,198,71,42,230,122,
             56,225,135,61,172,137,122,217,179,171,214,101,48,227,64,25,233,57,29,231,59,49,221,71,61,
             231,126,87,206,93,57,201,79,59,232,135,73,222,159,69,184,58,45,217,74,41,246,129,58,204,
-            110,50,180,148,138,212,208,200,191,102,57,240,92,55,229,54,22,227,35,38,215,60,32,235,148,
+            110,50,180,148,138,236,233,216,191,102,57,240,92,55,229,54,22,227,35,38,215,60,32,235,148,
             54,243,183,50,242,179,66,229,157,62,179,76,24,202,33,34,239,82,34,236,106,51,177,91,52,
-            212,208,200,212,208,200,183,127,90,223,93,59,244,75,38,225,43,25,225,19,27,207,35,18,199,
-            64,29,193,75,25,190,36,26,191,21,15,224,35,28,247,64,46,217,80,47,164,103,81,212,208,
-            200,212,208,200,212,208,200,184,84,69,224,62,40,244,40,33,242,25,38,224,15,35,206,15,29,
-            195,10,23,195,13,26,213,14,23,242,34,39,232,46,43,175,72,60,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,182,73,64,227,36,40,248,23,49,250,18,59,232,16,56,208,10,
-            42,209,7,34,232,22,50,214,36,51,178,58,60,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,180,101,97,182,44,59,211,20,57,224,17,68,216,21,62,201,
-            15,51,187,39,65,161,90,92,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,186,141,133,180,132,128,175,126,125,181,134,134,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            236,233,216,236,233,216,183,127,90,223,93,59,244,75,38,225,43,25,225,19,27,207,35,18,199,
+            64,29,193,75,25,190,36,26,191,21,15,224,35,28,247,64,46,217,80,47,164,103,81,236,233,
+            216,236,233,216,236,233,216,184,84,69,224,62,40,244,40,33,242,25,38,224,15,35,206,15,29,
+            195,10,23,195,13,26,213,14,23,242,34,39,232,46,43,175,72,60,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,182,73,64,227,36,40,248,23,49,250,18,59,232,16,56,208,10,
+            42,209,7,34,232,22,50,214,36,51,178,58,60,236,233,216,236,233,216,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,180,101,97,182,44,59,211,20,57,224,17,68,216,21,62,201,
+            15,51,187,39,65,161,90,92,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,236,233,216,236,233,216,186,141,133,180,132,128,175,126,125,181,134,134,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 236, 233, 216);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -4403,7 +4264,7 @@ wxBitmap clientImages( size_t index )
         "c c #414041",
         "d c #303438",
         "e c #808080",
-        "f c #ECECEB",
+        "g c #ECECEB",
         /* pixels */
         "    e           ",
         "   ed           ",
@@ -4414,7 +4275,7 @@ wxBitmap clientImages( size_t index )
         " daaade         ",
         "edaadaaee       ",
         "edaaaaaaabbb    ",
-        "edaaafcaaaaab   ",
+        "edaaagcaaaaab   ",
         "edaaaaaaaaaab   ",
         "edaaaaaaaaaab   ",
         "edaaaaaaaaaab   ",
@@ -4429,40 +4290,40 @@ wxBitmap clientImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,100,41,9,100,41,9,192,192,192,192,192,192,192,192,192,192,192,192,
-            192,192,192,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,100,41,9,100,41,9,192,192,192,0,0,0,8,3,0,1,0,0,13,5,1,54,22,
-            4,192,192,192,100,41,9,100,41,9,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            236,233,216,236,233,216,236,233,216,236,233,216,100,41,9,236,233,216,236,233,216,236,233,216,236,
+            233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,
+            216,236,233,216,236,233,216,100,41,9,100,41,9,192,192,192,192,192,192,192,192,192,192,192,192,
+            192,192,192,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,
+            233,216,100,41,9,100,41,9,192,192,192,0,0,0,8,3,0,1,0,0,13,5,1,54,22,
+            4,192,192,192,100,41,9,100,41,9,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,
             100,41,9,192,192,192,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,192,
-            192,192,100,41,9,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,129,63,
+            192,192,100,41,9,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,100,41,9,129,63,
             18,192,192,192,26,10,2,192,192,192,192,192,192,192,192,192,192,192,192,0,0,0,9,4,0,
-            192,192,192,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,142,74,26,192,
+            192,192,192,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,100,41,9,142,74,26,192,
             192,192,192,192,192,192,192,192,149,79,29,100,41,9,192,192,192,0,0,0,0,0,0,192,192,
-            192,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,199,118,49,187,109,45,
-            166,94,38,134,69,27,100,41,9,192,192,192,0,0,0,0,0,0,0,0,0,192,192,192,212,
-            208,200,212,208,200,212,208,200,212,208,200,100,41,9,100,41,9,185,108,46,187,109,45,93,45,
-            14,192,192,192,192,192,192,0,0,0,10,4,0,192,192,192,192,192,192,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,203,124,57,190,111,46,223,174,133,192,
-            192,192,0,0,0,14,10,7,192,192,192,192,192,192,50,55,62,50,55,62,212,208,200,212,208,
-            200,212,208,200,212,208,200,100,41,9,100,41,9,210,138,74,217,154,92,217,154,92,192,192,192,
-            15,14,15,0,0,0,192,192,192,230,210,186,255,255,255,196,196,192,50,55,62,212,208,200,212,
-            208,200,212,208,200,212,208,200,100,41,9,223,170,110,242,220,175,223,170,110,192,192,192,3,2,
-            0,0,0,0,192,192,192,107,108,111,23,22,20,255,255,255,50,55,62,212,208,200,212,208,200,
-            212,208,200,100,41,9,110,49,12,217,154,92,223,170,110,223,170,110,192,192,192,0,0,0,0,
-            0,0,192,192,192,198,198,194,160,160,159,235,235,233,50,55,62,212,208,200,212,208,200,212,208,
-            200,100,41,9,110,49,12,166,92,35,210,138,74,210,138,74,192,192,192,192,192,192,192,192,192,
-            197,179,159,228,228,225,228,228,225,231,231,229,50,55,62,212,208,200,212,208,200,212,208,200,100,
+            192,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,100,41,9,199,118,49,187,109,45,
+            166,94,38,134,69,27,100,41,9,192,192,192,0,0,0,0,0,0,0,0,0,192,192,192,236,
+            233,216,236,233,216,236,233,216,236,233,216,100,41,9,100,41,9,185,108,46,187,109,45,93,45,
+            14,192,192,192,192,192,192,0,0,0,10,4,0,192,192,192,192,192,192,236,233,216,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,100,41,9,203,124,57,190,111,46,223,174,133,192,
+            192,192,0,0,0,14,10,7,192,192,192,192,192,192,50,55,62,50,55,62,236,233,216,236,233,
+            216,236,233,216,236,233,216,100,41,9,100,41,9,210,138,74,217,154,92,217,154,92,192,192,192,
+            15,14,15,0,0,0,192,192,192,230,210,186,255,255,255,196,196,192,50,55,62,236,233,216,236,
+            233,216,236,233,216,236,233,216,100,41,9,223,170,110,242,220,175,223,170,110,192,192,192,3,2,
+            0,0,0,0,192,192,192,107,108,111,23,22,20,255,255,255,50,55,62,236,233,216,236,233,216,
+            236,233,216,100,41,9,110,49,12,217,154,92,223,170,110,223,170,110,192,192,192,0,0,0,0,
+            0,0,192,192,192,198,198,194,160,160,159,235,235,233,50,55,62,236,233,216,236,233,216,236,233,
+            216,100,41,9,110,49,12,166,92,35,210,138,74,210,138,74,192,192,192,192,192,192,192,192,192,
+            197,179,159,228,228,225,228,228,225,231,231,229,50,55,62,236,233,216,236,233,216,236,233,216,100,
             41,9,128,63,19,100,41,9,100,41,9,100,41,9,192,192,192,0,0,0,0,0,0,192,192,
-            192,170,170,166,164,165,162,50,55,62,212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,
+            192,170,170,166,164,165,162,50,55,62,236,233,216,236,233,216,236,233,216,236,233,216,100,41,9,
             141,73,25,172,101,39,163,91,33,127,62,19,192,192,192,0,0,0,0,0,0,192,192,192,50,
-            55,62,50,55,62,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,143,75,
-            26,193,116,45,193,116,45,154,83,30,192,192,192,192,192,192,192,192,192,192,192,192,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            55,62,50,55,62,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,100,41,9,143,75,
+            26,193,116,45,193,116,45,154,83,30,192,192,192,192,192,192,192,192,192,192,192,192,236,233,216,
+            236,233,216,236,233,216,236,233,216,236,233,216,236,233,216,236,233,216
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 236, 233, 216);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -4471,40 +4332,39 @@ wxBitmap clientImages( size_t index )
         /* XPM */
         static const char *xpm_data[] = {
         /* columns rows colors chars-per-pixel */
-        "16 16 17 1",
+        "16 16 16 1",
         "  c None",
         "a c Black",
         "b c #0D1219",
         "c c #263247",
         "d c #080B0F",
-        "e c #FFFFFF",
-        "f c #B20000",
-        "g c #090C11",
-        "h c #272728",
-        "i c #161E2A",
-        "j c #07090E",
-        "k c #E50000",
-        "l c #1A2332",
+        "e c #B20000",
+        "f c #090C11",
+        "g c #272728",
+        "h c #161E2A",
+        "i c #07090E",
+        "j c #E50000",
+        "k c #1A2332",
         "m c #18202D",
-        "o c #323233",
-        "p c #1F293B",
-        "q c #2C2C2D",
+        "n c #323233",
+        "o c #1F293B",
+        "p c #2C2C2D",
         /* pixels */
         "                ",
-        " eeeeeeeeeeeeee ",
-        "eejaaieeeejaaiee",
-        "ejfkkfieejfkkfie",
-        "edfkkfieedfkkfie",
-        "egfkkfmeegfkkfme",
-        "egfkkfmeegfkkfme",
-        "egfkkfmeegfkkfme",
-        "egfkkfieegfkkfie",
-        "ebffffleebffffle",
-        "eeoqoheeeeoqohee",
-        "epffffceepffffce",
-        "ebkkkkpeebkkkkpe",
-        "eebggpeeeebggpee",
-        " eeeeeeeeeeeeee ",
+        "                ",
+        "  iaah    iaah  ",
+        " iejjeh  iejjeh ",
+        " dejjeh  dejjeh ",
+        " fejjem  fejjem ",
+        " fejjem  fejjem ",
+        " fejjem  fejjem ",
+        " fejjeh  fejjeh ",
+        " beeeek  beeeek ",
+        "  npng    npng  ",
+        " oeeeec  oeeeec ",
+        " bjjjjo  bjjjjo ",
+        "  bffo    bffo  ",
+        "                ",
         "                "
         };
         wxBitmap bitmap( xpm_data );
@@ -4515,40 +4375,39 @@ wxBitmap clientImages( size_t index )
         /* XPM */
         static const char *xpm_data[] = {
         /* columns rows colors chars-per-pixel */
-        "16 16 17 1",
+        "16 16 16 1",
         "  c None",
         "a c Black",
         "b c #0D1219",
         "c c #263247",
         "d c #080B0F",
-        "e c #FFFFFF",
-        "f c #B20000",
-        "g c #090C11",
-        "h c #272728",
-        "i c #161E2A",
-        "j c #07090E",
-        "k c #E50000",
-        "l c #1A2332",
+        "e c #B20000",
+        "f c #090C11",
+        "g c #272728",
+        "h c #161E2A",
+        "i c #07090E",
+        "j c #E50000",
+        "k c #1A2332",
         "m c #18202D",
-        "o c #323233",
-        "p c #1F293B",
-        "q c #2C2C2D",
+        "n c #323233",
+        "o c #1F293B",
+        "p c #2C2C2D",
         /* pixels */
         "                ",
-        " eeeeeeee       ",
-        "eeejaaieee      ",
-        "eejfkkfiee      ",
-        "eedfkkfiee      ",
-        "eegfkkfmee      ",
-        "eegfkkfmee      ",
-        "eegfkkfmee      ",
-        "eegfkkfiee      ",
-        "eebfffflee      ",
-        "eeeoqoheee      ",
-        "eepffffcee      ",
-        "eebkkkkpee      ",
-        "eeebggpeee      ",
-        " eeeeeeee       ",
+        "                ",
+        "   iaah         ",
+        "  iejjeh        ",
+        "  dejjeh        ",
+        "  fejjem        ",
+        "  fejjem        ",
+        "  fejjem        ",
+        "  fejjeh        ",
+        "  beeeek        ",
+        "   npng         ",
+        "  oeeeec        ",
+        "  bjjjjo        ",
+        "   bffo         ",
+        "                ",
         "                "
         };
         wxBitmap bitmap( xpm_data );
@@ -4559,40 +4418,39 @@ wxBitmap clientImages( size_t index )
         /* XPM */
         static const char *xpm_data[] = {
         /* columns rows colors chars-per-pixel */
-        "16 16 17 1",
+        "16 16 16 1",
         "  c None",
         "a c #0D1219",
         "b c #263247",
         "c c #080B0F",
-        "d c #FFFFFF",
-        "e c #090C11",
-        "f c #272728",
-        "g c #161E2A",
-        "h c #07090E",
-        "i c #1A2332",
-        "j c #10151F",
+        "d c #090C11",
+        "e c #272728",
+        "f c #161E2A",
+        "g c #07090E",
+        "h c #1A2332",
+        "i c #10151F",
         "k c #18202D",
         "l c #D1761A",
         "m c #F0981B",
-        "o c #323233",
-        "p c #1F293B",
-        "q c #2C2C2D",
+        "n c #323233",
+        "o c #1F293B",
+        "p c #2C2C2D",
         /* pixels */
         "                ",
-        " dddddddd       ",
-        "dddjecpddd      ",
-        "ddjmmmmpdd      ",
-        "ddillllbdd      ",
-        "dddoqofddd      ",
-        "ddallllidd      ",
-        "ddelmmlgdd      ",
-        "ddelmmlkdd      ",
-        "ddelmmlkdd      ",
-        "ddelmmlgdd      ",
-        "ddclmmlgdd      ",
-        "ddhlmmlgdd      ",
-        "dddhhhgddd      ",
-        " dddddddd       ",
+        "                ",
+        "   idco         ",
+        "  immmmo        ",
+        "  hllllb        ",
+        "   npne         ",
+        "  allllh        ",
+        "  dlmmlf        ",
+        "  dlmmlk        ",
+        "  dlmmlk        ",
+        "  dlmmlf        ",
+        "  clmmlf        ",
+        "  glmmlf        ",
+        "   gggf         ",
+        "                ",
         "                "
         };
         wxBitmap bitmap( xpm_data );
@@ -4603,40 +4461,39 @@ wxBitmap clientImages( size_t index )
         /* XPM */
         static const char *xpm_data[] = {
         /* columns rows colors chars-per-pixel */
-        "16 16 17 1",
+        "16 16 16 1",
         "  c None",
         "a c #0D1219",
         "b c #263247",
         "c c #080B0F",
-        "d c #FFFFFF",
-        "e c #090C11",
-        "f c #272728",
-        "g c #59B200",
-        "h c #161E2A",
-        "i c #07090E",
-        "j c #1A2332",
-        "k c #10151F",
+        "d c #090C11",
+        "e c #272728",
+        "f c #59B200",
+        "g c #161E2A",
+        "h c #07090E",
+        "i c #1A2332",
+        "j c #10151F",
         "l c #18202D",
         "m c #72E500",
-        "o c #323233",
-        "p c #1F293B",
-        "q c #2C2C2D",
+        "n c #323233",
+        "o c #1F293B",
+        "p c #2C2C2D",
         /* pixels */
         "                ",
-        " dddddddd       ",
-        "dddkecpddd      ",
-        "ddkmmmmpdd      ",
-        "ddjggggbdd      ",
-        "dddoqofddd      ",
-        "ddaggggjdd      ",
-        "ddegmmghdd      ",
-        "ddegmmgldd      ",
-        "ddegmmgldd      ",
-        "ddegmmghdd      ",
-        "ddcgmmghdd      ",
-        "ddigmmghdd      ",
-        "dddiiihddd      ",
-        " dddddddd       ",
+        "                ",
+        "   jdco         ",
+        "  jmmmmo        ",
+        "  iffffb        ",
+        "   npne         ",
+        "  affffi        ",
+        "  dfmmfg        ",
+        "  dfmmfl        ",
+        "  dfmmfl        ",
+        "  dfmmfg        ",
+        "  cfmmfg        ",
+        "  hfmmfg        ",
+        "   hhhg         ",
+        "                ",
         "                "
         };
         wxBitmap bitmap( xpm_data );
@@ -4647,40 +4504,39 @@ wxBitmap clientImages( size_t index )
         /* XPM */
         static const char *xpm_data[] = {
         /* columns rows colors chars-per-pixel */
-        "16 16 17 1",
+        "16 16 16 1",
         "  c None",
         "a c #0D1219",
         "b c #263247",
         "c c #080B0F",
-        "d c #FFFFFF",
-        "e c #090C11",
-        "f c #272728",
-        "g c #59B200",
-        "h c #161E2A",
-        "i c #07090E",
-        "j c #1A2332",
-        "k c #10151F",
+        "d c #090C11",
+        "e c #272728",
+        "f c #59B200",
+        "g c #161E2A",
+        "h c #07090E",
+        "i c #1A2332",
+        "j c #10151F",
         "l c #18202D",
         "m c #72E500",
-        "o c #323233",
-        "p c #1F293B",
-        "q c #2C2C2D",
+        "n c #323233",
+        "o c #1F293B",
+        "p c #2C2C2D",
         /* pixels */
         "                ",
-        " dddddddddddddd ",
-        "ddkecpddddkecpdd",
-        "dkmmmmpddkmmmmpd",
-        "djggggbddjggggbd",
-        "ddoqofddddoqofdd",
-        "daggggjddaggggjd",
-        "degmmghddegmmghd",
-        "degmmglddegmmgld",
-        "degmmglddegmmgld",
-        "degmmghddegmmghd",
-        "dcgmmghddcgmmghd",
-        "digmmghddigmmghd",
-        "ddiiihddddiiihdd",
-        " dddddddddddddd ",
+        "                ",
+        "  jdco    jdco  ",
+        " jmmmmo  jmmmmo ",
+        " iffffb  iffffb ",
+        "  npne    npne  ",
+        " affffi  affffi ",
+        " dfmmfg  dfmmfg ",
+        " dfmmfl  dfmmfl ",
+        " dfmmfl  dfmmfl ",
+        " dfmmfg  dfmmfg ",
+        " cfmmfg  cfmmfg ",
+        " hfmmfg  hfmmfg ",
+        "  hhhg    hhhg  ",
+        "                ",
         "                "
         };
         wxBitmap bitmap( xpm_data );
@@ -4690,40 +4546,40 @@ wxBitmap clientImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,0,81,156,0,81,156,0,81,156,212,208,200,0,81,156,0,81,156,0,81,156,212,
-            208,200,0,71,139,0,71,139,0,71,139,212,208,200,0,71,139,0,64,125,0,53,107,212,208,
-            200,0,81,156,168,199,228,184,207,227,0,81,156,180,205,227,168,199,228,174,202,228,0,81,156,
-            168,199,228,168,199,228,160,196,228,0,71,139,160,196,228,168,199,228,0,53,107,212,208,200,0,
-            81,156,228,237,245,0,81,156,212,208,200,0,81,156,219,233,246,0,81,156,212,208,200,0,81,
-            156,206,227,246,0,71,139,212,208,200,0,71,139,191,220,247,0,53,107,212,208,200,0,81,156,
+            236,233,216,0,81,156,0,81,156,0,81,156,236,233,216,0,81,156,0,81,156,0,81,156,236,
+            233,216,0,71,139,0,71,139,0,71,139,236,233,216,0,71,139,0,64,125,0,53,107,236,233,
+            216,0,81,156,168,199,228,184,207,227,0,81,156,180,205,227,168,199,228,174,202,228,0,81,156,
+            168,199,228,168,199,228,160,196,228,0,71,139,160,196,228,168,199,228,0,53,107,236,233,216,0,
+            81,156,228,237,245,0,81,156,236,233,216,0,81,156,219,233,246,0,81,156,236,233,216,0,81,
+            156,206,227,246,0,71,139,236,233,216,0,71,139,191,220,247,0,53,107,236,233,216,0,81,156,
             228,237,245,152,188,220,0,81,156,149,187,220,236,244,252,149,187,220,0,81,156,143,184,221,220,
-            237,252,140,182,221,0,71,139,140,182,221,196,228,252,0,53,107,212,208,200,0,81,156,243,247,
+            237,252,140,182,221,0,71,139,140,182,221,196,228,252,0,53,107,236,233,216,0,81,156,243,247,
             251,243,247,251,189,214,236,236,244,252,236,244,252,230,242,252,180,210,237,220,237,252,220,237,252,
-            213,235,252,170,205,237,204,229,253,196,228,252,0,53,107,212,208,200,0,81,156,236,244,252,236,
+            213,235,252,170,205,237,204,229,253,196,228,252,0,53,107,236,233,216,0,81,156,236,244,252,236,
             244,252,236,244,252,236,244,252,230,242,252,230,242,252,220,237,252,220,237,252,213,235,252,209,231,
-            253,204,229,253,196,228,252,188,223,253,0,53,107,212,208,200,0,81,156,236,244,252,129,178,222,
+            253,204,229,253,196,228,252,188,223,253,0,53,107,236,233,216,0,81,156,236,244,252,129,178,222,
             44,125,199,124,178,226,91,154,212,44,125,199,44,125,199,44,125,199,84,151,212,112,171,221,132,
-            184,230,196,228,252,181,221,252,0,53,107,212,208,200,0,81,156,230,242,252,230,242,252,230,242,
+            184,230,196,228,252,181,221,252,0,53,107,236,233,216,0,81,156,230,242,252,230,242,252,230,242,
             252,230,242,252,220,237,252,220,237,252,213,235,252,213,235,252,204,229,253,196,228,252,196,228,252,
-            188,223,253,174,219,251,0,53,107,212,208,200,0,81,156,220,237,252,123,175,222,91,154,212,44,
+            188,223,253,174,219,251,0,53,107,236,233,216,0,81,156,220,237,252,123,175,222,91,154,212,44,
             125,199,44,125,199,44,125,199,84,151,212,153,198,236,196,228,252,189,226,250,188,223,253,181,221,
-            252,163,212,250,0,53,107,212,208,200,0,71,139,213,235,252,213,235,252,213,235,252,207,232,251,
+            252,163,212,250,0,53,107,236,233,216,0,71,139,213,235,252,213,235,252,213,235,252,207,232,251,
             204,229,253,204,229,253,196,228,252,196,228,252,189,226,250,181,221,252,181,221,252,171,215,252,155,
-            210,250,0,53,107,212,208,200,0,71,139,204,229,253,112,171,221,84,151,212,36,122,199,36,122,
+            210,250,0,53,107,236,233,216,0,71,139,204,229,253,112,171,221,84,151,212,36,122,199,36,122,
             199,76,148,212,36,122,199,36,122,199,70,146,212,96,163,222,139,195,239,163,212,250,146,206,250,
-            0,53,107,212,208,200,0,71,139,196,228,252,189,226,250,189,226,250,188,223,253,181,221,252,181,
+            0,53,107,236,233,216,0,71,139,196,228,252,189,226,250,189,226,250,188,223,253,181,221,252,181,
             221,252,174,219,251,174,219,251,163,212,250,163,212,250,163,212,250,155,210,250,137,202,250,0,53,
-            107,212,208,200,0,62,122,181,221,252,70,146,212,36,122,199,36,122,199,70,146,212,107,175,228,
-            64,143,212,31,120,199,30,119,199,61,141,212,81,158,221,93,167,228,124,195,248,0,53,107,212,
-            208,200,0,62,122,149,208,248,146,206,250,137,202,250,139,203,247,139,203,247,134,203,249,134,203,
-            249,134,203,249,130,199,249,130,199,249,124,195,248,117,191,246,100,179,243,0,53,107,212,208,200,
+            107,236,233,216,0,62,122,181,221,252,70,146,212,36,122,199,36,122,199,70,146,212,107,175,228,
+            64,143,212,31,120,199,30,119,199,61,141,212,81,158,221,93,167,228,124,195,248,0,53,107,236,
+            233,216,0,62,122,149,208,248,146,206,250,137,202,250,139,203,247,139,203,247,134,203,249,134,203,
+            249,134,203,249,130,199,249,130,199,249,124,195,248,117,191,246,100,179,243,0,53,107,236,233,216,
             0,62,122,109,185,242,109,185,242,109,185,242,104,181,239,104,181,239,109,185,242,109,185,242,109,
-            185,242,105,183,243,100,179,243,100,179,243,94,173,241,87,168,238,0,53,107,212,208,200,0,53,
+            185,242,105,183,243,100,179,243,100,179,243,94,173,241,87,168,238,0,53,107,236,233,216,0,53,
             107,0,53,107,0,53,107,0,53,107,0,53,107,0,53,107,0,53,107,0,53,107,0,53,107,
             0,53,107,0,53,107,0,53,107,0,53,107,0,53,107,0,53,107
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 236, 233, 216);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -4735,16 +4591,16 @@ wxBitmap clientImages( size_t index )
         "16 16 3 1",
         "  c None",
         "a c #00FFFF",
-        "b c #0000FF",
+        "c c #0000FF",
         /* pixels */
-        "  bbba          ",
-        "  bba           ",
-        "  ba            ",
-        "  ba            ",
-        " bbba           ",
-        "bbabba          ",
-        " bbba           ",
-        "  ba            ",
+        "  ccca          ",
+        "  cca           ",
+        "  ca            ",
+        "  ca            ",
+        " ccca           ",
+        "ccacca          ",
+        " ccca           ",
+        "  ca            ",
         "                ",
         "                ",
         "                ",
@@ -7055,40 +6911,40 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,55,101,59,55,101,59,55,101,59,55,101,59,55,101,59,55,101,59,
-            55,101,59,55,101,59,46,69,56,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,55,101,59,89,204,87,202,250,201,66,211,63,65,186,63,58,142,
-            60,46,69,56,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,55,101,59,98,205,96,67,235,63,58,142,60,46,69,56,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,55,101,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,55,101,59,55,101,59,55,101,59,55,101,59,55,101,59,55,101,59,
+            55,101,59,55,101,59,46,69,56,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,55,101,59,89,204,87,202,250,201,66,211,63,65,186,63,58,142,
+            60,46,69,56,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,55,101,59,98,205,96,67,235,63,58,142,60,46,69,56,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,55,101,
             59,55,101,59,55,101,59,51,87,58,55,101,59,63,173,62,46,69,56,51,87,58,55,101,59,
-            55,101,59,46,69,56,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,55,
+            55,101,59,46,69,56,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,55,
             101,59,63,173,62,157,245,155,77,164,79,46,69,56,58,142,60,65,186,63,64,159,62,46,69,
-            56,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            55,101,59,63,173,62,202,250,201,83,165,86,65,186,63,64,159,62,46,69,56,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,55,101,59,55,101,59,55,101,59,55,101,59,52,89,
+            56,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            55,101,59,63,173,62,202,250,201,83,165,86,65,186,63,64,159,62,46,69,56,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,55,101,59,55,101,59,55,101,59,55,101,59,52,89,
             58,55,101,59,63,173,62,134,242,132,64,159,62,46,69,56,52,89,58,55,101,59,55,101,59,
-            57,91,60,46,69,56,212,208,200,212,208,200,55,101,59,60,158,61,66,211,63,169,255,167,104,
+            57,91,60,46,69,56,240,240,240,240,240,240,55,101,59,60,158,61,66,211,63,169,255,167,104,
             184,107,55,101,59,63,173,62,46,69,56,58,142,60,65,186,63,65,186,63,64,133,62,46,69,
-            56,212,208,200,212,208,200,212,208,200,212,208,200,55,101,59,60,158,61,67,235,63,202,250,201,
-            120,184,122,46,69,56,58,142,60,65,186,63,65,186,63,64,133,62,46,69,56,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,55,101,59,60,158,61,67,235,63,247,255,
-            246,115,181,118,65,186,63,65,186,63,64,133,62,46,69,56,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,55,101,59,60,158,61,66,211,63,188,
-            249,186,65,186,63,64,133,62,46,69,56,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,55,101,59,60,158,61,66,204,63,
-            65,151,62,46,69,56,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,55,101,59,60,158,61,46,69,
-            56,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,46,69,56,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            56,240,240,240,240,240,240,240,240,240,240,240,240,55,101,59,60,158,61,67,235,63,202,250,201,
+            120,184,122,46,69,56,58,142,60,65,186,63,65,186,63,64,133,62,46,69,56,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,55,101,59,60,158,61,67,235,63,247,255,
+            246,115,181,118,65,186,63,65,186,63,64,133,62,46,69,56,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,55,101,59,60,158,61,66,211,63,188,
+            249,186,65,186,63,64,133,62,46,69,56,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,55,101,59,60,158,61,66,204,63,
+            65,151,62,46,69,56,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,55,101,59,60,158,61,46,69,
+            56,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,46,69,56,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -7096,40 +6952,40 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,46,69,56,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,46,69,56,60,158,61,55,101,
-            59,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,46,69,56,65,151,62,66,204,63,60,158,61,55,
-            101,59,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,46,69,56,64,133,62,65,186,63,188,249,186,66,211,63,60,158,61,
-            55,101,59,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,46,69,56,64,133,62,65,186,63,65,186,63,115,181,118,247,255,246,67,235,63,60,158,
-            61,55,101,59,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,46,69,56,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,46,69,56,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,46,69,56,60,158,61,55,101,
+            59,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,46,69,56,65,151,62,66,204,63,60,158,61,55,
+            101,59,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,46,69,56,64,133,62,65,186,63,188,249,186,66,211,63,60,158,61,
+            55,101,59,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,46,69,56,64,133,62,65,186,63,65,186,63,115,181,118,247,255,246,67,235,63,60,158,
+            61,55,101,59,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,46,69,56,
             64,133,62,65,186,63,65,186,63,58,142,60,46,69,56,120,184,122,202,250,201,67,235,63,60,
-            158,61,55,101,59,212,208,200,212,208,200,212,208,200,212,208,200,46,69,56,64,133,62,65,186,
+            158,61,55,101,59,240,240,240,240,240,240,240,240,240,240,240,240,46,69,56,64,133,62,65,186,
             63,65,186,63,58,142,60,46,69,56,63,173,62,55,101,59,104,184,107,169,255,167,66,211,63,
-            60,158,61,55,101,59,212,208,200,212,208,200,46,69,56,57,91,60,55,101,59,55,101,59,52,
+            60,158,61,55,101,59,240,240,240,240,240,240,46,69,56,57,91,60,55,101,59,55,101,59,52,
             89,58,46,69,56,64,159,62,134,242,132,63,173,62,55,101,59,52,89,58,55,101,59,55,101,
-            59,55,101,59,55,101,59,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,46,69,56,
-            64,159,62,65,186,63,83,165,86,202,250,201,63,173,62,55,101,59,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,46,69,56,64,159,62,65,186,
-            63,58,142,60,46,69,56,77,164,79,157,245,155,63,173,62,55,101,59,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,46,69,56,55,101,59,55,101,59,51,87,58,46,
-            69,56,63,173,62,55,101,59,51,87,58,55,101,59,55,101,59,55,101,59,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,46,69,56,58,142,60,
-            67,235,63,98,205,96,55,101,59,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,46,69,56,58,142,60,65,186,63,66,211,
-            63,202,250,201,89,204,87,55,101,59,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,46,69,56,55,101,59,55,101,59,55,101,59,55,101,59,55,
-            101,59,55,101,59,55,101,59,55,101,59,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            59,55,101,59,55,101,59,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,46,69,56,
+            64,159,62,65,186,63,83,165,86,202,250,201,63,173,62,55,101,59,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,46,69,56,64,159,62,65,186,
+            63,58,142,60,46,69,56,77,164,79,157,245,155,63,173,62,55,101,59,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,46,69,56,55,101,59,55,101,59,51,87,58,46,
+            69,56,63,173,62,55,101,59,51,87,58,55,101,59,55,101,59,55,101,59,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,46,69,56,58,142,60,
+            67,235,63,98,205,96,55,101,59,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,46,69,56,58,142,60,65,186,63,66,211,
+            63,202,250,201,89,204,87,55,101,59,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,46,69,56,55,101,59,55,101,59,55,101,59,55,101,59,55,
+            101,59,55,101,59,55,101,59,55,101,59,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -7137,41 +6993,41 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,0,60,131,0,60,131,0,60,131,0,60,131,0,60,131,0,57,124,0,57,124,
-            0,57,124,0,57,124,0,57,124,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,60,131,0,60,131,0,60,131,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,0,60,131,0,60,131,0,60,131,0,60,131,0,60,131,0,57,124,0,57,124,
+            0,57,124,0,57,124,0,57,124,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,60,131,0,60,131,0,60,131,
             21,88,167,59,149,219,84,175,237,116,194,250,126,198,251,131,201,251,126,198,251,117,184,238,113,
-            166,218,36,95,159,0,57,124,0,53,114,0,53,114,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,0,63,138,0,60,131,27,101,174,73,151,216,117,188,243,149,204,251,156,
+            166,218,36,95,159,0,57,124,0,53,114,0,53,114,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,0,63,138,0,60,131,27,101,174,73,151,216,117,188,243,149,204,251,156,
             209,251,190,225,253,190,225,253,190,225,253,190,225,253,190,225,253,190,225,253,180,217,247,175,213,
-            243,157,197,238,113,166,218,52,101,155,0,53,114,0,53,114,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,64,139,0,
+            243,157,197,238,113,166,218,52,101,155,0,53,114,0,53,114,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,64,139,0,
             63,138,39,116,196,73,151,216,142,195,253,181,220,251,212,235,254,231,244,255,253,255,255,253,255,
             255,253,255,255,253,255,255,253,255,255,253,255,255,253,255,255,253,255,255,253,255,255,234,246,255,
-            212,235,254,190,225,253,149,179,215,63,110,162,0,53,114,0,50,108,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,64,139,21,88,167,59,149,219,116,194,
+            212,235,254,190,225,253,149,179,215,63,110,162,0,53,114,0,50,108,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,64,139,21,88,167,59,149,219,116,194,
             250,181,220,251,212,235,254,253,255,255,253,255,255,253,255,255,253,255,255,253,255,255,253,255,255,
             253,255,255,253,255,255,253,255,255,253,255,255,253,255,255,253,255,255,253,255,255,253,255,255,238,
-            248,255,212,235,254,195,229,255,149,179,215,35,85,141,0,50,108,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,0,64,139,39,107,184,59,149,219,116,194,250,181,220,251,242,242,241,
+            248,255,212,235,254,195,229,255,149,179,215,35,85,141,0,50,108,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,0,64,139,39,107,184,59,149,219,116,194,250,181,220,251,242,242,241,
             227,229,234,222,224,230,212,220,230,202,218,234,202,218,234,202,218,234,198,214,230,198,214,230,198,
             214,230,198,214,230,202,218,234,202,218,234,202,218,234,212,220,230,212,220,230,222,224,230,227,229,
-            234,205,226,244,189,222,251,157,197,238,63,110,162,0,50,108,212,208,200,212,208,200,212,208,200,
+            234,205,226,244,189,222,251,157,197,238,63,110,162,0,50,108,240,240,240,240,240,240,240,240,240,
             0,63,138,27,101,174,59,149,219,126,198,251,190,225,253,242,242,241,123,151,186,0,63,138,0,
             63,138,0,63,138,0,63,138,100,133,174,0,63,138,0,63,138,0,63,138,0,63,138,0,63,
             138,0,63,138,100,133,174,0,63,138,0,63,138,0,63,138,0,63,138,0,63,138,123,151,186,
-            205,226,244,189,222,251,113,166,218,35,85,141,0,50,108,212,208,200,212,208,200,0,64,139,65,
+            205,226,244,189,222,251,113,166,218,35,85,141,0,50,108,240,240,240,240,240,240,0,64,139,65,
             130,199,116,194,250,189,222,251,253,255,255,202,218,234,0,63,138,255,128,128,255,128,128,255,128,
             128,217,0,0,0,63,138,255,128,128,255,128,128,255,128,128,255,128,128,255,128,128,217,0,0,
             0,63,138,255,255,224,255,255,224,255,255,224,255,255,224,217,217,0,0,63,138,227,229,234,212,
-            235,254,158,203,252,83,132,189,0,50,108,212,208,200,0,64,139,39,107,184,91,164,225,181,220,
+            235,254,158,203,252,83,132,189,0,50,108,240,240,240,0,64,139,39,107,184,91,164,225,181,220,
             251,234,246,255,238,248,255,183,207,230,0,63,138,255,128,128,253,255,255,255,5,4,181,0,1,
             0,63,138,255,128,128,253,255,255,255,5,4,255,5,4,255,5,4,188,0,3,0,63,138,255,
             255,0,255,255,0,255,255,0,255,255,0,178,178,0,0,63,138,212,220,230,238,248,255,181,220,
@@ -7198,71 +7054,71 @@ wxBitmap amuleDlgImages( size_t index )
             210,254,181,220,251,189,222,251,165,198,230,0,63,138,255,128,128,255,5,4,255,5,4,181,0,
             1,0,63,138,255,128,128,255,5,4,255,5,4,181,0,1,0,63,138,255,255,224,255,255,0,
             255,255,0,255,255,0,255,255,0,255,255,0,178,178,0,0,63,138,165,198,230,166,210,254,108,
-            169,247,62,137,237,17,77,156,0,50,108,212,208,200,0,60,131,65,130,199,100,41,9,100,41,
+            169,247,62,137,237,17,77,156,0,50,108,240,240,240,0,60,131,65,130,199,100,41,9,100,41,
             9,100,41,9,163,197,234,0,63,138,100,41,9,100,41,9,100,41,9,100,41,9,100,41,9,
             100,41,9,100,41,9,181,0,1,181,0,1,0,63,138,255,255,168,160,165,11,165,170,11,165,
             170,11,165,170,11,165,170,11,169,172,11,0,63,138,163,197,234,138,191,251,91,157,244,47,118,
-            215,0,45,98,212,208,200,212,208,200,0,60,131,100,41,9,212,141,78,100,41,9,158,203,252,
+            215,0,45,98,240,240,240,240,240,240,0,60,131,100,41,9,212,141,78,100,41,9,158,203,252,
             100,41,9,100,41,9,218,161,108,212,141,78,206,130,64,206,130,64,174,99,39,100,41,9,0,
             63,138,0,63,138,0,63,138,77,121,175,0,63,138,0,63,138,0,63,138,0,63,138,0,63,
             138,0,63,138,0,63,138,83,132,189,141,187,240,91,157,244,62,137,237,17,77,156,0,45,98,
-            212,208,200,212,208,200,100,41,9,198,117,48,180,104,44,100,41,9,100,41,9,235,201,153,228,
+            240,240,240,240,240,240,100,41,9,198,117,48,180,104,44,100,41,9,100,41,9,235,201,153,228,
             184,134,211,142,82,206,130,64,155,85,34,100,41,9,100,41,9,157,197,238,150,190,230,150,190,
             230,157,197,238,157,197,238,163,197,234,165,198,230,165,198,230,165,198,230,165,198,230,158,194,230,
-            157,197,238,141,187,240,91,157,244,67,137,242,45,112,205,0,45,98,212,208,200,212,208,200,212,
-            208,200,100,41,9,180,104,44,120,57,16,206,130,64,224,174,125,214,149,87,212,141,78,134,70,
+            157,197,238,141,187,240,91,157,244,67,137,242,45,112,205,0,45,98,240,240,240,240,240,240,240,
+            240,240,100,41,9,180,104,44,120,57,16,206,130,64,224,174,125,214,149,87,212,141,78,134,70,
             26,100,41,9,133,133,136,158,203,252,166,210,254,166,210,254,166,210,254,166,210,254,166,210,254,
             166,210,254,166,210,254,181,220,251,189,222,251,189,222,251,189,222,251,172,214,254,149,198,252,78,
-            148,242,55,127,230,45,112,205,24,82,156,0,45,98,212,208,200,212,208,200,100,41,9,100,41,
+            148,242,55,127,230,45,112,205,24,82,156,0,45,98,240,240,240,240,240,240,100,41,9,100,41,
             9,142,75,27,206,130,64,212,141,78,206,130,64,174,99,39,100,41,9,103,91,99,129,146,175,
             123,180,249,142,195,253,142,195,253,142,195,253,142,195,253,142,195,253,142,195,253,142,195,253,149,
             198,252,160,206,253,181,220,251,181,220,251,181,220,251,127,189,249,91,157,244,66,137,236,39,107,
-            184,17,77,156,0,45,98,212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,145,76,27,
+            184,17,77,156,0,45,98,240,240,240,240,240,240,240,240,240,240,240,240,100,41,9,145,76,27,
             186,108,44,174,99,39,174,99,39,120,57,16,155,85,34,100,41,9,39,116,196,62,137,237,99,
             164,246,103,169,248,109,170,248,108,169,247,109,170,248,109,170,248,109,170,248,123,180,249,138,191,
             251,158,203,252,172,214,254,131,187,249,78,148,242,66,137,236,24,87,177,10,64,131,0,50,108,
-            212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,100,41,9,165,92,37,186,108,44,198,
+            240,240,240,240,240,240,240,240,240,240,240,240,100,41,9,100,41,9,165,92,37,186,108,44,198,
             117,48,90,45,18,224,174,125,238,210,174,182,112,56,100,41,9,0,53,114,13,81,165,20,98,
             210,33,113,232,47,130,240,54,132,241,54,132,241,68,144,242,99,164,246,119,178,249,149,198,252,
-            138,191,251,78,148,242,55,127,230,21,88,167,0,50,108,0,50,108,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,100,41,9,186,108,44,198,117,48,198,117,48,218,161,
-            108,253,255,255,221,219,215,212,208,200,142,75,27,100,41,9,69,49,42,50,55,62,50,55,62,
+            138,191,251,78,148,242,55,127,230,21,88,167,0,50,108,0,50,108,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,100,41,9,186,108,44,198,117,48,198,117,48,218,161,
+            108,253,255,255,221,219,215,240,240,240,142,75,27,100,41,9,69,49,42,50,55,62,50,55,62,
             0,53,114,0,50,108,0,50,108,1,68,153,6,87,198,99,164,246,131,187,249,99,164,246,33,
-            113,232,21,88,167,0,50,108,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,100,41,9,111,49,13,198,117,48,206,130,64,198,117,48,207,135,74,246,231,218,
-            154,151,148,72,73,76,167,96,42,209,178,139,229,220,210,242,242,241,189,189,182,50,55,62,212,
-            208,200,212,208,200,0,50,108,1,68,153,20,98,210,91,157,244,54,132,241,21,88,167,0,50,
-            108,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            113,232,21,88,167,0,50,108,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,100,41,9,111,49,13,198,117,48,206,130,64,198,117,48,207,135,74,246,231,218,
+            154,151,148,72,73,76,167,96,42,209,178,139,229,220,210,242,242,241,189,189,182,50,55,62,240,
+            240,240,240,240,240,0,50,108,1,68,153,20,98,210,91,157,244,54,132,241,21,88,167,0,50,
+            108,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             100,41,9,145,76,27,212,141,78,220,162,92,214,149,87,202,123,56,207,135,74,214,149,87,194,
-            119,57,198,131,56,209,178,139,104,106,109,23,22,20,242,242,241,180,180,177,50,55,62,212,208,
-            200,212,208,200,0,50,108,6,87,198,54,132,241,6,87,198,0,45,98,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,174,
+            119,57,198,131,56,209,178,139,104,106,109,23,22,20,242,242,241,180,180,177,50,55,62,240,240,
+            240,240,240,240,0,50,108,6,87,198,54,132,241,6,87,198,0,45,98,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,100,41,9,174,
             99,39,212,141,78,238,210,174,224,174,125,212,141,78,202,123,56,180,104,44,173,98,40,190,125,
-            63,180,180,177,170,170,167,160,160,158,242,242,241,227,227,224,50,55,62,212,208,200,212,208,200,
-            0,50,108,6,87,198,20,98,210,0,50,108,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,145,76,27,205,129,
+            63,180,180,177,170,170,167,160,160,158,242,242,241,227,227,224,50,55,62,240,240,240,240,240,240,
+            0,50,108,6,87,198,20,98,210,0,50,108,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,100,41,9,145,76,27,205,129,
             63,217,154,97,218,161,108,212,141,78,202,123,56,186,108,44,173,98,40,182,112,56,212,205,194,
-            232,232,230,242,242,241,253,255,255,239,239,237,50,55,62,212,208,200,212,208,200,0,50,108,5,
-            78,176,0,50,108,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,100,41,9,111,49,13,180,104,44,205,129,63,
+            232,232,230,242,242,241,253,255,255,239,239,237,50,55,62,240,240,240,240,240,240,0,50,108,5,
+            78,176,0,50,108,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,100,41,9,111,49,13,180,104,44,205,129,63,
             205,129,63,216,156,71,198,117,48,186,108,44,165,92,37,182,139,103,201,194,185,221,219,215,232,
-            232,230,239,239,237,232,232,230,50,55,62,212,208,200,212,208,200,0,45,98,0,50,108,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,100,41,9,120,57,16,100,41,9,165,92,37,165,92,37,165,
+            232,230,239,239,237,232,232,230,50,55,62,240,240,240,240,240,240,0,45,98,0,50,108,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,100,41,9,120,57,16,100,41,9,165,92,37,165,92,37,165,
             92,37,165,92,37,155,85,34,124,77,45,160,160,158,203,203,199,104,106,109,203,203,199,221,219,
-            215,133,133,136,50,55,62,212,208,200,212,208,200,0,50,108,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,111,49,13,142,75,27,151,81,30,131,63,20,104,43,9,100,41,9,90,45,
+            215,133,133,136,50,55,62,240,240,240,240,240,240,0,50,108,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,111,49,13,142,75,27,151,81,30,131,63,20,104,43,9,100,41,9,90,45,
             18,63,51,48,50,55,62,109,112,114,154,151,148,180,180,177,72,73,76,50,55,62,50,55,62,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,111,49,13,145,76,27,195,122,49,228,156,63,212,140,56,173,98,40,100,41,9,212,208,200,
-            212,208,200,50,55,62,50,55,62,50,55,62,50,55,62,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,111,49,13,145,76,27,195,122,49,228,156,63,212,140,56,173,98,40,100,41,9,240,240,240,
+            240,240,240,50,55,62,50,55,62,50,55,62,50,55,62,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 32, 32, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -7270,14 +7126,14 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,58,111,0,55,110,0,51,101,0,
-            57,108,0,57,108,0,56,113,212,208,200,0,47,89,0,24,45,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,0,56,113,0,58,111,6,95,163,12,147,232,138,198,217,60,190,123,
-            13,140,211,4,87,148,0,47,89,99,11,11,99,11,11,0,24,45,212,208,200,212,208,200,212,
-            208,200,0,54,113,46,127,99,104,229,123,0,148,197,2,182,255,75,205,175,16,169,151,2,70,
-            127,0,64,130,47,124,71,0,47,89,156,16,16,122,13,13,0,24,45,212,208,200,0,54,113,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,58,111,0,55,110,0,51,101,0,
+            57,108,0,57,108,0,56,113,240,240,240,0,47,89,0,24,45,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,0,56,113,0,58,111,6,95,163,12,147,232,138,198,217,60,190,123,
+            13,140,211,4,87,148,0,47,89,99,11,11,99,11,11,0,24,45,240,240,240,240,240,240,240,
+            240,240,0,54,113,46,127,99,104,229,123,0,148,197,2,182,255,75,205,175,16,169,151,2,70,
+            127,0,64,130,47,124,71,0,47,89,156,16,16,122,13,13,0,24,45,240,240,240,0,54,113,
             61,116,106,242,255,221,20,210,175,0,161,222,14,201,241,88,214,97,0,106,188,2,70,127,243,
-            127,127,0,47,89,101,11,11,201,22,22,151,16,16,0,24,45,212,208,200,0,54,113,148,220,
+            127,127,0,47,89,101,11,11,201,22,22,151,16,16,0,24,45,240,240,240,0,54,113,148,220,
             148,28,207,135,0,164,210,0,211,252,0,219,242,0,142,186,20,132,186,0,64,130,252,222,222,
             241,96,96,236,27,27,237,34,34,168,19,19,0,24,45,0,58,111,0,100,144,60,218,133,0,
             159,216,14,201,241,90,236,255,0,211,252,2,182,255,35,169,223,0,64,130,255,255,255,246,163,
@@ -7292,18 +7148,18 @@ wxBitmap amuleDlgImages( size_t index )
             60,115,0,30,49,0,46,93,0,64,130,237,34,34,239,72,72,229,26,26,201,22,22,0,24,
             45,138,198,217,237,247,201,77,189,66,38,150,157,20,126,206,0,90,204,0,87,166,0,63,111,
             0,34,65,0,64,130,178,20,20,218,25,25,193,21,21,123,13,13,168,19,19,0,24,45,160,
-            206,114,40,186,55,36,177,46,80,196,31,61,163,74,2,103,188,1,92,180,0,41,65,212,208,
-            200,0,64,130,106,12,12,196,22,22,122,13,13,0,24,45,122,13,13,0,24,45,69,171,44,
-            40,177,40,54,178,52,49,164,56,32,124,96,3,100,179,2,78,136,0,37,71,212,208,200,0,
+            206,114,40,186,55,36,177,46,80,196,31,61,163,74,2,103,188,1,92,180,0,41,65,240,240,
+            240,0,64,130,106,12,12,196,22,22,122,13,13,0,24,45,122,13,13,0,24,45,69,171,44,
+            40,177,40,54,178,52,49,164,56,32,124,96,3,100,179,2,78,136,0,37,71,240,240,240,0,
             64,130,108,12,12,156,16,16,0,24,45,0,73,146,0,24,45,0,24,45,53,150,114,49,157,
-            56,50,155,73,32,123,110,2,91,175,2,70,127,0,37,71,212,208,200,212,208,200,212,208,200,
+            56,50,155,73,32,123,110,2,91,175,2,70,127,0,37,71,240,240,240,240,240,240,240,240,240,
             0,24,45,86,9,9,104,11,11,0,24,45,0,58,111,0,87,178,0,87,178,9,93,143,7,
-            94,152,3,68,119,0,37,73,0,37,73,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,0,24,45,0,24,45,212,208,200,0,35,67,0,41,65,0,40,71,0,40,71,0,42,73,
-            0,37,73,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            94,152,3,68,119,0,37,73,0,37,73,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,0,24,45,0,24,45,240,240,240,0,35,67,0,41,65,0,40,71,0,40,71,0,42,73,
+            0,37,73,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -7311,40 +7167,40 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,9,84,125,8,73,108,7,65,97,7,
-            65,97,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,9,84,125,16,149,221,27,164,239,15,139,206,10,90,133,
-            6,52,77,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,9,84,125,16,149,221,255,255,255,130,205,246,67,180,242,14,132,196,10,94,
-            140,6,52,77,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,9,84,125,27,164,239,162,218,249,93,191,244,67,180,242,16,149,221,13,121,180,6,
-            52,77,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,7,65,97,15,139,206,67,180,242,67,180,242,33,167,240,16,149,221,13,121,180,6,52,77,
-            6,52,77,6,52,77,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,6,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,9,84,125,8,73,108,7,65,97,7,
+            65,97,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,9,84,125,16,149,221,27,164,239,15,139,206,10,90,133,
+            6,52,77,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,9,84,125,16,149,221,255,255,255,130,205,246,67,180,242,14,132,196,10,94,
+            140,6,52,77,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,9,84,125,27,164,239,162,218,249,93,191,244,67,180,242,16,149,221,13,121,180,6,
+            52,77,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,7,65,97,15,139,206,67,180,242,67,180,242,33,167,240,16,149,221,13,121,180,6,52,77,
+            6,52,77,6,52,77,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,6,
             52,77,10,94,140,15,139,206,16,149,221,16,149,221,13,126,187,10,90,133,6,52,77,8,73,
-            108,7,65,97,6,52,77,212,208,200,212,208,200,212,208,200,212,208,200,9,84,125,6,58,86,
+            108,7,65,97,6,52,77,240,240,240,240,240,240,240,240,240,240,240,240,9,84,125,6,58,86,
             6,52,77,9,84,125,12,116,172,12,116,172,10,90,133,6,52,77,9,78,116,10,90,133,9,
-            84,125,6,52,77,212,208,200,212,208,200,212,208,200,9,84,125,12,111,165,10,94,140,7,62,
+            84,125,6,52,77,240,240,240,240,240,240,240,240,240,9,84,125,12,111,165,10,94,140,7,62,
             92,6,52,77,6,52,77,6,52,77,6,52,77,121,0,0,121,0,0,9,84,125,121,0,0,
-            121,0,0,212,208,200,212,208,200,9,84,125,78,185,243,104,195,244,14,132,196,12,116,172,10,
+            121,0,0,240,240,240,240,240,240,9,84,125,78,185,243,104,195,244,14,132,196,12,116,172,10,
             94,140,10,94,140,10,94,140,121,0,0,242,84,90,237,28,36,121,0,0,237,28,36,237,28,
-            36,68,1,0,212,208,200,9,84,125,186,227,250,63,179,242,13,121,180,16,149,221,63,179,242,
+            36,68,1,0,240,240,240,9,84,125,186,227,250,63,179,242,13,121,180,16,149,221,63,179,242,
             27,164,239,121,0,0,242,84,90,251,199,201,245,122,126,239,49,56,245,117,122,243,100,105,237,
             28,36,68,1,0,9,84,125,104,195,244,27,164,239,10,94,140,33,167,240,231,245,253,113,198,
             245,121,0,0,245,130,134,254,241,241,248,170,173,244,109,113,248,167,170,245,117,122,226,26,34,
             68,1,0,9,84,125,78,185,243,16,149,221,7,62,92,33,167,240,231,245,253,113,198,245,121,
             0,0,242,84,90,251,199,201,247,156,160,246,145,149,245,122,126,242,89,95,195,21,27,68,1,
             0,9,84,125,44,171,240,16,149,221,6,52,77,33,167,240,207,236,252,93,191,244,67,180,242,
-            121,0,0,241,67,74,247,156,160,245,132,136,243,97,103,219,25,33,68,1,0,212,208,200,9,
+            121,0,0,241,67,74,247,156,160,245,132,136,243,97,103,219,25,33,68,1,0,240,240,240,9,
             84,125,16,149,221,16,149,221,6,52,77,33,167,240,138,209,247,72,182,242,44,171,240,44,171,
-            240,121,0,0,237,28,36,245,126,130,219,25,33,68,1,0,212,208,200,212,208,200,7,65,97,
+            240,121,0,0,237,28,36,245,126,130,219,25,33,68,1,0,240,240,240,240,240,240,7,65,97,
             16,149,221,16,149,221,6,52,77,16,149,221,85,187,243,54,175,241,15,144,215,6,52,77,6,
-            52,77,121,0,0,179,14,18,68,1,0,212,208,200,212,208,200,212,208,200,7,65,97,6,52,
-            77,6,52,77,212,208,200,6,52,77,6,52,77,6,52,77,6,52,77,212,208,200,212,208,200,
-            212,208,200,68,1,0,212,208,200,212,208,200,212,208,200,212,208,200
+            52,77,121,0,0,179,14,18,68,1,0,240,240,240,240,240,240,240,240,240,7,65,97,6,52,
+            77,6,52,77,240,240,240,6,52,77,6,52,77,6,52,77,6,52,77,240,240,240,240,240,240,
+            240,240,240,68,1,0,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -7352,10 +7208,10 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,165,121,54,165,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,165,121,54,165,
             121,54,165,121,54,165,121,54,165,121,54,165,121,54,165,121,54,165,121,54,165,121,54,165,121,
             54,165,121,54,165,121,54,165,121,54,165,121,54,165,121,54,152,106,46,165,121,54,255,255,255,
             255,255,255,254,251,221,254,246,188,254,244,172,254,243,155,254,243,155,253,238,121,253,238,121,253,
@@ -7376,16 +7232,16 @@ wxBitmap amuleDlgImages( size_t index )
             138,90,37,165,121,54,253,238,121,253,238,121,253,238,121,253,238,121,253,238,121,253,238,121,249,
             232,117,245,227,114,245,227,114,245,227,114,253,238,121,253,238,121,253,238,121,239,218,109,138,90,
             37,152,106,46,138,90,37,138,90,37,138,90,37,138,90,37,138,90,37,138,90,37,138,90,37,
-            138,90,37,138,90,37,138,90,37,138,90,37,138,90,37,138,90,37,138,90,37,138,90,37,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            138,90,37,138,90,37,138,90,37,138,90,37,138,90,37,138,90,37,138,90,37,138,90,37,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -7393,68 +7249,68 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,0,
-            0,0,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,0,0,0,0,0,
-            0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,0,0,0,255,255,255,255,255,255,255,255,255,217,217,217,0,
-            0,0,0,0,0,217,217,217,252,252,252,249,249,249,244,244,244,217,217,217,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,0,0,0,
+            0,0,0,0,0,240,240,240,240,240,240,240,240,240,240,240,240,0,0,0,0,0,0,0,0,
+            0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,0,0,0,255,255,255,255,255,255,255,255,255,217,217,217,0,
+            0,0,0,0,0,217,217,217,252,252,252,249,249,249,244,244,244,217,217,217,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,0,0,
             217,217,217,255,255,255,255,255,255,253,253,253,251,251,251,0,0,0,0,0,0,247,247,247,246,
-            246,246,244,244,244,241,241,241,238,238,238,0,0,0,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,217,217,217,255,255,255,255,255,255,
+            246,246,244,244,244,241,241,241,238,238,238,0,0,0,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,0,0,0,217,217,217,255,255,255,255,255,255,
             253,253,253,251,251,251,0,0,0,0,0,0,247,247,247,246,246,246,244,244,244,241,241,241,238,
-            238,238,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,0,0,0,248,248,248,246,246,246,244,244,244,242,242,242,240,240,240,0,0,0,
-            0,0,0,236,236,236,235,235,235,233,233,233,231,231,231,229,229,229,0,0,0,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,0,0,240,240,
+            238,238,0,0,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,0,0,0,248,248,248,246,246,246,244,244,244,242,242,242,240,241,240,0,0,0,
+            0,0,0,236,236,236,235,235,235,233,233,233,231,231,231,229,229,229,0,0,0,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,0,0,240,241,
             240,0,0,0,217,217,217,235,235,235,233,233,233,0,0,0,0,0,0,229,229,229,0,0,0,
-            217,217,217,223,223,223,222,222,222,0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,0,0,0,217,217,217,0,0,0,0,0,0,228,228,
+            217,217,217,223,223,223,222,222,222,0,0,0,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,0,0,0,217,217,217,0,0,0,0,0,0,228,228,
             228,225,225,225,0,0,0,0,0,0,221,222,221,0,0,0,0,0,0,216,216,216,214,214,214,
-            0,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,0,0,0,217,217,217,218,218,218,217,217,217,0,0,0,128,124,124,128,124,
-            124,0,0,0,209,209,209,207,207,207,205,205,205,0,0,0,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,
-            0,0,0,0,0,0,0,0,128,124,124,212,208,200,212,208,200,212,208,200,0,0,0,0,0,
-            0,0,0,0,128,124,124,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200
+            0,0,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,0,0,0,217,217,217,218,218,218,217,217,217,0,0,0,128,124,124,128,124,
+            124,0,0,0,209,209,209,207,207,207,205,205,205,0,0,0,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,
+            0,0,0,0,0,0,0,0,128,124,124,240,240,240,240,240,240,240,240,240,0,0,0,0,0,
+            0,0,0,0,128,124,124,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240
         };
         wxImage image( 22, 22, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -7465,32 +7321,32 @@ wxBitmap amuleDlgImages( size_t index )
         /* columns rows colors chars-per-pixel */
         "18 19 8 1",
         "  c None",
-        "a c #00D200",
-        "b c #1DD71D",
-        "c c #55E155",
-        "d c #72E672",
+        "b c #00D200",
+        "c c #1DD71D",
+        "d c #55E155",
+        "e c #72E672",
         "f c #AAF0AA",
         "g c #C7F5C7",
         "h c #39DC39",
         /* pixels */
         "                  ",
-        "              haa ",
-        "             aaad ",
-        "            baac  ",
-        "           haab   ",
-        "           aaa    ",
-        "          aaaf    ",
-        "         baad     ",
-        "        caah      ",
-        "        aab       ",
-        "       baaf       ",
-        " caa  caac        ",
-        " aaa  aab         ",
-        " aaab aag         ",
-        " haaaaad          ",
-        "  aaaab           ",
-        "  aaaag           ",
-        "   aac            ",
+        "              hbb ",
+        "             bbbe ",
+        "            cbbd  ",
+        "           hbbc   ",
+        "           bbb    ",
+        "          bbbf    ",
+        "         cbbe     ",
+        "        dbbh      ",
+        "        bbc       ",
+        "       cbbf       ",
+        " dbb  dbbd        ",
+        " bbb  bbc         ",
+        " bbbc bbg         ",
+        " hbbbbbe          ",
+        "  bbbbc           ",
+        "  bbbbg           ",
+        "   bbd            ",
         "                  "
         };
         wxBitmap bitmap( xpm_data );
@@ -7500,62 +7356,62 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,7,97,49,73,156,107,106,193,130,91,200,108,53,
-            185,69,13,156,34,0,111,23,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,74,24,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,7,97,49,73,156,107,106,193,130,91,200,108,53,
+            185,69,13,156,34,0,111,23,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,74,24,
             80,159,117,202,247,209,187,255,185,130,239,127,76,221,75,37,213,36,20,221,18,9,233,9,0,
-            201,8,0,100,20,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,0,74,23,103,178,134,216,255,213,152,242,151,96,223,96,
-            52,215,50,24,216,23,13,223,14,5,241,4,0,255,0,0,255,0,0,248,0,0,101,17,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,2,100,38,0,86,
+            201,8,0,100,20,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,0,74,23,103,178,134,216,255,213,152,242,151,96,223,96,
+            52,215,50,24,216,23,13,223,14,5,241,4,0,255,0,0,255,0,0,248,0,0,101,17,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,2,100,38,0,86,
             26,50,140,86,190,252,188,126,232,126,74,218,74,36,213,34,11,183,22,0,123,20,0,105,20,
-            0,123,16,0,191,4,0,255,0,0,255,0,0,227,0,0,75,23,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,35,152,67,89,226,89,43,200,48,44,211,46,56,229,56,42,222,
-            42,23,218,22,4,161,22,0,69,23,212,208,200,212,208,200,212,208,200,0,57,26,0,106,17,
-            0,223,0,0,255,0,0,140,11,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,16,
+            0,123,16,0,191,4,0,255,0,0,255,0,0,227,0,0,75,23,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,35,152,67,89,226,89,43,200,48,44,211,46,56,229,56,42,222,
+            42,23,218,22,4,161,22,0,69,23,240,240,240,240,240,240,240,240,240,0,57,26,0,106,17,
+            0,223,0,0,255,0,0,140,11,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,16,
             134,46,56,218,54,27,209,26,12,222,11,0,238,0,0,255,0,0,255,0,0,201,0,0,105,
-            17,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,78,24,0,202,1,0,227,0,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,93,27,23,202,26,14,223,14,4,
-            239,4,0,255,0,0,255,0,0,255,0,0,255,0,0,244,0,0,74,22,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,0,71,22,0,175,4,0,95,17,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,2,174,18,4,247,3,0,255,0,0,255,0,0,255,0,0,
-            255,0,0,255,0,0,130,13,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,5,93,47,11,107,54,0,77,20,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            0,103,22,0,250,0,0,255,0,0,255,0,0,255,0,0,201,2,0,95,17,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,26,110,67,136,192,166,242,255,251,252,255,255,30,116,
-            71,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,141,12,0,241,0,
-            0,191,3,0,108,15,0,52,22,212,208,200,212,208,200,212,208,200,212,208,200,0,90,39,108,
-            180,138,231,255,234,242,255,240,216,255,216,205,255,201,120,207,137,0,74,23,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,7,100,53,0,79,23,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,2,99,39,118,215,134,166,250,162,136,236,136,116,229,116,100,
-            223,100,85,220,85,71,220,71,3,117,34,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,78,150,113,90,159,123,0,59,14,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            17,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,78,24,0,202,1,0,227,0,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,93,27,23,202,26,14,223,14,4,
+            239,4,0,255,0,0,255,0,0,255,0,0,255,0,0,244,0,0,74,22,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,0,71,22,0,175,4,0,95,17,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,2,174,18,4,247,3,0,255,0,0,255,0,0,255,0,0,
+            255,0,0,255,0,0,130,13,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,5,93,47,11,107,54,0,77,20,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            0,103,22,0,250,0,0,255,0,0,255,0,0,255,0,0,201,2,0,95,17,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,26,110,67,136,192,166,242,255,251,252,255,255,30,116,
+            71,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,141,12,0,241,0,
+            0,191,3,0,108,15,0,52,22,240,240,240,240,240,240,240,240,240,240,240,240,0,90,39,108,
+            180,138,231,255,234,242,255,240,216,255,216,205,255,201,120,207,137,0,74,23,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,7,100,53,0,79,23,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,2,99,39,118,215,134,166,250,162,136,236,136,116,229,116,100,
+            223,100,85,220,85,71,220,71,3,117,34,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,78,150,113,90,159,123,0,59,14,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             11,117,44,68,220,69,48,218,48,37,215,37,27,216,27,18,221,18,11,228,11,4,242,4,0,
-            193,9,0,116,32,212,208,200,212,208,200,212,208,200,212,208,200,19,109,59,200,253,202,63,158,
-            94,0,71,22,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,97,23,11,201,17,
-            2,247,1,0,255,0,0,255,0,0,255,0,0,255,0,0,255,0,0,192,8,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,81,190,101,135,244,131,55,179,76,0,97,33,0,65,
-            25,212,208,200,212,208,200,0,70,26,0,127,24,22,209,24,14,226,14,2,242,2,0,255,0,
-            0,226,0,0,239,0,0,228,0,0,88,22,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,0,100,34,55,209,59,53,219,50,34,202,36,7,168,25,0,140,20,0,147,17,0,197,
+            193,9,0,116,32,240,240,240,240,240,240,240,240,240,240,240,240,19,109,59,200,253,202,63,158,
+            94,0,71,22,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,97,23,11,201,17,
+            2,247,1,0,255,0,0,255,0,0,255,0,0,255,0,0,255,0,0,192,8,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,81,190,101,135,244,131,55,179,76,0,97,33,0,65,
+            25,240,240,240,240,240,240,0,70,26,0,127,24,22,209,24,14,226,14,2,242,2,0,255,0,
+            0,226,0,0,239,0,0,228,0,0,88,22,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,0,100,34,55,209,59,53,219,50,34,202,36,7,168,25,0,140,20,0,147,17,0,197,
             11,2,246,2,0,253,0,0,255,0,0,255,0,0,209,0,0,73,24,0,71,22,0,73,23,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,117,25,9,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,117,25,9,
             221,12,5,244,3,1,252,0,0,255,0,0,255,0,0,255,0,0,255,0,0,255,0,0,255,
-            0,0,228,0,0,88,22,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,0,110,17,0,222,0,0,255,0,0,
-            255,0,0,255,0,0,255,0,0,255,0,0,255,0,0,182,5,0,80,22,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,0,116,15,0,161,8,0,185,4,0,178,6,0,
-            144,12,0,93,19,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            0,0,228,0,0,88,22,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,0,110,17,0,222,0,0,255,0,0,
+            255,0,0,255,0,0,255,0,0,255,0,0,255,0,0,182,5,0,80,22,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,0,116,15,0,161,8,0,185,4,0,178,6,0,
+            144,12,0,93,19,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 22, 20, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -7563,40 +7419,40 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,70,73,124,73,77,145,73,77,125,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,130,130,161,45,48,129,55,56,116,212,208,200,212,208,200,212,208,200,
-            212,208,200,217,221,221,168,174,181,190,194,199,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,115,116,140,57,62,120,51,59,125,121,122,153,212,208,200,212,208,200,212,208,200,212,208,
-            200,170,177,180,146,158,174,141,158,182,152,164,175,212,208,200,212,208,200,212,208,200,158,157,179,
-            69,71,121,66,75,116,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,196,207,219,130,152,186,138,164,187,175,183,191,212,208,200,212,208,200,48,81,137,57,84,
-            131,212,208,200,212,208,200,212,208,200,116,127,150,111,144,184,120,153,196,124,131,155,212,208,200,
-            212,208,200,184,185,195,122,148,214,119,138,193,212,208,200,154,155,166,67,100,157,104,117,149,212,
-            208,200,212,208,200,56,74,119,95,124,179,102,139,182,108,147,184,91,119,186,84,102,155,212,208,
-            200,212,208,200,125,149,184,128,146,208,172,177,186,110,120,142,77,108,164,212,208,200,212,208,200,
-            102,122,145,91,137,196,75,115,182,63,102,164,107,150,194,53,106,169,36,77,179,89,100,138,212,
-            208,200,212,208,200,116,130,200,128,132,148,119,135,166,80,111,165,212,208,200,212,208,200,18,82,
-            148,82,150,210,60,110,184,73,109,202,111,154,215,54,130,164,46,104,206,44,72,156,212,208,200,
-            212,208,200,96,108,183,129,131,154,122,140,171,87,116,171,212,208,200,212,208,200,37,102,164,58,
-            134,187,100,156,222,115,159,225,131,178,219,85,161,188,114,172,246,87,113,193,212,208,200,212,208,
-            200,86,94,172,123,124,149,126,137,159,109,140,196,212,208,200,212,208,200,138,158,176,85,144,200,
-            136,189,229,133,183,214,142,194,212,115,176,217,127,169,243,127,138,168,212,208,200,212,208,200,84,
-            92,164,116,117,142,176,179,188,115,153,208,112,130,159,212,208,200,212,208,200,118,148,180,138,183,
-            220,171,225,239,159,215,216,142,184,226,136,157,194,212,208,200,212,208,200,90,105,143,80,87,151,
-            150,152,164,212,208,200,104,144,197,115,151,195,125,129,135,212,208,200,212,208,200,163,178,193,137,
-            182,219,148,199,212,159,173,187,212,208,200,212,208,200,212,208,200,62,74,141,61,68,125,212,208,
-            200,212,208,200,176,182,189,139,156,178,117,142,169,111,126,141,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,64,72,108,70,65,104,159,157,171,212,208,200,212,
-            208,200,212,208,200,150,158,168,147,165,185,139,160,184,166,164,170,212,208,200,212,208,200,212,208,
-            200,212,208,200,103,105,142,59,61,127,48,50,122,115,113,133,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,178,182,187,146,155,169,193,191,195,212,208,200,212,208,200,212,208,200,139,
-            140,151,52,51,111,49,47,122,127,127,166,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,123,123,135,
-            80,79,131,69,68,129,59,59,120,212,208,200,212,208,200,212,208,200
+            240,240,240,240,240,240,240,240,240,70,73,124,73,77,145,73,77,125,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,130,130,161,45,48,129,55,56,116,240,240,240,240,240,240,240,240,240,
+            240,240,240,217,221,221,168,174,181,190,194,199,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,115,116,140,57,62,120,51,59,125,121,122,153,240,240,240,240,240,240,240,240,240,240,240,
+            240,170,177,180,146,158,174,141,158,182,152,164,175,240,240,240,240,240,240,240,240,240,158,157,179,
+            69,71,121,66,75,116,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,196,207,219,130,152,186,138,164,187,175,183,191,240,240,240,240,240,240,48,81,137,57,84,
+            131,240,240,240,240,240,240,240,240,240,116,127,150,111,144,184,120,153,196,124,131,155,240,240,240,
+            240,240,240,184,185,195,122,148,214,119,138,193,240,240,240,154,155,166,67,100,157,104,117,149,240,
+            240,240,240,240,240,56,74,119,95,124,179,102,139,182,108,147,184,91,119,186,84,102,155,240,240,
+            240,240,240,240,125,149,184,128,146,208,172,177,186,110,120,142,77,108,164,240,240,240,240,240,240,
+            102,122,145,91,137,196,75,115,182,63,102,164,107,150,194,53,106,169,36,77,179,89,100,138,240,
+            240,240,240,240,240,116,130,200,128,132,148,119,135,166,80,111,165,240,240,240,240,240,240,18,82,
+            148,82,150,210,60,110,184,73,109,202,111,154,215,54,130,164,46,104,206,44,72,156,240,240,240,
+            240,240,240,96,108,183,129,131,154,122,140,171,87,116,171,240,240,240,240,240,240,37,102,164,58,
+            134,187,100,156,222,115,159,225,131,178,219,85,161,188,114,172,246,87,113,193,240,240,240,240,240,
+            240,86,94,172,123,124,149,126,137,159,109,140,196,240,240,240,240,240,240,138,158,176,85,144,200,
+            136,189,229,133,183,214,142,194,212,115,176,217,127,169,243,127,138,168,240,240,240,240,240,240,84,
+            92,164,116,117,142,176,179,188,115,153,208,112,130,159,240,240,240,240,240,240,118,148,180,138,183,
+            220,171,225,239,159,215,216,142,184,226,136,157,194,240,240,240,240,240,240,90,105,143,80,87,151,
+            150,152,164,240,240,240,104,144,197,115,151,195,125,129,135,240,240,240,240,240,240,163,178,193,137,
+            182,219,148,199,212,159,173,187,240,240,240,240,240,240,240,240,240,62,74,141,61,68,125,240,240,
+            240,240,240,240,176,182,189,139,156,178,117,142,169,111,126,141,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,64,72,108,70,65,104,159,157,171,240,240,240,240,
+            240,240,240,240,240,150,158,168,147,165,185,139,160,184,166,164,170,240,240,240,240,240,240,240,240,
+            240,240,240,240,103,105,142,59,61,127,48,50,122,115,113,133,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,178,182,187,146,155,169,193,191,195,240,240,240,240,240,240,240,240,240,139,
+            140,151,52,51,111,49,47,122,127,127,166,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,123,123,135,
+            80,79,131,69,68,129,59,59,120,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -7604,132 +7460,132 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,166,179,208,208,215,230,232,235,243,240,242,246,231,235,242,210,217,233,
-            172,184,215,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,158,171,206,236,238,246,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,166,179,208,208,215,230,232,235,243,240,242,246,231,235,242,210,217,233,
+            172,184,215,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,158,171,206,236,238,246,
             253,253,254,253,253,254,248,249,252,243,245,248,244,246,249,248,249,252,253,253,255,255,255,255,254,
-            254,255,240,243,253,167,181,215,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,214,219,236,251,250,255,241,243,249,239,241,249,235,
+            254,255,240,243,253,167,181,215,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,214,219,236,251,250,255,241,243,249,239,241,249,235,
             238,246,232,234,243,230,233,241,237,238,246,239,240,247,237,240,247,237,239,247,237,239,247,240,241,
-            248,249,249,255,221,226,245,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,218,222,239,238,239,248,230,232,244,223,225,237,212,216,227,212,216,228,205,211,
+            248,249,249,255,221,226,245,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,218,222,239,238,239,248,230,232,244,223,225,237,212,216,227,212,216,228,205,211,
             226,215,220,233,234,236,245,232,235,244,232,234,244,231,233,243,230,232,243,229,232,243,227,230,242,
-            234,236,246,222,227,244,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,188,195,
+            234,236,246,222,227,244,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,188,195,
             226,229,231,244,211,215,231,190,195,211,180,186,202,177,184,199,177,185,201,175,183,203,184,191,211,
             226,228,240,233,235,246,229,231,243,228,230,242,226,229,241,221,224,238,221,224,238,219,222,237,225,
-            227,241,192,198,229,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,201,207,230,176,185,208,
+            227,241,192,198,229,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,201,207,230,176,185,208,
             160,168,187,157,165,184,159,168,192,160,171,198,160,171,202,154,168,201,191,199,222,222,225,237,200,
             205,220,219,222,236,220,223,237,204,208,224,207,211,227,217,220,237,213,217,235,211,215,234,212,215,
-            235,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,132,145,195,155,167,198,136,147,172,139,151,179,141,
+            235,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,132,145,195,155,167,198,136,147,172,139,151,179,141,
             155,189,142,157,195,140,156,194,136,153,191,163,175,206,218,221,237,218,220,234,198,203,219,200,205,
-            221,179,185,205,189,194,213,214,217,235,214,217,235,209,213,232,204,209,231,202,206,229,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,84,105,166,118,132,168,123,135,168,124,142,185,124,142,186,122,140,
+            221,179,185,205,189,194,213,214,217,235,214,217,235,209,213,232,204,209,231,202,206,229,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,84,105,166,118,132,168,123,135,168,124,142,185,124,142,186,122,140,
             184,126,144,186,175,185,213,224,227,240,230,231,243,229,231,243,230,233,244,224,227,240,218,221,236,
-            220,223,240,214,218,236,209,214,233,205,209,231,200,204,228,194,199,226,151,160,205,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,10,41,115,82,99,143,108,126,172,105,125,175,105,125,174,100,120,171,139,154,193,
+            220,223,240,214,218,236,209,214,233,205,209,231,200,204,228,194,199,226,151,160,205,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,10,41,115,82,99,143,108,126,172,105,125,175,105,125,174,100,120,171,139,154,193,
             231,233,244,229,232,243,229,232,242,231,233,243,230,232,243,227,230,242,223,226,240,216,220,237,213,
-            216,235,203,208,229,198,203,227,197,202,228,184,191,222,140,150,199,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,92,111,175,
+            216,235,203,208,229,198,203,227,197,202,228,184,191,222,140,150,199,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,92,111,175,
             38,61,123,34,59,122,78,102,161,86,109,166,86,108,164,83,106,161,96,117,169,197,204,226,241,
             242,249,239,240,248,241,242,249,234,236,245,230,232,243,223,227,240,217,220,237,212,216,235,201,206,
-            228,173,180,207,186,192,220,141,151,192,140,150,199,135,146,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,143,152,202,146,155,202,124,
+            228,173,180,207,186,192,220,141,151,192,140,150,199,135,146,200,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,143,152,202,146,155,202,124,
             136,184,95,112,162,65,88,145,67,92,153,67,92,154,61,87,151,85,108,164,199,206,225,227,230,
             238,217,219,230,238,239,247,233,235,244,224,227,241,216,219,237,209,213,233,204,208,231,179,186,214,
-            161,169,205,88,102,149,100,116,172,99,117,178,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,138,148,199,147,157,203,164,172,213,172,179,
+            161,169,205,88,102,149,100,116,172,99,117,178,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,138,148,199,147,157,203,164,172,213,172,179,
             214,83,98,138,35,60,119,47,75,145,48,76,144,45,72,142,52,78,143,55,79,139,69,91,144,
             228,230,239,238,239,248,224,227,240,215,219,236,207,211,232,198,203,227,186,192,223,110,125,177,81,
-            98,149,42,66,133,73,96,163,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,139,149,199,146,156,203,157,165,208,171,178,215,186,192,223,
+            98,149,42,66,133,73,96,163,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,139,149,199,146,156,203,157,165,208,171,178,215,186,192,223,
             101,114,152,14,40,105,25,56,133,28,58,133,27,57,132,24,54,132,24,54,130,178,186,208,242,
             243,250,221,225,239,211,214,234,201,206,229,196,201,228,105,122,174,6,31,96,46,66,121,112,128,
-            183,77,99,165,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,140,150,202,145,155,202,156,164,207,171,178,215,168,176,208,64,81,126,8,
+            183,77,99,165,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,140,150,202,145,155,202,156,164,207,171,178,215,168,176,208,64,81,126,8,
             38,110,13,45,125,14,46,125,14,46,125,15,46,125,3,35,117,136,149,185,241,241,251,216,219,
             236,206,210,231,204,208,231,165,175,211,20,47,116,18,46,115,61,85,150,31,60,135,13,46,126,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,140,151,202,145,155,202,155,164,208,183,190,226,99,112,153,0,24,89,14,47,128,14,46,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,140,151,202,145,155,202,155,164,208,183,190,226,99,112,153,0,24,89,14,47,128,14,46,
             125,14,46,125,14,46,125,14,46,125,0,33,116,114,131,175,233,234,247,210,214,234,201,206,229,
-            161,172,208,70,94,159,2,30,100,24,42,93,115,129,178,115,130,184,68,91,161,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,134,146,
+            161,172,208,70,94,159,2,30,100,24,42,93,115,129,178,115,130,184,68,91,161,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,134,146,
             201,150,159,205,138,148,193,89,103,150,36,63,132,10,43,121,14,46,125,14,46,125,14,46,125,
             14,46,125,13,46,125,7,41,122,44,72,140,197,202,225,213,216,236,179,187,218,115,132,182,23,
-            54,128,8,35,103,13,31,80,128,138,184,157,165,211,109,126,189,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,109,126,189,151,161,209,
+            54,128,8,35,103,13,31,80,128,138,184,157,165,211,109,126,189,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,109,126,189,151,161,209,
             70,85,135,0,21,84,10,43,125,15,47,126,14,46,125,14,46,125,16,47,126,17,49,127,19,
             50,128,18,50,128,9,42,123,127,141,186,185,192,221,80,102,163,18,50,126,5,34,107,49,74,
-            142,30,54,116,111,125,176,149,158,207,64,87,158,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,126,139,197,40,65,132,14,
+            142,30,54,116,111,125,176,149,158,207,64,87,158,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,126,139,197,40,65,132,14,
             38,98,12,43,122,15,47,126,20,51,129,25,55,132,30,59,134,33,62,136,35,63,137,35,63,
             137,32,61,135,39,66,140,35,64,137,14,46,126,13,45,124,14,45,123,64,89,155,34,63,138,
-            40,68,140,57,83,156,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,87,108,176,70,93,161,32,59,126,25,55,
+            40,68,140,57,83,156,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,87,108,176,70,93,161,32,59,126,25,55,
             127,26,57,133,34,63,136,40,68,140,45,72,143,49,75,145,51,77,146,52,77,146,50,76,146,
             44,72,143,39,67,139,35,63,136,27,57,133,21,52,130,28,58,132,39,67,139,23,55,132,7,
-            40,120,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,63,88,162,36,66,139,55,81,148,55,81,148,
+            40,120,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,63,88,162,36,66,139,55,81,148,55,81,148,
             54,80,147,56,81,148,60,85,151,64,88,153,67,90,155,67,90,155,65,89,154,61,86,151,56,
-            82,149,52,77,145,49,76,145,51,77,145,48,75,144,30,60,136,14,48,132,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,39,69,148,58,83,150,76,98,159,83,104,163,86,
+            82,149,52,77,145,49,76,145,51,77,145,48,75,144,30,60,136,14,48,132,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,39,69,148,58,83,150,76,98,159,83,104,163,86,
             106,165,88,108,166,90,109,167,90,109,167,89,109,167,89,109,166,87,107,165,84,105,164,81,102,
-            162,77,99,160,69,92,155,48,76,146,26,58,139,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,61,86,157,77,100,164,92,112,168,102,120,174,109,126,
+            162,77,99,160,69,92,155,48,76,146,26,58,139,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,61,86,157,77,100,164,92,112,168,102,120,174,109,126,
             177,114,130,180,117,132,181,117,132,181,115,131,180,111,127,178,104,122,175,95,114,170,85,105,165,
-            68,92,160,45,72,144,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,68,85,138,103,121,182,127,140,198,126,139,193,131,143,193,
-            131,143,191,132,145,192,131,143,191,124,138,188,113,129,184,98,117,179,79,100,165,48,67,120,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,74,82,120,104,116,165,122,133,186,125,136,191,125,
-            137,191,124,136,191,116,129,183,91,103,151,50,61,96,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,30,34,46,155,159,176,168,172,188,78,81,
-            101,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,198,197,201,223,223,220,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,132,132,150,132,132,145,224,224,227,242,242,242,154,154,160,120,120,131,91,91,109,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,168,168,180,203,203,209,197,197,204,197,197,204,202,202,208,159,159,171,207,
+            68,92,160,45,72,144,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,68,85,138,103,121,182,127,140,198,126,139,193,131,143,193,
+            131,143,191,132,145,192,131,143,191,124,138,188,113,129,184,98,117,179,79,100,165,48,67,120,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,74,82,120,104,116,165,122,133,186,125,136,191,125,
+            137,191,124,136,191,116,129,183,91,103,151,50,61,96,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,30,34,46,155,159,176,168,172,188,78,81,
+            101,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,198,197,201,223,223,220,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,132,132,150,132,132,145,224,224,227,242,242,242,154,154,160,120,120,131,91,91,109,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,168,168,180,203,203,209,197,197,204,197,197,204,202,202,208,159,159,171,207,
             207,208,233,233,232,223,223,223,222,222,222,229,229,229,229,229,228,164,164,171,146,146,154,192,192,
-            199,198,198,205,197,197,204,206,206,211,140,140,152,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,177,177,182,216,216,214,210,210,209,210,210,209,215,215,213,168,168,174,179,179,181,196,196,
+            199,198,198,205,197,197,204,206,206,211,140,140,152,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,177,177,182,216,216,214,210,210,209,210,210,209,215,215,213,168,168,174,179,179,181,196,196,
             195,193,193,193,193,193,193,194,194,194,191,191,191,153,153,159,158,158,160,204,204,203,211,211,210,
-            210,210,209,220,220,218,148,148,155,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,85,85,
+            210,210,209,220,220,218,148,148,155,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,85,85,
             93,93,93,98,91,91,97,91,91,97,89,89,95,100,100,110,164,164,167,168,168,169,166,166,167,
             166,166,167,167,167,168,167,167,167,133,133,140,69,69,75,88,88,92,92,92,98,91,91,97,94,
-            94,100,73,73,81,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,51,51,56,49,49,54,50,50,55,50,50,55,50,
-            50,55,50,50,55,40,40,44,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            94,100,73,73,81,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,51,51,56,49,49,54,50,50,55,50,50,55,50,
+            50,55,50,50,55,40,40,44,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 32, 32, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -7737,132 +7593,132 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,155,54,0,
-            177,84,11,171,76,8,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,158,59,0,180,93,20,219,162,92,250,214,154,176,
-            86,17,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,159,62,0,190,114,37,231,185,103,254,225,154,255,245,199,247,208,152,160,62,0,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,161,65,2,194,118,31,235,186,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,155,54,0,
+            177,84,11,171,76,8,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,158,59,0,180,93,20,219,162,92,250,214,154,176,
+            86,17,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,159,62,0,190,114,37,231,185,103,254,225,154,255,245,199,247,208,152,160,62,0,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,161,65,2,194,118,31,235,186,
             78,255,224,110,255,219,106,255,202,78,255,216,131,242,196,129,178,90,27,161,64,3,154,54,0,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,195,117,24,239,188,57,255,217,74,255,216,72,255,207,61,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,195,117,24,239,188,57,255,217,74,255,216,72,255,207,61,
             255,197,53,255,192,54,255,209,122,255,217,154,253,215,159,240,192,137,210,141,85,172,80,19,153,
-            54,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,187,104,19,249,202,61,255,215,65,255,207,62,255,205,62,255,198,59,255,
+            54,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,187,104,19,249,202,61,255,215,65,255,207,62,255,205,62,255,198,59,255,
             192,58,255,191,74,255,189,86,255,194,106,255,207,141,255,219,168,248,200,152,204,127,70,158,59,
-            0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,177,90,13,242,191,56,255,216,67,255,203,62,255,196,59,255,189,56,255,185,
+            0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,177,90,13,242,191,56,255,216,67,255,203,62,255,196,59,255,189,56,255,185,
             51,255,179,48,255,168,44,255,162,49,255,172,81,255,196,134,255,209,161,224,151,98,161,65,5,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,173,82,10,239,185,53,255,212,65,255,194,58,255,187,55,254,189,56,250,186,54,
-            255,185,53,255,176,49,255,153,36,255,147,46,255,174,103,255,199,148,226,148,92,159,61,1,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,167,75,6,234,177,50,255,206,62,255,187,55,252,188,55,179,92,12,184,95,16,222,
-            144,36,254,177,51,255,156,40,255,135,35,255,162,89,255,186,129,211,122,59,154,56,0,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,165,72,5,236,179,51,255,209,64,248,184,53,162,68,2,212,208,200,153,55,0,187,97,
-            16,249,172,49,255,154,40,255,130,36,255,163,92,254,168,102,178,80,15,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,172,82,10,232,174,48,242,181,52,161,64,0,212,208,200,212,208,200,151,54,0,186,95,15,
-            250,168,47,255,141,34,255,139,53,255,164,90,217,117,46,153,56,0,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,155,57,0,180,92,26,197,128,67,196,126,63,197,125,59,173,83,
-            15,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            163,68,2,192,110,21,159,64,0,212,208,200,212,208,200,212,208,200,152,53,0,195,104,19,255,
-            167,46,255,134,35,255,143,56,250,141,59,170,70,4,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,155,60,0,223,122,34,255,203,105,255,232,173,255,243,208,183,101,33,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,156,58,0,229,142,36,255,153,
-            41,255,128,32,255,137,43,199,92,17,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            158,62,0,229,121,26,255,169,35,255,203,111,252,227,187,170,79,14,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,193,101,17,255,164,46,255,130,31,
-            255,131,32,223,106,21,156,59,0,212,208,200,212,208,200,212,208,200,212,208,200,158,62,0,228,
-            124,28,255,167,39,255,201,113,251,218,169,170,78,12,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,170,75,6,252,162,45,255,135,34,255,129,31,238,
-            117,26,161,63,0,212,208,200,212,208,200,212,208,200,212,208,200,156,60,0,222,118,26,255,164,
-            39,255,193,103,254,216,160,180,90,18,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,161,66,1,244,156,42,255,140,37,255,127,31,247,123,29,164,65,
-            1,212,208,200,212,208,200,212,208,200,212,208,200,152,56,0,209,107,21,255,160,39,255,183,87,
-            255,215,151,201,117,42,151,52,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,161,65,1,240,153,40,255,142,37,255,127,31,250,124,29,164,65,1,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,188,88,12,255,152,39,255,170,65,255,206,136,233,
-            160,81,157,58,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,157,59,0,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            164,68,2,250,165,46,255,142,37,255,131,32,249,124,29,163,65,1,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,164,67,2,245,140,35,255,158,46,255,187,105,255,195,118,191,97,
-            21,151,53,0,212,208,200,212,208,200,212,208,200,212,208,200,166,69,2,158,59,0,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,167,72,5,226,
-            136,33,228,114,25,228,110,23,215,101,18,160,62,0,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,154,56,0,211,111,22,255,155,39,255,165,66,255,192,116,244,169,87,171,73,6,
-            212,208,200,212,208,200,212,208,200,153,54,0,206,126,53,216,143,70,157,56,0,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,158,61,0,157,60,0,157,60,
-            0,157,60,0,157,60,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,176,79,7,254,150,39,255,150,41,255,173,86,255,193,117,231,147,66,162,63,1,153,
-            54,0,212,208,200,153,52,0,216,148,86,255,246,211,218,145,73,157,56,0,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,154,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,173,82,10,239,185,53,255,212,65,255,194,58,255,187,55,254,189,56,250,186,54,
+            255,185,53,255,176,49,255,153,36,255,147,46,255,174,103,255,199,148,226,148,92,159,61,1,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,167,75,6,234,177,50,255,206,62,255,187,55,252,188,55,179,92,12,184,95,16,222,
+            144,36,254,177,51,255,156,40,255,135,35,255,162,89,255,186,129,211,122,59,154,56,0,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,165,72,5,236,179,51,255,209,64,248,184,53,162,68,2,240,240,240,153,55,0,187,97,
+            16,249,172,49,255,154,40,255,130,36,255,163,92,254,168,102,178,80,15,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,172,82,10,232,174,48,242,181,52,161,64,0,240,240,240,240,240,240,151,54,0,186,95,15,
+            250,168,47,255,141,34,255,139,53,255,164,90,217,117,46,153,56,0,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,155,57,0,180,92,26,197,128,67,196,126,63,197,125,59,173,83,
+            15,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            163,68,2,192,110,21,159,64,0,240,240,240,240,240,240,240,240,240,152,53,0,195,104,19,255,
+            167,46,255,134,35,255,143,56,250,141,59,170,70,4,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,155,60,0,223,122,34,255,203,105,255,232,173,255,243,208,183,101,33,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,156,58,0,229,142,36,255,153,
+            41,255,128,32,255,137,43,199,92,17,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            158,62,0,229,121,26,255,169,35,255,203,111,252,227,187,170,79,14,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,193,101,17,255,164,46,255,130,31,
+            255,131,32,223,106,21,156,59,0,240,240,240,240,240,240,240,240,240,240,240,240,158,62,0,228,
+            124,28,255,167,39,255,201,113,251,218,169,170,78,12,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,170,75,6,252,162,45,255,135,34,255,129,31,238,
+            117,26,161,63,0,240,240,240,240,240,240,240,240,240,240,240,240,156,60,0,222,118,26,255,164,
+            39,255,193,103,254,216,160,180,90,18,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,161,66,1,244,156,42,255,140,37,255,127,31,247,123,29,164,65,
+            1,240,240,240,240,240,240,240,240,240,240,240,240,152,56,0,209,107,21,255,160,39,255,183,87,
+            255,215,151,201,117,42,151,52,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,161,65,1,240,153,40,255,142,37,255,127,31,250,124,29,164,65,1,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,188,88,12,255,152,39,255,170,65,255,206,136,233,
+            160,81,157,58,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,157,59,0,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            164,68,2,250,165,46,255,142,37,255,131,32,249,124,29,163,65,1,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,164,67,2,245,140,35,255,158,46,255,187,105,255,195,118,191,97,
+            21,151,53,0,240,240,240,240,240,240,240,240,240,240,240,240,166,69,2,158,59,0,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,167,72,5,226,
+            136,33,228,114,25,228,110,23,215,101,18,160,62,0,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,154,56,0,211,111,22,255,155,39,255,165,66,255,192,116,244,169,87,171,73,6,
+            240,240,240,240,240,240,240,240,240,153,54,0,206,126,53,216,143,70,157,56,0,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,158,61,0,157,60,0,157,60,
+            0,157,60,0,157,60,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,176,79,7,254,150,39,255,150,41,255,173,86,255,193,117,231,147,66,162,63,1,153,
+            54,0,240,240,240,153,52,0,216,148,86,255,246,211,218,145,73,157,56,0,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,154,
             57,0,213,113,23,255,153,40,255,150,46,255,172,88,255,188,114,235,156,81,185,91,23,158,59,
-            0,153,49,0,227,159,95,255,241,216,255,243,219,220,156,96,159,57,0,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,161,64,
+            0,153,49,0,227,159,95,255,241,216,255,243,219,220,156,96,159,57,0,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,161,64,
             1,233,132,32,255,151,38,255,144,41,255,163,75,255,186,112,255,189,119,234,159,90,213,128,57,
-            247,188,129,255,203,143,255,189,113,255,238,208,225,169,118,161,61,0,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,167,68,3,
+            247,188,129,255,203,143,255,189,113,255,238,208,225,169,118,161,61,0,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,167,68,3,
             235,135,33,255,152,40,255,140,34,255,148,51,255,167,83,255,188,118,255,202,139,255,210,162,255,
-            179,100,255,142,22,255,168,72,255,227,185,230,180,134,164,66,5,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,165,66,2,223,
+            179,100,255,142,22,255,168,72,255,227,185,230,180,134,164,66,5,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,165,66,2,223,
             122,28,255,153,41,255,146,36,255,138,33,255,141,39,255,151,56,255,163,76,255,154,56,255,145,
-            36,255,145,32,255,153,45,255,207,146,234,187,142,170,77,18,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,156,59,0,191,90,
+            36,255,145,32,255,153,45,255,207,146,234,187,142,170,77,18,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,156,59,0,191,90,
             13,234,132,32,255,149,40,255,149,39,255,142,34,255,137,30,255,139,34,255,143,37,255,143,38,
-            255,144,35,255,146,33,255,189,110,222,159,106,158,61,3,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,159,61,0,
+            255,144,35,255,146,33,255,189,110,222,159,106,158,61,3,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,159,61,0,
             182,82,9,204,104,20,239,133,32,255,143,37,255,135,34,255,139,35,255,142,37,255,141,37,237,
-            123,28,196,90,8,165,71,9,158,60,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,150,
+            123,28,196,90,8,165,71,9,158,60,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,150,
             52,0,219,114,24,255,152,41,255,145,38,255,143,37,233,121,28,193,88,13,160,63,0,152,57,
-            0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,160,61,0,239,134,
-            33,253,152,41,221,114,24,187,83,10,159,62,0,153,57,0,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,163,65,1,211,103,19,178,77,7,
-            154,57,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,160,61,0,239,134,
+            33,253,152,41,221,114,24,187,83,10,159,62,0,153,57,0,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,163,65,1,211,103,19,178,77,7,
+            154,57,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 32, 32, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -7870,132 +7726,132 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,140,181,226,140,195,243,135,197,
-            246,139,200,247,142,203,247,139,200,247,155,197,234,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,133,178,227,136,198,246,154,213,249,158,216,249,161,219,250,164,221,250,
-            167,224,250,169,226,251,171,227,251,161,219,250,153,205,241,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,140,181,226,140,195,243,135,197,
+            246,139,200,247,142,203,247,139,200,247,155,197,234,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,133,178,227,136,198,246,154,213,249,158,216,249,161,219,250,164,221,250,
+            167,224,250,169,226,251,171,227,251,161,219,250,153,205,241,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             122,182,241,151,210,248,159,217,249,165,222,250,170,226,251,172,228,251,174,229,251,162,220,250,170,
-            226,251,175,230,251,179,234,252,178,233,252,166,223,250,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,121,181,240,152,211,248,164,
+            226,251,175,230,251,179,234,252,178,233,252,166,223,250,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,121,181,240,152,211,248,164,
             222,250,175,230,251,182,237,252,187,240,253,184,238,253,186,240,253,181,236,252,160,218,249,163,220,
-            250,171,227,251,182,237,252,187,241,253,175,230,251,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,125,174,227,149,209,248,163,221,250,177,233,252,190,243,
+            250,171,227,251,182,237,252,187,241,253,175,230,251,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,125,174,227,149,209,248,163,221,250,177,233,252,190,243,
             253,199,251,254,204,253,255,204,253,255,172,228,251,197,249,254,184,238,253,173,229,251,176,232,252,
-            178,233,252,187,241,253,193,245,254,178,229,247,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,137,198,247,156,215,249,173,229,251,189,242,253,203,253,255,214,255,255,
+            178,233,252,187,241,253,193,245,254,178,229,247,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,137,198,247,156,215,249,173,229,251,189,242,253,203,253,255,214,255,255,
             220,255,255,220,255,255,181,233,252,187,239,253,205,252,255,183,238,252,187,240,253,189,242,253,190,
-            243,253,197,249,254,195,247,254,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            243,253,197,249,254,195,247,254,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             125,166,214,152,211,248,161,219,250,179,234,252,196,248,254,212,255,255,225,255,255,235,255,255,235,
             255,255,191,239,253,183,238,252,216,254,255,194,246,254,197,249,254,199,251,254,200,252,255,200,252,
-            255,205,255,255,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,137,192,240,155,
+            255,205,255,255,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,137,192,240,155,
             214,249,165,223,250,181,236,252,199,251,255,216,255,255,231,255,255,246,255,255,238,253,255,186,240,
             253,192,245,254,219,253,255,203,254,255,206,255,255,208,255,255,208,255,255,208,255,255,209,255,255,
-            206,255,255,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,136,198,247,158,216,249,168,225,
+            206,255,255,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,136,198,247,158,216,249,168,225,
             251,178,234,252,198,249,254,213,255,255,228,255,255,232,253,255,197,243,253,193,246,254,203,252,255,
-            229,255,255,210,255,255,212,255,255,214,255,255,215,255,255,215,255,255,214,255,255,213,255,255,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,144,204,247,160,218,249,169,226,251,174,230,251,
+            229,255,255,210,255,255,212,255,255,214,255,255,215,255,255,215,255,255,214,255,255,213,255,255,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,144,204,247,160,218,249,169,226,251,174,230,251,
             162,220,250,176,230,251,186,236,252,183,237,252,192,245,254,200,252,255,226,255,255,222,255,255,215,
-            255,255,219,255,255,221,255,255,222,255,255,222,255,255,220,255,255,219,255,255,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,139,200,247,162,220,250,170,226,251,179,234,252,182,236,252,171,
+            255,255,219,255,255,221,255,255,222,255,255,222,255,255,220,255,255,219,255,255,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,139,200,247,162,220,250,170,226,251,179,234,252,182,236,252,171,
             227,251,178,234,252,188,242,253,198,250,254,221,255,255,233,255,255,216,255,255,221,255,255,224,255,
-            255,227,255,255,228,255,255,228,255,255,226,255,255,224,255,255,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,135,193,239,164,221,250,171,227,251,157,215,249,180,235,252,200,251,254,203,250,
+            255,227,255,255,228,255,255,228,255,255,226,255,255,224,255,255,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,135,193,239,164,221,250,171,227,251,157,215,249,180,235,252,200,251,254,203,250,
             254,213,252,255,220,254,255,218,255,255,215,255,255,221,255,255,226,255,255,230,255,255,233,255,255,
-            235,255,255,235,255,255,232,255,255,228,255,255,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,126,165,208,165,222,250,172,228,251,164,221,250,164,221,250,174,230,251,185,239,253,195,248,254,
+            235,255,255,235,255,255,232,255,255,228,255,255,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,126,165,208,165,222,250,172,228,251,164,221,250,164,221,250,174,230,251,185,239,253,195,248,254,
             205,254,255,211,255,255,218,255,255,224,255,255,230,255,255,235,255,255,239,255,255,242,255,255,241,
-            255,255,238,255,255,224,245,247,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            255,255,238,255,255,224,245,247,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             157,216,249,173,229,251,174,230,251,166,223,250,176,232,252,187,240,253,197,249,254,206,255,255,213,
             255,255,219,255,255,226,255,255,232,255,255,238,255,255,244,255,255,248,255,255,247,255,255,242,255,
-            255,182,194,206,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,126,172,215,171,
+            255,182,194,206,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,126,172,215,171,
             227,251,180,235,252,171,228,251,177,232,252,187,241,253,198,250,254,207,255,255,213,255,255,220,255,
             255,227,255,255,233,255,255,240,255,255,246,255,255,252,255,255,250,255,255,234,244,247,105,107,137,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,151,206,241,179,234,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,151,206,241,179,234,
             252,185,239,253,179,234,252,187,240,253,197,249,254,206,255,255,213,255,255,219,255,255,226,255,255,
-            232,255,255,238,255,255,244,255,255,247,255,255,246,255,255,144,149,171,113,113,142,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,157,211,242,183,238,252,
+            232,255,255,238,255,255,244,255,255,247,255,255,246,255,255,144,149,171,113,113,142,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,157,211,242,183,238,252,
             191,244,253,188,242,253,195,247,254,204,254,255,211,255,255,217,255,255,224,255,255,229,255,255,234,
-            255,255,239,255,255,241,255,255,144,149,171,111,111,140,167,167,185,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,144,187,218,182,236,252,196,
+            255,255,239,255,255,241,255,255,144,149,171,111,111,140,167,167,185,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,144,187,218,182,236,252,196,
             248,254,199,251,255,204,254,255,209,255,255,215,255,255,220,255,255,225,255,255,230,255,255,214,234,
             238,132,138,162,114,114,143,183,183,198,154,154,175,167,167,185,189,189,202,198,139,58,199,133,42,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,150,187,211,191,241,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,150,187,211,191,241,
             250,199,250,254,208,255,255,212,255,255,216,255,255,193,219,226,144,155,176,94,96,128,100,100,132,
-            167,167,185,133,133,158,190,190,203,181,181,196,193,152,104,209,140,38,208,135,28,190,126,41,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,137,137,161,182,144,101,207,156,78,241,187,86,235,160,32,202,130,27,181,119,41,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,166,111,
-            50,204,159,87,252,241,191,247,215,140,241,188,86,235,161,33,196,126,28,171,111,41,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,163,105,40,220,168,67,
-            255,235,161,252,241,191,247,215,141,241,188,87,235,161,34,190,121,27,161,103,40,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,154,98,40,216,165,67,255,
-            234,160,252,241,191,247,215,142,241,188,88,236,161,34,184,116,27,152,96,40,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,144,90,39,212,162,65,255,234,
-            159,252,241,192,247,216,142,241,189,88,236,162,35,178,111,27,142,88,39,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,134,83,39,209,159,64,255,233,158,
-            253,241,192,247,216,143,241,189,89,236,162,36,171,107,27,132,81,39,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,125,75,38,205,156,63,255,233,157,253,
-            242,192,247,216,144,241,189,90,236,162,36,166,102,27,123,73,38,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,117,68,38,203,154,62,255,233,155,253,242,
-            193,247,217,144,241,190,90,213,145,37,118,73,46,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,116,68,38,194,146,61,255,232,154,253,242,193,
-            223,189,125,128,83,51,136,127,141,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,116,68,38,168,122,58,229,201,131,131,88,59,178,
-            169,174,106,106,137,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,116,68,38,114,69,43,132,123,138,101,101,133,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            167,167,185,133,133,158,190,190,203,181,181,196,193,152,104,209,140,38,208,135,28,190,126,41,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,137,137,161,182,144,101,207,156,78,241,187,86,235,160,32,202,130,27,181,119,41,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,166,111,
+            50,204,159,87,252,241,191,247,215,140,241,188,86,235,161,33,196,126,28,171,111,41,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,163,105,40,220,168,67,
+            255,235,161,252,241,191,247,215,141,241,188,87,235,161,34,190,121,27,161,103,40,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,154,98,40,216,165,67,255,
+            234,160,252,241,191,247,215,142,241,188,88,236,161,34,184,116,27,152,96,40,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,144,90,39,212,162,65,255,234,
+            159,252,241,192,247,216,142,241,189,88,236,162,35,178,111,27,142,88,39,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,134,83,39,209,159,64,255,233,158,
+            253,241,192,247,216,143,241,189,89,236,162,36,171,107,27,132,81,39,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,125,75,38,205,156,63,255,233,157,253,
+            242,192,247,216,144,241,189,90,236,162,36,166,102,27,123,73,38,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,117,68,38,203,154,62,255,233,155,253,242,
+            193,247,217,144,241,190,90,213,145,37,118,73,46,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,116,68,38,194,146,61,255,232,154,253,242,193,
+            223,189,125,128,83,51,136,127,141,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,116,68,38,168,122,58,229,201,131,131,88,59,178,
+            169,174,106,106,137,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,116,68,38,114,69,43,132,123,138,101,101,133,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 32, 32, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -8003,132 +7859,132 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,28,72,
-            170,27,71,168,26,68,167,23,61,154,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,29,75,170,28,74,170,25,88,196,36,121,237,
-            39,120,233,23,66,167,22,58,152,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,31,79,173,29,80,178,31,97,202,46,129,238,60,147,253,62,148,254,61,147,254,51,
-            136,246,23,73,179,20,53,152,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,32,82,176,31,83,180,38,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,28,72,
+            170,27,71,168,26,68,167,23,61,154,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,29,75,170,28,74,170,25,88,196,36,121,237,
+            39,120,233,23,66,167,22,58,152,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,31,79,173,29,80,178,31,97,202,46,129,238,60,147,253,62,148,254,61,147,254,51,
+            136,246,23,73,179,20,53,152,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,32,82,176,31,83,180,38,
             106,209,55,139,244,71,155,254,71,154,254,70,154,254,68,153,254,67,151,254,65,150,254,60,146,
-            253,30,87,195,19,50,153,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,33,85,178,32,89,186,44,118,219,67,151,250,79,160,254,79,160,
+            253,30,87,195,19,50,153,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,33,85,178,32,89,186,44,118,219,67,151,250,79,160,254,79,160,
             254,78,160,254,78,159,254,76,159,254,75,157,254,73,156,254,71,154,254,68,153,254,66,151,254,
-            38,104,212,17,49,154,15,38,134,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,34,89,
+            38,104,212,17,49,154,15,38,134,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,34,89,
             182,34,97,196,53,125,222,75,157,251,85,165,254,86,165,254,86,166,254,87,166,254,86,165,254,
             85,165,254,84,163,254,82,162,254,80,161,254,77,159,254,75,157,254,71,155,254,68,153,254,50,
-            125,231,19,55,163,13,35,137,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,36,93,186,35,93,184,39,102,199,55,133,231,81,161,252,
+            125,231,19,55,163,13,35,137,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,36,93,186,35,93,184,39,102,199,55,133,231,81,161,252,
             89,167,254,91,169,254,93,170,254,94,171,254,94,171,254,95,171,254,94,171,254,93,170,254,91,
             169,254,89,168,254,87,166,254,84,164,254,81,162,254,78,159,254,74,157,254,70,154,254,57,139,
-            244,23,66,174,12,31,137,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            244,23,66,174,12,31,137,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             37,97,188,37,95,187,39,109,207,61,140,237,84,164,253,91,169,254,94,171,254,97,173,254,99,
             174,254,101,176,254,102,177,254,103,177,254,103,177,254,102,177,254,101,176,254,99,175,254,97,173,
             254,94,171,254,91,169,254,87,166,254,84,164,254,80,161,254,75,158,254,71,155,254,64,149,253,
-            32,84,193,10,27,135,8,21,117,212,208,200,212,208,200,212,208,200,212,208,200,37,96,188,113,
+            32,84,193,10,27,135,8,21,117,240,240,240,240,240,240,240,240,240,240,240,240,37,96,188,113,
             162,227,82,163,253,90,168,254,94,171,254,98,174,254,101,176,254,105,178,254,107,180,254,109,182,
             254,111,183,254,112,183,255,112,183,255,111,183,254,109,182,254,107,180,254,105,178,254,102,176,254,
             98,174,254,94,171,254,90,168,254,85,165,254,81,161,254,76,158,254,72,155,254,67,152,254,41,
-            105,213,9,27,137,8,18,122,212,208,200,212,208,200,212,208,200,36,94,186,86,137,237,186,213,
+            105,213,9,27,137,8,18,122,240,240,240,240,240,240,240,240,240,36,94,186,86,137,237,186,213,
             255,115,182,254,100,175,254,105,179,254,109,181,254,113,184,255,115,186,255,118,188,255,120,189,255,
             120,190,255,120,190,255,120,189,255,118,188,255,116,186,255,113,184,255,109,181,254,105,179,254,101,
             175,254,96,172,254,91,169,254,86,165,254,81,162,254,76,158,254,71,155,254,88,160,254,53,111,
-            234,7,17,127,212,208,200,212,208,200,212,208,200,35,91,185,49,111,236,68,128,254,172,200,255,
+            234,7,17,127,240,240,240,240,240,240,240,240,240,35,91,185,49,111,236,68,128,254,172,200,255,
             153,203,254,112,183,254,116,187,255,120,189,255,124,192,255,126,194,255,128,195,255,129,196,255,130,
             196,255,128,195,255,127,194,255,124,192,255,121,189,255,116,187,255,112,183,255,107,180,254,102,176,
             254,97,173,254,91,169,254,86,165,254,95,162,254,94,148,254,53,117,254,41,105,248,6,15,126,
-            212,208,200,212,208,200,212,208,200,34,89,183,53,114,236,62,125,254,64,127,254,137,177,254,175,
+            240,240,240,240,240,240,240,240,240,34,89,183,53,114,236,62,125,254,64,127,254,137,177,254,175,
             214,255,123,192,255,128,195,255,132,198,255,135,200,255,137,202,255,139,202,255,139,202,255,138,202,
             255,135,200,255,132,198,255,128,195,255,124,192,255,119,188,255,113,184,255,108,180,254,121,186,254,
-            104,166,254,87,143,254,52,110,240,31,70,190,48,75,179,32,87,224,5,13,124,212,208,200,212,
-            208,200,212,208,200,33,87,181,58,118,235,69,131,254,71,133,254,73,135,254,109,159,254,190,219,
+            104,166,254,87,143,254,52,110,240,31,70,190,48,75,179,32,87,224,5,13,124,240,240,240,240,
+            240,240,240,240,240,33,87,181,58,118,235,69,131,254,71,133,254,73,135,254,109,159,254,190,219,
             255,143,203,255,140,203,255,144,206,255,147,208,255,148,209,255,148,209,255,147,208,255,144,206,255,
             140,203,255,136,200,255,131,197,255,125,193,255,133,194,255,111,169,254,83,142,254,56,111,229,48,
-            88,194,108,125,191,188,202,237,93,109,187,29,80,215,4,10,122,212,208,200,212,208,200,212,208,
-            200,32,84,179,63,122,235,75,137,254,78,140,254,80,142,254,82,143,254,94,152,254,184,211,255,
+            88,194,108,125,191,188,202,237,93,109,187,29,80,215,4,10,122,240,240,240,240,240,240,240,240,
+            240,32,84,179,63,122,235,75,137,254,78,140,254,80,142,254,82,143,254,94,152,254,184,211,255,
             168,217,255,153,212,255,156,214,255,158,216,255,158,216,255,156,215,255,153,212,255,148,209,255,143,
             205,255,160,208,255,118,173,254,82,144,254,58,111,219,61,99,193,138,156,208,195,211,243,140,176,
-            241,56,115,231,21,56,175,32,81,214,3,8,120,212,208,200,212,208,200,212,208,200,31,82,177,
+            241,56,115,231,21,56,175,32,81,214,3,8,120,240,240,240,240,240,240,240,240,240,31,82,177,
             67,126,234,82,143,254,84,146,254,86,148,254,88,149,254,90,151,254,91,152,254,154,192,254,192,
             228,255,165,221,255,168,223,255,168,223,255,165,221,255,167,220,255,149,201,255,122,175,254,89,149,
             249,62,116,217,85,120,198,154,173,218,202,221,249,129,172,240,62,125,231,56,118,229,49,111,228,
-            23,54,171,35,83,212,2,5,118,212,208,200,212,208,200,212,208,200,31,80,176,72,130,234,88,
+            23,54,171,35,83,212,2,5,118,240,240,240,240,240,240,240,240,240,31,80,176,72,130,234,88,
             149,254,91,152,254,93,154,254,95,156,254,97,157,254,98,159,254,100,160,254,130,179,254,211,235,
             255,193,235,255,188,231,255,164,209,255,117,173,254,94,153,245,61,116,211,111,144,208,183,200,232,
             189,215,247,122,172,239,79,142,233,62,116,215,67,129,230,60,121,228,53,114,227,24,54,170,39,
-            86,212,1,3,116,212,208,200,212,208,200,212,208,200,30,77,174,76,133,234,95,155,254,97,158,
+            86,212,1,3,116,240,240,240,240,240,240,240,240,240,30,77,174,76,133,234,95,155,254,97,158,
             254,100,160,254,102,162,254,104,164,254,106,165,254,107,166,254,108,167,254,117,173,254,237,244,255,
             130,182,255,92,152,238,75,131,216,123,157,213,203,220,243,188,217,247,119,175,238,97,159,235,71,
             129,215,35,74,173,8,20,130,71,132,229,65,124,228,58,117,226,20,42,156,47,98,221,0,1,
-            115,212,208,200,212,208,200,212,208,200,29,75,172,81,137,233,101,161,254,103,163,254,106,166,254,
+            115,240,240,240,240,240,240,240,240,240,29,75,172,81,137,233,101,161,254,103,163,254,106,166,254,
             109,168,254,111,170,254,112,171,255,114,173,255,115,174,255,115,174,255,185,215,255,118,177,255,80,
             129,204,212,230,247,180,216,246,125,186,238,113,176,236,108,170,235,44,102,192,23,61,161,20,43,
-            147,52,90,187,71,126,221,42,79,185,31,55,165,44,79,189,62,121,239,0,0,114,212,208,200,
-            212,208,200,212,208,200,28,73,170,85,140,233,107,166,254,110,169,254,113,172,255,115,174,255,118,
+            147,52,90,187,71,126,221,42,79,185,31,55,165,44,79,189,62,121,239,0,0,114,240,240,240,
+            240,240,240,240,240,240,28,73,170,85,140,233,107,166,254,110,169,254,113,172,255,115,174,255,118,
             176,255,119,178,255,121,179,255,122,180,255,122,181,255,189,218,255,126,184,255,86,129,200,189,220,
             246,134,191,238,126,186,236,119,181,235,113,174,234,53,101,189,74,123,205,82,135,217,51,86,183,
-            39,66,170,33,63,168,93,109,182,90,102,177,51,100,215,0,0,114,212,208,200,212,208,200,212,
-            208,200,27,70,168,89,144,232,113,172,255,116,175,255,119,178,255,122,180,255,124,182,255,126,184,
+            39,66,170,33,63,168,93,109,182,90,102,177,51,100,215,0,0,114,240,240,240,240,240,240,240,
+            240,240,27,70,168,89,144,232,113,172,255,116,175,255,119,178,255,122,180,255,124,182,255,126,184,
             255,128,186,255,129,187,255,130,187,255,192,221,255,132,190,255,84,123,196,199,223,245,150,195,237,
             140,190,235,128,184,234,118,178,233,92,143,213,57,92,182,43,74,173,48,81,176,123,141,200,204,
-            216,244,135,171,241,45,74,179,54,102,214,0,0,114,212,208,200,212,208,200,212,208,200,26,68,
+            216,244,135,171,241,45,74,179,54,102,214,0,0,114,240,240,240,240,240,240,240,240,240,26,68,
             167,93,147,233,119,177,255,122,181,255,125,183,255,128,186,255,131,189,255,133,191,255,135,192,255,
             136,193,255,137,194,255,196,225,255,139,196,255,82,118,192,208,226,245,164,199,235,151,193,234,98,
             139,204,69,107,190,44,80,175,61,98,184,152,170,216,210,225,250,124,166,239,64,124,231,47,109,
-            229,22,55,173,57,103,213,0,0,114,212,208,200,212,208,200,212,208,200,25,66,165,97,150,232,
+            229,22,55,173,57,103,213,0,0,114,240,240,240,240,240,240,240,240,240,25,66,165,97,150,232,
             124,182,255,128,186,255,131,189,255,135,192,255,137,194,255,140,197,255,142,198,255,143,200,255,144,
             200,255,200,228,255,146,202,255,81,112,187,205,218,239,115,143,202,67,105,188,52,96,186,86,122,
             195,181,198,231,195,217,248,126,172,239,70,134,232,64,127,231,58,120,229,51,112,227,23,54,170,
-            59,105,212,0,0,114,212,208,200,212,208,200,212,208,200,24,63,163,97,151,230,130,187,255,134,
+            59,105,212,0,0,114,240,240,240,240,240,240,240,240,240,24,63,163,97,151,230,130,187,255,134,
             191,255,137,194,255,141,198,255,144,200,255,146,203,255,148,205,255,150,206,255,151,207,255,203,231,
             255,153,209,255,78,118,195,70,111,191,60,111,196,108,143,206,210,223,243,184,213,247,120,173,238,
             88,151,234,67,122,213,31,63,166,69,130,230,62,123,228,55,115,226,25,55,170,62,107,212,0,
-            0,114,212,208,200,212,208,200,212,208,200,23,60,158,44,89,184,113,171,243,139,196,255,143,200,
+            0,114,240,240,240,240,240,240,240,240,240,23,60,158,44,89,184,113,171,243,139,196,255,143,200,
             255,147,203,255,150,206,255,153,209,255,155,211,255,157,212,255,158,214,255,207,234,255,160,215,255,
             88,143,214,137,170,219,217,232,248,176,212,245,126,182,239,105,168,235,76,138,218,40,88,182,15,
-            40,145,13,25,135,73,133,229,66,125,227,37,74,184,31,53,161,65,114,217,0,0,114,212,208,
-            200,212,208,200,212,208,200,212,208,200,19,50,141,34,72,170,103,157,228,149,205,255,153,208,255,
+            40,145,13,25,135,73,133,229,66,125,227,37,74,184,31,53,161,65,114,217,0,0,114,240,240,
+            240,240,240,240,240,240,240,240,240,240,19,50,141,34,72,170,103,157,228,149,205,255,153,208,255,
             156,212,255,159,215,255,162,217,255,164,219,255,165,220,255,210,238,255,167,222,255,86,131,203,199,
             226,248,134,192,239,122,184,237,116,179,236,111,172,234,31,81,177,34,69,166,60,102,193,79,135,
-            222,39,69,172,52,81,179,65,105,202,26,48,158,0,0,111,0,0,85,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,24,55,154,82,129,206,155,211,254,162,217,255,166,
+            222,39,69,172,52,81,179,65,105,202,26,48,158,0,0,111,0,0,85,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,24,55,154,82,129,206,155,211,254,162,217,255,166,
             220,255,169,223,255,172,225,255,174,226,255,215,241,255,177,227,255,85,126,198,194,222,246,142,193,
             237,133,188,236,123,183,234,116,176,233,94,149,219,90,143,218,47,77,172,69,103,191,66,102,194,
-            19,33,142,0,0,109,0,0,86,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,15,41,142,56,93,179,152,205,245,173,225,255,180,228,
+            19,33,142,0,0,109,0,0,86,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,15,41,142,56,93,179,152,205,245,173,225,255,180,228,
             255,186,230,255,189,231,255,223,243,255,192,232,255,83,121,194,204,225,245,157,198,236,146,192,235,
-            133,186,233,93,142,208,60,93,179,84,123,200,75,110,193,11,18,128,0,0,109,0,0,74,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,13,35,132,35,63,158,140,182,228,193,233,255,200,235,255,
+            133,186,233,93,142,208,60,93,179,84,123,200,75,110,193,11,18,128,0,0,109,0,0,74,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,13,35,132,35,63,158,140,182,228,193,233,255,200,235,255,
             204,237,255,230,246,255,206,238,255,82,115,189,212,227,244,170,201,235,103,136,200,76,111,187,100,
-            142,208,67,94,178,6,10,121,0,0,102,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,20,40,143,119,147,204,209,237,254,219,242,255,238,
+            142,208,67,94,178,6,10,121,0,0,102,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,20,40,143,119,147,204,209,237,254,219,242,255,238,
             249,255,220,243,255,66,98,179,122,142,200,106,136,199,129,166,217,53,74,161,0,0,114,0,0,
-            94,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,10,25,131,80,97,173,215,230,246,245,252,255,234,247,
-            255,185,206,235,138,158,208,52,65,154,1,3,113,0,1,96,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,8,19,122,45,55,148,184,188,219,142,149,199,40,47,142,
-            2,6,116,1,3,88,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,5,13,110,5,12,123,4,9,115,2,5,78,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            94,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,10,25,131,80,97,173,215,230,246,245,252,255,234,247,
+            255,185,206,235,138,158,208,52,65,154,1,3,113,0,1,96,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,8,19,122,45,55,148,184,188,219,142,149,199,40,47,142,
+            2,6,116,1,3,88,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,5,13,110,5,12,123,4,9,115,2,5,78,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 32, 32, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -8136,132 +7992,132 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,182,207,238,236,244,253,248,252,255,252,255,255,252,255,255,246,251,255,
-            228,239,252,158,196,239,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,182,207,238,236,244,253,248,252,255,252,255,255,252,255,255,246,251,255,
+            228,239,252,158,196,239,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             222,237,253,229,241,253,221,234,250,219,234,250,219,234,250,219,234,250,219,234,250,222,235,250,231,
-            243,254,207,228,252,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,202,226,251,198,222,247,195,
+            243,254,207,228,252,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,202,226,251,198,222,247,195,
             220,246,196,220,246,196,220,246,196,220,246,196,220,246,195,220,246,195,220,246,195,219,246,202,224,
-            248,185,216,250,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,143,190,242,180,212,244,174,207,243,175,208,243,175,208,
+            248,185,216,250,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,143,190,242,180,212,244,174,207,243,175,208,243,175,208,
             243,176,209,243,176,209,243,176,209,243,176,209,243,175,208,243,174,208,243,173,207,243,181,212,246,
-            113,173,238,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,143,191,241,156,197,240,155,197,240,159,199,241,160,201,241,161,202,242,
-            162,202,242,162,202,242,161,201,241,160,200,241,157,199,240,154,197,240,158,198,240,123,180,239,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            113,173,238,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,143,191,241,156,197,240,155,197,240,159,199,241,160,201,241,161,202,242,
+            162,202,242,162,202,242,161,201,241,160,200,241,157,199,240,154,197,240,158,198,240,123,180,239,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             73,151,232,122,179,237,141,189,238,143,191,238,146,194,240,149,195,240,150,197,240,150,197,240,150,
-            197,240,149,196,240,148,195,240,145,193,239,141,190,238,140,188,238,109,172,236,65,143,228,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,85,159,234,102,
+            197,240,149,196,240,148,195,240,145,193,239,141,190,238,140,188,238,109,172,236,65,143,228,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,85,159,234,102,
             168,233,127,184,237,132,188,238,137,190,239,139,193,240,142,194,240,142,194,240,142,194,240,141,194,
-            240,139,192,240,135,189,239,130,186,238,122,180,236,93,163,232,81,157,237,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,95,166,236,101,170,234,115,178,
+            240,139,192,240,135,189,239,130,186,238,122,180,236,93,163,232,81,157,237,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,95,166,236,101,170,234,115,178,
             236,125,185,238,130,189,239,134,192,240,137,193,241,137,195,241,137,194,241,136,193,241,132,191,240,
-            128,187,239,121,183,237,109,175,235,97,167,234,92,165,240,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,103,172,239,113,178,237,120,184,237,128,190,240,
+            128,187,239,121,183,237,109,175,235,97,167,234,92,165,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,103,172,239,113,178,237,120,184,237,128,190,240,
             135,194,241,140,198,243,143,200,243,144,201,243,144,201,243,142,199,243,138,196,242,132,192,241,124,
-            187,238,116,181,237,109,176,237,97,169,241,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,98,169,236,124,187,240,130,191,240,140,198,243,148,203,244,153,
+            187,238,116,181,237,109,176,237,97,169,241,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,98,169,236,124,187,240,130,191,240,140,198,243,148,203,244,153,
             208,246,157,211,247,158,211,247,158,211,247,156,209,246,151,206,245,144,201,244,136,195,242,127,188,
-            239,120,184,240,95,162,231,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,140,199,246,141,199,243,150,205,245,159,212,247,166,217,248,171,221,
+            239,120,184,240,95,162,231,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,140,199,246,141,199,243,150,205,245,159,212,247,166,217,248,171,221,
             250,173,222,250,172,222,250,169,219,249,163,215,248,155,210,247,145,202,244,136,195,242,132,194,247,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,132,193,246,165,214,248,162,214,247,169,220,250,178,226,251,184,231,253,186,232,253,
-            185,232,253,182,229,252,174,223,251,165,217,249,159,211,246,154,208,246,124,187,248,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,166,216,252,192,231,252,190,231,252,193,236,254,197,240,255,199,241,255,199,241,255,195,
-            238,255,190,233,253,187,229,252,182,226,250,155,211,255,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,164,212,246,211,245,255,221,249,255,225,249,255,229,249,255,227,249,255,221,248,255,215,246,
-            255,199,237,255,158,209,253,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,79,143,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,132,193,246,165,214,248,162,214,247,169,220,250,178,226,251,184,231,253,186,232,253,
+            185,232,253,182,229,252,174,223,251,165,217,249,159,211,246,154,208,246,124,187,248,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,166,216,252,192,231,252,190,231,252,193,236,254,197,240,255,199,241,255,199,241,255,195,
+            238,255,190,233,253,187,229,252,182,226,250,155,211,255,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,164,212,246,211,245,255,221,249,255,225,249,255,229,249,255,227,249,255,221,248,255,215,246,
+            255,199,237,255,158,209,253,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,79,143,
             218,138,188,233,181,221,247,217,240,253,228,245,253,225,245,254,209,239,254,178,220,250,149,194,243,
-            86,148,227,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,107,172,237,180,212,245,176,206,241,
+            86,148,227,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,107,172,237,180,212,245,176,206,241,
             147,189,236,143,187,237,148,191,239,148,191,239,146,189,238,157,193,239,185,211,242,177,211,244,96,
-            166,237,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,97,167,235,170,208,244,192,220,247,190,220,247,191,220,247,187,
+            166,237,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,97,167,235,170,208,244,192,220,247,190,220,247,191,220,247,187,
             217,246,185,216,246,184,215,245,187,216,245,191,219,247,189,219,247,191,220,246,166,206,244,88,161,
-            236,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,79,153,227,137,191,241,173,209,244,169,207,244,170,209,244,173,210,244,173,211,244,174,211,
+            236,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,79,153,227,137,191,241,173,209,244,169,207,244,170,209,244,173,210,244,173,211,244,174,211,
             244,174,211,245,173,211,245,172,209,244,170,208,244,169,207,243,172,209,243,131,187,240,76,148,227,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,111,178,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,111,178,
             239,145,195,240,155,200,242,156,202,242,158,203,242,160,205,243,161,205,243,161,205,243,161,205,243,
-            161,205,243,159,204,243,158,203,242,155,200,242,154,200,241,143,193,240,103,172,240,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,99,169,235,117,182,239,138,192,240,
+            161,205,243,159,204,243,158,203,242,155,200,242,154,200,241,143,193,240,103,172,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,99,169,235,117,182,239,138,192,240,
             142,196,241,145,198,241,148,200,242,149,200,242,147,200,242,145,200,242,145,199,242,147,199,242,148,
-            200,242,146,199,242,143,196,241,140,194,240,135,190,239,113,178,238,94,163,236,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,121,186,242,120,183,238,128,189,239,133,193,241,137,
+            200,242,146,199,242,143,196,241,140,194,240,135,190,239,113,178,238,94,163,236,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,121,186,242,120,183,238,128,189,239,133,193,241,137,
             195,241,140,198,242,140,198,242,140,198,242,140,198,242,140,198,242,140,198,242,139,197,242,139,196,
-            242,135,194,241,131,191,240,126,187,239,117,182,238,111,179,243,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,98,167,231,125,188,241,126,188,240,132,193,241,137,197,242,142,200,243,146,202,
+            242,135,194,241,131,191,240,126,187,239,117,182,238,111,179,243,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,98,167,231,125,188,241,126,188,240,132,193,241,137,197,242,142,200,243,146,202,
             243,148,204,244,151,206,245,151,207,245,151,206,245,149,205,244,148,204,244,144,201,243,140,198,242,
-            135,194,241,129,190,240,124,186,239,119,184,240,95,159,228,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,126,190,243,128,190,240,134,194,241,141,199,243,146,203,244,152,206,245,156,210,246,158,212,247,
+            135,194,241,129,190,240,124,186,239,119,184,240,95,159,228,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,126,190,243,128,190,240,134,194,241,141,199,243,146,203,244,152,206,245,156,210,246,158,212,247,
             161,213,247,161,214,247,161,214,247,160,212,247,157,211,247,154,208,246,149,205,245,143,201,243,137,
-            197,242,131,192,240,125,188,239,115,181,247,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,135,196,245,
+            197,242,131,192,240,125,188,239,115,181,247,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,135,196,245,
             134,194,241,141,199,242,148,204,245,155,209,246,160,213,247,165,216,249,168,219,249,170,220,250,171,
             221,250,171,221,250,169,220,249,166,217,249,162,215,248,157,211,247,151,207,245,144,202,244,137,196,
-            242,130,191,241,124,189,246,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,99,163,224,144,201,246,139,198,242,148,
+            242,130,191,241,124,189,246,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,99,163,224,144,201,246,139,198,242,148,
             204,244,155,209,246,162,214,248,168,219,249,173,223,250,177,225,251,180,228,252,181,228,252,181,228,
             252,179,227,252,175,224,251,171,221,250,165,217,248,158,212,247,151,207,245,144,200,243,136,195,242,
-            134,194,244,99,156,221,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,130,191,245,155,206,245,145,202,243,153,208,245,161,215,
+            134,194,244,99,156,221,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,130,191,245,155,206,245,145,202,243,153,208,245,161,215,
             248,169,220,249,176,225,251,182,229,252,186,233,253,190,235,254,190,235,254,190,235,254,188,234,254,
             184,231,253,178,227,251,172,222,249,164,217,248,156,211,247,147,204,244,146,202,243,151,204,245,116,
-            174,236,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,131,192,246,178,221,251,166,212,247,162,213,247,166,218,248,173,223,250,
+            174,236,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,131,192,246,178,221,251,166,212,247,162,213,247,166,218,248,173,223,250,
             181,230,252,189,234,254,195,238,255,198,241,255,199,241,255,199,241,255,197,240,255,192,237,255,185,
-            232,252,177,226,251,169,220,250,163,215,247,164,213,247,171,214,246,161,210,248,118,177,241,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,149,203,248,194,233,255,199,234,254,194,231,252,193,233,253,196,237,254,199,
+            232,252,177,226,251,169,220,250,163,215,247,164,213,247,171,214,246,161,210,248,118,177,241,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,149,203,248,194,233,255,199,234,254,194,231,252,193,233,253,196,237,254,199,
             241,255,203,242,255,208,243,255,211,244,255,210,244,255,206,243,255,201,241,255,197,238,254,193,234,
-            253,192,231,251,193,229,250,191,228,250,174,220,254,140,198,255,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,150,199,242,194,233,255,214,244,255,224,250,255,233,255,255,238,255,
+            253,192,231,251,193,229,250,191,228,250,174,220,254,140,198,255,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,150,199,242,194,233,255,214,244,255,224,250,255,233,255,255,238,255,
             255,242,255,255,245,255,255,243,255,255,237,255,255,231,254,255,224,252,255,217,247,255,207,242,255,
-            191,234,255,159,208,254,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,148,187,229,168,201,238,182,211,244,
-            184,214,245,183,215,246,180,214,248,169,208,246,157,200,242,140,182,228,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            191,234,255,159,208,254,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,148,187,229,168,201,238,182,211,244,
+            184,214,245,183,215,246,180,214,248,169,208,246,157,200,242,140,182,228,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 32, 32, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -8269,132 +8125,132 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,176,176,192,174,174,190,171,171,189,169,169,187,166,166,185,164,164,
-            183,162,162,181,159,159,179,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,181,181,196,179,179,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,176,176,192,174,174,190,171,171,189,169,169,187,166,166,185,164,164,
+            183,162,162,181,159,159,179,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,181,181,196,179,179,
             194,186,186,200,209,209,219,228,228,234,232,232,237,252,252,253,251,251,252,228,228,233,221,221,228,
-            196,196,208,167,167,185,153,153,174,149,149,170,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,184,184,198,182,182,197,199,199,210,236,236,240,254,254,255,
+            196,196,208,167,167,185,153,153,174,149,149,170,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,184,184,198,182,182,197,199,199,210,236,236,240,254,254,255,
             254,254,254,239,239,242,232,232,237,216,216,224,209,209,218,227,227,233,231,231,236,245,245,247,243,
-            243,245,218,218,226,171,171,189,147,147,169,140,140,162,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,184,184,199,187,187,201,232,232,237,255,255,255,245,245,248,208,208,217,182,182,197,175,
+            243,245,218,218,226,171,171,189,147,147,169,140,140,162,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,184,184,199,187,187,201,232,232,237,255,255,255,245,245,248,208,208,217,182,182,197,175,
             180,202,166,181,214,154,175,215,151,173,214,164,178,207,161,168,192,162,162,181,187,187,201,228,228,
-            233,236,236,240,206,206,216,148,148,170,137,137,160,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,185,185,199,197,
+            233,236,236,240,206,206,216,148,148,170,137,137,160,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,185,185,199,197,
             197,209,246,246,248,251,251,252,215,215,223,184,185,199,184,200,226,223,237,250,246,252,255,250,254,
             255,186,190,231,181,188,231,235,249,255,229,247,255,194,223,247,173,190,213,153,155,176,185,185,199,
-            226,226,232,217,217,225,155,155,175,131,131,154,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,185,185,200,197,197,209,250,250,251,242,242,
+            226,226,232,217,217,225,155,155,175,131,131,154,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,185,185,200,197,197,209,250,250,251,242,242,
             245,193,193,206,175,192,220,223,242,251,231,248,255,237,250,255,241,251,255,244,252,255,121,125,207,
             119,125,207,233,249,255,227,247,255,221,245,255,215,243,255,193,227,248,137,161,201,152,152,173,209,
-            209,219,217,217,225,150,150,172,127,127,151,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,186,186,200,188,188,202,246,246,248,242,242,245,189,189,203,155,186,228,
+            209,219,217,217,225,150,150,172,127,127,151,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,186,186,200,188,188,202,246,246,248,242,242,245,189,189,203,155,186,228,
             217,244,255,222,245,255,228,247,255,232,248,255,236,249,255,237,250,255,206,218,243,204,217,243,229,
             247,255,224,246,255,218,244,255,212,242,255,206,241,255,198,235,254,131,165,214,142,142,165,204,204,
-            214,206,206,216,135,135,160,113,113,136,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,184,184,199,233,233,237,251,251,252,194,194,206,152,185,228,208,241,255,213,243,255,218,
+            214,206,206,216,135,135,160,113,113,136,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,184,184,199,233,233,237,251,251,252,194,194,206,152,185,228,208,241,255,213,243,255,218,
             244,255,223,246,255,227,247,255,229,247,255,230,248,255,230,248,255,228,247,255,224,246,255,220,245,
             255,215,243,255,209,242,255,203,239,255,194,233,254,185,226,253,124,160,212,142,142,165,208,208,218,
-            184,184,199,126,126,152,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,185,185,199,201,
+            184,184,199,126,126,152,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,185,185,199,201,
             201,212,255,255,255,216,216,224,146,173,217,196,234,254,204,239,255,209,241,255,214,243,255,218,244,
             255,221,245,255,223,246,255,224,246,255,224,246,255,222,245,255,219,244,255,215,243,255,210,242,255,
             129,150,159,12,15,16,154,186,206,181,223,252,172,216,251,111,139,192,163,163,182,206,206,216,144,
-            144,167,112,112,137,212,208,200,212,208,200,212,208,200,212,208,200,183,183,198,237,237,241,246,246,
+            144,167,112,112,137,240,240,240,240,240,240,240,240,240,240,240,240,183,183,198,237,237,241,246,246,
             248,175,179,201,154,200,245,190,229,253,197,235,254,204,240,255,209,241,255,212,242,255,215,243,255,
             217,244,255,217,244,255,217,244,255,215,243,255,213,243,255,210,242,255,129,150,159,0,0,0,0,
             0,0,69,85,96,171,213,244,168,212,250,133,183,240,118,123,156,193,193,205,180,180,195,120,120,
-            148,212,208,200,212,208,200,212,208,200,212,208,200,191,191,204,255,255,255,210,210,220,126,163,221,
+            148,240,240,240,240,240,240,240,240,240,240,240,240,191,191,204,255,255,255,210,210,220,126,163,221,
             176,219,252,183,224,252,190,230,253,197,234,254,202,239,255,206,241,255,209,241,255,210,242,255,211,
             242,255,210,242,255,209,242,255,207,241,255,128,150,159,0,0,0,0,0,0,58,71,80,153,190,
             216,166,209,244,162,209,250,154,202,249,93,132,199,149,149,171,195,195,207,127,127,154,92,92,115,
-            212,208,200,212,208,200,182,182,197,213,213,221,255,255,255,187,187,201,121,175,241,169,214,251,176,
+            240,240,240,240,240,240,182,182,197,213,213,221,255,255,255,187,187,201,121,175,241,169,214,251,176,
             219,252,183,224,252,189,229,253,194,232,254,198,236,254,201,238,255,203,239,255,204,239,255,203,239,
             255,202,238,255,125,149,159,0,0,0,0,0,0,58,71,80,153,190,216,167,209,244,164,210,250,
-            157,204,249,149,198,248,97,155,235,122,122,149,191,191,204,147,147,169,108,108,134,212,208,200,212,
-            208,200,180,180,195,231,231,236,241,241,244,157,171,203,131,185,246,162,209,250,169,214,251,175,218,
+            157,204,249,149,198,248,97,155,235,122,122,149,191,191,204,147,147,169,108,108,134,240,240,240,240,
+            240,240,180,180,195,231,231,236,241,241,244,157,171,203,131,185,246,162,209,250,169,214,251,175,218,
             251,180,222,252,185,226,253,189,229,253,192,231,254,194,232,254,194,233,254,194,232,254,121,145,159,
             0,0,0,0,0,0,57,71,80,152,189,216,166,209,244,164,210,250,157,205,249,150,199,248,133,
-            187,246,69,138,238,102,116,160,173,173,190,162,162,181,111,111,140,212,208,200,212,208,200,178,178,
+            187,246,69,138,238,102,116,160,173,173,190,162,162,181,111,111,140,240,240,240,240,240,240,178,178,
             194,235,235,239,235,235,239,136,162,210,148,198,248,155,203,249,161,208,250,167,212,250,172,216,251,
             176,219,252,180,222,252,182,223,252,150,183,205,59,71,79,47,57,63,0,0,0,0,0,0,56,
             70,80,149,186,216,163,207,244,163,209,250,157,204,249,144,195,247,110,169,243,73,141,239,63,134,
-            237,88,119,183,165,165,184,163,163,182,111,111,140,212,208,200,212,208,200,177,177,192,254,254,254,
+            237,88,119,183,165,165,184,163,163,182,111,111,140,240,240,240,240,240,240,177,177,192,254,254,254,
             216,216,224,125,159,215,105,144,225,73,98,203,134,176,237,158,206,249,163,209,250,162,208,250,154,
             202,249,147,197,248,19,25,31,80,80,80,112,112,112,0,0,0,27,34,40,108,136,160,119,152,
             181,121,156,187,125,170,216,124,179,245,101,163,242,81,137,231,41,74,199,54,105,219,87,122,188,
-            148,148,170,175,175,192,109,109,139,212,208,200,212,208,200,175,175,191,253,253,254,214,214,222,129,
+            148,148,170,175,175,192,109,109,139,240,240,240,240,240,240,175,175,191,253,253,254,214,214,222,129,
             162,215,99,140,224,69,95,203,127,171,237,144,194,248,136,188,246,134,187,246,140,192,247,145,196,
             248,0,0,0,175,175,175,239,239,239,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
             58,84,113,118,174,240,112,171,243,90,144,232,46,78,200,61,111,219,91,125,188,140,140,164,171,
-            171,188,107,107,138,212,208,200,212,208,200,173,173,190,232,232,237,232,232,237,137,165,212,119,176,
+            171,188,107,107,138,240,240,240,240,240,240,173,173,190,232,232,237,232,232,237,137,165,212,119,176,
             244,128,182,245,126,181,245,130,184,246,138,191,247,146,196,248,153,202,249,158,206,249,72,92,109,
             0,0,0,32,32,32,27,34,40,71,90,107,69,89,106,67,87,106,64,85,106,90,123,158,127,
             179,237,122,178,245,112,171,244,102,163,242,91,155,241,97,121,175,154,154,175,152,152,173,105,105,
-            136,212,208,200,212,208,200,171,171,188,226,226,232,236,236,240,156,168,197,110,169,243,119,176,244,
+            136,240,240,240,240,240,240,171,171,188,226,226,232,236,236,240,156,168,197,110,169,243,119,176,244,
             130,184,246,140,192,247,149,199,248,158,205,249,165,211,250,171,215,251,176,219,252,126,154,175,116,
             143,161,143,177,201,165,205,235,166,208,242,161,204,241,154,199,240,146,193,239,141,191,245,132,186,
-            246,122,178,245,111,170,243,100,161,242,101,113,154,155,155,176,145,145,168,103,103,132,212,208,200,
-            212,208,200,169,169,186,204,204,214,250,250,251,172,172,189,119,173,240,128,183,245,139,191,247,150,
+            246,122,178,245,111,170,243,100,161,242,101,113,154,155,155,176,145,145,168,103,103,132,240,240,240,
+            240,240,240,169,169,186,204,204,214,250,250,251,172,172,189,119,173,240,128,183,245,139,191,247,150,
             199,248,160,207,249,169,214,251,177,220,252,184,225,253,189,229,253,193,232,254,194,233,254,193,232,
             254,190,230,253,185,226,253,179,221,252,171,215,251,162,208,250,152,201,248,141,193,247,130,184,246,
-            119,176,244,107,163,236,105,105,136,163,163,182,128,128,154,96,96,125,212,208,200,212,208,200,212,
-            208,200,176,176,192,248,248,250,195,195,208,142,173,217,135,188,246,147,197,248,159,206,249,170,214,
+            119,176,244,107,163,236,105,105,136,163,163,182,128,128,154,96,96,125,240,240,240,240,240,240,240,
+            240,240,176,176,192,248,248,250,195,195,208,142,173,217,135,188,246,147,197,248,159,206,249,170,214,
             251,180,221,252,188,228,253,196,234,254,202,238,255,205,240,255,207,241,255,206,240,255,203,239,255,
             198,235,254,190,230,253,182,223,252,172,216,251,161,208,250,150,199,248,138,190,247,126,181,245,108,
-            137,188,123,123,150,159,159,179,109,109,139,80,80,105,212,208,200,212,208,200,212,208,200,163,163,
+            137,188,123,123,150,159,159,179,109,109,139,80,80,105,240,240,240,240,240,240,240,240,240,163,163,
             182,226,226,232,235,235,239,158,161,183,143,191,243,154,203,249,166,212,250,178,220,252,189,229,253,
             199,236,254,207,241,255,212,242,255,214,243,255,216,243,255,215,243,255,212,242,255,208,241,255,201,
             237,255,191,230,253,180,222,252,169,214,251,157,204,249,144,195,248,130,180,239,101,105,139,152,152,
-            173,142,142,165,100,100,132,212,208,200,212,208,200,212,208,200,212,208,200,159,159,178,181,181,196,
+            173,142,142,165,100,100,132,240,240,240,240,240,240,240,240,240,240,240,240,159,159,178,181,181,196,
             244,244,246,194,194,207,153,174,207,160,207,250,173,217,251,185,226,253,197,235,254,207,241,255,214,
             243,255,219,245,255,223,246,255,225,246,255,224,246,255,220,245,255,215,243,255,209,241,255,200,237,
             255,188,228,253,176,219,252,163,209,250,150,199,248,117,140,182,125,125,152,155,155,176,113,113,143,
-            91,91,120,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,157,157,177,215,215,223,235,
+            91,91,120,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,157,157,177,215,215,223,235,
             235,239,163,163,182,160,188,221,178,220,252,191,231,253,204,239,255,212,242,255,220,245,255,226,247,
             255,232,248,255,234,249,255,232,248,255,228,247,255,221,245,255,214,243,255,205,240,255,194,232,254,
-            181,223,252,168,213,250,135,165,205,106,106,137,152,152,174,136,136,160,99,99,131,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,151,151,171,158,158,178,227,227,233,219,219,
+            181,223,252,168,213,250,135,165,205,106,106,137,152,152,174,136,136,160,99,99,131,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,151,151,171,158,158,178,227,227,233,219,219,
             227,153,153,174,169,194,220,195,233,254,207,241,255,216,243,255,224,246,255,232,248,255,239,250,255,
             243,251,255,240,251,255,234,249,255,226,247,255,218,244,255,209,241,255,198,236,254,184,225,253,146,
-            173,207,103,103,134,146,146,168,146,146,168,103,103,134,85,85,113,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,147,147,169,165,165,184,228,228,233,214,214,223,
+            173,207,103,103,134,146,146,168,146,146,168,103,103,134,85,85,113,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,147,147,169,165,165,184,228,228,233,214,214,223,
             153,153,174,165,182,203,204,235,249,218,244,255,227,247,255,236,249,255,244,252,255,125,127,207,123,
             126,207,237,250,255,228,247,255,220,245,255,210,242,255,194,229,247,139,157,185,107,107,138,147,147,
-            169,150,150,172,109,109,139,93,93,124,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,142,142,163,161,161,180,218,218,225,220,220,227,174,
+            169,150,150,172,109,109,139,93,93,124,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,142,142,163,161,161,180,218,218,225,220,220,227,174,
             174,191,139,141,165,175,188,206,220,239,249,235,249,255,243,252,255,155,158,219,152,157,219,236,250,
             255,228,247,255,212,236,248,158,174,195,109,112,142,128,128,154,155,155,176,148,148,170,110,110,140,
-            94,94,125,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,138,138,160,146,146,168,196,196,208,219,219,227,205,205,
+            94,94,125,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,138,138,160,146,146,168,196,196,208,219,219,227,205,205,
             216,160,160,180,131,131,157,144,147,170,165,169,188,180,184,200,177,183,199,158,163,184,131,135,161,
-            111,111,141,129,129,155,158,158,178,160,160,180,139,139,163,104,104,135,94,94,125,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,123,123,144,136,136,161,155,155,175,192,192,205,209,209,218,
+            111,111,141,129,129,155,158,158,178,160,160,180,139,139,163,104,104,135,94,94,125,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,123,123,144,136,136,161,155,155,175,192,192,205,209,209,218,
             205,205,215,186,186,200,177,177,193,158,158,178,154,154,175,164,164,183,164,164,183,172,172,189,167,
-            167,185,148,148,170,117,117,146,102,102,133,87,87,114,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,122,122,145,130,130,156,138,138,162,159,159,178,174,
+            167,185,148,148,170,117,117,146,102,102,133,87,87,114,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,122,122,145,130,130,156,138,138,162,159,159,178,174,
             174,191,175,175,191,188,188,202,183,183,198,162,162,181,154,154,175,135,135,160,114,114,143,105,105,
-            135,95,95,123,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,100,100,122,116,116,142,120,120,147,119,119,
-            147,117,117,145,114,114,143,112,112,141,109,109,138,101,101,129,84,84,108,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            135,95,95,123,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,100,100,122,116,116,142,120,120,147,119,119,
+            147,117,117,145,114,114,143,112,112,141,109,109,138,101,101,129,84,84,108,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 32, 32, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -8402,132 +8258,132 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,210,210,210,232,232,232,
-            187,187,187,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,225,225,225,248,248,248,235,235,235,78,78,78,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,192,192,
-            192,117,117,117,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,235,235,235,240,240,240,239,239,239,116,116,116,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,169,169,169,198,198,198,
-            183,183,183,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,234,234,234,240,240,240,169,169,169,212,208,200,212,208,200,212,208,200,212,208,200,242,242,242,
-            103,103,103,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,198,198,198,255,255,255,209,
-            209,209,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,240,240,240,230,231,230,
-            240,240,240,165,165,165,212,208,200,212,208,200,212,208,200,217,217,217,255,255,255,145,145,145,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,173,173,173,255,255,255,105,105,
-            105,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,237,237,237,230,231,230,232,232,232,238,
-            238,238,164,164,164,212,208,200,223,223,223,255,255,255,255,255,255,135,135,135,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,107,107,107,218,218,218,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,234,234,234,229,229,229,230,231,230,236,236,236,249,249,
-            249,253,253,253,255,255,255,255,255,255,251,251,251,91,91,91,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,92,92,92,215,215,215,90,90,90,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,238,238,238,228,228,228,228,228,228,233,233,233,240,240,240,247,247,247,
-            255,255,255,255,255,255,202,202,202,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,91,91,91,214,214,214,95,95,95,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,210,210,210,232,232,232,
+            187,187,187,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,225,225,225,248,248,248,235,235,235,78,78,78,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,192,192,
+            192,117,117,117,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,235,235,235,240,241,240,239,239,239,116,116,116,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,169,169,169,198,198,198,
+            183,183,183,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,234,234,234,240,241,240,169,169,169,240,240,240,240,240,240,240,240,240,240,240,240,242,242,242,
+            103,103,103,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,198,198,198,255,255,255,209,
+            209,209,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,241,240,230,231,230,
+            240,241,240,165,165,165,240,240,240,240,240,240,240,240,240,217,217,217,255,255,255,145,145,145,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,173,173,173,255,255,255,105,105,
+            105,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,237,237,237,230,231,230,232,232,232,238,
+            238,238,164,164,164,240,240,240,223,223,223,255,255,255,255,255,255,135,135,135,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,107,107,107,218,218,218,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,234,234,234,229,229,229,230,231,230,236,236,236,249,249,
+            249,253,253,253,255,255,255,255,255,255,251,251,251,91,91,91,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,92,92,92,215,215,215,90,90,90,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,238,238,238,228,228,228,228,228,228,233,233,233,240,241,240,247,247,247,
+            255,255,255,255,255,255,202,202,202,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,91,91,91,214,214,214,95,95,95,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             230,231,230,206,206,206,218,218,218,230,231,230,233,233,233,237,237,237,239,239,239,229,229,229,193,
-            193,193,71,71,71,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,82,82,82,209,209,209,100,100,100,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,235,235,235,203,203,203,165,
-            165,165,214,214,214,233,233,233,205,205,205,154,154,154,105,105,105,67,67,67,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,83,83,83,207,207,207,105,105,105,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,236,236,236,211,211,211,177,177,177,211,211,211,234,234,
-            234,175,175,175,63,63,63,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,82,82,82,203,203,203,110,110,110,212,208,200,212,208,
-            200,212,208,200,236,236,236,219,219,219,189,189,189,218,218,218,235,235,235,170,170,170,43,43,43,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,83,83,83,197,197,197,102,102,102,212,208,200,238,238,238,
-            228,228,228,203,203,203,225,225,225,236,236,236,166,166,166,41,41,41,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,68,68,68,183,183,183,187,187,187,226,226,226,220,220,220,231,
-            232,233,237,237,238,159,159,159,40,40,40,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,191,191,191,177,177,177,173,173,173,223,224,228,230,228,227,143,143,
-            142,29,31,32,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,230,231,230,243,243,243,198,198,198,164,166,171,201,183,159,232,202,151,148,119,71,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,212,212,255,255,255,
-            255,255,255,239,241,244,202,184,153,235,194,98,255,255,255,253,230,197,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,202,202,202,255,255,255,255,255,255,255,255,255,242,
-            246,253,223,185,103,255,203,3,249,230,141,255,232,158,170,117,2,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,204,204,204,255,255,255,255,255,255,255,255,255,248,248,248,154,156,163,110,85,
-            34,221,164,0,244,179,0,255,225,94,255,248,154,216,161,29,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,187,187,
-            187,255,255,255,255,255,255,255,255,255,249,249,249,159,159,159,38,38,38,212,208,200,212,208,200,
-            141,91,0,255,204,34,255,252,188,255,255,186,246,193,43,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,180,180,180,255,255,255,255,255,255,
-            255,255,255,250,250,250,155,155,155,36,36,36,212,208,200,212,208,200,212,208,200,212,208,200,194,
-            128,0,255,210,42,255,251,189,255,255,195,255,211,55,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            193,193,71,71,71,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,82,82,82,209,209,209,100,100,100,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,235,235,235,203,203,203,165,
+            165,165,214,214,214,233,233,233,205,205,205,154,154,154,105,105,105,67,67,67,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,83,83,83,207,207,207,105,105,105,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,236,236,236,211,211,211,177,177,177,211,211,211,234,234,
+            234,175,175,175,63,63,63,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,82,82,82,203,203,203,110,110,110,240,240,240,240,240,
+            240,240,240,240,236,236,236,219,219,219,189,189,189,218,218,218,235,235,235,170,170,170,43,43,43,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,83,83,83,197,197,197,102,102,102,240,240,240,238,238,238,
+            228,228,228,203,203,203,225,225,225,236,236,236,166,166,166,41,41,41,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,68,68,68,183,183,183,187,187,187,226,226,226,220,220,220,231,
+            232,233,237,237,238,159,159,159,40,40,40,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,191,191,191,177,177,177,173,173,173,223,224,228,230,228,227,143,143,
+            142,29,31,32,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,230,231,230,243,243,243,198,198,198,164,166,171,201,183,159,232,202,151,148,119,71,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,212,212,212,255,255,255,
+            255,255,255,239,241,244,202,184,153,235,194,98,255,255,255,253,230,197,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,202,202,202,255,255,255,255,255,255,255,255,255,242,
+            246,253,223,185,103,255,203,3,249,230,141,255,232,158,170,117,2,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,204,204,204,255,255,255,255,255,255,255,255,255,248,248,248,154,156,163,110,85,
+            34,221,164,0,244,179,0,255,225,94,255,248,154,216,161,29,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,187,187,
+            187,255,255,255,255,255,255,255,255,255,249,249,249,159,159,159,38,38,38,240,240,240,240,240,240,
+            141,91,0,255,204,34,255,252,188,255,255,186,246,193,43,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,180,180,180,255,255,255,255,255,255,
+            255,255,255,250,250,250,155,155,155,36,36,36,240,240,240,240,240,240,240,240,240,240,240,240,194,
+            128,0,255,210,42,255,251,189,255,255,195,255,211,55,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             135,135,135,142,142,142,171,171,171,222,222,222,255,255,255,255,255,255,255,255,255,247,247,247,151,
-            151,151,30,30,30,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,232,158,
-            0,255,209,42,255,250,184,255,255,188,237,179,27,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,114,114,114,226,226,226,237,237,237,242,
-            242,242,255,255,255,255,255,255,255,255,255,255,255,255,245,245,245,147,147,147,30,30,30,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,252,176,0,
-            255,203,27,255,226,107,255,245,155,240,192,62,179,125,10,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,215,215,215,240,240,240,243,243,243,250,250,250,248,248,
-            248,250,250,250,255,255,255,255,255,255,179,179,179,30,30,30,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,145,0,255,
-            182,0,255,239,147,255,255,221,255,218,58,244,183,16,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,93,93,93,236,236,236,237,237,237,215,215,215,201,201,201,246,246,246,252,252,252,
-            255,255,255,255,255,255,135,135,135,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,234,159,0,255,208,
-            49,255,234,123,255,229,100,255,254,177,240,204,76,212,208,200,212,208,200,212,208,200,212,208,200,
+            151,151,30,30,30,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,232,158,
+            0,255,209,42,255,250,184,255,255,188,237,179,27,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,114,114,114,226,226,226,237,237,237,242,
+            242,242,255,255,255,255,255,255,255,255,255,255,255,255,245,245,245,147,147,147,30,30,30,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,252,176,0,
+            255,203,27,255,226,107,255,245,155,240,192,62,179,125,10,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,215,215,215,240,241,240,243,243,243,250,250,250,248,248,
+            248,250,250,250,255,255,255,255,255,255,179,179,179,30,30,30,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,212,145,0,255,
+            182,0,255,239,147,255,255,221,255,218,58,244,183,16,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,93,93,93,236,236,236,237,237,237,215,215,215,201,201,201,246,246,246,252,252,252,
+            255,255,255,255,255,255,135,135,135,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,234,159,0,255,208,
+            49,255,234,123,255,229,100,255,254,177,240,204,76,240,240,240,240,240,240,240,240,240,240,240,240,
             126,126,126,244,244,244,205,205,205,79,79,79,25,25,25,116,116,116,246,246,246,255,255,255,255,
-            255,255,126,126,126,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,140,97,7,255,185,0,255,197,17,
-            255,250,174,255,255,226,255,255,195,213,172,52,212,208,200,212,208,200,212,208,200,125,125,125,230,
-            231,230,102,102,102,212,208,200,212,208,200,212,208,200,210,210,210,255,255,255,255,255,255,112,112,
-            112,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,223,154,5,255,193,5,255,226,91,255,
-            246,164,255,253,201,255,254,170,176,133,26,212,208,200,212,208,200,212,208,200,125,125,125,212,208,
-            200,212,208,200,212,208,200,91,91,91,236,236,236,255,255,255,217,217,217,57,57,57,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,211,148,6,255,192,0,255,212,38,255,234,
-            114,255,255,210,255,242,138,130,96,12,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,211,211,211,255,255,255,218,218,218,93,93,93,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,174,121,8,255,187,0,255,206,23,255,240,136,
-            255,254,167,242,190,35,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,144,144,144,220,
-            220,220,168,168,168,73,73,73,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,128,90,11,249,176,3,255,202,17,255,220,42,232,
-            172,17,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,37,37,37,15,15,
-            15,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,74,54,10,201,142,7,212,152,4,89,63,10,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            255,255,126,126,126,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,140,97,7,255,185,0,255,197,17,
+            255,250,174,255,255,226,255,255,195,213,172,52,240,240,240,240,240,240,240,240,240,125,125,125,230,
+            231,230,102,102,102,240,240,240,240,240,240,240,240,240,210,210,210,255,255,255,255,255,255,112,112,
+            112,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,223,154,5,255,193,5,255,226,91,255,
+            246,164,255,253,201,255,254,170,176,133,26,240,240,240,240,240,240,240,240,240,125,125,125,240,240,
+            240,240,240,240,240,240,240,91,91,91,236,236,236,255,255,255,217,217,217,57,57,57,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,211,148,6,255,192,0,255,212,38,255,234,
+            114,255,255,210,255,242,138,130,96,12,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,211,211,211,255,255,255,218,218,218,93,93,93,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,174,121,8,255,187,0,255,206,23,255,240,136,
+            255,254,167,242,190,35,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,144,144,144,220,
+            220,220,168,168,168,73,73,73,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,128,90,11,249,176,3,255,202,17,255,220,42,232,
+            172,17,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,37,37,37,15,15,
+            15,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,74,54,10,201,142,7,212,152,4,89,63,10,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 32, 32, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -8535,132 +8391,132 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,126,127,155,126,127,155,126,127,155,126,127,155,126,127,155,126,127,155,126,127,
-            155,126,127,155,126,127,155,88,90,123,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,79,81,115,85,93,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,126,127,155,126,127,155,126,127,155,126,127,155,126,127,155,126,127,155,126,127,
+            155,126,127,155,126,127,155,88,90,123,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,79,81,115,85,93,
             136,173,178,201,228,228,234,238,241,245,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,
-            213,219,231,150,151,179,67,72,115,59,60,103,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,115,125,143,58,76,124,163,172,183,231,235,241,238,241,245,
+            213,219,231,150,151,179,67,72,115,59,60,103,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,115,125,143,58,76,124,163,172,183,231,235,241,238,241,245,
             219,225,235,219,225,235,238,241,245,231,235,241,228,228,234,228,228,234,213,219,231,254,254,254,254,
-            254,254,213,219,231,126,127,155,41,41,92,88,90,123,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,93,111,137,72,113,150,199,215,228,230,243,246,199,215,228,196,199,218,196,199,218,228,
+            254,254,213,219,231,126,127,155,41,41,92,88,90,123,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,93,111,137,72,113,150,199,215,228,230,243,246,199,215,228,196,199,218,196,199,218,228,
             228,234,228,228,234,196,199,218,196,199,218,196,199,218,196,199,218,196,199,218,228,228,234,238,241,
-            245,213,219,231,145,145,173,41,41,92,59,60,103,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,147,161,181,72,
+            245,213,219,231,145,145,173,41,41,92,59,60,103,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,147,161,181,72,
             113,150,199,215,228,238,241,245,219,225,235,199,215,228,179,199,224,181,197,217,231,235,241,179,184,
             211,168,171,206,179,184,211,196,199,218,238,241,245,213,219,231,179,184,211,228,228,234,213,219,231,
-            196,199,218,126,127,155,41,41,92,59,60,103,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,163,172,183,105,138,169,122,151,184,217,236,
+            196,199,218,126,127,155,41,41,92,59,60,103,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,163,172,183,105,138,169,122,151,184,217,236,
             243,228,228,234,228,228,234,199,215,228,154,179,206,213,219,231,179,199,224,159,164,202,168,171,206,
             168,171,206,179,184,211,228,228,234,196,199,218,150,155,196,150,155,196,213,219,231,213,219,231,169,
-            182,212,102,116,156,59,60,103,79,81,115,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,144,169,192,140,165,192,102,116,156,140,165,192,183,214,232,213,219,231,
+            182,212,102,116,156,59,60,103,79,81,115,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,144,169,192,140,165,192,102,116,156,140,165,192,183,214,232,213,219,231,
             213,219,231,164,194,220,164,194,220,213,219,231,149,161,202,135,148,193,132,144,190,132,144,190,130,
             137,189,132,144,190,150,155,196,130,137,189,119,135,184,132,144,190,199,215,228,181,197,217,119,135,
-            184,85,93,136,67,72,115,138,138,152,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,116,131,163,140,165,192,102,116,156,119,135,184,133,165,194,139,183,219,139,183,219,144,
+            184,85,93,136,67,72,115,138,138,152,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,116,131,163,140,165,192,102,116,156,119,135,184,133,165,194,139,183,219,139,183,219,144,
             170,208,183,214,232,169,182,212,105,119,180,105,119,180,105,119,180,105,119,180,105,119,180,105,119,
             180,119,135,184,119,135,184,105,119,180,119,135,184,144,170,208,217,236,243,154,194,220,73,122,168,
-            58,76,124,67,72,115,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,144,169,192,133,
+            58,76,124,67,72,115,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,144,169,192,133,
             165,194,140,169,194,97,115,168,88,105,171,97,115,168,119,135,184,132,144,190,107,138,188,179,199,
             224,119,135,184,88,105,171,88,105,171,97,115,168,86,119,183,88,105,171,88,105,171,97,115,168,
             105,119,180,98,111,173,107,138,188,139,183,219,201,233,244,223,243,247,123,178,203,72,113,150,41,
-            50,110,126,127,155,212,208,200,212,208,200,212,208,200,212,208,200,144,169,192,164,194,220,154,179,
+            50,110,126,127,155,240,240,240,240,240,240,240,240,240,240,240,240,144,169,192,164,194,220,154,179,
             206,97,115,168,72,85,156,98,111,173,105,119,180,88,105,171,86,119,183,179,199,224,86,119,183,
             88,105,171,88,105,171,84,108,176,84,108,176,88,105,171,88,105,171,71,100,172,105,119,180,88,
             105,171,98,147,203,154,194,220,196,199,218,230,243,246,168,215,233,78,130,169,58,76,124,67,72,
-            115,212,208,200,212,208,200,212,208,200,144,169,192,57,73,133,154,179,206,201,233,244,83,122,167,
+            115,240,240,240,240,240,240,240,240,240,144,169,192,57,73,133,154,179,206,201,233,244,83,122,167,
             88,105,171,84,108,176,59,84,163,59,84,163,105,119,180,154,179,206,71,100,172,84,108,176,86,
             119,183,89,132,187,89,132,187,86,119,183,71,105,178,67,92,168,88,105,171,71,100,172,87,137,
             198,123,177,220,179,199,224,202,227,239,183,214,232,73,122,168,58,76,124,41,50,110,144,169,192,
-            212,208,200,212,208,200,144,169,192,43,60,135,105,138,169,210,252,254,168,204,230,97,111,176,59,
+            240,240,240,240,240,240,144,169,192,43,60,135,105,138,169,210,252,254,168,204,230,97,111,176,59,
             84,163,67,92,168,59,84,163,113,142,196,139,183,219,72,115,182,87,145,199,97,169,211,102,182,
             218,102,182,218,99,165,206,89,132,187,72,115,182,84,108,176,71,100,172,71,105,178,89,132,187,
-            107,164,214,102,182,218,186,223,241,83,122,167,57,73,133,38,47,115,144,169,192,212,208,200,212,
-            208,200,144,169,192,43,60,135,87,145,199,235,253,254,242,254,254,99,165,206,72,115,182,71,105,
+            107,164,214,102,182,218,186,223,241,83,122,167,57,73,133,38,47,115,144,169,192,240,240,240,240,
+            240,240,144,169,192,43,60,135,87,145,199,235,253,254,242,254,254,99,165,206,72,115,182,71,105,
             178,67,92,168,124,155,204,139,183,219,87,145,199,102,182,218,131,220,236,174,240,248,194,234,246,
             131,220,236,102,182,218,87,137,198,97,111,176,71,105,178,67,92,168,72,115,182,72,120,197,71,
-            105,178,151,184,215,119,135,184,57,73,133,43,60,127,144,169,192,212,208,200,212,208,200,144,169,
+            105,178,151,184,215,119,135,184,57,73,133,43,60,127,144,169,192,240,240,240,240,240,240,144,169,
             192,44,66,148,83,122,167,153,215,235,210,252,254,188,231,244,133,200,232,92,167,211,72,115,182,
             134,172,212,139,183,219,92,167,211,131,220,236,227,254,254,254,254,254,254,254,254,217,253,254,117,
             212,233,99,165,206,89,132,187,86,119,183,67,92,168,67,92,168,67,92,168,67,92,168,107,138,
-            188,154,179,206,51,77,157,62,88,152,144,169,192,212,208,200,212,208,200,144,169,192,44,66,148,
+            188,154,179,206,51,77,157,62,88,152,144,169,192,240,240,240,240,240,240,144,169,192,44,66,148,
             88,105,171,100,156,209,167,220,240,210,252,254,235,253,254,183,242,248,115,179,221,122,187,226,150,
             196,228,102,182,218,174,240,248,254,254,254,235,253,254,235,253,254,242,254,254,150,229,242,102,182,
             218,87,137,198,86,119,183,71,100,172,71,105,178,67,92,168,67,92,168,86,119,183,154,194,220,
-            72,113,150,144,170,208,144,169,192,212,208,200,212,208,200,144,169,192,51,77,157,86,119,183,87,
+            72,113,150,144,170,208,144,169,192,240,240,240,240,240,240,144,169,192,51,77,157,86,119,183,87,
             145,199,150,229,242,242,254,254,227,254,254,235,253,254,174,240,248,203,250,252,183,242,248,117,212,
             233,150,229,242,242,254,254,235,253,254,242,254,254,254,254,254,150,229,242,102,182,218,254,254,254,
             254,254,254,254,254,254,71,105,178,71,105,178,254,254,254,254,254,254,254,254,254,254,254,254,254,
-            254,254,144,169,192,212,208,200,212,208,200,144,169,192,67,92,168,86,119,183,87,145,199,131,220,
+            254,254,144,169,192,240,240,240,240,240,240,144,169,192,67,92,168,86,119,183,87,145,199,131,220,
             236,227,254,254,235,253,254,194,245,250,131,220,236,194,245,250,217,253,254,174,240,248,174,240,248,
             210,252,254,235,253,254,227,254,254,174,240,248,108,207,232,254,254,254,166,125,99,114,69,40,158,
             120,100,254,254,254,254,254,254,232,230,226,189,164,146,189,164,146,180,157,144,189,164,146,182,153,
-            134,218,205,198,212,208,200,144,169,192,86,119,183,86,119,183,87,137,198,102,182,218,174,240,248,
+            134,218,205,198,240,240,240,144,169,192,86,119,183,86,119,183,87,137,198,102,182,218,174,240,248,
             204,241,252,117,212,233,92,167,211,122,187,226,168,231,243,122,187,226,153,215,235,181,237,246,203,
             250,252,203,250,252,174,240,248,254,254,254,161,118,92,177,108,51,131,59,8,182,153,134,212,195,
             186,159,109,78,170,105,56,168,92,34,182,103,39,182,103,39,167,85,21,124,55,9,212,195,186,
-            212,208,200,144,169,192,119,135,184,71,105,178,82,127,193,87,137,198,116,181,224,188,231,244,116,
+            240,240,240,144,169,192,119,135,184,71,105,178,82,127,193,87,137,198,116,181,224,188,231,244,116,
             181,224,87,145,199,98,147,203,168,215,233,98,147,203,97,169,211,110,184,229,115,201,228,126,202,
             230,254,254,254,212,195,186,148,77,23,193,113,46,135,70,25,135,70,25,184,128,80,214,157,101,
-            225,163,101,225,163,101,199,122,55,167,85,21,142,80,38,212,195,186,212,208,200,212,208,200,212,
-            208,200,144,169,192,72,120,197,72,120,197,87,137,198,87,137,198,138,189,226,180,219,243,87,137,
+            225,163,101,225,163,101,199,122,55,167,85,21,142,80,38,212,195,186,240,240,240,240,240,240,240,
+            240,240,144,169,192,72,120,197,72,120,197,87,137,198,87,137,198,138,189,226,180,219,243,87,137,
             198,87,137,198,180,219,243,123,177,220,98,147,203,101,162,211,101,162,211,101,162,211,254,254,254,
             173,142,125,148,77,23,168,92,34,135,70,25,214,157,101,229,188,140,214,157,101,199,122,55,167,
-            85,21,142,80,38,182,153,134,238,234,234,212,208,200,212,208,200,212,208,200,212,208,200,144,169,
+            85,21,142,80,38,182,153,134,238,234,234,240,240,240,240,240,240,240,240,240,240,240,240,144,169,
             192,82,127,193,72,120,197,98,147,203,87,145,199,100,156,209,180,219,243,150,196,228,87,145,199,
             150,196,228,168,204,230,93,155,210,101,162,211,101,162,211,107,164,214,254,254,254,180,157,144,131,
             59,8,135,70,25,215,144,78,215,144,78,191,117,55,148,77,23,166,125,99,182,153,134,238,234,
-            234,72,115,182,144,169,192,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,144,169,192,
+            234,72,115,182,144,169,192,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,144,169,192,
             72,120,197,87,145,199,100,156,209,100,156,209,108,170,218,201,233,244,133,200,232,114,173,219,188,
             231,244,114,173,219,107,164,214,107,164,214,254,254,254,218,205,198,132,85,55,124,55,9,193,113,
             46,191,117,55,172,97,38,135,70,25,113,47,6,172,145,130,123,177,220,150,202,246,119,135,184,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,144,169,192,107,138,188,80,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,144,169,192,107,138,188,80,
             140,213,100,156,209,107,164,214,108,170,218,130,188,226,201,233,244,122,187,226,167,220,240,168,215,
             233,107,164,214,114,173,219,254,254,254,224,213,206,90,31,3,135,70,25,199,122,55,182,103,39,
-            168,92,34,142,80,38,185,150,121,177,116,66,119,57,18,203,190,183,140,169,194,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,144,169,192,98,147,203,93,155,
+            168,92,34,142,80,38,185,150,121,177,116,66,119,57,18,203,190,183,140,169,194,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,144,169,192,98,147,203,93,155,
             210,107,164,214,114,173,219,115,179,221,142,203,232,201,233,244,153,215,235,194,234,246,133,200,232,
             115,179,221,254,254,254,228,224,218,132,85,55,157,83,27,182,103,39,182,103,39,175,121,74,242,
-            238,231,254,254,254,157,136,115,148,77,23,135,70,25,180,157,144,126,127,155,126,127,155,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,144,169,192,115,164,218,107,168,227,
+            238,231,254,254,254,157,136,115,148,77,23,135,70,25,180,157,144,126,127,155,126,127,155,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,144,169,192,115,164,218,107,168,227,
             114,173,219,116,181,224,116,181,224,142,203,232,194,236,251,194,234,246,183,229,244,124,193,228,254,
             254,254,224,213,208,143,100,76,182,103,39,199,122,55,193,113,46,211,145,84,254,254,254,183,183,
-            182,0,0,0,149,89,49,195,126,67,196,168,140,186,179,170,140,138,137,126,127,155,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,144,169,192,125,164,206,115,180,234,130,
+            182,0,0,0,149,89,49,195,126,67,196,168,140,186,179,170,140,138,137,126,127,155,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,144,169,192,125,164,206,115,180,234,130,
             188,226,140,194,228,133,200,232,142,203,232,194,236,251,235,253,254,204,241,252,254,254,254,218,205,
             198,135,70,25,199,122,55,211,145,84,211,145,84,199,122,55,214,157,101,185,150,121,132,85,55,
-            199,122,55,214,172,128,165,167,169,186,179,170,235,232,225,160,159,155,126,127,155,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,144,169,192,144,169,192,103,166,221,108,180,
+            199,122,55,214,172,128,165,167,169,186,179,170,235,232,225,160,159,155,126,127,155,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,144,169,192,144,169,192,103,166,221,108,180,
             234,122,187,235,130,188,226,133,200,232,167,220,240,235,253,254,254,254,254,203,190,183,135,70,25,
             210,138,72,224,190,150,224,190,150,215,144,78,193,113,46,192,111,42,182,103,39,199,122,55,185,
-            150,121,140,138,137,140,138,137,228,224,218,228,224,218,126,127,155,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,144,169,192,140,169,194,115,168,214,
+            150,121,140,138,137,140,138,137,228,224,218,228,224,218,126,127,155,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,144,169,192,140,169,194,115,168,214,
             115,180,234,118,188,240,122,198,240,122,198,240,254,254,254,173,142,125,135,70,25,199,122,55,219,
             161,104,222,171,119,211,145,84,199,122,55,193,113,46,182,103,39,170,105,56,189,164,146,200,201,
-            200,243,241,238,254,254,254,243,241,238,126,127,155,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,144,169,192,144,169,192,144,
+            200,243,241,238,254,254,254,243,241,238,126,127,155,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,144,169,192,144,169,192,144,
             169,192,144,169,192,144,169,192,144,169,192,172,145,130,107,47,18,168,92,34,199,122,55,215,144,
             78,211,145,84,199,122,55,193,113,46,168,92,34,177,116,66,199,184,166,224,213,208,235,232,225,
-            243,241,238,243,241,238,126,127,155,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,149,108,86,101,39,4,119,57,18,157,83,27,182,103,39,191,117,55,
+            243,241,238,243,241,238,126,127,155,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,149,108,86,101,39,4,119,57,18,157,83,27,182,103,39,191,117,55,
             182,103,39,172,97,38,135,70,25,165,135,109,203,190,183,179,175,169,183,183,182,235,232,225,228,
-            224,218,126,127,155,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,154,115,93,124,55,9,135,70,25,119,57,18,119,57,18,119,57,18,119,57,18,114,
+            224,218,126,127,155,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,154,115,93,124,55,9,135,70,25,119,57,18,119,57,18,119,57,18,119,57,18,114,
             69,40,89,73,63,98,96,95,154,153,151,154,153,151,131,129,125,131,129,125,140,138,137,126,127,
-            155,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,143,
-            100,76,149,89,49,187,120,67,211,145,84,199,136,80,170,105,56,142,80,38,180,157,144,212,208,
-            200,126,127,155,126,127,155,126,127,155,126,127,155,126,127,155,126,127,155,212,208,200
+            155,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,143,
+            100,76,149,89,49,187,120,67,211,145,84,199,136,80,170,105,56,142,80,38,180,157,144,240,240,
+            240,126,127,155,126,127,155,126,127,155,126,127,155,126,127,155,126,127,155,240,240,240
         };
         wxImage image( 32, 32, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -8668,40 +8524,40 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,207,207,207,210,210,210,210,210,210,210,210,210,210,210,210,210,
-            210,210,210,210,210,210,210,210,210,210,210,207,207,207,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
-            255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,212,208,200,212,208,200,212,208,200,223,
+            240,240,240,240,240,240,240,240,240,207,207,207,210,210,210,210,210,210,210,210,210,210,210,210,210,
+            210,210,210,210,210,210,210,210,210,210,210,207,207,207,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
+            255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,240,240,240,240,240,240,240,240,240,223,
             223,223,255,255,255,242,242,242,242,242,242,242,242,242,243,242,242,240,240,242,241,241,242,242,242,
-            242,242,242,242,242,242,242,242,242,242,254,254,254,232,232,232,212,208,200,212,208,200,233,233,233,
+            242,242,242,242,242,242,242,242,242,242,254,254,254,232,232,232,240,240,240,240,240,240,233,233,233,
             236,236,236,231,231,231,231,231,231,231,231,231,236,235,232,194,203,230,204,211,230,235,234,232,231,
-            231,231,231,231,231,231,231,231,235,235,235,237,237,237,212,208,200,212,208,200,226,226,226,226,226,
+            231,231,231,231,231,231,231,231,235,235,235,237,237,237,240,240,240,240,240,240,226,226,226,226,226,
             226,222,222,222,222,222,222,222,222,222,226,225,222,236,233,225,234,232,227,222,222,222,222,222,222,
-            222,222,222,222,222,222,225,225,225,230,231,230,212,208,200,212,208,200,224,224,224,216,216,216,214,
+            222,222,222,222,222,222,225,225,225,230,231,230,240,240,240,240,240,240,224,224,224,216,216,216,214,
             214,214,214,214,214,217,216,214,192,198,214,138,155,203,163,175,208,221,219,215,214,214,214,214,214,
-            214,214,214,214,216,216,216,227,227,227,212,208,200,212,208,200,224,224,224,211,211,211,209,209,209,
+            214,214,214,214,216,216,216,227,227,227,240,240,240,240,240,240,224,224,224,211,211,211,209,209,209,
             209,209,209,209,209,209,224,221,213,138,155,198,147,161,199,218,216,211,209,209,209,209,209,209,209,
-            209,209,211,211,211,225,225,225,212,208,200,212,208,200,222,222,222,207,207,207,206,206,206,206,206,
+            209,209,211,211,211,225,225,225,240,240,240,240,240,240,222,222,222,207,207,207,206,206,206,206,206,
             206,206,206,206,218,216,209,118,137,187,130,146,192,217,215,208,206,206,206,206,206,206,206,206,206,
-            207,207,207,223,223,223,212,208,200,212,208,200,227,227,227,207,207,207,206,206,206,206,206,206,206,
+            207,207,207,223,223,223,240,240,240,240,240,240,227,227,227,207,207,207,206,206,206,206,206,206,206,
             206,206,224,220,210,106,127,182,120,138,185,222,219,210,206,206,206,206,206,206,206,206,206,207,207,
-            207,226,226,226,212,208,200,212,208,200,239,239,239,212,212,212,210,210,210,210,210,210,214,213,211,
+            207,226,226,226,240,240,240,240,240,240,239,239,239,212,212,212,210,210,210,210,210,210,214,213,211,
             196,200,208,57,87,168,62,91,169,200,202,208,214,213,211,210,210,210,210,210,210,211,211,211,239,
-            239,239,212,208,200,212,208,200,212,208,200,237,237,237,218,218,218,217,217,217,220,219,218,202,205,
-            214,197,202,214,196,201,214,204,206,213,218,217,216,217,217,217,218,218,218,235,235,235,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,247,247,247,242,242,242,241,241,241,244,243,242,246,
-            245,242,247,246,243,231,231,229,231,231,231,243,243,243,247,247,247,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,166,166,166,199,199,199,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,233,233,233,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            239,239,240,240,240,240,240,240,240,240,240,237,237,237,218,218,218,217,217,217,220,219,218,202,205,
+            214,197,202,214,196,201,214,204,206,213,218,217,216,217,217,217,218,218,218,235,235,235,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,247,247,247,242,242,242,241,241,241,244,243,242,246,
+            245,242,247,246,243,231,231,229,231,231,231,243,243,243,247,247,247,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,166,166,166,199,199,199,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,233,233,233,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -8709,132 +8565,132 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,57,122,255,57,122,255,56,121,255,56,121,255,56,121,255,54,120,255,
-            52,118,255,50,118,255,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,59,124,255,59,124,255,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,57,122,255,57,122,255,56,121,255,56,121,255,56,121,255,54,120,255,
+            52,118,255,50,118,255,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,59,124,255,59,124,255,
             59,124,255,57,122,255,56,121,255,56,121,255,56,121,255,54,120,255,52,118,255,50,118,255,50,
-            118,255,50,118,255,48,117,255,47,115,255,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,59,124,255,59,124,255,59,124,255,61,125,255,70,
+            118,255,50,118,255,48,117,255,47,115,255,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,59,124,255,59,124,255,59,124,255,61,125,255,70,
             131,255,77,136,255,123,162,242,134,171,249,134,171,249,133,169,242,75,135,255,65,127,255,54,120,
-            255,47,115,255,47,115,255,45,114,255,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,61,125,255,59,124,255,59,124,255,63,126,255,75,135,255,149,182,250,197,215,252,246,249,
+            255,47,115,255,47,115,255,45,114,255,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,61,125,255,59,124,255,59,124,255,63,126,255,75,135,255,149,182,250,197,215,252,246,249,
             255,246,249,255,246,249,255,246,249,255,246,249,255,246,249,255,217,229,253,170,196,251,109,151,236,
-            50,118,255,45,114,255,43,113,255,43,113,255,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,61,125,255,59,124,
+            50,118,255,45,114,255,43,113,255,43,113,255,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,61,125,255,59,124,
             255,59,124,255,72,132,255,137,174,249,217,229,253,235,242,255,235,242,255,226,235,253,193,209,243,
             187,205,241,185,204,242,185,204,242,185,204,242,235,242,255,235,242,255,235,242,255,164,192,251,85,
-            137,243,43,113,255,41,111,255,39,110,255,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,61,125,255,59,124,255,59,124,255,93,144,246,
+            137,243,43,113,255,41,111,255,39,110,255,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,61,125,255,59,124,255,59,124,255,93,144,246,
             176,201,251,224,234,255,224,234,255,209,223,251,185,204,242,185,204,242,255,255,255,255,255,255,255,
             255,255,255,255,255,255,255,255,185,204,242,185,204,242,224,234,255,224,234,255,201,218,253,117,154,
-            232,39,110,255,39,110,255,38,109,255,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,59,124,255,59,124,255,75,135,255,192,212,253,215,229,255,215,
+            232,39,110,255,39,110,255,38,109,255,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,59,124,255,59,124,255,75,135,255,192,212,253,215,229,255,215,
             229,255,193,212,249,182,201,240,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
             255,255,255,255,255,255,255,255,255,255,185,204,242,215,229,255,215,229,255,207,223,254,114,153,233,
-            38,109,255,38,109,255,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,59,124,255,59,124,255,72,132,255,162,191,251,203,220,255,203,220,255,198,216,253,182,201,
+            38,109,255,38,109,255,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,59,124,255,59,124,255,72,132,255,162,191,251,203,220,255,203,220,255,198,216,253,182,201,
             240,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
             255,255,255,255,255,255,255,255,255,185,204,242,203,220,255,203,220,255,183,206,253,78,133,245,36,
-            108,255,36,108,255,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,59,124,255,59,124,
+            108,255,36,108,255,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,59,124,255,59,124,
             255,61,125,255,125,165,249,194,215,255,194,215,255,194,215,255,163,189,242,255,255,255,255,255,255,
             255,255,255,255,255,255,230,238,255,196,215,255,194,215,255,199,218,255,242,247,255,255,255,255,255,
             255,255,255,255,255,246,249,255,194,215,255,194,215,255,194,215,255,156,188,251,41,111,255,34,107,
-            255,34,107,255,212,208,200,212,208,200,212,208,200,212,208,200,59,124,255,59,124,255,75,135,255,
+            255,34,107,255,240,240,240,240,240,240,240,240,240,240,240,240,59,124,255,59,124,255,75,135,255,
             171,198,253,181,206,255,181,206,255,181,206,255,187,206,244,255,255,255,255,255,255,255,255,255,246,
             249,255,181,206,255,181,206,255,181,206,255,181,206,255,175,199,249,244,247,251,255,255,255,255,255,
             255,255,255,255,187,209,255,181,206,255,181,206,255,181,206,255,91,140,242,34,107,255,32,106,255,
-            212,208,200,212,208,200,212,208,200,212,208,200,59,124,255,61,125,255,124,165,250,171,198,255,171,
+            240,240,240,240,240,240,240,240,240,240,240,240,59,124,255,61,125,255,124,165,250,171,198,255,171,
             198,255,171,198,255,171,198,255,194,211,246,255,255,255,255,255,255,255,255,255,203,220,255,171,198,
             255,171,198,255,171,198,255,171,198,255,162,191,249,215,224,242,255,255,255,255,255,255,255,255,255,
-            192,213,255,171,198,255,148,182,252,128,169,251,104,152,248,38,109,255,30,104,255,212,208,200,212,
-            208,200,212,208,200,57,122,255,57,122,255,68,130,255,139,177,252,160,191,255,160,191,255,160,191,
+            192,213,255,171,198,255,148,182,252,128,169,251,104,152,248,38,109,255,30,104,255,240,240,240,240,
+            240,240,240,240,240,57,122,255,57,122,255,68,130,255,139,177,252,160,191,255,160,191,255,160,191,
             255,160,191,255,184,206,252,255,255,255,255,255,255,248,251,255,165,195,255,160,191,255,160,191,255,
             160,191,255,160,191,255,145,172,228,255,255,255,255,255,255,255,255,255,255,255,255,126,166,250,94,
-            145,251,84,141,255,84,141,255,84,141,255,56,121,255,30,104,255,30,104,255,212,208,200,212,208,
-            200,57,122,255,56,121,255,77,136,255,145,180,254,149,184,255,149,184,255,149,184,255,149,184,255,
+            145,251,84,141,255,84,141,255,84,141,255,56,121,255,30,104,255,30,104,255,240,240,240,240,240,
+            240,57,122,255,56,121,255,77,136,255,145,180,254,149,184,255,149,184,255,149,184,255,149,184,255,
             149,184,255,181,206,255,199,218,255,162,192,255,149,184,255,149,184,255,149,184,255,149,184,255,145,
             174,232,224,231,244,255,255,255,255,255,255,255,255,255,214,227,253,84,141,255,84,141,255,84,141,
-            255,84,141,255,84,141,255,68,130,255,30,104,255,29,103,255,212,208,200,212,208,200,56,121,255,
+            255,84,141,255,84,141,255,68,130,255,30,104,255,29,103,255,240,240,240,240,240,240,56,121,255,
             56,121,255,85,140,252,138,177,255,138,177,255,138,177,255,138,177,255,138,177,255,138,177,255,138,
             177,255,138,177,255,138,177,255,138,177,255,138,177,255,138,177,255,142,171,232,244,247,251,255,255,
             255,255,255,255,255,255,255,245,248,254,113,157,248,84,141,255,84,141,255,84,141,255,84,141,255,
-            84,141,255,75,135,255,29,103,255,27,102,255,212,208,200,212,208,200,56,121,255,54,120,255,101,
+            84,141,255,75,135,255,29,103,255,27,102,255,240,240,240,240,240,240,56,121,255,54,120,255,101,
             150,249,127,170,255,127,170,255,127,170,255,127,170,255,127,170,255,127,170,255,127,170,255,127,170,
             255,127,170,255,127,170,255,127,170,255,133,163,224,244,247,251,255,255,255,255,255,255,255,255,255,
             245,248,254,124,165,248,84,141,255,84,141,255,84,141,255,84,141,255,84,141,255,84,141,255,84,
-            141,255,27,102,255,26,101,254,212,208,200,212,208,200,54,120,255,54,120,255,99,148,250,115,161,
+            141,255,27,102,255,26,101,254,240,240,240,240,240,240,54,120,255,54,120,255,99,148,250,115,161,
             255,115,161,255,115,161,255,115,161,255,115,161,255,115,161,255,115,161,255,115,161,255,115,161,255,
             115,161,255,114,153,233,244,247,251,255,255,255,255,255,255,255,255,255,245,248,254,124,165,248,84,
             141,255,84,141,255,84,141,255,84,141,255,84,141,255,84,141,255,84,141,255,84,141,255,26,101,
-            254,26,101,254,212,208,200,212,208,200,52,118,255,52,118,255,82,138,254,102,153,255,102,153,255,
+            254,26,101,254,240,240,240,240,240,240,52,118,255,52,118,255,82,138,254,102,153,255,102,153,255,
             102,153,255,102,153,255,102,153,255,102,153,255,102,153,255,102,153,255,102,153,255,103,153,254,175,
             193,231,255,255,255,255,255,255,255,255,255,234,241,254,125,165,249,86,142,255,86,142,255,86,142,
             255,86,142,255,86,142,255,86,142,255,86,142,255,86,142,255,75,135,255,26,101,254,26,101,254,
-            212,208,200,212,208,200,52,118,255,50,118,255,77,136,255,95,148,255,95,148,255,95,148,255,95,
+            240,240,240,240,240,240,52,118,255,50,118,255,77,136,255,95,148,255,95,148,255,95,148,255,95,
             148,255,95,148,255,95,148,255,95,148,255,94,147,254,92,145,254,90,145,255,214,223,241,255,255,
             255,255,255,255,255,255,255,124,166,251,90,145,255,90,145,255,90,145,255,90,145,255,90,145,255,
-            90,145,255,90,145,255,90,145,255,90,145,255,68,130,255,26,100,252,26,100,252,212,208,200,212,
-            208,200,50,118,255,50,118,255,68,130,255,91,145,255,94,147,254,94,147,254,94,147,254,93,146,
+            90,145,255,90,145,255,90,145,255,90,145,255,68,130,255,26,100,252,26,100,252,240,240,240,240,
+            240,240,50,118,255,50,118,255,68,130,255,91,145,255,94,147,254,94,147,254,94,147,254,93,146,
             255,91,145,255,91,145,255,91,145,255,91,145,255,91,145,255,215,223,240,255,255,255,255,255,255,
             225,235,254,91,145,255,91,145,255,91,145,255,91,145,255,91,145,255,91,145,255,91,145,255,91,
-            145,255,91,145,255,91,145,255,52,118,255,26,100,251,26,100,251,212,208,200,212,208,200,212,208,
-            200,48,117,255,54,120,255,93,146,255,93,146,255,93,146,255,93,146,255,93,146,255,93,146,255,
+            145,255,91,145,255,91,145,255,52,118,255,26,100,251,26,100,251,240,240,240,240,240,240,240,240,
+            240,48,117,255,54,120,255,93,146,255,93,146,255,93,146,255,93,146,255,93,146,255,93,146,255,
             93,146,255,93,146,255,93,146,255,93,146,255,195,211,243,255,255,255,255,255,255,174,201,255,93,
             146,255,93,146,255,93,146,255,93,146,255,93,146,255,93,146,255,93,146,255,93,146,255,93,146,
-            255,93,146,255,30,104,255,26,100,251,212,208,200,212,208,200,212,208,200,212,208,200,47,115,255,
+            255,93,146,255,30,104,255,26,100,251,240,240,240,240,240,240,240,240,240,240,240,240,47,115,255,
             47,115,255,83,138,251,99,150,255,99,150,255,99,150,255,99,150,255,99,150,255,99,150,255,99,
             150,255,99,150,255,99,150,255,109,157,255,169,198,255,158,190,255,99,150,255,99,150,255,99,150,
             255,99,150,255,99,150,255,99,150,255,99,150,255,99,150,255,99,150,255,99,150,255,74,133,251,
-            26,100,251,26,100,251,212,208,200,212,208,200,212,208,200,212,208,200,47,115,255,47,115,255,54,
+            26,100,251,26,100,251,240,240,240,240,240,240,240,240,240,240,240,240,47,115,255,47,115,255,54,
             119,253,106,155,255,106,155,255,106,155,255,106,155,255,106,155,255,106,155,255,106,155,255,106,155,
             255,106,155,255,99,145,237,185,204,242,177,197,238,123,165,251,106,155,255,106,155,255,106,155,255,
             106,155,255,106,155,255,106,155,255,106,155,255,106,155,255,106,155,255,35,107,252,26,100,251,26,
-            100,251,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,45,114,255,43,113,255,89,140,
+            100,251,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,45,114,255,43,113,255,89,140,
             243,115,161,255,115,161,255,115,161,255,115,161,255,115,161,255,115,161,255,115,161,255,109,153,242,
             224,230,242,255,255,255,255,255,255,246,249,255,122,166,255,115,161,255,115,161,255,115,161,255,115,
-            161,255,115,161,255,115,161,255,115,161,255,82,135,242,26,100,251,26,100,249,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,43,113,255,43,113,255,107,150,238,
+            161,255,115,161,255,115,161,255,115,161,255,82,135,242,26,100,251,26,100,249,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,43,113,255,43,113,255,107,150,238,
             120,165,255,120,165,255,120,165,255,120,165,255,120,165,255,120,165,255,114,154,238,255,255,255,255,
             255,255,255,255,255,255,255,255,154,188,255,120,165,255,120,165,255,120,165,255,120,165,255,120,165,
-            255,120,165,255,101,145,236,26,100,251,26,100,249,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,43,113,255,41,111,255,39,110,255,114,153,234,127,
+            255,120,165,255,101,145,236,26,100,251,26,100,249,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,43,113,255,41,111,255,39,110,255,114,153,234,127,
             170,255,127,170,255,127,170,255,127,170,255,127,170,255,123,164,247,246,249,255,255,255,255,255,255,
             255,255,255,255,144,180,255,127,170,255,127,170,255,127,170,255,127,170,255,127,170,255,110,151,233,
-            26,100,251,26,100,249,26,100,249,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,39,110,255,38,109,255,38,109,255,107,148,233,136,176,
+            26,100,251,26,100,249,26,100,249,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,39,110,255,38,109,255,38,109,255,107,148,233,136,176,
             255,136,176,255,136,176,255,136,176,255,136,176,255,158,190,255,217,230,255,224,234,255,174,201,255,
             136,176,255,136,176,255,136,176,255,136,176,255,136,176,255,102,145,230,26,100,251,26,100,249,26,
-            100,249,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,38,109,255,36,108,255,36,108,255,56,118,245,125,161,233,
+            100,249,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,38,109,255,36,108,255,36,108,255,56,118,245,125,161,233,
             144,180,255,144,180,255,144,180,255,144,180,255,144,180,255,144,180,255,144,180,255,144,180,255,144,
-            180,255,144,180,255,124,158,228,47,112,243,26,100,251,26,100,249,26,100,249,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,34,107,255,34,107,255,32,106,255,59,119,242,110,
+            180,255,144,180,255,124,158,228,47,112,243,26,100,251,26,100,249,26,100,249,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,34,107,255,34,107,255,32,106,255,59,119,242,110,
             149,227,132,166,234,140,173,242,151,185,255,151,185,255,140,174,242,131,165,233,107,145,225,52,114,
-            241,26,100,251,26,100,251,26,100,249,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,32,106,255,32,106,255,30,104,255,30,104,255,29,103,
+            241,26,100,251,26,100,251,26,100,249,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,32,106,255,32,106,255,30,104,255,30,104,255,29,103,
             255,27,102,255,27,102,255,26,101,254,26,101,254,26,100,252,26,100,251,26,100,251,26,100,251,
-            26,100,249,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,29,103,255,29,103,255,27,102,255,
-            26,101,254,26,101,254,26,100,252,26,100,252,26,100,251,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            26,100,249,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,29,103,255,29,103,255,27,102,255,
+            26,101,254,26,101,254,26,100,252,26,100,252,26,100,251,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 32, 32, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -8842,10 +8698,10 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,212,208,200,212,208,
-            200,212,208,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,212,208,200,0,0,0,0,
+            240,240,240,240,240,240,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,240,240,240,240,240,
+            240,240,240,240,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,240,240,240,0,0,0,0,
             0,0,47,47,47,238,238,238,237,237,237,237,237,237,237,237,237,237,237,237,237,237,237,237,237,
             237,237,237,237,237,237,237,237,237,237,234,234,234,74,74,74,0,0,0,0,0,0,0,0,0,
             225,225,225,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,
@@ -8863,19 +8719,19 @@ wxBitmap amuleDlgImages( size_t index )
             46,167,255,46,167,255,46,167,255,46,167,255,71,176,253,177,215,243,238,238,238,238,238,238,206,
             206,206,0,0,0,0,0,0,0,0,0,208,208,208,242,242,242,163,206,242,31,154,255,31,154,
             255,31,154,255,41,158,254,137,196,245,228,232,236,235,235,235,235,235,235,235,235,235,204,204,204,
-            0,0,0,0,0,0,0,0,0,206,206,206,240,240,240,156,200,240,18,142,255,18,142,255,94,
+            0,0,0,0,0,0,0,0,0,206,206,206,240,241,240,156,200,240,18,142,255,18,142,255,94,
             174,247,212,224,234,232,232,232,232,232,232,232,232,232,232,232,232,232,232,232,201,201,201,0,0,
             0,0,0,0,0,0,0,204,204,204,239,239,239,152,196,239,55,154,250,183,209,235,230,231,230,
             230,231,230,230,231,230,230,231,230,230,231,230,230,231,230,230,231,230,199,199,199,0,0,0,0,
             0,0,0,0,0,197,197,197,223,223,223,214,221,229,227,227,227,227,227,227,227,227,227,227,227,
             227,227,227,227,227,227,227,227,227,227,227,227,227,221,222,221,194,194,194,0,0,0,0,0,0,
             0,0,0,39,39,39,196,196,196,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,195,
-            195,195,195,195,195,195,195,195,195,195,195,192,192,192,62,62,62,0,0,0,212,208,200,212,208,
-            200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,212,208,200
+            195,195,195,195,195,195,195,195,195,195,195,192,192,192,62,62,62,0,0,0,240,240,240,240,240,
+            240,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,240,240,240
         };
         wxImage image( 16, 16, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -8913,132 +8769,132 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,173,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,177,0,0,178,0,0,
-            177,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,168,0,0,201,0,0,216,0,0,201,0,0,168,
-            0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,168,0,0,178,0,0,219,0,0,255,0,0,219,0,0,178,0,0,168,0,
-            0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,168,0,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,173,0,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,177,0,0,178,0,0,
+            177,0,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,168,0,0,201,0,0,216,0,0,201,0,0,168,
+            0,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,168,0,0,178,0,0,219,0,0,255,0,0,219,0,0,178,0,0,168,0,
+            0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,168,0,
             0,194,0,0,214,0,0,239,34,34,255,71,71,242,38,38,219,0,0,200,0,0,177,0,0,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,168,0,0,178,0,0,214,0,0,
-            255,0,0,255,71,71,255,127,127,255,71,71,255,0,0,214,0,0,178,0,0,168,0,0,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,168,0,0,194,0,0,214,0,0,237,29,29,255,71,71,255,
-            81,82,255,71,71,246,35,29,232,0,0,216,0,0,198,0,0,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,168,0,0,178,0,0,214,0,0,255,0,0,255,71,71,255,127,127,255,71,71,255,0,
-            0,214,0,0,178,0,0,168,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,178,0,0,178,0,0,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,168,0,0,194,0,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,168,0,0,178,0,0,214,0,0,
+            255,0,0,255,71,71,255,127,127,255,71,71,255,0,0,214,0,0,178,0,0,168,0,0,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,168,0,0,194,0,0,214,0,0,237,29,29,255,71,71,255,
+            81,82,255,71,71,246,35,29,232,0,0,216,0,0,198,0,0,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,168,0,0,178,0,0,214,0,0,255,0,0,255,71,71,255,127,127,255,71,71,255,0,
+            0,214,0,0,178,0,0,168,0,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,178,0,0,178,0,0,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,168,0,0,194,0,
             0,214,0,0,237,29,29,255,71,71,255,82,82,255,71,71,245,30,24,214,0,0,148,0,38,
             86,0,94,45,1,135,0,0,200,0,0,200,14,0,172,9,0,168,4,0,168,4,0,168,4,
-            0,168,0,0,168,0,0,168,2,0,173,12,0,178,178,0,0,178,0,0,177,0,0,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,168,0,0,178,0,0,214,0,0,255,0,0,
+            0,168,0,0,168,0,0,168,2,0,173,12,0,178,178,0,0,178,0,0,177,0,0,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,168,0,0,178,0,0,214,0,0,255,0,0,
             255,71,71,255,127,127,255,71,71,255,0,0,227,0,0,178,0,0,90,0,89,12,0,178,2,
             0,189,12,0,178,12,0,178,12,0,178,12,0,178,12,0,178,12,0,178,12,0,178,12,0,
-            178,12,0,178,12,0,178,12,0,178,178,0,0,178,0,0,174,0,0,168,0,0,212,208,200,
-            212,208,200,212,208,200,168,0,0,194,0,0,214,0,0,237,29,29,255,71,71,255,82,82,255,
+            178,12,0,178,12,0,178,12,0,178,178,0,0,178,0,0,174,0,0,168,0,0,240,240,240,
+            240,240,240,240,240,240,168,0,0,194,0,0,214,0,0,237,29,29,255,71,71,255,82,82,255,
             71,71,237,29,29,214,0,0,203,0,0,168,0,0,70,1,104,0,0,199,0,0,190,12,0,
             178,7,31,190,6,69,205,26,87,211,47,94,214,47,91,215,47,87,215,72,101,217,89,104,214,
-            53,53,196,12,0,178,178,0,0,178,0,0,178,0,0,178,0,0,177,0,0,212,208,200,167,
+            53,53,196,12,0,178,178,0,0,178,0,0,178,0,0,178,0,0,177,0,0,240,240,240,167,
             0,0,178,0,0,214,0,0,255,0,0,255,71,71,255,127,127,255,71,71,255,0,0,214,0,
-            0,178,0,0,168,0,0,212,208,200,212,208,200,212,208,200,13,0,172,12,0,178,2,59,201,
+            0,178,0,0,168,0,0,240,240,240,240,240,240,240,240,240,13,0,172,12,0,178,2,59,201,
             0,131,229,37,163,245,76,178,254,75,179,255,76,178,254,130,210,255,164,216,254,94,110,216,12,
             0,178,176,0,0,178,0,0,199,0,0,214,0,0,199,0,0,168,0,0,192,0,0,214,0,
             0,237,29,29,255,71,71,255,82,82,255,71,71,237,29,29,214,0,0,194,0,0,168,0,0,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,12,0,177,5,47,188,6,74,202,23,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,12,0,177,5,47,188,6,74,202,23,
             80,232,42,92,255,39,132,255,42,174,245,93,210,255,130,210,255,76,108,219,12,0,178,173,0,
             0,178,0,0,221,0,0,255,0,0,216,0,0,178,0,0,212,0,0,255,0,0,255,71,71,
-            255,127,127,255,71,71,255,0,0,214,0,0,178,0,0,168,0,0,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,13,0,168,12,0,178,6,0,216,0,0,
+            255,127,127,255,71,71,255,0,0,214,0,0,178,0,0,168,0,0,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,13,0,168,12,0,178,6,0,216,0,0,
             255,0,63,245,0,131,229,42,174,245,76,178,254,49,92,218,12,0,178,173,0,0,178,0,0,
             222,36,36,255,64,64,238,26,26,214,0,0,233,26,26,255,71,71,255,82,82,255,71,71,237,
-            29,29,214,0,0,194,0,0,168,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,13,0,167,10,0,196,7,0,215,1,21,228,0,63,240,0,60,244,
+            29,29,214,0,0,194,0,0,168,0,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,13,0,167,10,0,196,7,0,215,1,21,228,0,63,240,0,60,244,
             0,63,245,39,132,255,75,179,255,49,97,217,12,0,178,173,0,0,178,0,0,216,71,71,255,
             127,127,255,64,64,255,0,0,255,64,64,255,127,127,255,71,71,255,0,0,214,0,0,178,0,
-            0,168,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            0,168,0,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             13,0,168,12,0,178,6,0,216,0,0,255,0,74,245,0,131,229,0,63,240,0,0,255,42,
             92,255,76,178,254,49,100,216,12,0,178,173,0,0,178,0,0,216,70,70,255,132,132,255,106,
-            106,255,64,64,255,64,64,255,64,64,233,26,26,212,0,0,192,0,0,166,0,0,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,13,0,168,9,0,196,6,
+            106,255,64,64,255,64,64,255,64,64,233,26,26,212,0,0,192,0,0,166,0,0,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,13,0,168,9,0,196,6,
             0,216,3,30,231,0,74,245,0,85,249,0,74,245,1,21,228,6,0,216,23,80,232,37,163,
             245,27,92,213,12,0,178,173,0,0,178,0,0,216,64,64,255,127,127,255,143,143,255,127,127,
-            255,64,64,255,0,0,214,0,0,178,0,0,168,0,0,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,13,0,168,12,0,178,6,0,216,0,0,255,0,74,
+            255,64,64,255,0,0,214,0,0,178,0,0,168,0,0,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,13,0,168,12,0,178,6,0,216,0,0,255,0,74,
             245,0,131,229,0,74,245,0,0,255,7,0,215,12,0,178,6,74,202,0,131,229,5,74,207,
             12,0,178,173,0,0,178,0,0,219,83,83,255,164,164,255,168,168,255,143,143,255,106,106,255,
-            64,64,238,26,26,216,0,0,199,0,0,177,0,0,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,13,0,168,9,0,196,6,0,216,3,30,231,0,74,245,0,85,249,0,74,245,
+            64,64,238,26,26,216,0,0,199,0,0,177,0,0,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,13,0,168,9,0,196,6,0,216,3,30,231,0,74,245,0,85,249,0,74,245,
             3,30,231,6,0,216,10,0,196,13,0,168,5,47,188,2,59,201,6,33,191,12,0,178,173,
             0,0,178,0,0,216,92,92,255,178,178,255,164,164,255,127,127,255,132,132,255,127,127,255,64,
-            64,255,0,0,214,0,0,178,0,0,168,0,0,212,208,200,212,208,200,212,208,200,13,0,168,
+            64,255,0,0,214,0,0,178,0,0,168,0,0,240,240,240,240,240,240,240,240,240,13,0,168,
             12,0,178,6,0,216,0,0,255,0,74,245,0,131,229,0,74,245,0,0,255,6,0,216,12,
-            0,178,13,0,167,212,208,200,12,0,177,12,0,178,12,0,178,12,0,178,176,0,0,178,0,
+            0,178,13,0,167,240,240,240,12,0,177,12,0,178,12,0,178,12,0,178,176,0,0,178,0,
             0,196,45,45,214,87,87,216,78,78,214,60,60,214,66,66,214,67,67,219,34,34,219,0,0,
             197,0,0,178,0,0,188,0,0,198,0,0,109,1,63,13,0,168,2,0,205,6,0,216,3,
-            30,231,0,74,245,0,85,249,0,74,245,3,30,231,6,0,216,9,0,196,13,0,168,212,208,
-            200,212,208,200,212,208,200,13,0,171,12,0,176,12,0,178,178,0,0,178,0,0,178,0,0,
+            30,231,0,74,245,0,85,249,0,74,245,3,30,231,6,0,216,9,0,196,13,0,168,240,240,
+            240,240,240,240,240,240,240,13,0,171,12,0,176,12,0,178,178,0,0,178,0,0,178,0,0,
             178,0,0,178,0,0,178,0,0,178,0,0,178,0,0,178,0,0,178,0,0,178,0,0,178,
             0,0,188,0,0,178,0,0,96,0,84,12,0,178,0,0,229,0,0,255,0,74,245,0,131,
-            229,0,74,245,0,0,255,6,0,216,12,0,178,13,0,168,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,12,0,177,12,0,178,179,1,1,178,0,0,173,0,0,168,0,0,168,
+            229,0,74,245,0,0,255,6,0,216,12,0,178,13,0,168,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,12,0,177,12,0,178,179,1,1,178,0,0,173,0,0,168,0,0,168,
             0,0,168,0,0,168,0,0,168,0,0,167,0,0,168,0,0,195,1,0,197,0,0,138,1,
             36,101,0,79,53,0,146,6,0,216,0,31,239,0,74,245,0,85,249,0,74,245,3,30,231,
-            6,0,216,9,0,196,13,0,168,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,12,0,178,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,13,0,168,12,0,178,
+            6,0,216,9,0,196,13,0,168,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,12,0,178,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,13,0,168,12,0,178,
             6,0,216,0,0,255,0,74,245,0,131,229,0,74,245,0,0,255,6,0,216,12,0,178,13,
-            0,168,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,0,0,191,0,0,213,0,0,229,0,31,238,0,
-            74,245,0,84,248,0,74,245,3,30,231,6,0,216,9,0,196,13,0,168,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,13,0,168,12,0,178,6,0,216,0,0,255,0,74,245,0,131,229,0,74,
-            245,0,0,255,6,0,216,12,0,178,13,0,168,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,12,0,
+            0,168,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,0,0,191,0,0,213,0,0,229,0,31,238,0,
+            74,245,0,84,248,0,74,245,3,30,231,6,0,216,9,0,196,13,0,168,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,13,0,168,12,0,178,6,0,216,0,0,255,0,74,245,0,131,229,0,74,
+            245,0,0,255,6,0,216,12,0,178,13,0,168,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,12,0,
             177,8,0,201,6,0,219,2,35,233,0,74,245,0,84,249,0,74,245,3,30,231,6,0,216,
-            9,0,196,13,0,168,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,14,0,168,12,0,178,6,0,216,
-            0,0,255,0,74,245,0,131,229,0,74,245,0,0,255,6,0,216,12,0,178,13,0,168,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,12,0,177,8,0,201,6,0,219,2,
-            40,234,0,74,245,2,35,233,6,0,216,9,0,196,13,0,168,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,13,0,168,12,0,178,6,0,219,0,0,
-            255,6,0,219,12,0,178,13,0,168,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,13,0,168,8,0,202,6,0,218,8,0,202,
-            13,0,168,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,12,0,177,12,0,178,12,0,177,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            9,0,196,13,0,168,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,14,0,168,12,0,178,6,0,216,
+            0,0,255,0,74,245,0,131,229,0,74,245,0,0,255,6,0,216,12,0,178,13,0,168,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,12,0,177,8,0,201,6,0,219,2,
+            40,234,0,74,245,2,35,233,6,0,216,9,0,196,13,0,168,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,13,0,168,12,0,178,6,0,219,0,0,
+            255,6,0,219,12,0,178,13,0,168,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,13,0,168,8,0,202,6,0,218,8,0,202,
+            13,0,168,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,12,0,177,12,0,178,12,0,177,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 32, 32, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
         return bitmap;
     }
@@ -9046,133 +8902,167 @@ wxBitmap amuleDlgImages( size_t index )
     {
         static const unsigned char data[] = 
         {
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,215,37,37,252,227,227,255,252,252,255,254,254,255,254,254,255,250,250,
-            250,210,210,191,12,12,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,215,37,37,252,227,227,255,252,252,255,254,254,255,254,254,255,250,250,
+            250,210,210,191,12,12,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             248,191,191,251,214,214,247,183,183,246,174,174,246,174,174,246,174,174,246,174,174,247,183,183,252,
-            222,222,241,134,134,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,238,109,109,233,85,85,232,
+            222,222,241,134,134,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,238,109,109,233,85,85,232,
             82,82,232,82,82,232,82,82,232,82,82,232,82,82,232,82,82,232,82,82,232,82,82,236,101,
-            101,225,59,59,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,177,7,7,220,46,46,212,31,31,212,31,31,212,31,
+            101,225,59,59,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,177,7,7,220,46,46,212,31,31,212,31,31,212,31,
             31,214,36,36,214,36,36,214,36,36,214,36,36,212,31,31,212,31,31,210,30,30,221,48,48,
-            140,1,1,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,177,7,7,191,12,12,191,12,12,195,15,15,200,18,18,201,20,20,
-            201,20,20,201,20,20,200,18,18,200,18,18,195,15,15,191,12,12,194,14,14,155,2,2,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
+            140,1,1,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,177,7,7,191,12,12,191,12,12,195,15,15,200,18,18,201,20,20,
+            201,20,20,201,20,20,200,18,18,200,18,18,195,15,15,191,12,12,194,14,14,155,2,2,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             65,0,0,153,2,2,176,6,6,177,7,7,184,9,9,188,10,10,191,12,12,191,12,12,191,
-            12,12,188,10,10,188,10,10,183,8,8,177,7,7,174,5,5,134,0,0,54,0,0,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,85,0,0,120,
+            12,12,188,10,10,188,10,10,183,8,8,177,7,7,174,5,5,134,0,0,54,0,0,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,85,0,0,120,
             0,0,163,3,3,169,4,4,176,6,6,177,7,7,183,8,8,183,8,8,183,8,8,183,8,
-            8,177,7,7,172,5,5,167,4,4,153,2,2,103,0,0,82,0,0,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,107,0,0,122,0,0,145,1,
+            8,177,7,7,172,5,5,167,4,4,153,2,2,103,0,0,82,0,0,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,107,0,0,122,0,0,145,1,
             1,163,3,3,169,4,4,176,6,6,177,7,7,183,8,8,179,7,7,176,6,6,172,5,5,
-            167,4,4,155,2,2,140,1,1,111,0,0,107,0,0,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,131,0,0,145,1,1,157,2,2,169,4,4,
+            167,4,4,155,2,2,140,1,1,111,0,0,107,0,0,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,131,0,0,145,1,1,157,2,2,169,4,4,
             177,7,7,184,9,9,188,10,10,191,12,12,191,12,12,188,10,10,183,8,8,174,5,5,163,
-            3,3,151,1,1,140,1,1,120,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,120,0,0,163,3,3,172,5,5,184,9,9,194,14,14,201,
+            3,3,151,1,1,140,1,1,120,0,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,120,0,0,163,3,3,172,5,5,184,9,9,194,14,14,201,
             20,20,208,26,26,208,26,26,208,26,26,205,24,24,200,18,18,191,12,12,179,7,7,167,4,
-            4,157,2,2,103,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,188,10,10,188,10,10,197,16,16,210,30,30,219,44,44,223,53,
+            4,157,2,2,103,0,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,188,10,10,188,10,10,197,16,16,210,30,30,219,44,44,223,53,
             53,223,53,53,223,53,53,221,48,48,214,36,36,205,24,24,191,12,12,179,7,7,177,7,7,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,176,6,6,215,37,37,214,36,36,221,48,48,231,75,75,236,101,101,236,101,101,
-            236,101,101,233,85,85,226,62,62,219,44,44,208,26,26,204,22,22,167,4,4,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,215,37,37,238,109,109,238,109,109,241,134,134,245,161,161,246,170,170,246,170,170,243,
-            147,147,239,118,118,236,101,101,232,82,82,208,26,26,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,214,36,36,249,201,201,252,227,227,252,227,227,253,232,232,253,232,232,252,227,227,251,214,
-            214,243,147,147,208,26,26,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,57,0,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,176,6,6,215,37,37,214,36,36,221,48,48,231,75,75,236,101,101,236,101,101,
+            236,101,101,233,85,85,226,62,62,219,44,44,208,26,26,204,22,22,167,4,4,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,215,37,37,238,109,109,238,109,109,241,134,134,245,161,161,246,170,170,246,170,170,243,
+            147,147,239,118,118,236,101,101,232,82,82,208,26,26,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,214,36,36,249,201,201,252,227,227,252,227,227,253,232,232,253,232,232,252,227,227,251,214,
+            214,243,147,147,208,26,26,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,57,0,
             0,169,4,4,228,68,68,249,194,194,252,222,222,251,216,216,246,174,174,225,59,59,184,9,9,
-            70,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,134,0,0,220,46,46,210,30,30,
+            70,0,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,134,0,0,220,46,46,210,30,30,
             177,7,7,174,5,5,183,8,8,183,8,8,177,7,7,188,10,10,220,46,46,215,37,37,111,
-            0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,111,0,0,210,30,30,231,75,75,231,75,75,231,75,75,228,
+            0,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,111,0,0,210,30,30,231,75,75,231,75,75,231,75,75,228,
             68,68,225,59,59,221,48,48,225,59,59,231,75,75,228,68,68,231,75,75,205,24,24,89,0,
-            0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,70,0,0,176,6,6,212,31,31,208,26,26,212,31,31,212,31,31,214,36,36,215,37,
+            0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,70,0,0,176,6,6,212,31,31,208,26,26,212,31,31,212,31,31,214,36,36,215,37,
             37,215,37,37,214,36,36,212,31,31,210,30,30,208,26,26,212,31,31,169,4,4,65,0,0,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,145,1,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,145,1,
             1,184,9,9,195,15,15,197,16,16,200,18,18,201,20,20,201,20,20,201,20,20,201,20,20,
-            201,20,20,201,20,20,200,18,18,195,15,15,195,15,15,179,7,7,131,0,0,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,120,0,0,155,2,2,177,7,7,
+            201,20,20,201,20,20,200,18,18,195,15,15,195,15,15,179,7,7,131,0,0,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,120,0,0,155,2,2,177,7,7,
             184,9,9,188,10,10,191,12,12,191,12,12,191,12,12,191,12,12,188,10,10,191,12,12,191,
-            12,12,188,10,10,184,9,9,183,8,8,174,5,5,145,1,1,103,0,0,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,159,2,2,155,2,2,169,4,4,174,5,5,183,
+            12,12,188,10,10,184,9,9,183,8,8,174,5,5,145,1,1,103,0,0,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,159,2,2,155,2,2,169,4,4,174,5,5,183,
             8,8,184,9,9,184,9,9,184,9,9,184,9,9,184,9,9,184,9,9,184,9,9,183,8,
-            8,177,7,7,172,5,5,163,3,3,155,2,2,145,1,1,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,111,0,0,163,3,3,163,3,3,174,5,5,184,9,9,188,10,10,191,12,
+            8,177,7,7,172,5,5,163,3,3,155,2,2,145,1,1,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,111,0,0,163,3,3,163,3,3,174,5,5,184,9,9,188,10,10,191,12,
             12,195,15,15,200,18,18,201,20,20,200,18,18,195,15,15,195,15,15,191,12,12,184,9,9,
-            177,7,7,169,4,4,163,3,3,155,2,2,91,0,0,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,169,4,4,169,4,4,177,7,7,188,10,10,191,12,12,200,18,18,205,24,24,210,30,30,
+            177,7,7,169,4,4,163,3,3,155,2,2,91,0,0,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,169,4,4,169,4,4,177,7,7,188,10,10,191,12,12,200,18,18,205,24,24,210,30,30,
             212,31,31,214,36,36,214,36,36,212,31,31,208,26,26,204,22,22,195,15,15,188,10,10,184,
-            9,9,174,5,5,163,3,3,153,2,2,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,179,7,7,
+            9,9,174,5,5,163,3,3,153,2,2,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,179,7,7,
             177,7,7,188,10,10,195,15,15,205,24,24,212,31,31,215,37,37,221,48,48,221,48,48,223,
             53,53,223,53,53,221,48,48,219,44,44,214,36,36,208,26,26,201,20,20,191,12,12,183,8,
-            8,172,5,5,169,4,4,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,103,0,0,191,12,12,184,9,9,195,
+            8,172,5,5,169,4,4,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,103,0,0,191,12,12,184,9,9,195,
             15,15,205,24,24,214,36,36,221,48,48,225,59,59,228,68,68,232,82,82,232,82,82,232,82,
             82,231,75,75,228,68,68,223,53,53,219,44,44,210,30,30,201,20,20,191,12,12,179,7,7,
-            177,7,7,89,0,0,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,172,5,5,201,20,20,191,12,12,201,20,20,214,36,
+            177,7,7,89,0,0,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,172,5,5,201,20,20,191,12,12,201,20,20,214,36,
             36,221,48,48,228,68,68,233,85,85,236,101,101,240,122,122,240,122,122,240,122,122,239,118,118,
             236,101,101,231,75,75,223,53,53,219,44,44,208,26,26,195,15,15,191,12,12,197,16,16,140,
-            1,1,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,176,6,6,226,62,62,214,36,36,212,31,31,219,44,44,225,59,59,
+            1,1,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,176,6,6,226,62,62,214,36,36,212,31,31,219,44,44,225,59,59,
             233,85,85,239,118,118,243,147,147,246,170,170,246,170,170,246,170,170,245,161,161,242,138,138,236,
-            101,101,231,75,75,221,48,48,214,36,36,214,36,36,219,44,44,208,26,26,147,1,1,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,195,15,15,241,134,134,242,138,138,239,118,118,239,118,118,242,138,138,246,
+            101,101,231,75,75,221,48,48,214,36,36,214,36,36,219,44,44,208,26,26,147,1,1,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,195,15,15,241,134,134,242,138,138,239,118,118,239,118,118,242,138,138,246,
             170,170,246,174,174,249,194,194,249,197,197,249,197,197,248,191,191,246,174,174,243,147,147,240,122,
-            122,238,109,109,236,101,101,236,101,101,223,53,53,188,10,10,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,191,12,12,241,134,134,249,201,201,253,232,232,254,246,246,255,250,
+            122,238,109,109,236,101,101,236,101,101,223,53,53,188,10,10,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,191,12,12,241,134,134,249,201,201,253,232,232,254,246,246,255,250,
             250,255,252,252,255,253,253,255,252,252,255,250,250,254,245,245,253,236,236,251,216,216,248,191,191,
-            241,134,134,205,24,24,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,176,6,6,201,20,20,219,44,44,
-            221,48,48,221,48,48,221,48,48,210,30,30,197,16,16,167,4,4,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,
-            212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,
-            208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,
-            200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200,212,208,200
+            241,134,134,205,24,24,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,176,6,6,201,20,20,219,44,44,
+            221,48,48,221,48,48,221,48,48,210,30,30,197,16,16,167,4,4,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
+            240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240
         };
         wxImage image( 32, 32, (unsigned char*)data, TRUE );
-        image.SetMaskColour( 212, 208, 200);
+        image.SetMaskColour( 240, 240, 240);
         wxBitmap bitmap( image );
+        return bitmap;
+    }
+    if (index == 34)
+    {
+        /* XPM */
+        static const char *xpm_data[] = {
+        /* columns rows colors chars-per-pixel */
+        "18 19 4 1",
+        "  c None",
+        "b c #91AC92",
+        "c c #668664",
+        "d c #C7F5C7",
+        /* pixels */
+        "                  ",
+        "              bcc ",
+        "             bccb ",
+        "            bbcb  ",
+        "           bbcc   ",
+        "           ccc    ",
+        "          bccb    ",
+        "         bccb     ",
+        "        bccb      ",
+        "        bcb       ",
+        "       bccb       ",
+        " bcc  bccb        ",
+        " bcc  bcc         ",
+        " cccb ccd         ",
+        " ccccccb          ",
+        "  ccccc           ",
+        "  bcccd           ",
+        "   ccb            ",
+        "                  "
+        };
+        wxBitmap bitmap( xpm_data );
         return bitmap;
     }
     return wxNullBitmap;

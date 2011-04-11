@@ -3,8 +3,8 @@
 // Purpose:     generic implementation of wxListCtrl
 // Author:      Robert Roebling
 //              Vadim Zeitlin (virtual list control support)
-// Id:          $Id: listctrl.cpp 9137 2008-09-27 20:15:09Z gonosztopi $
-// Copyright:   (c) 1998 Robert Roebling
+// Id:          $Id: listctrl.cpp 10510 2011-03-27 13:01:14Z gonosztopi $
+// Copyright:   Copyright (c) 1998-2011 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -40,8 +40,12 @@
 #include <wx/renderer.h>
 #include <wx/dcbuffer.h>
 
-#ifdef __WXMAC__
-    #include <wx/mac/private.h>
+#if wxCHECK_VERSION(2, 9, 0)
+// wxWidgets 2.9+ does not include a mac/private anymore.
+#else
+	#if defined( __WXMAC__ ) && !defined(__WXUNIVERSAL__) && (wxOSX_USE_CARBON || TARGET_CARBON)
+		#include <wx/mac/private.h>
+	#endif
 #endif
 
 
@@ -619,6 +623,8 @@ public:
         }
     }
 
+    void OnChildFocus(wxChildFocusEvent& event);
+    
     void DrawImage( int index, wxDC *dc, int x, int y );
     void GetImageSize( int index, int &width, int &height ) const;
     int GetTextLength( const wxString &s ) const;
@@ -727,7 +733,7 @@ public:
     wxCoord GetLineY(size_t line) const;
 
     // get the brush to use for the item highlighting
-    wxBrush *GetHighlightBrush() const
+    const wxBrush& GetHighlightBrush() const
     {
         return m_hasFocus ? m_highlightBrush : m_highlightUnfocusedBrush;
     }
@@ -844,8 +850,8 @@ private:
            m_lineTo;
 
     // the brushes to use for item highlighting when we do/don't have focus
-    wxBrush *m_highlightBrush,
-            *m_highlightUnfocusedBrush;
+    wxBrush m_highlightBrush,
+            m_highlightUnfocusedBrush;
 
     // if this is > 0, the control is frozen and doesn't redraw itself
     size_t m_freezeCount;
@@ -1413,7 +1419,7 @@ bool wxListLineData::SetAttributes(wxDC *dc,
 #ifdef __WXMAC__
     {
         if (m_owner->HasFocus()
-#ifdef __WXMAC__
+#if defined( __WXMAC__ ) && !defined(__WXUNIVERSAL__) && wxOSX_USE_CARBON
                 && IsControlActive( (ControlRef)m_owner->GetHandle() )
 #endif
         )
@@ -1445,9 +1451,9 @@ bool wxListLineData::SetAttributes(wxDC *dc,
     if ( highlighted || hasBgCol )
     {
         if ( highlighted )
-            dc->SetBrush( *m_owner->GetHighlightBrush() );
+            dc->SetBrush( m_owner->GetHighlightBrush() );
         else
-            dc->SetBrush(wxBrush(attr->GetBackgroundColour(), wxSOLID));
+            dc->SetBrush(*(wxTheBrushList->FindOrCreateBrush(attr->GetBackgroundColour(), wxSOLID)));
 
         dc->SetPen( *wxTRANSPARENT_PEN );
 
@@ -1477,7 +1483,7 @@ void wxListLineData::Draw( wxDC *dc )
         {
             int flags = wxCONTROL_SELECTED;
             if (m_owner->HasFocus()
-#ifdef __WXMAC__
+#if defined( __WXMAC__ ) && !defined(__WXUNIVERSAL__) && wxOSX_USE_CARBON
                 && IsControlActive( (ControlRef)m_owner->GetHandle() )
 #endif
             )
@@ -1540,7 +1546,7 @@ void wxListLineData::DrawInReportMode( wxDC *dc,
         {
             int flags = wxCONTROL_SELECTED;
             if (m_owner->HasFocus()
-#ifdef __WXMAC__
+#if defined( __WXMAC__ ) && !defined(__WXUNIVERSAL__) && wxOSX_USE_CARBON
                 && IsControlActive( (ControlRef)m_owner->GetHandle() )
 #endif
             )
@@ -1573,14 +1579,6 @@ void wxListLineData::DrawInReportMode( wxDC *dc,
         int width = m_owner->GetColumnWidth(col);
         int xOld = x;
         x += width;
-
-	// Fix for a bug in wxWidgets.
-	// This has been reported as patch 1898914:
-	// http://sourceforge.net/tracker/index.php?func=detail&aid=1898914&group_id=9863&atid=309863
-	//
-        // Prevents the drawing of images into the
-        // next collumn, in case of small widths.
-        wxDCClipper clipper(*dc, xOld, rect.y, width - 8, rect.height);
 
         if ( item->HasImage() )
         {
@@ -1907,6 +1905,19 @@ void wxListHeaderWindow::OnPaint( wxPaintEvent &WXUNUSED(event) )
 
         x += wCol;
     }
+
+    // Fill in what's missing to the right of the columns, otherwise we will
+    // leave an unpainted area when columns are removed (and it looks better)
+    if ( x < w )
+    {
+        wxRendererNative::Get().DrawHeaderButton
+                                (
+                                    this,
+                                    dc,
+                                    wxRect(x, HEADER_OFFSET_Y, w - x, h),
+                                    0
+                                );
+    }
 }
 
 void wxListHeaderWindow::DrawCurrent()
@@ -1925,7 +1936,7 @@ void wxListHeaderWindow::DrawCurrent()
 
     wxScreenDC dc;
     dc.SetLogicalFunction( wxINVERT );
-    dc.SetPen( wxPen( *wxBLACK, 2, wxSOLID ) );
+    dc.SetPen( *(wxThePenList->FindOrCreatePen(*wxBLACK, 2, wxSOLID ) ));
     dc.SetBrush( *wxTRANSPARENT_BRUSH );
 
     AdjustDC(dc);
@@ -2257,6 +2268,7 @@ BEGIN_EVENT_TABLE(wxListMainWindow,wxScrolledWindow)
   EVT_SET_FOCUS      (wxListMainWindow::OnSetFocus)
   EVT_KILL_FOCUS     (wxListMainWindow::OnKillFocus)
   EVT_SCROLLWIN      (wxListMainWindow::OnScroll)
+  EVT_CHILD_FOCUS    (wxListMainWindow::OnChildFocus)
 END_EVENT_TABLE()
 
 void wxListMainWindow::Init()
@@ -2295,9 +2307,6 @@ void wxListMainWindow::Init()
 wxListMainWindow::wxListMainWindow()
 {
     Init();
-
-    m_highlightBrush =
-    m_highlightUnfocusedBrush = (wxBrush *) NULL;
 }
 
 wxListMainWindow::wxListMainWindow( wxWindow *parent,
@@ -2311,23 +2320,21 @@ wxListMainWindow::wxListMainWindow( wxWindow *parent,
 {
     Init();
 
-    m_highlightBrush = new wxBrush
-                         (
+    m_highlightBrush = *(wxTheBrushList->FindOrCreateBrush(
                             wxSystemSettings::GetColour
                             (
                                 wxSYS_COLOUR_HIGHLIGHT
                             ),
                             wxSOLID
-                         );
+                         ));
 
-    m_highlightUnfocusedBrush = new wxBrush
-                              (
+    m_highlightUnfocusedBrush = *(wxTheBrushList->FindOrCreateBrush(
                                  wxSystemSettings::GetColour
                                  (
                                      wxSYS_COLOUR_BTNSHADOW
                                  ),
                                  wxSOLID
-                              );
+                              ));
 
     SetScrollbars( 0, 0, 0, 0, 0, 0 );
 
@@ -2344,8 +2351,6 @@ wxListMainWindow::~wxListMainWindow()
     WX_CLEAR_LIST(wxListHeaderDataList, m_columns);
     WX_CLEAR_ARRAY(m_aColWidths);
 
-    delete m_highlightBrush;
-    delete m_highlightUnfocusedBrush;
     delete m_renameTimer;
 }
 
@@ -2723,26 +2728,17 @@ void wxListMainWindow::Thaw()
 
 void wxListMainWindow::OnPaint( wxPaintEvent &WXUNUSED(event) )
 {
-    // wxBufferedPaintDC falls over in the case of dimensions that
-    // are zero, as cann happen when a splitter is moved so that 
-    // the entire window is hidden (e.g. on the transfers window).
-    //
-    // This has been reported as patch #1899643:
-    // http://sourceforge.net/tracker/index.php?func=detail&aid=1899643&group_id=9863&atid=309863
-    wxSize size = GetClientSize();
-    if ((size.x <= 0) || (size.y <= 0)) {
-	wxPaintDC dc(this);
-	return;
-    }
-
     // Note: a wxPaintDC must be constructed even if no drawing is
     // done (a Windows requirement).
     wxBufferedPaintDC dc( this );
 
     // Ensure an uniform background color, as to avoid differences between
     // the automatically cleared parts and the rest of the canvas.
-    dc.SetBackground(*(wxTheBrushList->FindOrCreateBrush(
-	wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX), wxSOLID)));
+    dc.SetBackground(*(wxTheBrushList->FindOrCreateBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX), wxSOLID)));
+
+    // We need to clear the DC manually, since we intercept BG-erase events.
+    // Clearing must be done first thing because caching of the double-buffering causes artifacts otherwise.
+    dc.Clear();
 
     if ( m_freezeCount )
         return;
@@ -2752,9 +2748,6 @@ void wxListMainWindow::OnPaint( wxPaintEvent &WXUNUSED(event) )
         return;
 
     PrepareDC( dc );
-
-    // We need to clear the DC manually, since we intercept BG-erase events.
-    dc.Clear();
 
     // IsEmpty is checked now, after clearing, to avoid garbage on empty lists.
     if ( IsEmpty() ) {
@@ -2812,7 +2805,7 @@ void wxListMainWindow::OnPaint( wxPaintEvent &WXUNUSED(event) )
 
         if ( HasFlag(wxLC_HRULES) )
         {
-            wxPen pen(GetRuleColour(), 1, wxSOLID);
+            wxPen pen = *(wxThePenList->FindOrCreatePen(GetRuleColour(), 1, wxSOLID));
             wxSize clientSize = GetClientSize();
 
             size_t i = visibleFrom;
@@ -2838,7 +2831,7 @@ void wxListMainWindow::OnPaint( wxPaintEvent &WXUNUSED(event) )
         // Draw vertical rules if required
         if ( HasFlag(wxLC_VRULES) && !IsEmpty() )
         {
-            wxPen pen(GetRuleColour(), 1, wxSOLID);
+            wxPen pen = *(wxThePenList->FindOrCreatePen(GetRuleColour(), 1, wxSOLID));
             wxRect firstItemRect, lastItemRect;
 
             GetItemRect(visibleFrom, firstItemRect);
@@ -2905,6 +2898,13 @@ void wxListMainWindow::HighlightAll( bool on )
         if ( !IsEmpty() )
             HighlightLines(0, GetItemCount() - 1, on);
     }
+}
+
+void wxListMainWindow::OnChildFocus(wxChildFocusEvent& WXUNUSED(event))
+{
+    // Do nothing here.  This prevents the default handler in wxScrolledWindow
+    // from needlessly scrolling the window when the edit control is
+    // dismissed.  See ticket #9563.
 }
 
 void wxListMainWindow::SendNotify( size_t line,
@@ -3407,23 +3407,9 @@ void wxListMainWindow::OnKeyDown( wxKeyEvent &event )
     wxWindow *parent = GetParent();
 
     // propagate the key event upwards
-    wxKeyEvent ke( wxEVT_KEY_DOWN );
-#if 0
-    ke.m_shiftDown = event.m_shiftDown;
-    ke.m_controlDown = event.m_controlDown;
-    ke.m_altDown = event.m_altDown;
-    ke.m_metaDown = event.m_metaDown;
-    ke.m_keyCode = event.m_keyCode;
-    ke.m_x = event.m_x;
-    ke.m_y = event.m_y;
-#else
-    // This is a fix for a bug in wxWidgets, where m_uniChar isn't
-    // set in the new event object, thus breaking GetUnicodeKey()
-    // http://sourceforge.net/tracker/index.php?func=detail&aid=1863312&group_id=9863&atid=109863
-    ke = event;
-#endif
-    ke.SetEventObject( parent );
-    if (parent->GetEventHandler()->ProcessEvent( ke )) return;
+    wxKeyEvent ke(event);
+    if (parent->GetEventHandler()->ProcessEvent( ke ))
+        return;
 
     event.Skip();
 }
@@ -3433,23 +3419,10 @@ void wxListMainWindow::OnKeyUp( wxKeyEvent &event )
     wxWindow *parent = GetParent();
 
     // propagate the key event upwards
-    wxKeyEvent ke( wxEVT_KEY_UP );
-#if 0
-    ke.m_shiftDown = event.m_shiftDown;
-    ke.m_controlDown = event.m_controlDown;
-    ke.m_altDown = event.m_altDown;
-    ke.m_metaDown = event.m_metaDown;
-    ke.m_keyCode = event.m_keyCode;
-    ke.m_x = event.m_x;
-    ke.m_y = event.m_y;
-#else
-    // This is a fix for a bug in wxWidgets, where m_uniChar isn't
-    // set in the new event object, thus breaking GetUnicodeKey()
-    // http://sourceforge.net/tracker/index.php?func=detail&aid=1863312&group_id=9863&atid=109863
-    ke = event;
-#endif
+    wxKeyEvent ke(event);
     ke.SetEventObject( parent );
-    if (parent->GetEventHandler()->ProcessEvent( ke )) return;
+    if (parent->GetEventHandler()->ProcessEvent( ke ))
+        return;
 
     event.Skip();
 }
@@ -3470,23 +3443,9 @@ void wxListMainWindow::OnChar( wxKeyEvent &event )
     }
 
     // propagate the char event upwards
-    wxKeyEvent ke( wxEVT_CHAR );
-#if 0
-    ke.m_shiftDown = event.m_shiftDown;
-    ke.m_controlDown = event.m_controlDown;
-    ke.m_altDown = event.m_altDown;
-    ke.m_metaDown = event.m_metaDown;
-    ke.m_keyCode = event.m_keyCode;
-    ke.m_x = event.m_x;
-    ke.m_y = event.m_y;
-#else
-    // This is a fix for a bug in wxWidgets, where m_uniChar isn't
-    // set in the new event object, thus breaking GetUnicodeKey()
-    // http://sourceforge.net/tracker/index.php?func=detail&aid=1863312&group_id=9863&atid=109863
-    ke = event;
-#endif
-    ke.SetEventObject( parent );
-    if (parent->GetEventHandler()->ProcessEvent( ke )) return;
+    wxKeyEvent ke(event);
+    if (parent->GetEventHandler()->ProcessEvent( ke ))
+        return;
 
     if (event.GetKeyCode() == WXK_TAB)
     {
@@ -4167,8 +4126,9 @@ wxRect wxListMainWindow::GetViewRect() const
     {
         for ( int i = 0; i < count; i++ )
         {
-            wxRect r;
-            GetItemRect(i, r);
+            // we need logical, not physical, coordinates here, so use
+            // GetLineRect() instead of GetItemRect()
+            wxRect r = GetLineRect(i);
 
             wxCoord x = r.GetRight(),
                     y = r.GetBottom();
@@ -4236,9 +4196,9 @@ void wxListMainWindow::RecalculatePositions(bool noRefresh)
     const size_t count = GetItemCount();
 
     int iconSpacing;
-    if ( HasFlag(wxLC_ICON) )
+    if ( HasFlag(wxLC_ICON) && m_normal_image_list )
         iconSpacing = m_normal_spacing;
-    else if ( HasFlag(wxLC_SMALL_ICON) )
+    else if ( HasFlag(wxLC_SMALL_ICON) && m_small_image_list )
         iconSpacing = m_small_spacing;
     else
         iconSpacing = 0;
@@ -5006,7 +4966,7 @@ void wxGenericListCtrl::CalculateAndSetHeaderHeight()
 {
     if ( m_headerWin )
     {
-#ifdef __WXMAC__
+#if defined( __WXMAC__ ) && !defined(__WXUNIVERSAL__) && wxOSX_USE_CARBON
         SInt32 h;
         GetThemeMetric( kThemeMetricListHeaderHeight, &h );
 #else
@@ -5139,7 +5099,17 @@ void wxGenericListCtrl::SetSingleStyle( long style, bool add )
     else
         flag &= ~style;
 
-    SetWindowStyleFlag( flag );
+    // some styles can be set without recreating everything (as happens in
+    // SetWindowStyleFlag() which calls wxListMainWindow::DeleteEverything())
+    if ( !(style & ~(wxLC_HRULES | wxLC_VRULES)) )
+    {
+        Refresh();
+        wxWindow::SetWindowStyleFlag(flag);
+    }
+    else
+    {
+        SetWindowStyleFlag( flag );
+    }
 }
 
 void wxGenericListCtrl::SetWindowStyleFlag( long flag )
@@ -5784,7 +5754,7 @@ wxGenericListCtrl::GetClassDefaultAttributes(wxWindowVariant variant)
 #else
     wxUnusedVar(variant);
     wxVisualAttributes attr;
-    attr.colFg = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT);
+    attr.colFg = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT);
     attr.colBg = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX);
     attr.font  = wxSystemSettings::GetFont(wxSYS_DEFAULT_GUI_FONT);
     return attr;

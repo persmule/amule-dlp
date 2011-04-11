@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -126,23 +126,17 @@ public:
 	 */
 	void	HighlightServer( const CServer* server, bool highlight );
 
-	/**
-	 * Marks the specified server as static or not.
-	 *
-	 * @param The server to be marked or unmarked as static.
-	 * @param The new static state.
-	 *
-	 * Other than setting the static setting of the specified server, it
-	 * also adds or removes the server from the static-list file.
-	 */
-	bool	SetStaticServer( CServer* server, bool isStatic );
 
 	
 	/**
 	 * This function updates the server-count in the server-wnd.
 	 */
 	void	ShowServerCount();
-	
+
+protected:
+	/// Return old column order.
+	wxString GetOldColumnOrder() const;
+
 private:
 
 	/**
@@ -194,7 +188,7 @@ private:
 
 
 	//! Used to keep track of the last high-lighted item.
-	wxUIntPtr m_connected;
+	const CServer* m_connected;
 	
 	
 	DECLARE_EVENT_TABLE()

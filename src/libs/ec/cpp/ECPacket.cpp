@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -33,20 +33,8 @@
 
 bool CECPacket::ReadFromSocket(CECSocket& socket)
 {
-	if (m_state == bsName) {
-		if (!socket.ReadNumber(&m_opCode, sizeof(ec_opcode_t))) {
-			return false;
-		} else {
-			m_state = bsChildCnt;
-		}
-	}
-	if (m_state == bsChildCnt || m_state == bsChildren) {
-		if (!ReadChildren(socket)) {
-			return false;
-		}
-	}
-	m_state = bsFinished;
-	return true;
+	return socket.ReadNumber(&m_opCode, sizeof(ec_opcode_t))
+		&& ReadChildren(socket);
 }
 
 
@@ -56,6 +44,29 @@ bool CECPacket::WritePacket(CECSocket& socket) const
 	if (!WriteChildren(socket)) return false;
 	return true;
 }
+
+#ifdef __DEBUG__
+#include <common/Format.h>  // Needed for CFormat
+void CECPacket::DebugPrint(bool incoming, uint32 trueSize) const
+{
+	wxString GetDebugNameECOpCodes(uint8 arg);
+
+	if (ECLogIsEnabled()) {
+		uint32 size = GetPacketLength() + sizeof(ec_opcode_t) + 2;	// full length incl. header
+
+		if (trueSize == 0 || size == trueSize) {
+			DoECLogLine(CFormat(wxT("%s %s %d")) % (incoming ? wxT("<") : wxT(">")) 
+				% GetDebugNameECOpCodes(m_opCode) % size);
+		} else {
+			DoECLogLine(CFormat(wxT("%s %s %d (compressed: %d)")) % (incoming ? wxT("<") : wxT(">")) 
+				% GetDebugNameECOpCodes(m_opCode) % size % trueSize);
+		}
+		CECTag::DebugPrint(1, false);
+	}
+}
+#else
+void CECPacket::DebugPrint(bool, uint32) const {}
+#endif
 
 /*!
  * \fn CECPacket::CECPacket(ec_opcode_t opCode, EC_DETAIL_LEVEL detail_level)

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (C) 2005-2009 Froenchenko Leonid ( lfroen@amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2005-2011 Froenchenko Leonid ( lfroen@gmail.com / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -46,7 +46,7 @@ class CWriteStrBuffer {
 		
 		void Write(const char *s, int len = -1);
 		void CopyAll(char *dst_buffer);
-		const int Length() { return m_total_length; }
+		int Length() { return m_total_length; }
 };
 
 class CWebServerBase;
@@ -57,9 +57,8 @@ class CPhPLibContext {
 		PHP_SCOPE_TABLE m_global_scope;
 		
 		CWriteStrBuffer *m_curr_str_buffer;
-#ifndef PHP_STANDALONE_EN
+
 		CWebServerBase *m_server;
-#endif		
 	public:
 		// parse file and take a "snapshot" of global vars
 		CPhPLibContext(CWebServerBase *server, const char *file);
@@ -70,7 +69,7 @@ class CPhPLibContext {
 		void SetContext();
 		void Execute(CWriteStrBuffer *);
 		
-#if defined(__GNUC__)
+#ifdef __GNUC__
 		static void Printf(const char *str, ...)  __attribute__ ((__format__ (__printf__, 1, 2)));
 #else
 		static void Printf(const char *str, ...);

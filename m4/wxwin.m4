@@ -3,7 +3,7 @@ dnl Author:          wxWidgets development team,
 dnl                  Francesco Montorsi,
 dnl                  Bob McCown (Mac-testing)
 dnl Creation date:   24/11/2001
-dnl RCS-ID:          $Id: wxwin.m4 8040 2008-02-01 11:39:47Z phoenix $
+dnl RCS-ID:          $Id: wxwin.m4 9920 2009-12-31 21:21:43Z gonosztopi $
 dnl ---------------------------------------------------------------------------
 
 dnl ===========================================================================
@@ -204,7 +204,7 @@ AC_DEFUN([WX_CONFIG_CHECK],
   if test "$WX_CONFIG_PATH" != "no" ; then
     WX_VERSION_FULL=""
 
-    min_wx_version=ifelse([$1], ,2.2.1,$1)
+    min_wx_version=ifelse([$1], ,2.8.0,$1)
     if test -z "$5" ; then
       AC_MSG_CHECKING([for wxWidgets version >= $min_wx_version])
     else
@@ -237,71 +237,14 @@ AC_DEFUN([WX_CONFIG_CHECK],
       AC_MSG_RESULT(yes (version $WX_VERSION_FULL))
       WX_LIBS=`$WX_CONFIG_WITH_ARGS --libs`
 
-      dnl is this even still appropriate?  --static is a real option now
-      dnl and WX_CONFIG_WITH_ARGS is likely to contain it if that is
-      dnl what the user actually wants, making this redundant at best.
-      dnl For now keep it in case anyone actually used it in the past.
-      AC_MSG_CHECKING([for wxWidgets static library])
-      WX_LIBS_STATIC=`$WX_CONFIG_WITH_ARGS --static --libs 2>/dev/null`
-      if test "x$WX_LIBS_STATIC" = "x"; then
-        AC_MSG_RESULT(no)
-      else
-        AC_MSG_RESULT(yes)
-      fi
+      WX_RESCOMP=`$WX_CONFIG_WITH_ARGS --rescomp`
 
-      dnl starting with version 2.2.6 wx-config has --cppflags argument
-      wx_has_cppflags=""
-      if test $wx_config_major_version -gt 2; then
-        wx_has_cppflags=yes
-      else
-        if test $wx_config_major_version -eq 2; then
-           if test $wx_config_minor_version -gt 2; then
-              wx_has_cppflags=yes
-           else
-              if test $wx_config_minor_version -eq 2; then
-                 if test $wx_config_micro_version -ge 6; then
-                    wx_has_cppflags=yes
-                 fi
-              fi
-           fi
-        fi
-      fi
+      WX_CPPFLAGS=`$WX_CONFIG_WITH_ARGS --cppflags`
+      WX_CXXFLAGS=`$WX_CONFIG_WITH_ARGS --cxxflags`
+      WX_CFLAGS=`$WX_CONFIG_WITH_ARGS --cflags`
 
-      dnl starting with version 2.7.0 wx-config has --rescomp option
-      wx_has_rescomp=""
-      if test $wx_config_major_version -gt 2; then
-        wx_has_rescomp=yes
-      else
-        if test $wx_config_major_version -eq 2; then
-           if test $wx_config_minor_version -ge 7; then
-              wx_has_rescomp=yes
-           fi
-        fi
-      fi
-      if test "x$wx_has_rescomp" = x ; then
-         dnl cannot give any useful info for resource compiler
-         WX_RESCOMP=
-      else
-         WX_RESCOMP=`$WX_CONFIG_WITH_ARGS --rescomp`
-      fi
-
-      if test "x$wx_has_cppflags" = x ; then
-         dnl no choice but to define all flags like CFLAGS
-         WX_CFLAGS=`$WX_CONFIG_WITH_ARGS --cflags`
-         WX_CPPFLAGS=$WX_CFLAGS
-         WX_CXXFLAGS=$WX_CFLAGS
-
-         WX_CFLAGS_ONLY=$WX_CFLAGS
-         WX_CXXFLAGS_ONLY=$WX_CFLAGS
-      else
-         dnl we have CPPFLAGS included in CFLAGS included in CXXFLAGS
-         WX_CPPFLAGS=`$WX_CONFIG_WITH_ARGS --cppflags`
-         WX_CXXFLAGS=`$WX_CONFIG_WITH_ARGS --cxxflags`
-         WX_CFLAGS=`$WX_CONFIG_WITH_ARGS --cflags`
-
-         WX_CFLAGS_ONLY=`echo $WX_CFLAGS | sed "s@^$WX_CPPFLAGS *@@"`
-         WX_CXXFLAGS_ONLY=`echo $WX_CXXFLAGS | sed "s@^$WX_CFLAGS *@@"`
-      fi
+      WX_CFLAGS_ONLY=`echo $WX_CFLAGS | sed "s@^$WX_CPPFLAGS *@@"`
+      WX_CXXFLAGS_ONLY=`echo $WX_CXXFLAGS | sed "s@^$WX_CFLAGS *@@"`
 
       ifelse([$2], , :, [$2])
 
@@ -318,7 +261,6 @@ AC_DEFUN([WX_CONFIG_CHECK],
        WX_CPPFLAGS=""
        WX_CXXFLAGS=""
        WX_LIBS=""
-       WX_LIBS_STATIC=""
        WX_RESCOMP=""
 
        if test ! -z "$5"; then
@@ -354,7 +296,6 @@ AC_DEFUN([WX_CONFIG_CHECK],
     WX_CPPFLAGS=""
     WX_CXXFLAGS=""
     WX_LIBS=""
-    WX_LIBS_STATIC=""
     WX_RESCOMP=""
 
     ifelse([$3], , :, [$3])
@@ -367,7 +308,6 @@ AC_DEFUN([WX_CONFIG_CHECK],
   AC_SUBST(WX_CFLAGS_ONLY)
   AC_SUBST(WX_CXXFLAGS_ONLY)
   AC_SUBST(WX_LIBS)
-  AC_SUBST(WX_LIBS_STATIC)
   AC_SUBST(WX_VERSION_FULL)
   AC_SUBST(WX_RESCOMP)
 
@@ -602,9 +542,10 @@ AC_DEFUN([WX_STANDARD_OPTIONS],
                             "$TOOLKIT" != "msw" -a "$TOOLKIT" != "motif" -a \
                             "$TOOLKIT" != "x11" -a "$TOOLKIT" != "mac" -a \
                             "$TOOLKIT" != "mgl" -a "$TOOLKIT" != "dfb" -a \
-                            "$TOOLKIT" != "base" ; then
+                            "$TOOLKIT" != "base" -a "$TOOLKIT" != "cocoa" -a \
+                            "$TOOLKIT" != "osx_cocoa"; then
                         AC_MSG_ERROR([
-    Unrecognized option value (allowed values: auto, gtk1, gtk2, msw, motif, x11, mac, mgl, dfb, base)
+    Unrecognized option value (allowed values: auto, gtk1, gtk2, msw, motif, x11, mac, mgl, dfb, base, cocoa, osx_cocoa)
                         ])
                     fi
 
@@ -656,7 +597,7 @@ AC_DEFUN([WX_STANDARD_OPTIONS],
                ])
 
         dnl WX_ARG_WITH_YESNOAUTO cannot be used for --with-wxversion since it's an option
-        dnl which must be able to accept the auto|26|27|28... values
+        dnl which must be able to accept the auto|28|29... values
         ifelse(index([$1], [wxversion]), [-1],,
                [
                 AC_ARG_WITH([wxversion],
@@ -680,7 +621,7 @@ AC_DEFUN([WX_STANDARD_OPTIONS],
                     if test "${#wx_requested_major_version}" != "1" -o \
                             "${#wx_requested_minor_version}" != "1" ; then
                         AC_MSG_ERROR([
-    Unrecognized option value (allowed values: auto, 2.6, 2.7, 2.8, 2.9)
+    Unrecognized option value (allowed values: auto, 2.8, 2.9)
                         ])
                     fi
 
@@ -800,14 +741,6 @@ dnl ---------------------------------------------------------------------------
 AC_DEFUN([WX_DETECT_STANDARD_OPTION_VALUES],
         [
         WX_VERSION="$WX_VERSION_MAJOR""$WX_VERSION_MINOR"
-        if test $WX_VERSION -lt 26 ; then
-
-            AC_MSG_ERROR([
-    Cannot detect the wxWidgets configuration for the selected wxWidgets build
-    since its version is $WX_VERSION_FULL < 2.6.0; please install a newer
-    version of wxWidgets.
-                         ])
-        fi
 
         dnl The wx-config we are using understands the "--selected_config"
         dnl option which returns an easy-parseable string !
@@ -868,6 +801,8 @@ AC_DEFUN([WX_DETECT_STANDARD_OPTION_VALUES],
             WX_MGLPORT=$(expr "$WX_SELECTEDCONFIG" : ".*mgl.*")
             WX_DFBPORT=$(expr "$WX_SELECTEDCONFIG" : ".*dfb.*")
             WX_BASEPORT=$(expr "$WX_SELECTEDCONFIG" : ".*base.*")
+            WX_COCOAPORT=$(expr "$WX_SELECTEDCONFIG" : ".*cocoa.*")
+            WX_OSXCOCOAPORT=$(expr "$WX_SELECTEDCONFIG" : ".*osx_cocoa.*")
 
             WX_PORT="unknown"
             if test "$WX_GTKPORT1" != "0"; then WX_PORT="gtk1"; fi
@@ -879,6 +814,8 @@ AC_DEFUN([WX_DETECT_STANDARD_OPTION_VALUES],
             if test "$WX_MGLPORT" != "0"; then WX_PORT="mgl"; fi
             if test "$WX_DFBPORT" != "0"; then WX_PORT="dfb"; fi
             if test "$WX_BASEPORT" != "0"; then WX_PORT="base"; fi
+            if test "$WX_COCOAPORT" != "0"; then WX_PORT="cocoa"; fi
+            if test "$WX_OSXCOCOAPORT" != "0"; then WX_PORT="osx_cocoa"; fi
 
             dnl check at least one of the WX_*PORT has been set !
 
@@ -893,7 +830,7 @@ AC_DEFUN([WX_DETECT_STANDARD_OPTION_VALUES],
         else
 
             dnl Use the setting given by the user
-            if test -z "$TOOLKIT" ; then
+            if test -n "$TOOLKIT" ; then
                 WX_PORT=$TOOLKIT
             else
                 dnl try with PORT
@@ -950,17 +887,6 @@ AC_DEFUN([WX_DETECT_STANDARD_OPTION_VALUES],
         if test "$TOOLKIT" = "auto"; then
             TOOLKIT=$WX_PORT
         fi
-
-dnl        dnl respect the DEBUG variable adding the optimize/debug flags
-dnl        dnl NOTE: the CXXFLAGS are merged together with the CPPFLAGS so we
-dnl        dnl       don't need to set them, too
-dnl        if test "$DEBUG" = "1"; then
-dnl            CXXFLAGS="$CXXFLAGS -g -O0"
-dnl            CFLAGS="$CFLAGS -g -O0"
-dnl        else
-dnl            CXXFLAGS="$CXXFLAGS -O2"
-dnl            CFLAGS="$CFLAGS -O2"
-dnl        fi
     ])
 
 dnl ---------------------------------------------------------------------------

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Marcelo Roberto Jimenez ( phoenix@amule.org )
-// Copyright (c) 2006-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Marcelo Roberto Jimenez ( phoenix@amule.org )
+// Copyright (c) 2006-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -190,7 +190,7 @@ CXML_List<T, XML_ELEMENT_NAME, XML_LIST_NAME>::CXML_List(
 	std::ostringstream msg;
 	msg << "\n    " << XML_LIST_NAME << ": " <<
 		i << " " << XML_ELEMENT_NAME << "s.";
-	AddDebugLogLineM(false, logUPnP, msg);
+	AddDebugLogLineN(logUPnP, msg);
 }
 
 

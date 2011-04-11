@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2004-2009 Angel Vidal Veiga ( kry@users.sourceforge.net )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -133,8 +133,7 @@ int CECMuleSocket::InternalGetLastError() {
 			return EC_ERROR_TIMEDOUT;
 		case wxSOCKET_MEMERR:
 			return EC_ERROR_MEMERR;
-		case wxSOCKET_DUMMY:
-			return EC_ERROR_DUMMY;
+		default:
+			return EC_ERROR_UNKNOWN;
 	}
-	return EC_ERROR_UNKNOWN;
 }

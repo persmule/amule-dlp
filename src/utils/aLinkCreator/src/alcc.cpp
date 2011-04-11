@@ -5,7 +5,7 @@
 ///
 /// Author:       ThePolish <thepolish@vipmail.ru>
 ///
-/// Copyright (C) 2004 by ThePolish
+/// Copyright (c) 2004-2011 ThePolish ( thepolish@vipmail.ru )
 ///
 /// This program is free software; you can redistribute it and/or modify
 /// it under the terms of the GNU General Public License as published by
@@ -35,6 +35,8 @@
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"             // Needed for PACKAGE
+#else
+#define PACKAGE "amule"
 #endif
 
 
@@ -52,8 +54,14 @@ int alcc::OnRun ()
   m_locale.AddCatalog(wxT(PACKAGE));
 
   wxLog::DontCreateOnDemand();
-  delete wxLog::SetActiveTarget(new wxLogStderr); // Replace printf by Log on Stderr
+  wxLogStderr * stderrLog = new wxLogStderr;
+  wxLogStderr * stdoutLog = new wxLogStderr(stdout);
+  delete wxLog::SetActiveTarget(stderrLog); // Log on Stderr
+#if wxCHECK_VERSION(2, 9, 0)  
+  wxLog::SetTimestamp("");   // Disable timestamp on messages
+#else
   wxLog::SetTimestamp(NULL); // Disable timestamp on messages
+#endif
 
   Ed2kHash hash;
   size_t i;
@@ -73,12 +81,16 @@ int alcc::OnRun ()
 
           if (hash.SetED2KHashFromFile(m_filesToHash[i], NULL))
             {
-            	wxLogMessage(wxT("%s"), hash.GetED2KLink(m_flagPartHashes).c_str());
-	    }
+				// Print the link to stdout
+				wxLog::SetActiveTarget(stdoutLog);
+                wxLogMessage(wxT("%s"), hash.GetED2KLink(m_flagPartHashes).c_str());
+				// Everything else goes to stderr
+				wxLog::SetActiveTarget(stderrLog);
+            }
         }
       else
         {
-		 if (m_flagVerbose)
+            if (m_flagVerbose)
                 {
                     wxLogMessage(_("%s ---> Non existant file !\n"),m_filesToHash[i].c_str());
                 }
@@ -98,7 +110,10 @@ alcc::OnExit()
 /// Parse command line
 void alcc::OnInitCmdLine(wxCmdLineParser& cmdline)
 {
-  cmdline.SetDesc(cmdLineDesc);
+	cmdline.AddSwitch(wxT("h"), wxT("help"), wxT("show this help message"), wxCMD_LINE_OPTION_HELP);
+	cmdline.AddSwitch(wxT("v"), wxT("verbose"), wxT("be verbose"));
+	cmdline.AddSwitch(wxT("p"), wxT("parthashes"), wxT("add part-hashes to ed2k link"));
+	cmdline.AddParam(wxT("input files"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_MULTIPLE);
 }
 
 /// Command line preocessing

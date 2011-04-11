@@ -8,35 +8,31 @@ amuleweb_SOURCES =  \
 	$(top_srcdir)/src/OtherFunctions.cpp \
 	$(top_srcdir)/src/RLE.cpp \
 	$(top_srcdir)/src/NetworkFunctions.cpp \
+	$(top_srcdir)/src/LoggerConsole.cpp \
+	$(top_srcdir)/src/UPnPBase.cpp \
 	php_parser.c \
 	php_lexer.c \
 	php_syntree.cpp \
 	php_amule_lib.cpp \
 	php_core_lib.cpp
 
-if ENABLE_UPNP
-amuleweb_SOURCES +=  \
-	$(top_srcdir)/src/UPnPBase.cpp \
-	UPnPCompatibility.cpp
-endif
-
 php_parser.c: php_parser.y
-	bison --debug -t -d -v -o $@ $<
+	bison --debug -t -d -v -p php -o $@ $<
 
 php_lexer.c: php_lexer.l
-	$(LEX) -o$@ $<
+	$(LEX) -P php -o$@ $<
 
 amuleweb_DEPENDENCIES = ../../libs/common/libmulecommon.a ../../libs/ec/cpp/libec.a
 amuleweb_CPPFLAGS = -I../.. -I$(top_srcdir)/src -I$(top_srcdir)/src/libs -I$(top_srcdir)/src/include \
 	$(MULECPPFLAGS) $(AMULEWEB_DEFS) $(BFD_CPPFLAGS) $(WXBASE_CPPFLAGS) \
-	-DEC_REMOTE -DWEBSERVERDIR="\"$(pkgdatadir)/webserver\"" -DECSOCKET_USE_EVENTS=0 \
+	-DWEBSERVERDIR="\"$(pkgdatadir)/webserver\"" \
 	$(INCINTL) $(ZLIB_CPPFLAGS) $(LIBUPNP_CPPFLAGS)
 amuleweb_CFLAGS = $(MULECFLAGS) $(WX_CFLAGS_ONLY) $(LIBPNG_CFLAGS) $(LIBUPNP_CFLAGS)
 amuleweb_CXXFLAGS = $(MULECXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY) $(LIBPNG_CFLAGS) $(LIBUPNP_CFLAGS)
 
 amuleweb_LDFLAGS = $(MULELDFLAGS) -L../../libs/common -L../../libs/ec/cpp $(LIBPNG_LDFLAGS) $(ZLIB_LDFLAGS) $(LIBUPNP_LDFLAGS)
 amuleweb_LDADD = -lec -lmulecommon $(WXBASE_LIBS) $(BFD_LIBS) $(ZLIB_LIBS) \
-	$(READLINE_LIBS) $(LIBPNG_LIBS) $(RESOLV_LIB) $(REGEX_LIBS) $(LIBINTL) $(LIBUPNP_LIBS)
+	$(READLINE_LIBS) $(LIBPNG_LIBS) $(RESOLV_LIB) $(LIBINTL) $(LIBUPNP_LIBS)
 
 noinst_HEADERS = \
 		 WebInterface.h \

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (C) 2005-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2005-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -41,7 +41,7 @@ class CServer;
 class CKnownFile;
 class CSearchFile;
 class CPartFile;
-class CUpDownClient;
+class CClientRef;
 class CStatistics;
 class CPath;
 
@@ -59,11 +59,11 @@ class CEConnectDlg : public wxDialog {
 	wxString login, passwd;
 	bool m_save_user_pass;
 	
-	void OnOK(wxCommandEvent& event);
-	
 	DECLARE_EVENT_TABLE()
 public:
 	CEConnectDlg();
+	
+	void OnOK(wxCommandEvent& event);
 	
 	wxString Host() { return host; }
 	int Port() { return port; }
@@ -96,9 +96,9 @@ class CPreferencesRem : public CPreferences, public CECPacketHandlerBase {
 public:
 	CPreferencesRem(CRemoteConnect *);
 
-	Category_Struct *CreateCategory(const wxString& name, const CPath& path,
+	bool CreateCategory(Category_Struct *& category, const wxString& name, const CPath& path,
 						const wxString& comment, uint32 color, uint8 prio);
-	void UpdateCategory(uint8 cat, const wxString& name, const CPath& path,
+	bool UpdateCategory(uint8 cat, const wxString& name, const CPath& path,
 						const wxString& comment, uint32 color, uint8 prio);
 
 	void RemoveCat(uint8 cat);
@@ -126,9 +126,6 @@ protected:
 	std::list<T *> m_items;
 	std::map<I, T *> m_items_hash;
 	
-	// for GetByIndex
-	std::vector<T *> m_idx_items;
-	
 	// .size() is O(N) operation in stl
 	int m_item_count;
 	
@@ -141,18 +138,23 @@ protected:
 	virtual void HandlePacket(const CECPacket *packet)
 	{
 		switch(this->m_state) {
-			case IDLE: wxASSERT(0); // not expecting anything
+			case IDLE: wxFAIL; // not expecting anything
 			case STATUS_REQ_SENT:
 				// if derived class choose not to proceed, return - but with good status
 				this->m_state = IDLE;
 				if ( this->Phase1Done(packet) ) {
-					CECPacket req_full(this->m_full_req_cmd);
+					if (this->m_inc_tags) {
+						// Incremental tags: new items always carry full info.
+						ProcessUpdate(packet, NULL, m_full_req_tag);
+					} else {
+						// Non-incremental tags: we might get partial info on new items.
+						// Collect all this items in a tag, and then request full info about them.
+						CECPacket req_full(this->m_full_req_cmd);
 				
-					ProcessUpdate(packet, &req_full, m_full_req_tag);
+						ProcessUpdate(packet, &req_full, m_full_req_tag);
 					
-					if ( !this->m_inc_tags ) {
 						// Phase 3: request full info about files we don't have yet
-						if ( req_full.GetTagCount() ) {
+						if ( req_full.HasChildTags() ) {
 							m_conn->SendRequest(this, &req_full);
 							this->m_state = FULL_REQ_SENT;
 						}
@@ -166,27 +168,23 @@ protected:
 		}
 	}
 public:
-	CRemoteContainer(CRemoteConnect *conn, bool /*inc_tags*/ = false)
+	CRemoteContainer(CRemoteConnect *conn, bool inc_tags)
 	{
 		m_state = IDLE;
 		
 		m_conn = conn;
 		m_item_count = 0;
-		
-		// FIXME:
-		// The CRemoteContainer has two ways of transfer: with "inc_tags" or without.
-		// I found that with inc_tags the update of transferred/completed is broken,
-		// therefore I disabled them.
-		// Either the inc-tag-mode should be fixed (but I can't to that without some 
-		// more insight how it's supposed to be working), or removed alltogether.
-		//m_inc_tags = inc_tags;
-		m_inc_tags = false;
+		m_inc_tags = inc_tags;
 	}
 	
 	virtual ~CRemoteContainer()
 	{
 	}
 	
+	typedef typename std::list<T *>::iterator iterator;
+	iterator begin() { return m_items.begin(); }
+	iterator end() { return m_items.end(); }
+
 	uint32 GetCount()
 	{
 		return m_item_count;
@@ -196,8 +194,6 @@ public:
 	{
 		m_items.push_back(item);
 		m_items_hash[GetItemID(item)] = item;
-		m_idx_items.resize(m_item_count+1);
-		m_idx_items[m_item_count] = item;
 		m_item_count++;
 	}
 
@@ -206,16 +202,11 @@ public:
 		// avoid creating nodes
 		return m_items_hash.count(id) ? m_items_hash[id] : NULL;
 	}
-	
-	T *GetByIndex(int index)
-	{
-		return ( (index >= 0) && (index < m_item_count) ) ? m_idx_items[index] : NULL;
-	}
-	
+
 	void Flush()
 	{
-		m_items.erase(this->m_items.begin(), this->m_items.end());
-		m_items_hash.erase(this->m_items_hash.begin(), this->m_items_hash.end());
+		m_items.clear();
+		m_items_hash.clear();
 		m_item_count = 0;
 	}
 			
@@ -223,10 +214,13 @@ public:
 	// Flush & reload
 	//
 	/*
+	We usually don't keep outdated code as comments, but this blocking implementation
+	shows the overall procedure well. It had to be scattered for the event driven implementation.
+
 	bool FullReload(int cmd)
 	{
 		CECPacket req(cmd);
-		std::auto_ptr<const CECPacket> reply(this->m_conn->SendRecvPacket(&req));
+		CScopedPtr<const CECPacket> reply(this->m_conn->SendRecvPacket(&req));
 		if ( !reply.get() ) {
 			return false;
 		}
@@ -275,13 +269,16 @@ public:
 		this->m_full_req_tag = tag;
 	}
 	/*
+	We usually don't keep outdated code as comments, but this blocking implementation
+	shows the overall procedure well. It had to be scattered for the event driven implementation.
+
 	bool DoRequery(int cmd, int tag)
 	{
 		CECPacket req_sts(cmd, m_inc_tags ? EC_DETAIL_INC_UPDATE : EC_DETAIL_UPDATE);
 	
 		//
 		// Phase 1: request status
-		std::auto_ptr<const CECPacket> reply(this->m_conn->SendRecvPacket(&req_sts));
+		CScopedPtr<const CECPacket> reply(this->m_conn->SendRecvPacket(&req_sts));
 		if ( !reply.get() ) {
 			return false;
 		}
@@ -314,62 +311,58 @@ public:
 
 	void ProcessFull(const CECPacket *reply)
 	{
-		for (size_t i = 0;i < reply->GetTagCount();i++) {
-			G *tag = (G *)reply->GetTagByIndex(i);
+		for (CECPacket::const_iterator it = reply->begin(); it != reply->end(); it++) {
+			G *tag = (G *) & *it;
 			// initialize item data from EC tag
-			T *item = this->CreateItem(tag);
-			AddItem(item);
+			AddItem(CreateItem(tag));
 		}
 	}
 
-	void ProcessUpdate(const CECPacket *reply, CECPacket *full_req, int req_type)
+	void RemoveItem(iterator & it)
+	{
+		I item_id = GetItemID(*it);
+		// reduce count
+		m_item_count--;
+		// remove from map
+		m_items_hash.erase(item_id);
+		// item may contain data that need to be freed externally, before
+		// dtor is called and memory freed
+		DeleteItem(*it);
+
+		m_items.erase(it);
+	}
+
+	virtual void ProcessUpdate(const CECTag *reply, CECPacket *full_req, int req_type)
 	{
 		std::set<I> core_files;
-		for (size_t i = 0;i < reply->GetTagCount();i++) {
-			G *tag = (G *)reply->GetTagByIndex(i);
+		for (CECPacket::const_iterator it = reply->begin(); it != reply->end(); it++) {
+			G *tag = (G *) & *it;
 			if ( tag->GetTagName() != req_type ) {
 				continue;
 			}
 	
 			core_files.insert(tag->ID());
 			if ( m_items_hash.count(tag->ID()) ) {
+				// Item already known: update it
 				T *item = m_items_hash[tag->ID()];
 				ProcessItemUpdate(tag, item);
 			} else {
-				if ( m_inc_tags ) {
-					T *item = this->CreateItem(tag);
-					AddItem(item);
-				} else {
+				// New item
+				if (full_req) {
+					// Non-incremental mode: we have only partial info
+					// so we need to request full info before we can use the item
 					full_req->AddTag(CECTag(req_type, tag->ID()));
+				} else {
+					// Incremental mode: new items always carry full info,
+					// so we can add it right away
+					AddItem(CreateItem(tag));
 				}
 			}
 		}
-		std::list<I> del_ids;
-		for(typename std::list<T *>::iterator j = this->m_items.begin(); j != this->m_items.end(); j++) {
-			I item_id = GetItemID(*j);
-			if ( core_files.count(item_id) == 0 ) {
-				del_ids.push_back(item_id);
-			}
-		}
-		for(typename std::list<I>::iterator j = del_ids.begin(); j != del_ids.end(); j++) {
-			for(int idx = 0;idx < m_item_count;idx++) {
-				if ( this->GetItemID(m_idx_items[idx]) == *j ) {
-					m_idx_items[idx] = m_idx_items[m_item_count-1];
-					break;
-				}
-			}
-			m_item_count--;
-			m_items_hash.erase(*j);
-			for(typename std::list<T *>::iterator k = this->m_items.begin(); k != this->m_items.end(); k++) {
-				if ( *j == GetItemID(*k) ) {
-					// item may contain data that need to be freed externally, before
-					// dtor is called and memory freed
-					this->DeleteItem(*k);
-
-					this->m_items.erase(k);
-
-					break;
-				}
+		for(iterator it = begin(); it != end();) {
+			iterator it2 = it++;
+			if ( core_files.count(GetItemID(*it2)) == 0 ) {
+				RemoveItem(it2);
 			}
 		}
 	}
@@ -439,15 +432,15 @@ public:
 	CServer* GetServerByAddress(const wxString& address, uint16 port) const;
 	CServer* GetServerByIPTCP(uint32 nIP, uint16 nPort) const;
 
-	void ReloadControl();
-
 	//
 	// Actions
 	//
 	void RemoveServer(CServer* server);
 	void UpdateServerMetFromURL(wxString url);
-	void SaveServerMet();
-	void FilterServers();
+	void SetStaticServer(CServer* server, bool isStatic);
+	void SetServerPrio(CServer* server, uint32 prio);
+	void SaveServerMet() {}	// not needed here
+	void FilterServers() {}	// not needed here
 	
 	//
 	// template
@@ -458,46 +451,26 @@ public:
 	void ProcessItemUpdate(CEC_Server_Tag *, CServer *);
 };
 
-class CUpDownClientListRem : public CRemoteContainer<CUpDownClient, uint32, CEC_UpDownClient_Tag> {
-	int m_viewtype;
+class CUpDownClientListRem : public CRemoteContainer<CClientRef, uint32, CEC_UpDownClient_Tag> {
 public:
-	CUpDownClientListRem(CRemoteConnect *, int viewtype);
+	CUpDownClientListRem(CRemoteConnect *);
 
-	const CClientPtrList& GetList() const { return m_items; };
-
+	void FilterQueues() {}	// not needed here
 	//
 	// template
 	//
-	CUpDownClient *CreateItem(CEC_UpDownClient_Tag *);
-	void DeleteItem(CUpDownClient *);
-	uint32 GetItemID(CUpDownClient *);
-	void ProcessItemUpdate(CEC_UpDownClient_Tag *, CUpDownClient *);
+	CClientRef *CreateItem(CEC_UpDownClient_Tag *);
+	void DeleteItem(CClientRef *);
+	uint32 GetItemID(CClientRef *);
+	void ProcessItemUpdate(CEC_UpDownClient_Tag *, CClientRef *);
 };
 
-class CUpQueueRem {
-	CUpDownClientListRem m_up_list, m_wait_list;
+class CDownQueueRem : public std::map<uint32, CPartFile*> {
+	CRemoteConnect *m_conn;
 public:
-	CUpQueueRem(CRemoteConnect *);
+	CDownQueueRem(CRemoteConnect * conn) { m_conn = conn; }
 	
-	void ReQueryUp() { m_up_list.DoRequery(EC_OP_GET_ULOAD_QUEUE, EC_TAG_CLIENT); }
-	void ReQueryWait() { m_wait_list.DoRequery(EC_OP_GET_WAIT_QUEUE, EC_TAG_CLIENT); }
-
-	const CClientPtrList& GetWaitingList() const { return m_wait_list.GetList(); }
-	const CClientPtrList& GetUploadingList() const { return m_up_list.GetList(); }
-	uint16 GetWaitingPosition(const CUpDownClient *client) const;
-};
-
-class CDownQueueRem : public CRemoteContainer<CPartFile, CMD4Hash, CEC_PartFile_Tag> {
-	std::map<CMD4Hash, PartFileEncoderData> m_enc_map;
-public:
-	CDownQueueRem(CRemoteConnect *);
-	
-	uint32 GetFileCount() { return GetCount(); }
-	CPartFile* GetFileByID(const CMD4Hash& id) { return GetByID(id); }
-	CPartFile* GetFileByIndex(unsigned int idx) { return GetByIndex(idx); }
-	
-	bool IsPartFile(const CKnownFile* totest) const;
-	void OnConnectionState(bool bConnected);
+	CPartFile* GetFileByID(uint32 id);
 	
 	//
 	// User actions
@@ -510,37 +483,21 @@ public:
 	//
 	// Actions
 	//
-	void StopUDPRequests();
+	void StopUDPRequests() {}
 	void AddFileLinkToDownload(CED2KFileLink*, uint8);
-	bool AddLink(const wxString &link, int category = 0);
+	bool AddLink(const wxString &link, uint8 category = 0);
 	void UnsetCompletedFilesExist();
 	void ResetCatParts(int cat);
 	void AddSearchToDownload(CSearchFile* toadd, uint8 category);
-	
-	//
-	// template
-	//
-	CPartFile *CreateItem(CEC_PartFile_Tag *);
-	void DeleteItem(CPartFile *);
-	CMD4Hash GetItemID(CPartFile *);
-	void ProcessItemUpdate(CEC_PartFile_Tag *, CPartFile *);
-	bool Phase1Done(const CECPacket *);
+	void ClearCompleted(const ListOfUInts32 & ecids);
 };
 
-class CSharedFilesRem : public CRemoteContainer<CKnownFile, CMD4Hash, CEC_SharedFile_Tag> {
-	std::map<CMD4Hash, RLE_Data> m_enc_map;
-	
-	virtual void HandlePacket(const CECPacket *);
-	
-	//
-	// For file renaming operation
-	//
-	CKnownFile* m_rename_file;
-	wxString m_new_name;
+class CSharedFilesRem  : public std::map<uint32, CKnownFile*> {
+	CRemoteConnect *m_conn;
 public:
-	CSharedFilesRem(CRemoteConnect *);
+	CSharedFilesRem(CRemoteConnect * conn);
 	
-	CKnownFile *GetFileByID(CMD4Hash id) { return GetByID(id); }
+	CKnownFile *GetFileByID(uint32 id);
 
 	void SetFilePrio(CKnownFile *file, uint8 prio);
 
@@ -550,61 +507,33 @@ public:
 	void AddFilesFromDirectory(const CPath&);
 	void Reload(bool sendtoserver = true, bool firstload = false);
 	bool RenameFile(CKnownFile* file, const CPath& newName);
-
-	//
-	// template
-	//
-	CKnownFile *CreateItem(CEC_SharedFile_Tag *);
-	void DeleteItem(CKnownFile *);
-	CMD4Hash GetItemID(CKnownFile *);
-	void ProcessItemUpdate(CEC_SharedFile_Tag *, CKnownFile *);
-	bool Phase1Done(const CECPacket *);
+	void SetFileCommentRating(CKnownFile* file, const wxString& newComment, int8 newRating);
 };
 
-class CKnownFilesRem {
-	CSharedFilesRem *m_shared_files;
+class CKnownFilesRem : public CRemoteContainer<CKnownFile, uint32, CEC_SharedFile_Tag> {
+	CKnownFile * CreateKnownFile(CEC_SharedFile_Tag *tag, CKnownFile *file = NULL);
+	CPartFile  * CreatePartFile(CEC_PartFile_Tag *tag);
+
 public:
-	CKnownFilesRem(CSharedFilesRem *shared)
-	{
-		m_shared_files = shared;
-		
-		requested = 0;
-		transferred = 0;
-		accepted = 0;
-	}
+	CKnownFilesRem(CRemoteConnect * conn);
 	
-	CKnownFile *FindKnownFileByID(const CMD4Hash& id)
-	{
-		return m_shared_files->GetByID(id); 
-	}
+	CKnownFile *FindKnownFileByID(uint32 id) { return GetByID(id); }
 
 	uint16 requested;
 	uint32 transferred;
 	uint16 accepted;
-};
-
-class CClientCreditsRem {
-	bool m_crypt_avail;
-public:
-	bool CryptoAvailable() { return m_crypt_avail; }
-};
-
-class CClientListRem {
-	CRemoteConnect *m_conn;
 
 	//
-	// map of user_ID -> client
-	std::multimap<uint32, CUpDownClient*> m_client_list;
-public:
-	CClientListRem(CRemoteConnect *);
-	
-	const std::multimap<uint32, CUpDownClient*>& GetClientList() { return m_client_list; }
-	
+	// template
 	//
-	// Actions
-	//
-	void AddClient(CUpDownClient *);
-	void FilterQueues();
+	CKnownFile *CreateItem(CEC_SharedFile_Tag *) { wxFAIL; return NULL; }	// unused, required by template
+	void DeleteItem(CKnownFile *);
+	uint32 GetItemID(CKnownFile *);
+	void ProcessItemUpdate(CEC_SharedFile_Tag *, CKnownFile *);
+	bool Phase1Done(const CECPacket *) { return true; }
+	void ProcessUpdate(const CECTag *reply, CECPacket *full_req, int req_type);
+
+	void ProcessItemUpdatePartfile(CEC_PartFile_Tag *, CPartFile *);
 };
 
 class CIPFilterRem {
@@ -617,9 +546,10 @@ public:
 	//
 	void Reload();
 	void Update(wxString strURL = wxEmptyString);
+	bool IsReady() const { return true; }
 };
 
-class CSearchListRem : public CRemoteContainer<CSearchFile, CMD4Hash, CEC_SearchFile_Tag> {
+class CSearchListRem : public CRemoteContainer<CSearchFile, uint32, CEC_SearchFile_Tag> {
 	virtual void HandlePacket(const CECPacket *);
 public:
 	CSearchListRem(CRemoteConnect *);
@@ -638,16 +568,37 @@ public:
 	wxString StartNewSearch(uint32* nSearchID, SearchType search_type,
 		const CSearchList::CSearchParams& params);
 		
-	void StopGlobalSearch();
+	void StopSearch(bool globalOnly = false);
 	
 	//
 	// template
 	//
 	CSearchFile *CreateItem(CEC_SearchFile_Tag *);
 	void DeleteItem(CSearchFile *);
-	CMD4Hash GetItemID(CSearchFile *);
+	uint32 GetItemID(CSearchFile *);
 	void ProcessItemUpdate(CEC_SearchFile_Tag *, CSearchFile *);
 	bool Phase1Done(const CECPacket *);
+};
+
+class CFriendListRem : public CRemoteContainer<CFriend, uint32, CEC_Friend_Tag> {
+	virtual void HandlePacket(const CECPacket *);
+public:
+	CFriendListRem(CRemoteConnect *);
+
+	void		AddFriend(const CClientRef& toadd);
+	void		AddFriend(const CMD4Hash& userhash, uint32 lastUsedIP, uint32 lastUsedPort, const wxString& name);
+	void		RemoveFriend(CFriend* toremove);
+	void		RequestSharedFileList(CFriend* Friend);
+	void		RequestSharedFileList(CClientRef& client);
+	void		SetFriendSlot(CFriend* Friend, bool new_state);
+
+	//
+	// template
+	//
+	CFriend *CreateItem(CEC_Friend_Tag *);
+	void DeleteItem(CFriend *);
+	uint32 GetItemID(CFriend *);
+	void ProcessItemUpdate(CEC_Friend_Tag *, CFriend *);
 };
 
 class CStatsUpdaterRem : public CECPacketHandlerBase {
@@ -656,14 +607,22 @@ public:
 	CStatsUpdaterRem() {}
 };
 
+class CStatTreeRem : public CECPacketHandlerBase {
+	virtual void HandlePacket(const CECPacket *);
+	CRemoteConnect *m_conn;
+public:
+	CStatTreeRem(CRemoteConnect * conn) { m_conn = conn; }
+	void DoRequery();
+};
+
 class CListenSocketRem {
 	uint32 m_peak_connections;
 public:
 	uint32 GetPeakConnections() { return m_peak_connections; }
 };
 
-class CamuleRemoteGuiApp : public wxApp, public CamuleGuiBase {
-	wxTimer* poll_timer;
+class CamuleRemoteGuiApp : public wxApp, public CamuleGuiBase, public CamuleAppCommon {
+	wxTimer*	poll_timer;
 
 	virtual int InitGui(bool geometry_enable, wxString &geometry_string);
 
@@ -675,9 +634,9 @@ class CamuleRemoteGuiApp : public wxApp, public CamuleGuiBase {
 	
 	void OnECConnection(wxEvent& event);
 	void OnECInitDone(wxEvent& event);
-	void OnLoggingEvent(CLoggingEvent& evt);
 	void OnNotifyEvent(CMuleGUIEvent& evt);
-	
+	void OnFinishedHTTPDownload(CMuleInternalEvent& event);
+
 	CStatsUpdaterRem m_stats_updater;
 public:
 
@@ -691,40 +650,37 @@ public:
 
 	bool CopyTextToClipboard(wxString strText);
 
-	virtual void ShowAlert(wxString msg, wxString title, int flags);
+	virtual int ShowAlert(wxString msg, wxString title, int flags);
 
 	void ShutDown(wxCloseEvent &evt);
 
 	CPreferencesRem *glob_prefs;
-	wxString ConfigDir;
 
 	//
 	// Provide access to core data thru EC
 	CServerConnectRem *serverconnect;
 	CServerListRem *serverlist;
-	CUpQueueRem *uploadqueue;
 	CDownQueueRem *downloadqueue;
 	CSharedFilesRem *sharedfiles;
 	CKnownFilesRem *knownfiles;
-	CClientCreditsRem *clientcredits;
-	CClientListRem *clientlist;
+	CUpDownClientListRem *clientlist;
 	CIPFilterRem *ipfilter;
 	CSearchListRem *searchlist;
+	CFriendListRem *friendlist;
 	CListenSocketRem *listensocket;
+	CStatTreeRem * stattree;
 
 	CStatistics *m_statistics;
 
 	bool AddServer(CServer *srv, bool fromUser = false);
 
 	uint32 GetPublicIP();
-	wxString CreateMagnetLink(const CAbstractFile *f);
-	wxString CreateED2kLink(const CAbstractFile* f, bool add_source = false, bool use_hostname = false, bool addcryptoptions = false);
-	wxString CreateED2kAICHLink(const CKnownFile* f);
 
 	wxString GetLog(bool reset = false);
 	wxString GetServerLog(bool reset = false);
 
 	void AddServerMessageLine(wxString &msg);
+	void AddRemoteLogLine(const wxString& line);
 
 	void SetOSFiles(wxString ) { /* onlinesig is created on remote side */ }
 
@@ -741,7 +697,24 @@ public:
 	bool IsKadRunning() const { return ((m_ConnState & CONNECTED_KAD_OK) 
 				|| (m_ConnState & CONNECTED_KAD_FIREWALLED)
 				|| (m_ConnState & CONNECTED_KAD_NOT)); }
-				
+
+	// Check Kad state (UDP)
+	bool IsFirewalledKadUDP() const		{ return theStats::IsFirewalledKadUDP(); }
+	bool IsKadRunningInLanMode() const	{ return theStats::IsKadRunningInLanMode(); }
+	// Kad stats
+	uint32 GetKadUsers() const			{ return theStats::GetKadUsers(); }
+	uint32 GetKadFiles() const			{ return theStats::GetKadFiles(); }
+	uint32 GetKadIndexedSources() const	{ return theStats::GetKadIndexedSources(); }
+	uint32 GetKadIndexedKeywords() const{ return theStats::GetKadIndexedKeywords(); }
+	uint32 GetKadIndexedNotes() const	{ return theStats::GetKadIndexedNotes(); }
+	uint32 GetKadIndexedLoad() const	{ return theStats::GetKadIndexedLoad(); }
+	// True IP of machine
+	uint32 GetKadIPAdress() const		{ return theStats::GetKadIPAdress(); }
+	// Buddy status
+	uint8	GetBuddyStatus() const		{ return theStats::GetBuddyStatus(); }
+	uint32	GetBuddyIP() const			{ return theStats::GetBuddyIP(); }
+	uint32	GetBuddyPort() const		{ return theStats::GetBuddyPort(); }
+
 	void StartKad();
 	void StopKad();
 	
@@ -762,17 +735,15 @@ public:
 	uint32 m_clientID;
 
 	wxLocale	m_locale;
+	// This KnownFile collects all currently uploading clients for display in the upload list control
+	CKnownFile * m_allUploadingKnownFile;
 
 	DECLARE_EVENT_TABLE()
 };
 
 DECLARE_APP(CamuleRemoteGuiApp)
-#ifdef AMULE_REMOTE_GUI_CPP
-	CamuleRemoteGuiApp *theApp;
-#else
-	extern CamuleRemoteGuiApp *theApp;
-#endif
 
+extern CamuleRemoteGuiApp *theApp;
 
 #endif /* AMULE_REMOTE_GUI_H */
 

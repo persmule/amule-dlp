@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -46,6 +46,8 @@ there client on the eMule forum..
 #include "../routing/Contact.h"
 #include "../../MemFile.h"
 #include "../../Logger.h"
+#include "../../RandomFunctions.h"		// Needed for GetRandomUInt128()
+#include "../../OtherFunctions.h"		// Needed for DeleteContents()
 
 #include <wx/tokenzr.h>
 
@@ -94,10 +96,7 @@ void CSearchManager::StopSearch(uint32_t searchID, bool delayDelete)
 void CSearchManager::StopAllSearches()
 {
 	// Stop and delete all searches.
-	for (SearchMap::iterator it = m_searches.begin(); it != m_searches.end(); ++it) {
-		delete it->second;
-	}
-	m_searches.clear();
+	DeleteContents(m_searches);
 }
 
 bool CSearchManager::StartSearch(CSearch* search)
@@ -124,14 +123,14 @@ CSearch* CSearchManager::PrepareFindKeywords(const wxString& keyword, uint32_t s
 		s->SetSearchTypes(CSearch::KEYWORD);
 
 		// Make sure we have a keyword list
-		GetWords(keyword, &s->m_words);
+		GetWords(keyword, &s->m_words, true);
 		if (s->m_words.size() == 0) {
 			throw wxString(_("Kademlia: search keyword too short"));
 		}
 
 		wxString wstrKeyword = s->m_words.front();
 
-		printf("Keyword for search: %s\n",(const char*)unicode2char(wstrKeyword));
+		AddLogLineNS(CFormat(_("Keyword for search: %s")) % wstrKeyword);
 
 		// Kry - I just decided to assume everyone is unicoded
 		// GonoszTopi - seconded
@@ -139,7 +138,7 @@ CSearch* CSearchManager::PrepareFindKeywords(const wxString& keyword, uint32_t s
 
 		// Verify that we are not already searching for this target.
 		if (AlreadySearchingFor(s->m_target)) {
-			throw wxT("Kademlia: Search keyword is already on search list: ") + wstrKeyword;
+			throw _("Kademlia: Search keyword is already on search list: ") + wstrKeyword;
 		}
 
 		s->SetSearchTermData(searchTermsDataSize, searchTermsData);
@@ -195,12 +194,12 @@ CSearch* CSearchManager::PrepareLookup(uint32_t type, bool start, const CUInt128
 			m_searches[id] = s;
 			s->Go();
 		}
-	}catch (const CEOFException& err) {
+	} catch (const CEOFException& DEBUG_ONLY(err)) {
 		delete s;
-		AddDebugLogLineM( false, logKadSearch, wxT("CEOFException in ") + wxString::FromAscii(__FUNCTION__) + wxT(": ") + err.what());
+		AddDebugLogLineN(logKadSearch, wxT("CEOFException in CSearchManager::PrepareLookup: ") + err.what());
 		return NULL;
 	} catch (...) {
-		AddDebugLogLineM(false, logKadSearch, wxT("Exception in CSearchManager::prepareLookup"));
+		AddDebugLogLineN(logKadSearch, wxT("Exception in CSearchManager::PrepareLookup"));
 		delete s;
 		throw;
 	}
@@ -231,23 +230,25 @@ bool CSearchManager::IsFWCheckUDPSearch(const CUInt128& target)
 	return false;
 }
 
-void CSearchManager::GetWords(const wxString& str, WordList *words)
+void CSearchManager::GetWords(const wxString& str, WordList *words, bool allowDuplicates)
 {
-	size_t len = 0;
 	wxString current_word;
 	wxStringTokenizer tkz(str, GetInvalidKeywordChars());
 	while (tkz.HasMoreTokens()) {
 		current_word = tkz.GetNextToken();
-		
-		if ((len = current_word.Length()) > 2) {
+		// TODO: We'd need a safe way to determine if a sequence which contains only 3 chars is a real word.
+		// Currently we do this by evaluating the UTF-8 byte count. This will work well for Western locales,
+		// AS LONG AS the min. byte count is 3(!). If the byte count is once changed to 2, this will not
+		// work properly any longer because there are a lot of Western characters which need 2 bytes in UTF-8.
+		// Maybe we need to evaluate the Unicode character values itself whether the characters are located
+		// in code ranges where single characters are known to represent words.
+		if (strlen((const char *)(current_word.utf8_str())) >= 3) {
 			current_word.MakeLower();
-			words->remove(current_word);
+			if (!allowDuplicates) {
+				words->remove(current_word);
+			}
 			words->push_back(current_word);
 		}
-	}
-	// If the last word is 3 bytes long, chances are it's a file extension.
-	if(words->size() > 1 && len == 3) {
-		words->pop_back();
 	}
 }
 
@@ -406,7 +407,7 @@ void CSearchManager::UpdateStats() throw()
 	uint8_t m_totalNotes = 0;
 	uint8_t m_totalStoreNotes = 0;
 		
-	for (SearchMap::iterator it = m_searches.begin(); it != m_searches.end(); ++it) {
+	for (SearchMap::const_iterator it = m_searches.begin(); it != m_searches.end(); ++it) {
 		switch(it->second->GetSearchTypes()){
 			case CSearch::FILE: {
 				m_totalFile++;
@@ -486,16 +487,13 @@ void CSearchManager::ProcessResponse(const CUInt128& target, uint32_t fromIP, ui
 
 	// If this search was deleted before this response, delete contacts and abort, otherwise process them.
 	if (s == NULL) {
-		AddDebugLogLineM(false, logKadSearch,
+		AddDebugLogLineN(logKadSearch,
 			wxT("Search either never existed or receiving late results (CSearchManager::ProcessResponse)"));
-		for (ContactList::const_iterator it2 = results->begin(); it2 != results->end(); ++it2) {
-			delete *it2;
-		}
-		delete results;
-		return;
+		DeleteContents(*results);
 	} else {
 		s->ProcessResponse(fromIP, fromPort, results);
 	}
+	delete results;
 }
 
 void CSearchManager::ProcessResult(const CUInt128& target, const CUInt128& answer, TagPtrList *info)
@@ -509,12 +507,8 @@ void CSearchManager::ProcessResult(const CUInt128& target, const CUInt128& answe
 
 	// If this search was deleted before these results, delete contacts and abort, otherwise process them.
 	if (s == NULL) {
-		AddDebugLogLineM (false, logKadSearch,
+		AddDebugLogLineN(logKadSearch,
 			wxT("Search either never existed or receiving late results (CSearchManager::ProcessResult)"));
-		for (TagPtrList::const_iterator tagIt = info->begin(); tagIt != info->end(); tagIt++) {
-			delete *tagIt;
-		}
-		delete info;
 	} else {
 		s->ProcessResult(answer, info);
 	}
@@ -523,7 +517,7 @@ void CSearchManager::ProcessResult(const CUInt128& target, const CUInt128& answe
 bool CSearchManager::FindNodeSpecial(const CUInt128& id, CKadClientSearcher *requester)
 {
 	// Do a node lookup.
-	AddDebugLogLineM(false, logKadSearch, wxT("Starting NODESPECIAL Kad Search for ") + id.ToHexString());
+	AddDebugLogLineN(logKadSearch, wxT("Starting NODESPECIAL Kad Search for ") + id.ToHexString());
 	CSearch *search = new CSearch;
 	search->SetSearchTypes(CSearch::NODESPECIAL);
 	search->SetTargetID(id);
@@ -534,9 +528,8 @@ bool CSearchManager::FindNodeSpecial(const CUInt128& id, CKadClientSearcher *req
 bool CSearchManager::FindNodeFWCheckUDP()
 {
 	CancelNodeFWCheckUDPSearch();
-	CUInt128 id;
-	id.SetValueRandom();
-	AddDebugLogLineM(false, logKadSearch, wxT("Starting NODEFWCHECKUDP Kad Search"));
+	CUInt128 id(GetRandomUint128());
+	AddDebugLogLineN(logKadSearch, wxT("Starting NODEFWCHECKUDP Kad Search"));
 	CSearch *search = new CSearch;
 	search->SetSearchTypes(CSearch::NODEFWCHECKUDP);
 	search->SetTargetID(id);

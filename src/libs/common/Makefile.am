@@ -1,4 +1,4 @@
-AM_CPPFLAGS = $(MULECPPFLAGS) $(BFD_CPPFLAGS) $(WX_CPPFLAGS)
+AM_CPPFLAGS = $(MULECPPFLAGS) $(BFD_CPPFLAGS) $(WXBASE_CPPFLAGS)
 AM_CXXFLAGS = $(MULECXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
 
 # Sources
@@ -9,22 +9,23 @@ noinst_LIBRARIES = \
 # Common to external apps and core/gui/monolithic
 
 libmulecommon_a_SOURCES = \
+	FileFunctions.cpp \
 	Format.cpp \
 	MD5Sum.cpp \
 	MuleDebug.cpp \
+	Path.cpp \
+	strerror_r.c \
 	StringFunctions.cpp \
-	FileFunctions.cpp \
-	TextFile.cpp \
-	Path.cpp
+	TextFile.cpp
 
 noinst_HEADERS =  \
-		Format.h \
-		MD5Sum.h \
-		MuleDebug.h \
-		StringFunctions.h \
-		FileFunctions.h \
-		TextFile.h \
-		Path.h
+	FileFunctions.h \
+	Format.h \
+	MD5Sum.h \
+	MuleDebug.h \
+	Path.h \
+	strerror_r.h \
+	StringFunctions.h \
+	TextFile.h
 
 MAINTAINERCLEANFILES = Makefile.in
-

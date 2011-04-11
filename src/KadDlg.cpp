@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Angel Vidal (Kry) ( kry@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -34,7 +34,8 @@
 #include "StatisticsDlg.h"
 #include "ColorFrameCtrl.h"
 #include "amuleDlg.h"
-
+#include "MuleColour.h"
+#include "Statistics.h"
 
 #ifndef CLIENT_GUI
 #include "kademlia/kademlia/Kademlia.h"
@@ -71,6 +72,20 @@ void CKadDlg::Init()
 	m_kad_scope->SetRanges(0.0, thePrefs::GetStatsMax());
 	m_kad_scope->SetYUnits(wxT("Nodes"));
 
+#ifndef __WXMSW__
+	//
+	// Get label with line breaks out of muuli.wdr, because generated code fails 
+	// to compile in Windows.
+	//
+	// In Windows, setting a button label with a newline fails (the newline is ignored).
+	// Creating a button with such a label works however. :-/
+	// So leave the label from the muuli (without line breaks) here,
+	// so it can still be fixed in the translation.
+	//
+	wxButton* bootstrap = CastChild(ID_KNOWNNODECONNECT, wxButton);
+	bootstrap->SetLabel(_("Bootstrap from \nknown clients"));
+#endif
+
 	SetUpdatePeriod(thePrefs::GetTrafficOMeterInterval());
 	SetGraphColors();
 }
@@ -99,8 +114,8 @@ void CKadDlg::SetGraphColors()
 		m_kad_scope->SetPlotColor(CStatisticsDlg::getColors(12 + i), aTrend[i]);
 		
 		CColorFrameCtrl* ctrl = CastChild(aRes[i], CColorFrameCtrl);
-		ctrl->SetBackgroundColor(CStatisticsDlg::getColors(12 + i));
-		ctrl->SetFrameColor((COLORREF)RGB(0,0,0));	
+		ctrl->SetBackgroundBrushColour(CMuleColour(CStatisticsDlg::getColors(12 + i)));
+		ctrl->SetFrameBrushColour(*wxBLACK);
 	}
 }
 
@@ -129,7 +144,7 @@ void CKadDlg::UpdateGraph(const GraphUpdateInfo& update)
 	wxStaticText* label = CastChild( wxT("nodesListLabel"), wxStaticText );
 	wxCHECK_RET(label, wxT("Failed to find kad-nodes label"));
 
-	label->SetLabel(wxString::Format(_("Nodes (%u)"), nodeCount));
+	label->SetLabel(CFormat(_("Nodes (%u)")) % nodeCount);
 	label->GetParent()->Layout();
 }
 

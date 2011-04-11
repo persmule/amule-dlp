@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -36,7 +36,7 @@ class CECSocket;
 /**
  * High level EC packet handler class
  */
-class CECPacket : protected CECEmptyTag {
+class CECPacket : public CECEmptyTag {
 	friend class CECSocket;
 	public:
 		CECPacket(ec_opcode_t opCode, EC_DETAIL_LEVEL detail_level = EC_DETAIL_FULL)
@@ -48,13 +48,6 @@ class CECPacket : protected CECEmptyTag {
 			}
 		}
 		
-		using CECTag::AddTag;
-		using CECTag::GetTagByIndex;
-		using CECTag::GetTagByIndexSafe;
-		using CECTag::GetTagByName;
-		using CECTag::GetTagByNameSafe;
-		using CECTag::GetTagCount;
-
 		ec_opcode_t	GetOpCode(void) const { return m_opCode; }
 		uint32_t		GetPacketLength(void) const { return CECTag::GetTagLen(); }
 		EC_DETAIL_LEVEL GetDetailLevel() const
@@ -62,16 +55,18 @@ class CECPacket : protected CECEmptyTag {
 			const CECTag *tag = GetTagByName(EC_TAG_DETAIL_LEVEL);
 			return (tag) ? (EC_DETAIL_LEVEL)tag->GetInt() : EC_DETAIL_FULL;
 		}
+		void DebugPrint(bool incoming, uint32 trueSize = 0) const;
 		
 	private:
-		CECPacket(const CECSocket& socket)
-			: CECEmptyTag(socket)
-			{}
+		CECPacket()	: CECEmptyTag() {}
 
 		bool ReadFromSocket(CECSocket& socket);
 		bool WritePacket(CECSocket& socket) const;
 		ec_opcode_t	m_opCode;
 };
+
+bool ECLogIsEnabled();
+void DoECLogLine(const wxString &line);
 
 #endif /* ECPACKET_H */
 // File_checked_for_headers

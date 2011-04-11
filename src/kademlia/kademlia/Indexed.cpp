@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -234,14 +234,14 @@ void CIndexed::ReadFile()
 			m_totalIndexSource = totalSource;
 			m_totalIndexKeyword = totalKeyword;
 			m_totalIndexLoad = totalLoad;
-			AddDebugLogLineM(false, logKadIndex, wxString::Format(wxT("Read %u source, %u keyword, and %u load entries"),totalSource,totalKeyword,totalLoad));
+			AddDebugLogLineN(logKadIndex, CFormat(wxT("Read %u source, %u keyword, and %u load entries")) % totalSource % totalKeyword % totalLoad);
 		}
 	} catch (const CSafeIOException& err) {
-		AddDebugLogLineM(true, logKadIndex, wxT("CSafeIOException in CIndexed::readFile: ") + err.what());
+		AddDebugLogLineC(logKadIndex, wxT("CSafeIOException in CIndexed::readFile: ") + err.what());
 	} catch (const CInvalidPacket& err) {
-		AddDebugLogLineM(true, logKadIndex, wxT("CInvalidPacket Exception in CIndexed::readFile: ") + err.what());		
+		AddDebugLogLineC(logKadIndex, wxT("CInvalidPacket Exception in CIndexed::readFile: ") + err.what());
 	} catch (const wxString& e) {
-		AddDebugLogLineM(true, logKadIndex, wxT("Exception in CIndexed::readFile: ") + e);
+		AddDebugLogLineC(logKadIndex, wxT("Exception in CIndexed::readFile: ") + e);
 	}
 }
 
@@ -350,7 +350,7 @@ CIndexed::~CIndexed()
 			}
 			k_file.Close();
 		}
-		AddDebugLogLineM( false, logKadIndex, wxString::Format(wxT("Wrote %u source, %u keyword, and %u load entries"), s_total, k_total, l_total));
+		AddDebugLogLineN(logKadIndex, CFormat(wxT("Wrote %u source, %u keyword, and %u load entries")) % s_total % k_total % l_total);
 
 		for (SrcHashMap::iterator itNoteHash = m_Notes_map.begin(); itNoteHash != m_Notes_map.end(); ++itNoteHash) {
 			SrcHash* currNoteHash = itNoteHash->second;
@@ -369,11 +369,11 @@ CIndexed::~CIndexed()
 
 		m_Notes_map.clear();
 	} catch (const CSafeIOException& err) {
-		AddDebugLogLineM(true, logKadIndex, wxT("CSafeIOException in CIndexed::~CIndexed: ") + err.what());
+		AddDebugLogLineC(logKadIndex, wxT("CSafeIOException in CIndexed::~CIndexed: ") + err.what());
 	} catch (const CInvalidPacket& err) {
-		AddDebugLogLineM(true, logKadIndex, wxT("CInvalidPacket Exception in CIndexed::~CIndexed: ") + err.what());		
+		AddDebugLogLineC(logKadIndex, wxT("CInvalidPacket Exception in CIndexed::~CIndexed: ") + err.what());
 	} catch (const wxString& e) {
-		AddDebugLogLineM(true, logKadIndex, wxT("Exception in CIndexed::~CIndexed: ") + e);
+		AddDebugLogLineC(logKadIndex, wxT("Exception in CIndexed::~CIndexed: ") + e);
 	}
 }
 
@@ -468,7 +468,7 @@ void CIndexed::Clean()
 
 	m_totalIndexSource = s_Total - s_Removed;
 	m_totalIndexKeyword = k_Total - k_Removed;
-	AddDebugLogLineM( false, logKadIndex, wxString::Format(wxT("Removed %u keyword out of %u and %u source out of %u"),  k_Removed, k_Total, s_Removed, s_Total));
+	AddDebugLogLineN(logKadIndex, CFormat(wxT("Removed %u keyword out of %u and %u source out of %u")) % k_Removed % k_Total % s_Removed % s_Total);
 	m_lastClean = tNow + MIN2S(30);
 }
 
@@ -536,7 +536,7 @@ bool CIndexed::AddKeyword(const CUInt128& keyID, const CUInt128& sourceID, Kadem
 				entry->MergeIPsAndFilenames(oldEntry);	// oldEntry can be NULL, that's ok and we still need to do this call in this case
 				if (oldEntry == NULL) {
 					m_totalIndexKeyword++;
-					AddDebugLogLineM(false, logKadIndex, wxT("Multiple sizes published for file ") + entry->m_uSourceID.ToHexString());
+					AddDebugLogLineN(logKadIndex, wxT("Multiple sizes published for file ") + entry->m_uSourceID.ToHexString());
 				}
 				delete oldEntry;
 				oldEntry = NULL;
@@ -732,16 +732,14 @@ bool CIndexed::AddLoad(const CUInt128& keyID, uint32_t timet)
 	return true;
 }
 
-void CIndexed::SendValidKeywordResult(const CUInt128& keyID, const SSearchTerm* pSearchTerms, uint32_t ip, uint16_t port, bool oldClient, bool kad2, uint16_t startPosition, const CKadUDPKey& senderKey)
+void CIndexed::SendValidKeywordResult(const CUInt128& keyID, const SSearchTerm* pSearchTerms, uint32_t ip, uint16_t port, bool oldClient, uint16_t startPosition, const CKadUDPKey& senderKey)
 {
 	KeyHash* currKeyHash = NULL;
 	KeyHashMap::iterator itKeyHash = m_Keyword_map.find(keyID);
 	if (itKeyHash != m_Keyword_map.end()) {
 		currKeyHash = itKeyHash->second;
 		CMemFile packetdata(1024 * 50);
-		if (kad2) {
-			packetdata.WriteUInt128(Kademlia::CKademlia::GetPrefs()->GetKadID());
-		}
+		packetdata.WriteUInt128(Kademlia::CKademlia::GetPrefs()->GetKadID());
 		packetdata.WriteUInt128(keyID);
 		packetdata.WriteUInt16(50);
 		const uint16_t maxResults = 300;
@@ -752,8 +750,8 @@ void CIndexed::SendValidKeywordResult(const CUInt128& keyID, const SSearchTerm* 
 		// of spam entries. We could also sort by trustvalue, but we would risk to only send popular files this way
 		// on very hot keywords
 		bool onlyTrusted = true;
-		//uint32_t dbgResultsTrusted = 0;
-		//uint32_t dbgResultsUntrusted = 0;
+		DEBUG_ONLY( uint32_t dbgResultsTrusted = 0; )
+		DEBUG_ONLY( uint32_t dbgResultsUntrusted = 0; )
 
 		do {
 			for (CSourceKeyMap::iterator itSource = currKeyHash->m_Source_map.begin(); itSource != currKeyHash->m_Source_map.end(); ++itSource) {
@@ -768,31 +766,20 @@ void CIndexed::SendValidKeywordResult(const CUInt128& keyID, const SSearchTerm* 
 						} else if ((uint16_t)count < maxResults) {
 							if (!oldClient || currName->m_uSize <= OLD_MAX_FILE_SIZE) {
 								count++;
-								//if (onlyTrusted) {
-								//	dbgResultsTrusted++;
-								//} else {
-								//	dbgResultsUntrusted++;
-								//}
-								packetdata.WriteUInt128(currName->m_uSourceID);
-								if (kad2) {
-									currName->WriteTagListWithPublishInfo(&packetdata);
+#ifdef __DEBUG__
+								if (onlyTrusted) {
+									dbgResultsTrusted++;
 								} else {
-									currName->WriteTagList(&packetdata);
+									dbgResultsUntrusted++;
 								}
+#endif
+								packetdata.WriteUInt128(currName->m_uSourceID);
+								currName->WriteTagListWithPublishInfo(&packetdata);
 								if (count % 50 == 0) {
-									if (kad2) {
-										DebugSend(Kad2SearchRes, ip, port);
-										CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA2_SEARCH_RES, ip, port, senderKey, NULL);
-									} else {
-										DebugSend(KadSearchRes, ip, port);
-										CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA_SEARCH_RES, ip, port, senderKey, NULL);
-									}
-									packetdata.Reset();
-									if (kad2) {
-										packetdata.WriteUInt128(Kademlia::CKademlia::GetPrefs()->GetKadID());
-									}
-									packetdata.WriteUInt128(keyID);
-									packetdata.WriteUInt16(50);
+									DebugSend(Kad2SearchRes, ip, port);
+									CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA2_SEARCH_RES, ip, port, senderKey, NULL);
+									// Reset the packet, keeping the header (Kad id, key id, number of entries)
+									packetdata.SetLength(16 + 16 + 2);
 								}
 							}
 						} else {
@@ -811,39 +798,29 @@ void CIndexed::SendValidKeywordResult(const CUInt128& keyID, const SSearchTerm* 
 			}
 		} while (!onlyTrusted);
 
-		// LOGTODO: Remove log
-		//AddDebugLogLineM(false, logKadIndex, wxString::Format(wxT("Kad keyword search result request: Sent %u trusted and %u untrusted results"), dbgResultsTrusted, dbgResultsUntrusted));
+		AddDebugLogLineN(logKadIndex, CFormat(wxT("Kad keyword search result request: Sent %u trusted and %u untrusted results")) % dbgResultsTrusted % dbgResultsUntrusted);
 
 		if (count > 0) {
 			uint16_t countLeft = (uint16_t)count % 50;
 			if (countLeft) {
-				if (kad2) {
-					packetdata.Seek(16 + 16);
-					packetdata.WriteUInt16(countLeft);
-					DebugSend(Kad2SearchRes, ip, port);
-					CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA2_SEARCH_RES, ip, port, senderKey, NULL);
-				} else {
-					packetdata.Seek(16);
-					packetdata.WriteUInt16(countLeft);
-					DebugSend(KadSearchRes, ip, port);
-					CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA_SEARCH_RES, ip, port, senderKey, NULL);
-				}
+				packetdata.Seek(16 + 16);
+				packetdata.WriteUInt16(countLeft);
+				DebugSend(Kad2SearchRes, ip, port);
+				CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA2_SEARCH_RES, ip, port, senderKey, NULL);
 			}
 		}
 	}
 	Clean();
 }
 
-void CIndexed::SendValidSourceResult(const CUInt128& keyID, uint32_t ip, uint16_t port, bool kad2, uint16_t startPosition, uint64_t fileSize, const CKadUDPKey& senderKey)
+void CIndexed::SendValidSourceResult(const CUInt128& keyID, uint32_t ip, uint16_t port, uint16_t startPosition, uint64_t fileSize, const CKadUDPKey& senderKey)
 {
 	SrcHash* currSrcHash = NULL;
 	SrcHashMap::iterator itSrcHash = m_Sources_map.find(keyID);
 	if (itSrcHash != m_Sources_map.end()) {
 		currSrcHash = itSrcHash->second;
 		CMemFile packetdata(1024*50);
-		if (kad2) {
-			packetdata.WriteUInt128(Kademlia::CKademlia::GetPrefs()->GetKadID());
-		}
+		packetdata.WriteUInt128(Kademlia::CKademlia::GetPrefs()->GetKadID());
 		packetdata.WriteUInt128(keyID);
 		packetdata.WriteUInt16(50);
 		uint16_t maxResults = 300;
@@ -861,19 +838,10 @@ void CIndexed::SendValidSourceResult(const CUInt128& keyID, uint32_t ip, uint16_
 						currName->WriteTagList(&packetdata);
 						count++;
 						if (count % 50 == 0) {
-							if (kad2) {
-								DebugSend(Kad2SearchRes, ip, port);
-								CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA2_SEARCH_RES, ip, port, senderKey, NULL);
-							} else {
-								DebugSend(KadSearchRes, ip, port);
-								CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA_SEARCH_RES, ip, port, senderKey, NULL);
-							}
-							packetdata.Reset();
-							if (kad2) {
-								packetdata.WriteUInt128(Kademlia::CKademlia::GetPrefs()->GetKadID());
-							}
-							packetdata.WriteUInt128(keyID);
-							packetdata.WriteUInt16(50);
+							DebugSend(Kad2SearchRes, ip, port);
+							CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA2_SEARCH_RES, ip, port, senderKey, NULL);
+							// Reset the packet, keeping the header (Kad id, key id, number of entries)
+							packetdata.SetLength(16 + 16 + 2);
 						}
 					}
 				} else {
@@ -885,33 +853,24 @@ void CIndexed::SendValidSourceResult(const CUInt128& keyID, uint32_t ip, uint16_
 		if (count > 0) {
 			uint16_t countLeft = (uint16_t)count % 50;
 			if (countLeft) {
-				if (kad2) {
-					packetdata.Seek(16 + 16);
-					packetdata.WriteUInt16(countLeft);
-					DebugSend(Kad2SearchRes, ip, port);
-					CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA2_SEARCH_RES, ip, port, senderKey, NULL);
-				} else {
-					packetdata.Seek(16);
-					packetdata.WriteUInt16(countLeft);
-					DebugSend(KadSearchRes, ip, port);
-					CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA_SEARCH_RES, ip, port, senderKey, NULL);
-				}
+				packetdata.Seek(16 + 16);
+				packetdata.WriteUInt16(countLeft);
+				DebugSend(Kad2SearchRes, ip, port);
+				CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA2_SEARCH_RES, ip, port, senderKey, NULL);
 			}
 		}
 	}
 	Clean();
 }
 
-void CIndexed::SendValidNoteResult(const CUInt128& keyID, uint32_t ip, uint16_t port, bool kad2, uint64_t fileSize, const CKadUDPKey& senderKey)
+void CIndexed::SendValidNoteResult(const CUInt128& keyID, uint32_t ip, uint16_t port, uint64_t fileSize, const CKadUDPKey& senderKey)
 {
 	SrcHash* currNoteHash = NULL;
 	SrcHashMap::iterator itNote = m_Notes_map.find(keyID);
 	if (itNote != m_Notes_map.end()) {
 		currNoteHash = itNote->second;		
 		CMemFile packetdata(1024*50);
-		if (kad2) {
-			packetdata.WriteUInt128(Kademlia::CKademlia::GetPrefs()->GetKadID());
-		}
+		packetdata.WriteUInt128(Kademlia::CKademlia::GetPrefs()->GetKadID());
 		packetdata.WriteUInt128(keyID);
 		packetdata.WriteUInt16(50);
 		uint16_t maxResults = 150;
@@ -927,19 +886,10 @@ void CIndexed::SendValidNoteResult(const CUInt128& keyID, uint32_t ip, uint16_t 
 						currName->WriteTagList(&packetdata);
 						count++;
 						if (count % 50 == 0) {
-							if (kad2) {
-								DebugSend(Kad2SearchRes, ip, port);
-								CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA2_SEARCH_RES, ip, port, senderKey, NULL);
-							} else {
-								DebugSend(KadSearchNotesRes, ip, port);
-								CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA_SEARCH_NOTES_RES, ip, port, senderKey, NULL);
-							}
-							packetdata.Reset();
-							if (kad2) {
-								packetdata.WriteUInt128(Kademlia::CKademlia::GetPrefs()->GetKadID());
-							}
-							packetdata.WriteUInt128(keyID);
-							packetdata.WriteUInt16(50);
+							DebugSend(Kad2SearchRes, ip, port);
+							CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA2_SEARCH_RES, ip, port, senderKey, NULL);
+							// Reset the packet, keeping the header (Kad id, key id, number of entries)
+							packetdata.SetLength(16 + 16 + 2);
 						}
 					}
 				} else {
@@ -950,17 +900,10 @@ void CIndexed::SendValidNoteResult(const CUInt128& keyID, uint32_t ip, uint16_t 
 
 		uint16_t countLeft = count % 50;
 		if (countLeft) {
-			if (kad2) {
-				packetdata.Seek(16 + 16);
-				packetdata.WriteUInt16(countLeft);
-				DebugSend(Kad2SearchRes, ip, port);
-				CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA2_SEARCH_RES, ip, port, senderKey, NULL);
-			} else {
-				packetdata.Seek(16);
-				packetdata.WriteUInt16(countLeft);
-				DebugSend(KadSearchNotesRes, ip, port);
-				CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA_SEARCH_NOTES_RES, ip, port, senderKey, NULL);
-			}
+			packetdata.Seek(16 + 16);
+			packetdata.WriteUInt16(countLeft);
+			DebugSend(Kad2SearchRes, ip, port);
+			CKademlia::GetUDPListener()->SendPacket(packetdata, KADEMLIA2_SEARCH_RES, ip, port, senderKey, NULL);
 		}
 	}
 }

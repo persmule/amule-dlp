@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2006-2009 Marcelo Roberto Jimenez ( phoenix@amule.org )
-// Copyright (c) 2006-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Marcelo Roberto Jimenez ( phoenix@amule.org )
+// Copyright (c) 2006-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -43,16 +43,17 @@
 #ifndef IP2COUNTRY_H
 #define IP2COUNTRY_H
 
+#include "Types.h"	// Needed for uint8, uint16 and uint32
 
 #include <map>
 
-#include <wx/bitmap.h>
+#include <wx/image.h>
 #include <wx/string.h>
 
 
 typedef struct {
 	wxString Name;
-	wxBitmap Flag;
+	wxImage  Flag;
 } CountryData;
 
 
@@ -61,13 +62,22 @@ typedef std::map<wxString, CountryData> CountryDataMap;
 
 class CIP2Country {
 public:
-	CIP2Country();
+	CIP2Country(const wxString& configDir);
 	~CIP2Country();
 	const CountryData& GetCountryData(const wxString& ip);
+	void Enable();
+	void Disable();
+	void Update();
+	bool IsEnabled() { return m_geoip != NULL; }
+	void DownloadFinished(uint32 result);
 
 private:
 	struct GeoIPTag *m_geoip;
 	CountryDataMap m_CountryDataMap;
+	wxString m_DataBaseName;
+	wxString m_DataBasePath;
+
+	void LoadFlags();
 };
 
 #endif // IP2COUNTRY_H

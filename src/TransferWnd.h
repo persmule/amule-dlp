@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -27,22 +27,19 @@
 #define TRANSFERWND_H
 
 #include <wx/panel.h>	// Needed for wxPanel
+#include <wx/notebook.h>	// needed for wxBookCtrlEvent in wx 2.8
 #include "Types.h"		// Needed for uint32
 #include "OtherStructs.h"
-#include "Constants.h"		// Needed for ViewType
 
-class CClientListCtrl;
+class CSourceListCtrl;
 class CDownloadListCtrl;
 class CMuleNotebook;
 class wxListCtrl;
 class wxSplitterEvent;
-class wxNotebookEvent;
 class wxCommandEvent;
 class wxMouseEvent;
 class wxEvent;
 class wxMenu;
-
-
 
 /**
  * This class takes care of managing the lists and other controls contained 
@@ -78,17 +75,9 @@ public:
 	/**
 	 * Updates the title of the specified category.
 	 *
-	 * @param index The index of the category on the notebook.
-	 * @param titleChanged Set to true if the actual title has changed.
-	 *
-	 * The second paramerter will make the UpdateCategory function signal
-	 * to the searchdlg page that the lists of categories has been changed,
-	 * and force it to refresh its list of categories. 
-	 *
-	 * This however should only be done when the title has actually changed, 
-	 * since it will cause the user-selection to be reset.
+	 * @param index The index of the category on the notebook. -1 will update all categories.
 	 */
-	void UpdateCategory( int index, bool titleChanged = false );
+	void UpdateCategory(int index);
 
 	/**
 	 * Remove category
@@ -97,25 +86,9 @@ public:
 	void RemoveCategoryPage(int index);
 
 	/**
-	 * This functions updates the displayed client-numbers*
-	 *
-	 * @param number The number of clients on the upload queue.
-	 *
-	 * This function updates both the number of clients on the queue,
-	 * as well as the number of banned clients.
-	 */
-	void	ShowQueueCount(uint32 number);
-	
-	/**
-	 * This function switches between showing the upload-queue and the list of
-	 * client who are currently recieving files.
-	 */
-	void	SwitchUploadList(wxCommandEvent& evt);
-	
-	/**
 	 * Helper-function which updates the displayed titles of all existing categories.
 	 */
-	void	UpdateCatTabTitles();
+	void	UpdateCatTabTitles() { UpdateCategory(-1); }
 
 	
 	/**
@@ -125,21 +98,17 @@ public:
 	 */
 	void	Prepare();
 
-	/**
-	 * Call this function to update the title of the bottom pane after the view
-	 * has been changed.
-	 */
-	void UpdateBottomPaneTitle(ViewType view);
-
 	//! Pointer to the download-queue.
 	CDownloadListCtrl*	downloadlistctrl;
 	//! Pointer to the list of clients.
-	CClientListCtrl*	clientlistctrl;
+	CSourceListCtrl*	clientlistctrl;
 	
+private:
 	//! Contains the current (or last if the clientlist is hidden) position of the splitter.
 	int m_splitter;
+	//! Minimum position of splitter bar
+	static const int s_splitterMin = 90;
 
-private:
 	/**
 	 * Event-handler for the set status by category menu-item.
 	 */
@@ -178,7 +147,7 @@ private:
 	/**
 	 * Event-handler for changing categories.
 	 */
-	void OnCategoryChanged(wxNotebookEvent& evt);
+	void OnCategoryChanged(wxBookCtrlEvent& evt);
 	
 	/**
 	 * Event-handler for displaying the category-popup menu.
@@ -191,7 +160,7 @@ private:
 	void OnToggleClientList( wxCommandEvent& event );
     
 	/**
-	 * Event-handler for automatic show/hide of the clientlistctrl.
+	 * Event-handler for changes in the sash divider position.
 	 */
 	void OnSashPositionChanging(wxSplitterEvent& evt);
 

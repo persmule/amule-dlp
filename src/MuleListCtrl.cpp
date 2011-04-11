@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -59,6 +59,7 @@ BEGIN_EVENT_TABLE(CMuleListCtrl, MuleExtern::wxGenericListCtrl)
 	EVT_LIST_COL_CLICK( -1, 		CMuleListCtrl::OnColumnLClick)
 	EVT_LIST_COL_RIGHT_CLICK( -1,	CMuleListCtrl::OnColumnRClick)
 	EVT_LIST_ITEM_SELECTED(-1,		CMuleListCtrl::OnItemSelected)
+	EVT_LIST_ITEM_DESELECTED(-1,	CMuleListCtrl::OnItemSelected)
 	EVT_LIST_DELETE_ITEM(-1,		CMuleListCtrl::OnItemDeleted)
 	EVT_LIST_DELETE_ALL_ITEMS(-1,	CMuleListCtrl::OnAllItemsDeleted)
 	EVT_CHAR(						CMuleListCtrl::OnChar)
@@ -77,6 +78,7 @@ CMuleListCtrl::CMuleListCtrl(wxWindow *parent, wxWindowID winid, const wxPoint& 
 	m_sort_func = NULL;
 	m_tts_time = 0;
 	m_tts_item = -1;
+	m_isSorting = false;
 
 	if (imgList.GetImageCount() == 0) {
 		imgList.Add(wxBitmap(sort_dn_xpm));
@@ -99,6 +101,35 @@ CMuleListCtrl::~CMuleListCtrl()
 	}
 }
 
+long CMuleListCtrl::InsertColumn(long col, const wxString& heading, int format, int width, const wxString& name)
+{
+	if (!name.IsEmpty()) {
+#ifdef __DEBUG__
+		// Check for valid names
+		wxASSERT_MSG(name.Find(wxT(':')) == wxNOT_FOUND, wxT("Column name \"") + name + wxT("\" contains invalid characters!"));
+		wxASSERT_MSG(name.Find(wxT(',')) == wxNOT_FOUND, wxT("Column name \"") + name + wxT("\" contains invalid characters!"));
+
+		// Check for uniqueness of names.
+		for (ColNameList::const_iterator it = m_column_names.begin(); it != m_column_names.end(); ++it) {
+			if (name == it->name) {
+				wxFAIL_MSG(wxT("Column name \"") + name + wxT("\" is not unique!"));
+			}
+		}
+#endif
+		// Insert name at position col.
+		ColNameList::iterator it = m_column_names.begin();
+		while (it != m_column_names.end() && it->index < col) {
+			++it;
+		}
+		m_column_names.insert(it, ColNameEntry(col, width, name));
+		while (it != m_column_names.end()) {
+			++it;
+			++(it->index);
+		}
+	}
+
+	return MuleExtern::wxGenericListCtrl::InsertColumn(col, heading, format, width);
+}
 
 void CMuleListCtrl::SaveSettings()
 {
@@ -108,63 +139,56 @@ void CMuleListCtrl::SaveSettings()
 
 	// Save sorting, column and order
 	wxString sortOrder;
-	for (CSortingList::iterator it = m_sort_orders.begin(); it != m_sort_orders.end(); ++it) {
-		sortOrder += wxString::Format(wxT("%u %u, "), it->first, it->second);
+	for (CSortingList::iterator it = m_sort_orders.begin(); it != m_sort_orders.end();) {
+		wxString columnName = GetColumnName(it->first);
+		if (!columnName.IsEmpty()) {
+			sortOrder += columnName;
+			sortOrder += wxT(":");
+			sortOrder += it->second & SORT_DES ? wxT("1") : wxT("0");
+			sortOrder += wxT(":");
+			sortOrder += it->second & SORT_ALT ? wxT("1") : wxT("0");
+			if (++it != m_sort_orders.end()) {
+				sortOrder += wxT(",");
+			}
+		} else {
+			++it;
+		}
 	}
 	
 	cfg->Write(wxT("/eMule/TableOrdering") + m_name, sortOrder);
 
 	// Save column widths. ATM this is also used to signify hidden columns.
 	wxString buffer;
-	for ( int i = 0; i < GetColumnCount(); ++i ) {
-		if ( i ) buffer << wxT(",");
-
-		buffer << GetColumnWidth(i);
+	for (int i = 0; i < GetColumnCount(); ++i) {
+		wxString columnName = GetColumnName(i);
+		if (!columnName.IsEmpty()) {
+			if (!buffer.IsEmpty()) {
+				buffer << wxT(",");
+			}
+			int currentwidth = GetColumnWidth(i);
+			int savedsize = (m_column_sizes.size() && (i < (int) m_column_sizes.size())) ? m_column_sizes[i] : 0;
+			buffer << columnName << wxT(":") << ((currentwidth > 0) ? currentwidth : (-1 * savedsize));
+		}
 	}
 
-	cfg->Write( wxT("/eMule/TableWidths") +m_name, buffer );
+	cfg->Write(wxT("/eMule/TableWidths") + m_name, buffer);
 }	
 
-
-void CMuleListCtrl::LoadSettings()
+void CMuleListCtrl::ParseOldConfigEntries(const wxString& sortOrders, const wxString& columnWidths)
 {
-	wxCHECK_RET(!m_name.IsEmpty(), wxT("Cannot load settings for unnamed list"));
-
-	wxConfigBase* cfg = wxConfigBase::Get();
-
-	// Set the column widths
-	wxString buffer;
-	if (cfg->Read( wxT("/eMule/TableWidths") + m_name, &buffer, wxEmptyString)) {
-		if (buffer.IsEmpty() || !(buffer[0] >= wxT('0') && buffer[0] <= wxT('9'))) {
-			// Unknown format, skip
-			return;
-		}
-		int counter = 0;
-		
-		wxStringTokenizer tokenizer( buffer, wxT(",") );
-		while (tokenizer.HasMoreTokens() && (counter < GetColumnCount())) {
-			SetColumnWidth(counter++, StrToLong( tokenizer.GetNextToken()));
-		}
-	}
-
-	// Load sort order (including sort-column)
-	m_sort_orders.clear();
-	wxString setting = cfg->Read(wxT("/eMule/TableOrdering") + m_name, wxEmptyString);
-	
-	// Prevent sorting from occuring when calling SetSorting
-	MuleListCtrlCompare sortFunc = m_sort_func;
-	m_sort_func = NULL;
-	
-	wxStringTokenizer tokens(setting, wxT(","));
+	// Set sort order (including sort column)
+	wxStringTokenizer tokens(sortOrders, wxT(","));
 	while (tokens.HasMoreTokens()) {
 		wxString token = tokens.GetNextToken();
 
-		unsigned long column = 0, order = 0;
+		long column = 0;
+		unsigned long order = 0;
 
-		if (token.BeforeFirst(wxT(' ')).Strip(wxString::both).ToULong(&column)) {
+		if (token.BeforeFirst(wxT(' ')).Strip(wxString::both).ToLong(&column)) {
 			if (token.AfterFirst(wxT(' ')).Strip(wxString::both).ToULong(&order)) {
+				column = GetNewColumnIndex(column);
 				// Sanity checking, to avoid asserting if column count changes.
-				if (column < (unsigned)GetColumnCount()) {
+				if (column >= 0 && column < GetColumnCount()) {
 					// Sanity checking, to avoid asserting if data-format changes.
 					if ((order & ~SORTING_MASK) == 0) {
 						// SetSorting will take care of duplicate entries
@@ -174,17 +198,78 @@ void CMuleListCtrl::LoadSettings()
 			}
 		}
 	}
-	
-	// Make sure that sort by name is in the sort order list, 
-	// so clients don't get sorted under the wrong download.
-	// (It should always be anyway, but you can remove it by editing the config.)
-	// This also makes sure there's at least one entry in the list.
-	CSortingList::const_iterator it = m_sort_orders.begin();
-	bool ok = false;
-	for (; !ok && it != m_sort_orders.end(); ++it) {
-		ok = it->first == 0;
+
+	// Set column widths
+	int counter = 0;
+	wxStringTokenizer tokenizer(columnWidths, wxT(","));
+	while (tokenizer.HasMoreTokens()) {
+		long idx = GetNewColumnIndex(counter++);
+		long width = StrToLong(tokenizer.GetNextToken());
+		if (idx >= 0) {
+			SetColumnWidth(idx, width);
+		}
 	}
-	if (!ok) { // not found - append sort by name to the end
+}
+
+void CMuleListCtrl::LoadSettings()
+{
+	wxCHECK_RET(!m_name.IsEmpty(), wxT("Cannot load settings for unnamed list"));
+
+	wxConfigBase* cfg = wxConfigBase::Get();
+
+	// Load sort order (including sort-column)
+	m_sort_orders.clear();
+	wxString sortOrders = cfg->Read(wxT("/eMule/TableOrdering") + m_name, wxEmptyString);
+	wxString columnWidths = cfg->Read(wxT("/eMule/TableWidths") + m_name, wxEmptyString);
+
+	// Prevent sorting from occuring when calling SetSorting
+	MuleListCtrlCompare sortFunc = m_sort_func;
+	m_sort_func = NULL;
+
+	if (columnWidths.Find(wxT(':')) == wxNOT_FOUND) {
+		// Old-style config entries...
+		ParseOldConfigEntries(sortOrders, columnWidths);
+	} else {
+		// Sort orders
+		wxStringTokenizer tokens(sortOrders, wxT(","));
+		// Sort orders are stored in order primary, secondary, ...
+		// We want to apply them with SetSorting(), so we have to apply them in reverse order,
+		// so that the primary order is applied last and wins.
+		// Read them with tokenizer and store them in a list in reverse order.
+		CStringList tokenList;
+		while (tokens.HasMoreTokens()) {
+			tokenList.push_front(tokens.GetNextToken());
+		}
+		for (CStringList::iterator it = tokenList.begin(); it != tokenList.end(); it++) {
+			wxString token = *it;
+			wxString name = token.BeforeFirst(wxT(':'));
+			long order = StrToLong(token.AfterFirst(wxT(':')).BeforeLast(wxT(':')));
+			long alt = StrToLong(token.AfterLast(wxT(':')));
+			int col = GetColumnIndex(name);
+			if (col >= 0) {
+				SetSorting(col, (order ? SORT_DES : 0) | (alt ? SORT_ALT : 0));
+			}
+		}
+
+		// Column widths
+		wxStringTokenizer tkz(columnWidths, wxT(","));
+		while (tkz.HasMoreTokens()) {
+			wxString token = tkz.GetNextToken();
+			wxString name = token.BeforeFirst(wxT(':'));
+			long width = StrToLong(token.AfterFirst(wxT(':')));
+			int col = GetColumnIndex(name);
+			if (col >= 0) {
+				if (col >= (int) m_column_sizes.size()) {
+					m_column_sizes.resize(col + 1, 0);
+				}
+				m_column_sizes[col] = abs(width);
+				SetColumnWidth(col, (width > 0) ? width : 0);
+			}
+		}
+	}
+
+	// Must have at least one sort-order specified
+	if (m_sort_orders.empty()) {
 		m_sort_orders.push_back(CColPair(0, 0));
 	}
 
@@ -194,22 +279,69 @@ void CMuleListCtrl::LoadSettings()
 }
 
 
+const wxString& CMuleListCtrl::GetColumnName(int index) const
+{
+	for (ColNameList::const_iterator it = m_column_names.begin(); it != m_column_names.end(); ++it) {
+		if (it->index == index) {
+			return it->name;
+		}
+	}
+	return EmptyString;
+}
+
+int CMuleListCtrl::GetColumnDefaultWidth(int index) const
+{
+	for (ColNameList::const_iterator it = m_column_names.begin(); it != m_column_names.end(); ++it) {
+		if (it->index == index) {
+			return it->defaultWidth;
+		}
+	}
+	return wxLIST_AUTOSIZE;
+}
+
+int CMuleListCtrl::GetColumnIndex(const wxString& name) const
+{
+	for (ColNameList::const_iterator it = m_column_names.begin(); it != m_column_names.end(); ++it) {
+		if (it->name == name) {
+			return it->index;
+		}
+	}
+	return -1;
+}
+
+int CMuleListCtrl::GetNewColumnIndex(int oldindex) const
+{
+	wxStringTokenizer oldcolumns(GetOldColumnOrder(), wxT(","), wxTOKEN_RET_EMPTY_ALL);
+
+	while (oldcolumns.HasMoreTokens()) {
+		wxString name = oldcolumns.GetNextToken();
+		if (oldindex == 0) {
+			return GetColumnIndex(name);
+		}
+		--oldindex;
+	}
+	return -1;
+}
+
 long CMuleListCtrl::GetInsertPos(wxUIntPtr data)
 {
 	// Find the best place to position the item through a binary search
 	int Min = 0;
 	int Max = GetItemCount();
 
-	// Only do this if there are any items and a sorter function
+	// Only do this if there are any items and a sorter function.
+	// Otherwise insert at end.
 	if (Max && m_sort_func) {
-		// This search will narrow down the best place to position the new
-		// item. The result will be the item after that position, which is
-		// the format expected by the insertion function.
+		// This search will find the place to position the new item
+		// so it matches current sorting.
+		// The result will be the position the new item will have
+		// after insertion, which is the format expected by the InsertItem function.
+		// If the item equals another item it will be inserted after it.
 		do {
 			int cur_pos = ( Max - Min ) / 2 + Min;
 			int cmp = CompareItems(data, GetItemData(cur_pos));
 			
-			// Value is lesser than the one at the current pos
+			// Value is less than the one at the current pos
 			if ( cmp < 0 ) {
 				Max = cur_pos;
 			} else {
@@ -220,7 +352,6 @@ long CMuleListCtrl::GetInsertPos(wxUIntPtr data)
 
 	return Max;
 }
-
 
 
 int CMuleListCtrl::CompareItems(wxUIntPtr item1, wxUIntPtr item2)
@@ -237,18 +368,14 @@ int CMuleListCtrl::CompareItems(wxUIntPtr item1, wxUIntPtr item2)
 	return CmpAny(item1, item2);
 }
 
-
-MuleListCtrlCompare	g_sort_func = NULL;
-CMuleListCtrl*		g_sort_list = NULL;
-
-
-int CMuleListCtrl::SortProc(wxUIntPtr item1, wxUIntPtr item2, long)
+int CMuleListCtrl::SortProc(wxUIntPtr item1, wxUIntPtr item2, long data)
 {
-	const CSortingList& orders = g_sort_list->m_sort_orders;
+	MuleSortData* sortdata = (MuleSortData*) data;
+	const CSortingList& orders = sortdata->m_sort_orders;
 	
 	CSortingList::const_iterator it = orders.begin();
 	for (; it != orders.end(); ++it) {
-		int result = g_sort_func(item1, item2, it->first | it->second);
+		int result = sortdata->m_sort_func(item1, item2, it->first | it->second);
 		if (result != 0) {
 			return result;
 		}
@@ -258,26 +385,67 @@ int CMuleListCtrl::SortProc(wxUIntPtr item1, wxUIntPtr item2, long)
 	return CmpAny(item1, item2);
 }
 
-
 void CMuleListCtrl::SortList()
 {
-	wxCHECK_RET(g_sort_func == NULL, wxT("Sort-function already set"));
-	wxCHECK_RET(g_sort_list == NULL, wxT("Sort-list already set"));
+	if (!IsSorting() && (m_sort_func && GetColumnCount())) {
+
+		m_isSorting = true;
 	
-	if (m_sort_func && GetColumnCount()) {
+		MuleSortData sortdata(m_sort_orders, m_sort_func);
+
+		// In many cases control already has correct order, and sorting causes nasty flickering.
+		// Make one pass through it to check if sorting is necessary at all.
+		int nrItems = GetItemCount();
+		bool clean = true;
+		long lastItemdata = 0;
+		if (nrItems > 1) {
+			lastItemdata = GetItemData(0);
+		}
+		for (int i = 1; i < nrItems; i++) {
+			long nextItemdata = GetItemData(i);
+			if (SortProc(lastItemdata, nextItemdata, (long int)&sortdata) > 0) {
+				// ok - we need to sort
+				clean = false;
+				break;
+			}
+			lastItemdata = nextItemdata;
+		}
+		if (clean) {
+			// no need to sort
+			m_isSorting = false;
+			return;
+		}
+
 		// Positions are likely to be invalid after sorting.
 		ResetTTS();
 		
-		g_sort_func = m_sort_func;
-		g_sort_list = this;
+		// Store the current selected items
+		ItemDataList selectedItems = GetSelectedItems();
+		// Store the focused item
+		long pos = GetNextItem( -1, wxLIST_NEXT_ALL, wxLIST_STATE_FOCUSED );
+		wxUIntPtr focused = (pos == -1) ? 0 : GetItemData(pos);
 		
-		SortItems(SortProc, 0);
+		SortItems(SortProc, (long int)&sortdata);
+		
+		// Re-select the selected items.
+		for (unsigned i = 0; i < selectedItems.size(); ++i) {
+			long it_pos = FindItem(-1, selectedItems[i]);
+			if (it_pos != -1) {
+				SetItemState(it_pos, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+			}
+		}
+		
+		// Set focus on item if any was focused
+		if (focused) {
+			long it_pos = FindItem(-1, focused);
+			if (it_pos != -1) {
+				SetItemState(it_pos, wxLIST_STATE_FOCUSED, wxLIST_STATE_FOCUSED);
+			}
+		}
 
-		g_sort_func = NULL;
-		g_sort_list = NULL;
+		m_isSorting = false;
 	}
 }
-
 
 CMuleListCtrl::ItemDataList CMuleListCtrl::GetSelectedItems() const
 {
@@ -318,12 +486,18 @@ void CMuleListCtrl::OnColumnRClick(wxListEvent& evt)
 
 void CMuleListCtrl::OnMenuSelected( wxCommandEvent& evt )
 {
-	int col = evt.GetId() - MP_LISTCOL_1;
+	unsigned int col = evt.GetId() - MP_LISTCOL_1;
+
+	if (col >= m_column_sizes.size()) {
+		m_column_sizes.resize(col + 1, 0);
+	}
 
 	if (GetColumnWidth(col) > COL_SIZE_MIN) {
+		m_column_sizes[col] = GetColumnWidth(col);
 		SetColumnWidth(col, 0);
 	} else {
-		SetColumnWidth(col, wxLIST_AUTOSIZE);
+		int oldsize = m_column_sizes[col];
+		SetColumnWidth(col, (oldsize > 0) ? oldsize : GetColumnDefaultWidth(col));
 	}	
 }
 
@@ -337,14 +511,6 @@ void CMuleListCtrl::OnColumnLClick(wxListEvent& evt)
 		// This happens if a user clicks past the last column header.
   		return;
 	}
-
-	// Get the currently focused item
-	long pos = GetNextItem( -1, wxLIST_NEXT_ALL, wxLIST_STATE_FOCUSED );
-	wxUIntPtr item = 0;
-	if (pos != -1) {
-		item = GetItemData(pos);
-	}
-
 
 	unsigned sort_order = 0;
 	if (m_sort_orders.front().first == (unsigned)evt.GetColumn()) {
@@ -370,19 +536,11 @@ void CMuleListCtrl::OnColumnLClick(wxListEvent& evt)
 				sort_order = it->second;
 				break;
 			}
-		}	
-	}
-	
-	SetSorting(evt.GetColumn(), sort_order);
-	
-	
-	// Set focus on item if any was focused
-	if (item != 0) {
-		long it_pos = FindItem(-1, item);
-		if (it_pos != -1) {
-			SetItemState(it_pos,wxLIST_STATE_FOCUSED, wxLIST_STATE_FOCUSED | wxLIST_STATE_SELECTED);
 		}
 	}
+	
+	
+	SetSorting(evt.GetColumn(), sort_order);	
 }
 
 
@@ -395,30 +553,6 @@ void CMuleListCtrl::ClearSelection()
 			index = GetNextItem(index, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
 		}
 	}
-}
-
-
-void CMuleListCtrl::SetTableName(const wxString& name)
-{
-	m_name = name;
-}
-
-
-unsigned CMuleListCtrl::GetSortColumn() const
-{
-	return m_sort_orders.front().first;
-}
-
-
-unsigned CMuleListCtrl::GetSortOrder() const
-{
-	return m_sort_orders.front().second;
-}
-
-
-void CMuleListCtrl::SetSortFunc(MuleListCtrlCompare func)
-{
-	m_sort_func = func;
 }
 
 
@@ -488,10 +622,10 @@ void CMuleListCtrl::OnMouseWheel(wxMouseEvent &event)
 
 void CMuleListCtrl::SetColumnImage(unsigned col, int image)
 {
-    wxListItem item;
-    item.SetMask(wxLIST_MASK_IMAGE);
+	wxListItem item;
+	item.SetMask(wxLIST_MASK_IMAGE);
 	item.SetImage(image);
-    SetColumn(col, item);	
+	SetColumn(col, item);	
 }
 
 
@@ -532,7 +666,7 @@ wxString CMuleListCtrl::GetTTSText(unsigned item) const
 
 void CMuleListCtrl::OnChar(wxKeyEvent& evt)
 {
-	wxChar key = evt.GetKeyCode();
+	int key = evt.GetKeyCode();
 	if (key == 0) {
 		// We prefer GetKeyCode() to GetUnicodeKey(), in order to work
 		// around a bug in the GetUnicodeKey(), that causes values to
@@ -543,7 +677,7 @@ void CMuleListCtrl::OnChar(wxKeyEvent& evt)
 		key = evt.GetUnicodeKey();
 	} else if (key >= WXK_START) {
 		// wxKeycodes are ignored, as they signify events such as the 'home'
-		// button. Unicoded chars are not checke as there is an overlap valid
+		// button. Unicoded chars are not checked as there is an overlap valid
 		// chars and the wx keycodes.
 		evt.Skip();
 		return;
@@ -568,8 +702,8 @@ void CMuleListCtrl::OnChar(wxKeyEvent& evt)
 	m_tts_text.Append(wxTolower(key));
 
 	// May happen if the subclass does not forward deletion events.
+	// Or rather when single-char-repeated (see below) wraps around, so don't assert.
 	if (m_tts_item >= GetItemCount()) {
-		wxASSERT(0);
 		m_tts_item = -1;
 	}
 	
@@ -615,15 +749,19 @@ void CMuleListCtrl::OnChar(wxKeyEvent& evt)
 
 void CMuleListCtrl::OnItemSelected(wxListEvent& evt)
 {
-	// We reset the current TTS session if the user manually changes the selection
-	if (m_tts_item != evt.GetIndex()) {
-		ResetTTS();
+	if (IsSorting()) {
+		// Selection/Deselection that happened while sorting.
+		evt.Veto();
+	} else {
+			// We reset the current TTS session if the user manually changes the selection
+		if (m_tts_item != evt.GetIndex()) {
+			ResetTTS();
 
-		// The item is changed so that the next TTS starts from the selected item.
-		m_tts_item = evt.GetIndex();
+			// The item is changed so that the next TTS starts from the selected item.
+			m_tts_item = evt.GetIndex();
+		}
+		evt.Skip();
 	}
-
-	evt.Skip();
 }
 
 
@@ -649,5 +787,10 @@ void CMuleListCtrl::ResetTTS()
 {
 	m_tts_item = -1;
 	m_tts_time =  0;
+}
+
+wxString CMuleListCtrl::GetOldColumnOrder() const
+{
+	return wxEmptyString;
 }
 // File_checked_for_headers

@@ -1,3 +1,275 @@
+Version 2.3.0 - Don't go looking for names on release candidates.
+----------
+2011-??-??
+
+	freddy77:
+		* Various optimizations of memory usage
+		* Access files for reading/writing via mapped memory
+		  (with custom exception handling)
+		* Fix download of files > 1GB on ucLibc
+		* Fix autogen.sh under Ubuntu
+		* Fixed TCP obfuscation negotiation
+
+	Gnucco:
+		* Add option to ed2k link parser to display links in
+		  emulecollection
+		* Added test case for the CTag class
+
+	GonoszTopi:
+		* Various fixes to new colour code
+		* Allow user to select display of transfer rates
+		* Extendable list-control settings save/load code
+		* Drop assumption that last search keyword is a filename
+		  extension if length == 3
+		* Instead of counting unicode characters in a Kad search now we
+		  use the UTF-8 byte count to determine whether the keyword is
+		  allowed or not
+		* Use actual page size in mmap calls instead of a randomly
+		  selected number
+		* Fix custom Crypto++ path not shown by configure
+		* Make <IMG> tags in aMuleWeb HTML 4.01 conforming
+		* Fix HTTP proxy authentication
+		* Use -static for the tests too, when a static binary is
+		  requested to prevent configure succeed where compilation
+		  would fail
+		* Configure now checks only for the tools and libraries needed
+		  for the selected components
+		* Fix aMuleGUI looking for undefined switches
+		* Fix the "blinking" in aMuleGUI's status line
+		* Better reporting of Kad tag reading/parsing errors
+		* Fix the unittests
+		* Some code reorganization
+		* Features/fixes ported from eMule:
+			- Implement an alternate method to estimate the real
+			  user count in the Kad network, which is not based on
+			  our local routing table (0.49b)
+			- Add double quote to word-boundary characters (0.50a)
+			- Drop support for Kad 1.0 (0.50a)
+			- Try to find the closest node alive (0.50a)
+			- Fix a bug in Kad which would not enforce the search
+			  tolerance in certain cases (0.50a)
+			- Change Kad to work better in small LANs (0.50a)
+		* Remove the unimplemented "Create backup for preview" option
+		* Add variables to preview command like in user event commands
+		* Disable 'Show all comments' in the file's context menu if
+		  there are no comments/ratings available
+		* Enable renaming (completed) shared files
+		* Proper handling of %-escaped UTF-8 sequences in ed2k:// URIs
+		* Drop support for nodes.dat version 0
+		* Fix issue #1621: 'ed2k links containing unicode characters will
+		  cause the filename to be truncated'
+		* Fix issue #1634: Change charset to UTF-8 in amuleweb template
+		* Fix installation with denoiser enabled
+		* Add support for automake's --enable-silent-rules feature
+		  (original idea by Gerd78)
+		* Improved CFormat and enabled reordering of arguments for
+		  translators
+		* Several fixes and improvements for the sanity checker script
+		* Fix bfd detection
+
+	Greek:
+		* Part number is now an extra column in the download list
+		* Improvements to preferences dialogs
+		* Redesign skin selection
+
+	Grunt:
+		* Sort downloads by time remaining now has shortest time on top and unknown on bottom
+
+	jolz:
+		* Fixed file locking between ed2k and aMule on Windows
+
+	Kry:
+		* Reworked user interface, separating download and upload views
+		* Fix list double-buffering causing artifacts on refresh and when
+		  showing a context menu.
+		* Fix indexes after removing GUI items
+		* Fixes to Windows build
+		* Allow compilation with wxCocoa
+		* Replace Color.h by new class implementation MuleColour
+		* Lower class overhead and use two-level cache for pens/brushes
+		* Added aMuleCMD project for MSVC.
+		* Fixed UnitTests and aMuleCMD in MSVC to use _CONSOLE subsystem.
+		* Preferences changes
+		* Fixed problem with uploading to lowid clients (szsuj)
+		* Sorting lists (automatically or by user interaction) doesn't clear selection anymore
+		* Fix client version display for MLdonkeys
+		* Added Xcode project for MacOSX build
+		* Fixed the centering of icons and text
+		* Enable vertical toolbar orientation on WIN32 too
+		* Option to resume next file alphabetically, keeping in mind categories and priority
+		* Fixed crash when column gets removed
+		* Show remote filename in source list
+		* Fixed crash in upload thread on shutdown
+		* Dynamic adjustment of threshold for rarity of download files
+		* Option to prevent the computer from sleeping while downloading in MSW and MacOSX >= 10.5
+		* Mac fixes
+
+	lfroen:
+		* php prefix for lex/yacc
+
+	LittleAbacus:
+		* Search results can now be sorted by "knownness" state.
+
+	marcell:
+		* Fixed issue #892: Show data sizes >= 1.0 GB with three digits.
+		* Fixed search 'Stop' button not stopping Kad searches.
+		* Check Kademlia search results against original criteria.
+		* Allow Kademlia searches with repetitive keywords.
+		* Allow adding current chat partner to friend list from tab's context menu.
+		* Allow not downloading files via HTTP if the requested file is not newer.
+		* Removed white boxes around file rating icons
+		* Implemented public shared directory names only containing actually shared subfolders.
+
+	morph:
+		* Patch to uniform and fix minor errors on man pages
+
+	myth:
+		* Feedback from shared files - add number of clients on queue.
+		* New stats server
+
+	Phoenix:
+		* Fixed assertion when trying to preview files smaller than
+		256 K.
+
+	Skolnick:
+		* Fixed autogen.sh for Bourne Shell
+
+	Stu Redman:
+		* Sort source list on opening and add file name to A4AF files
+		* MSVC: optional GeoIP support
+		* Faster progress bars with less overhead (without pens/brushes)
+		* Show log messages in remote gui
+		* More info in the Kad tab
+		* Improved gaplist performance
+		* Ported chat captchas (receive and send) 
+		  and "Advanced Chat Spam Filter" from eMule
+		* Allow download of multiple search results if search list 
+		  is sorted by status (thanks to DarkNRG)
+		* Fixed CFile::SetLength for large files
+		* Reduce file handle usage by closing part files after idle time
+		* Speed up selection of shared directories with many subdirectories,
+		  fixed red marking of folders with shared subdirectories
+		* Ban clients that uploaded bad data (based on CorruptionBlackBox from eMule)
+		* Support wxWidgets 2.9
+		* amuled for Windows (with wx 2.9)
+		* Friends get recognized in the friend list control even if their IP has changed
+		* Don't kick friend upload, don't kick release prio uploads (unless they take more
+		  than half of the slots), and don't kick anybody else unless necessary (with GonoszTopi)
+		* Fixed crash in remote gui when aMule exits
+		* Added more media file types from eMule
+		* Allow the user to cancel the app if Temp/Incoming is not found
+		* Show downloads as shares in remote gui
+		* MANY fixes/implementations for amulegui
+		* amuleweb for Windows (with wx 2.9)
+		* Show connected friends in blue in the friend list
+		* Show total upload/download ratio in statistic tree
+		* Fixed category administration in remote gui
+		* Implement directory preferences in remote gui
+		* MSVC build for alcc, wxCas
+		* Fixed errors and crashes on parsing ED2K links with '/' in them
+		* Configure option --enable-fileview
+		* Bypass amulegui connection dialog with switch -s / --skip
+		* Fixed Core Timer
+		* Allow passing of ED2K links by command line to aMule, aMuled and aMulegui, making ed2k program obsolete
+		* Don't ignore current category in amulegui when pasting a link
+		* EC tools (amulegui, amulecmd, amuleweb) can use a local config dir now
+		* Fixed crash in file system detection in Solaris
+		* Fix: window size/position didn't get saved on some systems
+		* More command line options for aMulegui
+		* Allow webserver autostart on Windows
+		* Fixed crash in "Out of space" user event handler
+		* ALCC prints links to stdout now instead of stderr
+		* Fixed memory exhaustion on high speed uploads
+		  Thanks to RRM for endless patience!
+		* Fix: Language English was not recognized and so reverted to "System default" at any change
+		* Fixed printf output (unicode2char()) on consoles incapable of UTF8
+		* Keep a list of all canceled files (canceled.met) and show them in magenta in the search list
+		* Update status/color of search results on events from outside the search window
+		  (like download started from EC) and in amulegui
+		* Enable update of IP filter list through aMulegui and aMulecmd
+		* Enable setting of "Check for new version on startup" through aMulegui
+		* Fixed crash in CClientList::ProcessDirectCallbackList that had been around for ages (hopefully)
+		* Fixed size of large files in aMuleweb's search results
+		* Show completed downloads in aMulegui
+		* Fixed international file names on Windows
+		* Fixed hangup of EC connection in aMulegui
+		* Fixed category deletion in aMuled
+		* Fixed several crash bugs in Webserver
+		* Improved memory usage, load time and speed of IP filter
+		* Load IP filter in the background on startup
+		* Show when a Kad search is finished in aMulegui (remove '!')
+		* Fixed "pause/cancel/resume all" in aMulecmd
+		* EC ZLIB compression can now be turned off in remote.conf with EC/ZLIB=0
+		* Terminate HTTP downloads on exit
+		* Projects for Visual Studio 2010
+		* Fixed crash in http download
+		* Speed boost for reload of shared files with large list of known files
+		* Resolve MSVC compilation problem with separate strings in GUI
+		* Fixed splitter bars in download and share view
+		* Allowed creation of ED2K source links in KAD-only mode
+		* Make friendlist in chat window resizable
+		* Removed lag (caused by language pref) when opening preferences dialog
+		* "Swap all A4AF to this (auto)" doesn't block sources with no needed parts any more
+		* Don't lock up in an infinite loop if all servers are not resolvable or blocked by IP filter
+		* Clients now always get uploaded a full chunk (removed setting)
+		* Tell the user that changes of EC settings require a restart
+		* Deleted and readded download now get shared
+		* Speed improvement for upload queue, and clients never have same rank anymore
+		* Fixed ed2k links where '|' has been replaced with '%7C'
+		* Fixed multi line stdin redirected as batch into amulecmd
+		* Allow enable/disable of IP2Country through GUI
+		* "Clear completed" button now only clears downloads in current category
+		* Completed downloads can be seen and cleared in amulegui
+		* Bold lines in log window now for Windows too
+		* Allow setting of friend slot from client list control
+		* Fixed saving of splitter bar positions
+		* Get rid of "clearlooks_style_draw_box_gap" messages in console
+		* Fixed several crash bugs caused by deleted client objects
+		* Fix a small memory leak in Kademlia code
+		* Fix occasionally sending junk at end of packets
+		* Fix child items in search result getting inserted in wrong positions
+		* Shared files don't lose all information when they get renamed
+		* Fixed crash bug with sources which are incompatible with our encryption setting
+		* Allow passing of links > 256 chars to amulecmd
+		* Prevent flicker when sorting already sorted lists
+		* Prevent creation of more than 99 categories, since that's the limit
+		* Fixed saving of sort orders
+
+	Vollstrecker:
+		* Unify copyright lines
+		* Fixed clean and distclean targets for make
+		* Various Updates in debian/ see debian/changelog
+		* Added crash handling in command-line tools
+		* Fix for autoconf-2.64.
+		* Raised minimum wxWidgets version to 2.8.8
+		* Make amulecmd help command work without connection
+		* New translation concept for manpages
+		* KDE Plasma applet to show stats
+		* Fix warnings with latest autoconf (2.67)
+
+	woutermense:
+		* Fix 'break/continue [n]' PHP implementation
+		* Allow multiple download links in webserver
+
+	Wuischke:
+		* Simplify browser selection
+		* Use DoIconize() for dclick on tray icon, too
+		* Fix minimizing from tray icon
+		* Add option to show chat messages in log
+		* Add option to specify amuleweb binary location
+		* Make EC authentication procedure more secure
+		* Add support for categories to ed2k
+		* Backup config file on shutdown
+
+	Special Thanks To:
+		* Greek for his contributions to aMule's user interface.
+		* btkaos for his important work finding the source of bugs.
+		* myth for seeing when everyone else was blind and uncovering
+		  the grandfather of all fuck-ups
+		* mirko.g for being so committed to compile aMule on Snow Leopard.
+
+--------------------------------------------------------------------------------
+
 Version 2.2.6 - The "we don't have holidays" version.
 ----------
 2009-09-16
@@ -99,7 +371,7 @@ Version 2.2.4 - The "we didn't have a .4 version since... well... long ago" vers
 	iz0bbz:
 		* Fixed static linking with GeoIP on MinGW/MSYS.
 		* Fixed detecting GeoIP library when building for MinGW.
-		* Compilation fix with GeoIP-1.4.6.
+		* Compilation fix for GeoIP-1.4.6.
 
 	Stu Redman:
 		* Fix crash on global search on Windows

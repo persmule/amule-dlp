@@ -1,7 +1,7 @@
 #							-*- Autoconf -*-
 # This file is part of the aMule Project.
 #
-# Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+# Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 #
 # Any parts of this program derived from the xMule, lMule or eMule project,
 # or contributed by third-party developers are copyrighted by their
@@ -16,17 +16,20 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 #
 
-dnl ---------------------------------------------------------------------------
-dnl Helper functions
-dnl ---------------------------------------------------------------------------
 m4_pattern_forbid(MULE_)dnl Check for unexpanded *MULE_* macros
 m4_pattern_allow(AMULE_)dnl Allow the *AMULE_* names
+m4_pattern_forbid(__mule_)dnl Check for unexpanded internal macros
+
+
+# -------------------- #
+# Common useful macros #
+# -------------------- #
 
 dnl MULE_APPEND(VARNAME, VALUE)
 AC_DEFUN([MULE_APPEND], [$1="$$1 $2"])
@@ -50,19 +53,187 @@ AC_DEFUN([MULE_BACKUP], [mule_backup_$1="$$1"])
 dnl MULE_RESTORE(VAR)
 AC_DEFUN([MULE_RESTORE], [$1="$mule_backup_$1"])
 
-dnl Helper macro for MULE_IF
+
+# ------------------- #
+# Issuing diagnostics #
+# ------------------- #
+
+# -----------------------------------------------------------------------------
+# __mule_print_final_warning(section, condition, message)
+# -----------------------------------------------------------------------------
+m4_define([__mule_print_final_warning],
+[m4_divert_push($1)dnl
+if test [$2]; then
+cat <<_MULEEOT
+
+m4_pushdef([__mule_Prefix1], [* ])dnl
+m4_pushdef([__mule_Prefix], [  ])dnl
+m4_foreach([__mule_Line], m4_quote(m4_split([$3], [
+])), [m4_text_wrap(m4_defn([__mule_Line]), __mule_Prefix, __mule_Prefix1)
+m4_define([__mule_Prefix1], __mule_Prefix)dnl
+])[]dnl
+m4_popdef([__mule_Prefix])dnl
+m4_popdef([__mule_Prefix1])dnl
+_MULEEOT
+fi
+m4_divert_pop()])
+
+dnl ---------------------------------------------------------------------------
+dnl MULE_WARNING(MESSAGE)
+dnl
+dnl Works like AC_MSG_WARN(), but the warning will be reproduced at the end of
+dnl the configure run. An empty line is prepended at the final output and a
+dnl newline is appended for free.
+dnl ---------------------------------------------------------------------------
+m4_ifndef([_MULE_WARNINGS],[
+m4_define([_m4_divert(_MULE_WARNINGS)], m4_incr(_m4_divert([BODY])))])
+m4_define([_MULE_WARNCOUNT], [0])
+
+m4_divert_push(_MULE_WARNINGS)dnl
+if test ${_mule_has_warnings:-no} = yes; then
+echo ""
+echo ""
+echo " *** Warnings during configuration ***"
+fi
+m4_divert_pop()dnl
+
+m4_define([MULE_WARNING],
+[AC_MSG_WARN(
+m4_pushdef([__mule_Prefix], [        ])dnl
+m4_foreach([__mule_Line], m4_quote(m4_split([$1], [
+])), [
+m4_text_wrap(m4_defn([__mule_Line]), __mule_Prefix)])[]dnl
+m4_popdef([__mule_Prefix])dnl
+)
+_mule_warning_[]_MULE_WARNCOUNT[]=yes
+_mule_has_warnings=yes
+__mule_print_final_warning([_MULE_WARNINGS], [${_mule_warning_]_MULE_WARNCOUNT[:-no} = yes], [$1])dnl
+m4_define([_MULE_WARNCOUNT], incr(_MULE_WARNCOUNT))])
+
+dnl ---------------------------------------------------------------------------
+dnl MULE_DEPRECATED(OLDFLAG [, NEWFLAG])
+dnl
+dnl Marks OLDFLAG as deprecated and produces an appropriate warning. If NEWFLAG
+dnl is specified and is unset the value of OLDFLAG is assigned to NEWFLAG (i.e.
+dnl if the user specified both OLDFLAG and NEWFLAG, NEWFLAG takes precedence;
+dnl if only OLDFLAG is specified it will be redirected to NEWFLAG).
+dnl
+dnl There should be no AC_ARG_* for the deprecated flag, and if the old flag is
+dnl deprecated in favour of a new one, MULE_DEPRECATED *MUST* precede the
+dnl AC_ARG_* definition of the new flag (otherwise redirection may not work).
+dnl ---------------------------------------------------------------------------
+m4_define([_MULE_DEPRECATIONWARNINGS], [incr(_MULE_WARNINGS)])
+m4_define([__mule_display_option_name], [m4_if(m4_substr([$1], 0, 1), [-],, [--])m4_bpatsubst([$1], [_], [-])])
+m4_define([__mule_ac_option_name], [m4_bpatsubst(m4_bpatsubst(m4_bpatsubst(m4_bpatsubst([$1], [^-+], []), [-], [_]), [^disable], [enable]), [^without], [with])])
+
+m4_define([MULE_DEPRECATED],
+[if test "${__mule_ac_option_name([$1])+set}" = "set"; then
+  _mule_has_warnings=yes
+m4_ifvaln([$2], [  if test "${__mule_ac_option_name([$2]):-unset}" = "unset"; then
+    __mule_ac_option_name([$2])=$__mule_ac_option_name([$1])
+  fi])fi
+__mule_print_final_warning([_MULE_DEPRECATIONWARNINGS], ["${]__mule_ac_option_name([$1])[+set}" = set], __mule_display_option_name([$1])[ is now deprecated and ]m4_ifval([$2], [might be removed in the future without further notice. Please use ]__mule_display_option_name([$2])[ instead.], [not supported anymore.]))])
+
+
+# ----------------- #
+# Argument handling #
+# ----------------- #
+m4_define([__mule_arg_default], [__mule_arg_[]m4_translit([$1], [-], [_])[]_default])
+m4_define([__mule_arg_value], [${enable_[]m4_translit([$1], [-], [_])[]:-[]__mule_arg_default([$1])[]}])
+
+dnl ---------------------------------------------------------------------------
+dnl MULE_ARG_ENABLE(FEATURE, DEFAULT-VALUE, HELP-STRING [, AUTOMAKE-CONDITIONAL])
+dnl
+dnl Wrapper around AC_ARG_ENABLE() that supports automatically setting up a
+dnl conditional variable for automake, remembering default value for
+dnl conditionals and supplying the help string based on the default value (i.e.
+dnl it produce "--enable-FEATURE   HELP-STRING" if the default is no, and
+dnl "--disable-FEATURE    HELP-STRING" if the default is yes. The default value
+dnl *MUST* be either `yes' or `no'.
+dnl ---------------------------------------------------------------------------
+m4_define([MULE_ARG_ENABLE],
+[m4_if([$2], [yes],, [m4_if([$2], [no],, [m4_fatal([Default value must be either `yes' or `no'!])])])dnl
+m4_define(__mule_arg_default([$1]), [$2])dnl
+AC_ARG_ENABLE([$1], [AS_HELP_STRING(m4_if([$2], [yes], [--disable-$1], [--enable-$1]), [$3])])
+m4_ifvaln([$4], [AM_CONDITIONAL([$4], [test ]__mule_arg_value([$1])[ = yes])])])
+
+dnl ---------------------------------------------------------------------------
+dnl MULE_IS_ENABLED(FEATURE)
+dnl
+dnl Used in shell conditionals, tests whether the named feature is enabled or
+dnl not, considering also the default value. FEATURE *must* have been set up
+dnl using MULE_ARG_ENABLE().
+dnl ---------------------------------------------------------------------------
+m4_define([MULE_IS_ENABLED],
+[m4_ifdef(__mule_arg_default([$1]), __mule_arg_value([$1])[ = yes], [m4_fatal([Unknown feature `$1'!])])])
+
+m4_define([MULE_IS_ENABLED_ANY], [__mule_if_multi([$1], [-o])])
+m4_define([MULE_IS_ENABLED_ALL], [__mule_if_multi([$1], [-a])])
+
+dnl ---------------------------------------------------------------------------
+dnl MULE_ENABLEVAR(FEATURE)
+dnl
+dnl Expands to the name of the shell variable holding the enabled/disabled
+dnl status of FEATURE. FEATRUE *must* have been set up using MULE_ARG_ENABLE().
+dnl ---------------------------------------------------------------------------
+m4_define([MULE_ENABLEVAR],
+[m4_ifdef(__mule_arg_default([$1]), [enable_[]m4_translit([$1], [-], [_])], [m4_fatal([Unknown feature `$1'!])])])
+
+dnl ---------------------------------------------------------------------------
+dnl MULE_STATUSOF(FEATURE)
+dnl
+dnl Expands to the value of the shell variable holding the status of FEATURE,
+dnl considering default values. FEATURE *must* have been set up using
+dnl MULE_ARG_ENABLE().
+dnl ---------------------------------------------------------------------------
+m4_define([MULE_STATUSOF],
+[m4_ifdef(__mule_arg_default([$1]), __mule_arg_value([$1]), [m4_fatal([Unknown feature `$1'!])])])
+
+
+# ---------------------- #
+# Conditional processing #
+# ---------------------- #
+m4_define([__mule_if_multi],
+[m4_define([__mule_if_logic], [])dnl
+m4_foreach([__mule_condition], [$1], [__mule_if_logic MULE_IS_ENABLED(__mule_condition) ][m4_define([__mule_if_logic], [$2])])dnl
+m4_undefine([__mule_if_logic])])
+
+dnl ---------------------------------------------------------------------------
+dnl MULE_IF_ENABLED(FEATURE, [ACTION-IF-ENABLED], [ACTION-IF-DISABLED])
+dnl
+dnl Basically a wrapper around AS_IF(), the test being if FEATURE is enabled.
+dnl FEATURE must have been set up by MULE_ARG_ENABLE().
+dnl ---------------------------------------------------------------------------
+m4_define([MULE_IF_ENABLED],
+[AS_IF([test MULE_IS_ENABLED([$1])], [$2], [$3])])
+
+m4_define([MULE_IF_ENABLED_ALL],
+[AS_IF([test]__mule_if_multi([$1], [-a]), [$2], [$3])])
+
+m4_define([MULE_IF_ENABLED_ANY],
+[AS_IF([test]__mule_if_multi([$1], [-o]), [$2], [$3])])
+
+dnl ---------------------------------------------------------------------------
+dnl MULE_IF(CONDITION, [IF-TRUE] [, ELIF-CONDITION, [IF-TRUE]]... [, ELSE-BRANCH])
+dnl
+dnl Works like AS_IF(), but allows elif-branches too.
+dnl ---------------------------------------------------------------------------
 m4_define([__mule_if_helper],
 [m4_if( [$#], 0,,
 	[$#], 1, [m4_ifvaln([$1], [m4_n([else])  $1])],
 	[m4_n([elif $1; then])  m4_ifvaln([$2], [$2], :)])dnl
 m4_if(m4_eval([$# > 2]), 1, [$0(m4_shiftn(2, $@))])])
 
-dnl MULE_IF(CONDITION, [IF-TRUE] [, ELIF-CONDITION, [IF-TRUE]]... [, ELSE-BRANCH])
 m4_define([MULE_IF],
 [m4_if( [$#], 0,,
 	[$#], 1,,
 	[m4_n([if $1; then])  m4_ifval([$2],[$2], :)
 m4_if(m4_eval([$# > 2]), 1, [__mule_if_helper(m4_shiftn(2, $@))])m4_n([fi])])])
+
+
+# ----------------------- #
+# Other high-level macros #
+# ----------------------- #
 
 dnl ---------------------------------------------------------------------------
 dnl MULE_CHECK_SYSTEM
@@ -83,7 +254,6 @@ AC_DEFUN([MULE_CHECK_SYSTEM],
 	openbsd*) 
 		SYS=openbsd
 		LIBS="$LIBS -L/usr/local/lib"
-		X11LIBS="-lX11 -L/usr/X11R6/lib"
 		MULECPPFLAGS="-D__OPENBSD__"
 		;;
 	*cygwin* | *mingw32*)
@@ -93,7 +263,6 @@ AC_DEFUN([MULE_CHECK_SYSTEM],
 	solaris*)
 		SYS=solaris
 		RESOLV_LIB="-lresolv -lnsl"
-		X11LIBS="-lX11"
 		LIBS="$LIBS -lrt"
 		;;
 	*netbsd*)
@@ -128,65 +297,11 @@ AC_DEFUN([MULE_CHECK_SYSTEM],
 	])
 
 AC_SUBST([RESOLV_LIB])dnl
-AC_SUBST([X11LIBS])dnl
 AC_SUBST([MULECPPFLAGS])dnl
 AC_SUBST([MULECFLAGS])dnl
 AC_SUBST([MULECXXFLAGS])dnl
 AC_SUBST([MULELDFLAGS])dnl
 AC_SUBST([MULERCFLAGS])dnl
-])
-
-dnl ---------------------------------------------------------------------------
-dnl _MULE_CHECK_DEBUG_FLAG
-dnl ---------------------------------------------------------------------------
-AC_DEFUN([_MULE_CHECK_DEBUG_FLAG],
-[AC_REQUIRE([MULE_CHECK_GLIBCXX])dnl
-
-	AC_ARG_ENABLE(
-		[debug],
-		[AS_HELP_STRING([--disable-debug], [disable additional debugging output])],
-		[USE_DEBUG=${enableval:-yes}], [USE_DEBUG=yes])
-
-	AS_IF([test $USE_DEBUG = yes],
-	[
-		MULE_ADDFLAG([CPP], [-D__DEBUG__])
-		MULE_ADDCCXXFLAG([-g])
-		AS_IF([test ${GLIBCXX:-no} = yes],	[MULE_ADDFLAG([CPP], [-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC])])
-		AS_IF([test ${GCC:-no} = yes],		[MULE_ADDCCXXFLAG([-W -Wall -Wshadow -Wundef -ggdb -fno-inline -fmessage-length=0])])
-		AS_IF([test ${SYS:-unknown} = win32],	[MULE_ADDFLAG([RC], [-D__DEBUG__])])
-	], [
-		AS_IF([test ${GCC:-no} = yes], [MULE_ADDCCXXFLAG([-W -Wall -Wshadow -Wundef])])
-	])
-])
-
-dnl ---------------------------------------------------------------------------
-dnl _MULE_CHECK_PROFILE_FLAG
-dnl ---------------------------------------------------------------------------
-AC_DEFUN([_MULE_CHECK_PROFILE_FLAG],
-[
-	AC_ARG_ENABLE(
-		[profile],
-		[AS_HELP_STRING([--enable-profile], [enable code profiling])],
-		[USE_PROFILE=${enableval:-no}], [USE_PROFILE=no])
-
-	AS_IF([test $USE_PROFILE = yes],
-	[
-		MULE_ADDCCXXFLAG([-pg])
-		MULE_ADDFLAG([LD], [-pg])
-	])
-])
-
-dnl ---------------------------------------------------------------------------
-dnl _MULE_CHECK_OPTIMIZE_FLAG
-dnl ---------------------------------------------------------------------------
-AC_DEFUN([_MULE_CHECK_OPTIMIZE_FLAG],
-[
-	AC_ARG_ENABLE(
-		[optimize],
-		[AS_HELP_STRING([--enable-optimize], [enable code optimization])],
-		[USE_OPTIMIZE=${enableval:-no}], [USE_OPTIMIZE=no])
-
-	AS_IF([test $USE_OPTIMIZE = yes], [MULE_ADDCCXXFLAG([-O2])])
 ])
 
 dnl ---------------------------------------------------------------------------
@@ -196,17 +311,30 @@ dnl Checks type of compilation requested by user, and sets various flags
 dnl accordingly.
 dnl ---------------------------------------------------------------------------
 AC_DEFUN([MULE_COMPILATION_FLAGS],
-[
-	_MULE_CHECK_DEBUG_FLAG
-	_MULE_CHECK_OPTIMIZE_FLAG
-	_MULE_CHECK_PROFILE_FLAG
+[AC_REQUIRE([MULE_CHECK_GLIBCXX])dnl
 
-	AC_MSG_CHECKING([if the applications should be statically linked])
-	AC_ARG_ENABLE(
-		[static],
-		[AS_HELP_STRING([--enable-static], [produce a statically linked executable])],
-		[AS_IF([test ${enableval:-no} = yes], [MULE_ADDFLAG([LD], [-static])])])
-	AC_MSG_RESULT(${enableval:-no})
+	MULE_ARG_ENABLE([debug],	[yes],	[disable additional debugging output])
+	MULE_ARG_ENABLE([profile],	[no],	[enable code profiling])
+	MULE_ARG_ENABLE([optimize],	[no],	[enable code optimization])
+
+	MULE_IF_ENABLED([debug],
+	[
+		MULE_ADDFLAG([CPP], [-D__DEBUG__])
+		MULE_ADDCCXXFLAG([-g])
+		AS_IF([test ${GLIBCXX:-no} = yes],	[MULE_ADDFLAG([CPP], [-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC])])
+		AS_IF([test ${GCC:-no} = yes],		[MULE_ADDCCXXFLAG([-W -Wall -Wshadow -Wundef -ggdb -fno-inline -fmessage-length=0])])
+		AS_IF([test ${SYS:-unknown} = win32],	[MULE_ADDFLAG([RC], [-D__DEBUG__])])
+	], [
+		AS_IF([test ${GCC:-no} = yes], [MULE_ADDCCXXFLAG([-W -Wall -Wshadow -Wundef])])
+	])
+
+	MULE_IF_ENABLED([profile],
+	[
+		MULE_ADDCCXXFLAG([-pg])
+		MULE_ADDFLAG([LD], [-pg])
+	])
+
+	MULE_IF_ENABLED([optimize],	[MULE_ADDCCXXFLAG([-O2])])
 
 	MULE_ADDFLAG([CPP], [-DUSE_WX_EXTENSIONS])
 ])
@@ -251,7 +379,8 @@ AC_DEFUN([MULE_CHECK_WX_SUPPORTS_LARGEFILE],
 	AC_PREPROC_IFELSE([
 		AC_LANG_SOURCE([[
 			#include <wx/wx.h>
-			#if !HAVE_LARGEFILE_SUPPORT && !defined(_LARGE_FILES) && !defined(__WXMSW__)
+			#include <wx/filefn.h>
+			#ifndef wxHAS_LARGE_FILES
 				#error No LargeFile support!
 			#endif
 		]])
@@ -277,30 +406,26 @@ dnl Checks if ccache is requested and available, and makes use of it
 dnl --------------------------------------------------------------------------
 AC_DEFUN([MULE_CHECK_CCACHE],
 [
-	AC_ARG_ENABLE([ccache],
-		[AS_HELP_STRING([--enable-ccache], [enable ccache support for fast recompilation])])
+	MULE_ARG_ENABLE([ccache], [no], [enable ccache support for fast recompilation])
 
 	AC_ARG_WITH([ccache-prefix],
 		[AS_HELP_STRING([--with-ccache-prefix=PREFIX], [prefix where ccache is installed])])
 
 	AC_MSG_CHECKING([whether ccache support should be added])
-	AC_MSG_RESULT([${enable_ccache:-no}])
+	AC_MSG_RESULT([MULE_STATUSOF([ccache])])
 
-	AS_IF([test ${enable_ccache:-no} = yes], [
+	MULE_IF_ENABLED([ccache], [
 		AC_MSG_CHECKING([for ccache presence])
 		AS_IF([test -z "$with_ccache_prefix"], [
 			ccache_full=`which ccache`
 			with_ccache_prefix=`dirname ${ccache_full}`
 		])
 		AS_IF([$with_ccache_prefix/ccache -V >/dev/null 2>&1], [
-			AC_MSG_RESULT([yes])
 			CC="$with_ccache_prefix/ccache $CC"
 			CXX="$with_ccache_prefix/ccache $CXX"
 			BUILD_CC="$with_ccache_prefix/ccache $BUILD_CC"
-		], [
-			enable_ccache=no
-			AC_MSG_RESULT([no])
-		])
+		], [MULE_ENABLEVAR([ccache])=no])
+		AC_MSG_RESULT([MULE_STATUSOF([ccache])])
 	])
 ])
 
@@ -314,7 +439,7 @@ AC_DEFUN([MULE_CHECK_BFD],
 
 	AC_MSG_CHECKING([for bfd])
 	result=no
-	for bfd_ldadd in "" "${LIBINTL}"; do
+	for bfd_ldadd in "" "${LIBINTL}" "-ldl" "-ldl ${LIBINTL}"; do
 		MULE_BACKUP([LIBS])
 		MULE_BACKUP([LDFLAGS])
 		MULE_PREPEND([LIBS], [-lbfd -liberty ${bfd_ldadd} ${ZLIB_LIBS}])
@@ -341,10 +466,7 @@ AC_DEFUN([MULE_CHECK_BFD],
 	AC_MSG_RESULT([$result])
 
 	AS_IF([test $result = no],
-		[AC_MSG_WARN([
-	bfd.h not found or unusable, please install binutils development
-	package if you are a developer or want to help testing aMule])
-	])])
+		[MULE_WARNING([bfd.h not found or unusable, please install binutils development package if you are a developer or want to help testing aMule])])
 
 AC_SUBST([BFD_CPPFLAGS])dnl
 AC_SUBST([BFD_LIBS])dnl
@@ -393,49 +515,10 @@ AC_DEFUN([MULE_CHECK_EXCEPTIONS],
 		AC_MSG_ERROR([Exception handling does not work. Broken compiler?])
 	], [
 		AC_MSG_RESULT([undeterminable])
-		AC_MSG_WARN([
-	Cross-compilation detected, so exception handling cannot be tested.
-	Note that broken exception handling in your compiler may lead to
-	unexpected crashes.])
+		MULE_WARNING(
+			[Cross-compilation detected, so exception handling cannot be tested.
+			Note that broken exception handling in your compiler may lead to unexpected crashes.])
 	])
-])
-
-
-dnl ---------------------------------------------------------------------------
-dnl MULE_CHECK_REGEX([ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
-dnl
-dnl This function will test the existance of a POSIX compliant regex library.
-dnl ---------------------------------------------------------------------------
-AC_DEFUN([MULE_CHECK_REGEX],
-[
-	AC_CHECK_HEADERS([sys/types.h])
-	AC_MSG_CHECKING([for a POSIX compliant regex library])
-	regex_found=no
-	for REGEX_LIBS in '' -lgnurx -lregex; do
-		MULE_BACKUP([LIBS])
-		MULE_PREPEND([LIBS], [$REGEX_LIBS])
-		AC_LINK_IFELSE([
-			AC_LANG_PROGRAM([[
-				#ifdef HAVE_SYS_TYPES_H
-				#	include <sys/types.h>
-				#endif
-				#include <regex.h>
-			]], [[
-				regex_t preg;
-				regcomp(&preg, "", REG_EXTENDED);
-				regmatch_t *pmatch;
-				regexec(&preg, "", 0, pmatch, 0);
-				regfree(&preg);
-			]])
-		], [
-			MULE_RESTORE([LIBS])
-			regex_found=yes
-			break;
-		], [MULE_RESTORE([LIBS])])
-	done
-	AC_MSG_RESULT([$regex_found])
-	ifelse([$1$2],,, [AS_IF([test $regex_found = yes], [$1], [$2])])
-AC_SUBST([REGEX_LIBS])dnl
 ])
 
 
@@ -488,6 +571,51 @@ AC_DEFUN([MULE_CHECK_EXECINFO],
 		AC_MSG_RESULT([yes])
 	], [
 		AC_MSG_RESULT([no])
+	])
+])
+
+dnl ---------------------------------------------------------------------------
+dnl MULE_CHECK_MMAP
+dnl
+dnl Checks for mmap() and makes use of it when found.
+dnl ---------------------------------------------------------------------------
+AC_DEFUN([MULE_CHECK_MMAP],
+[
+	MULE_ARG_ENABLE([mmap], [no], [enable using mapped memory if supported])
+
+	MULE_IF_ENABLED([mmap], [
+		AC_CHECK_HEADERS([sys/mman.h])
+		AC_FUNC_MMAP
+		AC_CHECK_FUNCS([munmap sysconf])
+		AS_IF([test $ac_cv_func_sysconf = yes], [
+			AC_MSG_CHECKING([for pagesize constant for sysconf])
+			AC_LINK_IFELSE([
+				AC_LANG_PROGRAM([[
+					#include <unistd.h>
+				]], [[
+					return sysconf(_SC_PAGESIZE);
+				]])
+			], [
+				AC_MSG_RESULT([_SC_PAGESIZE])
+				AC_DEFINE([HAVE__SC_PAGESIZE], [1], [Define to 1 if you have the _SC_PAGESIZE constant in <unistd.h>])
+			], [
+				AC_LINK_IFELSE([
+					AC_LANG_PROGRAM([[
+						#include <unistd.h>
+					]], [[
+						return sysconf(_SC_PAGE_SIZE);
+					]])
+				], [
+					AC_MSG_RESULT([_SC_PAGE_SIZE])
+					AC_DEFINE([HAVE__SC_PAGE_SIZE], [1], [Define to 1 if you have the _SC_PAGE_SIZE constant in <unistd.h>, but not _SC_PAGESIZE])
+				], [
+					AC_MSG_RESULT([none])
+				])
+			])
+		])
+	], [
+		# fake the result of the test for munmap() for the gettext macros
+		ac_cv_func_munmap=no
 	])
 ])
 

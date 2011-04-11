@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Tiku
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Timo Kujala ( tiku@users.sourceforge.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -35,6 +35,8 @@
 #include <common/Format.h>				// Needed for CFormat
 #include "InternalEvents.h"				// Needed for CMuleInternalEvent
 #include "Preferences.h"
+#include "ScopedPtr.h"
+#include <wx/filename.h>				// Needed for wxFileName
 
 
 #ifndef AMULE_DAEMON
@@ -72,7 +74,7 @@ public:
 	}	
 
 	void UpdateGauge(int total, int current) {
-		CFormat label(_("( %s / %s )"));
+		CFormat label( wxT("( %s / %s )") );
 		
 		label % CastItoXBytes(current);
 		if (total > 0) {
@@ -104,7 +106,7 @@ private:
 	}
 
 	void OnBtnCancel(wxCommandEvent& WXUNUSED(evt)) {
-		printf("HTTP download cancelled\n");
+		AddLogLineN(_("HTTP download cancelled"));
 		Show(false);
 		StopThread();
 	}
@@ -138,7 +140,8 @@ DEFINE_LOCAL_EVENT_TYPE(wxEVT_HTTP_SHUTDOWN)
 #endif
 
 
-CHTTPDownloadThread::CHTTPDownloadThread(const wxChar* url, const wxChar* filename, HTTP_Download_File file_id, bool showDialog)
+CHTTPDownloadThread::CHTTPDownloadThread(const wxString& url, const wxString& filename, const wxString& oldfilename, HTTP_Download_File file_id,
+										bool showDialog, bool checkDownloadNewer)
 #ifdef AMULE_DAEMON
 	: CMuleThread(wxTHREAD_DETACHED),
 #else
@@ -157,6 +160,28 @@ CHTTPDownloadThread::CHTTPDownloadThread(const wxChar* url, const wxChar* filena
 		m_companion = dialog;
 #endif
 	}
+	// Get the date on which the original file was last modified
+	// Only if it's the same URL we used for the last download and if the file exists.
+	if (checkDownloadNewer && thePrefs::GetLastHTTPDownloadURL(file_id) == url) {
+		wxFileName origFile = wxFileName(oldfilename);
+		if (origFile.FileExists()) {
+			AddDebugLogLineN(logHTTP, CFormat(wxT("URL %s matches and file %s exists, only download if newer")) % url % oldfilename);
+			m_lastmodified = origFile.GetModificationTime();
+		}
+	}
+	wxMutexLocker lock(s_allThreadsMutex);
+	s_allThreads.insert(this);
+}
+
+
+// Format the given date to a RFC-2616 compliant HTTP date
+// Example: Thu, 14 Jan 2010 15:40:23 GMT
+wxString CHTTPDownloadThread::FormatDateHTTP(const wxDateTime& date)
+{
+	static const wxChar* s_months[] = { wxT("Jan"), wxT("Feb"), wxT("Mar"), wxT("Apr"), wxT("May"), wxT("Jun"), wxT("Jul"), wxT("Aug"), wxT("Sep"), wxT("Oct"), wxT("Nov"), wxT("Dec") };
+	static const wxChar* s_dow[] = { wxT("Sun"), wxT("Mon"), wxT("Tue"), wxT("Wed"), wxT("Thu"), wxT("Fri"), wxT("Sat") };
+
+	return CFormat(wxT("%s, %02d %s %d %02d:%02d:%02d GMT")) % s_dow[date.GetWeekDay(wxDateTime::UTC)] % date.GetDay(wxDateTime::UTC) % s_months[date.GetMonth(wxDateTime::UTC)] % date.GetYear(wxDateTime::UTC) % date.GetHour(wxDateTime::UTC) % date.GetMinute(wxDateTime::UTC) % date.GetSecond(wxDateTime::UTC);
 }
 
 
@@ -167,46 +192,60 @@ CMuleThread::ExitCode CHTTPDownloadThread::Entry()
 	}
 	
 	wxHTTP* url_handler = NULL;
-	wxInputStream* url_read_stream = NULL;
 	
-	printf("HTTP download thread started\n");
+	AddDebugLogLineN(logHTTP, wxT("HTTP download thread started"));
 	
 	const CProxyData* proxy_data = thePrefs::GetProxyData();
 	bool use_proxy = proxy_data != NULL && proxy_data->m_proxyEnable;
 	
 	try {	
 		wxFFileOutputStream outfile(m_tempfile);
-		
+
 		if (!outfile.Ok()) {
-			throw wxString(CFormat(wxT("Unable to create destination file %s for download!\n")) % m_tempfile);
+			throw wxString(CFormat(_("Unable to create destination file %s for download!")) % m_tempfile);
 		}
-			
-		if ( m_url.IsEmpty() ) {
+
+		if (m_url.IsEmpty()) {
 			// Nowhere to download from!
-			throw wxString(wxT("The URL to download can't be empty\n"));
+			throw wxString(_("The URL to download can't be empty"));
 		}
 
 		url_handler = new wxHTTP;
 		url_handler->SetProxyMode(use_proxy);
-	
-		url_read_stream = GetInputStream(&url_handler, m_url, use_proxy);
-		
-		if (!url_read_stream) {
-			throw wxString(CFormat(wxT("The URL %s returned: %i - Error (%i)!")) % m_url % url_handler->GetResponse() % url_handler->GetError());
+
+		// Build a conditional get request if the last modified date of the file being updated is known
+		if (m_lastmodified.IsValid()) {
+			// Set a flag in the HTTP header that we only download if the file is newer.
+			// see: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.25
+			AddDebugLogLineN(logHTTP, wxT("If-Modified-Since: ") + FormatDateHTTP(m_lastmodified));
+			url_handler->SetHeader(wxT("If-Modified-Since"), FormatDateHTTP(m_lastmodified));
 		}
-		
+
+		CScopedPtr<wxInputStream> url_read_stream(GetInputStream(url_handler, m_url, use_proxy));
+
+		if (!url_read_stream.get()) {
+			if (m_response == 304) {
+				m_result = HTTP_Skipped;
+				AddDebugLogLineN(logHTTP, wxT("Skipped download because requested file is not newer."));
+				throw wxString(wxEmptyString);
+			} else {
+				m_result = HTTP_Error;
+				throw wxString(CFormat(_("The URL %s returned: %i - Error (%i)!")) % m_url % m_response % m_error);
+			}
+		}
+
 		int download_size = url_read_stream->GetSize();
 		if (download_size == -1) {
-			printf("Download size not received, downloading until connection is closed\n");
+			AddDebugLogLineN(logHTTP, wxT("Download size not received, downloading until connection is closed"));
 		} else {
-			printf("Download size: %i\n", download_size);
+			AddDebugLogLineN(logHTTP, CFormat(wxT("Download size: %i")) % download_size);
 		}
-		
+
 		// Here is our read buffer
 		// <ken> Still, I'm sure 4092 is probably a better size.
-		// MP: Most people can download at least at 32kbs/s from http...
+		// MP: Most people can download at least at 32kb/s from http...
 		const unsigned MAX_HTTP_READ = 32768;
-		
+
 		char buffer[MAX_HTTP_READ];
 		int current_read = 0;
 		int total_read = 0;
@@ -218,7 +257,7 @@ CMuleThread::ExitCode CHTTPDownloadThread::Entry()
 				outfile.Write(buffer,current_read);
 				int current_write = outfile.LastWrite();
 				if (current_read != current_write) {
-					throw wxString(wxT("Critical error while writing downloaded file"));
+					throw wxString(_("Critical error while writing downloaded file"));
 				} else if (m_companion) {
 #ifndef AMULE_DAEMON
 					CMuleInternalEvent evt(wxEVT_HTTP_PROGRESS);
@@ -233,30 +272,35 @@ CMuleThread::ExitCode CHTTPDownloadThread::Entry()
 		if (current_read == 0) {
 			if (download_size == -1) {
 				// Download was probably succesful.
-				printf("Downloaded %d bytes\n", total_read);
-				m_result = 1;
+				AddLogLineN(CFormat(_("Downloaded %d bytes")) % total_read);
+				m_result = HTTP_Success;
 			} else if (total_read != download_size) {
+				m_result = HTTP_Error;
 				throw wxString(CFormat(_("Expected %d bytes, but downloaded %d bytes")) % download_size % total_read);
 			} else {
 				// Download was succesful.
-				m_result = 1;
+				m_result = HTTP_Success;
 			}
 		}
 	} catch (const wxString& error) {
 		if (wxFileExists(m_tempfile)) {
 			wxRemoveFile(m_tempfile);
 		}
-
-		AddLogLineM(false, error);
+		if (!error.IsEmpty()) {
+			AddLogLineC(error);
+		}
 	}
 
-	delete url_read_stream;
+	if (m_result == HTTP_Success) {
+		thePrefs::SetLastHTTPDownloadURL(m_file_id, m_url);
+	}
+
 	if (url_handler) {
 		url_handler->Destroy();
 	}
-	
-	printf("HTTP download thread ended\n");
-	
+
+	AddDebugLogLineN(logHTTP, wxT("HTTP download thread ended"));
+
 	return 0;
 }
 
@@ -275,11 +319,13 @@ void CHTTPDownloadThread::OnExit()
 	evt.SetInt((int)m_file_id);
 	evt.SetExtraLong((long)m_result);
 	wxPostEvent(wxTheApp, evt);
+	wxMutexLocker lock(s_allThreadsMutex);
+	s_allThreads.erase(this);
 }
 
 
 //! This function's purpose is to handle redirections in a proper way.
-wxInputStream* CHTTPDownloadThread::GetInputStream(wxHTTP** url_handler, const wxString& location, bool proxy)
+wxInputStream* CHTTPDownloadThread::GetInputStream(wxHTTP * & url_handler, const wxString& location, bool proxy)
 {
 	if (TestDestroy()) {
 		return NULL;
@@ -287,14 +333,14 @@ wxInputStream* CHTTPDownloadThread::GetInputStream(wxHTTP** url_handler, const w
 	
 	if (!location.StartsWith(wxT("http://"))) {
 		// This is not a http url
-		throw wxString(wxT("Invalid URL for http download or http redirection (did you forget 'http://' ?)"));
+		throw wxString(_("Invalid URL for HTTP download or HTTP redirection (did you forget 'http://' ?)"));
 	}
-	
+
 	// Get the host
-	
+
 	// Remove the "http://"
 	wxString host = location.Right(location.Len() - 7); // strlen("http://") -> 7
-	
+
 	// I belive this is a bug...
 	// Sometimes "Location" header looks like this:
 	// "http://www.whatever.com:8080http://www.whatever.com/downloads/something.zip"
@@ -318,7 +364,7 @@ wxInputStream* CHTTPDownloadThread::GetInputStream(wxHTTP** url_handler, const w
 
 	// Build the cleaned url now
 	wxString url = wxT("http://") + host + wxT("/") + location_url;			
-	
+
 	int port = 80;
 	if (host.Find(wxT(':')) != -1) {
 		// This http url has a port
@@ -329,48 +375,79 @@ wxInputStream* CHTTPDownloadThread::GetInputStream(wxHTTP** url_handler, const w
 	wxIPV4address addr;
 	addr.Hostname(host);
 	addr.Service(port);
-	if (!(*url_handler)->Connect(addr, true)) {
-		throw wxString(wxT("Unable to connect to http download server"));		
+	if (!url_handler->Connect(addr, true)) {
+		throw wxString(_("Unable to connect to HTTP download server"));		
 	}
 
-	wxInputStream* url_read_stream = (*url_handler)->GetInputStream(url);
+	wxInputStream* url_read_stream = url_handler->GetInputStream(url);
 
-	printf("Host: %s:%i\n",(const char*)unicode2char(host),port);
-	printf("URL: %s\n",(const char*)unicode2char(url));
-	printf("Response: %i (Error: %i)\n",(*url_handler)->GetResponse(), (*url_handler)->GetError());
+	/* store the HTTP response code */
+	m_response = url_handler->GetResponse();
 
-	if (!(*url_handler)->GetResponse()) {
-		printf("WARNING: Void response on stream creation\n");
+	/* store the HTTP error code */
+	m_error = url_handler->GetError();
+
+	AddDebugLogLineN(logHTTP, CFormat(wxT("Host: %s:%i\n")) % host % port);
+	AddDebugLogLineN(logHTTP, CFormat(wxT("URL: %s\n")) % url);
+	AddDebugLogLineN(logHTTP, CFormat(wxT("Response: %i (Error: %i)")) % m_response % m_error);
+
+	if (!m_response) {
+		AddDebugLogLineC(logHTTP, wxT("WARNING: Void response on stream creation"));
 		// WTF? Why does this happen?
 		// This is probably produced by an already existing connection, because
 		// the input stream is created nevertheless. However, data is not the same.
 		delete url_read_stream;
-		throw wxString(wxT("Invalid response from http download server"));
+		throw wxString(_("Invalid response from HTTP download server"));
 	}
 
-	if ((*url_handler)->GetResponse() == 301  // Moved permanently
-		|| (*url_handler)->GetResponse() == 302 // Moved temporarily
+	if (m_response == 301  // Moved permanently
+		|| m_response == 302 // Moved temporarily
 		// What about 300 (multiple choices)? Do we have to handle it?
-		) { 
-		
+		) {
+
 		// We have to remove the current stream.
 		delete url_read_stream;
-			
-		wxString new_location = (*url_handler)->GetHeader(wxT("Location"));
-		
-		(*url_handler)->Destroy();
+
+		wxString new_location = url_handler->GetHeader(wxT("Location"));
+
+		url_handler->Destroy();
 		if (!new_location.IsEmpty()) {
-			(*url_handler) = new wxHTTP;
-			(*url_handler)->SetProxyMode(proxy);
+			url_handler = new wxHTTP;
+			url_handler->SetProxyMode(proxy);
+			if (m_lastmodified.IsValid()) {
+				// Set a flag in the HTTP header that we only download if the file is newer.
+				// see: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.25
+				url_handler->SetHeader(wxT("If-Modified-Since"), FormatDateHTTP(m_lastmodified));
+			}
 			url_read_stream = GetInputStream(url_handler, new_location, proxy);
 		} else {
-			printf("ERROR: Redirection code received with no URL\n");
+			AddDebugLogLineC(logHTTP, wxT("ERROR: Redirection code received with no URL"));
 			url_handler = NULL;
 			url_read_stream = NULL;
 		}
+	} else if (m_response == 304) {		// "Not Modified"
+		delete url_read_stream;
+		url_handler->Destroy();
+		url_read_stream = NULL;
+		url_handler = NULL;
 	}
-		
+
 	return url_read_stream;
 }
+
+void CHTTPDownloadThread::StopAll()
+{
+	ThreadSet allThreads;
+	{
+		wxMutexLocker lock(s_allThreadsMutex);
+		std::swap(allThreads, s_allThreads);
+	}
+	for (ThreadSet::iterator it = allThreads.begin(); it != allThreads.end(); it++) {
+		(*it)->Stop();
+	}
+}
+
+CHTTPDownloadThread::ThreadSet CHTTPDownloadThread::s_allThreads;
+wxMutex CHTTPDownloadThread::s_allThreadsMutex;
 
 // File_checked_for_headers

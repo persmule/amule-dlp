@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (C) 2005-2009 Froenchenko Leonid ( lfroen@amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2005-2011 Froenchenko Leonid ( lfroen@gmail.com / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -27,9 +27,11 @@
 #include <string> // Do_not_auto_remove (g++-4.0.1)
 
 #include <sys/types.h>
-#include <regex.h>
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
+
 #include "WebServer.h"
 #include <ec/cpp/ECSpecialTags.h>
 
@@ -132,8 +134,9 @@ void php_native_kad_connect(PHP_VALUE_NODE *)
 	cast_value_dnum(&si->var->value);
 	unsigned int ipport = si->var->value.int_val;
 
-	CECPacket req(EC_OP_KAD_START);
-	req.AddTag(CECTag(EC_TAG_SERVER_ADDRESS, EC_IPv4_t(ipaddr, ipport)));
+	CECPacket req(EC_OP_KAD_BOOTSTRAP_FROM_IP);
+	req.AddTag(CECTag(EC_TAG_BOOTSTRAP_IP, ipaddr));
+	req.AddTag(CECTag(EC_TAG_BOOTSTRAP_PORT, ipport));
 	CPhPLibContext::g_curr_context->WebServer()->Send_Discard_V2_Request(&req);
 }
 
@@ -295,12 +298,12 @@ void php_get_amule_categories(PHP_VALUE_NODE *result)
 	if ( !reply ) {
 		return ;
 	}
-	const CECTag *cats_tag = reply->GetTagCount() ? reply->GetTagByIndex(0) : 0;
-	if ( cats_tag && cats_tag->GetTagCount() ) {
-		for (int i = 0; i < cats_tag->GetTagCount(); i++) {
-			const CECTag *tag = cats_tag->GetTagByIndex(i);
-			const CECTag *categoryTitle = tag->GetTagByName(EC_TAG_CATEGORY_TITLE);
-			PHP_VAR_NODE *cat = array_get_by_int_key(result, i);
+	const CECTag *cats_tag = reply->GetFirstTagSafe();
+	if (cats_tag->HasChildTags()) {
+		int i = 0;
+		for (CECTag::const_iterator it = cats_tag->begin(); it != cats_tag->end(); it++) {
+			const CECTag *categoryTitle = it->GetTagByName(EC_TAG_CATEGORY_TITLE);
+			PHP_VAR_NODE *cat = array_get_by_int_key(result, i++);
 			value_value_free(&cat->value);
 			cat->value.type = PHP_VAL_STRING;
 			cat->value.str_val = strdup(unicode2UTF8(categoryTitle->GetStringData()));
@@ -400,7 +403,7 @@ void php_get_amule_options(PHP_VALUE_NODE *result)
 	CECPacket req(EC_OP_GET_PREFERENCES);
 	req.AddTag(CECTag(EC_TAG_SELECT_PREFS, (uint32)0xffffffff));
 	const CECPacket *reply = CPhPLibContext::g_curr_context->WebServer()->webInterface->SendRecvMsg_v2(&req);
-	if ( !reply || !reply->GetTagCount()) {
+	if ( !reply || !reply->HasChildTags()) {
 		return ;
 	}
 	const CECTag *cattag = 0;
@@ -616,7 +619,7 @@ void php_get_log(PHP_VALUE_NODE *result)
 	CECPacket req(EC_OP_GET_LOG);
 	const CECPacket *response = CPhPLibContext::g_curr_context->WebServer()->webInterface->SendRecvMsg_v2(&req);
 	if (response) {
-		wxString serverInfoString(_SpecialChars(response->GetTagByIndexSafe(0)->GetStringData()));
+		wxString serverInfoString(_SpecialChars(response->GetFirstTagSafe()->GetStringData()));
 		delete response;
 		result->type = PHP_VAL_STRING;
 		result->str_val = strdup((const char *)unicode2UTF8(serverInfoString));
@@ -646,7 +649,7 @@ void php_get_serverinfo(PHP_VALUE_NODE *result)
 	CECPacket req(EC_OP_GET_SERVERINFO);
 	const CECPacket *response = CPhPLibContext::g_curr_context->WebServer()->webInterface->SendRecvMsg_v2(&req);
 	if (response) {
-		wxString serverInfoString(_SpecialChars(response->GetTagByIndexSafe(0)->GetStringData()));
+		wxString serverInfoString(_SpecialChars(response->GetFirstTagSafe()->GetStringData()));
 		delete response;
 		result->type = PHP_VAL_STRING;
 		result->str_val = strdup((const char *)unicode2UTF8(serverInfoString));
@@ -751,8 +754,8 @@ void ecstats2php(CEC_StatTree_Node_Tag *root, PHP_VALUE_NODE *result)
 	cast_value_array(result);
 	std::string key(unicode2UTF8(root->GetDisplayString()));
 	PHP_VAR_NODE *v_key = array_get_by_str_key(result, key);
-	for (int i = 0; i < root->GetTagCount(); i++) {
-		CEC_StatTree_Node_Tag *tag = (CEC_StatTree_Node_Tag*)root->GetTagByIndex(i);
+	for (CECTag::const_iterator it = root->begin(); it != root->end(); it++) {
+		CEC_StatTree_Node_Tag *tag = (CEC_StatTree_Node_Tag*) & *it;
 		if (tag->GetTagName() == EC_TAG_STATTREE_NODE) {
 			ecstats2php(tag, &v_key->value);
 		}
@@ -780,8 +783,8 @@ void amule_load_stats_tree(PHP_VALUE_NODE *result)
 	}
 	CEC_StatTree_Node_Tag *stats_root = (CEC_StatTree_Node_Tag *)response->GetTagByName(EC_TAG_STATTREE_NODE);
 	//ecstats2php(stats_root, result);
-	for (int i = 0; i < stats_root->GetTagCount(); i++) {
-		CEC_StatTree_Node_Tag *tag = (CEC_StatTree_Node_Tag*)stats_root->GetTagByIndex(i);
+	for (CECTag::const_iterator it = stats_root->begin(); it != stats_root->end(); it++) {
+		CEC_StatTree_Node_Tag *tag = (CEC_StatTree_Node_Tag*) & *it;
 		if (tag->GetTagName() == EC_TAG_STATTREE_NODE) {
 			ecstats2php(tag, result);
 		}
@@ -892,21 +895,26 @@ void amule_upload_file_prop_get(void *ptr, char *prop_name, PHP_VALUE_NODE *resu
 	result->type = PHP_VAL_INT;
 	if ( strcmp(prop_name, "name") == 0 ) {
 		result->type = PHP_VAL_STRING;
-		SharedFile *sharedfile = SharedFile::GetContainerInstance()->GetByID(obj->nHash);
-		 // uploading file we don't share ?! We are either out of sync with core or a shared file has been removed while uploading it
+		SharedFile *sharedfile = SharedFile::GetContainerInstance()->GetByID(obj->nUploadFile);
+		// uploading file we don't share ?! We are either out of sync with core or a shared file has been removed while uploading it
 		if ( !sharedfile ) {
 			SharedFile::GetContainerInstance()->ReQuery();
-			sharedfile = SharedFile::GetContainerInstance()->GetByID(obj->nHash);
+			sharedfile = SharedFile::GetContainerInstance()->GetByID(obj->nUploadFile);
 		}
-	 result->str_val = strdup(sharedfile ? (const char *)unicode2UTF8(sharedfile->sFileName) : "???");
+		result->str_val = strdup(sharedfile ? (const char *)unicode2UTF8(sharedfile->sFileName) : "???");
 	} else if ( strcmp(prop_name, "short_name") == 0 ) {
 		result->type = PHP_VAL_STRING;
-		SharedFile *sharedfile = SharedFile::GetContainerInstance()->GetByID(obj->nHash);
+		SharedFile *sharedfile = SharedFile::GetContainerInstance()->GetByID(obj->nUploadFile);
 		if ( !sharedfile ) {
 			SharedFile::GetContainerInstance()->ReQuery();
-			sharedfile = SharedFile::GetContainerInstance()->GetByID(obj->nHash);
+			sharedfile = SharedFile::GetContainerInstance()->GetByID(obj->nUploadFile);
 		}
-		wxString short_name(sharedfile->sFileName.Length() > 60 ? (sharedfile->sFileName.Left(60) + (wxT(" ..."))) : sharedfile->sFileName);
+		wxString short_name;
+		if (sharedfile) {
+			short_name = sharedfile->sFileName.Length() > 60 ? (sharedfile->sFileName.Left(60) + (wxT(" ..."))) : sharedfile->sFileName;
+		} else {
+			short_name = wxT("???");
+		}
 		result->str_val = strdup((const char *)unicode2UTF8(short_name));
 	} else if ( strcmp(prop_name, "user_name") == 0 ) {
 		result->type = PHP_VAL_STRING;
@@ -1040,6 +1048,11 @@ void amule_search_file_prop_get(void *ptr, char *prop_name, PHP_VALUE_NODE *resu
 		php_report_error(PHP_ERROR, "'SearchFile' property [%s] is unknown", prop_name);
 	}
 }
+
+#ifndef PACKAGE_VERSION
+#include <common/ClientVersion.h>
+#define PACKAGE_VERSION (PACKAGE " " VERSION)
+#endif
 
 void amule_version(PHP_VALUE_NODE *val)
 {

@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -76,6 +76,7 @@ Version 2 of AICH also supports 32bit identifiers to support large files, check 
 #include <set>
 
 #include "Types.h"
+#include "ClientRef.h"
 
 #define HASHSIZE			20
 #define KNOWN2_MET_FILENAME		wxT("known2_64.met")
@@ -210,7 +211,6 @@ public:
 	{
 		m_nPart = 0;
 		m_pPartFile = NULL;
-		m_pClient= NULL;
 	}
 	CAICHRequestedData& operator=(const CAICHRequestedData& k1)
 	{
@@ -221,7 +221,7 @@ public:
 	}
 	uint16 m_nPart;
 	CPartFile* m_pPartFile;
-	CUpDownClient* m_pClient;
+	CClientRef m_pClient;
 };
 
 

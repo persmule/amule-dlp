@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -56,7 +56,7 @@ typedef std::vector<CSearchFile*> CSearchResultList;
  * TODO: Client ID/Port are currently not used.
  * TODO: Directories are currently not used.
  */
-class CSearchFile : public CAbstractFile
+class CSearchFile : public CAbstractFile, public CECID
 {	
 public:
 	/** Constructor used to create results on the remote GUI. */
@@ -100,25 +100,40 @@ public:
 	void MergeResults(const CSearchFile& other);
 
 	/** Returns the total number of sources. */
-	uint32 GetSourceCount() const;
+	uint32 GetSourceCount() const			{ return m_sourceCount; }
 	/** Returns the number of sources that have the entire file. */
-	uint32 GetCompleteSourceCount() const;
+	uint32 GetCompleteSourceCount() const	{ return m_completeSourceCount; }
 	/** Returns the ID of the search, used to select the right list when displaying. */
-	wxUIntPtr GetSearchID() const;
+	wxUIntPtr GetSearchID() const			{ return m_searchID; }
 	/** Returns true if the result is from a Kademlia search. */
-	bool IsKademlia() const;
-	
+	bool IsKademlia() const					{ return m_kademlia; }
+
+	// Possible download status of a file
+	enum DownloadStatus {
+		NEW,				// not known
+		DOWNLOADED,			// successfully downloaded or shared
+		QUEUED,				// downloading (Partfile)
+		CANCELED,			// canceled
+		QUEUEDCANCELED		// canceled once, but now downloading again
+	};
+
+	/** Returns the download status. */
+	enum DownloadStatus GetDownloadStatus() const	{ return m_downloadStatus; }
+	/** Set download status according to the global lists of knownfile, partfiles, canceledfiles. */
+	void SetDownloadStatus();
+	/** Set download status directly. */
+	void SetDownloadStatus(enum DownloadStatus s)	{ m_downloadStatus = s; }
 		
 	/** Returns the parent of this file. */
-	CSearchFile *GetParent() const;
+	CSearchFile *GetParent() const			{ return m_parent; }
 	/** Returns the list of children belonging to this file. */
-	const CSearchResultList &GetChildren() const;
+	const CSearchResultList &GetChildren() const	{ return m_children; }
 	/** Returns true if this item has children. */
-	bool HasChildren() const;
+	bool HasChildren() const				{ return !m_children.empty(); }
 	/** Returns true if children should be displayed. */
-	bool ShowChildren() const;
+	bool ShowChildren() const				{ return m_showChildren; }
 	/** Enable/Disable displaying of children (set in CSearchListCtrl). */
-	void SetShowChildren(bool show);
+	void SetShowChildren(bool show)			{ m_showChildren = show; }
 	
 	/**
 	 * Adds the given file as a child of this file.
@@ -131,35 +146,34 @@ public:
 	 */
 	void		AddChild(CSearchFile* file);
 
-       struct ClientStruct {
-               ClientStruct()
-                       : m_ip(0), m_port(0), m_serverIP(0), m_serverPort(0)
-               {}
+	struct ClientStruct {
+		ClientStruct()
+			: m_ip(0), m_port(0), m_serverIP(0), m_serverPort(0)
+		{}
 
-               ClientStruct(uint32_t ip, uint16_t port, uint32_t serverIP, uint16_t serverPort)
-                       : m_ip(ip), m_port(port), m_serverIP(serverIP), m_serverPort(serverPort)
-               {}
+		ClientStruct(uint32_t ip, uint16_t port, uint32_t serverIP, uint16_t serverPort)
+			: m_ip(ip), m_port(port), m_serverIP(serverIP), m_serverPort(serverPort)
+		{}
 
-               uint32_t m_ip;
-               uint16_t m_port;
-               uint32_t m_serverIP;
-               uint32_t m_serverPort;
-       };
+		uint32_t m_ip;
+		uint16_t m_port;
+		uint32_t m_serverIP;
+		uint32_t m_serverPort;
+	};
 
-       void     AddClient(const ClientStruct& client);
-       const std::list<ClientStruct>& GetClients() const       { return m_clients; }
+	void	 AddClient(const ClientStruct& client);
+	const std::list<ClientStruct>& GetClients() const	{ return m_clients; }
 
-       uint32_t GetClientID() const throw()                    { return m_clientID; }
-       void     SetClientID(uint32_t clientID) throw()         { m_clientID = clientID; }
-       uint16_t GetClientPort() const throw()                  { return m_clientPort; }
-       void     SetClientPort(uint16_t port) throw()           { m_clientPort = port; }
-       uint32_t GetClientServerIP() const throw()              { return m_clientServerIP; }
-       void     SetClientServerIP(uint32_t serverIP) throw()   { m_clientServerIP = serverIP; }
-       uint16_t GetClientServerPort() const throw()            { return m_clientServerPort; }
-       void     SetClientServerPort(uint16_t port) throw()     { m_clientServerPort = port; }
-       int      GetClientsCount() const                        { return ((GetClientID() && GetClientPort()) ? 1 : 0) + m_clients.size(); }
+	uint32_t GetClientID() const throw()			{ return m_clientID; }
+	void	 SetClientID(uint32_t clientID) throw()		{ m_clientID = clientID; }
+	uint16_t GetClientPort() const throw()			{ return m_clientPort; }
+	void	 SetClientPort(uint16_t port) throw()		{ m_clientPort = port; }
+	uint32_t GetClientServerIP() const throw()		{ return m_clientServerIP; }
+	void	 SetClientServerIP(uint32_t serverIP) throw()	{ m_clientServerIP = serverIP; }
+	uint16_t GetClientServerPort() const throw()		{ return m_clientServerPort; }
+	void	 SetClientServerPort(uint16_t port) throw()	{ m_clientServerPort = port; }
+	int	 GetClientsCount() const			{ return ((GetClientID() && GetClientPort()) ? 1 : 0) + m_clients.size(); }
 
-	
 	void	 SetKadPublishInfo(uint32_t val) throw()	{ m_kadPublishInfo = val; }
 	uint32_t GetKadPublishInfo() const throw()		{ return m_kadPublishInfo; }
 
@@ -189,17 +203,19 @@ private:
 	uint32			m_completeSourceCount;
 	//! Specifies if the result is from a kademlia search.
 	bool			m_kademlia;
+	//! The download status.
+	enum DownloadStatus m_downloadStatus;
 
 	//@{
 	//! TODO: Currently not used.
 	wxString		m_directory;
 	//@}
 
-       std::list<ClientStruct> m_clients;
-       uint32_t                m_clientID;
-       uint16_t                m_clientPort;
-       uint32_t                m_clientServerIP;
-       uint16_t                m_clientServerPort;
+	std::list<ClientStruct>	m_clients;
+	uint32_t		m_clientID;
+	uint16_t		m_clientPort;
+	uint32_t		m_clientServerIP;
+	uint16_t		m_clientServerPort;
 
 	//! Kademlia publish information.
 	uint32_t		m_kadPublishInfo;
@@ -207,64 +223,6 @@ private:
 	friend class CPartFile;
 	friend class CSearchListRem;
 };
-
-
-////////////////////////////////////////////////////////////
-// Implementations
-
-
-inline uint32 CSearchFile::GetSourceCount() const
-{
-	return m_sourceCount;
-}
-
-
-inline uint32 CSearchFile::GetCompleteSourceCount() const
-{
-	return m_completeSourceCount; 
-}
-
-
-inline wxUIntPtr CSearchFile::GetSearchID() const
-{
-	return m_searchID;
-}
-
-
-inline bool CSearchFile::IsKademlia() const
-{
-	return m_kademlia;
-}
-
-
-inline CSearchFile* CSearchFile::GetParent() const
-{
-	return m_parent;
-}
-
-
-inline bool CSearchFile::ShowChildren() const
-{
-	return m_showChildren;
-}
-
-
-inline void CSearchFile::SetShowChildren(bool show)
-{
-	m_showChildren = show;
-}
-
-
-inline const CSearchResultList& CSearchFile::GetChildren() const
-{
-	return m_children;
-}
-
-
-inline bool CSearchFile::HasChildren() const
-{
-	return !m_children.empty();
-}
 
 
 #endif // SEARCHLIST_H

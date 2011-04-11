@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -53,6 +53,7 @@ public:
 	CServer*	GetServerByIP(uint32 nIP) const;
 	CServer*	GetServerByIPTCP(uint32 nIP, uint16 nPort) const;
 	CServer*	GetServerByIPUDP(uint32 nIP, uint16 nUDPPort, bool bObfuscationPorts = true) const;
+	CServer*	GetServerByECID(uint32 ecid) const;
 	void		GetStatus(uint32 &failed, uint32 &user, uint32 &file, uint32 &tuser, uint32 &tfile, float &occ);
 	void		GetUserFileStatus( uint32 &user, uint32 &file);
 	void		Sort();
@@ -67,13 +68,27 @@ public:
 	void FilterServers();
 
 	void CheckForExpiredUDPKeys();
+
+	/**
+	 * Marks the specified server as static or not.
+	 *
+	 * @param The server to be marked or unmarked as static.
+	 * @param The new static state.
+	 *
+	 * Other than setting the static setting of the specified server, it
+	 * also adds or removes the server from the static-list file.
+	 */
+	void		SetStaticServer(CServer* server, bool isStatic);
+	void		SetServerPrio(CServer* server, uint32 prio);
 	
 private:
 	virtual void 	ObserverAdded( ObserverType* );
 	void		AutoUpdate();
 	CServer*	GetNextStatServer();
 	
-	void		LoadStaticServers( const wxString& filename );
+	wxString	m_staticServersConfig;
+	void		LoadStaticServers();
+	void		SaveStaticServers();
 	uint8		current_url_index;
 
 	typedef std::list<CServer*>	CInternalList;
@@ -82,8 +97,7 @@ private:
 	CInternalList::const_iterator	m_statserverpos;
 
 	uint32		m_nLastED2KServerLinkCheck;// emanuelw(20030924) added
-	wxString	URLUpdate;
-	wxString	URLAutoUpdate;
+	wxString	m_URLUpdate;
 };
 
 #endif // SERVERLIST_H

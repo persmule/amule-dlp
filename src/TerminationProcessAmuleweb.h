@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2008-2009 Marcelo Roberto Jimenez ( phoenix@amule.org )
-// Copyright (c) 2008-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Marcelo Roberto Jimenez ( phoenix@amule.org )
+// Copyright (c) 2008-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -24,8 +24,8 @@
 //
 
 
-#ifndef TERMINATIONPROCESSAMULEWEB
-#define TERMINATIONPROCESSAMULEWEB
+#ifndef TERMINATIONPROCESSAMULEWEB_H
+#define TERMINATIONPROCESSAMULEWEB_H
 
 
 #include "TerminationProcess.h"	// for CTerminationProcess
@@ -44,5 +44,5 @@ public:
 };
 
 
-#endif // TERMINATIONPROCESSAMULEWEB
+#endif // TERMINATIONPROCESSAMULEWEB_H
 

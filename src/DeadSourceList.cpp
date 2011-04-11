@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (C) 2005-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2004 Merkur ( devs@users.sourceforge.net / http://www.emule-project.net )
+// Copyright (c) 2005-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -27,7 +27,7 @@
 
 #include <common/Macros.h>
 
-#include "updownclient.h"
+#include "updownclient.h"		// Needed for CUpDownClient
 
 #define	CLEANUPTIME			MIN2MS(60)
 
@@ -157,10 +157,9 @@ void CDeadSourceList::CleanUp()
 
 	DeadSourceIterator it = m_sources.begin();
 	for ( ; it != m_sources.end(); ) {
-		if ( it->second.GetTimeout() < m_dwLastCleanUp ) {
-			m_sources.erase( it++ );
-		} else {
-			++it;
+		DeadSourceIterator it1 = it++;
+		if ( it1->second.GetTimeout() < m_dwLastCleanUp ) {
+			m_sources.erase( it1 );
 		}
 	}
 }

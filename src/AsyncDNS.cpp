@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal Veiga - Kry (kry@amule.org)
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -28,6 +28,7 @@
 
 #include "InternalEvents.h"	// Needed for wxEVT_*
 #include "NetworkFunctions.h" // Needed for StringHosttoUint32
+#include "Logger.h"
 
 
 CAsyncDNS::CAsyncDNS(const wxChar* ipName, DnsSolveType type, wxEvtHandler* handler, void* socket)
@@ -60,7 +61,7 @@ wxThread::ExitCode CAsyncDNS::Entry()
 			event_data = m_socket;
 			break;
 		default:
-			printf("WRONG TYPE ID ON ASYNC DNS SOLVING!!!\n");
+			AddLogLineN(wxT("WRONG TYPE ID ON ASYNC DNS SOLVING!!!"));
 	}
 	
 	if (event_id) {

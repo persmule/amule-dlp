@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -17,7 +17,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -35,40 +35,17 @@
 #include <common/Path.h>
 
 #include "kademlia/kademlia/Indexed.h"
+#include <ec/cpp/ECID.h>	// Needed for CECID
 
 
 #ifdef CLIENT_GUI
 #include <ec/cpp/ECSpecialTags.h>
+#include "RLE.h"			// Needed for RLE_Data, PartFileEncoderData
 #endif
 
+#include "Constants.h"		// Needed for PS_*, PR_*
+#include "ClientRef.h"		// Needed for CClientRef
 
-#define	PS_READY			0
-#define	PS_EMPTY			1
-#define PS_WAITINGFORHASH		2
-#define PS_HASHING			3
-#define PS_ERROR			4
-#define	PS_INSUFFICIENT			5
-#define	PS_UNKNOWN			6
-#define PS_PAUSED			7
-#define PS_COMPLETING			8
-#define PS_COMPLETE			9
-#define PS_ALLOCATING			10
-
-
-#define PR_VERYLOW			4 // I Had to change this because
-					  // it didn't save negative number
-					  // correctly.. Had to modify the
-					  // sort function for this change..
-#define PR_LOW				0 //*
-#define PR_NORMAL			1 // Don't change this - needed for
-					  // edonkey clients and server!
-#define PR_HIGH				2 //*
-#define PR_VERYHIGH			3
-#define PR_AUTO				5
-#define PR_POWERSHARE			6 //added for powershare (deltaHF)
-
-
-class CUpDownClient;
 class CFileDataIO;
 class CPacket;
 class CTag;
@@ -89,7 +66,7 @@ typedef vector<CTag> ArrayOfCTag;
 class CFileStatistic
 {
 	friend class CKnownFile;
-	friend class CSharedFilesRem;
+	friend class CKnownFilesRem;
 
 public:
 	CFileStatistic();
@@ -102,11 +79,11 @@ public:
 	uint32	GetAllTimeRequests() const		{return alltimerequested;}
 	void	SetAllTimeRequests(uint32 new_value)	{ alltimerequested = new_value; };
 	uint32	GetAllTimeAccepts() const		{return alltimeaccepted;}
-	void	SetAllTimeAccepts(uint32 new_value)	{ alltimeaccepted = new_value; };	
+	void	SetAllTimeAccepts(uint32 new_value)	{ alltimeaccepted = new_value; };
 	uint64	GetAllTimeTransferred() const		{return alltimetransferred;}
 	void	SetAllTimeTransferred(uint64 new_value)	{ alltimetransferred = new_value; };
 	CKnownFile* fileParent;
-	
+
 private:
 	uint16 requested;
 	uint64 transferred;
@@ -122,7 +99,7 @@ private:
                 CKnownFile
               /
 CAbstractFile
-              \ 
+              \
                 CSearchFile
 */
 class CAbstractFile
@@ -145,34 +122,34 @@ public:
 	uint32 GetIntTagValue(uint8 tagname) const;
 	uint32 GetIntTagValue(const wxString& tagname) const;
 	bool GetIntTagValue(uint8 tagname, uint32& ruValue) const;
-	void SetIntTagValue(uint8 tagname, uint32 ruValue) const;
 	const wxString& GetStrTagValue(uint8 tagname) const;
 	const wxString& GetStrTagValue(const wxString& tagname) const;
-	const CTag *GetTag(const wxString& tagname) const;	
+	const CTag *GetTag(const wxString& tagname) const;
 	const CTag *GetTag(const wxString& tagname, uint8 tagtype) const;
 	const CTag *GetTag(uint8 tagname) const;
-	const CTag *GetTag(uint8 tagname, uint8 tagtype) const;	
+	const CTag *GetTag(uint8 tagname, uint8 tagtype) const;
 	void AddTagUnique(const CTag &pTag);
 	const ArrayOfCTag& GetTags() const { return m_taglist; }
 	void AddNote(Kademlia::CEntry* pEntry);
 	const CKadEntryPtrList& getNotes() const { return m_kadNotes; }
 
-	/* Comment and rating */	
+	/* Comment and rating */
 	virtual const wxString&	GetFileComment() const { return m_strComment; }
-	virtual int8	GetFileRating() 		const { return m_iRating; }	
-	
+	virtual int8	GetFileRating() 		const { return m_iRating; }
+
 	bool	HasComment() const		{ return m_hasComment; }
 	bool	HasRating() const		{ return (m_iUserRating != 0); }
 	int8	UserRating() const 		{ return m_iUserRating; }
-	void	UpdateFileRatingCommentAvail();
 
 protected:
 	//! CAbstractFile is not assignable.
 	CAbstractFile& operator=(const CAbstractFile);
-	
+
 	CMD4Hash	m_abyFileHash;
-	wxString	m_strComment;
-	int8		m_iRating;
+	// comment/rating are read from the config and cached in these variables,
+	// so make the mutable to allow GetFileComment() to be a const method
+	mutable	wxString	m_strComment;
+	mutable	int8		m_iRating;
 	bool		m_hasComment;
 	int8		m_iUserRating;
 	ArrayOfCTag	m_taglist;
@@ -185,25 +162,32 @@ private:
 
 
 class CSearchFile;
+class CFile;
 
 
-class CKnownFile : public CAbstractFile
+class CKnownFile : public CAbstractFile, public CECID
 {
 friend class CHashingTask;
 public:
 	CKnownFile();
+	CKnownFile(uint32 ecid);
 	explicit CKnownFile(const CSearchFile &searchFile);
 
 	virtual ~CKnownFile();
 
 	void SetFilePath(const CPath& filePath);
 	const CPath& GetFilePath() const { return m_filePath; }
-	
-	virtual	bool	IsPartFile() const	{return false;}
+
+	// virtual functions for CKnownFile and CPartFile:
+	virtual	bool	IsPartFile() const	{return false;}		// true if not completed
+	virtual bool	IsCompleted() const	{ return true; }	// true if completed
+	virtual bool	IsCPartFile() const	{ return false; }	// true if it's a CPartFile
+
 	virtual bool	LoadFromFile(const CFileDataIO* file);	//load date, hashset and tags from a .met file
 	virtual uint8	GetStatus(bool WXUNUSED(ignorepause) = false) const { return PS_COMPLETE; }
-	bool	WriteToFile(CFileDataIO* file);	
+	bool	WriteToFile(CFileDataIO* file);
 	time_t GetLastChangeDatetime() const { return m_lastDateChanged; }
+	void SetLastChangeDatetime(time_t t) { m_lastDateChanged = t; }
 
 	virtual void SetFileSize(uint64 nFileSize);
 
@@ -219,66 +203,73 @@ public:
 
 	// nr. of 9MB parts according the file size wrt ED2K protocol (OP_FILESTATUS)
 	inline uint16 GetED2KPartCount() const { return m_iED2KPartCount; }
-	
+
+	// size of a certain part, last is different, all others are PARTSIZE
+	uint32 GetPartSize(uint16 part) const { return part == m_iPartCount - 1 ? m_sizeLastPart : PARTSIZE; }
+
 	// file upload priority
 	uint8	GetUpPriority()	 const		{return m_iUpPriority;}
 	void	SetUpPriority(uint8 newUpPriority, bool bSave=true);
 	bool	IsAutoUpPriority() const		{return m_bAutoUpPriority;}
 	void	SetAutoUpPriority(bool flag)	{m_bAutoUpPriority = flag;}
 	void	UpdateAutoUpPriority();
-	size_t	GetQueuedCount() const {return m_ClientUploadList.size();}
+#ifdef CLIENT_GUI
+	uint16	GetQueuedCount() const { return m_queuedCount; }
+#else
+	uint16	GetQueuedCount() const { return (uint16) m_ClientUploadList.size(); }
+#endif
 
 	bool	LoadHashsetFromFile(const CFileDataIO* file, bool checkhash);
 	void	AddUploadingClient(CUpDownClient* client);
 	void	RemoveUploadingClient(CUpDownClient* client);
-	
-	// comment 
-	const wxString&	GetFileComment() { if (!m_bCommentLoaded) LoadComment(); return m_strComment; } 
-	int8	GetFileRating() 		{ if (!m_bCommentLoaded) LoadComment(); return m_iRating; }
 
-	void	SetFileComment(const wxString& strNewComment);
-	void	SetFileRating(int8 iNewRating); 
+	// comment
+	const wxString&	GetFileComment()	const	{ if (!m_bCommentLoaded) LoadComment(); return m_strComment; }
+	int8	GetFileRating() 			const	{ if (!m_bCommentLoaded) LoadComment(); return m_iRating; }
+
+	void	SetFileCommentRating(const wxString& strNewComment, int8 iNewRating);
 	void	SetPublishedED2K( bool val );
 	bool	GetPublishedED2K() const	{return m_PublishedED2K;}
 
-	/* Kad stuff */ 
+	/* Kad stuff */
 	uint32	GetKadFileSearchID() const { return kadFileSearchID; }
 	// KAD TODO: This must be used on KadSearchListCtrl too once imported
 	void	SetKadFileSearchID(uint32 id) { kadFileSearchID = id; } // John - Don't use this unless you know what your are DOING!! (Hopefully I do.. :)
 	const Kademlia::WordList& GetKadKeywords() const { return wordlist; }
 	// KAD TODO: If we add the proper column to SharedFilesCtrl, this is the funtion.
-	uint32	GetLastPublishTimeKadSrc() const { return m_lastPublishTimeKadSrc; }	
+	uint32	GetLastPublishTimeKadSrc() const { return m_lastPublishTimeKadSrc; }
 	void	SetLastPublishTimeKadSrc(uint32 time, uint32 buddyip) { m_lastPublishTimeKadSrc = time; m_lastBuddyIP = buddyip;}
 	// Another unused function, useful for the shared files control column
 	uint32	GetLastPublishBuddy() const { return m_lastBuddyIP; }
 	void	SetLastPublishTimeKadNotes(uint32 time) {m_lastPublishTimeKadNotes = time;}
-	uint32	GetLastPublishTimeKadNotes() const { return m_lastPublishTimeKadNotes; }	
-	
+	uint32	GetLastPublishTimeKadNotes() const { return m_lastPublishTimeKadNotes; }
+
 	bool	PublishSrc();
-	bool	PublishNotes();	
-	
+	bool	PublishNotes();
+
 	// TODO: This must be implemented if we ever want to have metadata.
 	uint32	GetMetaDataVer() const { return /*m_uMetaDataVer*/ 0; }
-	
+
 	// file sharing
 	virtual	CPacket*	CreateSrcInfoPacket(const CUpDownClient* forClient, uint8 byRequestedVersion, uint16 nRequestedOptions);
-	
-	virtual void	UpdatePartsInfo();	
+	void	CreateOfferedFilePacket(CMemFile* files, class CServer* pServer, CUpDownClient* pClient);
 
-	
+	virtual void	UpdatePartsInfo();
+
+
 	CFileStatistic statistic;
-	
+
 	time_t m_nCompleteSourcesTime;
 	uint16 m_nCompleteSourcesCount;
 	uint16 m_nCompleteSourcesCountLo;
 	uint16 m_nCompleteSourcesCountHi;
-	
-	// Maybe find a common place for this typedef?
-	typedef std::set<CUpDownClient*> SourceSet;
+
+	// Common for part and known files.
+	typedef std::set<CClientRef> SourceSet;
 	SourceSet m_ClientUploadList;
 	ArrayOfUInts16 m_AvailPartFrequency;
-	
-	/** 
+
+	/**
  	 * Returns a base-16 encoding of the master hash, or
  	 * an empty string if no such hash exists.
  	 */
@@ -292,24 +283,33 @@ public:
 	 * @param client The clients whoose uploading parts should be considered.
 	 * @param increment If true, the counts are incremented, otherwise they are decremented.
 	 *
-	 * This functions updates the frequency list of file-upparts, using the clients 
+	 * This functions updates the frequency list of file-upparts, using the clients
 	 * upparts-status. This function should be called by clients every time they update their
 	 * upparts-status, or when they are added or removed from the file.
 	 */
 	void UpdateUpPartsFrequency( CUpDownClient* client, bool increment );
 
 	static void CreateHashFromHashlist(const ArrayOfCMD4Hash& hashes, CMD4Hash* Output);
-	
+
 	void	ClearPriority();
-	
+
 	time_t	m_lastDateChanged;
 
 	virtual wxString GetFeedback() const;
 
+	void	SetShowSources( bool val )	{ m_showSources = val; }
+	bool	ShowSources() const			{ return m_showSources; }
+	void	SetShowPeers( bool val )	{ m_showPeers = val; }
+	bool	ShowPeers()	const			{ return m_showPeers; }
 
 #ifdef CLIENT_GUI
 	CKnownFile(CEC_SharedFile_Tag *);
-	friend class CSharedFilesRem;
+	friend class CKnownFilesRem;
+	RLE_Data m_partStatus;
+
+private:
+	uint8	m_iUpPriorityEC;
+	uint16	m_queuedCount;
 
 protected:
 	//! The AICH master-hash, if it is known.
@@ -320,24 +320,25 @@ protected:
 	// AICH
 	CAICHHashSet* GetAICHHashset() const		{ return m_pAICHHashSet; }
 	void SetAICHHashset(CAICHHashSet* val)		{ m_pAICHHashSet = val; }
-	
+
 protected:
 	CAICHHashSet*	m_pAICHHashSet;
 #endif
 
 	bool	LoadTagsFromFile(const CFileDataIO* file);
 	bool	LoadDateFromFile(const CFileDataIO* file);
-	void	LoadComment();//comment
+	void	LoadComment() const;
 	ArrayOfCMD4Hash m_hashlist;
-	CPath	m_filePath;	
+	CPath	m_filePath;
 
-	static void CreateHashFromFile(CFileDataIO* file, uint32 Length, CMD4Hash* Output, CAICHHashTree* pShaHashOut);
+	static void CreateHashFromFile(class CFileAutoClose& file, uint64 offset, uint32 Length, CMD4Hash* Output, CAICHHashTree* pShaHashOut);
 	static void CreateHashFromInput(const byte* input, uint32 Length, CMD4Hash* Output, CAICHHashTree* pShaHashOut);
 
-	bool	m_bCommentLoaded;
+	mutable bool	m_bCommentLoaded;
 	uint16	m_iPartCount;
 	uint16  m_iED2KPartCount;
 	uint16	m_iED2KPartHashCount;
+	uint32	m_sizeLastPart;			// size of the last part
 	uint8	m_iUpPriority;
 	bool	m_bAutoUpPriority;
 	bool	m_PublishedED2K;
@@ -349,6 +350,8 @@ protected:
 	uint32	m_lastPublishTimeKadNotes;
 	uint32	m_lastBuddyIP;
 
+	bool	m_showSources;
+	bool	m_showPeers;
 private:
 	/** Common initializations for constructors. */
 	void Init();
