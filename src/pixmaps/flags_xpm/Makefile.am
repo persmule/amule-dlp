@@ -35,7 +35,6 @@ EXTRA_DIST = \
 	bw.xpm \
 	by.xpm \
 	bz.xpm \
-	catalonia.xpm \
 	ca.xpm \
 	cc.xpm \
 	cd.xpm \
@@ -54,7 +53,6 @@ EXTRA_DIST = \
 	cx.xpm \
 	cy.xpm \
 	cz.xpm \
-	cs.xpm \
 	de.xpm \
 	dj.xpm \
 	dk.xpm \
@@ -65,12 +63,10 @@ EXTRA_DIST = \
 	ee.xpm \
 	eg.xpm \
 	eh.xpm \
-	england.xpm \
 	er.xpm \
 	es.xpm \
 	et.xpm \
-	europeanunion.xpm \
-	fam.xpm \
+	eu.xpm \
 	fi.xpm \
 	fj.xpm \
 	fk.xpm \
@@ -192,7 +188,6 @@ EXTRA_DIST = \
 	rw.xpm \
 	sa.xpm \
 	sb.xpm \
-	scotland.xpm \
 	sc.xpm \
 	sd.xpm \
 	se.xpm \
@@ -240,7 +235,6 @@ EXTRA_DIST = \
 	vi.xpm \
 	vn.xpm \
 	vu.xpm \
-	wales.xpm \
 	wf.xpm \
 	ws.xpm \
 	ye.xpm \

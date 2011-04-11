@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 // Original author: Emilio Sandoz
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -116,13 +116,13 @@ protected:
 	void OnButtonIPFilterUpdate(wxCommandEvent &event);
 	void OnColorCategorySelected(wxCommandEvent &event);
 	void OnCheckBoxChange(wxCommandEvent &event);
-	void OnBrowserChange(wxCommandEvent &event);
 	void OnPrefsPageChange(wxListEvent& event);
 	void OnToolTipDelayChange(wxSpinEvent& event);
 	void OnScrollBarChange( wxScrollEvent& event );
 	void OnRateLimitChanged( wxSpinEvent& event );
 	void OnTCPClientPortChange(wxSpinEvent& event);
 	void OnUserEventSelected(wxListEvent& event);
+	void OnLanguageChoice(wxCommandEvent &event);
 	void CreateEventPanels(const int idx, const wxString& vars, wxWindow* parent);
 
 	void OnInitDialog( wxInitDialogEvent& evt );

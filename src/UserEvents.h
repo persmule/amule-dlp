@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2006-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2006-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -54,7 +54,7 @@ const int USEREVENTS_FIRST_ID	=	11500;	/* Some safe GUI ID to start from */
  * have to maintain these five places in sync. They are:
  * - one in PrefsUnifiedDlg.cpp (EVENT_LIST, PrefsUnifiedDlg::PrefsUnifiedDlg())
  * - one in this header (CUserEvents::EventType)
- * - two in UserEvents.cpp (static struct EventList[]; CUserEvent::ProcessEvent())
+ * - two in UserEvents.cpp (static struct EventList[]; CUserEvent::ExecuteCommand())
  */
 #define USEREVENTS_EVENTLIST() \
 	USEREVENTS_EVENT(DownloadCompleted, wxTRANSLATE("Download completed"), \
@@ -93,7 +93,7 @@ const int USEREVENTS_FIRST_ID	=	11500;	/* Some safe GUI ID to start from */
 		USEREVENTS_REPLACE_VAR( \
 			wxT("PARTITION"), \
 			wxTRANSLATE("Disk partition."), \
-			*((wxString*)object) ) \
+			wxString((wxChar*)object) ) \
 	) \
 	USEREVENTS_EVENT( \
 		ErrorOnCompletion, \
@@ -119,6 +119,8 @@ class CUserEvents {
 	//! Event list
 	enum EventType {
 		USEREVENTS_EVENTLIST()
+		/* This macro expands to the following list of user event types:
+		   DownloadCompleted, NewChatSession, OutOfDiskSpace, ErrorOnCompletion */
 	};
 
 	/**

@@ -14,8 +14,20 @@ if ALCC
   OPT_ALC = aLinkCreator
 endif
 
-SUBDIRS = xas $(OPT_CAS) $(OPT_WXCAS) $(OPT_ALC)
-DIST_SUBDIRS = fileview
+if XAS
+  OPT_XAS = xas
+endif
+
+if PLASMAMULE
+  OPT_PLASMAMULE = plasmamule
+endif
+
+if FILEVIEW
+  OPT_FILEVIEW = fileview
+endif
+
+SUBDIRS = $(OPT_FILEVIEW) $(OPT_XAS) $(OPT_CAS) $(OPT_WXCAS) $(OPT_ALC) ${OPT_PLASMAMULE}
+DIST_SUBDIRS = fileview xas cas wxCas aLinkCreator plasmamule
 
 MAINTAINERCLEANFILES = Makefile.in
 

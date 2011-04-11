@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -33,7 +33,6 @@
 #include "Preferences.h"	// Needed for CPreferences
 #include "amule.h"		// Needed for theApp
 #include "ServerConnect.h"	// Needed for CServerConnect
-#include "updownclient.h"	// Needed for CUpDownClient
 
 //-----------------------------------------------------------------------------
 // CListenSocket
@@ -63,10 +62,9 @@ CSocketServerProxy(addr, wxSOCKET_NOWAIT|wxSOCKET_REUSEADDR, ProxyData)
  		SetNotify(wxSOCKET_CONNECTION_FLAG);
  		Notify(true);
 
-		printf("ListenSocket: Ok.\n");
+		AddLogLineNS(_("ListenSocket: Ok."));
 	} else {
-		AddLogLineM( true, _("ERROR: Could not listen to TCP port.") );
-		printf("ListenSocket: Could not listen to TCP port.");
+		AddLogLineCS(_("ERROR: Could not listen to TCP port.") );
 	}
 }
 
@@ -119,7 +117,7 @@ void CListenSocket::OnAccept(int nErrorCode)
 	if (!nErrorCode) {
 		m_nPeningConnections++;
 		if (m_nPeningConnections < 1) {
-			wxASSERT(FALSE);
+			wxFAIL;
 			m_nPeningConnections = 1;
 		}
 		if (TooManySockets(true) && !theApp->serverconnect->IsConnecting()) {
@@ -220,7 +218,7 @@ void CListenSocket::KillAllSockets()
 	for (SocketSet::iterator it = socket_list.begin(); it != socket_list.end(); ) {
 		CClientTCPSocket* cur_socket = *it++;
 		if (cur_socket->GetClient()) {
-			cur_socket->GetClient()->Safe_Delete();
+			cur_socket->Safe_Delete_Client();
 		} else {
 			cur_socket->Safe_Delete();
 			cur_socket->Destroy(); 

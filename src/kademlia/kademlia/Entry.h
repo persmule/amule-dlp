@@ -1,9 +1,9 @@
 //								-*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -76,7 +76,6 @@ public:
 	virtual CEntry*	Copy() const;
 	virtual bool	IsKeyEntry() const throw()	{ return false; }
 	
-	uint64_t GetIntTagValue(const wxString& tagname, bool includeVirtualTags = true) const;
 	bool	 GetIntTagValue(const wxString& tagname, uint64_t& value, bool includeVirtualTags = true) const;
 	wxString GetStrTagValue(const wxString& tagname) const;
 

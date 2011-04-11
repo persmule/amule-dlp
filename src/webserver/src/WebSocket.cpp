@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //  
-// Copyright (c) 2004-2009 shakraw ( shakraw@users.sourceforge.net )
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2004-2011 shakraw ( shakraw@users.sourceforge.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -47,7 +47,7 @@ CWebSocket::CWebSocket(CWebServerBase *parent)
 	
 	m_pParent = parent;
 	
-	SetEventHandler(*parent, ID_WEBCLIENTSOCKET_ENENT);
+	SetEventHandler(*parent, ID_WEBCLIENTSOCKET_EVENT);
 	SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_OUTPUT_FLAG | wxSOCKET_LOST_FLAG);
 	Notify(true);
 	
@@ -265,15 +265,16 @@ void CWebSocket::SendHttpHeaders(const char* szType, bool use_gzip, uint32 conte
 
 void CWebSocket::SendData(const void* pData, uint32 dwDataSize) 
 {
+	const char * data = (const char*) pData;
 	if (!m_pHead) {
 		// try to send it directly
-		Write((const char*) pData, dwDataSize);
+		Write(data, dwDataSize);
 		uint32 nRes = LastCount();
 		if ((nRes < dwDataSize) && 
 			Error() && (LastError() != wxSOCKET_WOULDBLOCK)) {
 			Close();
 		} else {
-			((const char*&) pData) += nRes;
+			data += nRes;
 			dwDataSize -= nRes;
 		}
 	}
@@ -283,7 +284,7 @@ void CWebSocket::SendData(const void* pData, uint32 dwDataSize)
 		pChunk->m_pNext = NULL;
 		pChunk->m_dwSize = dwDataSize;
 		pChunk->m_pData = new char[dwDataSize];
-		memcpy(pChunk->m_pData, pData, dwDataSize);
+		memcpy(pChunk->m_pData, data, dwDataSize);
 		// push it to the end of our queue
 		pChunk->m_pToSend = pChunk->m_pData;
 		if (m_pTail) {

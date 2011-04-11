@@ -5,11 +5,11 @@
 ///
 /// Author:       ThePolish <thepolish@vipmail.ru>
 ///
-/// Copyright (C) 2004 by ThePolish
+/// Copyright (c) 2004-2011 ThePolish ( thepolish@vipmail.ru )
 ///
 /// Derived from CAS by Pedro de Oliveira <falso@rdk.homeip.net>
 ///
-/// Pixmats from aMule http://www.amule.org
+/// Pixmaps from aMule http://www.amule.org
 ///
 /// This program is free software; you can redistribute it and/or modify
 ///  it under the terms of the GNU General Public License as published by
@@ -37,11 +37,16 @@
 
 #ifdef __WXMAC__
 	#include <CoreServices/CoreServices.h> // Do_not_auto_remove
-	#include <wx/mac/corefoundation/cfstring.h> // Do_not_auto_remove
+	#if wxCHECK_VERSION(2, 9, 0)
+		#include <wx/osx/core/cfstring.h>  // Do_not_auto_remove
+	#else
+		#include <wx/mac/corefoundation/cfstring.h>  // Do_not_auto_remove
+	#endif
 	#include <wx/intl.h> // Do_not_auto_remove
 #elif defined(__WXMSW__)
 	#include <winerror.h> // Do_not_auto_remove
 	#include <shlobj.h> // Do_not_auto_remove
+	#include <wx/msw/winundef.h>
 #endif
 
 #include "wxcascte.h"
@@ -133,8 +138,13 @@ wxString GetDefaultAmulesigPath()
 		CFURLRef	urlRef		= CFURLCreateFromFSRef(NULL, &fsRef);
 		CFStringRef	cfString	= CFURLCopyFileSystemPath(urlRef, kCFURLPOSIXPathStyle);
 		CFRelease(urlRef) ;
-		strDir = wxMacCFStringHolder(cfString).AsString(wxLocale::GetSystemEncoding())
+		#if wxCHECK_VERSION(2, 9, 0)
+			strDir = wxCFStringRef(cfString).AsString(wxLocale::GetSystemEncoding())
 			+ wxFileName::GetPathSeparator() + wxT("aMule");
+		#else
+			strDir = wxMacCFStringHolder(cfString).AsString(wxLocale::GetSystemEncoding())
+			+ wxFileName::GetPathSeparator() + wxT("aMule");
+		#endif
 	}
 
 #elif defined(__WXMSW__)

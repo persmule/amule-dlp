@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 Kry ( elkry@sourceforge.net / http://www.amule.org )
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -29,9 +29,10 @@
 
 #include <common/Format.h>		// Needed for CFormat
 
-#include "../../../KnownFile.h"		// Needed for PS_*
+#include "../../../OtherFunctions.h"	// Needed for CastXtoY
+#include "../../../Constants.h"			// Needed for PS_*
 
-wxString CEC_PartFile_Tag::GetFileStatusString()
+wxString CEC_PartFile_Tag::GetFileStatusString() const
 {
 	uint8 nFileStatus = FileStatus();
 	
@@ -112,7 +113,7 @@ void FormatValue(CFormat& format, const CECTag* tag)
 			format = format % tag->GetInt();
 			break;
 		case EC_VALUE_ISTRING:
-			format = format % (wxString::Format(wxT("%") wxLongLongFmtSpec wxT("u"), tag->GetInt()) + extra);
+			format = format % (CFormat(wxT("%u")) % tag->GetInt() + extra);
 			break;
 		case EC_VALUE_BYTES:
 			format = format % (CastItoXBytes(tag->GetInt()) + extra);
@@ -133,7 +134,7 @@ void FormatValue(CFormat& format, const CECTag* tag)
 			format = format % tag->GetDoubleData();
 			break;
 		default:
-			wxASSERT(0);
+			wxFAIL;
 	}
 }
 
@@ -148,10 +149,9 @@ wxString CEC_StatTree_Node_Tag::GetDisplayString() const
 		}
 	}
 	CFormat label(my_label);
-	for (size_t i = 0; i < GetTagCount(); ++i) {
-		const CECTag *tmp = GetTagByIndex(i);
-		if (tmp->GetTagName() == EC_TAG_STAT_NODE_VALUE) {
-			FormatValue(label, tmp);
+	for (const_iterator it = begin(); it != end(); it++) {
+		if (it->GetTagName() == EC_TAG_STAT_NODE_VALUE) {
+			FormatValue(label, &*it);
 		}
 	}
 	return label.GetString();

@@ -1,11 +1,38 @@
+//
+// This file is part of the aMule Project.
+//
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+//
+// Any parts of this program derived from the xMule, lMule or eMule project,
+// or contributed by third-party developers are copyrighted by their
+// respective authors.
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
+//
 
 #include "GuiEvents.h"
 #include "amule.h"
 #include "PartFile.h"
 #include "DownloadQueue.h"
-#include "updownclient.h"
 #include "ServerList.h"
 #include "Preferences.h"
+#include "ExternalConn.h"
+#include "SearchFile.h"
+#include "SearchList.h"
+#include "IPFilter.h"
+#include "Friend.h"
 
 #ifndef AMULE_DAEMON
 #	include "ChatWnd.h"
@@ -15,29 +42,22 @@
 #	include "TransferWnd.h"
 #	include "SharedFilesWnd.h"
 #	include "ServerListCtrl.h"
-#	include "ClientListCtrl.h"
+#	include "SourceListCtrl.h"
 #	include "SharedFilesCtrl.h"
 #	include "DownloadListCtrl.h"
 #	include "muuli_wdr.h"
-#	include "PartFileConvertDlg.h"
+#	include "SharedFilePeersListCtrl.h"
+#	ifndef CLIENT_GUI
+#		include "PartFileConvertDlg.h"
+#		include "PartFileConvert.h"
+#	endif
 #endif
 
 #ifndef CLIENT_GUI
-#	include "PartFileConvert.h"
+#	include "UploadQueue.h"
 #endif
 
-#ifdef AMULE_DAEMON
-#	define NOT_ON_DAEMON(x) WXUNUSED(x)
-#else
-#	define NOT_ON_DAEMON(x) x
-#endif
-
-#ifdef CLIENT_GUI
-#	define NOT_ON_REMOTEGUI(x)	WXUNUSED(x)
-#else
-#	define NOT_ON_REMOTEGUI(x)	x
-#endif
-
+#include <common/MacrosProgramSpecific.h>
 
 DEFINE_LOCAL_EVENT_TYPE(MULE_EVT_NOTIFY)
 
@@ -48,7 +68,7 @@ namespace MuleNotify
 	void HandleNotification(const CMuleNotiferBase& ntf)
 	{
 		if (wxThread::IsMain()) {
-#if defined(AMULE_DAEMON) || defined(REMOTE_GUI)
+#ifdef AMULE_DAEMON
 			ntf.Notify();
 #else
 			if (theApp->amuledlg) {
@@ -60,7 +80,15 @@ namespace MuleNotify
 			wxPostEvent(wxTheApp, evt);
 		}
 	}
-	
+
+
+	void HandleNotificationAlways(const CMuleNotiferBase& ntf)
+	{
+		CMuleGUIEvent evt(ntf.Clone());
+		wxPostEvent(wxTheApp, evt);
+	}
+
+
 	void Search_Add_Download(CSearchFile* file, uint8 category)
 	{
 		theApp->downloadqueue->AddSearchToDownload(file, category);
@@ -82,6 +110,9 @@ namespace MuleNotify
 			if (val == 0xffff) {
 				// Global search ended
 				theApp->amuledlg->m_searchwnd->ResetControls();
+			} else if (val == 0xfffe) {
+				// Kad search ended
+				theApp->amuledlg->m_searchwnd->KadSearchEnd(0);
 			} else {
 				theApp->amuledlg->m_searchwnd->UpdateProgress(val);
 			}
@@ -90,8 +121,11 @@ namespace MuleNotify
 	}
 
 	
-	void DownloadCtrlUpdateItem(const void* NOT_ON_DAEMON(item))
+	void DownloadCtrlUpdateItem(const void* item)
 	{
+#ifndef CLIENT_GUI
+		theApp->ECServerHandler->m_ec_notifier->DownloadFile_SetDirty((CPartFile *)item);
+#endif
 #ifndef AMULE_DAEMON
 		if (theApp->amuledlg->m_transferwnd && theApp->amuledlg->m_transferwnd->downloadlistctrl) {
 			theApp->amuledlg->m_transferwnd->downloadlistctrl->UpdateItem(item);
@@ -114,55 +148,95 @@ namespace MuleNotify
 #endif
 	}
 
-	void ConvertUpdateProgress(float NOT_ON_DAEMON(percent), wxString NOT_ON_DAEMON(text), wxString NOT_ON_DAEMON(header))
+	void ShowGUI()
 	{
 #ifndef AMULE_DAEMON
-		CPartFileConvertDlg::UpdateProgress(percent, text, header);
+		theApp->amuledlg->Iconize(false);
 #endif
 	}
-
-	void ConvertUpdateJobInfo(ConvertInfo NOT_ON_DAEMON(info))
+	
+	void SourceCtrlUpdateSource(uint32 NOT_ON_DAEMON(source), SourceItemType NOT_ON_DAEMON(type))
 	{
 #ifndef AMULE_DAEMON
-		CPartFileConvertDlg::UpdateJobInfo(info);
+		if (theApp->amuledlg->m_transferwnd && theApp->amuledlg->m_transferwnd->clientlistctrl) {
+			theApp->amuledlg->m_transferwnd->clientlistctrl->UpdateItem(source, type);
+		}
 #endif
 	}
-
-	void ConvertRemoveJobInfo(unsigned NOT_ON_DAEMON(id))
+	
+	void SourceCtrlAddSource(CPartFile* NOT_ON_DAEMON(owner), CClientRef NOT_ON_DAEMON(source), SourceItemType NOT_ON_DAEMON(type))
 	{
 #ifndef AMULE_DAEMON
-		CPartFileConvertDlg::RemoveJobInfo(id);
+		if (theApp->amuledlg->m_transferwnd && theApp->amuledlg->m_transferwnd->clientlistctrl) {
+			theApp->amuledlg->m_transferwnd->clientlistctrl->AddSource(owner, source, type);
+		}
 #endif
 	}
-
-	void ConvertClearInfos()
+	
+	void SourceCtrlRemoveSource(uint32 NOT_ON_DAEMON(source), const CPartFile* NOT_ON_DAEMON(owner))
 	{
 #ifndef AMULE_DAEMON
-		CPartFileConvertDlg::ClearInfo();
+		if (theApp->amuledlg->m_transferwnd && theApp->amuledlg->m_transferwnd->clientlistctrl) {
+			theApp->amuledlg->m_transferwnd->clientlistctrl->RemoveSource(source, owner);
+		}
 #endif
 	}
-
-	void ConvertRemoveJob(unsigned NOT_ON_REMOTEGUI(id))
+	
+	void SharedCtrlAddClient(CKnownFile* NOT_ON_DAEMON(owner), CClientRef NOT_ON_DAEMON(source), SourceItemType NOT_ON_DAEMON(type))
 	{
-#ifndef CLIENT_GUI
-		CPartFileConvert::RemoveJob(id);
+#ifndef AMULE_DAEMON
+		if (theApp->amuledlg->m_sharedfileswnd && theApp->amuledlg->m_sharedfileswnd->peerslistctrl) {
+			theApp->amuledlg->m_sharedfileswnd->peerslistctrl->AddSource(owner, source, type);
+		}
 #endif
 	}
-
-	void ConvertRetryJob(unsigned NOT_ON_REMOTEGUI(id))
+	
+	void SharedCtrlRefreshClient(uint32 NOT_ON_DAEMON(client), SourceItemType NOT_ON_DAEMON(type))
 	{
-#ifndef CLIENT_GUI
-		CPartFileConvert::RetryJob(id);
+#ifndef AMULE_DAEMON
+		if (theApp->amuledlg->m_sharedfileswnd && theApp->amuledlg->m_sharedfileswnd->peerslistctrl) {
+			theApp->amuledlg->m_sharedfileswnd->peerslistctrl->UpdateItem(client, type);
+		}
 #endif
 	}
-
-	void ConvertReaddAllJobs()
+	
+	void SharedCtrlRemoveClient(uint32 NOT_ON_DAEMON(source), const CKnownFile* NOT_ON_DAEMON(owner))
 	{
-#ifndef CLIENT_GUI
-		CPartFileConvert::ReaddAllJobs();
+#ifndef AMULE_DAEMON
+		if (theApp->amuledlg->m_sharedfileswnd && theApp->amuledlg->m_sharedfileswnd->peerslistctrl) {
+			theApp->amuledlg->m_sharedfileswnd->peerslistctrl->RemoveSource(source, owner);
+		}
 #endif
 	}
-
+	
+	void ServerRefresh(CServer* NOT_ON_DAEMON(server))
+	{
+#ifndef AMULE_DAEMON
+		if (theApp->amuledlg->m_serverwnd && theApp->amuledlg->m_serverwnd->serverlistctrl) {
+			theApp->amuledlg->m_serverwnd->serverlistctrl->RefreshServer(server);
+		}
+#endif
+	}
+	
+	void ChatUpdateFriend(CFriend * NOT_ON_DAEMON(toupdate))
+	{
+#ifndef AMULE_DAEMON
+		if (theApp->amuledlg->m_chatwnd) {
+			theApp->amuledlg->m_chatwnd->UpdateFriend(toupdate);
+		}
+#endif
+	}
+	
+	void ChatRemoveFriend(CFriend * toremove)
+	{
+#ifndef AMULE_DAEMON
+		if (theApp->amuledlg->m_chatwnd) {
+			theApp->amuledlg->m_chatwnd->RemoveFriend(toremove);
+		}
+#endif
+		delete toremove;
+	}
+	
 #ifdef CLIENT_GUI
 	
 	void PartFile_Swap_A4AF(CPartFile* file)
@@ -225,6 +299,11 @@ namespace MuleNotify
 		theApp->sharedfiles->SetFilePrio(file, PR_AUTO);
 	}
 
+	void KnownFile_Comment_Set(CKnownFile* file, wxString comment, int8 rating)
+	{
+		theApp->sharedfiles->SetFileCommentRating(file, comment, rating);
+	}
+	
 	void Download_Set_Cat_Prio(uint8, uint8)
 	{
 	}
@@ -233,6 +312,10 @@ namespace MuleNotify
 	{
 	}
 	
+	void Upload_Resort_Queue()
+	{
+	}
+
 #else
 
 	void SharedFilesShowFile(CKnownFile* NOT_ON_DAEMON(file))
@@ -283,8 +366,9 @@ namespace MuleNotify
 	}
 
 
-	void DownloadCtrlAddFile(CPartFile* NOT_ON_DAEMON(file))
+	void DownloadCtrlAddFile(CPartFile* file)
 	{
+		theApp->ECServerHandler->m_ec_notifier->DownloadFile_AddFile(file);
 #ifndef AMULE_DAEMON
 		if (theApp->amuledlg->m_transferwnd && theApp->amuledlg->m_transferwnd->downloadlistctrl ) {
 			theApp->amuledlg->m_transferwnd->downloadlistctrl->AddFile(file);
@@ -292,42 +376,12 @@ namespace MuleNotify
 #endif
 	}
 
-	void DownloadCtrlAddSource(CPartFile* NOT_ON_DAEMON(owner), CUpDownClient* NOT_ON_DAEMON(source), DownloadItemType NOT_ON_DAEMON(type))
+	void DownloadCtrlRemoveFile(CPartFile* file)
 	{
-#ifndef AMULE_DAEMON
-		if (theApp->amuledlg->m_transferwnd && theApp->amuledlg->m_transferwnd->downloadlistctrl) {
-			if (owner->ShowSources()) {
-				theApp->amuledlg->m_transferwnd->downloadlistctrl->AddSource(owner, source, type);
-			}
-		}
-#endif
-	}
-	
-	void DownloadCtrlRemoveFile(CPartFile* NOT_ON_DAEMON(file))
-	{
+		theApp->ECServerHandler->m_ec_notifier->DownloadFile_RemoveFile(file);
 #ifndef AMULE_DAEMON
 		if (theApp->amuledlg->m_transferwnd && theApp->amuledlg->m_transferwnd->downloadlistctrl) {
 			theApp->amuledlg->m_transferwnd->downloadlistctrl->RemoveFile(file);
-		}
-#endif
-	}
-	
-	void DownloadCtrlRemoveSource(const CUpDownClient* NOT_ON_DAEMON(source), const CPartFile* NOT_ON_DAEMON(owner))
-	{
-#ifndef AMULE_DAEMON
-		if (theApp->amuledlg->m_transferwnd && theApp->amuledlg->m_transferwnd->downloadlistctrl) {
-			if ((owner == NULL) || owner->ShowSources()) {
-				theApp->amuledlg->m_transferwnd->downloadlistctrl->RemoveSource(source, owner);
-			}
-		}
-#endif
-	}
-	
-	void DownloadCtrlHideSource(CPartFile* NOT_ON_DAEMON(file))
-	{
-#ifndef AMULE_DAEMON
-		if (theApp->amuledlg->m_transferwnd && theApp->amuledlg->m_transferwnd->downloadlistctrl) {
-			theApp->amuledlg->m_transferwnd->downloadlistctrl->ShowSources(file, false);
 		}
 #endif
 	}
@@ -340,35 +394,6 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
-	
-	void ClientCtrlAddClient(CUpDownClient* NOT_ON_DAEMON(client), ViewType NOT_ON_DAEMON(type))
-	{
-#ifndef AMULE_DAEMON
-		if (theApp->amuledlg->m_transferwnd && theApp->amuledlg->m_transferwnd->clientlistctrl) {
-			theApp->amuledlg->m_transferwnd->clientlistctrl->InsertClient(client, type);
-		}
-#endif
-	}
-	
-	void ClientCtrlRefreshClient(CUpDownClient* NOT_ON_DAEMON(client), ViewType NOT_ON_DAEMON(type))
-	{
-#ifndef AMULE_DAEMON
-		if (theApp->amuledlg->m_transferwnd && theApp->amuledlg->m_transferwnd->clientlistctrl) {
-			theApp->amuledlg->m_transferwnd->clientlistctrl->UpdateClient(client, type);
-		}
-#endif
-	}
-	
-	void ClientCtrlRemoveClient(CUpDownClient* NOT_ON_DAEMON(client), ViewType NOT_ON_DAEMON(type))
-	{
-#ifndef AMULE_DAEMON
-		if (theApp->amuledlg->m_transferwnd && theApp->amuledlg->m_transferwnd->clientlistctrl) {
-			theApp->amuledlg->m_transferwnd->clientlistctrl->RemoveClient(client, type);
-		}
-#endif
-	}
-	
 	
 	void ServerAdd(CServer* NOT_ON_DAEMON(server))
 	{
@@ -409,15 +434,6 @@ namespace MuleNotify
 #ifndef AMULE_DAEMON
 		if (theApp->amuledlg->m_serverwnd && theApp->amuledlg->m_serverwnd->serverlistctrl) {
 			theApp->amuledlg->m_serverwnd->serverlistctrl->HighlightServer(server, highlight);
-		}
-#endif
-	}
-	
-	void ServerRefresh(CServer* NOT_ON_DAEMON(server))
-	{
-#ifndef AMULE_DAEMON
-		if (theApp->amuledlg->m_serverwnd && theApp->amuledlg->m_serverwnd->serverlistctrl) {
-			theApp->amuledlg->m_serverwnd->serverlistctrl->RefreshServer(server);
 		}
 #endif
 	}
@@ -484,10 +500,12 @@ namespace MuleNotify
 			theApp->amuledlg->m_searchwnd->KadSearchEnd(id);
 		}
 #endif
+		theApp->searchlist->SetKadSearchFinished();
 	}
 	
-	void Search_Update_Sources(CSearchFile* NOT_ON_DAEMON(result))
+	void Search_Update_Sources(CSearchFile* result)
 	{
+		result->SetDownloadStatus();
 #ifndef AMULE_DAEMON
 		if (theApp->amuledlg && theApp->amuledlg->m_searchwnd) {
 			theApp->amuledlg->m_searchwnd->UpdateResult(result);
@@ -504,15 +522,6 @@ namespace MuleNotify
 #endif
 	}
 
-	
-	void ChatRefreshFriend(uint32 NOT_ON_DAEMON(lastUsedIP), uint32 NOT_ON_DAEMON(lastUsedPort), wxString NOT_ON_DAEMON(name))
-	{
-#ifndef AMULE_DAEMON
-		if (theApp->amuledlg->m_chatwnd) {
-			theApp->amuledlg->m_chatwnd->RefreshFriend(CMD4Hash(), name, lastUsedIP, lastUsedPort);
-		}
-#endif
-	}
 	
 	void ChatConnResult(bool NOT_ON_DAEMON(success), uint64 NOT_ON_DAEMON(id), wxString NOT_ON_DAEMON(message))
 	{
@@ -533,23 +542,20 @@ namespace MuleNotify
 	}
 	
 
-	void ShowConnState(long NOT_ON_DAEMON(state))
+	void ChatSendCaptcha(wxString NOT_ON_DAEMON(captcha), uint64 NOT_ON_DAEMON(to_id))
 	{
 #ifndef AMULE_DAEMON
-#ifdef CLIENT_GUI
-		theApp->m_ConnState = state;
-#endif
-		
-		theApp->amuledlg->ShowConnectionState();
+		if (theApp->amuledlg->m_chatwnd) {
+			theApp->amuledlg->m_chatwnd->SendMessage(captcha, wxEmptyString, to_id);
+		}
 #endif
 	}
 	
-	void ShowQueueCount(uint32 NOT_ON_DAEMON(count))
+
+	void ShowConnState(long NOT_ON_DAEMON(forceUpdate))
 	{
 #ifndef AMULE_DAEMON
-		if (theApp->amuledlg->m_transferwnd) {
-			theApp->amuledlg->m_transferwnd->ShowQueueCount(count);
-		}
+		theApp->amuledlg->ShowConnectionState(forceUpdate != 0);
 #endif
 	}
 	
@@ -561,14 +567,6 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
-	void ShowGUI()
-	{
-#ifndef AMULE_DAEMON
-		theApp->amuledlg->Iconize(false);
-#endif
-	}
-	
 
 	void CategoryAdded()
 	{
@@ -592,9 +590,18 @@ namespace MuleNotify
 #endif
 	}
 	
-	void CategoryDelete(uint32 NOT_ON_DAEMON(cat))
+	void CategoryDelete(uint32 cat)
 	{
-#ifndef AMULE_DAEMON
+#ifdef AMULE_DAEMON
+		if (cat > 0) {
+			theApp->downloadqueue->ResetCatParts(cat);
+			theApp->glob_prefs->RemoveCat(cat);
+			if ( theApp->glob_prefs->GetCatCount() == 1 ) {
+				thePrefs::SetAllcatFilter( acfAll );
+			}
+			theApp->glob_prefs->SaveCats();
+		}
+#else
 		if (theApp->amuledlg->m_transferwnd) {
 			theApp->amuledlg->m_transferwnd->RemoveCategory(cat);
 		}
@@ -607,9 +614,7 @@ namespace MuleNotify
 		if ((file->GetStatus(false) == PS_READY || file->GetStatus(false) == PS_EMPTY)) {
 			CPartFile::SourceSet::const_iterator it = file->GetA4AFList().begin();
 			for ( ; it != file->GetA4AFList().end(); ) {
-				CUpDownClient *cur_source = *it++;
-
-				cur_source->SwapToAnotherFile(true, false, false, file);
+				it++->SwapToAnotherFile(true, false, false, file);
 			}
 		}
 	}
@@ -624,9 +629,7 @@ namespace MuleNotify
 		if ((file->GetStatus(false) == PS_READY) || (file->GetStatus(false) == PS_EMPTY)) {
 			CPartFile::SourceSet::const_iterator it = file->GetSourceList().begin();
 			for( ; it != file->GetSourceList().end(); ) {
-				CUpDownClient* cur_source = *it++;
-
-				cur_source->SwapToAnotherFile(false, false, false, NULL);
+				it++->SwapToAnotherFile(false, false, false, NULL);
 			}
 		}
 	}
@@ -680,9 +683,10 @@ namespace MuleNotify
 		file->UpdateAutoUpPriority();
 	}
 	
-	void KnownFile_Comment_Set(CKnownFile* file, wxString comment)
+	void KnownFile_Comment_Set(CKnownFile* file, wxString comment, int8 rating)
 	{
-		file->SetFileComment(comment);
+		file->SetFileCommentRating(comment, rating);
+		SharedFilesUpdateItem(file);
 	}
 	
 
@@ -696,6 +700,63 @@ namespace MuleNotify
 		theApp->downloadqueue->SetCatStatus(cat, newstatus);
 	}
 
-#endif	// #ifdef CLIENT_GUI
+	void Upload_Resort_Queue()
+	{
+		theApp->uploadqueue->ResortQueue();
+	}
+
+	void IPFilter_Reload()
+	{
+		theApp->ipfilter->Reload();
+	}
+
+	void IPFilter_Update(wxString url)
+	{
+		theApp->ipfilter->Update(url);
+	}
+
+	void Client_Delete(CClientRef client)
+	{
+		client.Safe_Delete();
+	}
+
+#ifndef AMULE_DAEMON
+	void ConvertUpdateProgress(float percent, wxString text, wxString header)
+	{
+		CPartFileConvertDlg::UpdateProgress(percent, text, header);
+	}
+
+	void ConvertUpdateJobInfo(ConvertInfo info)
+	{
+		CPartFileConvertDlg::UpdateJobInfo(info);
+	}
+
+	void ConvertRemoveJobInfo(unsigned id)
+	{
+		CPartFileConvertDlg::RemoveJobInfo(id);
+	}
+
+	void ConvertClearInfos()
+	{
+		CPartFileConvertDlg::ClearInfo();
+	}
+
+	void ConvertRemoveJob(unsigned id)
+	{
+		CPartFileConvert::RemoveJob(id);
+	}
+
+	void ConvertRetryJob(unsigned id)
+	{
+		CPartFileConvert::RetryJob(id);
+	}
+
+	void ConvertReaddAllJobs()
+	{
+		CPartFileConvert::ReaddAllJobs();
+	}
+#endif	// #ifndef AMULE_DAEMON
+
+#endif	// #ifndef CLIENT_GUI
 }
 // File_checked_for_headers

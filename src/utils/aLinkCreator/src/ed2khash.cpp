@@ -5,9 +5,9 @@
 ///
 /// Author:       ThePolish <thepolish@vipmail.ru>
 ///
-/// Copyright (C) 2004 by ThePolish
+/// Copyright (c) 2004-2011 ThePolish ( thepolish@vipmail.ru )
 ///
-/// Copyright (C) 2004 by Phoenix
+/// Copyright (c) 2004-2011 Marcelo Roberto Jimenez ( phoenix@amule.org )
 ///
 /// This program is free software; you can redistribute it and/or modify
 /// it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@
 // alcc.c and here. And remove this stupid comment :)
 //-----------------------------------------------------------------------------
 // efe, this can be put in a separete include file, if you want to reuse
-static wxCSConv aMuleConv(wxT("iso8859-1"));
+static wxCSConv aMuleConv(wxS("iso8859-1"));
 #ifdef wxUSE_UNICODE
         #define unicode2char(x) (const char*) aMuleConv.cWX2MB(x)
         #define char2unicode(x) aMuleConv.cMB2WX(x)
@@ -211,12 +211,18 @@ bool Ed2kHash::SetED2KHashFromFile(const wxString& filename, MD4Hook hook)
   return SetED2KHashFromFile(wxFileName(filename), hook);
 }
 
+#if wxCHECK_VERSION(2, 9, 0)
+#define WXLONGLONGFMTSPEC wxT(wxLongLongFmtSpec)
+#else
+#define WXLONGLONGFMTSPEC wxLongLongFmtSpec
+#endif
+
 /// Get Ed2k link
 wxString Ed2kHash::GetED2KLink(const bool addPartHashes, const wxArrayString* arrayOfUrls)
 {
   // Constructing ed2k basic link
   wxString ed2kLink = wxT("ed2k://|file|") + CleanFilename(m_filename)
-                      + wxString::Format(wxT("|%") wxLongLongFmtSpec wxT("u|"), m_fileSize)
+                      + wxString::Format(wxT("|%") WXLONGLONGFMTSPEC wxT("u|"), m_fileSize)
                       + m_ed2kArrayOfHashes.Last() + wxT("|");
 
 

@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2006-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2006-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -57,7 +57,7 @@ bool CTextFile::Open(const CPath& path, EOpenMode mode)
 	} else if (mode == write) {
 		m_file.Open(path.GetRaw(), wxT("w"));
 	} else {
-		wxASSERT(0);
+		wxFAIL;
 	}
 
 	return IsOpened();
@@ -90,42 +90,83 @@ bool CTextFile::Close()
 }
 
 
-wxString CTextFile::GetNextLine(const wxMBConv& conv)
+wxString CTextFile::GetNextLine(EReadTextFile flags, const wxMBConv& conv, bool* result)
 {
 	wxCHECK_MSG(m_file.IsOpened(), wxEmptyString, wxT("Trying to read from closed file."));
 	wxCHECK_MSG(!m_file.Eof(), wxEmptyString, wxT("Trying to read past EOF"));
 	wxCHECK_MSG((m_mode == read), wxEmptyString, wxT("Trying to read from non-readable file."));
 
+	bool is_filtered = false;
 
 	wxString line;
 	char buffer[TXTBUF_SIZE];
 
 	// Loop until EOF (fgets will then return NULL) or a newline is read.
 	while (fgets(buffer, TXTBUF_SIZE, m_file.fp())) {
-		// NB: The majority of the time spent by this function is
-		//     spent converting the multibyte string to wide-char.
-		line += conv.cMB2WC(buffer);
-
-		// Remove any newlines, carriage returns, etc.
-		if (line.Length() && (line.Last() == wxT('\n'))) {
-			if ((line.Length() > 1)) {
-				if (line[line.Length() - 2] == wxT('\r')) {
-					// Carriage return + newline
-					line.RemoveLast(2);
-				} else {
-					// Only a newline.
-					line.RemoveLast(1);					
+		// Filters must be first applied here to avoid unnecessary CPU usage.
+		
+		if (line.IsEmpty()) {
+			if (buffer[0] == '\0') {
+				// Empty line.
+				break;
+			} else if (flags & txtIgnoreComments) {
+				int i = 0;
+				char t = buffer[i];
+				while (t) {
+					if ((t == ' ') || (t == '\t')) {
+						++i;
+						t = buffer[i];
+					} else {
+						is_filtered = (buffer[i] == '#');
+						break;
+					}
 				}
-			} else {
-				// Empty line
-				line.Clear();
 			}
+		}
 
-			// We've read an entire line.
+		if (!is_filtered) {
+			// NB: The majority of the time spent by this function is
+			//     spent converting the multibyte string to wide-char.
+			line += conv.cMB2WC(buffer);
+
+			// Remove any newlines, carriage returns, etc.
+			if (line.Length() && (line.Last() == wxT('\n'))) {
+				if ((line.Length() > 1)) {
+					if (line[line.Length() - 2] == wxT('\r')) {
+						// Carriage return + newline
+						line.RemoveLast(2);
+					} else {
+						// Only a newline.
+						line.RemoveLast(1);					
+					}
+				} else {
+					// Empty line
+					line.Clear();
+				}
+
+				// We've read an entire line.
+				break;
+			}
+		} else {
+			// Filtered line.
 			break;
 		}
 	}
 
+	if (!is_filtered) {
+		if (flags & txtStripWhitespace) {
+			line = line.Strip(wxString::both);
+		}
+
+		if ((flags & txtIgnoreEmptyLines) && line.IsEmpty()) {
+			is_filtered = true;
+		}
+	}
+	
+	if (result) {
+		*result = !is_filtered;
+	}
+	
 	return line;
 }
 
@@ -161,29 +202,13 @@ wxArrayString CTextFile::ReadLines(EReadTextFile flags, const wxMBConv& conv)
 	wxArrayString lines;
 
 	while (!Eof()) {
-		wxString line = GetNextLine(conv);
-
-		if (flags & txtStripWhitespace) {
-			line = line.Strip(wxString::both);
-		}
-
-		if (flags & txtIgnoreEmptyLines) {
-			if (line.IsEmpty()) {
-				continue;
-			}
-		}
+		bool result = true;
 		
-		if (flags & txtIgnoreComments) {
-			if (flags & txtStripWhitespace) {
-				if (line.StartsWith(wxT("#"))) {
-					continue;
-				}
-			} else if (line.Strip(wxString::leading).StartsWith(wxT("#"))) {
-				continue;
-			}
-		}
+		wxString line = GetNextLine(flags, conv, &result);
 
-		lines.Add(line);
+		if (result) {
+			lines.Add(line);
+		}
 	}
 
 	return lines;
@@ -194,7 +219,7 @@ bool CTextFile::WriteLines(const wxArrayString& lines, const wxMBConv& conv)
 {
 	bool result = true;
 
-	for (size_t i = 0; i < lines.Count(); ++i) {
+	for (size_t i = 0; i < lines.GetCount(); ++i) {
 		result &= WriteLine(lines[i], conv);
 	}
 

@@ -1,8 +1,8 @@
 //								-*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2008-2009 Dévai Tamás (GonoszTopi) ( gonosztopi@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2008-2011 Dévai Tamás ( gonosztopi@amule.org )
+// Copyright (c) 2008-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -57,6 +57,7 @@ namespace TestData {
 	static uint8_t one[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
 	static uint8_t minusOne[16] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 	static uint8_t uintValue[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x12, 0x34, 0x56, 0x78 };
+	static uint8_t randomValue[16] = { 0xef, 0xac, 0xd6, 0x21, 0x99, 0x1b, 0x05, 0xbe, 0xfb, 0x97, 0xdf, 0xdd, 0xab, 0x4b, 0x88, 0xe3 };
 }
 
 DECLARE_SIMPLE(CUInt128);
@@ -110,9 +111,7 @@ TEST(CUInt128, Get32BitChunk)
 	ASSERT_EQUALS(0x04050607u, test.Get32BitChunk(1));
 	ASSERT_EQUALS(0x08090a0bu, test.Get32BitChunk(2));
 	ASSERT_EQUALS(0x0c0d0e0fu, test.Get32BitChunk(3));
-#if wxCHECK_VERSION(2, 8, 8)
-	ASSERT_RAISES(CAssertFailureException, test.Get32BitChunk(4));
-#endif
+	ASSERT_EQUALS(0u, test.Get32BitChunk(4));
 }
 
 TEST_M(CUInt128, OperatorEqualsCUInt128, wxT("operator==(const CUInt128&)"))
@@ -208,10 +207,14 @@ TEST(CUInt128, Set32BitChunk)
 	test.Set32BitChunk(2, 0x08090a0bu);
 	test.Set32BitChunk(3, 0x0c0d0e0fu);
 	ASSERT_EQUALS(CUInt128((uint8_t *)&TestData::sequence), test);
-#if wxCHECK_VERSION(2, 8, 8)
+#ifdef __WXDEBUG__
 	ASSERT_RAISES(CAssertFailureException, test.Set32BitChunk(4, 0));
 	ASSERT_EQUALS(CUInt128((uint8_t *)&TestData::sequence), test);
 #endif
+
+	CAssertOff null;
+	test.Set32BitChunk(4, 0);
+	ASSERT_EQUALS(CUInt128((uint8_t *)&TestData::sequence), test);
 }
 
 TEST_M(CUInt128, SetValueCUInt128, wxT("SetValue(const CUInt128&)"))
@@ -232,23 +235,12 @@ TEST_M(CUInt128, SetValueUint32, wxT("SetValue(uint32_t)"))
 	ASSERT_EQUALS(a, b);
 }
 
-TEST(CUInt128, SetValueRandom)
-{
-	CUInt128 a;
-	CUInt128 b;
-
-	a.SetValueRandom();
-	b.SetValueRandom();
-	ASSERT_FALSE(a == b);
-}
-
 TEST(CUInt128, SetValueBE)
 {
-	CUInt128 a;
+	CUInt128 a((uint8_t *)&TestData::sequence);
 	CUInt128 b;
 	uint8_t buffer[16];
 
-	a.SetValueRandom();
 	a.ToByteArray((uint8_t *)&buffer);
 	b.SetValueBE((uint8_t *)&buffer);
 	ASSERT_EQUALS(a, b);
@@ -521,6 +513,9 @@ TEST(CUInt128, GetBitNumber)
 	test <<= 127;
 	ASSERT_TRUE(test.GetBitNumber(0) == 1);
 	ASSERT_TRUE(test.GetBitNumber(127) == 0);
+
+	CUInt128 test2(true);
+	ASSERT_EQUALS(0u, test2.GetBitNumber(128));
 }
 
 TEST(CUInt128, SetBitNumber)
@@ -535,9 +530,14 @@ TEST(CUInt128, SetBitNumber)
 	ASSERT_EQUALS(2, test);
 	test.SetBitNumber(0, 1);
 	ASSERT_EQUALS(0x80000000u, test.Get32BitChunk(0));
-#if wxCHECK_VERSION(2, 8, 8)
+#ifdef __WXDEBUG__
 	ASSERT_RAISES(CAssertFailureException, test.SetBitNumber(128, 0));
 #endif
+
+	CAssertOff null;
+	test.SetValueBE((uint8_t *)&TestData::sequence);
+	test.SetBitNumber(128, 1);
+	ASSERT_EQUALS(CUInt128((uint8_t *)&TestData::sequence), test);
 }
 
 TEST_M(CUInt128, OperatorNotEqualCUInt128, wxT("operator!=(const CUInt128&)"))
@@ -713,8 +713,7 @@ TEST_M(CUInt128, OperatorGreaterOrEqualUint32CUInt128, wxT("operator>=(uint32_t,
 
 TEST_M(CUInt128, OperatorAddCUInt128, wxT("operator+(const CUInt128&)"))
 {
-	CUInt128 a;
-	a.SetValueRandom();
+	CUInt128 a((uint8_t *)&TestData::sequence);
 
 	CUInt128 ref(a);
 	CUInt128 check(a);
@@ -734,10 +733,8 @@ TEST_M(CUInt128, OperatorAddCUInt128, wxT("operator+(const CUInt128&)"))
 
 TEST_M(CUInt128, OperatorSubtractCUInt128, wxT("operator-(const CUInt128&)"))
 {
-	CUInt128 a;
-	CUInt128 b;
-	a.SetValueRandom();
-	b.SetValueRandom();
+	CUInt128 a((uint8_t *)&TestData::randomValue);
+	CUInt128 b((uint8_t *)&TestData::sequence);
 
 	CUInt128 refa(a);
 	CUInt128 refb(b);
@@ -757,10 +754,8 @@ TEST_M(CUInt128, OperatorSubtractCUInt128, wxT("operator-(const CUInt128&)"))
 
 TEST_M(CUInt128, OperatorXorCUInt128, wxT("operator^(const CUInt128&)"))
 {
-	CUInt128 a;
-	CUInt128 b;
-	a.SetValueRandom();
-	b.SetValueRandom();
+	CUInt128 a((uint8_t *)&TestData::randomValue);
+	CUInt128 b((uint8_t *)&TestData::sequence);
 
 	CUInt128 refa(a);
 	CUInt128 refb(b);
@@ -776,8 +771,7 @@ TEST_M(CUInt128, OperatorXorCUInt128, wxT("operator^(const CUInt128&)"))
 
 TEST_M(CUInt128, OperatorAddUint32, wxT("operator+(uint32_t)"))
 {
-	CUInt128 a;
-	a.SetValueRandom();
+	CUInt128 a((uint8_t *)&TestData::randomValue);
 	uint32_t b = a.Get32BitChunk(0);
 
 	CUInt128 ref(a);
@@ -799,8 +793,7 @@ TEST_M(CUInt128, OperatorAddUint32, wxT("operator+(uint32_t)"))
 
 TEST_M(CUInt128, OperatorSubtractUint32, wxT("operator-(uint32_t)"))
 {
-	CUInt128 a;
-	a.SetValueRandom();
+	CUInt128 a((uint8_t *)&TestData::randomValue);
 	uint32_t b = a.Get32BitChunk(0);
 
 	CUInt128 ref(a);
@@ -819,8 +812,7 @@ TEST_M(CUInt128, OperatorSubtractUint32, wxT("operator-(uint32_t)"))
 
 TEST_M(CUInt128, OperatorXorUint32, wxT("operator^(uint32_t)"))
 {
-	CUInt128 a;
-	a.SetValueRandom();
+	CUInt128 a((uint8_t *)&TestData::randomValue);
 	uint32_t b = a.Get32BitChunk(0);
 
 	CUInt128 ref(a);
@@ -835,8 +827,7 @@ TEST_M(CUInt128, OperatorXorUint32, wxT("operator^(uint32_t)"))
 
 TEST_M(CUInt128, OperatorAddUint32CUInt128, wxT("operator+(uint32_t, const CUInt128&)"))
 {
-	CUInt128 a;
-	a.SetValueRandom();
+	CUInt128 a((uint8_t *)&TestData::randomValue);
 	uint32_t b = a.Get32BitChunk(0);
 
 	CUInt128 ref(a);
@@ -858,8 +849,7 @@ TEST_M(CUInt128, OperatorAddUint32CUInt128, wxT("operator+(uint32_t, const CUInt
 
 TEST_M(CUInt128, OperatorSubtractUint32CUInt128, wxT("operator-(uint32_t, const CUInt128&)"))
 {
-	CUInt128 a;
-	a.SetValueRandom();
+	CUInt128 a((uint8_t *)&TestData::randomValue);
 	uint32_t b = a.Get32BitChunk(0);
 
 	CUInt128 ref(a);
@@ -873,8 +863,7 @@ TEST_M(CUInt128, OperatorSubtractUint32CUInt128, wxT("operator-(uint32_t, const 
 
 TEST_M(CUInt128, OperatorXorUint32CUInt128, wxT("operator^(uint32_t, const CUInt128&)"))
 {
-	CUInt128 a;
-	a.SetValueRandom();
+	CUInt128 a((uint8_t *)&TestData::randomValue);
 	uint32_t b = a.Get32BitChunk(0);
 
 	CUInt128 ref(a);

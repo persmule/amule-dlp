@@ -20,8 +20,8 @@ VPATH = @srcdir@
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
-datarootdir = @datarootdir@
 datadir = @datadir@
+datarootdir = @datarootdir@
 localedir = $(datadir)/locale
 gettextsrcdir = $(datadir)/gettext/po
 
@@ -244,6 +244,7 @@ mostlyclean:
 	rm -fr *.o
 
 clean: mostlyclean
+	rm -f *.gmo
 
 distclean: clean
 	rm -f Makefile Makefile.in POTFILES *.mo

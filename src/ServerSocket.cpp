@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -102,7 +102,7 @@ void CServerSocketHandler::ServerSocketHandler(wxSocketEvent& event)
 			socket->OnSend(wxSOCKET_NOERROR);
 			break;
 		default:
-			wxASSERT(0);
+			wxFAIL;
 			break;
 	}
 	
@@ -173,7 +173,7 @@ void CServerSocket::OnConnect(wxSocketError nErrorCode)
 				if (pServer) {
 					pServer->SetID(server_ip);
 				} else {
-					AddDebugLogLineM(false, logServer, wxT("theApp->serverlist->GetServerByAddress() returned NULL"));
+					AddDebugLogLineN(logServer, wxT("theApp->serverlist->GetServerByAddress() returned NULL"));
 					return;
 				}
 			}
@@ -215,12 +215,12 @@ void CServerSocket::OnReceive(wxSocketError nErrorCode)
 bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 {
 	try {
-		AddDebugLogLineM( false, logServer, wxT("Processing Server Packet: ") );
+		AddDebugLogLineN( logServer, wxT("Processing Server Packet: ") );
 		
 		switch(opcode) {
 			case OP_SERVERMESSAGE: {
 				/* Kry import of lugdunum 16.40 new features */
-				AddDebugLogLineM( false, logServer, wxT("Server: OP_SERVERMESSAGE") );
+				AddDebugLogLineN( logServer, wxT("Server: OP_SERVERMESSAGE") );
 				
 				theStats::AddDownOverheadServer(size);
 				char* buffer = new char[size-1];
@@ -256,7 +256,7 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 						} else {	
 							servername = _("Server");
 						}
-						AddLogLineM(false, CFormat( _("ERROR: %s (%s) - %s") )
+						AddLogLineN(CFormat( _("ERROR: %s (%s) - %s") )
 							% servername
 							% Uint32_16toStringIP_Port(cur_server->GetIP(), cur_server->GetPort())
 							% message.Mid(5,message.Len()).Trim(wxT(" :")));
@@ -271,7 +271,7 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 						} else {	
 							servername = _("Server");
 						}
-						AddLogLineM(false, CFormat( _("WARNING: %s (%s) - %s") )
+						AddLogLineN(CFormat( _("WARNING: %s (%s) - %s") )
 							% servername
 							% Uint32_16toStringIP_Port(cur_server->GetIP(), cur_server->GetPort())
 							% message.Mid(5,message.Len()).Trim(wxT(" :")));
@@ -299,7 +299,7 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 				break;
 			}
 			case OP_IDCHANGE: {
-				AddDebugLogLineM(false,logServer,wxT("Server: OP_IDCHANGE"));
+				AddDebugLogLineN(logServer, wxT("Server: OP_IDCHANGE"));
 				
 				theStats::AddDownOverheadServer(size);
 				
@@ -325,9 +325,7 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 							ConnPort = data.ReadUInt32();
 							cur_server->SetPort(ConnPort);
 							if (cur_server->GetAuxPortsList().IsEmpty()) {
-								cur_server->SetAuxPortsList(wxString::Format(wxT("%u"), rport));
-//							} else {
-//								cur_server->SetAuxPortsList(wxString::Format(wxT("%u"), rport) + wxT(",") + cur_server->GetAuxPortsList());
+								cur_server->SetAuxPortsList(CFormat(wxT("%u")) % rport);
 							}
 						}
 					} else {
@@ -339,9 +337,7 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 						if (ConnPort) {
 							pServer->SetPort(ConnPort);
 							if (pServer->GetAuxPortsList().IsEmpty()) {
-								pServer->SetAuxPortsList(wxString::Format(wxT("%u"), pServer->GetConnPort()));
-//							} else {
-//								pServer->SetAuxPortsList(wxString::Format(wxT("%u"), pServer->GetConnPort()) + wxT(",") + pServer->GetAuxPortsList());
+								pServer->SetAuxPortsList(CFormat(wxT("%u")) % pServer->GetConnPort());
 							}
 							Notify_ServerRefresh(pServer);
 							Notify_ServerUpdateED2KInfo();
@@ -354,7 +350,7 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 				if (size >= 4 + 4 + 4 + 4 + 4 /* All of the above + reported ip + obfuscation port */) {
 					dwServerReportedIP = data.ReadUInt32();
 					if (::IsLowID(dwServerReportedIP)){
-						wxASSERT( false );
+						wxFAIL;
 						dwServerReportedIP = 0;
 					}
 					wxASSERT( dwServerReportedIP == new_id || ::IsLowID(new_id) );
@@ -406,7 +402,7 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 				}
 				
 				if (connectionstate != CS_CONNECTED) {
-					AddDebugLogLineM(false,logServer,wxT("Connected"));
+					AddDebugLogLineN(logServer, wxT("Connected"));
 					
 					SetConnectionState(CS_CONNECTED);
 					theApp->OnlineSig();       // Added By Bouc7
@@ -414,18 +410,18 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 
 				theApp->ShowConnectionState();
 
-				AddLogLineM(false, wxString::Format(_("New clientid is %u"),new_id));
+				AddLogLineN(CFormat(_("New clientid is %u")) % new_id);
 				if (::IsLowID(new_id)) {
-					AddLogLineM(true,  _("WARNING: You have received Low-ID!"));
-					AddLogLineM(false, _("\tMost likely this is because you're behind a firewall or router."));
-					AddLogLineM(false, _("\tFor more information, please refer to http://wiki.amule.org"));
+					AddLogLineC(_("WARNING: You have received Low-ID!"));
+					AddLogLineN(_("\tMost likely this is because you're behind a firewall or router."));
+					AddLogLineN(_("\tFor more information, please refer to http://wiki.amule.org"));
 				}
 								
 				theApp->downloadqueue->ResetLocalServerRequests();
 				break;
 			}
 			case OP_SEARCHRESULT: {
-				AddDebugLogLineM(false,logServer,wxT("Server: OP_SEARCHRESULT"));
+				AddDebugLogLineN(logServer, wxT("Server: OP_SEARCHRESULT"));
 				
 				theStats::AddDownOverheadServer(size);
 				CServer* cur_srv = (serverconnect) ? 
@@ -441,19 +437,19 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 			}
 			case OP_FOUNDSOURCES_OBFU:			
 			case OP_FOUNDSOURCES: {
-				AddDebugLogLineM(false,logServer,wxString::Format(wxT("ServerMsg - OP_FoundSources; sources = %u"), (uint32)(byte)packet[16]));
+				AddDebugLogLineN(logServer, CFormat(wxT("ServerMsg - OP_FoundSources; sources = %u")) % packet[16]);
 				theStats::AddDownOverheadServer(size);
 				CMemFile sources(packet,size);
 				CMD4Hash fileid = sources.ReadHash();
 				if (CPartFile* file = theApp->downloadqueue->GetFileByID(fileid)) {
 					file->AddSources(sources, cur_server->GetIP(), cur_server->GetPort(), SF_LOCAL_SERVER, (opcode == OP_FOUNDSOURCES_OBFU));
 				} else {
-					AddDebugLogLineM(false, logServer, wxT("Sources received for unknown file: ") + fileid.Encode());			
+					AddDebugLogLineN(logServer, wxT("Sources received for unknown file: ") + fileid.Encode());
 				}
 				break;
 			}
 			case OP_SERVERSTATUS: {
-				AddDebugLogLineM(false,logServer,wxT("Server: OP_SERVERSTATUS"));
+				AddDebugLogLineN(logServer, wxT("Server: OP_SERVERSTATUS"));
 				// FIXME some statuspackets have a different size -> why? structur?
 				if (size < 8) {
 					throw wxString(wxT("Invalid server status packet"));
@@ -471,11 +467,11 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 			}
 			// Cleaned.
 			case OP_SERVERIDENT: {
-				AddDebugLogLineM(false,logServer,wxT("Server: OP_SERVERIDENT"));
+				AddDebugLogLineN(logServer, wxT("Server: OP_SERVERIDENT"));
 
 				theStats::AddDownOverheadServer(size);
 				if (size<38) {
-					AddLogLineM(false, _("Unknown server info received! - too short"));
+					AddLogLineN(_("Unknown server info received! - too short"));
 					// throw wxString(wxT("Unknown server info received!"));
 					break;
 				}
@@ -512,7 +508,7 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 			}
 			// tecxx 1609 2002 - add server's serverlist to own serverlist
 			case OP_SERVERLIST: {
-				AddDebugLogLineM(false,logServer,wxT("Server: OP_SERVERLIST"));
+				AddDebugLogLineN(logServer, wxT("Server: OP_SERVERLIST"));
 				
 				CMemFile* servers = new CMemFile(packet,size);
 				uint8 count = servers->ReadUInt8();
@@ -536,17 +532,17 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 				}
 				delete servers;
 				if (addcount) {
-					AddLogLineM(false, wxString::Format(wxPLURAL("Received %d new server", "Received %d new servers", addcount), addcount));
+					AddLogLineN(CFormat(wxPLURAL("Received %d new server", "Received %d new servers", addcount)) % addcount);
 				}
 				theApp->serverlist->SaveServerMet();
-				AddLogLineM(false, _("Saving of server-list completed."));
+				AddLogLineN(_("Saving of server-list completed."));
 				break;
 			}
 			case OP_CALLBACKREQUESTED: {
-				AddDebugLogLineM(false,logServer,wxT("Server: OP_CALLBACKREQUESTED"));
+				AddDebugLogLineN(logServer, wxT("Server: OP_CALLBACKREQUESTED"));
 				
 				theStats::AddDownOverheadServer(size);
-				if (size == 6) {
+				if (size >= 6) {
 					CMemFile data(packet,size);
 					uint32 dwIP = data.ReadUInt32();
 					uint16 nPort = data.ReadUInt16();
@@ -559,9 +555,14 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 					}
 					
 					CUpDownClient* client = theApp->clientlist->FindClientByIP(dwIP,nPort);
+
+					if (!client) {
+						client = new CUpDownClient(nPort,dwIP,0,0,0, true, true);
+						theApp->clientlist->AddClient(client);
+					}
 					if (size >= 23 && client->HasValidHash()){
 						if (client->GetUserHash() != achUserHash){
-							AddDebugLogLineM(false, logServer, wxT("Reported Userhash from OP_CALLBACKREQUESTED differs with our stored hash"));
+							AddDebugLogLineN(logServer, wxT("Reported Userhash from OP_CALLBACKREQUESTED differs with our stored hash"));
 							// disable crypt support since we dont know which hash is true
 							client->SetCryptLayerRequest(false);
 							client->SetCryptLayerSupport(false);
@@ -574,37 +575,29 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 						client->SetConnectOptions(byCryptOptions, true, false);
 					}
 					
-					if (client) {
-						client->TryToConnect();
-					} else {
-						client = new CUpDownClient(nPort,dwIP,0,0,0, true, true);
-						theApp->clientlist->AddClient(client);
-						client->TryToConnect();
-					}
+					client->TryToConnect();
 				}
 				break;
 			}
 			case OP_CALLBACK_FAIL: {
-				AddDebugLogLineM(false,logServer,wxT("Server: OP_CALLBACK_FAIL"));
+				AddDebugLogLineN(logServer, wxT("Server: OP_CALLBACK_FAIL"));
 				break;
 			}
 			case OP_REJECT: {
-				AddDebugLogLineM(false,logServer,wxT("Server: OP_REJECT"));
-				AddLogLineM(false, _("Server rejected last command"));
+				AddDebugLogLineN(logServer, wxT("Server: OP_REJECT"));
+				AddLogLineN(_("Server rejected last command"));
 				break;
 			}
 			default:
-				AddDebugLogLineM( false, logPacketErrors, 
-					wxString::Format( wxT("Unknown server packet with OPcode %x"), opcode )
-				);
+				AddDebugLogLineN(logPacketErrors, CFormat(wxT("Unknown server packet with OPcode %x")) % opcode);
 		}
 		return true;
 	} catch (const CInvalidPacket& e) {
-		AddLogLineM(false,CFormat( _("Bogus packet received from server: %s") ) % e.what());
+		AddLogLineN(CFormat( _("Bogus packet received from server: %s") ) % e.what());
 	} catch (const CEOFException& e) {
-		AddLogLineM(false,CFormat( _("Bogus packet received from server: %s") ) % e.what());
+		AddLogLineN(CFormat( _("Bogus packet received from server: %s") ) % e.what());
 	} catch (const wxString& error) {
-		AddLogLineM(false,CFormat( _("Unhandled error while processing packet from server: %s") ) % error);
+		AddLogLineN(CFormat( _("Unhandled error while processing packet from server: %s") ) % error);
 	}
 
 	// Don't disconnect because of wrong sources.
@@ -618,10 +611,10 @@ bool CServerSocket::ProcessPacket(const byte* packet, uint32 size, int8 opcode)
 
 void CServerSocket::ConnectToServer(CServer* server, bool bNoCrypt)
 {
-	AddDebugLogLineM(false,logServer,wxT("Trying to connect"));
+	AddDebugLogLineN(logServer, wxT("Trying to connect"));
 	
 	if (cur_server){
-		wxASSERT(0);
+		wxFAIL;
 		delete cur_server;
 		cur_server = NULL;
 	}
@@ -643,11 +636,11 @@ void CServerSocket::ConnectToServer(CServer* server, bool bNoCrypt)
 		if ( dns->Create() == wxTHREAD_NO_ERROR ) {
 			if ( dns->Run() != wxTHREAD_NO_ERROR ) {
 				dns->Delete();
-				AddLogLineM(false, CFormat( _("Cannot create DNS solving thread for connecting to %s") ) % cur_server->GetAddress());
+				AddLogLineN(CFormat( _("Cannot create DNS solving thread for connecting to %s") ) % cur_server->GetAddress());
 			}
 		} else {
 			dns->Delete();
-			AddLogLineM(false, CFormat( _("Cannot create DNS solving thread for connecting to %s") ) % cur_server->GetAddress());
+			AddLogLineN(CFormat( _("Cannot create DNS solving thread for connecting to %s") ) % cur_server->GetAddress());
 		}
 	} else {
 		// Nothing to solve, we already have the IP
@@ -658,18 +651,20 @@ void CServerSocket::ConnectToServer(CServer* server, bool bNoCrypt)
 
 void CServerSocket::OnError(wxSocketError nErrorCode)
 {
-	AddDebugLogLineM(false, logServer, wxT("Error in serversocket: ") + cur_server->GetListName() + wxT("(") + cur_server->GetFullIP() + wxString::Format(wxT(":%i): %u"),cur_server->GetPort(), (int)nErrorCode));
+	AddDebugLogLineN(logServer, CFormat(wxT("Error in serversocket: %s(%s:%i): %u"))
+		% cur_server->GetListName() % cur_server->GetFullIP() % cur_server->GetPort() % (int)nErrorCode);
 	SetConnectionState(CS_DISCONNECTED);
 }
 
 
 bool CServerSocket::PacketReceived(CPacket* packet)
 {
-	AddDebugLogLineM(false, logServer, wxString::Format(wxT("Server: Packet Received: Prot %x, Opcode %x, Length %u"), packet->GetProtocol(), packet->GetOpCode(), packet->GetPacketSize()));
+	AddDebugLogLineN(logServer, CFormat(wxT("Server: Packet Received: Prot %x, Opcode %x, Length %u")) % packet->GetProtocol() % packet->GetOpCode() % packet->GetPacketSize());
 	
 	if (packet->GetProtocol() == OP_PACKEDPROT) {
 		if (!packet->UnPackPacket(250000)){
-			AddDebugLogLineM(false, logZLib, wxString::Format(wxT("Failed to decompress server TCP packet: protocol=0x%02x  opcode=0x%02x  size=%u"), packet ? packet->GetProtocol() : 0, packet ? packet->GetOpCode() : 0, packet ? packet->GetPacketSize() : 0));
+			AddDebugLogLineN(logZLib, CFormat(wxT("Failed to decompress server TCP packet: protocol=0x%02x  opcode=0x%02x  size=%u"))
+				% packet->GetProtocol() % packet->GetOpCode() % packet->GetPacketSize());
 			theStats::AddDownOverheadServer(packet->GetPacketSize());
 			return true;
 		}
@@ -680,7 +675,8 @@ bool CServerSocket::PacketReceived(CPacket* packet)
 	if (packet->GetProtocol() == OP_EDONKEYPROT) {
 		ProcessPacket(packet->GetDataBuffer(), packet->GetPacketSize(), packet->GetOpCode());
 	} else {
-		AddDebugLogLineM(false, logServer, wxString::Format(wxT("Received server TCP packet with unknown protocol: protocol=0x%02x  opcode=0x%02x  size=%u"), packet ? packet->GetProtocol() : 0, packet ? packet->GetOpCode() : 0, packet ? packet->GetPacketSize() : 0));
+		AddDebugLogLineN(logServer, CFormat(wxT("Received server TCP packet with unknown protocol: protocol=0x%02x  opcode=0x%02x  size=%u"))
+			% packet->GetProtocol() % packet->GetOpCode() % packet->GetPacketSize());
 		theStats::AddDownOverheadServer(packet->GetPacketSize());
 	}
 	
@@ -726,7 +722,7 @@ void CServerSocket::OnHostnameResolved(uint32 ip) {
 	m_IsSolving = false;
 	if (ip) {
 		if (theApp->ipfilter->IsFiltered(ip, true)) {
-			AddLogLineM(true, CFormat( _("Server IP %s (%s) is filtered.  Not connecting.") )
+			AddLogLineC(CFormat( _("Server IP %s (%s) is filtered.  Not connecting.") )
 				% Uint32toStringIP(ip) % cur_server->GetAddress() );
 			OnConnect(wxSOCKET_INVADDR);
 		} else {
@@ -745,7 +741,7 @@ void CServerSocket::OnHostnameResolved(uint32 ip) {
 			
 			addr.Service(nPort);			
 			
-			AddLogLineM(false, CFormat( _("Connecting to %s (%s - %s:%i) %s") )
+			AddLogLineN(CFormat( _("Connecting to %s (%s - %s:%i) %s") )
 				% cur_server->GetListName()
 				% cur_server->GetAddress()
 				% cur_server->GetFullIP()
@@ -753,11 +749,12 @@ void CServerSocket::OnHostnameResolved(uint32 ip) {
 				% useObfuscation
 			);
 			
-			AddDebugLogLineM(false, logServer, wxT("Server ") + cur_server->GetAddress() + wxT("(") + Uint32toStringIP(ip) + wxT(")") + wxString::Format(wxT(" Port %i"), cur_server->GetConnPort()));
+			AddDebugLogLineN(logServer, CFormat(wxT("Server %s(%s) Port %i"))
+				% cur_server->GetAddress() % Uint32toStringIP(ip) % cur_server->GetConnPort());
 			Connect(addr, false);
 		}
 	} else {
-		AddLogLineM(true, CFormat( _("Could not solve dns for server %s: Unable to connect!") )
+		AddLogLineC(CFormat( _("Could not solve dns for server %s: Unable to connect!") )
 			% cur_server->GetAddress() );
 		OnConnect(wxSOCKET_NOHOST);
 	}

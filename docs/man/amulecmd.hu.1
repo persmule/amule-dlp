@@ -1,114 +1,288 @@
-.TH AMULECMD 1 "2005 m�rcius" "aMuleCmd v2.0.0" "aMule seg�dprogramok"
-.SH N�V
-amulecmd \- Sz�veges program, az aMule "t�vvez�rl�s�hez"
-.SH �TTEKINT�S
-.B amulecmd
-.RB [ \-h " " \fI<g�p> ]
-.RB [ \-p " " \fI<port> ]
-.RB [ \-P " " \fI<jelsz�> ]
-.RB [ \-f " " \fI<f�jl> ]
-.RB [ \-l " " \fI<nyelv> ]
-.RB [ \-q ]
-.RB [ \-v ]
-.RB [ \-w ]
-.RB [ \-c " " \fI<parancs> ]
-.PP
-.B amulecmd
-.RB [ \-f " " \fI<f�jl> ]
-.B \-\-create-config-from=\fI<f�jl>
-.PP
-.B amulecmd
-.RB [ \-\-help ]
-.RB [ \-\-version ]
-.SH LE�R�S
-Az \fBamulecmd\fR egy sz�veges program, az aMule vez�rl�sre.
-Hasznos s�g� �rhet� el a program ind�t�sa ut�n a 'help' paranccsal.
-.SH OPCI�K
-.TP
-\fB\-h\fR, \fB\-\-host\fR=\fI<g�p>\fR
-A g�p, ahol az aMule fut (alap�rtelmez�s: \fIlocalhost\fR).
-A \fI<g�p>\fR lehet egy IP c�m vagy DNS n�v.
-.TP
-\fB\-p\fR, \fB\-\-port\fR=\fI<port>\fR
-Az aMule t�voli el�r�s portja (alap�rtelmez�s: \fI4712\fR).
-.TP
-\fB\-P\fR, \fB\-\-password\fR=\fI<jelsz�>\fR
-A t�voli el�r�s jelszava.
-.TP
-\fB\-f\fR, \fB\-\-config\-file\fR=\fI<f�jl>\fR
-A megadott konfigur�ci�s f�jlt haszn�lja.
-Az alap�rtelmez�s a \fI~/.aMule/remote.conf\fR
-.TP
-\fB\-l\fR, \fB\-\-locale\fR=\fI<nyelv>\fR
-Be�ll�tja a program nyelv�t.
-L�sd a \fBMEGJEGYZ�SEK\fR fejezetet a \fI<nyelv>\fR param�ter b�vebb le�r�s�hoz.
-.TP
-\fB\-q\fR, \fB\-\-quiet\fR
-Csendes m�d, semmit nem �r ki a szabv�ny kimenetre.
-Az \fBamulecmd\fR-t tekintve ez el�gg� felesleges opci� :-)
-.TP
-\fB\-v\fR, \fB\-\-verbose\fR
-B�besz�d� m�d, a hibakeres�si �zeneteket is megjelen�ti.
-.TP
-\fB\-w\fR, \fB\-\-write\-config\fR
-A parancssori param�tereket ki�rja a konfigur�ci�s f�jlba �s kil�p.
-.TP
-\fB\-c\fR, \fB\-\-command\fR=\fI<parancs>\fR
-V�grehajtja a megadott parancsot, �gy, mintha azt a saj�t parancssor�ba �rtuk volna be, majd kil�p.
-.TP
-\fB\-\-create\-config\-from\fR=\fI<f�jl>\fR
-Konfigur�ci�s f�jl k�sz�t�se a \fI<f�jl>\fR alapj�n, amely az aMule �rv�nyes konfigur�ci�s f�jlja kell legyen, majd ut�na kil�p.
-.TP
-\fB\-\-help\fR
-Megjelen�ti a s�g�t �s kil�p.
-.TP
-\fB\-\-version\fR
-Megjelen�ti a program verzi�j�t, majd kil�p.
-.SH MEGJEGYZ�SEK
-.SS El�r�si utak
-Minden olyan opci�n�l, amely \fI<f�jl>\fR param�tert k�r, ha a megadott \fIf�jl\fR nem tartalmaz k�nyvt�r komponenst (vagyis tiszt�n csak egy f�jln�v), akkor azt az aMule konfigur�ci�s k�nyvt�r�ban (\fI~/.aMule\fR) fogja keresni.
+.\"*******************************************************************
+.\"
+.\" This file was generated with po4a. Translate the source file.
+.\"
+.\"*******************************************************************
+.TH AMULECMD 1 "2010 Január" "aMuleCmd v2.3.0" "aMule segédprogramok"
+.als B_untranslated B
+.als RB_untranslated RB
+.als SS_untranslated SS
+.SH NÉV
+amulecmd \- Szöveges program az aMule "távvezérléséhez"
+.SH ÁTTEKINTÉS
+.B_untranslated amulecmd
+[\fB\-h\fP \fI<gép>\fP] [\fB\-p\fP \fI<port>\fP] [\fB\-P\fP
+\fI<jelszó>\fP] [\fB\-f\fP \fI<fájl>\fP]
+.RB_untranslated [ \-q ]
+.RB_untranslated [ \-v ]
+[\fB\-l\fP \fI<nyelv>\fP] {\fB \fP[\fB\-w\fP]\fB \fP|\fB \fP[\fB\-c\fP
+\fI<parancs>\fP]\fB \fP}
+
+.B_untranslated amulecmd
+[\fB\-\-create\-config\-from\fP=\fI<fájl>\fP]
+
+.B_untranslated amulecmd
+.RB_untranslated [ \-\-version ]
+
+.B_untranslated amulecmd
+.RB_untranslated [ \-\-help ]
+.SH LEÍRÁS
+Az amulecmd egy szöveges program az aMule vezérlésére.
+.TP 
+\fB[ \-h\fP \fI<gép>\fP, \fB\-\-host\fP=\fI<gép>\fP \fB]\fP
+A gép, amelyen az aMule fut (alapértelmezés: \fIlocalhost\fP). A
+\fI<gép>\fP lehet egy IP cím vagy egy DNS név.
+.TP 
+\fB[ \-p\fP \fI<port>\fP, \fB\-\-port\fP=\fI<port>\fP \fB]\fP
+Az aMule távoli elérés portja, amint az a Beállítások\->Távoli Elérés
+panelen beállítható (alapértelemzés: \fI4712\fP).
+.TP 
+\fB[ \-P\fP \fI<jelszó>\fP, \fB\-\-password\fP=\fI<jelszó>\fP \fB]\fP
+A távoli elérés jelszava.
+.TP 
+\fB[ \-f\fP \fI<fájl>\fP, \fB\-\-config\-file\fP=\fI<fájl>\fP \fB]\fP
+A megadott konfigurációs fájl használata. Az alapértelmezett konfigurációs
+fájl: \fI~/.aMule/remote.conf\fP
+.TP 
+.B_untranslated [ \-q\fR, \fB\-\-quiet ]\fR
+Ne írjon semmit a szabvány kimenetre.
+.TP 
+.B_untranslated [ \-v\fR, \fB\-\-verbose ]\fR
+Bőbeszédű mód \- a hibakeresési üzenetek megjelenítése.
+.TP 
+\fB[ \-l\fP \fI<nyelv>\fP, \fB\-\-locale\fP=\fI<nyelv>\fP \fB]\fP
+Beállítja a program nyelvét. Lásd a \fBMEGJEGYZÉSEK\fP fejezetet a
+\fI<nyelv>\fP paraméter bővebb leírásához.
+.TP 
+.B_untranslated [ \-w\fR, \fB\-\-write\-config ]\fR
+A parancssori paramétereket beírja a konfigurációs fájlba és kilép.
+.TP 
+\fB[ \-c\fP \fI<parancs>\fP, \fB\-\-command\fP=\fI<parancs>\fP \fB]\fP
+Végrehajtja a megadott parancsot, mintha azt a saját parancssorába írtuk
+volna be, majd kilép.
+.TP 
+\fB[ \-\-create\-config\-from\fP=\fI<fájl>\fP \fB]\fP
+Konfigurációs fájl készítése a \fI<fájl>\fP alapján, amely az aMule
+érvényes konfigurációs fájlja kell legyen, majd utána kilép.
+.TP 
+.B_untranslated [ \-v\fR, \fB\-\-version ]\fR
+Megjeleníti a verziószámot.
+.TP 
+.B_untranslated [ \-h\fR, \fB\-\-help ]\fR
+Egy rövid használati leírást jelenít meg.
+.SH PARANCSOK
+Minden parancs érzéketlen a kis/nagy betűkre.
+.SS "Add \fI<eD2k\-hivatkozás>\fP | \fI<magnet\-hivatkozás>\fP"
+Egy eD2k vagy magnet hivatkozást ad a letöltéshez.
+
+Az eD2k hivatkozás a következő lehet:
+.RS 3
+.IP \(bu 2
+egy fájl hivatkozás (ed2k://|file|...), ez a letöltési sorhoz lesz
+hozzáadva;
+.IP \(bu 2
+egy kiszolgáló hivatkozás (ed2k://|server|...), ez a kiszolgáló\-listához
+lesz hozzáadva;
+.IP \(bu 2
+egy kiszolgáló\-lista hivatkozás, mely esetben a listában szereplő összes
+kiszolgáló a kiszolgáló\-listához adódik.
+.RE
+
+A magnet hivatkozásnak tartalmaznia kell az eD2k hash\-t és a fájl hosszát.
+.SS "Cancel \fI<hash>\fP | \fI<szám>\fP"
+Megszakítja a \fI<hash>\fP vagy \fI<szám>\fP által azonosított
+letöltést. Az értékek megszerzéséhez használd a \fBshow\fP parancsot.
+.SS "Connect [ \fIkad\fP | \fIed2k\fP | \fI<ip|név>\fP ]"
+Kapcsolódik a hálózathoz.
+
+A Beállításokban engedélyezett összes hálózathoz kapcsolódik.
+
+With the optional parameter you can specify which network to connect
+to. Giving a server address in the form of IP:Port (where IP is either a
+dotted decimal IPv4 address or a resolvable DNS name) aMule will connect to
+that server only.
+.SS_untranslated Disconnect [ \fIed2k\fP | \fIkad\fP ]
+Leválasztás minden csatlakoztatott hálózatról, vagy csak a megadott
+hálózatról.
+.SS "Download \fI<szám>\fP"
+Letölt egy fájlt.
+
+Meg kell adni egy fájl számát a legutóbbi keresésből. Például: a
+\(Bqdownload 12\(rq parancs az előző keresés eredményei közül a 12\-es
+sorszámú fájlt fogja letölteni.
+.SS_untranslated Exit
+Leválasztás az amule(d)\-ről és kilépés az amulecmd\-ből.
+.SS "Get \fI<mit>\fP"
+Megmutat egy beállítás értéket.
+
+A \fI<mit>\fP lehetséges értékei:
+.RS
+.IP BwLimits 10
+Sávszélesség határok.
+.IP IPFilter 10
+IP\-szűrő beállítások.
+.RE
+.SS "Help [ \fI<parancs>\fP ]"
+Egy rövid használati leírást jelenít meg. Ha paraméter nélkül hívjuk meg,
+kilistázza az elérhető parancsokat. Ha egy \fI<parancs>\fP\-ot is
+megadunk, rövid leírást ad az adott parancsról.
+.SS "Pause \fI<hash>\fP | \fI<szám>\fP"
+Megállítja a \fI<hash>\fP vagy \fI<szám>\fP által azonosított
+letöltést. Az értékek megszerzéséhez használd a \fBshow\fP parancsot.
+.SS "Priority \fI<prioritás>\fP \fI<hash>\fP | \fI<szám>\fP"
+Beállítja a \fI<hash>\fP vagy \fI<szám>\fP által azonosított
+letöltés prioritását.
+
+A \fI<prioritás>\fP lehetséges értékei:
+.RS
+.IP Auto 10
+Automatikus prioritás.
+.IP High 10
+Magas prioritás.
+.IP Low 10
+Alacsony prioritás.
+.IP Normal 10
+Normál prioritás.
+.RE
+.SS_untranslated Progress
+Egy folymatban lévő keresés állapotát jeleníti meg.
+.SS_untranslated Quit
+Az \fBexit\fP parancs szinonímája.
+.SS "Reload \fI<mit>\fP"
+A megadott objektum újratöltése.
+
+A \fI<mit>\fP lehetséges értékei:
+.RS
+.IP Shared 10
+A megosztott fájlok listájt tölti újra.
+.IP IPFilter 10
+Az IP szűrő újratöltése.
+.RE
+.SS_untranslated Reset
+Napló újrakezdése.
+.SS_untranslated Results
+Az utolsó keresés eredményeinek megjelenítése.
+.SS "Resume \fI<hash>\fP | \fI<szám>\fP"
+Folytatja a \fI<hash>\fP vagy \fI<szám>\fP által azonosított
+letöltést. Az értékek megszerzéséhez használd a \fBshow\fP parancsot.
+.SS "Search \fI<típus>\fP \fI<kulcsszó>\fP"
+Elindít egy keresést a megadott \fI<kulcsszó>\fP\-ra. Kötelező megadni a
+keresés típusát és a kulcsszót. Példa: a \(Bqsearch kad amule\(rq parancs
+egy Kademlia keresést indít az \(Bqamule\(rq kulcsszóra.
+
+Elérhető keresés típusok:
+.RS
+.IP Global 10
+Globális keresést hajt végre.
+.IP Kad 10
+A Kademlia hálózaton keres.
+.IP Local 10
+Lokális keresés.
+.RE
+.SS "Set \fI<mit>\fP"
+Egy beállítás érték megváltoztatása.
+
+A \fI<mit>\fP lehetséges értékei:
+.RS
+.IP BwLimits 10
+Sávszélesség határok beállítása.
+.IP IPFilter 10
+IP\-szűrő beállításainak módosítása.
+.RE
+.SS "Show \fI<mit>\fP"
+Megmutatja a fel\- és letöltési sort, a kiszolgáló\- és megosztott fájlok
+listáját.
+
+A \fI<mit>\fP lehetséges értékei:
+.RS
+.IP DL 10
+Letöltési lista megjelenítése.
+.IP Log 10
+Napló megjelenítése.
+.IP Servers 10
+Kiszolgálók listájának megjelenítése.
+.IP UL 10
+Feltöltési lista megjelenítése.
+.RE
+.SS_untranslated Shutdown
+Leállítja a távoli magot (amule/amuled). Ez egyszersmind a szöveges klienst
+is leállítja, mivel az nemigen használható futó mag nélkül.
+.SS "Statistics [ \fI<szám>\fP ]"
+A statisztika fa megjelenítése.
+
+Lehetséges megadni egy számot a 0\-255 tartományban, amely megadja az
+ügyfél\-verziók al\-fák maximális nagyságát. Nulla megadása vagy a szám teljes
+elhagyása nem korlátoz.
+
+Példa: a \(Bqstatistics 5\(rq parancs csak az 5 leggyakoribb ügyfél
+változatot mutatja minden ügyfél típusra.
+.SS_untranslated Status
+Megjeleníti a kapcsolat állapotát, pillanatnyi fel\-/letöltési sebességet,
+stb.
+.SH MEGJEGYZÉSEK
+.SS "Elérési utak"
+Minden olyan opciónál amely \fI<fájl>\fP paramétert kér, ha a megadott
+\fIfájl\fP nem tartalmaz könyvtár komponenst (vagyis tisztán csak egy fájlnév),
+akkor azt az aMule konfigurációs könyvtárában (\fI~/.aMule\fP) fogja keresni.
 .SS Nyelvek
-A \fB\-l\fR opci� \fI<nyelv>\fR param�tere a k�vetkez� m�don adhat� meg: \fInyelv\fR[\fB_\fITER�LET\fR][\fB.\fIk�dol�s\fR][\fB@\fIm�dos�t�\fR], ahol \fInyelv\fR az els�dleges nyelv, \fITER�LET\fR egy nyelvv�ltozat/ter�let k�dja, \fIk�dol�s\fR a karakter k�szlet k�dja �s a \fIm�dos�t�\fR "lehet�v� teszi, hogy a felhaszn�l� kiv�lasszon egy meghat�rozott esetet a helyi jellemz�k adataib�l egyetlen kateg�ri�n bel�l".
-.PP
-P�ld�ul, a k�vetkez� �rt�kek mind �rv�nyesek:
+A \fB\-l\fP opció \fI<nyelv>\fP paramétere a következőképpen adható meg:
+\fInyelv\fP[\fB_\fP\fITERÜLET\fP][\fB.\fP\fIkódolás\fP][\fB@\fP\fImódosító\fP], ahol \fInyelv\fP az
+elsődleges nyelv, \fITERÜLET\fP egy nyelvváltozat/terület kódja, \fIkódolás\fP a
+karakterkészlet kódja és a \fImódosító\fP \(Bqlehetővé teszi, hogy a
+felhasználó kiválasszon egy meghatározott esetet a helyi jellemzők adataiból
+egyetlen kategórián belül\(rq.
+
+Például a következő értékek mind érvényesek:
+.RS
+.RB_untranslated de
 .br
-fr
+.RB_untranslated de_DE
 .br
-fr_FR
+.RB_untranslated de_DE.iso88591
 .br
-de_DE.iso88591
+.RB_untranslated de_DE@euro
 .br
-de_DE@euro
-.br
-de_DE.iso88591@euro
-.PP
-Hab�r a fenieket mind elfogadja a program, mint �rv�nyes nyelvmeghat�roz�st, a \fIk�dol�s\fR �s \fIm�dos�t�\fR m�g nem haszn�lt.
-.PP
-R�ada�sk�nt a fenti form�tumhoz, megadhat� ak�r egy nyelv teljes angol megnevez�se is, �gy p�ld�ul \fB\-l german\fR szint�n �rv�nyes, �s egyen�rt�k� a \fB-l de_DE\fR megad�ssal.
-.PP
-Ha sem a parancssorban, sem a konfigur�ci�s f�jlban nincsen megadva a nyelv, akkor a rendszer alap�rtelmezett nyelv�t fogja haszn�lni.
-.SH F�JLOK
+.RB_untranslated de_DE.iso88591@euro
+.RE
+
+Habár a fentieket mind elfogadja a program, mint érvényes
+nyelvmeghatározást, a \fIkódolás\fP és \fImódosító\fP még nem használt.
+
+Ráadásként a fenti formátumhoz, megadható akár egy nyelv teljes angol
+megnevezése is, így például a \fB\-l german\fP szintén érvényes és egyenértékű a
+\fB\-l de_DE\fP megadással.
+
+Ha sem a konfigurációs fájlban, sem a parancssorban nincs megadva a nyelv,
+akkor a rendszer alapértelmezett nyelvét fogja használni.
+.SH FÁJLOK
 ~/.aMule/remote.conf
-.SH P�LDA
-Tipikusan az \fBamulecmd\fR els� ind�t�sakor l�trehozunk egy konfigur�ci�s f�jlt, vagy az
+.SH PÉLDA
+Tipikusan az amulecmd\-t először a következőképpen indítjuk:
 .PP
-\fBamulecmd\fR \fB\-h\fR \fIg�pn�v\fR \fB\-p\fR \fIport\fR \fB\-P\fR \fIjelsz�\fR \fB\-w\fR
+\fBamulecmd\fP \fB\-h\fP \fIgépnév\fP \fB\-p\fP \fIEC\-port\fP \fB\-P\fP \fIEC\-jelszó\fP \fB\-w\fP
 .PP
-paranccsal, vagy, ha nem akarjuk a parancssorban megadni a jelsz�t, akkor pl. az
+vagy
 .PP
-\fBamulecmd\fR \fB\-\-create-config-from\fR=\fI/home/felhaszn�l�n�v/.aMule/amule.conf\fR
+\fBamulecmd\fP
+\fB\-\-create\-config\-from\fP=\fI/home/felhasználónév/.aMule/amule.conf\fP
 .PP
-paranccsal. Term�szetesen a fenti el�r�si �t a helyi viszonyoknak megfelel�en v�ltozhat. A be�ll�t�sok teh�t elment�dnek a \fI$HOME/.aMule/remote.conf\fR f�jlba, �s ezek ut�n m�r el�g az
-.PP
-.B amulecmd
-.PP
-parancsot be�rni.
-.SH HIB�K JELENT�SE
-A hib�kat k�rj�k vagy a f�rumon (\fIhttp://forum.amule.org/\fR), vagy a hibak�vet�ben (\fIhttp://bugs.amule.org/\fR) jelents�k.
-Hib�kr�l k�rj�k ne �rjanak levelet (e-mail-t) se a levelz�si list�ra, se k�zvetlen�l valamelyik fejleszt�nek.
+Ez elmenti a beállításokat a \fI$HOME/.aMule/remote.conf\fP fájlba, hogy később
+már csak ezt kelljen írni:
+
+.B_untranslated amulecmd
+
+Természetesen nem kötelező ezt a példát követni.
+.SH "HIBÁK JELENTÉSE"
+A hibákat kérjük vagy a fórumon (\fIhttp://forum.amule.org/\fP), vagy a
+hibakövetőben (\fIhttp://bugs.amule.org/\fP) jelentsék. Hibákról kérjük ne
+írjanak levelet (e\-mail\-t) se a levelezési listára, se közvetlenül
+valamelyik fejlesztőnek.
 .SH COPYRIGHT
-Az aMule �s az �sszes hozz� tartoz� seg�dprogram a GNU General Public Licence v�delme alatt �ll.
-.SH L�SD M�G
-\fBamule\fR(1), \fBamuleweb\fR(1)
-.SH MAGYAR FORD�T�S
-D�vai Tam�s <gonosztopi@amule.org>
+Az aMule és az összes hozzá tartozó segédprogram a GNU General Public
+License védelme alatt áll.
+.SH "LÁSD MÉG"
+.B_untranslated amule\fR(1), \fBamuled\fR(1)
+.SH SZERZŐ
+Ezt a kézikönyv lapot Vollstrecker <amule@vollstreckernet.de> írta.
+.SH MAGYAR FORDÍTÁS
+Dévai Tamás <gonosztopi@amule.org>

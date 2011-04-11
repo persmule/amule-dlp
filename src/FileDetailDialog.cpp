@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -32,12 +32,11 @@
 #include "FileDetailDialog.h"	// Interface declarations
 #include "FileDetailListCtrl.h"	// Needed for CFileDetailListCtrl
 #include "CommentDialogLst.h"	// Needed for CCommentDialogLst
-#include "updownclient.h"	// Needed for CUpDownClient
 #include "PartFile.h"		// Needed for CPartFile
-#include "Color.h"		// Needed for SYSCOLOR
 #include "amule.h"		// Needed for theApp
 #include "SharedFileList.h"	// Needed for CSharedFileList
 #include "OtherFunctions.h"
+#include "MuleColour.h"
 
 #define ID_MY_TIMER 1652
 
@@ -76,7 +75,8 @@ CFileDetailDialog::~CFileDetailDialog()
 	m_timer.Stop();
 }
 
-void CFileDetailDialog::OnTimer(wxTimerEvent& WXUNUSED(evt)) {
+void CFileDetailDialog::OnTimer(wxTimerEvent& WXUNUSED(evt))
+{
 	UpdateData();
 }
 
@@ -88,10 +88,8 @@ void CFileDetailDialog::OnClosewnd(wxCommandEvent& WXUNUSED(evt))
 void CFileDetailDialog::UpdateData()
 {
 	wxString bufferS;
-	CastChild(IDC_FNAME,wxStaticText)->SetLabel(MakeStringEscaped(
-		TruncateFilename(m_file->GetFileName(),60)));
-	CastChild(IDC_METFILE,wxStaticText)->SetLabel(MakeStringEscaped(
-		TruncateFilename(m_file->GetFullName(),60,true)));
+	CastChild(IDC_FNAME,   wxStaticText)->SetLabel(MakeStringEscaped(m_file->GetFileName().TruncatePath(60)));
+	CastChild(IDC_METFILE, wxStaticText)->SetLabel(MakeStringEscaped(m_file->GetFullName().TruncatePath(60, true)));
 
 	wxString tmp = CastChild(IDC_FILENAME, wxTextCtrl)->GetValue();
 	if (tmp.Length() < 3) {
@@ -99,29 +97,27 @@ void CFileDetailDialog::UpdateData()
 	}
 
 	CastChild(IDC_FHASH,wxStaticText)->SetLabel(m_file->GetFileHash().Encode());
-	bufferS = wxString::Format(wxT("%llu bytes ("), m_file->GetFileSize())
-			+ CastItoXBytes(m_file->GetFileSize())
-			+ wxT(")");
+	bufferS = CFormat(wxT("%u bytes (%s)")) % m_file->GetFileSize() % CastItoXBytes(m_file->GetFileSize());
 	CastChild(IDC_FSIZE,wxControl)->SetLabel(bufferS);
 	CastChild(IDC_PFSTATUS,wxControl)->SetLabel(m_file->getPartfileStatus());
-	bufferS = wxString::Format(wxT("%i (%i)"),m_file->GetPartCount(),m_file->GetHashCount());
+	bufferS = CFormat(wxT("%i (%i)")) % m_file->GetPartCount() % m_file->GetHashCount();
 	CastChild(IDC_PARTCOUNT,wxControl)->SetLabel(bufferS);
 	CastChild(IDC_TRANSFERRED,wxControl)->SetLabel(CastItoXBytes(m_file->GetTransferred()));
 	CastChild(IDC_FD_STATS1,wxControl)->SetLabel(CastItoXBytes(m_file->GetLostDueToCorruption()));
 	CastChild(IDC_FD_STATS2,wxControl)->SetLabel(CastItoXBytes(m_file->GetGainDueToCompression()));
 	CastChild(IDC_FD_STATS3,wxControl)->SetLabel(CastItoIShort(m_file->TotalPacketsSavedDueToICH()));
 	CastChild(IDC_COMPLSIZE,wxControl)->SetLabel(CastItoXBytes(m_file->GetCompletedSize()));
-	bufferS = wxString::Format(_("%.2f%% done"),m_file->GetPercentCompleted());
+	bufferS = CFormat(_("%.2f%% done")) % m_file->GetPercentCompleted();
 	CastChild(IDC_PROCCOMPL,wxControl)->SetLabel(bufferS);
-	bufferS = wxString::Format(_("%.2f kB/s"),(float)m_file->GetKBpsDown());
+	bufferS = CFormat(_("%.2f kB/s")) % m_file->GetKBpsDown();
 	CastChild(IDC_DATARATE,wxControl)->SetLabel(bufferS);
-	bufferS = wxString::Format(wxT("%i"),m_file->GetSourceCount());
+	bufferS = CFormat(wxT("%i")) % m_file->GetSourceCount();
 	CastChild(IDC_SOURCECOUNT,wxControl)->SetLabel(bufferS);
-	bufferS = wxString::Format(wxT("%i"),m_file->GetTransferingSrcCount());
+	bufferS = CFormat(wxT("%i")) % m_file->GetTransferingSrcCount();
 	CastChild(IDC_SOURCECOUNT2,wxControl)->SetLabel(bufferS);
-	bufferS = wxString::Format(wxT("%i (%.1f%%)"),
-		m_file->GetAvailablePartCount(),
-		((m_file->GetAvailablePartCount() * 100.0f)/ m_file->GetPartCount()));
+	bufferS = CFormat(wxT("%i (%.1f%%)"))
+		% m_file->GetAvailablePartCount()
+		% ((m_file->GetAvailablePartCount() * 100.0)/ m_file->GetPartCount());
 	CastChild(IDC_PARTAVAILABLE,wxControl)->SetLabel(bufferS);
 	bufferS = CastSecondsToHM(m_file->GetDlActiveTime());
 	CastChild(IDC_DLACTIVETIME, wxControl)->SetLabel(bufferS);
@@ -136,15 +132,14 @@ void CFileDetailDialog::UpdateData()
 	CastChild(IDC_LASTSEENCOMPL,wxControl)->SetLabel(bufferS);
 	setEnableForApplyButton();
 	// disable "Show all comments" button if there are no comments
-	CastChild(IDC_CMTBT, wxControl)->Enable(!m_file->GetRatingAndComments().empty());
+	FileRatingList list;
+	m_file->GetRatingAndComments(list);
+	CastChild(IDC_CMTBT, wxControl)->Enable(!list.empty());
 	FillSourcenameList();
 	Layout();
 }
 
 // CFileDetailDialog message handlers
-
-#define LVCFMT_LEFT wxLIST_FORMAT_LEFT
-
 
 void CFileDetailDialog::FillSourcenameList()
 {
@@ -161,9 +156,9 @@ void CFileDetailDialog::FillSourcenameList()
 
 	// update
 #ifdef CLIENT_GUI
-	const SourcenameItemList &sources = m_file->GetSourcenameItemList();
-	for (SourcenameItemList::const_iterator it = sources.begin(); it != sources.end(); ++it) {
-		const SourcenameItem &cur_src = *it;
+	const SourcenameItemMap &sources = m_file->GetSourcenameItemMap();
+	for (SourcenameItemMap::const_iterator it = sources.begin(); it != sources.end(); ++it) {
+		const SourcenameItem &cur_src = it->second;
 		itempos = pmyListCtrl->FindItem(-1,cur_src.name);
 		if (itempos == -1) {
 			int itemid = pmyListCtrl->InsertItem(0, cur_src.name);
@@ -172,7 +167,7 @@ void CFileDetailDialog::FillSourcenameList()
 			// background.. argh -- PA: was in old version - do we still need this?
 			wxListItem tmpitem;
 			tmpitem.m_itemId = itemid;
-			tmpitem.SetBackgroundColour(SYSCOLOR(wxSYS_COLOUR_LISTBOX));
+			tmpitem.SetBackgroundColour(CMuleColour(wxSYS_COLOUR_LISTBOX));
 			pmyListCtrl->SetItem(tmpitem);
 			inserted++;
 		} else { 
@@ -181,10 +176,10 @@ void CFileDetailDialog::FillSourcenameList()
 		} 
 	}
 #else // CLIENT_GUI
-	const CPartFile::SourceSet& sources = m_file->GetSourceList();
-	CPartFile::SourceSet::const_iterator it = sources.begin();
+	const CKnownFile::SourceSet& sources = m_file->GetSourceList();
+	CKnownFile::SourceSet::const_iterator it = sources.begin();
 	for ( ; it != sources.end(); ++it ) {
-		const CUpDownClient &cur_src = **it; 
+		const CClientRef &cur_src = *it; 
 		if (cur_src.GetRequestFile() != m_file ||
 		    cur_src.GetClientFilename().Length() == 0) {
 			continue;
@@ -198,7 +193,7 @@ void CFileDetailDialog::FillSourcenameList()
 			// background.. argh -- PA: was in old version - do we still need this?
 			wxListItem tmpitem;
 			tmpitem.m_itemId=itemid;
-			tmpitem.SetBackgroundColour(SYSCOLOR(wxSYS_COLOUR_LISTBOX));
+			tmpitem.SetBackgroundColour(CMuleColour(wxSYS_COLOUR_LISTBOX));
 			pmyListCtrl->SetItem(tmpitem);
 			inserted++;
 		} else { 
@@ -216,7 +211,7 @@ void CFileDetailDialog::FillSourcenameList()
 			pmyListCtrl->DeleteItem(i);
 			i--;  // PA: one step back is enough, no need to go back to 0
 		} else {
-			pmyListCtrl->SetItem(i, 1, wxString::Format(wxT("%li"), item->count));
+			pmyListCtrl->SetItem(i, 1, CFormat(wxT("%i")) % item->count);
 		}
 	}
 
@@ -251,11 +246,13 @@ void CFileDetailDialog::setValueForFilenameTextEdit(const wxString &s)
 
 void CFileDetailDialog::setEnableForApplyButton()
 {
-	CastChild(IDC_APPLY, wxControl)->Enable(
-		m_file->IsPartFile() && // Currently renaming of completed files causes problem with kad
+	bool enabled = 
 		m_file->GetStatus() != PS_COMPLETE &&
 		m_file->GetStatus() != PS_COMPLETING &&
-		m_filenameChanged);
+		m_filenameChanged;
+	CastChild(IDC_APPLY, wxControl)->Enable(enabled);
+	// Make OK button default so Text can be applied by hitting return
+	CastChild(enabled ? IDC_APPLY_AND_CLOSE : ID_CLOSEWNDFD, wxButton)->SetDefault();
 }
 
 
@@ -440,12 +437,9 @@ void CFileDetailDialog::OnBnClickedTakeOver(wxCommandEvent& WXUNUSED(evt))
 	CFileDetailListCtrl* pmyListCtrl;
 	pmyListCtrl = CastChild( IDC_LISTCTRLFILENAMES, CFileDetailListCtrl );
 	if (pmyListCtrl->GetSelectedItemCount() > 0) {
-		long pos=-1;
-		for(;;) {
-			pos=pmyListCtrl->GetNextItem(pos,wxLIST_NEXT_ALL,wxLIST_STATE_SELECTED);
-			if(pos==-1) {
-				break;
-			}
+		// get first selected item (there is only one)
+		long pos = pmyListCtrl->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+		if (pos != -1) {	// shouldn't happen, we checked if something is selected
 			setValueForFilenameTextEdit(pmyListCtrl->GetItemText(pos));
 		}
 	}
@@ -453,17 +447,7 @@ void CFileDetailDialog::OnBnClickedTakeOver(wxCommandEvent& WXUNUSED(evt))
 
 void CFileDetailDialog::OnListClickedTakeOver(wxListEvent& WXUNUSED(evt))
 {
-	CFileDetailListCtrl* pmyListCtrl;
-	pmyListCtrl = CastChild( IDC_LISTCTRLFILENAMES, CFileDetailListCtrl );
-	if (pmyListCtrl->GetSelectedItemCount() > 0) {
-		long pos=-1;
-		for(;;) {
-			pos=pmyListCtrl->GetNextItem(pos,wxLIST_NEXT_ALL,wxLIST_STATE_SELECTED);
-			if(pos==-1) {
-				break;
-			}
-			setValueForFilenameTextEdit(pmyListCtrl->GetItemText(pos));
-		}
-	}
+	wxCommandEvent ev;
+	OnBnClickedTakeOver(ev);
 }
 // File_checked_for_headers

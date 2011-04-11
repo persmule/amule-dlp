@@ -5,11 +5,11 @@
 ///
 /// Author:       ThePolish <thepolish@vipmail.ru>
 ///
-/// Copyright (C) 2004 by ThePolish
+/// Copyright (c) 2004-2011 ThePolish ( thepolish@vipmail.ru )
 ///
 /// Derived from CAS by Pedro de Oliveira <falso@rdk.homeip.net>
 ///
-/// Pixmats from aMule http://www.amule.org
+/// Pixmaps from aMule http://www.amule.org
 ///
 /// This program is free software; you can redistribute it and/or modify
 ///  it under the terms of the GNU General Public License as published by
@@ -262,10 +262,8 @@ WxCasPrefs::WxCasPrefs ( wxWindow * parent ) : wxDialog ( parent, -1,
 	                  5 );
 
 	// Mask auto stat img disabled controls
-	if ( ( bool )
-	        ( prefs->
-	          Read ( WxCasCte::ENABLE_AUTOSTATIMG_KEY,
-	                 WxCasCte::DEFAULT_AUTOSTATIMG_ISENABLED ) ) ) {
+	if (prefs->Read( WxCasCte::ENABLE_AUTOSTATIMG_KEY,
+	                 WxCasCte::DEFAULT_AUTOSTATIMG_ISENABLED ) ) {
 		m_autoStatImgCheck->SetValue( TRUE );
 	} else {
 		m_autoStatImgCheck->SetValue ( FALSE );
@@ -276,10 +274,8 @@ WxCasPrefs::WxCasPrefs ( wxWindow * parent ) : wxDialog ( parent, -1,
 	}
 
 	// Mask Ftp update disabled controls
-	if ( ( bool )
-	        ( prefs->
-	          Read ( WxCasCte::ENABLE_FTP_UPDATE_KEY,
-	                 WxCasCte::DEFAULT_FTP_UPDATE_ISENABLED ) ) ) {
+	if (prefs->Read( WxCasCte::ENABLE_FTP_UPDATE_KEY,
+	                 WxCasCte::DEFAULT_FTP_UPDATE_ISENABLED ) ) {
 		m_ftpUpdateCheck->SetValue( TRUE );
 	} else {
 		m_ftpUpdateCheck->SetValue ( FALSE );

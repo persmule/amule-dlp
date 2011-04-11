@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2006-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2006-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -42,20 +42,6 @@ enum ViewType
 };
 
 
-//! These types specifies the char. of a given item on the CDownloadListCtrl
-enum DownloadItemType
-{
-	//! A CPartFile object
-	FILE_TYPE,
-	//! A source which is currently queued for another file.
-	A4AF_SOURCE,
-	//! A source which has not yet been contacted.
-	UNAVAILABLE_SOURCE,
-	//! A source which is currently queued for this file.
-	AVAILABLE_SOURCE
-};
-
-
 // lfroen : custom events for core internal messages
 // 'cause - there's no wxCommand etc in wxBase
 enum Core_Event_ID 
@@ -80,8 +66,122 @@ enum HTTP_Download_File
 	//! The download is the version check file.
 	HTTP_VersionCheck,
 	//! The download is a notes.dat file (possibly compressed).
-	HTTP_NodesDat
+	HTTP_NodesDat,
+	//! The download is a GeoIP database file (possibly compressed).
+	HTTP_GeoIP
 };
+
+//! Source types for source showing list.
+enum SourceItemType
+{
+	//! A source which is currently queued for another file.
+	A4AF_SOURCE,
+	//! A source which has not yet been contacted.
+	UNAVAILABLE_SOURCE,
+	//! A source which is currently queued for this file.
+	AVAILABLE_SOURCE
+};
+
+//! Types of stat graphs
+enum StatsGraphType {
+	GRAPH_INVALID = 0,
+	GRAPH_DOWN,
+	GRAPH_UP,
+	GRAPH_CONN,
+	GRAPH_KAD
+};
+
+// KnownFile constants
+
+#define	PS_READY			0
+#define	PS_EMPTY			1
+#define PS_WAITINGFORHASH		2
+#define PS_HASHING			3
+#define PS_ERROR			4
+#define	PS_INSUFFICIENT			5
+#define	PS_UNKNOWN			6
+#define PS_PAUSED			7
+#define PS_COMPLETING			8
+#define PS_COMPLETE			9
+#define PS_ALLOCATING			10
+
+
+#define PR_VERYLOW			4 // I Had to change this because
+					  // it didn't save negative number
+					  // correctly.. Had to modify the
+					  // sort function for this change..
+#define PR_LOW				0 //*
+#define PR_NORMAL			1 // Don't change this - needed for
+					  // edonkey clients and server!
+#define PR_HIGH				2 //*
+#define PR_VERYHIGH			3
+#define PR_AUTO				5
+#define PR_POWERSHARE			6 //added for powershare (deltaHF)
+
+
+// CUpDownClient constants
+
+enum ESourceFrom {
+	SF_NONE,
+	SF_LOCAL_SERVER,
+	SF_REMOTE_SERVER,
+	SF_KADEMLIA,
+	SF_SOURCE_EXCHANGE,
+	SF_PASSIVE,
+	SF_LINK,
+	SF_SOURCE_SEEDS,
+	SF_SEARCH_RESULT
+};
+
+// downloadstate
+enum EDownloadState {
+	DS_DOWNLOADING = 0,
+	DS_ONQUEUE,
+	DS_CONNECTED,
+	DS_CONNECTING,
+	DS_WAITCALLBACK,
+	DS_WAITCALLBACKKAD,
+	DS_REQHASHSET,
+	DS_NONEEDEDPARTS,
+	DS_TOOMANYCONNS,
+	DS_TOOMANYCONNSKAD,
+	DS_LOWTOLOWIP,
+	DS_BANNED,
+	DS_ERROR,
+	DS_NONE,
+	DS_REMOTEQUEUEFULL  // not used yet, except in statistics
+};
+
+// uploadstate
+enum EUploadState {
+	US_UPLOADING = 0,
+	US_ONUPLOADQUEUE,
+	US_WAITCALLBACK,
+	US_CONNECTING,
+	US_PENDING,
+	US_LOWTOLOWIP,
+	US_BANNED,
+	US_ERROR,
+	US_NONE
+};
+
+// Obfuscation status
+enum EObfuscationState {
+	OBST_UNDEFINED = 0,
+	OBST_ENABLED,
+	OBST_SUPPORTED,
+	OBST_NOT_SUPPORTED,
+	OBST_DISABLED
+};
+
+// m_byChatstate
+enum {
+	MS_NONE = 0,
+	MS_CHATTING,
+	MS_CONNECTING,
+	MS_UNABLETOCONNECT
+};
+
 
 
 #endif

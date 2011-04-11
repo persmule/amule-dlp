@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -29,11 +29,8 @@
 #include <wx/event.h>	// Needed for wxEvent
 
 #include "Types.h"	// Needed for uint8, uint16 and uint32
-#include "RangeMap.h"	// Needed for CRangeMap
-
 
 class CIPFilterEvent;
-
 
 /**
  * This class represents a list of IPs that should not be accepted
@@ -64,7 +61,6 @@ public:
 	 * Note: IP2Test must be in anti-host order (BE on LE platform, LE on BE platform).
 	 */
 	bool	IsFiltered( uint32 IP2test, bool isServer = false );
-
 	
 	/**
 	 * Returns the number of banned ranges.
@@ -91,39 +87,45 @@ public:
 	 */
 	void	DownloadFinished(uint32 result);
 	
+	/**
+	 * True once initial startup has finished (stays true while reloading later).
+	 */
+	bool	IsReady() const { return m_ready; }
+	
+	/**
+	 * These functions are called to tell the filter to start networks once it 
+	 * has finished loading.
+	 */
+	void	StartKADWhenReady() { m_startKADWhenReady = true; }
+	void	ConnectToAnyServerWhenReady() { m_connectToAnyServerWhenReady = true; }
+	
 private:
 	/** Handles the result of loading the dat-files. */
 	void	OnIPFilterEvent(CIPFilterEvent&);
 	
-	/**
-	 * This structure is used to contain the range-data in the rangemap.
-	 */
-	struct rangeObject
-	{
-		bool operator==( const rangeObject& other ) const {
-			return AccessLevel == other.AccessLevel;
-		}
-
-// Since descriptions are only used for debugging messages, there 
-// is no need to keep them in memory when running a non-debug build.
-#ifdef __DEBUG__
-		//! Contains the user-description of the range.
-		wxString	Description;
-#endif
-		
-		//! The AccessLevel for this filter.
-		uint8		AccessLevel;
-	};
-
+	//! The URL from which the IP filter was downloaded
+	wxString m_URL;
 	
-	//! The is the type of map used to store the IPs.
-	typedef CRangeMap<rangeObject, uint32> IPMap;
-	
-	//! The map of IP-ranges
-	IPMap m_iplist;
+	// The IP ranges
+	typedef std::vector<uint32> RangeIPs;
+	RangeIPs m_rangeIPs;
+	typedef std::vector<uint16> RangeLengths;
+	RangeLengths m_rangeLengths;
+	// Name for each range. This usually stays empty for memory reasons,
+	// except if IP-Filter debugging is active.
+	typedef std::vector<std::string> RangeNames;
+	RangeNames m_rangeNames;
 
 	//! Mutex used to ensure thread-safety of this class
 	mutable wxMutex	m_mutex;
+
+	// false if loading (on startup only)
+	bool m_ready;
+	// flags to start networks after loading
+	bool m_startKADWhenReady;
+	bool m_connectToAnyServerWhenReady;
+	// should update be performed after filter is loaded ?
+	bool m_updateAfterLoading;
 
 	friend class CIPFilterEvent;
 	friend class CIPFilterTask;

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2004-2009 Angel Vidal Veiga ( kry@users.sourceforge.net )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Angel Vidal Veiga ( kry@users.sourceforge.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -49,7 +49,6 @@ enum ECSocketErrors {
 	EC_ERROR_WOULDBLOCK,
 	EC_ERROR_TIMEDOUT,
 	EC_ERROR_MEMERR,
-	EC_ERROR_DUMMY,
 	EC_ERROR_UNKNOWN
 };
 
@@ -69,10 +68,11 @@ class CECSocket{
 
 private:
 	static const unsigned int EC_SOCKET_BUFFER_SIZE = 2048;
+	static const unsigned int EC_HEADER_SIZE = 8;
 	const bool m_use_events;
 	
 	// Output related data
-	std::deque<CQueuedData *> m_output_queue;
+	std::list<CQueuedData *> m_output_queue;
 
 	// zlib (deflation) buffers
 	std::vector<unsigned char> m_in_ptr;
@@ -83,14 +83,16 @@ private:
 	// This transfer only
 	uint32_t m_rx_flags;
 	uint32_t m_tx_flags;
-	uint32_t m_my_flags;
 	size_t m_bytes_needed;
 	bool m_in_header;
 	
 	
 	uint32_t m_curr_packet_len;
 	z_stream m_z;
-	
+
+protected:
+	uint32_t m_my_flags;
+	bool m_haveNotificationSupport;
 public:
 	CECSocket(bool use_events);
 	virtual ~CECSocket();
@@ -99,6 +101,8 @@ public:
 
 	void CloseSocket() { InternalClose(); }
 
+	bool HaveNotificationSupport() const { return m_haveNotificationSupport; }
+		
 	/**
 	 * Sends an EC packet and returns immediately.
 	 *
@@ -149,7 +153,7 @@ public:
 	 * @note This function won't be called for packets received via the
 	 * SendRecvPacket() function.
 	 */
-	virtual const CECPacket *OnPacketReceived(const CECPacket *packet);
+	virtual const CECPacket *OnPacketReceived(const CECPacket *packet, uint32 trueSize);
 
 	/**
 	 * Get a message describing the error.
@@ -184,9 +188,7 @@ public:
 	/**
 	 * Event handler for connection events.
 	 *
-	 * This function is called when a connection attempt succeeds. When CECSocket
-	 * is compiled with ECSOCKET_USE_EVENTS == 0, WaitOnConnect() should be called
-	 * for this to work.
+	 * This function is called when a connection attempt succeeds.
 	 */
 	virtual void OnConnect();
 
@@ -199,6 +201,7 @@ public:
 	void SocketRead(void* ptr, size_t len) { InternalRead(ptr,len); }
 	void SocketWrite(const void* ptr, size_t len) { InternalWrite(ptr,len); }
 	bool SocketError() { return InternalError() && GotError(); }
+	bool SocketRealError();
 
 	size_t GetLastCount() { return InternalLastCount(); }
 	bool WaitSocketConnect(long secs = -1, long msecs = 0) { return InternalWaitOnConnect(secs,msecs); }
@@ -209,13 +212,15 @@ public:
 	
 	void DestroySocket() { return InternalDestroy(); }
 	
+	bool DataPending();
  private:
 	const CECPacket *ReadPacket();
-	void WritePacket(const CECPacket *packet);
+	uint32 WritePacket(const CECPacket *packet);
 
 	// These 4 methods are to be used by CECPacket & CECTag
 	bool	ReadNumber(void *buffer, size_t len);
 	bool	ReadBuffer(void *buffer, size_t len);
+	bool	ReadHeader();
 
 	bool	WriteNumber(const void *buffer, size_t len);
 	bool	WriteBuffer(const void *buffer, size_t len);
@@ -225,24 +230,29 @@ public:
 
 	size_t	ReadBufferFromSocket(void *buffer, size_t len);
 	void	WriteBufferToSocket(const void *buffer, size_t len);
-
+	
  	/* virtuals */
-		virtual bool InternalConnect(uint32_t ip, uint16_t port, bool wait) = 0;
+	virtual void WriteDoneAndQueueEmpty() = 0;
 	
-		virtual size_t InternalLastCount() = 0;
-		virtual bool InternalWaitOnConnect(long secs = -1, long msecs = 0) = 0;
-		virtual bool InternalWaitForWrite(long secs = -1, long msecs = 0) = 0;
-		virtual bool InternalWaitForRead(long secs = -1, long msecs = 0) = 0;
+	virtual bool InternalConnect(uint32_t ip, uint16_t port, bool wait) = 0;
+
+	virtual size_t InternalLastCount() = 0;
+	virtual bool InternalWaitOnConnect(long secs = -1, long msecs = 0) = 0;
+	virtual bool InternalWaitForWrite(long secs = -1, long msecs = 0) = 0;
+	virtual bool InternalWaitForRead(long secs = -1, long msecs = 0) = 0;
+
+	virtual int InternalGetLastError() = 0;
+
+	virtual void InternalClose() = 0;
+	virtual bool InternalError() = 0;
+	virtual void InternalRead(void* ptr, size_t len) = 0;
+	virtual void InternalWrite(const void* ptr, size_t len) = 0;
 	
-		virtual int InternalGetLastError() = 0;
-	
-		virtual void InternalClose() = 0;
-		virtual bool InternalError() = 0;
-		virtual void InternalRead(void* ptr, size_t len) = 0;
-		virtual void InternalWrite(const void* ptr, size_t len) = 0;
-		
-		virtual bool InternalIsConnected() = 0;
-		virtual void InternalDestroy() = 0;
+	virtual bool InternalIsConnected() = 0;
+	virtual void InternalDestroy() = 0;
+
+	// Was login succesfull ?
+	virtual bool IsAuthorized() { return true; }
 };
 
 

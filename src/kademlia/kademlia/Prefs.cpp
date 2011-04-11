@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -40,7 +40,6 @@ there client on the eMule forum..
 
 #include <common/MD5Sum.h>
 
-#include "Kademlia.h"
 #include "Indexed.h"
 #include "UDPFirewallTester.h"
 #include "../routing/RoutingZone.h"
@@ -49,6 +48,7 @@ there client on the eMule forum..
 #include "../../ServerList.h"
 #include "../../Logger.h"
 #include "../../ArchSpecific.h"
+#include "../../RandomFunctions.h"		// Needed for GetRandomUint128()
 
 
 ////////////////////////////////////////
@@ -72,7 +72,7 @@ CPrefs::~CPrefs()
 
 void CPrefs::Init(const wxString& filename)
 {
-	m_clientID.SetValueRandom();
+	m_clientID = GetRandomUint128();
 	m_lastContact = 0;
 	m_recheckip = 0;
 	m_firewalled = 0;
@@ -116,11 +116,11 @@ void CPrefs::ReadFile()
 			m_clientID = file.ReadUInt128();
 			// get rid of invalid kad IDs which may have been stored by older versions
 			if (m_clientID == 0)
-				m_clientID.SetValueRandom();
+				m_clientID = GetRandomUint128();
 			file.Close();
 		}
 	} catch (const CSafeIOException& e) {
-		AddDebugLogLineM(true, logKadPrefs, wxT("IO error while reading prefs: ") + e.what());
+		AddDebugLogLineC(logKadPrefs, wxT("IO error while reading prefs: ") + e.what());
 	}
 }
 
@@ -136,7 +136,7 @@ void CPrefs::WriteFile()
 			file.Close();
 		}
 	} catch (const CIOFailureException& e) {
-		AddDebugLogLineM(true, logKadPrefs, wxT("IO failure while saving kad-prefs: ") + e.what());
+		AddDebugLogLineC(logKadPrefs, wxT("IO failure while saving kad-prefs: ") + e.what());
 	}
 }
 
@@ -196,29 +196,21 @@ void CPrefs::SetKademliaFiles()
 	uint32_t nServerAverage = theApp->serverlist->GetAvgFile();
 	uint32_t nKadAverage = Kademlia::CKademlia::GetIndexed()->GetFileKeyCount();
 
-#ifdef __DEBUG__
-	wxString method;
-#endif
+	DEBUG_ONLY( wxString method; )
+
 	if (nServerAverage > nKadAverage) {
-#ifdef __DEBUG__
-		method = wxString::Format(wxT("Kad file estimate used Server avg(%u)"), nServerAverage);
-#endif
+		DEBUG_ONLY( method = CFormat(wxT("Kad file estimate used Server avg(%u)")) % nServerAverage; )
 		nKadAverage = nServerAverage;
+	} else {
+		DEBUG_ONLY( method = CFormat(wxT("Kad file estimate used Kad avg(%u)")) % nKadAverage; )
 	}
-#ifdef __DEBUG__
-	   else {
-		method = wxString::Format(wxT("Kad file estimate used Kad avg(%u)"), nKadAverage);
-	}
-#endif
+
 	if( nKadAverage < 108 ) {
-#ifdef __DEBUG__
-		method = wxString(wxT("Kad file estimate used default avg(108, min value)"));
-#endif
+		DEBUG_ONLY( method = wxString(wxT("Kad file estimate used default avg(108, min value)")); )
 		nKadAverage = 108;
 	}
-#ifdef ___DEBUG__
-	AddDebugLogLineM(false, logKadPrefs, method);
-#endif
+
+	AddDebugLogLineN(logKadPrefs, method);
 	m_kademliaFiles = nKadAverage * m_kademliaUsers;
 }
 
@@ -239,7 +231,7 @@ uint8_t CPrefs::GetMyConnectOptions(bool encryption, bool callback)
 	       | (thePrefs::IsClientCryptLayerSupported() && encryption) ? 0x01 : 0;
 }
 
-uint32_t CPrefs::GetUDPVerifyKey(uint32_t targetIP) throw()
+uint32_t CPrefs::GetUDPVerifyKey(uint32_t targetIP)
 {
 	uint64_t buffer = (uint64_t)thePrefs::GetKadUDPKey() << 32 | targetIP;
 	MD5Sum md5((const uint8_t *)&buffer, 8);
@@ -274,7 +266,8 @@ float CPrefs::StatsGetKadV8Ratio()
 		uint32_t nV8Contacts = 0;
 		uint32_t nNonV8Contacts = 0;
 		CKademlia::GetRoutingZone()->GetNumContacts(nV8Contacts, nNonV8Contacts, 8);
-		AddDebugLogLineM(false, logKadRouting, wxString::Format(wxT("Counted Kad V8 Contacts: %u out of %u in routing table. FirewalledRatios: UDP - %.02f%% | TCP - %.02f%%"), nV8Contacts, nNonV8Contacts + nV8Contacts, StatsGetFirewalledRatio(true) * 100, StatsGetFirewalledRatio(false) * 100));
+		AddDebugLogLineN(logKadRouting, CFormat(wxT("Counted Kad V8 Contacts: %u out of %u in routing table. FirewalledRatios: UDP - %.02f%% | TCP - %.02f%%"))
+			% nV8Contacts % (nNonV8Contacts + nV8Contacts) % (StatsGetFirewalledRatio(true) * 100) % (StatsGetFirewalledRatio(false) * 100));
 		if (nV8Contacts > 0) {
 			m_statsKadV8Ratio = ((float)nV8Contacts / (float)(nV8Contacts + nNonV8Contacts));
 		} else {
@@ -293,12 +286,12 @@ void CPrefs::SetExternKadPort(uint16_t port, uint32_t fromIP)
 			}
 		}
 		m_externPortIPs.push_back(fromIP);
-		AddDebugLogLineM(false, logKadPrefs, wxString::Format(wxT("Received possible external Kad port %u from "), port) + Uint32toStringIP(wxUINT32_SWAP_ALWAYS(fromIP)));
+		AddDebugLogLineN(logKadPrefs, CFormat(wxT("Received possible external Kad port %u from %s")) % port % KadIPToString(fromIP));
 		// if 2 out of 3 tries result in the same external port it's fine, otherwise consider it unreliable
 		for (unsigned i = 0; i < m_externPorts.size(); i++) {
 			if (m_externPorts[i] == port) {
 				m_externKadPort = port;
-				AddDebugLogLineM(false, logKadPrefs, wxString::Format(wxT("Set external Kad port to %u"), port));
+				AddDebugLogLineN(logKadPrefs, CFormat(wxT("Set external Kad port to %u")) % port);
 				while (m_externPortIPs.size() < EXTERNAL_PORT_ASKIPS) {
 					// add empty entries so we know the check has finished even if we asked less than max IPs
 					m_externPortIPs.push_back(0);
@@ -308,7 +301,7 @@ void CPrefs::SetExternKadPort(uint16_t port, uint32_t fromIP)
 		}
 		m_externPorts.push_back(port);
 		if (!FindExternKadPort(false)) {
-			AddDebugLogLineM(false, logKadPrefs, wxT("Our external port seems unreliable, not using it for firewallchecks"));
+			AddDebugLogLineN(logKadPrefs, wxT("Our external port seems unreliable, not using it for firewallchecks"));
 			m_externKadPort = 0;
 		}
 	}
@@ -317,7 +310,7 @@ void CPrefs::SetExternKadPort(uint16_t port, uint32_t fromIP)
 bool CPrefs::FindExternKadPort(bool reset)
 {
 	if (!reset) {
-		return m_externPortIPs.size() < EXTERNAL_PORT_ASKIPS;
+		return m_externPortIPs.size() < EXTERNAL_PORT_ASKIPS && !CKademlia::IsRunningInLANMode();
 	} else {
 		m_externPortIPs.clear();
 		m_externPorts.clear();

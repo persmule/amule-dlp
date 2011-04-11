@@ -1,37 +1,100 @@
-.TH AMULED 1 "2005 m�rcius" "aMule Daemon v2.0.0" "aMule Daemon"
-.SH N�V
-amuled \- a "minden\-platform" eMule p2p kliens \- d�moniz�lt v�ltozat
-.SH �TEKINT�S
-.B amuled
-.RB [ \-v ]
-.RB [ \-h ]
-.RB [ \-i ]
-.RB [ \-d ]
-.RB [ \-o ]
-.SH LE�R�S
-.TP
-\fB\-v\fR, \fB\-\-version\fR
-Megjelen�ti a verzi� inform�ci�t.
-.TP
-\fB\-h\fR, \fB\-\-help\fR
-Ezt a s�g�t jelen�ti meg.
-.TP
-\fB-i\fR, \fB\-\-enable\-stdin\fR
-Nem z�rja le a szabv�ny bemenetet (stdin).
-.TP
-\fB\-d\fR, \fB\-\-disable\-fatal\fR
-Nem kezeli a v�gzetes kiv�teleket.
-.TP
-\fB-o\fR, \fB\-\-log\-stdout\fR
-A szabv�ny kimenetre �rja a napl� �zeneteket.
-.SH F�JLOK
+.\"*******************************************************************
+.\"
+.\" This file was generated with po4a. Translate the source file.
+.\"
+.\"*******************************************************************
+.TH AMULED 1 "2010 Január" "aMule Daemon v2.3.0" "aMule Daemon"
+.als B_untranslated B
+.als RB_untranslated RB
+.SH NÉV
+amule \- a "minden\-platform" eMule p2p kliens \- démon változat
+.SH ÁTTEKINTÉS
+.B_untranslated amuled
+[\fB\-c\fP \fI<útvonal>\fP]
+.RB_untranslated [ \-f ]
+[\fB\-p\fP \fI<fájl>\fP]
+.RB_untranslated [ \-e ]
+.RB_untranslated [ \-o ]
+.RB_untranslated [ \-r ]
+[\fB\-w\fP \fI<fájl>\fP]
+.RB_untranslated [ \-d ]
+.RB_untranslated [ \-i ]
+[\fB\-t\fP \fI<num>\fP] [\fIeD2k\-link\fP]
+
+.B_untranslated amuled
+.RB_untranslated [ \-v ]
+
+.B_untranslated amuled
+.RB_untranslated [ \-h ]
+.SH LEÍRÁS
+.TP 
+\fB[ \-c\fP \fI<útvonal>\fP, \fB\-\-config\-dir\fP=\fI<útvonal>\fP \fB]\fP
+A beállításokat az \fI<útvonal>\fP\-ból olvassa az alapértelmezett
+helyett.
+.TP 
+.B_untranslated [ \-f\fR, \fB\-\-full\-daemon ]\fR
+Háttérbe vonul.
+.TP 
+\fB[ \-p\fP \fI<fájl>\fP, \fB\-\-pid\-file\fP=\fI<fájl>\fP \fB]\fP
+A háttérbe vonulás után hozzon létre egy pid\-fájlt.
+.TP 
+.B_untranslated [ \-e\fR, \fB\-\-ec\-config ]\fR
+A távoli elérés beállítása.
+.TP 
+.B_untranslated [ \-o\fR, \fB\-\-log\-stdout ]\fR
+A napló bejegyzéseket a szabvány kimenetre írja.
+.TP 
+.B_untranslated [ \-r\fR, \fB\-\-reset\-config ]\fR
+Beállítások visszaállítása az alapértelmezett értékekre.
+.TP 
+\fB[ \-w\fP \fI<fájl>\fP, \fB\-\-use\-amuleweb\fP=\fI<fájl>\fP \fB]\fP
+Az amuleweb programnak \fI<fájl>\fP\-t fogja használni.
+.TP 
+.B_untranslated [ \-d\fR, \fB\-\-disable\-fatal ]\fR
+Nem kezeli a végzetes kivételeket.
+.TP 
+.B_untranslated [ \-i\fR, \fB\-\-enable\-stdin ]\fR
+Nem zárja le a szabvány bemenetet.
+.TP 
+\fB[ \-t\fP, \fB\-\-category\fP=\fI<szám>\fP \fB]\fP
+A megadott eD2k hivatkozást a \fI<szám>\fP\-adik kategóriába tölti.
+.TP 
+.B_untranslated [ \-v\fR, \fB\-\-version ]\fR
+Megjeleníti a verziószámot.
+.TP 
+.B_untranslated [ \-h\fR, \fB\-\-help ]\fR
+Egy rövid használati leírást jelenít meg.
+.TP 
+\fB[ eD2k\-link ]\fP
+eD2k hivatkozás letöltése.
+.PP
+Az eD2k hivatkozás a következő lehet:
+.RS 3
+.IP \(bu 2
+egy fájl hivatkozás (ed2k://|file|...), ez a letöltési sorhoz lesz
+hozzáadva;
+.IP \(bu 2
+egy kiszolgáló hivatkozás (ed2k://|server|...), ez a kiszolgáló\-listához
+lesz hozzáadva;
+.IP \(bu 2
+egy kiszolgáló\-lista hivatkozás, mely esetben a listában szereplő összes
+kiszolgáló a kiszolgáló\-listához adódik;
+.IP \(bu 2
+egy magnet hivatkozás.
+.RE
+.SH FÁJLOK
 ~/.aMule/*
-.SH HIB�K JELENT�SE
-A hib�kat k�rj�k vagy a f�rumon (\fIhttp://forum.amule.org/\fR), vagy a hibak�vet�ben (\fIhttp://bugs.amule.org/\fR) jelents�k.
-Hib�kr�l k�rj�k ne �rjanak levelet (e-mail-t) se a levelz�si list�ra, se k�zvetlen�l valamelyik fejleszt�nek.
+.SH "HIBÁK JELENTÉSE"
+A hibákat kérjük vagy a fórumon (\fIhttp://forum.amule.org/\fP), vagy a
+hibakövetőben (\fIhttp://bugs.amule.org/\fP) jelentsék. Hibákról kérjük ne
+írjanak levelet (e\-mail\-t) se a levelezési listára, se közvetlenül
+valamelyik fejlesztőnek.
 .SH COPYRIGHT
-Az aMule �s az �sszes hozz� tartoz� seg�dprogram a GNU General Public Licence v�delme alatt �ll.
-.SH L�SD M�G
-\fBalcc\fR(1), \fBamule\fR(1), \fBamulecmd\fR(1), \fBamulegui\fR(1), \fBamuleweb\fR(1), \fBcas\fR(1), \fBed2k\fR(1)
-.SH MAGYAR FORD�T�S
-D�vai Tam�s <gonosztopi@amule.org>
+Az aMule és az összes hozzá tartozó segédprogram a GNU General Public
+License védelme alatt áll.
+.SH "LÁSD MÉG"
+.B_untranslated alcc\fR(1), \fBamule\fR(1), \fBamulecmd\fR(1), \fBamulegui\fR(1), \fBamuleweb\fR(1), \fBcas\fR(1), \fBed2k\fR(1)
+.SH SZERZŐ
+Ezt a kézikönyv lapot Vollstrecker <amule@vollstreckernet.de> írta.
+.SH MAGYAR FORDÍTÁS
+Dévai Tamás <gonosztopi@amule.org>

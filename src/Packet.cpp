@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -29,6 +29,7 @@
 
 #include <protocol/Protocols.h>
 
+#include "Logger.h"			// Neeed for AddDebugLogLineN
 #include "MemFile.h"			// Needed for CMemFile
 #include "OtherStructs.h"		// Needed for Header_Struct
 #include "ArchSpecific.h"		// Needed for ENDIAN_*
@@ -76,7 +77,7 @@ CPacket::CPacket(uint8 protocol)
 }
 
 // only used for receiving packets
-CPacket::CPacket(byte* rawHeader)
+CPacket::CPacket(byte* rawHeader, byte *buf)
 {
 	memset(head, 0, sizeof head);
 	Header_Struct* header = (Header_Struct*)rawHeader;
@@ -89,7 +90,7 @@ CPacket::CPacket(byte* rawHeader)
 	m_bFromPF 	= false;
 	tempbuffer	= NULL;
 	completebuffer 	= NULL;
-	pBuffer 	= NULL;
+	pBuffer 	= buf;
 }
 
 CPacket::CPacket(const CMemFile& datafile, uint8 protocol, uint8 ucOpcode)
@@ -165,10 +166,13 @@ CPacket::~CPacket()
 	}
 }
 
-void CPacket::AllocDataBuffer(void)
+uint32 CPacket::GetPacketSizeFromHeader(const byte* rawHeader)
 {
-	wxASSERT(completebuffer == NULL);
-	pBuffer = new byte[size + 1];
+	Header_Struct* header = (Header_Struct*)rawHeader;
+	uint32 size = ENDIAN_SWAP_32(header->packetlength);
+	if (size < 1 || size >= 0x7ffffff0u)
+		return 0;
+	return size - 1;
 }
 
 void CPacket::CopyToDataBuffer(unsigned int offset, const byte* data, unsigned int n)
@@ -269,7 +273,13 @@ void CPacket::PackPacket()
 
 
 bool CPacket::UnPackPacket(uint32 uMaxDecompressedSize) {
-	wxASSERT( prot == OP_PACKEDPROT );
+	wxASSERT( prot == OP_PACKEDPROT || prot == OP_ED2KV2PACKEDPROT);
+	// OP_ED2KV2PACKEDPROT is experimental aMule test code,
+	// this should not happen yet. Leave a warining in the log.
+	if (prot == OP_ED2KV2PACKEDPROT) {
+		AddDebugLogLineN(logPacketErrors,
+			wxT("Received OP_ED2KV2PACKEDPROT."));
+	}
 
 	uint32 nNewSize = size * 10 + 300;
 

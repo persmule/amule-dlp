@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2008-2009 Dévai Tamás ( gonosztopi@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2008-2011 Dévai Tamás ( gonosztopi@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -26,23 +26,65 @@
 #include "KadFiles.h"
 #include "Print.h"
 #include "../../SafeFile.h"
+#include "../../kademlia/kademlia/SearchManager.h"	// for CSearchManager::GetInvalidKeywordChars()
+#include <wx/tokenzr.h>
 
 void DecodePreferencesKadDat(const CFileDataIO& file)
 {
-	DoPrint(wxT("IP      : ")); Print(CKadIP(file.ReadUInt32())); DoPrint(wxT("\n"));
-	DoPrint(wxT("(unused): ")); Print(file.ReadUInt16()); DoPrint(wxT("\n"));
-	DoPrint(wxT("ClientID: ")); Print(file.ReadUInt128()); DoPrint(wxT("\n"));
+	cout << "IP      : " << CKadIP(file.ReadUInt32()) << '\n';
+	cout << "(unused): " << file.ReadUInt16() << '\n';
+	cout << "ClientID: " << file.ReadUInt128() << '\n';
 }
 
 void DecodeLoadIndexDat(const CFileDataIO& file)
 {
-	DoPrint(wxT("Version   : ")); Print(file.ReadUInt32()); DoPrint(wxT("\n"));
-	DoPrint(wxT("(savetime): ")); Print((time_t)file.ReadUInt32()); DoPrint(wxT("\n"));
+	cout << "Version   : " << file.ReadUInt32();
+	cout << "\n(savetime): " << CTimeT(file.ReadUInt32());
 	uint32_t numLoad = file.ReadUInt32();
-	DoPrint(wxT("numLoad   : ")); Print(numLoad); DoPrint(wxT("\n"));
+	cout << "\nnumLoad   : " << numLoad << '\n';
 	for (uint32_t i = 0; i < numLoad; i++) {
-		DoPrint(wxString::Format(wxT("\t: { "), i)); Print(file.ReadUInt128()); DoPrint(wxT(", ")); Print((time_t)file.ReadUInt32()); DoPrint(wxT(" }\n"));
+		cout << "\t{ " << file.ReadUInt128();
+		cout << ", " << CTimeT(file.ReadUInt32()) << " }\n";
 	}
+}
+
+// from Kademlia.cpp
+#include "../../CryptoPP_Inc.h"
+void KadGetKeywordHash(const wxString& rstrKeyword, Kademlia::CUInt128* pKadID)
+{
+	byte Output[16];
+#ifdef CRYPTOPP_ENABLE_NAMESPACE_WEAK
+	CryptoPP::Weak::MD4 md4_hasher;
+#else
+	CryptoPP::MD4 md4_hasher;
+#endif
+
+	// This should be safe - we assume rstrKeyword is ANSI anyway.
+	Unicode2CharBuf ansi_buffer(unicode2UTF8(rstrKeyword));
+	
+	md4_hasher.CalculateDigest(Output, (const byte *) (const char *) ansi_buffer, strlen(ansi_buffer));
+	
+	pKadID->SetValueBE(Output);
+}
+
+// code from CSearchManager::GetWords(const wxString& str, WordList *words)
+bool IdentifyKeyword(const Kademlia::CUInt128& keyID, const wxString& str, wxString& keyword)
+{
+	wxStringTokenizer tkz(str, Kademlia::CSearchManager::GetInvalidKeywordChars());
+	while (tkz.HasMoreTokens()) {
+		wxString current_word = tkz.GetNextToken();
+		
+		if (current_word.Length() > 2) {
+			current_word.MakeLower();
+			Kademlia::CUInt128 currentID;
+			KadGetKeywordHash(current_word, &currentID);
+			if (currentID == keyID) {
+				keyword = current_word;
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 void DecodeKeyIndexDat(const CFileDataIO& file)
@@ -53,39 +95,44 @@ void DecodeKeyIndexDat(const CFileDataIO& file)
 	uint32_t numName;
 	uint8_t tagCount;
 
-	DoPrint(wxT("Version : ")); Print(version = file.ReadUInt32()); DoPrint(wxT("\n"));
-	DoPrint(wxT("SaveTime: ")); Print((time_t)file.ReadUInt32()); DoPrint(wxT("\n"));
-	DoPrint(wxT("ID      : ")); Print(file.ReadUInt128()); DoPrint(wxT("\n"));
-	DoPrint(wxT("numKeys : ")); Print(numKeys = file.ReadUInt32()); DoPrint(wxT("\n"));
+	cout << "Version : " << (version = file.ReadUInt32());
+	cout << "\nSaveTime: " << CTimeT(file.ReadUInt32());
+	cout << "\nID      : " << file.ReadUInt128();
+	cout << "\nnumKeys : " << (numKeys = file.ReadUInt32()) << '\n';
 	for (uint32_t ik = 0; ik < numKeys; ik++) {
-		DoPrint(wxT("\tKeyID    : ")); Print(file.ReadUInt128()); DoPrint(wxT("\n"));
-		DoPrint(wxT("\tnumSource: ")); Print(numSource = file.ReadUInt32()); DoPrint(wxT("\n"));
+		Kademlia::CUInt128 keyID = file.ReadUInt128();
+		bool identified = false;
+		cout << "\tKeyID    : " << keyID;
+		cout << "\n\tnumSource: " << (numSource = file.ReadUInt32()) << '\n';
 		for (uint32_t is = 0; is < numSource; is++) {
-			DoPrint(wxT("\t\tSourceID: ")); Print(file.ReadUInt128()); DoPrint(wxT("\n"));
-			DoPrint(wxT("\t\tnumName : ")); Print(numName = file.ReadUInt32()); DoPrint(wxT("\n"));
+			cout << "\t\tSourceID: " << file.ReadUInt128();
+			cout << "\n\t\tnumName : " << (numName = file.ReadUInt32()) << '\n';
 			for (uint32_t iN = 0; iN < numName; iN++) {
-				DoPrint(wxT("\t\t\tLifeTime : ")); Print((time_t)file.ReadUInt32()); DoPrint(wxT("\n"));
+				cout << "\t\t\tLifeTime : " <<  CTimeT(file.ReadUInt32()) << '\n';
 				if (version >= 3) {
 					uint32_t count;
-					DoPrint(wxT("\t\t\tnameCount: ")); Print(count = file.ReadUInt32()); DoPrint(wxT("\n"));
+					cout << "\t\t\tnameCount: " << (count = file.ReadUInt32()) << '\n';
 					for (uint32_t i = 0; i < count; i++) {
-						DoPrint(wxT("\t\t\t\t{ ")); Print(file.ReadString(true, 2)); DoPrint(wxT(", "));
-						Print(file.ReadUInt32()); DoPrint(wxT(" }\n"));
+						wxString name = file.ReadString(true, 2);
+						cout << "\t\t\t\t{ " << MakePrintableString(name);
+						cout << ", " << file.ReadUInt32() << " }\n";
+						wxString keyword;
+						if (!identified && IdentifyKeyword(keyID, name, keyword)) {
+							cout << "\tKeyword: " << MakePrintableString(keyword) << '\n';
+							identified = true;
+						}
 					}
-					DoPrint(wxT("\t\t\tipCount : ")); Print(count = file.ReadUInt32()); DoPrint(wxT("\n"));
+					cout << "\t\t\tipCount  : " << (count = file.ReadUInt32()) << '\n';
 					for (uint32_t i = 0; i < count; i++) {
-						DoPrint(wxT("\t\t\t\t{ ")); Print(CKadIP(file.ReadUInt32())); DoPrint(wxT(", "));
-						Print((time_t)file.ReadUInt32());
-						DoPrint(wxT(" }\n"));
+						cout << "\t\t\t\t{ " << CKadIP(file.ReadUInt32());
+						cout << ", " << CTimeT(file.ReadUInt32()) << " }\n";
 					}
 				}
-				DoPrint(wxT("\t\t\ttagCount: ")); Print(tagCount = file.ReadUInt8()); DoPrint(wxT("\n"));
+				cout << "\t\t\ttagCount : " << (uint32)(tagCount = file.ReadUInt8()) << '\n';
 				for (uint32_t it = 0; it < tagCount; it++) {
-					DoPrint(wxT("\t\t\t\t"));
 					CTag *tag = file.ReadTag();
-					Print(*tag);
+					cout << "\t\t\t\t" << *tag << '\n';
 					delete tag;
-					DoPrint(wxT("\n"));
 				}
 			}
 		}
@@ -99,24 +146,22 @@ void DecodeSourceIndexDat(const CFileDataIO& file)
 	uint32_t numName;
 	uint8_t tagCount;
 
-	DoPrint(wxT("Version : ")); Print(file.ReadUInt32()); DoPrint(wxT("\n"));
-	DoPrint(wxT("SaveTime: ")); Print((time_t)file.ReadUInt32()); DoPrint(wxT("\n"));
-	DoPrint(wxT("numKeys : ")); Print(numKeys = file.ReadUInt32()); DoPrint(wxT("\n"));
+	cout << "Version : " << file.ReadUInt32();
+	cout << "\nSaveTime: " << CTimeT(file.ReadUInt32());
+	cout << "\nnumKeys : " << (numKeys = file.ReadUInt32()) << '\n';
 	for (uint32_t ik = 0; ik < numKeys; ik++) {
-		DoPrint(wxT("\tKeyID    : ")); Print(file.ReadUInt128()); DoPrint(wxT("\n"));
-		DoPrint(wxT("\tnumSource: ")); Print(numSource = file.ReadUInt32()); DoPrint(wxT("\n"));
+		cout << "\tKeyID    : " << file.ReadUInt128();
+		cout << "\n\tnumSource: " << (numSource = file.ReadUInt32()) << '\n';
 		for (uint32_t is = 0; is < numSource; is++) {
-			DoPrint(wxT("\t\tSourceID: ")); Print(file.ReadUInt128()); DoPrint(wxT("\n"));
-			DoPrint(wxT("\t\tnumName : ")); Print(numName = file.ReadUInt32()); DoPrint(wxT("\n"));
+			cout << "\t\tSourceID: " << file.ReadUInt128();
+			cout << "\n\t\tnumName : " << (numName = file.ReadUInt32()) << '\n';
 			for (uint32_t iN = 0; iN < numName; iN++) {
-				DoPrint(wxT("\t\t\tLifeTime: ")); Print((time_t)file.ReadUInt32()); DoPrint(wxT("\n"));
-				DoPrint(wxT("\t\t\ttagCount: ")); Print(tagCount = file.ReadUInt8()); DoPrint(wxT("\n"));
+				cout << "\t\t\tLifeTime: " << CTimeT(file.ReadUInt32());
+				cout << "\n\t\t\ttagCount: " << (tagCount = file.ReadUInt8()) << '\n';
 				for (uint32_t it = 0; it < tagCount; it++) {
-					DoPrint(wxT("\t\t\t\t"));
 					CTag *tag = file.ReadTag();
-					Print(*tag);
+					cout << "\t\t\t\t" << *tag << '\n';
 					delete tag;
-					DoPrint(wxT("\n"));
 				}
 			}
 		}
@@ -128,28 +173,32 @@ void DecodeNodesDat(const CFileDataIO& file)
 	uint32_t numContacts = file.ReadUInt32();
 	uint32_t fileVersion = 0;
 
-	DoPrint(wxT("NumContacts #1: ")); Print(numContacts); DoPrint(wxT("\n"));
+	cout << "NumContacts #1  : " << numContacts << '\n';
 	if (numContacts == 0) {
-		DoPrint(wxT("FileVersion   : ")); Print(fileVersion = file.ReadUInt32()); DoPrint(wxT("\n"));
-		if (fileVersion >= 1) {
-			DoPrint(wxT("NumContacts #2: ")); Print(numContacts = file.ReadUInt32()); DoPrint(wxT("\n"));
+		cout << "FileVersion     : " << (fileVersion = file.ReadUInt32()) << '\n';
+		if (fileVersion == 3) {
+			cout << "BootstrapEdition: " << file.ReadUInt32() << '\n';
+		}
+		if (fileVersion >= 1 && fileVersion <= 3) {
+			cout << "NumContacts #2  : " << (numContacts = file.ReadUInt32()) << '\n';
 		}
 	}
 	for (uint32_t i = 0; i < numContacts; i++) {
-		DoPrint(wxT("\t{ "));
-		Print(file.ReadUInt128()); DoPrint(wxT(", "));
-		Print(CKadIP(file.ReadUInt32())); DoPrint(wxT(", "));
-		Print(file.ReadUInt16()); DoPrint(wxT(", "));
-		Print(file.ReadUInt16()); DoPrint(wxT(", "));
-		Print(file.ReadUInt8());
-		if (fileVersion >= 2) {
-			DoPrint(wxT(", { "));
-			PrintHex(file.ReadUInt32());
-			DoPrint(wxT(", "));
-			Print(CKadIP(file.ReadUInt32()));
-			DoPrint(wxT(" }, "));
-			Print(file.ReadUInt8() != 0);
+		cout << wxString::Format(wxT("#%u\tID       : "), i) << file.ReadUInt128();
+		cout << "\n\tIP       : " << CKadIP(file.ReadUInt32());
+		cout << "\n\tUDP Port : " << file.ReadUInt16();
+		cout << "\n\tTCP Port : " << file.ReadUInt16();
+		if (fileVersion >= 1) {
+			cout << "\n\tVersion  : ";
+		} else {
+			cout << "\n\tType     : ";
 		}
-		DoPrint(wxT(" }\n"));
+		cout << (unsigned)file.ReadUInt8();
+		if (fileVersion >= 2) {
+			cout << "\n\tUDP Key  : { " << hex(file.ReadUInt32());
+			cout << ", " << CKadIP(file.ReadUInt32());
+			cout << " }\n\tVerified : " << (file.ReadUInt8() != 0 ? "true" : "false");
+		}
+		cout << '\n';
 	}
 }

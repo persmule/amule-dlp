@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -55,12 +55,11 @@
 
 #define	MIN_UP_CLIENTS_ALLOWED			2	// min. clients allowed to download regardless UPLOAD_CLIENT_DATARATE or any other factors. Don't set this too high
 
-#define	SOURCEEXCHANGE2_VERSION			4		// replaces the version sent in MISC_OPTIONS flag fro SX1
+#define	SOURCEEXCHANGE2_VERSION			4		// replaces the version sent in MISC_OPTIONS flag from SX1
 
 // MOD Note: end
 
 #define	MAXCONPER5SEC				20
-#define	UPLOAD_CLIENT_DATARATE			3072
 #define	MAX_UP_CLIENTS_ALLOWED			250	// max. clients allowed regardless UPLOAD_CLIENT_DATARATE or any other factors. Don't set this too low, use DATARATE to adjust uploadspeed per client
 #define	DOWNLOADTIMEOUT				100000
 #define	CONSERVTIMEOUT				25000	// agelimit for pending connection attempts
@@ -75,18 +74,10 @@
 #define	CLIENTLIST_CLEANUP_TIME	MIN2MS(34)	// 34 min
 
 // (4294967295/PARTSIZE)*PARTSIZE = ~4GB
-#ifdef _MSC_VER
-#define OLD_MAX_FILE_SIZE 4290048000ui64
-#else
 #define OLD_MAX_FILE_SIZE 4290048000ull
-#endif
 
 // = 2^38 = 256GB
-#ifdef _MSC_VER
-	#define MAX_FILE_SIZE 0x4000000000ui64
-#else
-	#define MAX_FILE_SIZE 0x4000000000ull
-#endif
+#define MAX_FILE_SIZE 0x4000000000ull
 
 const uint64 PARTSIZE		= 9728000ull;
 const uint32 BLOCKSIZE		= 184320u;

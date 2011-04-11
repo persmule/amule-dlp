@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -31,9 +31,11 @@
 
 class CKnownFile;
 class CSharedFilesCtrl;
+class CSharedFilePeersListCtrl;
 class wxListEvent;
 class wxGauge;
-
+class wxSplitterEvent;
+class wxRadioBox;
 
 /**
  * This class represents the window containing the list of shared files.
@@ -66,9 +68,21 @@ public:
 	 */
 	void RemoveAllSharedFiles();
 
+	/**
+	 * Call this function before displaying the dialog.
+	 *
+	 * This functions does a few tasks to ensure that the dialog is looking the right way.
+	 */
+	void	Prepare();
+
 	//! Pointer to the widget containing the list of shared files.
 	CSharedFilesCtrl* sharedfilesctrl;
-
+	
+	//! Pointer to the list of clients.
+	CSharedFilePeersListCtrl*	peerslistctrl;
+	
+	//! Contains the current (or last if the clientlist is hidden) position of the splitter.
+	int m_splitter;
 private:
 	/**
 	 * Event-handler for reloading the list of shared files.
@@ -76,10 +90,24 @@ private:
 	void OnBtnReloadShared(wxCommandEvent &evt);
 
 	/**
-	 * Event-handler for showing details about a shared file.
+	 * Event-handler for showing details about a shared file(s).
 	 */
-	void OnItemActivated(wxListEvent& evt);
+	void OnItemSelectionChanged(wxListEvent& evt);
 
+	/**
+	 * Event-handler for the list-toggle button.
+	 */
+	void OnToggleClientList( wxCommandEvent& event );
+
+	/**
+	 * Event-handler for changes in the sash divider position.
+	 */
+	void OnSashPositionChanging(wxSplitterEvent& evt);
+
+	/**
+	 * Event-handler for changes in the clients mode radio box.
+	 */
+	void OnSelectClientsMode( wxCommandEvent& WXUNUSED(evt) );
 
 	//! Pointer to the gauge used for showing requests ratio.
 	wxGauge* m_bar_requests;
@@ -87,6 +115,22 @@ private:
 	wxGauge* m_bar_accepted;
 	//! Pointer to the gauge used for showing the transferred ratio.
 	wxGauge* m_bar_transfer;
+	//! Pointer to the radio box selecting the client mode.
+	wxRadioBox* m_radioClientMode;
+	//! Flag if window has been prepared
+	bool	m_prepared;
+	//! Minimum position of splitter bar
+	static const int s_splitterMin = 90;
+
+	/**
+	 * Mode which clients are shown
+	 */
+	enum EClientShow {
+		ClientShowAll = 0,
+		ClientShowSelected,
+		ClientShowUploading
+	};
+	EClientShow m_clientShow;
 
 	
 	DECLARE_EVENT_TABLE()

@@ -1,9 +1,9 @@
 //								-*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2008-2009 Dévai Tamás ( gonosztopi@amule.org )
-// Copyright (c) 2008-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002-2008 Merkur ( strEmail.Format("%s@%s", "devteam", "emule-project.net") / http://www.emule-project.net )
+// Copyright (c) 2008-2011 Dévai Tamás ( gonosztopi@amule.org )
+// Copyright (c) 2008-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -27,6 +27,7 @@
 #ifndef KADEMLIA_KADEMLIA_UDPFIREWALLTESTER_H
 #define KADEMLIA_KADEMLIA_UDPFIREWALLTESTER_H
 
+#include "Kademlia.h"
 #include "../routing/Contact.h"
 #include <list>
 
@@ -49,8 +50,8 @@ class CUDPFirewallTester
 	static bool	IsFirewalledUDP(bool lastStateIfTesting); // Are we UDP firewalled - if unknown open is assumed unless onlyVerified == true
 	static void	SetUDPFWCheckResult(bool succeeded, bool testCancelled, uint32_t fromIP, uint16_t incomingPort);
 	static void	ReCheckFirewallUDP(bool setUnverified);
-	static bool	IsFWCheckUDPRunning() throw()		{ return m_fwChecksFinishedUDP < UDP_FIREWALLTEST_CLIENTSTOASK; }
-	static bool	IsVerified() throw()			{ return m_isFWVerifiedUDP; }
+	static bool	IsFWCheckUDPRunning() throw()		{ return m_fwChecksFinishedUDP < UDP_FIREWALLTEST_CLIENTSTOASK && !CKademlia::IsRunningInLANMode(); }
+	static bool	IsVerified() throw()			{ return m_isFWVerifiedUDP || CKademlia::IsRunningInLANMode(); }
 
 	static void	AddPossibleTestContact(const CUInt128& clientID, uint32_t ip, uint16_t port, uint16_t tport, const CUInt128& target, uint8_t version, const CKadUDPKey& udpKey, bool ipVerified)
 	{
@@ -83,10 +84,6 @@ class CUDPFirewallTester
 	static PossibleClientList m_possibleTestClients;
 	static UsedClientList	m_usedTestClients;
 };
-
-#ifndef need_UDP_FIREWALLTEST_CLIENTSTOASK
-#	undef UDP_FIREWALLTEST_CLIENTSTOASK
-#endif
 
 } // namespace Kademlia
 

@@ -1,8 +1,8 @@
 //
 // MuleUnit: A minimalistic C++ Unit testing framework based on EasyUnit.
 //
-// Copyright (c) 2005-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (C) 2004 Barthelemy Dagenais (barthelemy@prologique.com)
+// Copyright (c) 2005-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Barthelemy Dagenais ( barthelemy@prologique.com )
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -60,8 +60,7 @@ const wxString& TestCase::getName() const
 
 bool TestCase::run()
 {
-	Printf(wxT("\nRunning test-collection \"%s\" with %u test-cases:"),
-		m_name.c_str(), m_tests.size());
+	Print(wxT("\nRunning test-collection \"") + m_name + wxString::Format(wxT("\" with %u test-cases:"), m_tests.size()));
 
 	bool failures = false;
 	
@@ -69,7 +68,7 @@ bool TestCase::run()
 	for (; it != m_tests.end(); ++it) {
 		Test* test = *it;
 		
-		Printf(wxT("\tTest \"%s\" "), test->getTestName().c_str());
+		Print(wxT("\tTest \"") + test->getTestName() + wxT("\" "));
 
 		bool wasSetup = false;
 		try {
@@ -77,7 +76,7 @@ bool TestCase::run()
 			wasSetup = true;
 		} catch (const CTestFailureException& e) {
 			failures = true;
-			Printf(wxT("\t\tFailure in setUp:\n"));
+			Print(wxT("\t\tFailure in setUp:\n"));
 			e.PrintBT();
 		}
 
@@ -88,7 +87,7 @@ bool TestCase::run()
 				test->run();
 			} catch (const CTestFailureException& e) {
 				failures = true;
-				Printf(wxT("\t\tFailure running:"));
+				Print(wxT("\t\tFailure running:"));
 				e.PrintBT();
 			}
 		}
@@ -97,7 +96,7 @@ bool TestCase::run()
 			test->tearDown();
 		} catch (const CTestFailureException& e) {
 			failures = true;
-			Printf(wxT("\t\tFailure in tearDown:"));
+			Print(wxT("\t\tFailure in tearDown:"));
 			e.PrintBT();
 		}
 	}

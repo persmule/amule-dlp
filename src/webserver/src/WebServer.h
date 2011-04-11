@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 Kry ( elkry@users.sourceforge.net / http://www.amule.org )
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -35,6 +35,7 @@
 #include "KnownFile.h"
 #include "RLE.h"
 #include "OtherStructs.h"
+#include <ec/cpp/ECID.h>	// Needed for CECID
 
 #ifdef ENABLE_UPNP
 #	include "UPnPBase.h"
@@ -42,19 +43,19 @@
 
 #include <wx/datetime.h>  // For DownloadFile::wxtLastSeenComplete
 
-//class TransferredData;
-class CWSThread;
+#ifdef _MSC_VER
+#define strncasecmp _strnicmp
+#define snprintf sprintf_s
+#define atoll _atoi64
+#define strdup _strdup
+#endif
+
 class CWebSocket;
 class CMD4Hash;
 
 #define SESSION_TIMEOUT_SECS	300	// 5 minutes session expiration
 #define SHORT_FILENAME_LENGTH	40	// Max size of file name.
 
-//
-//uint8 GetHigherPrio(uint32 prio, bool autoprio);
-//uint8 GetHigherPrioShared(uint32 prio, bool autoprio);
-//uint8 GetLowerPrio(uint32 prio, bool autoprio);
-//uint8 GetLowerPrioShared(uint32 prio, bool autoprio);
 wxString _SpecialChars(wxString str);
 
 class CEC_PartFile_Tag;
@@ -64,7 +65,13 @@ class CEC_SearchFile_Tag;
 class CProgressImage;
 class CEC_KadNode_Tag;
 
-class DownloadFile {
+class CURLDecoder
+{
+      public:
+	static wxString	Decode(const wxString& url);
+};
+
+class DownloadFile : public CECID {
 	public:
 		wxString	sFileName;
 		uint8		nFileStatus;
@@ -88,16 +95,18 @@ class DownloadFile {
 		
 		CProgressImage *m_Image;
 		PartFileEncoderData m_Encoder;
+		ArrayOfUInts16 m_PartInfo;
 		std::vector<Gap_Struct> m_ReqParts;
+		ArrayOfUInts64	m_Gaps;
 
 		// container require this		
 		static class DownloadFileInfo *GetContainerInstance();
 		DownloadFile(CEC_PartFile_Tag *);
 		void ProcessUpdate(CEC_PartFile_Tag *);
-		CMD4Hash ID() { return nHash; }
+		uint32 ID() { return ECID(); }
 };
 
-class SharedFile {
+class SharedFile : public CECID {
 	public:
 		wxString	sFileName;
 		uint64		lFileSize;
@@ -117,7 +126,7 @@ class SharedFile {
 		static class SharedFileInfo *GetContainerInstance();
 		SharedFile(CEC_SharedFile_Tag *);
 		void ProcessUpdate(CEC_SharedFile_Tag *);
-		CMD4Hash ID() { return nHash; }
+		uint32 ID() { return ECID(); }
 };
 
 class ServerEntry {
@@ -135,26 +144,25 @@ class ServerEntry {
 		uint32 ID() { return nServerIP; }
 };
 
-class UploadFile {
+// This is a client we are uploading to, not a file
+class UploadFile : public CECID {
 	public:
 		wxString  sUserName;
 		uint32 nTransferredUp;
 		uint32 nTransferredDown;
 		uint32 nSpeed;
-		//
-		// Don't need filename - sharedfiles already have it
-		CMD4Hash  nHash;
+		uint32 nUploadFile;		// ECID of shared file uploading to client
 
 		UploadFile(CEC_UpDownClient_Tag *tag);
 		
 		static class UploadsInfo *GetContainerInstance();
-		CMD4Hash ID() { return nHash; }
+		uint32 ID() { return ECID(); }
 };
 
-class SearchFile {
+class SearchFile : public CECID {
 	public:
 		wxString sFileName;
-		unsigned long lFileSize;
+		uint64 lFileSize;
 		CMD4Hash  nHash;
 		wxString  sHash;
 		long lSourceCount;
@@ -164,7 +172,7 @@ class SearchFile {
 		
 		void ProcessUpdate(CEC_SearchFile_Tag *);
 		static class SearchInfo *GetContainerInstance();
-		CMD4Hash ID() { return nHash; }
+		uint32 ID() { return ECID(); }
 };
 
 
@@ -248,6 +256,19 @@ class UpdatableItemsContainer : public ItemsContainer<T> {
 			// avoid creating nodes
 			return m_items_hash.count(id) ? m_items_hash[id] : NULL;
 		}
+
+		T * GetByHash(const CMD4Hash &fileHash)
+		{
+			T * ret = 0;
+			for (typename std::map<I, T *>::iterator it = m_items_hash.begin(); it != m_items_hash.end(); it++) {
+				if (it->second->nHash == fileHash) {
+					ret = it->second;
+					break;
+				}
+			}
+			return ret;
+		}
+
 		/*!
 		 * Process answer of update request, create list of new items for
 		 * full request later. Also remove items that no longer exist in core
@@ -255,8 +276,8 @@ class UpdatableItemsContainer : public ItemsContainer<T> {
 		void ProcessUpdate(const CECPacket *reply, CECPacket *full_req, int req_type)
 		{
 			std::set<I> core_files;
-			for (int i = 0;i < reply->GetTagCount();i++) {
-				G *tag = (G *)reply->GetTagByIndex(i);
+			for (CECPacket::const_iterator it = reply->begin(); it != reply->end(); it++) {
+				G *tag = (G *) & *it;
 		
 				core_files.insert(tag->ID());
 				if ( m_items_hash.count(tag->ID()) ) {
@@ -291,8 +312,8 @@ class UpdatableItemsContainer : public ItemsContainer<T> {
 		
 		void ProcessFull(const CECPacket *reply)
 		{
-			for (int i = 0;i < reply->GetTagCount();i++) {
-				G *tag = (G *)reply->GetTagByIndex(i);
+			for (CECPacket::const_iterator it = reply->begin(); it != reply->end(); it++) {
+				G *tag = (G *) & *it;
 				// initialize item data from EC tag
 				T item(tag);
 				T *real_ptr = AddItem(item);
@@ -321,7 +342,7 @@ class UpdatableItemsContainer : public ItemsContainer<T> {
 			delete reply;
 		
 			// Phase 3: request full info about files we don't have yet
-			if ( req_full.GetTagCount() ) {
+			if ( req_full.HasChildTags() ) {
 				reply = this->m_webApp->SendRecvMsg_v2(&req_full);
 				if ( !reply ) {
 					return false;
@@ -358,7 +379,7 @@ class ServersInfo : public ItemsContainer<ServerEntry> {
 };
 
 
-class SharedFileInfo : public UpdatableItemsContainer<SharedFile, CEC_SharedFile_Tag, CMD4Hash> {
+class SharedFileInfo : public UpdatableItemsContainer<SharedFile, CEC_SharedFile_Tag, uint32> {
 	public:
 		// can be only one instance.
 		static SharedFileInfo *m_This;
@@ -369,7 +390,7 @@ class SharedFileInfo : public UpdatableItemsContainer<SharedFile, CEC_SharedFile
 
 };
 
-class SearchInfo : public UpdatableItemsContainer<SearchFile, CEC_SearchFile_Tag, CMD4Hash> {
+class SearchInfo : public UpdatableItemsContainer<SearchFile, CEC_SearchFile_Tag, uint32> {
 	public:
 		static SearchInfo *m_This;
 		
@@ -381,7 +402,7 @@ class SearchInfo : public UpdatableItemsContainer<SearchFile, CEC_SearchFile_Tag
 
 
 class CImageLib;
-class DownloadFileInfo : public UpdatableItemsContainer<DownloadFile, CEC_PartFile_Tag, CMD4Hash> {
+class DownloadFileInfo : public UpdatableItemsContainer<DownloadFile, CEC_PartFile_Tag, uint32> {
 		CImageLib *m_ImageLib;
 		
 		// parameters of progress images
@@ -450,16 +471,6 @@ class CProgressImage : public virtual CAnyImage {
 		DownloadFile *m_file;
 		
 		wxString m_template;
-		
-		//
-		// sorted list of gaps
-		int m_gap_buf_size, m_gap_alloc_size;
-		Gap_Struct *m_gap_buf;
-		
-		void ReallocGapBuffer();
-		void InitSortedGaps();
-		// for qsort
-		static int compare_gaps(const void *, const void *);
 		
 		//
 		// Turn list of gaps, partstatus into array of color strips
@@ -628,29 +639,16 @@ class CDynStatisticImage : public virtual CDynPngImage {
 #endif
 
 class CImageLib {
-		std::map<wxString, CAnyImage *> m_image_map;
+		typedef std::map<wxString, CAnyImage *> ImageMap;
+		ImageMap m_image_map;
 		wxString m_image_dir;
 	public:
 		CImageLib(wxString image_dir);
 		~CImageLib();
 		
-		CAnyImage *GetImage(wxString &name);
+		CAnyImage *GetImage(const wxString &name);
 		void AddImage(CAnyImage *img, const wxString &name);
 		void RemoveImage(const wxString &name);
-};
-
-class CUrlDecodeTable {
-		static CUrlDecodeTable*		ms_instance;
-		static wxCriticalSection	ms_instance_guard;
-
-		wxString m_enc_u_str[256], m_enc_l_str[256], m_dec_str[256];
-
-		CUrlDecodeTable();
-		
-	public:
-		static CUrlDecodeTable* GetInstance();
-
-		void DecodeString(wxString &str);
 };
 
 class CParsedUrl {
@@ -681,7 +679,7 @@ struct ThreadData {
 enum {
     // Socket handlers
     ID_WEBLISTENSOCKET_EVENT = wxID_HIGHEST+123,  // random safe ID
-    ID_WEBCLIENTSOCKET_ENENT,
+    ID_WEBCLIENTSOCKET_EVENT,
 };
 
 #ifdef ENABLE_UPNP
@@ -691,11 +689,8 @@ class CUPnPPortMapping;
 
 class CWebServerBase : public wxEvtHandler {
 	protected:
-		//CWSThread *wsThread;
 		wxSocketServer *m_webserver_socket;
 		
-		wxMutex m_mutexChildren;
-
 		ServersInfo m_ServersInfo;
 		SharedFileInfo m_SharedFileInfo;
 		DownloadFileInfo m_DownloadFileInfo;

@@ -1,7 +1,7 @@
 #							-*- Autoconf -*-
 # This file is part of the aMule Project.
 #
-# Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+# Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 #
 # Any parts of this program derived from the xMule, lMule or eMule project,
 # or contributed by third-party developers are copyrighted by their
@@ -77,26 +77,27 @@ m4_define([MIN_CRYPTO_VERSION], [m4_ifval([$1], [$1], [5.1])])dnl
 	cryptopp_libdir="unknown"
 
 	AS_IF([test -n "$with_crypto_prefix"], [
+		CRYPTOPP_PREFIX="$with_crypto_prefix"
 		# Find the Cryptopp header in the user-provided location
-		MULE_IF([test -f $with_crypto_prefix/$cryptopp_file_with_version], [
+		MULE_IF([test -f $CRYPTOPP_PREFIX/$cryptopp_file_with_version], [
 			CRYPTOPP_STYLE="sources"
 			CRYPTOPP_LIB_NAME="cryptopp"
 			cryptopp_includedir=
-			CRYPTOPP_INCLUDE_PREFIX="$with_crypto_prefix"
+			CRYPTOPP_INCLUDE_PREFIX="$CRYPTOPP_PREFIX"
 			cryptopp_libdir=
-		], [test -f $with_crypto_prefix/include/cryptopp/$cryptopp_file_with_version], [
+		], [test -f $CRYPTOPP_PREFIX/include/cryptopp/$cryptopp_file_with_version], [
 			CRYPTOPP_STYLE="installed"
 			CRYPTOPP_LIB_NAME="cryptopp"
-			cryptopp_includedir="$with_crypto_prefix/include"
+			cryptopp_includedir="$CRYPTOPP_PREFIX/include"
 			CRYPTOPP_INCLUDE_PREFIX="$CRYPTOPP_LIB_NAME"
-			cryptopp_libdir="$with_crypto_prefix/lib"
-		], [test -f $with_crypto_prefix/include/crypto++/$cryptopp_file_with_version], [
+			cryptopp_libdir="$CRYPTOPP_PREFIX/lib"
+		], [test -f $CRYPTOPP_PREFIX/include/crypto++/$cryptopp_file_with_version], [
 			# Debian uses libcrypto++5.1 - it's not my fault, please soda patch the package
 			CRYPTOPP_STYLE="gentoo_debian"
 			CRYPTOPP_LIB_NAME="crypto++"
-			cryptopp_includedir="$with_crypto_prefix/include"
+			cryptopp_includedir="$CRYPTOPP_PREFIX/include"
 			CRYPTOPP_INCLUDE_PREFIX="$CRYPTOPP_LIB_NAME"
-			cryptopp_libdir="$with_crypto_prefix/lib"
+			cryptopp_libdir="$CRYPTOPP_PREFIX/lib"
 		])
 	], [
 		for CRYPTOPP_PREFIX in /usr /usr/local /opt /opt/local /usr/pkg /mingw ; do

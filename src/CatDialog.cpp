@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) created by Ornis
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -81,7 +81,7 @@ wxDialog(parent, -1, _("Category"),
 		CastChild(IDC_COMMENT,	wxTextCtrl)->SetValue(m_category->comment);
 		CastChild(IDC_PRIOCOMBO,wxChoice)->SetSelection(m_category->prio);
 		
-		m_color = m_category->color;
+		m_colour = CMuleColour(m_category->color);
 	} else {
 		// Default values for new categories
 		CastChild(IDC_TITLE,	wxTextCtrl)->SetValue(_("New Category"));
@@ -89,11 +89,10 @@ wxDialog(parent, -1, _("Category"),
 		CastChild(IDC_COMMENT,	wxTextCtrl)->SetValue(wxEmptyString);
 		CastChild(IDC_PRIOCOMBO,wxChoice)->SetSelection(0);
 		
-		m_color = RGB(rand() % 255, rand() % 255, rand() % 255);
+		m_colour = CMuleColour(rand() % 255, rand() % 255, rand() % 255);
 	}
 	
-	CastChild(ID_BOX_CATCOLOR, wxStaticBitmap)->
-		SetBitmap(MakeBitmap(WxColourFromCr(m_color)));
+	CastChild(ID_BOX_CATCOLOR, wxStaticBitmap)->SetBitmap(MakeBitmap());
 	
 	if (!allowbrowse) {
 		CastChild(IDC_BROWSE, wxButton)->Destroy();
@@ -106,12 +105,12 @@ CCatDialog::~CCatDialog()
 }
 
 
-wxBitmap CCatDialog::MakeBitmap(wxColour colour)
+wxBitmap CCatDialog::MakeBitmap()
 {
 	wxBitmap bitmap(16, 16);
 	wxMemoryDC dc(bitmap);
 
-	dc.SetBrush(wxBrush(colour, wxSOLID));
+	dc.SetBrush(m_colour.GetBrush());
 	dc.DrawRectangle(0, 0, 16, 16);
 	
 	return bitmap;
@@ -154,6 +153,10 @@ void CCatDialog::OnBnClickedOk(wxCommandEvent& WXUNUSED(evt))
 		return;
 	}
 
+	// remote gui:
+	// Pass path unchecked (and don't try to create it on the wrong machine...).
+	// It will be checked on the server, and an error message created.
+#ifndef CLIENT_GUI
 	if (!newpath.DirExists()) {
 		if (!CPath::MakeDir(newpath)) {
 			wxMessageBox(_("Failed to create incoming dir for category. Please specify a valid path!"),
@@ -161,7 +164,8 @@ void CCatDialog::OnBnClickedOk(wxCommandEvent& WXUNUSED(evt))
 			return;
 		}
 	}
-	
+#endif
+
 	// Check if we are using an existing category, and if we are, if it has
 	// been removed in the mean-while. Otherwise create new category.
 	// lfroen: The only place where it could happen, is removing category
@@ -185,16 +189,16 @@ void CCatDialog::OnBnClickedOk(wxCommandEvent& WXUNUSED(evt))
 
 	if (!m_category) {
 		// New category, or the old one is gone
-		m_category = theApp->glob_prefs->CreateCategory(
-			newname, newpath, 
+		 theApp->glob_prefs->CreateCategory(
+			m_category, newname, newpath, 
 			CastChild(IDC_COMMENT, wxTextCtrl)->GetValue(),
-			m_color,
+			m_colour.GetULong(),
  			CastChild(IDC_PRIOCOMBO, wxChoice)->GetSelection());
         	
 		theApp->amuledlg->m_transferwnd->AddCategory(m_category);
 	} else {
 		theApp->glob_prefs->UpdateCategory(index, newname, newpath, 
-        	CastChild(IDC_COMMENT, wxTextCtrl)->GetValue(), m_color,
+        	CastChild(IDC_COMMENT, wxTextCtrl)->GetValue(), m_colour.GetULong(),
         	CastChild(IDC_PRIOCOMBO, wxChoice)->GetSelection());
 
 		theApp->amuledlg->m_transferwnd->UpdateCategory(index);
@@ -208,11 +212,10 @@ void CCatDialog::OnBnClickedOk(wxCommandEvent& WXUNUSED(evt))
 
 void CCatDialog::OnBnClickColor(wxCommandEvent& WXUNUSED(evt))
 {
-	wxColour newcol = wxGetColourFromUser(this, WxColourFromCr(m_color));
+	wxColour newcol = wxGetColourFromUser(this, m_colour);
 	if (newcol.Ok()) {
-		m_color = CrFromWxColour(newcol);
-		CastChild(ID_BOX_CATCOLOR, wxStaticBitmap)->
-			SetBitmap(MakeBitmap(WxColourFromCr(m_color)));
+		m_colour = newcol;
+		CastChild(ID_BOX_CATCOLOR, wxStaticBitmap)->SetBitmap(MakeBitmap());
 	}
 }
 // File_checked_for_headers

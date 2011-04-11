@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (C) 2005-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2005-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -29,13 +29,12 @@
 
 #include <protocol/ed2k/Constants.h>
 
-#include "Logger.h"                     // Needed for AddDebugLogLineM
 #include "amule.h"                      // Needed for theApp
 #include "GetTickCount.h"               // Needed for GetTickCount()
 #include "Packet.h"                     // Needed for CPacket
 #include <common/StringFunctions.h>     // Needed for unicode2char
 #include "Proxy.h"                      // Needed for CDatagramSocketProxy
-#include "Logger.h"                     // Needed for AddDebugLogLineM
+#include "Logger.h"                     // Needed for AddDebugLogLine{C,N}
 #include "UploadBandwidthThrottler.h"
 #include "EncryptedDatagramSocket.h"
 #include "OtherFunctions.h"
@@ -75,10 +74,10 @@ void CMuleUDPSocket::CreateSocket()
 	m_socket->Notify(true);
 
 	if (!m_socket->Ok()) {
-		AddDebugLogLineM(true, logMuleUDP, wxT("Failed to create valid ") + m_name);
+		AddDebugLogLineC(logMuleUDP, wxT("Failed to create valid ") + m_name);
 		DestroySocket();
 	} else {
-		AddLogLineM(false, wxString(wxT("Created ")) << m_name << wxT(" at port ") << m_addr.Service());
+		AddLogLineN(wxString(wxT("Created ")) << m_name << wxT(" at port ") << m_addr.Service());
 	}
 }
 
@@ -86,7 +85,7 @@ void CMuleUDPSocket::CreateSocket()
 void CMuleUDPSocket::DestroySocket()
 {
 	if (m_socket) {
-		AddDebugLogLineM(false, logMuleUDP, wxT("Shutting down ") + m_name);
+		AddDebugLogLineN(logMuleUDP, wxT("Shutting down ") + m_name);
 		m_socket->SetNotify(0);
 		m_socket->Notify(false);
 		m_socket->Close();
@@ -135,9 +134,8 @@ const unsigned UDP_BUFFER_SIZE = 16384;
 
 void CMuleUDPSocket::OnReceive(int errorCode)
 {
-	AddDebugLogLineM(false, logMuleUDP, wxString::Format(
-		wxT("Got UDP callback for read: Error %i Socket state %i"),
-		errorCode, Ok() ? 1 : 0));
+	AddDebugLogLineN(logMuleUDP, CFormat(wxT("Got UDP callback for read: Error %i Socket state %i"))
+		% errorCode % Ok());
 	
 	char buffer[UDP_BUFFER_SIZE];
 	wxIPV4address addr;
@@ -167,18 +165,17 @@ void CMuleUDPSocket::OnReceive(int errorCode)
 		OnReceiveError(lastError, ip, port);
 	} else if (length < 2) {
 		// 2 bytes (protocol and opcode) is the smallets possible packet.
-		AddDebugLogLineM(false, logMuleUDP, m_name + wxT(": Invalid Packet received"));
+		AddDebugLogLineN(logMuleUDP, m_name + wxT(": Invalid Packet received"));
 	} else if (!ip) {
-		// wxASSERT(0);
-		printf("Unknown ip receiving on UDP packet! Ignoring: '%s'\n",
-			(const char*)unicode2char(addr.IPAddress()));
+		// wxFAIL;
+		AddLogLineNS(wxT("Unknown ip receiving a UDP packet! Ignoring: '") + addr.IPAddress() + wxT("'"));
 	} else if (!port) {
-		// wxASSERT(0);
-		printf("Unknown port receiving an UDP packet! Ignoring\n");
+		// wxFAIL;
+		AddLogLineNS(wxT("Unknown port receiving a UDP packet! Ignoring"));
 	} else if (theApp->clientlist->IsBannedClient(ip)) {
-		AddDebugLogLineM(false, logMuleUDP, m_name + wxT(": Dropped packet from banned IP ") + addr.IPAddress());
+		AddDebugLogLineN(logMuleUDP, m_name + wxT(": Dropped packet from banned IP ") + addr.IPAddress());
 	} else {
-		AddDebugLogLineM(false, logMuleUDP, (m_name + wxT(": Packet received (")) 
+		AddDebugLogLineN(logMuleUDP, (m_name + wxT(": Packet received ("))
 			<< addr.IPAddress() << wxT(":") << port << wxT("): ")
 			<< length << wxT("b"));
 		OnPacketReceived(ip, port, (byte*)buffer, length);
@@ -188,7 +185,7 @@ void CMuleUDPSocket::OnReceive(int errorCode)
 
 void CMuleUDPSocket::OnReceiveError(int errorCode, uint32 WXUNUSED(ip), uint16 WXUNUSED(port))
 {
-	AddDebugLogLineM(false, logMuleUDP, (m_name + wxT(": Error while reading: ")) << errorCode);	
+	AddDebugLogLineN(logMuleUDP, (m_name + wxT(": Error while reading: ")) << errorCode);
 }
 
 
@@ -202,7 +199,7 @@ void CMuleUDPSocket::OnDisconnected(int WXUNUSED(errorCode))
 	 * This has been reported as patch #1885472:
 	 * http://sourceforge.net/tracker/index.php?func=detail&aid=1885472&group_id=9863&atid=309863
 	 */
-	AddDebugLogLineM(true, logMuleUDP, m_name + wxT("Socket died, recreating."));
+	AddDebugLogLineC(logMuleUDP, m_name + wxT("Socket died, recreating."));
 	DestroySocket();
 	CreateSocket();
 }
@@ -220,17 +217,15 @@ void CMuleUDPSocket::SendPacket(CPacket* packet, uint32 IP, uint16 port, bool bE
 	}
 	
 	if (!Ok()) {
-		AddDebugLogLineM(false, logMuleUDP, (m_name + wxT(": Packet discarded (socket not Ok): ")) 
-			<< Uint32toStringIP(IP) << wxT(":") << port << wxT(" ") << packet->GetPacketSize()
-			<< wxT("b"));
+		AddDebugLogLineN(logMuleUDP, (m_name + wxT(": Packet discarded, socket not Ok ("))
+			<< Uint32_16toStringIP_Port(IP, port) << wxT("): ") << packet->GetPacketSize() << wxT("b"));
 		delete packet;
 
 		return;
 	}
 	
-	AddDebugLogLineM(false, logMuleUDP, (m_name + wxT(": Packet queued: ")) 
-		<< Uint32toStringIP(IP) << wxT(":") << port << wxT(" ") 
-		<< packet->GetPacketSize() << wxT("b"));
+	AddDebugLogLineN(logMuleUDP, (m_name + wxT(": Packet queued ("))
+		<< Uint32_16toStringIP_Port(IP, port) << wxT("): ") << packet->GetPacketSize() << wxT("b"));
 	
 	UDPPack newpending;
 	newpending.IP = IP;
@@ -331,13 +326,14 @@ bool CMuleUDPSocket::SendTo(uint8_t *buffer, uint32_t length, uint32_t ip, uint1
 		} else {
 			// An error which we can't handle happended, so we drop 
 			// the packet rather than risk entering an infinite loop.
-			printf("WARNING! %s discarded packet due to errors (%i) while sending.\n",
-				(const char*)unicode2char(m_name), error);
+			AddLogLineN((wxT("WARNING! ") + m_name + wxT(": Packet to ")) 
+				<< Uint32_16toStringIP_Port(ip, port)
+				<< wxT(" discarded due to error (") << error << wxT(") while sending."));
 			sent = true;
 		}
 	} else {
-		AddDebugLogLineM(false, logMuleUDP, (m_name + wxT(": Packet sent to ")) 
-			<< ip << wxT(":") << port << wxT(": ")
+		AddDebugLogLineN(logMuleUDP, (m_name + wxT(": Packet sent ("))
+			<< Uint32_16toStringIP_Port(ip, port) << wxT("): ")
 			<< length << wxT("b"));
 		sent = true;
 	}

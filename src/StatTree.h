@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (C) 2005-2009 DÈvai Tam·s ( gonosztopi@amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2005-2011 D√©vai Tam√°s ( gonosztopi@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -36,7 +36,7 @@
  */
 
 
-#ifndef EC_REMOTE	// i.e. not CLIENT_GUI
+#ifndef CLIENT_GUI
 #	define VIRTUAL virtual
 #else
 #	define VIRTUAL
@@ -48,7 +48,7 @@
 #include <wx/thread.h>		// Needed for wxMutex
 #include "Types.h" 
 
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 
 #include <wx/datetime.h>	// Needed for wxDateTime
 #include "GetTickCount.h"	// Needed for GetTickCount64()
@@ -98,7 +98,7 @@ enum EDisplayMode
 	dmBytes			///< Treat integer value as bytes count.
 };
 
-#endif /* !EC_REMOTE */
+#endif /* !CLIENT_GUI */
 
 
 class CStatTreeItemBase;
@@ -117,7 +117,7 @@ class CStatTreeItemBase
 {
 public:
 
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 	/**
 	 * Creates an item with a constant label.
 	 *
@@ -151,7 +151,7 @@ public:
 	 */
 	VIRTUAL	~CStatTreeItemBase();
 
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 	/**
 	 * Adds a new child node.
 	 *
@@ -181,7 +181,7 @@ public:
 	 */
 	bool HasVisibleChildren();
 
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 
 	/**
 	 * Check for a given child.
@@ -211,7 +211,7 @@ public:
 	 */
 	void GetNextVisibleChild(StatTreeItemIterator& it);
 
-#else /* EC_REMOTE */
+#else /* CLIENT_GUI */
 
 	/**
 	 * Get the first visible child.
@@ -229,14 +229,14 @@ public:
 	 */
 	void GetNextVisibleChild(StatTreeItemIterator& it) { ++it; }
 
-#endif /* !EC_REMOTE / EC_REMOTE */
+#endif /* !CLIENT_GUI / CLIENT_GUI */
 
 	/**
 	 * Check if we are past the end of child list.
 	 */
 	bool IsAtEndOfList(StatTreeItemIterator& it) { return it == m_children.end(); }
 
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 	/**
 	 * Resorts children for the stSortByValue flag.
 	 */
@@ -244,7 +244,7 @@ public:
 #endif
 
 #ifndef AMULE_DAEMON
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 	/**
 	 * Returns a string that will be displayed on the GUI tree.
 	 */
@@ -254,7 +254,7 @@ public:
 	 * Returns the associated text (GUI item label).
 	 */
 	const wxString& GetDisplayString() const { return m_label; }
-#endif /* !EC_REMOTE / EC_REMOTE */
+#endif /* !CLIENT_GUI / CLIENT_GUI */
 
 	/**
 	 * Returns the mutex used to lock the child list of this node.
@@ -275,7 +275,7 @@ public:
 	 */
 	VIRTUAL	bool IsVisible() const { return true; }
 
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 	/**
 	 * Create an EC tag from this node (and children).
 	 *
@@ -288,7 +288,7 @@ public:
 
 protected:
 
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 	/**
 	 * Add values to the EC tag being generated.
 	 *
@@ -300,7 +300,7 @@ protected:
 
 	//! Unformatted and untranslated label of the node. Note: On remote gui it is already formatted and translated.
 	const wxString m_label;
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 
 	//! Parent of this node.
 	CStatTreeItemBase *m_parent;
@@ -311,7 +311,7 @@ protected:
 
 private:
 
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 	//! Function used when sorting children by value.
 	static bool ValueSort(const CStatTreeItemBase* a, const CStatTreeItemBase* b);
 
@@ -337,7 +337,7 @@ private:
 //
 // Anything below is only for core.
 //
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 
 /**
  * Simple tree item.
@@ -1025,11 +1025,15 @@ public:
 	CStatTreeItemRatio(
 		const wxString &label,
 		const CStatTreeItemCounter *cnt1,
-		const CStatTreeItemCounter* cnt2)
+		const CStatTreeItemCounter* cnt2,
+		uint64_t (*totalfunc1)() = NULL,
+		uint64_t (*totalfunc2)() = NULL)
 	:
 	CStatTreeItemBase(label, stNone),
 	m_counter1(cnt1),
-	m_counter2(cnt2) {}
+	m_counter2(cnt2),
+	m_totalfunc1(totalfunc1),
+	m_totalfunc2(totalfunc2){}
 
 #ifndef AMULE_DAEMON
 	/**
@@ -1053,6 +1057,14 @@ protected:
 
 	//! Second counter.
 	const CStatTreeItemCounter *m_counter2;
+
+	//! A function for each whose return value is the total (without current) value.
+	uint64_t (*m_totalfunc1)();
+	uint64_t (*m_totalfunc2)();
+
+private:
+	//! Formatted String for display or EC
+	wxString GetString() const;
 };
 
 
@@ -1182,7 +1194,7 @@ protected:
 	const CStatTreeItemCounter *m_unknown;
 };
 
-#endif /* !EC_REMOTE */
+#endif /* !CLIENT_GUI */
 
 #endif /* STATTREE_H */
 // File_checked_for_headers

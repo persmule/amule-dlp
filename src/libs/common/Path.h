@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2008-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2008-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -47,7 +47,7 @@
  * that cross-platform issues can be worked around in a
  * single place.
  */
-class CPath : public CPrintable
+class CPath
 {
 public:
 	/** Default constructor. */
@@ -59,12 +59,9 @@ public:
 	/** Copy constructor. Creates a deep-copy of the passed object. */
 	CPath(const CPath& other);
 
-	/** Destructor. */
-	~CPath();
-
 
 	/**
-	 * Creates a path from one saved in the 'universial' format.
+	 * Creates a path from one saved in the 'universal' format.
 	 *
 	 * These are to be used when the filenames/paths are saved to
 	 * the local machine, and ensure that locale-changes does not
@@ -73,9 +70,9 @@ public:
 	 * or (currently) the core/gui.
 	 **/
 	static CPath FromUniv(const wxString& path);
-	/** Creates an 'universial' path from the specifed CPath. */
+	/** Creates an 'universal' path from the specified CPath. */
 	static wxString ToUniv(const CPath& path);
-	
+
 
 	/** Assignment operator. */
 	CPath& operator=(const CPath& other);
@@ -86,7 +83,7 @@ public:
 	/** Note that only exact matches are considered equal, see IsSameDir. */
 	bool operator!=(const CPath& other) const;
 
-	
+
 	/** Returns true if the filename is valid, false otherwise. */
 	bool IsOk() const;
 	/** Returns true if the path exists and is a file, false otherwise. */
@@ -94,7 +91,7 @@ public:
 	/** Returns true if the path exists and is a directory, false otherwise. */
 	bool DirExists() const;
 
-	
+
 	enum EAccess {
 		//! Only check of the file or dir exists.
 		exists,
@@ -123,7 +120,7 @@ public:
 	CPath GetPath() const;
 	/** Returns the full filename, excluding the path. */
 	CPath GetFullName() const;
-	
+
 	/** Returns the size of the specified file, or wxInvalidSize on failure. */
 	sint64 GetFileSize() const;
 
@@ -140,7 +137,7 @@ public:
 	CPath Cleanup(bool keepSpaces = true, bool isFAT32 = false) const;
 	/** Returns a CPath with a postfix before the file-extension. Must be ASCII. */
 	CPath AddPostfix(const wxString& postfix) const;
-	
+
 	/** Returns a CPath object with the extension appended. Empty strings are ignored. */
 	CPath AppendExt(const wxString& ext) const;
 	/** Returns a CPath with the (last, if multiple) extension removed. */
@@ -151,10 +148,19 @@ public:
 
 	/** Returns true if the the passed path makes up an prefix of this object. */
 	bool StartsWith(const CPath& other) const;
-	
-	/** @see cprintable::getprintablestring */
-	wxString GetPrintableString() const;
 
+	/**
+	 * Get truncated path.
+	 *
+	 * @note This function truncates the @em name of the file, not the file
+	 * itself.
+	 *
+	 * @param length	The truncated path should not exceed this length.
+	 * @param isFilePath	Indicates whether the last part of the path (the
+	 *			file name) should be kept or not, if possible.
+	 * @return	The truncated path, at most @a length long.
+	 */
+	wxString TruncatePath(size_t length, bool isFilePath = false) const;
 
 	/** 
 	 * Renames the file 'src' to the file 'dst', overwriting if specified. Note that
@@ -170,7 +176,7 @@ public:
 
 	/** Makes a backup of a file, by copying the original file to 'src' + 'appendix' */
 	static bool BackupFile(const CPath& src, const wxString& appendix);
-	
+
 	/** Deletes the specified file, returning true on success. */
 	static bool RemoveFile(const CPath& file);
 	/** Deletes the specified directory, returning true on success. */
@@ -201,6 +207,12 @@ private:
 	friend int CmpAny(const CPath& ArgA, const CPath& ArgB);
 };
 
+// Make CPath printable in CFormat
+template<>
+inline CFormat& CFormat::operator%(CPath value)
+{
+	return this->operator%<const wxString&>(value.GetPrintable());
+}
 
 /**
  * Overloaded version of CmpAny for use with CPaths. As this is
@@ -213,5 +225,20 @@ inline int CmpAny(const CPath& ArgA, const CPath& ArgB)
 }
 
 
+/**
+ * Strips all path separators from the specified end of a path.
+ *
+ * Note: type must be either leading or trailing.
+ */
+wxString StripSeparators(wxString path, wxString::stripType type);
+
+
+/**
+ * Joins two paths with the operating system specific path-separator.
+ *
+ * If any of the parameters are empty, the other parameter is
+ * returned unchanged.
+ */
+wxString JoinPaths(const wxString& path, const wxString& file);
 
 #endif

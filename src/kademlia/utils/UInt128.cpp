@@ -1,10 +1,10 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2008-2009 Dévai Tamás (GonoszTopi) ( gonosztopi@amule.org )
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2008-2011 Dévai Tamás ( gonosztopi@amule.org )
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -40,15 +40,15 @@ there client on the eMule forum..
 
 #include "UInt128.h"
 
-#include "../../CryptoPP_Inc.h"
 #include "../../ArchSpecific.h"
+#include <common/Format.h>	// Needed for CFormat
 
 
 ////////////////////////////////////////
 using namespace Kademlia;
 ////////////////////////////////////////
 
-CUInt128::CUInt128(const CUInt128 &value, uint32_t numBits) throw()
+CUInt128::CUInt128(const CUInt128 &value, uint32_t numBits)
 {
 	// Copy the whole uint32s
 	uint32_t numULONGs = numBits / 32;
@@ -76,21 +76,13 @@ CUInt128& CUInt128::SetValueBE(const uint8_t *valueBE) throw()
 	return *this;
 }
 
-CUInt128& CUInt128::SetValueRandom()
-{
-	CryptoPP::AutoSeededRandomPool rng;
-	uint8_t randomBytes[16];
-	rng.GenerateBlock(randomBytes, 16);
-	SetValueBE(randomBytes);
-	return *this;
-}
-
 wxString CUInt128::ToHexString() const
 {
 	wxString str;
 
-	for (int i = 0; i < 4; ++i)
-		str.Append(wxString::Format(wxT("%08X"), m_data[i]));
+	for (int i = 0; i < 4; ++i) {
+		str.Append(CFormat(wxT("%08X")) % m_data[i]);
+	}
 
 	return str;
 }
@@ -98,11 +90,12 @@ wxString CUInt128::ToHexString() const
 wxString CUInt128::ToBinaryString(bool trim) const
 {
 	wxString str;
+	str.Alloc(128);
 	int b;
 	for (int i = 0; i < 128; ++i) {
 		b = GetBitNumber(i);
 		if ((!trim) || (b != 0)) {
-			str.Append(wxString::Format(wxT("%d"), b));
+			str.Append(b ? wxT("1") : wxT("0"));
 			trim = false;
 		}
 	}
@@ -112,9 +105,9 @@ wxString CUInt128::ToBinaryString(bool trim) const
 	return str;
 }
 
-void CUInt128::ToByteArray(uint8_t *b) const throw()
+void CUInt128::ToByteArray(uint8_t *b) const
 {
-	wxASSERT(b != NULL);
+	wxCHECK_RET(b != NULL, wxT("Destination buffer missing."));
 
 	RawPokeUInt32(b,      wxUINT32_SWAP_ON_LE(m_data[0]));
 	RawPokeUInt32(b + 4,  wxUINT32_SWAP_ON_LE(m_data[1]));
@@ -122,9 +115,9 @@ void CUInt128::ToByteArray(uint8_t *b) const throw()
 	RawPokeUInt32(b + 12, wxUINT32_SWAP_ON_LE(m_data[3]));
 }
 
-void CUInt128::StoreCryptValue(uint8_t *buf) const throw()
+void CUInt128::StoreCryptValue(uint8_t *buf) const
 {
-	wxASSERT(buf != NULL);
+	wxCHECK_RET(buf != NULL, wxT("Destination buffer missing."));
 
 	RawPokeUInt32(buf,      wxUINT32_SWAP_ON_BE(m_data[0]));
 	RawPokeUInt32(buf + 4,  wxUINT32_SWAP_ON_BE(m_data[1]));

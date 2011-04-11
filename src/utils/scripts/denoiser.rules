@@ -1,7 +1,7 @@
 # This file is part of the aMule project.
 #
-# Copyright (c) 2003-2009 aMule Project ( admin@amule.org / http://www.amule.org )
-# Copyright (c) 2006-2009 DÈvai Tam·s aka GonoszTopi
+# Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+# Copyright (c) 2006-2011 D√©vai Tam√°s ( gonosztopi@amule.org )
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -83,14 +83,18 @@ MAKEFLAGS=-w -s
 
 
 # delete comments
-/^#/ {
-	d
-}
+/^#/ d
 
 # delete empty lines
-/^[ 	]*$/ {
-	d
-}
+/^[ 	]*$/ d
+
+
+# take precedence over automake's silent rules feature
+#if levels 2,3,4
+/^AM_V_[A-Za-z]\+[ 	]*=/ d
+/^am__v_[A-Za-z]\+_0\?[ 	]*=/ d
+/^AM_DEFAULT_VERBOSITY[ 	]*=/ d
+#endif
 
 
 # rewrite compiler flags
@@ -113,10 +117,10 @@ MAKEFLAGS=-w -s
 	s/ -%l,/ -Wl,/g
 	s/ -%a,/ -Wa,/g
 	s/ -%p,/ -Wp,/g
-	
-       # insert -w flag into MULECFLAGS and MULECXXFLAGS if it isn't already in
-       /^MULEC\(XX\)\?FLAGS/! b 9
-       / -w/! s/=/= -w/
+
+	# insert -w flag into MULECFLAGS and MULECXXFLAGS if it isn't already in
+	/^MULEC\(XX\)\?FLAGS/! b 9
+	/ -w/! s/=/= -w/
 	:9
 }
 #endif
@@ -158,11 +162,14 @@ MAKEFLAGS=-w -s
 	/^$/ b 0
 	/^[^	]/ b 0
 
+	# get rid of the last pieces of automake's silent rules feature
+	s/^	$(AM_V_[A-Za-z]\+)/	/
+
 	x
 	/^\n/ b 5
 
 	# skipping install-strip target, since it will trigger the echo-denoiser,
-	# and would silence the whole installation, which is abolutely not wanted
+	# and would silence the whole installation, which is absolutely not wanted
 	/^install-strip$/ {
 		s/.*//
 		x
@@ -198,6 +205,11 @@ MAKEFLAGS=-w -s
 	/\.cpp$/ {
 		i\
 	echo "Generating $(@F)"
+		b 4
+	}
+	/\.moc$/ {
+		i\
+	echo "Compiling meta objects $(@)"
 		b 4
 	}
 	/\.$(OBJEXT)$/ {
@@ -253,6 +265,18 @@ MAKEFLAGS=-w -s
 	/^[ 	]*@*echo/ {
 		x
 		/maintainer-clean-generic/ b 6a
+		/uninstall/ b 6c
+		# Install targets may contain echo commands that must not be redirected,
+		# so skip this echo unless it contains installation code
+		/install/ {
+			x
+			/$(INSTALL/ b 6d
+			/installing/ b 6d
+			b 6
+			:6d
+			x
+		}
+		:6c
 #if level 3
 		/maintainer/ b 6a
 		/$(RECURSIVE_TARGETS)/ b 6a
@@ -342,6 +366,7 @@ MAKEFLAGS=-w -s
 			H
 			g
 			s/.*$(DESTDIR)\([^;" ][^;" ]*\).*/	echo "Installing \1"; \\/
+			s/$(modulesdir)$$dir/$(modulesdir)/
 			P
 			g
 			s/[^\n]*//

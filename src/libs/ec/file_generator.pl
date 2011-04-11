@@ -3,8 +3,8 @@
 
 ## This file is part of the aMule Project
 ##
-## Copyright (c) 2007-2009 Angel Vidal (Kry) ( kry@amule.org )
-## Copyright (c) 2007-2009 aMule Project     ( http://www.amule-project.net )
+## Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+## Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 ##
 ## This program is free software; you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License
@@ -41,6 +41,8 @@ if ($exit_with_help) {
 
 my $folder = $ARGV[0] . "/";
 
+my @debugOut;
+
 my $numArgs = $#ARGV;
 print "Parsing $numArgs files\n";
 
@@ -53,6 +55,7 @@ sub generate_files {
 
 	my $folder = $_[0];
 	my $input_file = $_[1];
+	@debugOut = ();
 
 	open(INFO, $folder . $input_file) or die "Cannot open input file " . $input_file . " for reading: $!";		# Open the file
 
@@ -102,29 +105,24 @@ sub generate_files {
 	#Open language output files
 	open(JAVAFILE," > " . $folder . "java/$filename" . ".java");
 
-	open(CDASHFILE, ">${folder}/c#/${filename}.cs");
-
 	# Print license on top.
 	write_license_header($folder, *CPPFILE, "// ", "", $filecontent);
-	write_license_header($folder, *CDASHFILE, "// ", "", $filecontent);
 	write_license_header($folder, *JAVAFILE, "// ", "", $filecontent);
 	#Example for a language that needs start/end:
 	#write_license_header($folder, *CFILE, "/* ", " */", $filecontent);
 
 	#Add top guards for each language
 	write_cpp_top_guard(*CPPFILE, $filename);
-	write_cdash_top_guard(*CDASHFILE);
 	# JAVA doesn't need guards, but needs file type declaration
 	print JAVAFILE "public interface " . $filename . " {\n\n";
 	##Add other language guards
 
 
-	read_content(*INFO, *CPPFILE, *JAVAFILE, *CDASHFILE);
+	read_content(*INFO, *CPPFILE, *JAVAFILE);
 
 
 	#Add bottom guards for each language
 	write_cpp_bottom_guard(*CPPFILE, $filename);
-	write_cdash_bottom_guard(*CDASHFILE);
 	# JAVA doesn't need guards, but we have to close the interface
 	print JAVAFILE "}\n";
 	##Add other language guards
@@ -146,7 +144,6 @@ sub read_content {
 	local (*INFO) = $_[0];
 	local (*CPPFILE) = $_[1];
 	local (*JAVAFILE) = $_[2];
-	local (*CDASHFILE) = $_[3];
 
 	my $stop = "";
 
@@ -161,7 +158,7 @@ sub read_content {
 
 		if ($line =~ /^\[Section Content\]$/) {
 			print "Reading content section...\n";
-			read_content_section(*INFO, *CPPFILE, *JAVAFILE, *CDASHFILE);
+			read_content_section(*INFO, *CPPFILE, *JAVAFILE);
 			print CPPFILE "\n";
 			print JAVAFILE "\n";
 		} else {
@@ -176,7 +173,6 @@ sub read_content_section {
 	local (*INFO) = $_[0];
 	local (*CPPOUTPUT) = $_[1];
 	local (*JAVAOUTPUT) = $_[2];
-	local (*CDASHFILE) = $_[3];
 	
 	my $line = <INFO>;
 	my $datatype = "";
@@ -188,11 +184,11 @@ sub read_content_section {
 	}
 
 	if ($datatype eq "Define") {
-		read_define_content(*INFO, *CPPOUTPUT, *JAVAOUTPUT, *CDASHFILE);
+		read_define_content(*INFO, *CPPOUTPUT, *JAVAOUTPUT);
 	} elsif ($datatype eq "Enum") {
-		read_enum_content(*INFO, *CPPOUTPUT, *JAVAOUTPUT, *CDASHFILE);
+		read_enum_content(*INFO, *CPPOUTPUT, *JAVAOUTPUT);
 	} elsif ($datatype eq "TypeDef") {
-		read_typedef_content(*INFO, *CPPOUTPUT, *JAVAOUTPUT, *CDASHFILE);
+		read_typedef_content(*INFO, *CPPOUTPUT, *JAVAOUTPUT);
 	} else {
 		die "Unknown type on content section\n";
 	}
@@ -203,7 +199,6 @@ sub read_define_content {
 	local (*INFO) = $_[0];
 	local (*CPPOUTPUT) = $_[1];
 	local (*JAVAOUTPUT) = $_[2];
-	local (*CDASHFILE) = $_[3];
 
 	my $line = <INFO>;
 	while (!(eof) && ($line !~ /^\[\/Section\]$/)) {
@@ -211,7 +206,6 @@ sub read_define_content {
 			if ($line =~ /^(.+)\s+(.+)$/) {
 				write_cpp_define_line(*CPPOUTPUT, $1, $2);
 				write_java_define_line(*JAVAOUTPUT, $1, $2);
-				write_cdash_define_line(*CDASHFILE, $1, $2);
 			} else {
 				die "Malformed content section define line\n";
 			}
@@ -233,7 +227,6 @@ sub read_typedef_content {
 				write_cpp_typedef_line(*CPPOUTPUT, $1, $2);
 				# Java doesn't support typedefs, ignore it.
 				#write_java_typedef_line(*JAVAOUTPUT, $1, $2);
-				# c# doesn't support typedefs either (AFAIK)
 			} else {
 				die "Malformed content section typedef line\n";
 			}
@@ -247,7 +240,6 @@ sub read_enum_content {
 	local (*INFO) = $_[0];
 	local (*CPPOUTPUT) = $_[1];
 	local (*JAVAOUTPUT) = $_[2];
-	local (*CDASHFILE) = $_[3];
 
 	my $line = <INFO>;
 	my $dataname = "";
@@ -276,13 +268,11 @@ sub read_enum_content {
 				my $secondoperand = $2;
 	
 				if ($first) {
-					write_cpp_enum_start(*CPPOUTPUT, $dataname);
-					write_cdash_enum_start(*CDASHFILE, $dataname);
+					write_cpp_enum_start(*CPPOUTPUT, $dataname, $datatype);
 				}
 
 				write_cpp_enum_line(*CPPOUTPUT, $firstoperand, $secondoperand, $first);
 				write_java_define_line(*JAVAOUTPUT, $firstoperand, $secondoperand, $datatype);
-				write_cdash_enum_line(*CDASHFILE, $firstoperand, $secondoperand, $first);
 	
 				if ($first) {
 					$first = "";
@@ -295,8 +285,6 @@ sub read_enum_content {
 	}
 
 	write_cpp_enum_end(*CPPOUTPUT);
-	write_cdash_enum_end(*CDASHFILE);
-
 }
 
 # Takes a file handle, and the comment start/end character for that language
@@ -320,52 +308,6 @@ sub write_license_header {
 	close(LICENSE);
 }
 
-################ C# Specific Subroutines #####################
-
-sub write_cdash_top_guard {
-	local (*OUTPUT) = $_[0];
-	print OUTPUT "namespace amule.net\n{\n";
-}
-
-sub write_cdash_bottom_guard {
-	local (*OUTPUT) = $_[0];
-	print OUTPUT "}\n";
-}
-
-sub write_cdash_enum_start {
-
-	local (*OUTPUT) = $_[0];
-
-	print OUTPUT "public enum " . $_[1] . " {\n";
-}
-
-sub write_cdash_enum_end {
-
-	local (*OUTPUT) = $_[0];
-
-	print OUTPUT "\n};\n"
-}
-
-
-sub write_cdash_enum_line {
-	local (*OUTPUT) = $_[0];
-
-	if ($_[3] !~ "yes") {
-		print OUTPUT ",\n"
-	}
-
-	# looks like c# can't handle such values as enums
-	if ( not (POSIX::strtod($_[2]) & 0x8000000) ) { 
-		print OUTPUT "\t" . $_[1] . " = " . $_[2];
-	}
-}
-
-sub write_cdash_define_line {
-	local (*OUTPUT) = $_[0];
-
-	die "ERROR: c# have no 'define' directive $_[1] $_[2]"
-}
-
 ################ CPP Specific Subroutines #####################
 
 sub write_cpp_top_guard {
@@ -384,8 +326,9 @@ sub write_cpp_bottom_guard {
 
 	my $guardname = uc($_[1]);
 
-	print OUTPUT "#endif // __" . $guardname . "_H__\n";
+	print OUTPUT "#ifdef DEBUG_EC_IMPLEMENTATION\n\n" . join("\n", @debugOut) . "\n#endif\t// DEBUG_EC_IMPLEMENTATION\n\n";
 
+	print OUTPUT "#endif // __" . $guardname . "_H__\n";
 }
 
 sub write_cpp_enum_start {
@@ -393,13 +336,17 @@ sub write_cpp_enum_start {
 	local (*OUTPUT) = $_[0];
 
 	print OUTPUT "enum " . $_[1] . " {\n";
+	
+	push @debugOut, "wxString GetDebugName$_[1]($_[2] arg)\n{\n\tswitch (arg) {";
 }
 
 sub write_cpp_enum_end {
 
 	local (*OUTPUT) = $_[0];
 
-	print OUTPUT "\n};\n"
+	print OUTPUT "\n};\n";
+
+	push @debugOut, "\t\tdefault: return CFormat(wxT(\"unknown %d 0x%x\")) % arg % arg;\n\t}\n}\n";
 }
 
 
@@ -412,6 +359,11 @@ sub write_cpp_enum_line {
 	}
 
 	print OUTPUT "\t" . $_[1] . " = " . $_[2];
+
+	my $arg = $_[1];
+	$arg =~ s/\s//g;	# remove whitespace
+	push @debugOut, "\t\tcase $_[2]: return wxT(\"$arg\");";
+
 }
 
 sub write_cpp_define_line {

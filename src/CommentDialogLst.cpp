@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -85,7 +85,8 @@ void CCommentDialogLst::UpdateList()
 	int count = 0;
 	ClearList();
  
-	const FileRatingList &list = m_file->GetRatingAndComments();
+	FileRatingList list;
+	m_file->GetRatingAndComments(list);
 	for (FileRatingList::const_iterator it = list.begin(); it != list.end(); ++it) {
 		if (!thePrefs::IsCommentFiltered(it->Comment)) {
 			m_list->InsertItem(count, it->UserName);
@@ -101,7 +102,7 @@ void CCommentDialogLst::UpdateList()
 	if (count == 0) {
 		info = _("No comments");
 	} else {
-		info = wxString::Format(wxPLURAL("%u comment", "%u comments", count), count);
+		info = CFormat(wxPLURAL("%u comment", "%u comments", count)) % count;
 	}
 	
 	FindWindow(IDC_CMSTATUS)->SetLabel(info);

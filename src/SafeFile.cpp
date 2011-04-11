@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -27,6 +27,8 @@
 #include "MD4Hash.h"				// Needed for CMD4Hash
 #include "kademlia/utils/UInt128.h"	// Needed for CUInt128
 #include "ScopedPtr.h"				// Needed for CScopedPtr and CScopedArray
+#include "Logger.h"
+#include <common/Format.h>	// Needed for CFormat
 
 #if defined(__SUNPRO_CC)
 #define __FUNCTION__ __FILE__+__LINE__
@@ -199,7 +201,7 @@ unsigned char* CFileDataIO::ReadBsob(uint8* puSize) const
 
 	*puSize = ReadUInt8();
 	
-	CScopedArray<unsigned char> bsob(new unsigned char[*puSize]);
+	CScopedArray<unsigned char> bsob(*puSize);
 	Read(bsob.get(), *puSize);
 	
 	return bsob.release();
@@ -466,12 +468,14 @@ CTag *CFileDataIO::ReadTag(bool bOptACP) const
 			}
 
 			default:
-				throw wxString(wxT("Invalid Kad tag type on packet"));
+				throw wxString(CFormat(wxT("Invalid Kad tag type; type=0x%02x name=%s\n")) % type % name);
 		}
-	} catch (...) {
-		printf("Invalid Kad tag; type=0x%02x name=%s\n",
-			type, (const char *)unicode2char(name));
+	} catch(const CMuleException& e) {
+		AddLogLineN(e.what());
 		delete retVal;
+		throw;
+	} catch(const wxString& e) {
+		AddLogLineN(e);
 		throw;
 	}
 	
@@ -541,13 +545,12 @@ void CFileDataIO::WriteTag(const CTag& tag)
 			default:
 				//TODO: Support more tag types
 				// With the if above, this should NEVER happen.
-				printf("%s; Unknown tag: type=0x%02X\n", __FUNCTION__, tag.GetType());
-				wxASSERT(0);
+				AddLogLineNS(CFormat(wxT("CFileDataIO::WriteTag: Unknown tag: type=0x%02X")) % tag.GetType());
+				wxFAIL;
 				break;
 		}				
 	} catch (...) {
-		//AddDebugLogLine(false, wxT("Exception in CDataIO:WriteTag"));
-		printf("Exception in CDataIO:WriteTag");
+		AddLogLineNS(wxT("Exception in CDataIO:WriteTag"));
 		throw;
 	}
 }

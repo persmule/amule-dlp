@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2007-2009 Johannes Krampf <wuischke@amule.org>
+// Copyright (c) 2007-2011 Johannes Krampf ( wuischke@amule.org )
 //
 // Other code by:
 //
@@ -252,7 +252,7 @@ bool CMuleCollection::OpenBinary(const std::string &File)
 		}
 		
 		std::string fileHash = std::string(32, '0');
-		uint64_t fileSize;			
+		uint64_t fileSize = 0;			
 		std::string fileName;
 		std::string FileComment;
 		for(size_t fTi = 0; fTi < fTagCount; ++fTi) {

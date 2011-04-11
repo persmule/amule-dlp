@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2008-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2008-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -133,6 +133,18 @@ inline bool CanFSHandleLargeFiles(const CPath& path)
 	}
 }
 
+/**
+ * Disable / enable computer's energy saving "standby" mode.
+ *
+ */
+#if defined __WXMSW__ || defined __WXMAC__
+	#define PLATFORMSPECIFIC_CAN_PREVENT_SLEEP_MODE 1
+#else
+	#define PLATFORMSPECIFIC_CAN_PREVENT_SLEEP_MODE 0
+#endif
+
+void PreventSleepMode();
+void AllowSleepMode();
 
 }; /* namespace PlatformSpecific */
 

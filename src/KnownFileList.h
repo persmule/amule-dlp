@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -38,7 +38,7 @@ class CKnownFileList
 public:
 	CKnownFileList();
 	~CKnownFileList();
-	bool	SafeAddKFile(CKnownFile* toadd);
+	bool	SafeAddKFile(CKnownFile* toadd, bool afterHashing = false);
 	bool	Init();
 	void	Save();
 	void	Clear();
@@ -47,7 +47,8 @@ public:
 		time_t in_date,
 		uint64 in_size);
 	CKnownFile* FindKnownFileByID(const CMD4Hash& hash);
-	bool	IsKnownFile(const CKnownFile* file);
+	void	PrepareIndex();
+	void	ReleaseIndex();
 
 	uint16 requested;
 	uint32 transferred;
@@ -56,7 +57,7 @@ public:
 private:
 	wxMutex	list_mut;
 
-	bool	Append(CKnownFile*);
+	bool	Append(CKnownFile*, bool afterHashing = false);
 
 	CKnownFile *IsOnDuplicates(
 		const CPath& filename,
@@ -72,6 +73,12 @@ private:
 	typedef std::list<CKnownFile*> KnownFileList;
 	KnownFileList	m_duplicateFileList;
 	CKnownFileMap	m_knownFileMap;
+	// The filename "known.met"
+	wxString	m_filename;
+	// Speed up shared files reload
+	typedef std::multimap<uint32, CKnownFile*> KnownFileSizeMap;
+	KnownFileSizeMap * m_knownSizeMap;
+	KnownFileSizeMap * m_duplicateSizeMap;
 };
 
 #endif // KNOWNFILELIST_H

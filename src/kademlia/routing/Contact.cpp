@@ -1,9 +1,9 @@
 //
 // This file is part of aMule Project
 //
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Project ( http://www.amule-project.net )
-// Copyright (C)2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne ( http://www.emule-project.net )
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@
 
 // This work is based on the java implementation of the Kademlia protocol.
 // Kademlia: Peer-to-peer routing based on the XOR metric
-// Copyright (C) 2002  Petar Maymounkov [petar@post.harvard.edu]
+// Copyright (c) 2002  Petar Maymounkov ( petar@post.harvard.edu )
 // http://kademlia.scs.cs.nyu.edu
 
 // Note To Mods //
@@ -63,7 +63,6 @@ CContact::CContact(const CUInt128 &clientID, uint32_t ip, uint16_t udpPort, uint
 	  m_created(m_lastTypeSet),
 	  m_inUse(0),
 	  m_version(version),
-	  m_checkKad2(true),
 	  m_ipVerified(ipVerified),
 	  m_receivedHelloPacket(false),
 	  m_udpKey(key)
