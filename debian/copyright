@@ -1,162 +1,211 @@
 Debianized by Julien Delange <julien@gunnm.org>			2003-09-27
-The current Debian Co-maintainer is Adrian Yanes  <devel@ayanes.com> 
-The current Debian Co-maintainer is Cristian Greco <cristian@regolo.cc>
 
 It was downloaded from:
 
     <http://www.amule.org/files/index.php>
 
-Snapshot versions are downloaded from:
-
-    <http://www.amule.org/files/index.php>
-
-And the project homepage is:
-
-    <http://www.amule.org>
-
 Upstream authors (from docs/AUTHORS in the tarball):
 
     | Maintainer(s):
-    |     Angel Vidal Veiga  aka Kry               <kry@amule.org>
-    |     K. B.              aka deltaHF           <deltahf@amule.org>
-    |     Mikkel Schubert    aka Xaignar           <xaignar@amule.org>
+    |    Marcelo Jimenez    aka Phoenix           <phoenix@amule.org>
+    |    Dévai Tamás        aka GonoszTopi        <gonosztopi@amule.org>
+    |    Angel Vidal Veiga  aka Kry               <kry@amule.org>
     |
     | Developer(s):
-    |     Alex Martinez      aka Unleashed         <alex@unleashed.kicks-ass.org>
-    |     Ariano Bertacca    aka bootstrap         <ariano@hirnriss.net>
-    |     Dévai Tamás        aka GonoszTopi        <gonosztopi@amule.org>
-    |     efe                aka the polish        <thepolish@vipmail.ru>
-    |     Jacobo Vilella     aka Jacobo221         <jacobo221@amule.org>
-    |     Jayson Cowan       aka hellimod          <jayson@spelljammer.com>
-    |     Ken Thomases       aka ken               <ken@codeweavers.com>
-    |     Leonid Froenchenko aka lfroen            <lfroen@gmail.com>
-    |     Marcelo Jimenez    aka Phoenix           <mrjimenez@globo.com>
-    |     Patrizio Bassi     aka Hetfield          <hetfield@amule.org>
-    |     Pedro De Oliveira  aka falso             <falso@rdk.homeip.net>
-    |     Stefan Baldus      aka stefanero         <stefanero@amule.org>
-    |     Tobias Ottmar      aka Citroklar         <citroklar@gmx.net>
+    |    Johannes Krampf    aka wuischke          <wuischke@amule.org>
+    |    Martin Brieg       aka Stu Redman        <sturedman@amule.org>
     |
     | Web Administration:
-    |     K. B.              aka deltaHF           <deltahf@amule.org>
+    |    Angel Vidal Veiga  aka Kry               <kry@amule.org>
     |
     | Graphics Designer(s):
-    |     Matt Britt         aka uberpenguin       <uberpenguin@hotpop.com>
+    |    Matt Britt         aka uberpenguin       <uberpenguin@hotpop.com>
     |
     | Former developer(s):
-    |     George L.          aka croaker           <croaker@users.berlios.de>
-    |     JT                 aka lemofan           <lemonfan@users.berlios.de>
-    |     Luca Vagnozzi      aka shakraw           <shakraw@users.sourceforge.net>
-    |     Nikolay Igotti     aka olonho            <nike@lyola.com>
-    |     Norbert Lataille   aka nonal             <Norbert.Lataille@m4x.org>
-    |     pure_ascii                               <pure_ascii@users.sourceforge.net>
-    |     Santiago Gomez     aka aquatroll         <aquatroll@users.sourceforge.net>
-    |     Thomas Landsberger aka EmilioSandoz      <emiliosandoz@users.sourceforge.net>
-    |     umale                                    <umale@web.de>
+    |    Mikkel Schubert    aka Xaignar           <xaignar@amule.org>
+    |    Patrizio Bassi     aka Hetfield          <hetfield@amule.org>
+    |    Pedro De Oliveira  aka falso             <falso@rdk.homeip.net>
+    |    Stefan Baldus      aka stefanero         <stefanero@amule.org>
+    |    Tobias Ottmar      aka Citroklar         <citroklar@gmx.net>
+    |    Emi Rodriguez      aka MalaPraxis        <badpraxis@googlemail.com>
+    |    Ariano Bertacca    aka bootstrap         <ariano@hirnriss.net>
+    |    Ken Thomases       aka ken               <ken@codeweavers.com>
+    |    Leonid Froenchenko aka lfroen            <lfroen@gmail.com>
+    |    K. B.              aka deltaHF           <deltahf@amule.org>
+    |    George L.          aka croaker           <croaker@users.berlios.de>
+    |    JT                 aka lemofan           <lemonfan@users.berlios.de>
+    |    Luca Vagnozzi      aka shakraw           <shakraw@users.sourceforge.net>
+    |    Nikolay Igotti     aka olonho            <nike@lyola.com>
+    |    Norbert Lataille   aka nonal             <Norbert.Lataille@m4x.org>
+    |    pure_ascii                               <pure_ascii@users.sourceforge.net>
+    |    Santiago Gomez     aka aquatroll         <aquatroll@users.sourceforge.net>
+    |    Thomas Landsberger aka EmilioSandoz      <emiliosandoz@users.sourceforge.net>
+    |    umale                                    <umale@web.de>
+    |    Alex Martinez      aka Unleashed         <alex@unleashed.kicks-ass.org>
+    |    Jacobo Vilella     aka Jacobo221         <jacobo221@amule.org>
+    |    efe                aka the polish        <thepolish@vipmail.ru>
+    |    Jayson Cowan       aka hellimod          <jayson@spelljammer.com>
     |
     | Gold Member(s):
-    |     aMule Creator:
-    |     Stephane Colin   aka Creteil or BigBob <bigbob@meloo.com>
-    |     lmule Creator:
-    |     Timo Kujala      aka Tiku              <tkujala@lut.fi>
-    |     Guest Coder and Good Friend:
-    |     Alo Sarv         aka Madcat            <madcat_@users.sf.net>
+    |    aMule Creator:
+    |      Stephane Colin   aka Creteil or BigBob <bigbob@meloo.com>
+    |    lmule Creator:
+    |      Timo Kujala      aka Tiku              <tkujala@lut.fi>
+    |    Guest Coder and Good Friend:
+    |      Alo Sarv         aka Madcat            <madcat_@users.sf.net>
 
 Copyright:
 
-  - The aMule sources from src, src/kademlia, src/libs, and src/webserver are:
+  - The main aMule copyright holders are:
 
-    | Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-    | Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
-    | Copyright (c) 2003-2006 Angel Vidal (Kry) ( kry@amule.org )
-    | Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
-    | Copyright (C) 2005-2006 Froenchenko Leonid ( lfroen@amule.org )
-    | Copyright (c) 2004-2006 Mikkel Schubert ( xaignar@users.sourceforge.net )
-    | Copyright (C) 2005-2006 Dévai Tamás ( gonosztopi@amule.org )
-    | Copyright (c) 2004-2006 shakraw ( shakraw@users.sourceforge.net )
-    | Copyright (C) 2002 Petar Maymounkov [petar@post.harvard.edu]
-    | Copyright (c) 2003-2006 Alo Sarv ( madcat@_@users.sf.net / sharedaemon.sf.net )
-    | Copyright (c) 2004-2006 Marcelo Jimenez (phoenix@amule.org)
-    | Copyright (c) 2003-2006 Timo Kujala <tiku@users.sourceforge.net>
-    | Copyright (c) 1998 Vadim Zeitlin ( zeitlin@dptmaths.ens-cachan.fr )
+    | Copyright (c) 2003-2011 Alo Sarv ( madcat_@users.sourceforge.net )
+    | Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+    | Copyright (c) 2003-2011 Angel Vidal ( kry@amule.org )
+    | Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
+    | Copyright (c) 2004-2011 Carlo Wood ( carlo@alinoe.com )
+    | Copyright (c) 2005-2011 Dévai Tamás ( gonosztopi@amule.org )
+    | Copyright (c) 2002-2011 Drager
+    | Copyright (c) 2009-2011 Frediano Ziglio (freddy77@gamilc.com)
+    | Copyright (c) 2004-2011 Froenchenko Leonid (lfroen@users.sourceforge.net)
+    | Copyright (c) 2007-2011 Johannes Krampf ( wuischke@amule.org )
+    | Copyright (c) 2004-2011 Marcelo Roberto Jimenez ( phoenix@amule.org )
+    | Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+    | Copyright (c) 2005-2011 Mikkel Schubert ( xaignar@users.sourceforge.net )
+    | Copyright (c) 2002-2011 Patrizio Bassi ( hetfield@amule.org )
+    | Copyright (c) 2002-2011 quekky
+    | Copyright (c) 2002-2011 Robert Rostek ( tecxx@rrs.at )
+    | Copyright (c) 2004-2011 shakraw ( shakraw@users.sourceforge.net )
+    | Copyright (c) 2003-2011 Stu Redman ( sturedman@amule.org )
+    | Copyright (c) 2002-2011 Timo Kujala ( tiku@users.sourceforge.net )
+    | Copyright (c) 1998-2011 Vadim Zeitlin ( zeitlin@dptmaths.ens-cachan.fr )
 
-  - The wxcas and alc utilities from src/utils/wxCas and src/utils/aLinkCreator
-    are:
+  - The wxcas and alc utilities also are:
 
-    | Copyright (C) 2004 by ThePolish <thepolish@vipmail.ru>
-    | Copyright (C) 2004 by Phoenix
-    | Copyright (C) 2004 by Madcat
-    | Copyright (C) 2002, 2003, 2004 by Michael Buesch
+    | Copyright (c) 2004-2011 ThePolish ( thepolish@vipmail.ru )
+    | Copyright (c) 2002-2011 Michael Buesch ( mbuesch@freenet.de )
 
   - The cas utility from src/utils/cas is:
 
-    | Copyright (C) 2004 by Pedro de Oliveira
+    | Copyright (c) 2004-2011 Pedro de Oliveira ( falso@rdk.homeip-net )
 
-  All of the above being licensed under the following terms:
+  - The amps utility are:
 
-    | This program is free software; you can redistribute it and/or modify
-    | it under the terms of the GNU General Public License as published by
-    | the Free Software Foundation; either version 2 of the License, or
-    | (at your option) any later version.
-    |
-    | This program is distributed in the hope that it will be useful,
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    | GNU General Public License for more details.
-    |
-    | You should have received a copy of the GNU General Public License
-    | along with this program; if not, write to the Free Software
-    | Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
+    | Copyright (c) 2004-2011 Matt Britt ( uberpenguin@hotpop.com )
 
-  The full text of the GNU General Public License is available on Debian
-  systems in /usr/share/common-licenses/GPL.
+License:
 
-				 * * *
+    GPL-2+
 
-  - src/CryptoPP.{h,cpp} are included from the Crypto++ library and are:
 
-    | Compilation Copyright (c) 1995-2004 by Wei Dai.  All rights reserved.
-    | This copyright applies only to this software distribution package
-    | as a compilation, and does not imply a copyright on any particular
-    | file in the package.
-    |
-    | The following files are copyrighted by their respective original authors,
-    | and their use is subject to additional licenses included in these files.
+The full text of the GNU General Public License v2 is available on Debian
+systems in /usr/share/common-licenses/GPL-2.
 
-				 * * *
+The Debian packaging is:
 
-  - src/SHA.{h,cpp} are:
+    Copyright (C) 2010-2011 Sandro Tosi <morph@debian.org>
+    Copyright (C) 2009-2011 Giuseppe Iuculano <iuculano@debian.org>
 
-    | Copyright (c) 2002, Dr Brian Gladman <brg@gladman.me.uk>, Worcester, UK.
-    | All rights reserved.
-    |
-    | LICENSE TERMS
-    |
-    | The free distribution and use of this software in both source and binary
-    | form is allowed (with or without changes) provided that:
-    |
-    |   1. distributions of this source code include the above copyright
-    |      notice, this list of conditions and the following disclaimer;
-    |
-    |   2. distributions in binary form include the above copyright
-    |      notice, this list of conditions and the following disclaimer
-    |      in the documentation and/or other associated materials;
-    |
-    |   3. the copyright holder's name is not used to endorse products
-    |      built using this software without specific written permission.
-    |
-    | ALTERNATIVELY, provided that this notice is retained in full, this product
-    | may be distributed under the terms of the GNU General Public License (GPL),
-    | in which case the provisions of the GPL apply INSTEAD OF those given above.
-    |
-    | DISCLAIMER
-    |
-    | This software is provided 'as is' with no explicit or implied warranties
-    | in respect of its properties, including, but not limited to, correctness
-    | and/or fitness for purpose.
+and is licensed under the same terms as upstream code.
 
-				 * * *
 
-  - src/extern/listctrl.262.{h,cpp} are included from wxWidgets 2.6.2 and are:
+These files have different copyright/license information:
 
-    | Copyright:   (c) 1998 Robert Roebling
-    | Licence:     wxWindows licence
+src/Parser.cpp, src/Parser.hpp, src/webserver/src/php_parser.c
+    A Bison parser, made by GNU Bison 2.3.
+    Copyright (c) 1984-2008 Free Software Foundation, Inc.
+    GPL-2+
+
+src/SHA.{h,cpp} are:
+    Copyright (c) 2002, Dr Brian Gladman <brg@gladman.me.uk>, Worcester, UK.
+    All rights reserved.
+
+    LICENSE TERMS
+
+    The free distribution and use of this software in both source and binary
+    form is allowed (with or without changes) provided that:
+
+      1. distributions of this source code include the above copyright
+         notice, this list of conditions and the following disclaimer;
+
+      2. distributions in binary form include the above copyright
+         notice, this list of conditions and the following disclaimer
+         in the documentation and/or other associated materials;
+
+      3. the copyright holder's name is not used to endorse products
+         built using this software without specific written permission.
+
+    ALTERNATIVELY, provided that this notice is retained in full, this product
+    may be distributed under the terms of the GNU General Public License (GPL),
+    in which case the provisions of the GPL apply INSTEAD OF those given above.
+
+    DISCLAIMER
+
+    This software is provided 'as is' with no explicit or implied warranties
+    in respect of its properties, including, but not limited to, correctness
+    and/or fitness for purpose.
+
+src/extern/listctrl.{h,cpp} are included from wxWidgets 2.6.2 and are:
+    Copyright:   (c) 1998-2011 Robert Roebling
+    Licence:     wxWindows licence
+
+src/libs/common/MD5Sum.h:
+    Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+    Copyright (c) 1991-2011, RSA Data Security, Inc. Created 1991. All
+    rights reserved.
+
+    License to copy and use this software is granted provided that it
+    is identified as the "RSA Data Security, Inc. MD5 Message-Digest
+    Algorithm" in all material mentioning or referencing this software
+    or this function.
+
+    License is also granted to make and use derivative works provided
+    that such works are identified as "derived from the RSA Data
+    Security, Inc. MD5 Message-Digest Algorithm" in all material
+    mentioning or referencing the derived work.
+
+    RSA Data Security, Inc. makes no representations concerning either
+    the merchantability of this software or the suitability of this
+    software for any particular purpose. It is provided "as is"
+    without express or implied warranty of any kind.
+
+    These notices must be retained in any copies of any part of this
+    documentation and/or software.
+
+src/utils/aLinkCreator/src/bithelp.h:
+    Copyright (c) 1999-2011 Free Software Foundation, Inc.
+
+    This file is part of Libgcrypt.
+
+    Libgcrypt is free software; you can redistribute it and/or modify
+    it under the terms of the GNU Lesser general Public License as
+    published by the Free Software Foundation; either version 2.1 of
+    the License, or (at your option) any later version.
+
+    Libgcrypt is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
+
+
+The plasmamule applet is:
+    Copyright (c) 2010-2011 Werner Mahr (Vollstrecker) <amule@vollstreckernet.de>
+    License: GPL-3+
+
+src/utils/scripts/id2ip
+    Copyright (c) 2004-2011 xmb ( http://xmb.ath.cx )
+    Copyright (c) 2004-2011 Jacobo Vilella (Jacobo221)
+
+src/utils/scripts/linkcvs
+    Copyright (c) 2004-2011 Jacobo Vilella (Jacobo221)
+
+src/utils/scripts/stats.pl
+    Copyright 2003-2005 Nathan Walp <faceprint@faceprint.com>
+
+unittests/*
+    Copyright (c) 2005-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+    Copyright (c) 2004-2011 Barthelemy Dagenais ( barthelemy@prologique.com )
+    License: LGPL-2.1+
