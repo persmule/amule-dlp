@@ -1,8 +1,5 @@
 configure_ignore_gdlib-config_garbage.diff
 cas_configfile.c_good_default_paths.diff
 use_xdg-open_as_preview_default.diff
-alc_man_typo.diff
-ed2k_man_typo.diff
 fallocate.diff
-fix_ftbfs_on_gcc45.diff
 version_check.diff

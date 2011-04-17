@@ -1,18 +1,22 @@
---- a/configure.in
-+++ b/configure.in
-@@ -169,7 +169,7 @@ AS_IF([test x$CAS = xyes], [
+Index: amule/configure.in
+===================================================================
+--- amule.orig/configure.in	2011-04-12 00:27:38.756227060 +0200
++++ amule/configure.in	2011-04-17 11:44:55.797303949 +0200
+@@ -108,7 +108,7 @@
  	# Check for gd
  	MULE_CHECK_GDLIB([2.0.0], [
  		CAS_DEFS="-D__GD__"
 -		MULE_PREPEND([GDLIB_LIBS], [-lgd])
 +		GDLIB_LIBS="-lgd"
  	], [CAS_DEFS=])
- 	AS_IF([test -z "$CAS_DEFS"], [
- 		AC_MSG_WARN([
---- a/configure
-+++ b/configure
-@@ -6315,7 +6315,7 @@ fi
- 	if test -n "$GDLIB_VERSION"; then
+ 	AS_IF([test -z "$CAS_DEFS"],
+ 		[MULE_WARNING(
+Index: amule/configure
+===================================================================
+--- amule.orig/configure	2011-04-12 00:27:38.756227060 +0200
++++ amule/configure	2011-04-17 11:44:55.804510955 +0200
+@@ -7192,7 +7192,7 @@
+ 	if test -n "$GDLIB_VERSION"; then :
  
  		CAS_DEFS="-D__GD__"
 -		GDLIB_LIBS="-lgd $GDLIB_LIBS"

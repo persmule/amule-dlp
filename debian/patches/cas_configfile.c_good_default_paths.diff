@@ -1,23 +1,13 @@
---- a/src/utils/cas/configfile.c
-+++ b/src/utils/cas/configfile.c
-@@ -44,9 +44,9 @@ int writeconfig(void)
+Index: amule/src/utils/cas/configfile.c
+===================================================================
+--- amule.orig/src/utils/cas/configfile.c	2011-04-12 00:27:42.000000000 +0200
++++ amule/src/utils/cas/configfile.c	2011-04-17 11:50:56.448061821 +0200
+@@ -44,7 +44,7 @@
  		"# font_size - size the font\n",
  		"# source_image - image where the text will be writen\n",
  		"# *_line - x,y,[1/0] enabled or disabled\n\n",
 -		"font /usr/share/fonts/corefonts/times.ttf\n",
 +		"font /usr/share/fonts/truetype/ttf-dejavu/DejaVuSerif.ttf\n",
  		"font_size 10.5\n",
--		"source_image /usr/share/pixmaps/stat.png\n",
-+		"source_image /usr/share/cas/stat.png\n",
+ 		"source_image /usr/share/cas/stat.png\n",
  		"first_line 23,17,1\n",
- 		"second_line 23,34,1\n",
- 		"third_line 23,51,1\n",
-@@ -54,7 +54,7 @@ int writeconfig(void)
- 		"fifth_line 23,85,1\n",
- 		"sixth_line 23,102,1\n",
- 		"seventh_line 23,119,1\n",
--		"template /usr/share/pixmaps/tmp.html\n",
-+		"template /usr/share/cas/tmp.html\n"
- 		"img_type 0\n"
- 	};
- 
