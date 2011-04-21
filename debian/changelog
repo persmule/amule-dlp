@@ -1,3 +1,13 @@
+amule (2.3.1~rc1-1) experimental; urgency=low
+
+  * Imported Upstream version 2.3.1~rc1+repack
+  * adapted (or removed) patches to new upstream code
+  * update list of files to install for amule doc
+  * update copyright/license as per new source, adding missing packaging
+    notes
+
+ -- Sandro Tosi <morph@debian.org>  Thu, 21 Apr 2011 21:32:08 +0200
+
 amule (2.2.6+debian0-9) unstable; urgency=low
 
   [ Giuseppe Iuculano ]
