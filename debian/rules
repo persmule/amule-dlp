@@ -132,6 +132,10 @@ binary-common:
 	dh_md5sums
 	dh_builddeb
 
+import-orig:
+	# call it like ./debian/rules import-orig <path to the new tarball>
+	git-import-orig --filter=debian/* --filter=config.{sub,guess} --pristine-tar --filter-pristine-tar ${TARBALL}
+
 #
 
-.PHONY: build clean install binary binary-arch binary-indep binary-common
+.PHONY: build clean install binary binary-arch binary-indep binary-common import-orig
