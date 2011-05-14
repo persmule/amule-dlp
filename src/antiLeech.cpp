@@ -642,6 +642,8 @@ LPCTSTR __declspec(dllexport) DLPCheckModstring_Hard(LPCTSTR modversion, LPCTSTR
 		StrStrI(modversion, L"Angelmule") || // JvA: no sources, no changelog, community username,...
 		StrStrI(modversion, L"TR-P2P-MoD") || // JvA: bad client
 		StrStrI(modversion, L"Esekci") || // JvA: no sources, no changelog, ...
+		StrStrI(modversion, L"MaGiX") || // default modstring if activated and unchanged
+		StrStrI(modversion, L"MorphJC") || // bad 'Justice CS' and PBF for incomplete files
 		_tcslen(modversion) > 0 && (StrStrI(clientversion,_T("edonkey")) || modversion[0]==_T('['))   ||  //1. donkey user with modstring, 2. modstring begins with [ this is a known leecher
 		(StrStrI(modversion, _T("Xtreme")) && StrStrI(modversion, _T("]")))  //bad Xtreme mod
 		)
@@ -918,7 +920,8 @@ LPCTSTR __declspec(dllexport) DLPCheckUsername_Hard(LPCTSTR username)
 		_tcsstr(username,_T("http://www.net-xfer.com")) || //netxfer
 		_tcsstr(username,_T("emuIe-project.net")) || //phishing site
 		_tcsstr(username,_T("QQDownload")) || //tencent
-//		_tcsstr(username,_T("[Devils][")) || //2009/12/25 // removed due to claim to stop using badmods
+		_tcsstr(username,_T("[Devils][")) || //2009/12/25
+		_tcsstr(username,_T("sharing-devils")) || // leecher community
 		//2010/5/29
 		//_tcsstr(username,_T("btbbt.com")) || //community username
 		//_tcsstr(username,_T("Greendown.Cn")) || //community username //these two sites provide some modified versions. they only hacked the title and changed the default username. i think the users are innocent. unban.
