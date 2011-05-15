@@ -481,7 +481,7 @@ bool CamuleApp::OnInit()
 #endif
 
 	if ( !cmdline.Found(wxT("disable-fatal")) ) {
-#ifndef __WXMSW__
+#ifndef wxUSE_ON_FATAL_EXCEPTION
 		// catch fatal exceptions
 		wxHandleFatalExceptions(true);
 #endif
