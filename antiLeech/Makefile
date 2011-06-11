@@ -5,13 +5,13 @@ objects = antiLeech.o antiLeech_wx.o Interface.o
 antiLeech.so: $(objects)
 	gcc -shared $(objects) -o antiLeech.so
 
-antiLeech.o:	CString_wx.h antiLeech.h
+antiLeech.o:	CString_wx.h antiLeech.h antiLeech.cpp
 	$(run-complie)
 
-antiLeech_wx.o:	antiLeech_wx.h
+antiLeech_wx.o:	antiLeech_wx.h antiLeech_wx.cpp
 	$(run-complie)
 
-Interface.o:	antiLeech.h
+Interface.o:	antiLeech.h Interface.cpp
 	$(run-complie)
 
 .PHONY clean:
