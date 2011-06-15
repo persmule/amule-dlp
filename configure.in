@@ -149,6 +149,14 @@ AC_ARG_ENABLE(
 		[do not compile UPnP code])],
 	[ENABLE_UPNP=$enableval], [ENABLE_UPNP=yes])
 
+#Dynamic Leecher Protection - Bill Lee
+AC_ARG_ENABLE(
+	[dlp],
+	[AS_HELP_STRING(
+		[--disable-dlp],
+		[Do not compile DLP.])],
+	[ENABLE_DLP=$enableval], [ENABLE_DLP=yes])
+
 # Default is yes, because they're most likely compatible.
 # However, this is only used when cross-compiling.
 AC_ARG_WITH(
@@ -440,6 +448,8 @@ AM_CONDITIONAL(NEED_CORESERVICES, test x$SYS = xdarwin)
 AM_CONDITIONAL(COMPILE_NLS, test x$USE_NLS = xyes)
 AM_CONDITIONAL(GENERATE_FLEX_HEADER, test x$HAVE_FLEX_EXTENDED = xyes)
 AM_CONDITIONAL(INSTALL_SKINS, test x$INSTALL_SKINS = xyes)
+#Dynamic Leech Protection - Bill Lee
+AM_CONDITIONAL(ENABLE_DLP, test x$ENABLE_DLP = xyes)
 
 # Check for readline library
 if test x$AMULECMD = xyes -o x$WEB = xyes; then

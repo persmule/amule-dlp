@@ -166,6 +166,13 @@ core_sources += \
 	UPnPCompatibility.cpp
 endif
 
+#Dynamic Leecher Protection - Bill Lee
+if ENABLE_DLP
+core_sources += \
+	DLP.cpp
+AM_CPPFLAGS += -DAMULE_DLP
+endif
+
 gui_sources = \
 	amule-gui.cpp \
 	amuleDlg.cpp \

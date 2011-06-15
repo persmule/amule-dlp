@@ -23,9 +23,9 @@
 //
 
 //Dynamic Leech Protect - Bill Lee
-#include "DLPPref.h"
-#include "antiLeech.h"
-#include <wx/dynlib.h>                          /* Needed for wxDynamicLibrary */
+#ifdef AMULE_DLP
+#include "DLP.h"
+#endif
 
 #include <wx/wx.h>
 
@@ -273,7 +273,7 @@ void CUpDownClient::Init()
 
 	m_hasbeenobfuscatinglately = false;
 
-	dlp_nonofficalopcodes = false; //Dynamic Leecher Protect
+	dlp_nonofficialopcodes = false; //Dynamic Leecher Protect
 
 }
 
@@ -596,21 +596,13 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 				break;				
 			//Bill Lee start
 			//Dynamic Leecher Protection
+			#ifdef AMULE_DLP
 			default:	//if tag isn't those above, it may be used by leecher.
-				if(!IsBanned() && antiLeech){
-					if(thePrefs::GetDLPCheckMask() & PF_HELLOTAG) {
-						const wxChar* dlp_result = antiLeech->DLPCheckHelloTag(temptag.GetNameID());
-						if(dlp_result != NULL) {
-							wxString ret;
-							ret.Printf(_("[HelloTag %s] %s"), dlp_result, GetClientFullInfo().c_str());
-							Ban();
-							theApp->AddDLPMessageLine(ret);
-						}
-					}
-				}
-				dlp_nonofficalopcodes = true; //to detect Ghost Mod
+				theDLP->CheckHelloTag(this, temptag.GetNameID());
+				dlp_nonofficialopcodes = true; //to detect Ghost Mod
 					break;
 			//Bill Lee end
+			#endif
 		}
 	}
 
@@ -696,10 +688,10 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 		Kademlia::CKademlia::Bootstrap(wxUINT32_SWAP_ALWAYS(GetIP()), GetKadPort(), GetKadVersion() > 1);
 	}
 
-	if(!IsBanned()){
-	if(antiLeech)	DLPCheck();
-	}
-	//Bill Lee end
+	//Dynamic Leecher Protection - Bill Lee
+	#ifdef AMULE_DLP
+	theDLP->DLPCheck(this);
+	#endif
 
 	return bIsMule;
 }
@@ -958,18 +950,10 @@ bool CUpDownClient::ProcessMuleInfoPacket(const byte* pachPacket, uint32 nSize)
 
 					//Bill Lee start
 					//Dynamic Leecher Protection
-					if(!IsBanned() && antiLeech){
-						if(thePrefs::GetDLPCheckMask() & PF_INFOTAG) {
-							const wxChar* dlp_result = antiLeech->DLPCheckInfoTag(temptag.GetNameID());
-							if(dlp_result != NULL) {
-								wxString ret;
-								ret.Printf(_("[InfoTag %s] %s"), dlp_result, GetClientFullInfo().c_str());
-								Ban();
-								theApp->AddDLPMessageLine(ret);
-							}
-						}
-					}
-					dlp_nonofficalopcodes = true;
+					#ifdef AMULE_DLP
+					theDLP->CheckInfoTag(this, temptag.GetNameID());
+					dlp_nonofficialopcodes = true;
+					#endif
 					//Bill Lee end
 
 					break;
@@ -1009,7 +993,10 @@ bool CUpDownClient::ProcessMuleInfoPacket(const byte* pachPacket, uint32 nSize)
 		m_byInfopacketsReceived |= IP_EMULEPROTPACK;		
 	}
 
-	if(!IsBanned() && antiLeech) DLPCheck(); //Dynamic Leecher Protection - Added by Bill Lee
+	//Dynamic Leecher Protection - Added by Bill Lee
+	#ifdef AMULE_DLP
+	theDLP->DLPCheck(this);
+	#endif
 	
 	return (protocol_version == 0xFF); // This was a OS_Info?
 }
@@ -2642,113 +2629,3 @@ void CUpDownClient::SetConnectOptions(uint8_t options, bool encryption, bool cal
 	SetDirectUDPCallbackSupport((options & 0x08) != 0 && callback);
 }
 // File_checked_for_headers
-
-bool CUpDownClient::DLPCheck(){
-	const wxChar* tmp = NULL;
-	wxString ret;
-	
-	unsigned int prefs = thePrefs::GetDLPCheckMask();
-
-	CString modver(GetClientModString());
-	CString clientver(GetClientVerString());
-	CString uname(GetUserName());
-	CString uhash(wxString(GetUserHash().EncodeSTL().c_str(), wxConvUTF8));
-	
-	//CheckGhostMod
-	if(prefs & PF_GHOSTMOD) {
-		if(dlp_nonofficalopcodes && (modver.IsEmpty())) {
-			ret = _("GhostMod");
-			tmp = ret.c_str(); //char pointer
-		}
-	}
-
-	// Check bad modstring
-	if ((prefs & PF_MODSTRING) && (tmp == NULL)) {
-		if((tmp = antiLeech->DLPCheckModstring_Soft(modver.c_str(), clientver.c_str())) == NULL)
-			tmp = antiLeech->DLPCheckModstring_Hard(modver.c_str(), clientver.c_str());
-	}
-	/*
-	if ((prefs & PF_USERHASH) && (tmp == NULL)) {
-		// not finished
-	}
-	*/
-	// Check bad username
-	if ((prefs & PF_USERNAME) && (tmp == NULL)) {
-		if ((tmp = antiLeech->DLPCheckNameAndHashAndMod(uname, uhash, modver)) == NULL){
-			if( (tmp = antiLeech->DLPCheckUsername_Hard(uname.c_str())) == NULL )
-				tmp = antiLeech->DLPCheckUsername_Soft(uname.c_str());
-		}
-	}
-	
-
-	// Check VeryCD eMule
-	if ((prefs & PF_VERYCDEMULE) && (tmp == NULL)) {
-		if(modver.Find(wxT("VeryCD")) != wxNOT_FOUND){
-			ret = _("VeryCD Mod");
-			tmp = ret.c_str();
-		}
-	}
-	
-	if (tmp != NULL) {
-		ret = tmp;
-		wxString wxInfo;
-		wxInfo.Printf(wxT("[%s] %s"), ret.c_str(), GetClientFullInfo().c_str());
-		Ban();
-		theApp->AddDLPMessageLine(wxInfo);
-		return true;
-	}
-
-	return false;
-
-}
-
-//Init static member - Bill Lee
-wxDynamicLibrary* CUpDownClient::antiLeechLib = NULL;
-IantiLeech* CUpDownClient::antiLeech = NULL;
-
-//Bill Lee
-int CUpDownClient::ReloadAntiLeech(){
-	typedef IantiLeech* (*Creator)();
-	typedef int (*Destoryer)(IantiLeech*);
-	//Unloading
-	AddLogLineM(false,  _("Checking if there is a antiLeech working..."));
-	if(antiLeechLib){
-		Destoryer fn = (Destoryer)(antiLeechLib->GetSymbol( wxT("destoryAntiLeechInstant")));
-		wxASSERT(fn);
-		AddLogLineM(false,  _("Unload previous antiLeech..."));
-		fn(antiLeech);
-		antiLeech = NULL;
-		delete antiLeechLib;
-		antiLeechLib = NULL;
-	}
-	else
-		AddLogLineM(false,  _("No working antiLeech exists."));
-	//Try to load lib;
-	AddLogLineM(false,  _("Trying to load antiLeech..."));
-	antiLeechLib = new wxDynamicLibrary( wxT("antiLeech") );
-	if(!antiLeechLib){                      /* If object antiLeechLib can't be create, it is an internal error instead of antiLeech's not exsisting. */
-		AddLogLineM(true,  _("Internal error happened when loading antiLeech!"));
-		return 1;	//Not found
-	}
-	//Searching symbol "createAntiLeechInstant"
-	Creator fn = (Creator)(antiLeechLib->GetSymbol( wxT("createAntiLeechInstant") ));
-	if(!fn){
-		delete antiLeechLib;
-		antiLeechLib = NULL;
-		AddLogLineM(true,  _("No antiLeech available!"));
-		return 2;	//Not found or found, but isn't antiLeech
-	}
-	//Try to create antiLeech
-	antiLeech = fn();
-	if(antiLeech){
-		wxString logline;
-		logline.Printf(_("Succeed loading antiLeech! Version: %d"), antiLeech->GetDLPVersion());
-		AddLogLineM(true, logline);
-		return 0;
-	}
-	//else
-	delete antiLeechLib;
-	antiLeechLib = NULL;
-	AddLogLineM(true,  _("FAIL! An error occur when setting up antiLeech."));
-	return 3;	//Fail to create antiLeech instant
-}
