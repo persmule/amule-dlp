@@ -38,4 +38,6 @@ private:
 
 	wxDynamicLibrary antiLeechLib;
 	IantiLeech* antiLeech;
+
+	bool LoadFrom(wxString& file);
 };

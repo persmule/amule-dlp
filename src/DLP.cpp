@@ -123,12 +123,28 @@ int DLP::ReloadAntiLeech(){
 	}
 	else
 		AddLogLineM(false,  _("No working antiLeech exists."));
+	//Get lib's location
+	wxStandardPathsBase &spb(wxStandardPaths::Get());
+#ifdef __WXMSW__
+	wxString dataDir(spb.GetPluginsDir());
+#elif defined(__WXMAC__)
+	wxString dataDir(spb.GetDataDir());
+#else
+	wxString dataDir(spb.GetDataDir().BeforeLast(wxT('/')) + wxT("/amule"));
+#endif
+	wxString localName = wxDynamicLibrary::CanonicalizeName(wxT("antiLeech"));
+	wxString systemwideFile(JoinPaths(dataDir, localName));
+	wxString userFile(theApp->ConfigDir + localName);
+	wxString fallbackFile(wxT("antiLeech"));
 	//Try to load lib;
 	AddLogLineM(false,  _("Trying to load antiLeech..."));
-	antiLeechLib.Load( wxT("antiLeech") );
-	if(antiLeechLib.IsLoaded()){
-		AddLogLineM(true,  _("No antiLeech available!"));
-		return 1;	//Not found
+	if( !LoadFrom(userFile) ){
+		if( !LoadFrom(systemwideFile) ){
+			if( !LoadFrom(fallbackFile) ){
+				AddLogLineM(true,  _("No antiLeech available!"));
+				return 1;	//Not found
+			}
+		}
 	}
 	//Searching symbol "createAntiLeechInstant"
 	Creator fn = (Creator)(antiLeechLib->GetSymbol( wxT("createAntiLeechInstant") ));
@@ -161,4 +177,9 @@ DLP::~DLP(){
 		//antiLeech = NULL;
 		//antiLeechLib.Unload();
 	}
+}
+
+bool DLP::LoadFrom(wxString& file){
+	antiLeechLib.Load(file);
+	return antiLeechLib.IsLoad();
 }
