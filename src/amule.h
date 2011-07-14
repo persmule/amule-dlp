@@ -489,3 +489,8 @@ DECLARE_APP(CamuleDaemonApp)
 
 #endif // AMULE_H
 // File_checked_for_headers
+
+#ifdef AMULE_DLP
+class DLP;	//forward declaretion
+DLP* theDLP
+#endi

@@ -26,6 +26,10 @@
 
 #define AMULE_CPP
 
+//Dynamic Leecher Protection - Bill Lee
+#ifdef AMULE_DLP
+#include "DLP.h"
+
 
 #include "amule.h"			// Interface declarations.
 
@@ -722,7 +726,7 @@ bool CamuleApp::OnInit()
 	ipfilter	= new CIPFilter();
 
 	//DLP initialization - Bill Lee
-	CUpDownClient::ReloadAntiLeech();
+	theDLP = new DLP();
 
 	// Creates all needed listening sockets
 	wxString msg;
