@@ -32,6 +32,10 @@
 #include "NetworkFunctions.h"
 #include "OtherStructs.h"
 
+//Bill Lee - Dynamic Leech Protect
+class IantiLeech;
+class wxDynamicLibrary;
+
 #include <map>
 
 
@@ -633,10 +637,14 @@ public:
 
 	bool		HasDisabledSharedFiles() const { return m_fNoViewSharedFiles; }
 	
-	bool		HasNonOfficialOpCodes() const { return dlp_nonofficialopcodes; }	 //Dynamic Leecher Protection - Bill Lee
+	static int		ReloadAntiLeech(); //Dynamic Leecher Protection - Bill Lee
 
 private:
 	
+	bool				DLPCheck(); //Dynamic Leecher Protection - Added by Bill Lee
+	static wxDynamicLibrary*	antiLeechLib;
+	static IantiLeech*		antiLeech;
+
 	CClientCredits	*credits;
 	CFriend 	*m_Friend;
 
@@ -884,7 +892,7 @@ private:
 	  wxString connection_reason;
 	  #endif
 
-	bool dlp_nonofficialopcodes; //Dynamic Leecher Protect - Bill Lee
+	bool dlp_nonofficalopcodes; //Dynamic Leecher Protect - Bill Lee
 
 };
 
