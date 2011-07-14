@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -137,8 +137,9 @@ public:
 	 * Removes the specified file from the queue.
 	 *
 	 * @param toremove A pointer to the file object to be removed.
+	 * @param keepAsCompleted If true add the removed file to the list of completed files.
 	 */
-	void	RemoveFile(CPartFile* toremove);
+	void	RemoveFile(CPartFile* toremove, bool keepAsCompleted = false);
 	
 	
 	/**
@@ -226,6 +227,11 @@ public:
 
 
 	/**
+	 * Resets the category of all files with the specified category.
+	 */
+	void	ResetCatParts(uint8 cat);
+
+	/**
 	 * Sets the priority of all files with the specified category.
 	 */
 	void	SetCatPrio(uint8 cat, uint8 newprio);
@@ -239,6 +245,11 @@ public:
 	 * Returns the current number of queued files.
 	 */
 	uint16	GetFileCount() const;
+
+	/**
+	 * Makes a copy of the file list.
+	 */
+	void	CopyFileList(std::vector<CPartFile*>& out_list, bool includeCompleted = false) const;
 
 	/**
 	 * Returns the current number of downloading files.
@@ -260,11 +271,11 @@ public:
 	/**
 	 * Adds an ed2k or magnet link to download queue.
 	 */
-	bool	AddLink( const wxString& link, int category = 0 );
+	bool	AddLink( const wxString& link, uint8 category = 0 );
 
-	bool	AddED2KLink( const wxString& link, int category = 0 );
-	bool	AddED2KLink( const CED2KLink* link, int category = 0 );
-	bool	AddED2KLink( const CED2KFileLink* link, int category = 0 );
+	bool	AddED2KLink( const wxString& link, uint8 category = 0 );
+	bool	AddED2KLink( const CED2KLink* link, uint8 category = 0 );
+	bool	AddED2KLink( const CED2KFileLink* link, uint8 category = 0 );
 	bool	AddED2KLink( const CED2KServerLink* link );
 	bool	AddED2KLink( const CED2KServerListLink* link );
 
@@ -298,6 +309,14 @@ public:
 	
 	void	SetLastKademliaFileRequest()	{lastkademliafilerequest = ::GetTickCount();}
 	
+	uint32	GetRareFileThreshold() const { return m_rareFileThreshold; }
+	uint32	GetCommonFileThreshold() const { return m_commonFileThreshold; }
+
+	/**
+	 * Remove a file from the list of completed downloads.
+	 */
+	void	ClearCompleted(const ListOfUInts32 & ecids);
+	
 private:
 	/**
 	 * This function initializes new observers with the current contents of the queue.
@@ -312,11 +331,6 @@ private:
 	
 	/** Checks that there is enough free spaces for temp-files at that specified path. */
 	void	CheckDiskspace(const CPath& path);
-
-	/**
-	 * Parses all links in the ED2KLink file and resets it.
-	 */
-	void	AddLinksFromFile();
 
 	/**
 	 * Stops performing UDP requests.
@@ -370,7 +384,11 @@ private:
 	typedef std::deque<CPartFile*> FileQueue;
 	FileQueue m_filelist;
 	
-	std::list<CPartFile*>		m_localServerReqQueue;
+	typedef std::list<CPartFile*> FileList;
+	FileList		m_localServerReqQueue;
+
+	//! List of downloads completed and still on display
+	FileList		m_completedDownloads;
 
 	//! Observer used to keep track of which servers have yet to be asked for sources
 	CQueueObserver<CServer*>	m_queueServers;
@@ -380,7 +398,12 @@ private:
 	
 	/* Kad Stuff */
 	uint32		lastkademliafilerequest;
+
+	//! Threshold for rare files, dynamically based on the sources for each.
+	uint32		m_rareFileThreshold;
 	
+	//! Threshold for common files, dynamically based on the sources for each.
+	uint32		m_commonFileThreshold;
 };
 
 #endif // DOWNLOADQUEUE_H

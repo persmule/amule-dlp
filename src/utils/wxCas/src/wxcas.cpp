@@ -5,11 +5,11 @@
 ///
 /// Author:       ThePolish <thepolish@vipmail.ru>
 ///
-/// Copyright (C) 2004 by ThePolish
+/// Copyright (c) 2004-2011 ThePolish ( thepolish@vipmail.ru )
 ///
 /// Derived from CAS by Pedro de Oliveira <falso@rdk.homeip.net>
 ///
-/// Pixmats from aMule http://www.amule.org
+/// Pixmaps from aMule http://www.amule.org
 ///
 /// This program is free software; you can redistribute it and/or modify
 ///  it under the terms of the GNU General Public License as published by
@@ -40,6 +40,8 @@
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"             // Needed for PACKAGE
+#else
+#define PACKAGE "amule"
 #endif
 
 #if !wxUSE_PRINTING_ARCHITECTURE
@@ -61,20 +63,16 @@ WxCas::OnInit ()
 	m_locale.AddCatalog( wxT( PACKAGE ) );
 
 #if wxUSE_LIBPNG
-
 	wxImage::AddHandler ( new wxPNGHandler );
 #endif
 
 #if wxUSE_LIBJPEG
-
 	wxImage::AddHandler ( new wxJPEGHandler );
 #endif
 
 #ifdef __WXMSW__
-
 	SetPrintMode ( wxPRINT_WINDOWS );
 #else
-
 	SetPrintMode ( wxPRINT_POSTSCRIPT );
 #endif
 

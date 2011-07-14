@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -24,6 +24,7 @@
 
 
 #include "StringFunctions.h"
+#include "Format.h"		// Needed for CFormat
 
 #include "MD5Sum.h"		// Interface declarations.
 
@@ -69,7 +70,7 @@ wxString MD5Sum::Calculate(const uint8* buffer, size_t len)
 	m_sHash.Clear();
 	for (int i = 0; i < 16; ++i) {
 		wxString sT;
-		sT = wxString::Format(wxT("%02x"), digest[i]);
+		sT = CFormat(wxT("%02x")) % digest[i];
 		m_sHash += sT;
 	}
 
@@ -104,7 +105,7 @@ static void MD5Transform (uint32_t [4], const unsigned char [64]);
 static void Encode (unsigned char *, uint32_t *, size_t);
 static void Decode (uint32_t *, const unsigned char *, size_t);
 
-static unsigned char PADDING[64] = {
+static const unsigned char PADDING[64] = {
   0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

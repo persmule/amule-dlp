@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -73,9 +73,7 @@ static const char * convert_xpm[] = {
 // CPartFileConvertDlg dialog
 
 BEGIN_EVENT_TABLE(CPartFileConvertDlg, wxDialog)
-#ifndef CLIENT_GUI
 	EVT_BUTTON(IDC_ADDITEM,		CPartFileConvertDlg::OnAddFolder)
-#endif
 	EVT_BUTTON(IDC_RETRY,		CPartFileConvertDlg::RetrySel)
 	EVT_BUTTON(IDC_CONVREMOVE,	CPartFileConvertDlg::RemoveSel)
 	EVT_BUTTON(wxID_CANCEL,		CPartFileConvertDlg::OnCloseButton)
@@ -96,11 +94,6 @@ CPartFileConvertDlg::CPartFileConvertDlg(wxWindow* parent)
 	m_joblist->InsertColumn(3, _("Filehash"),	wxLIST_FORMAT_LEFT, 100);
 
 	SetIcon(wxICON(convert));
-
-#ifdef CLIENT_GUI
-	// There's no remote directory browser (yet)
-	CastChild(IDC_ADDITEM, wxButton)->Enable(false);
-#endif
 }
 
 // Static methods
@@ -130,7 +123,7 @@ void CPartFileConvertDlg::UpdateProgress(float percent, wxString text, wxString 
 {
 	if (s_convertgui) {
 		s_convertgui->m_pb_current->SetValue((int)percent);
-		wxString buffer = wxString::Format(wxT("%.2f %%"), percent);
+		wxString buffer = CFormat(wxT("%.2f %%")) % percent;
 		wxStaticText* percentlabel = dynamic_cast<wxStaticText*>(s_convertgui->FindWindow(IDC_CONV_PROZENT));
 		percentlabel->SetLabel(buffer);
 
@@ -194,7 +187,6 @@ void CPartFileConvertDlg::RemoveJobInfo(unsigned id)
 
 // CPartFileConvertDlg message handlers
 
-#ifndef CLIENT_GUI
 void CPartFileConvertDlg::OnAddFolder(wxCommandEvent& WXUNUSED(event))
 {
 	// TODO: use MuleRemoteDirSelector
@@ -212,7 +204,6 @@ void CPartFileConvertDlg::OnAddFolder(wxCommandEvent& WXUNUSED(event))
 		}
 	}
 }
-#endif
 
 void CPartFileConvertDlg::OnClose(wxCloseEvent& WXUNUSED(event))
 {

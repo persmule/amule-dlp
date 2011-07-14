@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2006-2009 Marcelo Roberto Jimenez ( phoenix@amule.org )
-// Copyright (c) 2006-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Marcelo Roberto Jimenez ( phoenix@amule.org )
+// Copyright (c) 2006-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -24,8 +24,8 @@
 //
 
 
-#ifndef TERMINATIONPROCESS
-#define TERMINATIONPROCESS
+#ifndef TERMINATIONPROCESS_H
+#define TERMINATIONPROCESS_H
 
 
 #include <wx/process.h>
@@ -44,5 +44,5 @@ private:
 };
 
 
-#endif // TERMINATIONPROCESS
+#endif // TERMINATIONPROCESS_H
 

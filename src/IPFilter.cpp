@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -24,13 +24,15 @@
 //
 
 #include <wx/stdpaths.h>		// Needed for GetDataDir
+#include <wx/ffile.h>
 
 #include "IPFilter.h"			// Interface declarations.
+#include "IPFilterScanner.h"	// Interface for flexer
 #include "Preferences.h"		// Needed for thePrefs
 #include "amule.h"			// Needed for theApp
 #include "Statistics.h"			// Needed for theStats
 #include "HTTPDownload.h"		// Needed for CHTTPDownloadThread
-#include "Logger.h"			// Needed for AddDebugLogLineM
+#include "Logger.h"			// Needed for AddDebugLogLine{C,N}
 #include <common/Format.h>		// Needed for CFormat
 #include <common/StringFunctions.h>	// Needed for CSimpleTokenizer
 #include <common/FileFunctions.h>	// Needed for UnpackArchive
@@ -38,6 +40,10 @@
 #include "ThreadScheduler.h"		// Needed for CThreadScheduler and CThreadTask
 #include "ClientList.h"			// Needed for CClientList
 #include "ServerList.h"			// Needed for CServerList
+#include <common/Macros.h>		// Needed for DEBUG_ONLY()
+#include "RangeMap.h"			// Needed for CRangeMap
+#include "ServerConnect.h"		// Needed for ConnectToAnyServer()
+#include "DownloadQueue.h"		// Needed for theApp->downloadqueue
 
 
 ////////////////////////////////////////////////////////////
@@ -53,11 +59,14 @@ DEFINE_EVENT_TYPE(MULE_EVT_IPFILTER_LOADED)
 class CIPFilterEvent : public wxEvent
 {
 public:
-	CIPFilterEvent(CIPFilter::IPMap& result) 
+	CIPFilterEvent(CIPFilter::RangeIPs rangeIPs, CIPFilter::RangeLengths rangeLengths, CIPFilter::RangeNames rangeNames) 
 		: wxEvent(-1, MULE_EVT_IPFILTER_LOADED)
 	{
-		// Avoid needles copying
-		std::swap(result, m_result);
+		// Physically copy the vectors, this will hopefully resize them back to their needed capacity.
+		m_rangeIPs = rangeIPs;
+		m_rangeLengths = rangeLengths;
+		// This one is usually empty, and should always be swapped, not copied.
+		std::swap(m_rangeNames, rangeNames);
 	}
 	
 	/** @see wxEvent::Clone */
@@ -65,7 +74,9 @@ public:
 		return new CIPFilterEvent(*this);
 	}
 	
-	CIPFilter::IPMap m_result;
+	CIPFilter::RangeIPs m_rangeIPs;
+	CIPFilter::RangeLengths m_rangeLengths;
+	CIPFilter::RangeNames m_rangeNames;
 };
 
 
@@ -91,36 +102,136 @@ class CIPFilterTask : public CThreadTask
 public:
 	CIPFilterTask(wxEvtHandler* owner)
 		: CThreadTask(wxT("Load IPFilter"), wxEmptyString, ETP_Critical),
+		  m_storeDescriptions(false),
 		  m_owner(owner)
 	{
 	}
-	
-	void Entry() {
-		wxStandardPathsBase &spb(wxStandardPaths::Get());
-#ifdef __WXMSW__
-		wxString dataDir(spb.GetPluginsDir());
-#elif defined(__WXMAC__)
-		wxString dataDir(spb.GetDataDir());
-#else
-		wxString dataDir(spb.GetDataDir().BeforeLast(wxT('/')) + wxT("/amule"));
-#endif
-		wxString systemwideFile(JoinPaths(dataDir,wxT("ipfilter.dat")));
 
-		AddLogLineM(false, _("Loading IP-filters 'ipfilter.dat' and 'ipfilter_static.dat'."));
+private:
+	void Entry()
+	{
+		AddLogLineN(_("Loading IP filters 'ipfilter.dat' and 'ipfilter_static.dat'."));
 		if ( !LoadFromFile(theApp->ConfigDir + wxT("ipfilter.dat")) &&
 		     thePrefs::UseIPFilterSystem() ) {
+			// Load from system wide IP filter file
+			wxStandardPathsBase &spb(wxStandardPaths::Get());
+#ifdef __WXMSW__
+			wxString dataDir(spb.GetPluginsDir());
+#elif defined(__WXMAC__)
+			wxString dataDir(spb.GetDataDir());
+#else
+			wxString dataDir(spb.GetDataDir().BeforeLast(wxT('/')) + wxT("/amule"));
+#endif
+			wxString systemwideFile(JoinPaths(dataDir,wxT("ipfilter.dat")));
 			LoadFromFile(systemwideFile);
 		}
 
 
 		LoadFromFile(theApp->ConfigDir + wxT("ipfilter_static.dat"));
 
-		CIPFilterEvent evt(m_result);
+		uint8 accessLevel = thePrefs::GetIPFilterLevel();
+		uint32 size = m_result.size();
+		// Reserve a little more so we don't have to resize the vector later.
+		// (Map ranges can exist that have to be stored in several parts.)
+		// Extra memory will be freed in the end.
+		m_rangeIPs.reserve(size + 1000);
+		m_rangeLengths.reserve(size + 1000);
+		if (m_storeDescriptions) {
+			m_rangeNames.reserve(size + 1000);
+		}
+		for (IPMap::iterator it = m_result.begin(); it != m_result.end(); ++it) {
+			if (it->AccessLevel < accessLevel) {
+				// Calculate range "length"
+				// (which is included-end - start and thus length - 1)
+				// Encoding:
+				// 0      - 0x7fff	same
+				// 0x8000 - 0xffff	0xfff	- 0x07ffffff
+				// that means: remove msb, shift left by 12 bit, add 0xfff
+				// so it can cover 8 consecutive class A nets
+				// larger ranges (or theoretical ranges with uneven ends) have to be split
+				uint32 startIP = it.keyStart();
+				uint32 realLength = it.keyEnd() - it.keyStart() + 1;
+				std::string * descp = 0;
+				while (realLength) {
+					m_rangeIPs.push_back(startIP);
+					uint32 curLength = realLength;
+					uint16 pushLength;
+					if (realLength <= 0x8000) {
+						pushLength = realLength - 1;
+					} else {
+						if (curLength >= 0x08000000) {
+							// range to big, limit
+							curLength = 0x08000000;
+						} else {
+							// cut off LSBs
+							curLength &= 0x07FFF000;
+						}
+						pushLength = ((curLength - 1) >> 12) | 0x8000;
+					}
+					m_rangeLengths.push_back(pushLength);
+#ifdef __DEBUG__
+					if (m_storeDescriptions) {
+						// std::string has no ref counting, so swap it
+						// (it's used so we need half the space than wxString with wide chars)
+						if (descp) {
+							// we split the range so we have to duplicate it
+							m_rangeNames.push_back(*descp);
+						} else {
+							// push back empty string and swap
+							m_rangeNames.push_back(std::string());
+							descp = & * m_rangeNames.rbegin();
+							std::swap(*descp, it->Description);
+						}
+					}
+#endif
+					realLength -= curLength;
+					startIP += curLength;
+				}
+			}
+		}
+		// Numbers are probably different:
+		// - ranges from map that are not blocked because of their level are not added to the table
+		// - some ranges from the map have to be split for the table
+		AddDebugLogLineN(logIPFilter, CFormat(wxT("Ranges in map: %d  blocked ranges in table: %d")) % size % m_rangeIPs.size());
+
+		CIPFilterEvent evt(m_rangeIPs, m_rangeLengths, m_rangeNames);
 		wxPostEvent(m_owner, evt);
 	}
-private:
 
+	/**
+	 * This structure is used to contain the range-data in the rangemap.
+	 */
+	struct rangeObject
+	{
+		bool operator==( const rangeObject& other ) const {
+			return AccessLevel == other.AccessLevel;
+		}
+
+// Since descriptions are only used for debugging messages, there 
+// is no need to keep them in memory when running a non-debug build.
+#ifdef __DEBUG__
+		//! Contains the user-description of the range.
+		std::string	Description;
+#endif
+		
+		//! The AccessLevel for this filter.
+		uint8		AccessLevel;
+	};
+
+	//! The is the type of map used to store the IPs.
+	typedef CRangeMap<rangeObject, uint32> IPMap;
 	
+	bool m_storeDescriptions;
+
+	// the generated filter
+	CIPFilter::RangeIPs m_rangeIPs;
+	CIPFilter::RangeLengths m_rangeLengths;
+	CIPFilter::RangeNames m_rangeNames;
+
+	wxEvtHandler*		m_owner;
+	// temporary map for filter generation
+	IPMap				m_result;
+
 	/**
 	 * Helper function.
 	 *
@@ -134,14 +245,16 @@ private:
 	 * ranges where the AccessLevel is not within the range 0..255, or
 	 * where IPEnd < IPstart not inserted.
 	 */	
-	bool AddIPRange(uint32 IPStart, uint32 IPEnd, uint16 AccessLevel, const wxString& Description)
+	bool AddIPRange(uint32 IPStart, uint32 IPEnd, uint16 AccessLevel, const char* DEBUG_ONLY(Description))
 	{
 		if (AccessLevel < 256) {
 			if (IPStart <= IPEnd) {
-				CIPFilter::rangeObject item;
+				rangeObject item;
 				item.AccessLevel = AccessLevel;
 #ifdef __DEBUG__
-				item.Description = Description;
+				if (m_storeDescriptions) {
+					item.Description = Description;
+				}
 #endif
 
 				m_result.insert(IPStart, IPEnd, item);
@@ -155,111 +268,6 @@ private:
 
 
 	/**
-	 * Helper function.
-	 * 
-	 * @param str A string representation of an IP-range in the format "<ip>-<ip>".
-	 * @param ipA The target of the first IP in the range.
-	 * @param ipB The target of the second IP in the range.
-	 * @return True if the parsing succeded, false otherwise (results will be invalid).
-	 *
-	 * The IPs returned by this function are in host order, not network order.
-	 */
-	bool m_inet_atoh(const wxString &str, uint32& ipA, uint32& ipB)
-	{
-		wxString first = str.BeforeFirst(wxT('-'));
-		wxString second = str.Mid(first.Len() + 1);
-
-		bool result = StringIPtoUint32(first, ipA) && StringIPtoUint32(second, ipB);
-
-		// StringIPtoUint32 saves the ip in anti-host order, but in order
-		// to be able to make relational comparisons, we need to convert
-		// it back to host-order.
-		ipA = wxUINT32_SWAP_ALWAYS(ipA);
-		ipB = wxUINT32_SWAP_ALWAYS(ipB);
-		
-		return result;
-	}
-
-
-	/**
-	 * Helper-function for processing the PeerGuardian format.
-	 *
-	 * @return True if the line was valid, false otherwise.
-	 * 
-	 * This function will correctly parse files that follow the folllowing
-	 * format for specifying IP-ranges (whitespace is optional):
-	 *  <IPStart> - <IPEnd> , <AccessLevel> , <Description>
-	 */
-	bool ProcessPeerGuardianLine(const wxString& sLine)
-	{
-		CSimpleTokenizer tkz(sLine, wxT(','));
-		
-		wxString first	= tkz.next();
-		wxString second	= tkz.next();
-		wxString third  = tkz.remaining().Strip(wxString::both);
-
-		// If there were less than two tokens, fail
-		if (tkz.tokenCount() != 2) {
-			return false;
-		}
-
-		// Convert string IP's to host order IP numbers
-		uint32 IPStart = 0;
-		uint32 IPEnd   = 0;
-
-		// This will also fail if the line is commented out
-		if (!m_inet_atoh(first, IPStart, IPEnd)) {
-			return false;
-		}
-
-		// Second token is Access Level, default is 0.
-		unsigned long AccessLevel = 0;
-		if (!second.Strip(wxString::both).ToULong(&AccessLevel) || AccessLevel >= 255) {
-			return false;
-		}
-
-		// Add the filter
-		return AddIPRange(IPStart, IPEnd, AccessLevel, third);
-	}
-
-
-	/**
-	 * Helper-function for processing the AntiP2P format.
-	 *
-	 * @return True if the line was valid, false otherwise.
-	 * 
-	 * This function will correctly parse files that follow the folllowing
-	 * format for specifying IP-ranges (whitespace is optional):
-	 *  <Description> : <IPStart> - <IPEnd>
-	 */
-	bool ProcessAntiP2PLine(const wxString& sLine)
-	{
-		// remove spaces from the left and right.
-		const wxString line = sLine.Strip(wxString::leading);
-
-		// Extract description (first) and IP-range (second) form the line
-		int pos = line.Find(wxT(':'), true);
-		if (pos == -1) {
-			return false;
-		}
-
-		wxString Description = line.Left(pos).Strip(wxString::trailing);
-		wxString IPRange     = line.Right(line.Len() - pos - 1);
-
-		// Convert string IP's to host order IP numbers
-		uint32 IPStart = 0;
-		uint32 IPEnd   = 0;
-
-		if (!m_inet_atoh(IPRange ,IPStart, IPEnd)) {
-			return false;
-		}
-
-		// Add the filter
-		return AddIPRange(IPStart, IPEnd, 0, Description);
-	}
-
-	
-	/**
 	 * Loads a IP-list from the specified file, can be text or zip.
 	 *
 	 * @return True if the file was loaded, false otherwise.
@@ -268,9 +276,13 @@ private:
 	{
 		const CPath path = CPath(file);
 
-		if (!path.FileExists() /* || TestDestroy() (see CIPFilter::Reload()) */) {
+		if (!path.FileExists() || TestDestroy()) {
 			return 0;
 		}
+
+#ifdef __DEBUG__
+		m_storeDescriptions = theLogger.IsEnabled(logIPFilter);
+#endif
 
 		const wxChar* ipfilter_files[] = {
 			wxT("ipfilter.dat"),
@@ -280,65 +292,42 @@ private:
 		};
 		
 		// Try to unpack the file, might be an archive
+
 		if (UnpackArchive(path, ipfilter_files).second != EFT_Text) {
-			AddLogLineM(true, 
-				CFormat(_("Failed to load ipfilter.dat file '%s', unknown format encountered.")) % file);
+			AddLogLineC(CFormat(_("Failed to load ipfilter.dat file '%s', unknown format encountered.")) % file);
 			return 0;
 		}
 		
 		int filtercount = 0;
-		int discardedCount = 0;
-		
-		CTextFile readFile;
-		if (readFile.Open(path, CTextFile::read)) {
-			// Function pointer-type of the parse-functions we can use
-			typedef bool (CIPFilterTask::*ParseFunc)(const wxString&);
-
-			ParseFunc func = NULL;
-
-			while (!readFile.Eof()) {
-				wxString line = readFile.GetNextLine();
-
-				/* See CIPFilter::Reload()
-				  if (TestDestroy()) {
-					return 0;
-				} else */ if (func && (*this.*func)(line)) {
-					filtercount++;
-				} else if (ProcessPeerGuardianLine(line)) {
-					func = &CIPFilterTask::ProcessPeerGuardianLine;
-					filtercount++;
-				} else if (ProcessAntiP2PLine(line)) {
-					func = &CIPFilterTask::ProcessAntiP2PLine;
-					filtercount++;
-				} else {
-					// Comments and empty lines are ignored
-					line = line.Strip(wxString::both);
-					
-					if (!line.IsEmpty() && !line.StartsWith(wxT("#"))) {
-						discardedCount++;
-						AddDebugLogLineM(false, logIPFilter, wxT(
-							"Invalid line found while reading ipfilter file: ") + line);
-					}
-				}
+		yyip_Bad = 0;
+		wxFFile readFile;
+		if (readFile.Open(path.GetRaw())) {
+			yyip_Line = 1;
+			yyiprestart(readFile.fp());
+			uint32 IPStart = 0;
+			uint32 IPEnd   = 0;
+			uint32 IPAccessLevel = 0;
+			char * IPDescription;
+			uint32 time1 = GetTickCountFullRes();
+			while (yyiplex(IPStart, IPEnd, IPAccessLevel, IPDescription)) {
+				AddIPRange(IPStart, IPEnd, IPAccessLevel, IPDescription);
+				filtercount++;
 			}
+			uint32 time2 = GetTickCountFullRes();
+			AddDebugLogLineN(logIPFilter, CFormat(wxT("time for lexer: %.3f")) % ((time2-time1) / 1000.0));
 		} else {
-			AddLogLineM(true, CFormat(_(
-				"Failed to load ipfilter.dat file '%s', could not open file.")) % file);
+			AddLogLineC(CFormat(_("Failed to load ipfilter.dat file '%s', could not open file.")) % file);
 			return 0;
 		}
 
-		AddLogLineM(false,
-			( CFormat(wxPLURAL("Loaded %u IP-range from '%s'.", "Loaded %u IP-ranges from '%s'.", filtercount)) % filtercount % file )
-			+ wxT(" ") +
-			( CFormat(wxPLURAL("%u malformed line was discarded.", "%u malformed lines were discarded.", discardedCount)) % discardedCount )
-		);
+		wxString msg = CFormat(wxPLURAL("Loaded %u IP-range from '%s'.", "Loaded %u IP-ranges from '%s'.", filtercount)) % filtercount % file;
+		if (yyip_Bad) {
+			msg << wxT(" ") << ( CFormat(wxPLURAL("%u malformed line was discarded.", "%u malformed lines were discarded.", yyip_Bad)) % yyip_Bad );
+		}
+		AddLogLineN(msg);
 
 		return filtercount;
 	}
-	
-private:
-	wxEvtHandler*		m_owner;	
-	CIPFilter::IPMap	m_result;
 };
 
 
@@ -356,7 +345,7 @@ END_EVENT_TABLE()
  * This function creates a text-file containing the specified text, 
  * but only if the file does not already exist.
  */
-void CreateDummyFile(const wxString& filename, const wxString& text)
+static bool CreateDummyFile(const wxString& filename, const wxString& text)
 {
 	// Create template files
 	if (!wxFileExists(filename)) {
@@ -364,12 +353,17 @@ void CreateDummyFile(const wxString& filename, const wxString& text)
 
 		if (file.Open(filename, CTextFile::write)) {
 			file.WriteLine(text);
+			return true;
 		}
 	}
+	return false;
 }
 
 
-CIPFilter::CIPFilter()
+CIPFilter::CIPFilter() :
+	m_ready(false),
+	m_startKADWhenReady(false),
+	m_connectToAnyServerWhenReady(false)
 {
 	// Setup dummy files for the curious user.
 	const wxString normalDat = theApp->ConfigDir + wxT("ipfilter.dat");
@@ -378,7 +372,10 @@ CIPFilter::CIPFilter()
 		<< wxT("# through the auto-update functionality. Do not save ipfilter-\n")
 		<< wxT("# ranges here that should not be overwritten by aMule.\n");
 
-	CreateDummyFile(normalDat, normalMsg);
+	if (CreateDummyFile(normalDat, normalMsg)) {
+		// redownload if user deleted file
+		thePrefs::SetLastHTTPDownloadURL(HTTP_IPFilter, wxEmptyString);
+	}
 	
 	const wxString staticDat = theApp->ConfigDir + wxT("ipfilter_static.dat");
 	const wxString staticMsg = wxString()
@@ -390,23 +387,18 @@ CIPFilter::CIPFilter()
 
 	CreateDummyFile(staticDat, staticMsg);
 
+	// First load currently available filter, so network connect is possible right after
+	// (in case filter download takes some time).
 	Reload();
+	// Check if update should be done only after that.
+	m_updateAfterLoading = thePrefs::IPFilterAutoLoad() && !thePrefs::IPFilterURL().IsEmpty();
 }
 
 
 void CIPFilter::Reload()
 {
 	// We keep the current filter till the new one has been loaded.
-	//CThreadScheduler::AddTask(new CIPFilterTask(this));
-	
-	// This procedure cannot be run as a task, 
-	// wxArchiveFSHandler::FindFirst() will eventually call wxExecute(),
-	// and this can only be done from the main task.
-	//
-	// This way, We call the Entry() routine manually and comment out the
-	// calls to TestDestroy().
-	CIPFilterTask ipf_task(this);
-	ipf_task.Entry();
+	CThreadScheduler::AddTask(new CIPFilterTask(this));
 }
 
 
@@ -414,35 +406,63 @@ uint32 CIPFilter::BanCount() const
 {
 	wxMutexLocker lock(m_mutex);
 
-	return m_iplist.size();
+	return m_rangeIPs.size();
 }
 
 
 bool CIPFilter::IsFiltered(uint32 IPTest, bool isServer)
 {
-	if ((thePrefs::IsFilteringClients() && !isServer) || (thePrefs::IsFilteringServers() && isServer)) {
-		wxMutexLocker lock(m_mutex);
-
-		// The IP needs to be in host order
-		IPMap::iterator it = m_iplist.find_range(wxUINT32_SWAP_ALWAYS(IPTest));
-
-		if (it != m_iplist.end()) {
-			if (it->AccessLevel < thePrefs::GetIPFilterLevel()) {
-#ifdef __DEBUG__
-				AddDebugLogLineM(false, logIPFilter, wxString(wxT("Filtered IP (AccLvl: ")) << (long)it->AccessLevel << wxT("): ")
-						<< Uint32toStringIP(IPTest) << wxT(" (") << it->Description + wxT(")"));
-#endif
-				
-				if (isServer) {
-					theStats::AddFilteredServer();
-				} else {
-					theStats::AddFilteredClient();
-				}
-				return true;
+	if ((!thePrefs::IsFilteringClients() && !isServer) || (!thePrefs::IsFilteringServers() && isServer)) {
+		return false;
+	}
+	if (!m_ready) {
+		// Somebody connected before we even started the networks.
+		// Filter is not up yet, so block him.
+		AddDebugLogLineN(logIPFilter, CFormat(wxT("Filtered IP %s because filter isn't ready yet.")) % Uint32toStringIP(IPTest));
+		if (isServer) {
+			theStats::AddFilteredServer();
+		} else {
+			theStats::AddFilteredClient();
+		}
+		return true;
+	}
+	wxMutexLocker lock(m_mutex);
+	// The IP needs to be in host order
+	uint32 ip = wxUINT32_SWAP_ALWAYS(IPTest);
+	int imin = 0;
+	int imax = m_rangeIPs.size() - 1;
+	int i;
+	bool found = false;
+	while (imin <= imax) {
+		i = (imin + imax) / 2;
+		uint32 curIP = m_rangeIPs[i];
+		if (curIP <= ip) {
+			uint32 curLength = m_rangeLengths[i];
+			if (curLength >= 0x8000) {
+				curLength = ((curLength & 0x7fff) << 12) + 0xfff;
+			}
+			if (curIP + curLength >= ip) {
+				found = true;
+				break;
 			}
 		}
+		if (curIP > ip) {
+			imax = i - 1;
+		} else {
+			imin = i + 1;
+		}
 	}
-
+	if (found) {
+		AddDebugLogLineN(logIPFilter, CFormat(wxT("Filtered IP %s%s")) % Uint32toStringIP(IPTest)
+			% (i < (int)m_rangeNames.size() ? (wxT(" (") + wxString(char2unicode(m_rangeNames[i].c_str())) + wxT(")")) 
+											: wxString(wxEmptyString)));
+		if (isServer) {
+			theStats::AddFilteredServer();
+		} else {
+			theStats::AddFilteredClient();
+		}
+		return true;
+	}
 	return false;
 }
 
@@ -450,8 +470,11 @@ bool CIPFilter::IsFiltered(uint32 IPTest, bool isServer)
 void CIPFilter::Update(const wxString& strURL)
 {
 	if (!strURL.IsEmpty()) {
+		m_URL = strURL;
+
 		wxString filename = theApp->ConfigDir + wxT("ipfilter.download");
-		CHTTPDownloadThread *downloader = new CHTTPDownloadThread(strURL, filename, HTTP_IPFilter);
+		wxString oldfilename = theApp->ConfigDir + wxT("ipfilter.dat");
+		CHTTPDownloadThread *downloader = new CHTTPDownloadThread(m_URL, filename, oldfilename, HTTP_IPFilter, true, true);
 
 		downloader->Create();
 		downloader->Run();
@@ -461,30 +484,30 @@ void CIPFilter::Update(const wxString& strURL)
 
 void CIPFilter::DownloadFinished(uint32 result)
 {
-	if (result == 1) {
+	wxString datName = wxT("ipfilter.dat");
+	if (result == HTTP_Success) {
 		// download succeeded. proceed with ipfilter loading
 		wxString newDat = theApp->ConfigDir + wxT("ipfilter.download");
-		wxString oldDat = theApp->ConfigDir + wxT("ipfilter.dat");
+		wxString oldDat = theApp->ConfigDir + datName;
 
-		if (wxFileExists(oldDat)) {
-			if (!wxRemoveFile(oldDat)) {
-				AddDebugLogLineM(true, logIPFilter,
-					wxT("Failed to remove ipfilter.dat file, aborting update."));
-				return;
-			}
+		if (wxFileExists(oldDat) && !wxRemoveFile(oldDat)) {
+			AddLogLineC(CFormat(_("Failed to remove %s file, aborting update.")) % datName);
+			result = HTTP_Error;
+		} else if (!wxRenameFile(newDat, oldDat)) {
+			AddLogLineC(CFormat(_("Failed to rename new %s file, aborting update.")) % datName);
+			result = HTTP_Error;
+		} else {
+			AddLogLineN(CFormat(_("Successfully updated %s")) % datName);
 		}
-
-		if (!wxRenameFile(newDat, oldDat)) {
-			AddDebugLogLineM(true, logIPFilter,
-				wxT("Failed to rename new ipfilter.dat file, aborting update."));
-			return;
-		}
-
-		// Reload both ipfilter files
-		Reload();
+	} else if (result == HTTP_Skipped) {
+		AddLogLineN(CFormat(_("Skipped download of %s, because requested file is not newer.")) % datName);
 	} else {
-		AddDebugLogLineM(true, logIPFilter,
-			wxT("Failed to download the ipfilter from ") + thePrefs::IPFilterURL());
+		AddLogLineC(CFormat(_("Failed to download %s from %s")) % datName % m_URL);
+	}
+
+	if (result == HTTP_Success) {
+		// Reload both ipfilter files on success
+		Reload();
 	}
 }
 
@@ -493,14 +516,42 @@ void CIPFilter::OnIPFilterEvent(CIPFilterEvent& evt)
 {
 	{
 		wxMutexLocker lock(m_mutex);
-		std::swap(m_iplist, evt.m_result);
+		std::swap(m_rangeIPs, evt.m_rangeIPs);
+		std::swap(m_rangeLengths, evt.m_rangeLengths);
+		std::swap(m_rangeNames, evt.m_rangeNames);
+		m_ready = true;
 	}
+	if (theApp->IsOnShutDown()) {
+		return;
+	}
+	AddLogLineN(_("IP filter is ready"));
 	
 	if (thePrefs::IsFilteringClients()) {
 		theApp->clientlist->FilterQueues();
 	}
 	if (thePrefs::IsFilteringServers()) {
 		theApp->serverlist->FilterServers();
+	}
+	// Now start networks we didn't start earlier
+	if (m_connectToAnyServerWhenReady || m_startKADWhenReady) {
+		AddLogLineC(_("Connecting"));
+	}
+	if (m_connectToAnyServerWhenReady) {
+		m_connectToAnyServerWhenReady = false;
+		theApp->serverconnect->ConnectToAnyServer();
+	}
+	if (m_startKADWhenReady) {
+		m_startKADWhenReady = false;
+		theApp->StartKad();
+	}
+	theApp->ShowConnectionState(true);			// update connect button
+	if (thePrefs::GetSrcSeedsOn()) {
+		theApp->downloadqueue->LoadSourceSeeds();
+	}
+	// Trigger filter update if configured
+	if (m_updateAfterLoading) {
+		m_updateAfterLoading = false;
+		Update(thePrefs::IPFilterURL());
 	}
 }
 

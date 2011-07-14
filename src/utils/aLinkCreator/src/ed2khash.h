@@ -5,9 +5,9 @@
 ///
 /// Author:       ThePolish <thepolish@vipmail.ru>
 ///
-/// Copyright (C) 2004 by ThePolish
+/// Copyright (c) 2004-2011 ThePolish ( thepolish@vipmail.ru )
 ///
-/// Copyright (C) 2004 by Phoenix
+/// Copyright (c) 2004-2011 Marcelo Roberto Jimenez ( phoenix@amule.org )
 ///
 /// This program is free software; you can redistribute it and/or modify
 /// it under the terms of the GNU General Public License as published by

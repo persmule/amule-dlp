@@ -1,32 +1,85 @@
-.TH ED2K "1" "2005 m�rcius" "aMule ED2k link parser v1.1.0" "aMule seg�dprogramok"
-.SH N�V
-ed2k \- aMule ED2k hivatkoz�s feldolgoz�
-.SH �TTEKINT�S
-.B ed2k
-.I <ED2k_hivatkoz�s>
+.\"*******************************************************************
+.\"
+.\" This file was generated with po4a. Translate the source file.
+.\"
+.\"*******************************************************************
+.TH ED2K 1 "2010 Január" "aMule eD2k hivatkozás kezelő v1.5.1" "aMule segédprogramok"
+.als B_untranslated B
+.als RB_untranslated RB
+.SH NÉV
+ed2k \- Az aMule eD2k hivatkozás kezelő.
+.SH ÁTTEKINTÉS
+.B_untranslated ed2k
+[\fB\-c\fP \fI<útvonal>\fP] [\fB\-t\fP \fI<szám>\fP]
+.RB_untranslated [ \-e ]
+.RB_untranslated [ \-l ]
+\fI<eD2k\-link>\fP
+
+.B_untranslated ed2k
+.RB_untranslated [ \-h ]
+
+.B_untranslated ed2k
+.RB_untranslated [ \-v ]
+.SH LEÍRÁS
+Sends the given \fI<eD2k\-link>\fP to aMule, i.e. writes it to the file
+~/.aMule/ED2KLinks, which will be checked by aMule every second for links.
+.TP 
+\fB[ \-c\fP \fI<útvonal>\fP, \fB\-\-config\-dir\fP=\fI<útvonal>\fP \fB]\fP
+A beállításokat az \fI<útvonal>\fP\-ból olvassa az alapértelmezett
+helyett.
+.TP 
+\fB[ \-t\fP, \fB\-\-category\fP=\fI<szám>\fP \fB]\fP
+A megadott eD2k hivatkozást a \fI<szám>\fP\-adik kategóriába tölti.
+.TP 
+.B_untranslated [ \-e\fR, \fB\-\-emulecollection ]\fR
+A megadott gyűjtemény összes fájlját letölti.
+.TP 
+.B_untranslated [ \-l\fR, \fB\-\-list ]\fR
+Kilistázza a megadott gyűjtmény összes fájlját.
+.TP 
+.B_untranslated [ \-h\fR, \fB\-\-help ]\fR
+Egy rövid használati leírást jelenít meg.
+.TP 
+.B_untranslated [ \-v\fR, \fB\-\-version ]\fR
+Megjeleníti a verziószámot.
+.TP 
+\fB[ eD2k\-link ]\fP
+eD2k hivatkozás letöltése.
 .PP
-.B ed2k
-.RB [ \-\-help ]
-.RB [ \-\-version ]
-.SH LE�R�S
-aMule ED2k hivatkoz�s feldolgoz� v1.1.0.
-Elk�ldi a megadott \fI<ED2k_hivatkoz�s>\fR-t az aMule-nak, azaz a \fI~/.aMule/ED2KLinks\fR f�jlba �rja, amelyet az aMule minden m�sodpercben ellen�riz.
-Az \fBed2k\fR program elfogad f�jl, szerver �s szerver-lista hivatkoz�sokat.
-.SS "Haszn�lat:"
-.TP
-\fB\-\-help\fR
-Ki�rja ezt a s�g�t.
-.TP
-\fB\-\-version\fR
-Ki�rja a verzi� inform�ci�t.
-.SH F�JLOK
+Az eD2k hivatkozás a következő lehet:
+.RS 3
+.IP \(bu 2
+egy fájl hivatkozás (ed2k://|file|...), ez a letöltési sorhoz lesz
+hozzáadva;
+.IP \(bu 2
+egy kiszolgáló hivatkozás (ed2k://|server|...), ez a kiszolgáló\-listához
+lesz hozzáadva;
+.IP \(bu 2
+egy kiszolgáló\-lista hivatkozás, mely esetben a listában szereplő összes
+kiszolgáló a kiszolgáló\-listához adódik;
+.IP \(bu 2
+egy magnet hivatkozás;
+.IP \(bu 2
+egy emulecollection (gyűjtemény) fájl.
+.RE
+
+\fBA paraméterek sorrendje számít.\fP Megadhatsz egynél több hivatkozást,
+mindegyiket a saját paramétereivel. Például az \fBed2k <link1> \-t2
+<link2>\fP parancs a \fI<link1>\fP\-et az alapértelmezett, míg a
+\fI<link2>\fP\-t a 2. kategóriába tölti.
+.SH FÁJLOK
 ~/.aMule/ED2KLinks
-.SH HIB�K JELENT�SE
-A hib�kat k�rj�k vagy a f�rumon (\fIhttp://forum.amule.org/\fR), vagy a hibak�vet�ben (\fIhttp://bugs.amule.org/\fR) jelents�k.
-Hib�kr�l k�rj�k ne �rjanak levelet (e-mail-t) se a levelz�si list�ra, se k�zvetlen�l valamelyik fejleszt�nek.
+.SH "HIBÁK JELENTÉSE"
+A hibákat kérjük vagy a fórumon (\fIhttp://forum.amule.org/\fP), vagy a
+hibakövetőben (\fIhttp://bugs.amule.org/\fP) jelentsék. Hibákról kérjük ne
+írjanak levelet (e\-mail\-t) se a levelezési listára, se közvetlenül
+valamelyik fejlesztőnek.
 .SH COPYRIGHT
-Az aMule �s az �sszes hozz� tartoz� seg�dprogram a GNU General Public Licence v�delme alatt �ll.
-.SH L�SD M�G
-\fBamule\fR(1)
-.SH MAGYAR FORD�T�S
-D�vai Tam�s <gonosztopi@amule.org>
+Az aMule és az összes hozzá tartozó segédprogram a GNU General Public
+License védelme alatt áll.
+.SH "LÁSD MÉG"
+.B_untranslated amule\fR(1)
+.SH SZERZŐ
+Ezt a kézikönyv lapot Vollstrecker <amule@vollstreckernet.de> írta.
+.SH MAGYAR FORDÍTÁS
+Dévai Tamás <gonosztopi@amule.org>

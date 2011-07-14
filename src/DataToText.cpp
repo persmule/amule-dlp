@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -24,7 +24,7 @@
 
 
 #include "KnownFile.h"		// Needed by PriorityToStr
-#include "updownclient.h"	// Needed by DownloadStateToStr and GetSoftName
+#include "Constants.h"		// Needed by DownloadStateToStr and GetSoftName
 #define __need_convstatus	// Only the conversion status enum is needed
 #include "PartFileConvert.h"	// Needed by GetConversionState
 
@@ -49,7 +49,7 @@ wxString PriorityToStr( int priority, bool isAuto )
 		}
 	}
 
-	wxASSERT( false );
+	wxFAIL;
 
 	return _("Unknown");
 }
@@ -62,7 +62,7 @@ wxString DownloadStateToStr( int state, bool queueFull )
 		case DS_CONNECTED:		return _("Asking");
 		case DS_WAITCALLBACK:		return _("Connecting via server");
 		case DS_ONQUEUE:		return ( queueFull ? _("Queue Full") : _("On Queue") );
-		case DS_DOWNLOADING:		return _("Transferring");
+		case DS_DOWNLOADING:		return _("Downloading");
 		case DS_REQHASHSET:		return _("Receiving hashset");
 		case DS_NONEEDEDPARTS:		return _("No needed parts");
 		case DS_LOWTOLOWIP:		return _("Cannot connect LowID to LowID");
@@ -75,7 +75,7 @@ wxString DownloadStateToStr( int state, bool queueFull )
 		case DS_REMOTEQUEUEFULL:	return _("Remote Queue Full");
 	}
 	
-	wxASSERT( false );
+	wxFAIL;
 
 	return _("Unknown");
 }
@@ -132,7 +132,7 @@ wxString OriginToText(unsigned int source_from)
 		case SF_PASSIVE:		return wxTRANSLATE("Passive");
 		case SF_LINK:			return wxTRANSLATE("Link");
 		case SF_SOURCE_SEEDS:		return wxTRANSLATE("Source Seeds");
-		case SF_SEARCH_RESULT:          return wxTRANSLATE("Search Result");
+		case SF_SEARCH_RESULT:		return wxTRANSLATE("Search Result");
 		case SF_NONE:
 		default:		return wxTRANSLATE("Unknown");
 	}

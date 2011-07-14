@@ -1,7 +1,7 @@
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -28,8 +28,11 @@
 #endif
 
 #include <wx/wx.h>
+#include <wx/mstream.h>
+#include <wx/tokenzr.h>
 
 #include "updownclient.h"	// Needed for CUpDownClient
+#include "SharedFileList.h"	// Needed for CSharedFileList
 
 #include <protocol/Protocols.h>
 #include <protocol/ed2k/Client2Client/TCP.h>
@@ -60,6 +63,12 @@
 #include "Packet.h"		// Needed for CPacket
 #include "Friend.h"		// Needed for CFriend
 #include "ClientList.h"		// Needed for CClientList
+#ifndef AMULE_DAEMON
+#include "amuleDlg.h"		// Needed for CamuleDlg
+#include "CaptchaDialog.h"	// Needed for CCaptchaDialog
+#include "CaptchaGenerator.h"
+#include "ChatWnd.h"		// Needed for CChatWnd
+#endif
 #include "amule.h"		// Needed for theApp
 #include "PartFile.h"		// Needed for CPartFile
 #include "ClientTCPSocket.h"	// Needed for CClientTCPSocket
@@ -121,7 +130,7 @@ CUpDownClient::CUpDownClient(uint16 in_port, uint32 in_userid, uint32 in_serveri
 			m_nConnectIP = wxUINT32_SWAP_ALWAYS(in_userid);
 		}
 		// Will be on right endianess now
-		m_FullUserIP = Uint32toStringIP(m_nConnectIP);
+		m_FullUserIP = m_nConnectIP;
 	}
 
 	m_dwServerIP = in_serverip;
@@ -131,7 +140,7 @@ CUpDownClient::CUpDownClient(uint16 in_port, uint32 in_userid, uint32 in_serveri
 
 	if (checkfriend) {
 		if ((m_Friend = theApp->friendlist->FindFriend(CMD4Hash(), m_dwUserIP, m_nUserPort)) != NULL){
-			m_Friend->LinkClient(this);
+			m_Friend->LinkClient(CCLIENTREF(this, wxT("CUpDownClient::CUpDownClient m_Friend->LinkClient")));
 		} else{
 			// avoid that an unwanted client instance keeps a friend slot
 			m_bFriendSlot = false;
@@ -142,10 +151,15 @@ CUpDownClient::CUpDownClient(uint16 in_port, uint32 in_userid, uint32 in_serveri
 
 void CUpDownClient::Init()
 {
+	m_linked = 0;
+#ifdef DEBUG_ZOMBIE_CLIENTS
+	m_linkedDebug = false;
+#endif
 	m_bAddNextConnect = false;
 	credits = NULL;
 	m_byChatstate = MS_NONE;
 	m_nKadState = KS_NONE;
+	m_nChatCaptchaState = CA_NONE;
 	m_cShowDR = 0;
 	m_reqfile = NULL;	 // No file required yet
 	m_nTransferredUp = 0;
@@ -205,6 +219,8 @@ void CUpDownClient::Init()
 	m_fSharedDirectories = 0;
 	m_lastPartAsked = 0xffff;
 	m_nUpCompleteSourcesCount= 0;
+	m_waitingPosition = 0;
+	m_score = 0;
 	m_lastRefreshedDLDisplay = 0;
 	m_bHelloAnswerPending = false;
 	m_fSentCancelTransfer = 0;
@@ -220,6 +236,7 @@ void CUpDownClient::Init()
 	m_fAICHRequested = 0;
 	m_fSupportsLargeFiles = 0;
 	m_fExtMultiPacket = 0;
+	m_fIsSpammer = 0;
 
 	m_dwUserIP = 0;
 	m_nConnectIP = 0;
@@ -228,7 +245,7 @@ void CUpDownClient::Init()
 	m_fNeedOurPublicIP = false;
 	m_bHashsetRequested = false;
 
-	m_nLastBlockOffset = 0;
+	m_lastDownloadingPart = 0;
 
 	m_uploadingfile = NULL;
 
@@ -245,8 +262,7 @@ void CUpDownClient::Init()
 	if (m_socket) {
 		amuleIPV4Address address;
 		m_socket->GetPeer(address);
-		m_FullUserIP = address.IPAddress();
-		SetIP(StringIPtoUint32(m_FullUserIP));
+		SetIP(StringIPtoUint32(address.IPAddress()));
 	} else {
 		SetIP(0);
 	}
@@ -268,10 +284,15 @@ void CUpDownClient::Init()
 	m_fSupportsCryptLayer = 0;
 	m_fRequiresCryptLayer = 0;
 	m_fSupportsSourceEx2 = 0;
+	m_fSupportsCaptcha = 0;
 	m_fDirectUDPCallback = 0;
 	m_dwDirectCallbackTimeout = 0;
 
 	m_hasbeenobfuscatinglately = false;
+
+	m_cCaptchasSent = 0;
+	m_cMessagesReceived = 0;
+	m_cMessagesSent = 0;
 
 	dlp_nonofficialopcodes = false; //Dynamic Leecher Protect
 
@@ -282,9 +303,10 @@ CUpDownClient::~CUpDownClient()
 {
 	#ifdef __DEBUG__
 	if (!connection_reason.IsEmpty()) {
-		printf("Client to check for %s was deleted without connection.\n",(const char*)unicode2char(connection_reason));
+		AddDebugLogLineN(logClient, wxT("Client to check for ") + connection_reason + wxT(" was deleted without connection."));
 	}
 	#endif	
+	
 	
 	if (m_lastClientSoft == SO_UNKNOWN) {
 		theStats::RemoveUnknownClient();
@@ -295,20 +317,6 @@ CUpDownClient::~CUpDownClient()
 	// Indicate that we are not anymore on stats
 	m_lastClientSoft = (uint32)(-1);
 	
-
-	if (IsAICHReqPending()){
-		m_fAICHRequested = FALSE;
-		CAICHHashSet::ClientAICHRequestFailed(this);
-	}
-
-	//theApp->clientlist->RemoveClient(this, wxT("Destructing client object"));
-	
-	if (m_Friend) {
-		m_Friend->UnLinkClient();
-		Notify_ChatRefreshFriend(m_Friend->GetIP(), m_Friend->GetPort(), wxEmptyString);
-		m_Friend = NULL;
-	}
-
 	// The socket should have been removed in Safe_Delete, but it
 	// doesn't hurt to have an extra check.
 	if (m_socket) {
@@ -317,31 +325,15 @@ CUpDownClient::~CUpDownClient()
 		SetSocket(NULL);
 	}
 
-
 	ClearUploadBlockRequests();
 	ClearDownloadBlockRequests();
 
 	DeleteContents(m_WaitingPackets_list);
 	
-	if (m_iRating>0 || !m_strComment.IsEmpty()) {
-		m_iRating = 0;
-		m_strComment.Clear();
-		if (m_reqfile) {
-			m_reqfile->UpdateFileRatingCommentAvail();
-		}
-	}
-
-	// Ensure that source-counts gets updated in case
-	// of a source not on the download-queue
-	SetRequestFile( NULL );
-
-	SetUploadFileID(NULL);
-
-	if (m_pReqFileAICHHash != NULL) {
-		delete m_pReqFileAICHHash;
-		m_pReqFileAICHHash = NULL;
-	}
+	// Allow detection of deleted clients that didn't go through Safe_Delete
+ 	m_clientState = CS_DYING;
 }
+
 
 void CUpDownClient::ClearHelloProperties()
 {
@@ -367,6 +359,7 @@ void CUpDownClient::ClearHelloProperties()
 	m_fSupportsCryptLayer = 0;
 	m_fRequiresCryptLayer = 0;
 	m_fSupportsSourceEx2 = 0;
+	m_fSupportsCaptcha = 0;
 	m_fDirectUDPCallback = 0;
 }
 
@@ -396,7 +389,16 @@ void CUpDownClient::Safe_Delete()
 		return;
 	}
 
+	// If called from background, post an event to process it in main thread
+	if (!wxThread::IsMain()) {
+		CoreNotify_Client_Delete(CCLIENTREF(this, wxT("CUpDownClient::Safe_Delete CoreNotify_Client_Delete")));
+		return;
+	}
+
  	m_clientState = CS_DYING;
+
+	// Make sure client doesn't get deleted until this method is finished
+	CClientRef ref(CCLIENTREF(this, wxT("CUpDownClient::Safe_Delete reflocker")));
 
 	// Close the socket to avoid any more connections and related events
 	if ( m_socket ) {
@@ -405,12 +407,57 @@ void CUpDownClient::Safe_Delete()
 		SetSocket(NULL);
 	}
 
-	// Schedule the client for deletion if we still have the clientlist
+	// Remove the client from the clientlist if we still have it
 	if ( theApp->clientlist ) {
-		theApp->clientlist->AddToDeleteQueue( this );
-	} else {
-		delete this;
+		theApp->clientlist->RemoveClient( this );
 	}
+
+	// Doing what RemoveClient used to do. Just to be sure...
+	if (theApp->uploadqueue) {
+		theApp->uploadqueue->RemoveFromUploadQueue(this);
+		theApp->uploadqueue->RemoveFromWaitingQueue(this);
+	}
+	if (theApp->downloadqueue) {
+		theApp->downloadqueue->RemoveSource(this);
+	}
+
+	// For security, remove it from the lists unconditionally.
+	Notify_SharedCtrlRemoveClient(ECID(), (CKnownFile*)NULL);
+	Notify_SourceCtrlRemoveSource(ECID(), (CPartFile*)NULL);
+
+	if (IsAICHReqPending()){
+		m_fAICHRequested = FALSE;
+		CAICHHashSet::ClientAICHRequestFailed(this);
+	}
+
+	if (m_Friend) {
+		m_Friend->UnLinkClient();	// this notifies
+		m_Friend = NULL;
+	}
+
+	if (m_iRating>0 || !m_strComment.IsEmpty()) {
+		m_iRating = 0;
+		m_strComment.Clear();
+		if (m_reqfile) {
+			m_reqfile->UpdateFileRatingCommentAvail();
+		}
+	}
+
+	// Ensure that source-counts gets updated in case
+	// of a source not on the download-queue
+	SetRequestFile( NULL );
+
+	SetUploadFileID(NULL);
+
+	delete m_pReqFileAICHHash;
+	m_pReqFileAICHHash = NULL;
+
+#ifdef DEBUG_ZOMBIE_CLIENTS
+	if (m_linked > 1) {
+		AddLogLineC(CFormat(wxT("Client %d still linked in %d places: %s")) % ECID() % (m_linked - 1) % GetLinkedFrom());
+		m_linkedDebug = true;
+	}
+#endif
 }
 
 
@@ -451,7 +498,7 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 				if (temptag.IsStr()) {
 					m_strModVersion = temptag.GetStr();
 				} else if (temptag.IsInt()) {
-					m_strModVersion = wxString::Format(wxT("ModID=%u"), temptag.GetInt());
+					m_strModVersion = CFormat(wxT("ModID=%u")) % temptag.GetInt();
 				} else {
 					m_strModVersion = wxT("ModID=<Unknown>");
 				}
@@ -469,7 +516,7 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 				m_nUDPPort = temptag.GetInt() & 0xFFFF;
 				dwEmuleTags |= 1;
 				#ifdef __PACKET_DEBUG__
-				printf("Hello type packet processing with eMule ports UDP=%i KAD=%i\n",m_nUDPPort,m_nKadPort);
+				AddLogLineNS(CFormat(wxT("Hello type packet processing with eMule ports UDP=%i KAD=%i")) % m_nUDPPort % m_nKadPort);
 				#endif
 				break;
 				
@@ -477,7 +524,7 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 				// 32 BUDDY IP
 				m_nBuddyIP = temptag.GetInt();
 				#ifdef __PACKET_DEBUG__
-				printf("Hello type packet processing with eMule BuddyIP=%u (%s)\n",m_nBuddyIP, (const char*)unicode2char(Uint32toStringIP(m_nBuddyIP)));
+				AddLogLineNS(CFormat(wxT("Hello type packet processing with eMule BuddyIP=%u (%s)")) % m_nBuddyIP % Uint32toStringIP(m_nBuddyIP));
 				#endif
 				break;				
 				
@@ -486,7 +533,7 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 				// 16 BUDDY Port
 				m_nBuddyPort = (uint16)temptag.GetInt();
 				#ifdef __PACKET_DEBUG__
-				printf("Hello type packet processing with eMule BuddyPort=%u\n",m_nBuddyPort);
+				AddLogLineNS(CFormat(wxT("Hello type packet processing with eMule BuddyPort=%u")) % m_nBuddyPort);
 				#endif
 				break;
 				
@@ -517,17 +564,17 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 				m_fSupportsPreview		= (flags >> 1*0) & 0x01;
 				dwEmuleTags |= 2;
 				#ifdef __PACKET_DEBUG__
-				printf("Hello type packet processing with eMule Misc Options:\n");
-				printf("m_byUDPVer = %i\n",m_byUDPVer);
-				printf("m_byDataCompVer = %i\n",m_byDataCompVer);
-				printf("m_bySupportSecIdent = %i\n",m_bySupportSecIdent);
-				printf("m_bySourceExchangeVer = %i\n",m_bySourceExchange1Ver);
-				printf("m_byExtendedRequestsVer = %i\n",m_byExtendedRequestsVer);
-				printf("m_byAcceptCommentVer = %i\n",m_byAcceptCommentVer);
-				printf("m_fNoViewSharedFiles = %i\n",m_fNoViewSharedFiles);
-				printf("m_bMultiPacket = %i\n",m_bMultiPacket);
-				printf("m_fSupportsPreview = %i\n",m_fSharedDirectories);
-				printf("That's all.\n");
+				AddLogLineNS(wxT("Hello type packet processing with eMule Misc Options:"));
+				AddLogLineNS(CFormat(wxT("m_byUDPVer = %i")) % m_byUDPVer);
+				AddLogLineNS(CFormat(wxT("m_byDataCompVer = %i")) % m_byDataCompVer);
+				AddLogLineNS(CFormat(wxT("m_bySupportSecIdent = %i")) % m_bySupportSecIdent);
+				AddLogLineNS(CFormat(wxT("m_bySourceExchangeVer = %i")) % m_bySourceExchange1Ver);
+				AddLogLineNS(CFormat(wxT("m_byExtendedRequestsVer = %i")) % m_byExtendedRequestsVer);
+				AddLogLineNS(CFormat(wxT("m_byAcceptCommentVer = %i")) % m_byAcceptCommentVer);
+				AddLogLineNS(CFormat(wxT("m_fNoViewSharedFiles = %i")) % m_fNoViewSharedFiles);
+				AddLogLineNS(CFormat(wxT("m_bMultiPacket = %i")) % m_bMultiPacket);
+				AddLogLineNS(CFormat(wxT("m_fSupportsPreview = %i")) % m_fSharedDirectories);
+				AddLogLineNS(wxT("That's all."));
 				#endif
 				SecIdentSupRec +=  1;
 				break;
@@ -546,7 +593,7 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 				//   1 Large Files (includes support for 64bit tags)
 				//   4 Kad Version - will go up to version 15 only (may need to add another field at some point in the future)
 				m_fDirectUDPCallback	= (temptag.GetInt() >> 12) & 0x01;
-				// 1 captcha support
+				m_fSupportsCaptcha	    = (temptag.GetInt() >> 11) & 0x01;
 				m_fSupportsSourceEx2	= (temptag.GetInt() >> 10) & 0x01;
 				m_fRequiresCryptLayer	= (temptag.GetInt() >>  9) & 0x01;
 				m_fRequestsCryptLayer	= (temptag.GetInt() >>  8) & 0x01;
@@ -561,16 +608,17 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 				m_fRequiresCryptLayer &= m_fRequestsCryptLayer;
 			
 				#ifdef __PACKET_DEBUG__
-				printf("Hello type packet processing with eMule Misc Options 2:\n");
-				printf("	m_fDirectUDPCallback	= %i\n", m_fDirectUDPCallback);
-				printf("	m_fSupportsSourceEx2	= %i\n", m_fSupportsSourceEx2);
-				printf("	m_fRequiresCryptLayer	= %i\n", m_fRequiresCryptLayer);
-				printf("	m_fRequestsCryptLayer	= %i\n", m_fRequestsCryptLayer);
-				printf("	m_fSupportsCryptLayer	= %i\n", m_fSupportsCryptLayer);
-				printf("	m_fExtMultiPacket	= %i\n", m_fExtMultiPacket);
-				printf("	m_fSupportsLargeFiles	= %i\n", m_fSupportsLargeFiles);
-				printf("	KadVersion		= %u\n", m_byKadVersion);
-				printf("That's all.\n");
+				AddLogLineNS(wxT("Hello type packet processing with eMule Misc Options 2:"));
+				AddLogLineNS(CFormat(wxT("	m_fDirectUDPCallback	= %i")) % m_fDirectUDPCallback);
+				AddLogLineNS(CFormat(wxT("	m_fSupportsCaptcha		= %i")) % m_fSupportsCaptcha);
+				AddLogLineNS(CFormat(wxT("	m_fSupportsSourceEx2	= %i")) % m_fSupportsSourceEx2);
+				AddLogLineNS(CFormat(wxT("	m_fRequiresCryptLayer	= %i")) % m_fRequiresCryptLayer);
+				AddLogLineNS(CFormat(wxT("	m_fRequestsCryptLayer	= %i")) % m_fRequestsCryptLayer);
+				AddLogLineNS(CFormat(wxT("	m_fSupportsCryptLayer	= %i")) % m_fSupportsCryptLayer);
+				AddLogLineNS(CFormat(wxT("	m_fExtMultiPacket	= %i")) % m_fExtMultiPacket);
+				AddLogLineNS(CFormat(wxT("	m_fSupportsLargeFiles	= %i")) % m_fSupportsLargeFiles);
+				AddLogLineNS(CFormat(wxT("	KadVersion		= %u")) % m_byKadVersion);
+				AddLogLineNS(wxT("That's all."));
 				#endif			
 				break;
 
@@ -628,8 +676,7 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 	if (m_socket) {
 		amuleIPV4Address address;
 		m_socket->GetPeer(address);
-		m_FullUserIP = address.IPAddress();
-		SetIP(StringIPtoUint32(m_FullUserIP));
+		SetIP(StringIPtoUint32(address.IPAddress()));
 	} else {
 		throw wxString(wxT("Huh, socket failure. Avoided crash this time."));
 	}
@@ -655,18 +702,18 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 	if (credits == NULL){
 		credits = pFoundCredits;
 		if (!theApp->clientlist->ComparePriorUserhash(m_dwUserIP, m_nUserPort, pFoundCredits)){
-			AddDebugLogLineM( false, logClient, CFormat( wxT("Client: %s (%s) Banreason: Userhash changed (Found in TrackedClientsList)") ) % GetUserName() % GetFullIP() );
+			AddDebugLogLineN( logClient, CFormat( wxT("Client: %s (%s) Banreason: Userhash changed (Found in TrackedClientsList)") ) % GetUserName() % GetFullIP() );
 			Ban();
 		}
 	} else if (credits != pFoundCredits){
 		// userhash change ok, however two hours "waittime" before it can be used
 		credits = pFoundCredits;
-		AddDebugLogLineM( false, logClient, CFormat( wxT("Client: %s (%s) Banreason: Userhash changed") ) % GetUserName() % GetFullIP() );
+		AddDebugLogLineN( logClient, CFormat( wxT("Client: %s (%s) Banreason: Userhash changed") ) % GetUserName() % GetFullIP() );
 		Ban();
 	}
 
 	if ((m_Friend = theApp->friendlist->FindFriend(m_UserHash, m_dwUserIP, m_nUserPort)) != NULL){
-		m_Friend->LinkClient(this);
+		m_Friend->LinkClient(CCLIENTREF(this, wxT("CUpDownClient::ProcessHelloTypePacket m_Friend->LinkClient")));
 	} else{
 		// avoid that an unwanted client instance keeps a friend slot
 		SetFriendSlot(false);
@@ -684,8 +731,8 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 		m_byInfopacketsReceived |= IP_EMULEPROTPACK;
 	}
 
-	if( GetKadPort() ) {
-		Kademlia::CKademlia::Bootstrap(wxUINT32_SWAP_ALWAYS(GetIP()), GetKadPort(), GetKadVersion() > 1);
+	if (GetKadPort() && GetKadVersion() > 1) {
+		Kademlia::CKademlia::Bootstrap(wxUINT32_SWAP_ALWAYS(GetIP()), GetKadPort());
 	}
 
 	//Dynamic Leecher Protection - Bill Lee
@@ -697,14 +744,14 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 }
 
 
-bool CUpDownClient::SendHelloPacket() {
-
-	if (m_socket == NULL){
-		wxASSERT(0);
+bool CUpDownClient::SendHelloPacket()
+{
+	if (m_socket == NULL) {
+		wxFAIL;
 		return true;
 	}
 
-	// if IP is filtered, dont greet him but disconnect...
+	// if IP is filtered, don't greet him but disconnect...
 	amuleIPV4Address address;
 	m_socket->GetPeer(address);
 	if ( theApp->ipfilter->IsFiltered(StringIPtoUint32(address.IPAddress()))) {
@@ -723,14 +770,14 @@ bool CUpDownClient::SendHelloPacket() {
 	theStats::AddUpOverheadOther(packet->GetPacketSize());
 	SendPacket(packet,true);
 	m_bHelloAnswerPending = true;
-	AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_HELLO to ") + GetFullIP() );
+	AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_HELLO to ") + GetFullIP() );
 	return true;
 }
 
 void CUpDownClient::SendMuleInfoPacket(bool bAnswer, bool OSInfo) {
 
 	if (m_socket == NULL){
-		wxASSERT(0);
+		wxFAIL;
 		return;
 	}
 
@@ -812,12 +859,12 @@ void CUpDownClient::SendMuleInfoPacket(bool bAnswer, bool OSInfo) {
 		
 		if (!bAnswer) {
 			if (!OSInfo) {
-				AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_EMULEINFO to ") + GetFullIP() );
+				AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_EMULEINFO to ") + GetFullIP() );
 			} else {
-				AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_EMULEINFO/OS_INFO to ") + GetFullIP() );
+				AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_EMULEINFO/OS_INFO to ") + GetFullIP() );
 			}
 		} else {
-			AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_EMULEINFOANSWER to ") + GetFullIP() );
+			AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_EMULEINFOANSWER to ") + GetFullIP() );
 		}
 	}
 }
@@ -934,7 +981,7 @@ bool CUpDownClient::ProcessMuleInfoPacket(const byte* pachPacket, uint32 nSize)
 					if (temptag.IsStr()) {
 						m_strModVersion = temptag.GetStr();
 					} else if (temptag.IsInt()) {
-						m_strModVersion = wxString::Format(wxT("ModID=%u"), temptag.GetInt());
+						m_strModVersion = CFormat(wxT("ModID=%u")) % temptag.GetInt();
 					} else {
 						m_strModVersion = wxT("ModID=<Unknown>");
 					}
@@ -942,7 +989,7 @@ bool CUpDownClient::ProcessMuleInfoPacket(const byte* pachPacket, uint32 nSize)
 					break;
 
 				default:
-					AddDebugLogLineM( false, logPacketErrors,
+					AddDebugLogLineN( logPacketErrors,
 						CFormat( wxT("Unknown Mule tag (%s) from client: %s") )
 							% temptag.GetFullInfo()
 							% GetClientFullInfo()
@@ -1005,7 +1052,7 @@ bool CUpDownClient::ProcessMuleInfoPacket(const byte* pachPacket, uint32 nSize)
 void CUpDownClient::SendHelloAnswer()
 {
 	if (m_socket == NULL){
-		wxASSERT(0);
+		wxFAIL;
 		return;
 	}
 
@@ -1013,7 +1060,7 @@ void CUpDownClient::SendHelloAnswer()
 	SendHelloTypePacket(&data);
 	CPacket* packet = new CPacket(data, OP_EDONKEYPROT, OP_HELLOANSWER);
 	theStats::AddUpOverheadOther(packet->GetPacketSize());
-	AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_HELLOANSWER to ") + GetFullIP() );
+	AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_HELLOANSWER to ") + GetFullIP() );
 	SendPacket(packet,true);
 }
 
@@ -1118,7 +1165,13 @@ void CUpDownClient::SendHelloTypePacket(CMemFile* data)
 	const uint32 uSupportsCryptLayer	= thePrefs::IsClientCryptLayerSupported() ? 1 : 0;
 	const uint32 uRequestsCryptLayer	= thePrefs::IsClientCryptLayerRequested() ? 1 : 0;
 	const uint32 uRequiresCryptLayer	= thePrefs::IsClientCryptLayerRequired() ? 1 : 0;	
-	const uint32 uSupportsSourceEx2		= 1;					
+	const uint32 uSupportsSourceEx2		= 1;
+#ifdef AMULE_DAEMON
+// captcha for daemon/remotegui not supported for now
+	const uint32 uSupportsCaptcha		= 0;
+#else
+	const uint32 uSupportsCaptcha		= 1;
+#endif
 	// direct callback is only possible if connected to kad, tcp firewalled and verified UDP open (for example on a full cone NAT)
 	const uint32 uDirectUDPCallback		= (Kademlia::CKademlia::IsRunning() && Kademlia::CKademlia::IsFirewalled()
 						   && !Kademlia::CUDPFirewallTester::IsFirewalledUDP(true) && Kademlia::CUDPFirewallTester::IsVerified()) ? 1 : 0;
@@ -1126,7 +1179,7 @@ void CUpDownClient::SendHelloTypePacket(CMemFile* data)
 	CTagVarInt tagMisOptions2(CT_EMULE_MISCOPTIONS2, 
 //				(RESERVED				     )
 				(uDirectUDPCallback	<< 12) |
-// 				(uSupportsCaptcha	<< 11) |	// No captcha support in aMule
+ 				(uSupportsCaptcha	<< 11) |	
 				(uSupportsSourceEx2	<< 10) |
 				(uRequiresCryptLayer	<<  9) |
 				(uRequestsCryptLayer	<<  8) |
@@ -1179,11 +1232,11 @@ void CUpDownClient::ProcessMuleCommentPacket(const byte* pachPacket, uint32 nSiz
 
 	uint8 rating = data.ReadUInt8();
 	if (rating > 5) {
-		AddDebugLogLineM( false, logClient, wxString(wxT("Invalid Rating for file '")) << m_clientFilename << wxT("' received: ") << rating);
+		AddDebugLogLineN( logClient, wxString(wxT("Invalid Rating for file '")) << m_clientFilename << wxT("' received: ") << rating);
 		m_iRating = 0;
 	} else {
 		m_iRating = rating;
-		AddDebugLogLineM( false, logClient, wxString(wxT("Rating for file '")) << m_clientFilename << wxT("' received: ") << m_iRating);
+		AddDebugLogLineN( logClient, wxString(wxT("Rating for file '")) << m_clientFilename << wxT("' received: ") << m_iRating);
 	}
 
 	// The comment is unicoded, with a uin32 len and safe read 
@@ -1191,7 +1244,7 @@ void CUpDownClient::ProcessMuleCommentPacket(const byte* pachPacket, uint32 nSiz
 	// Truncated to MAXFILECOMMENTLEN size
 	m_strComment = data.ReadString((GetUnicodeSupport() != utf8strNone), 4 /* bytes (it's a uint32)*/, true).Left(MAXFILECOMMENTLEN);
 	
-	AddDebugLogLineM( false, logClient, wxString(wxT("Description for file '")) << m_clientFilename << wxT("' received: ") << m_strComment);
+	AddDebugLogLineN( logClient, wxString(wxT("Description for file '")) << m_clientFilename << wxT("' received: ") << m_strComment);
 
 	// Update file rating
 	m_reqfile->UpdateFileRatingCommentAvail();
@@ -1242,44 +1295,51 @@ void CUpDownClient::ClearDownloadBlockRequests()
 bool CUpDownClient::Disconnected(const wxString& strReason, bool bFromSocket)
 {
 	//wxASSERT(theApp->clientlist->IsValidClient(this));
+
+	if (HasBeenDeleted()) {
+		AddDebugLogLineN(logClient, wxT("Disconnected() called for already deleted client on ip ") + Uint32toStringIP(GetConnectIP()));
+		return false;
+	}
 	
 	// was this a direct callback?
 	if (m_dwDirectCallbackTimeout != 0) {
 		theApp->clientlist->RemoveDirectCallback(this);
 		m_dwDirectCallbackTimeout = 0;
 		theApp->clientlist->AddDeadSource(this);
-		AddDebugLogLineM(false, logClient, wxT("Direct callback failed to client ") + GetUserHash().Encode() + wxT(" on ip ") + GetFullIP());
+		AddDebugLogLineN(logClient, wxT("Direct callback failed to client on ip ") + Uint32toStringIP(GetConnectIP()));
 	}
 
 	if (GetKadState() == KS_QUEUED_FWCHECK_UDP || GetKadState() == KS_CONNECTING_FWCHECK_UDP) {
 		Kademlia::CUDPFirewallTester::SetUDPFWCheckResult(false, true, wxUINT32_SWAP_ALWAYS(GetConnectIP()), 0); // inform the tester that this test was cancelled
 	} else if (GetKadState() == KS_FWCHECK_UDP) {
 		Kademlia::CUDPFirewallTester::SetUDPFWCheckResult(false, false, wxUINT32_SWAP_ALWAYS(GetConnectIP()), 0); // inform the tester that this test has failed
-// 	} else if (GetKadState() == KS_CONNECTED_BUDDY) {
-// 		AddDebugLogLineM(false, logClient, wxT("Buddy client disconnected - ") + strReason);
+	} else if (GetKadState() == KS_CONNECTED_BUDDY) {
+		AddDebugLogLineN(logClient, wxT("Buddy client disconnected - ") + strReason);
 	}
 
 	//If this is a KAD client object, just delete it!
 	SetKadState(KS_NONE);
 	
 	if (GetUploadState() == US_UPLOADING) {
+		// sets US_NONE
 		theApp->uploadqueue->RemoveFromUploadQueue(this);
 	}
 
 	if (GetDownloadState() == DS_DOWNLOADING) {
 		SetDownloadState(DS_ONQUEUE);
-	} else{
+	} else {
 		// ensure that all possible block requests are removed from the partfile
 		ClearDownloadBlockRequests();
 
-		if ( GetDownloadState() == DS_CONNECTED ){
+		if (GetDownloadState() == DS_CONNECTED) {
+			// successfully connected, but probably didn't respond to our filerequest
 			theApp->clientlist->AddDeadSource(this);
 			theApp->downloadqueue->RemoveSource(this);
 	    }
 	}
 
 	// we had still an AICH request pending, handle it
-	if (IsAICHReqPending()){
+	if (IsAICHReqPending()) {
 		m_fAICHRequested = FALSE;
 		CAICHHashSet::ClientAICHRequestFailed(this);
 	}
@@ -1291,74 +1351,84 @@ bool CUpDownClient::Disconnected(const wxString& strReason, bool bFromSocket)
 		m_reqfile->SetHashSetNeeded(true);
 	}
 
+	SourceItemType source_type = UNAVAILABLE_SOURCE;
+	SourceItemType peer_type = UNAVAILABLE_SOURCE;
+	
 	//check if this client is needed in any way, if not delete it
 	bool bDelete = true;
-	switch(m_nUploadState){
+	switch (m_nUploadState) {
 		case US_ONUPLOADQUEUE:
 			bDelete = false;
+			peer_type = AVAILABLE_SOURCE;
 			break;
 	};
-	switch(m_nDownloadState){
+	
+	switch (m_nDownloadState) {
 		case DS_ONQUEUE:
+			source_type = A4AF_SOURCE; // Will be checked.		
 		case DS_TOOMANYCONNS:
 		case DS_NONEEDEDPARTS:
 		case DS_LOWTOLOWIP:
 			bDelete = false;
+			break;
 	};
 
-	switch(m_nUploadState){
+	switch (m_nUploadState) {
 		case US_CONNECTING:
 		case US_WAITCALLBACK:
 		case US_ERROR:
 			theApp->clientlist->AddDeadSource(this);
 			bDelete = true;
 	};
-	switch(m_nDownloadState){
+
+	switch (m_nDownloadState) {
 		case DS_CONNECTING:
 		case DS_WAITCALLBACK:
 		case DS_ERROR:
+		case DS_BANNED:
 			theApp->clientlist->AddDeadSource(this);
 			bDelete = true;
 	};
 
 
-	if (GetChatState() != MS_NONE){
+	// We keep chat partners in any case
+	if (GetChatState() != MS_NONE) {
 		bDelete = false;
 		m_pendingMessage.Clear();
 		Notify_ChatConnResult(false,GUI_ID(GetIP(),GetUserPort()),wxEmptyString);
 	}
 
-	if (!bFromSocket && m_socket){
+	// Delete socket
+	if (!bFromSocket && m_socket) {
 		wxASSERT (theApp->listensocket->IsValidSocket(m_socket));
 		m_socket->Safe_Delete();
 	}
 
 	SetSocket(NULL);
 
-	if (m_iFileListRequested){
-		AddLogLineM( false, CFormat(_("Failed to retrieve shared files from user '%s'")) % GetUserName() );
+	if (m_iFileListRequested) {
+		AddLogLineN(CFormat(_("Failed to retrieve shared files from user '%s'")) % GetUserName() );
 		m_iFileListRequested = 0;
 	}
 
-	Notify_ClientCtrlRefreshClient( this );
 
 	if (bDelete) {
 		if (m_Friend) {
 			// Remove the friend linkage
-			Notify_ChatRefreshFriend(m_Friend->GetIP(), m_Friend->GetPort(), wxEmptyString);
+			m_Friend->UnLinkClient();	// this notifies
 		}
-		AddDebugLogLineM( false, logClient, wxString() <<
-			wxT("--- Deleted client \"") <<	GetClientFullInfo() <<
-			wxT("\"; Reason was ") << strReason );
 	} else {
-		AddDebugLogLineM( false, logClient, wxString() <<
-			wxT("--- Disconnected client \"") << GetClientFullInfo() <<
-			wxT("\"; Reason was ") << strReason );
+		Notify_SharedCtrlRefreshClient(ECID(), peer_type);
+		Notify_SourceCtrlUpdateSource(ECID(), source_type);
+		
 		m_fHashsetRequesting = 0;
 		SetSentCancelTransfer(0);
 		m_bHelloAnswerPending = false;
 		m_fSentOutOfPartReqs = 0;
 	}
+	AddDebugLogLineN(logClient, CFormat(wxT("--- %s client D:%d U:%d \"%s\"; Reason was %s"))
+		% (bDelete ? wxT("Deleted") : wxT("Disconnected")) 
+		% m_nDownloadState % m_nUploadState % GetClientFullInfo() % strReason );
 	
 	return bDelete;
 }
@@ -1399,18 +1469,17 @@ bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon)
 		// Although we filter all received IPs (server sources, source exchange) and all incomming connection attempts,
 		// we do have to filter outgoing connection attempts here too, because we may have updated the ip filter list
 		if (theApp->ipfilter->IsFiltered(uClientIP)) {
-			AddDebugLogLineM(false, logIPFilter, CFormat(wxT("Filtered ip %u (%s) on TryToConnect\n")) % uClientIP % Uint32toStringIP(uClientIP));
+			AddDebugLogLineN(logIPFilter, CFormat(wxT("Filtered ip %u (%s) on TryToConnect\n")) % uClientIP % Uint32toStringIP(uClientIP));
 			if (Disconnected(wxT("IPFilter"))) {
 				Safe_Delete();
 				return false;
-			} else {
-				return true;
 			}
+			return true;
 		}
 
 		// for safety: check again whether that IP is banned
 		if (theApp->clientlist->IsBannedClient(uClientIP)) {
-			AddDebugLogLineM(false, logClient, wxT("Refused to connect to banned client ") + Uint32toStringIP(uClientIP));
+			AddDebugLogLineN(logClient, wxT("Refused to connect to banned client ") + Uint32toStringIP(uClientIP));
 			if (Disconnected(wxT("Banned IP"))) {
 				Safe_Delete();
 				return false;
@@ -1425,8 +1494,8 @@ bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon)
 		SetKadState(KS_CONNECTING_FWCHECK_UDP);
 	}
 
-	if ( HasLowID() ) {
-		if (!theApp->DoCallback(this)) {
+	if (HasLowID()) {
+		if (!theApp->CanDoCallback(GetServerIP(), GetServerPort())) {
 			//We cannot do a callback!
 			if (GetDownloadState() == DS_CONNECTING) {
 				SetDownloadState(DS_LOWTOLOWIP);
@@ -1444,7 +1513,7 @@ bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon)
 		}
 
 		//We already know we are not firewalled here as the above condition already detected LowID->LowID and returned.
-		//If ANYTHING changes with the "if(!theApp->DoCallback(this))" above that will let you fall through 
+		//If ANYTHING changes with the "if(!theApp->CanDoCallback(this))" above that will let you fall through 
 		//with the condition that the source is firewalled and we are firewalled, we must
 		//recheck it before the this check..
 		if (HasValidBuddyID() && !GetBuddyIP() && !GetBuddyPort() && !theApp->serverconnect->IsLocalServer(GetServerIP(), GetServerPort())
@@ -1474,23 +1543,22 @@ bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon)
 	
 	if (HasLowID() && SupportsDirectUDPCallback() && thePrefs::GetEffectiveUDPPort() != 0 && GetConnectIP() != 0) { // LOWID with DirectCallback
 		if (m_dwDirectCallbackTimeout != 0) {
-			AddDebugLogLineM(false, logClient, wxT("ERROR: Trying Direct UDP Callback while already trying to connect to client ") + GetUserHash().Encode());
+			AddDebugLogLineN(logClient, wxT("ERROR: Trying Direct UDP Callback while already trying to connect to client on ip ") + Uint32toStringIP(GetConnectIP()));
 			return true;	// We're already trying a direct connection to this client
 		}
 		// a direct callback is possible - since no other parties are involved and only one additional packet overhead 
 		// is used we basically handle it like a normal connection try, no restrictions apply
-		// we already check above with !theApp->DoCallback(this) if any callback is possible at all
+		// we already check above with !theApp->CanDoCallback(this) if any callback is possible at all
 		m_dwDirectCallbackTimeout = ::GetTickCount() + SEC2MS(45);
 		theApp->clientlist->AddDirectCallbackClient(this);
-		// TODO LOGREMOVE
-		AddDebugLogLineM(false, logClient, wxString::Format(wxT("Direct Callback on port %u to client "), GetKadPort()) + GetUserHash().Encode());
+		AddDebugLogLineN(logClient, CFormat(wxT("Direct Callback on port %u to client on ip %s")) % GetKadPort() % Uint32toStringIP(GetConnectIP()));
 
 		CMemFile data;
 		data.WriteUInt16(thePrefs::GetPort()); // needs to know our port
 		data.WriteHash(thePrefs::GetUserHash()); // and userhash
 		// our connection settings
 		data.WriteUInt8(Kademlia::CPrefs::GetMyConnectOptions(true, false));
-		AddDebugLogLineM(false, logClientUDP, wxT("Sending OP_DIRECTCALLBACKREQ to ") + Uint32_16toStringIP_Port(GetConnectIP(), GetKadPort()));
+		AddDebugLogLineN(logClientUDP, wxT("Sending OP_DIRECTCALLBACKREQ to ") + Uint32_16toStringIP_Port(GetConnectIP(), GetKadPort()));
 		CPacket* packet = new CPacket(data, OP_EMULEPROT, OP_DIRECTCALLBACKREQ);
 		theStats::AddUpOverheadOther(packet->GetPacketSize());
 		theApp->clientudp->SendPacket(packet, GetConnectIP(), GetKadPort(), ShouldReceiveCryptUDPPackets(), GetUserHash().GetHash(), false, 0);
@@ -1513,7 +1581,7 @@ bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon)
 			data.WriteUInt32(m_nUserIDHybrid);
 			CPacket* packet = new CPacket(data, OP_EDONKEYPROT, OP_CALLBACKREQUEST);
 			theStats::AddUpOverheadServer(packet->GetPacketSize());
-			AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_CALLBACKREQUEST to ") + GetFullIP());
+			AddDebugLogLineN(logLocalClient, wxT("Local Client: OP_CALLBACKREQUEST to ") + GetFullIP());
 			theApp->serverconnect->SendPacket(packet);
 			SetDownloadState(DS_WAITCALLBACK);
 		} else {
@@ -1545,13 +1613,13 @@ bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon)
 						bio.WriteUInt128(Kademlia::CUInt128(m_reqfile->GetFileHash().GetHash()));
 						bio.WriteUInt16(thePrefs::GetPort());
 						CPacket* packet = new CPacket(bio, OP_KADEMLIAHEADER, KADEMLIA_CALLBACK_REQ);
-						// eMule FIXME: We dont know which kadversion the buddy has, so we need to send unencrypted
+						// eMule FIXME: We don't know which kadversion the buddy has, so we need to send unencrypted
 						theApp->clientudp->SendPacket(packet, GetBuddyIP(), GetBuddyPort(), false, NULL, true, 0);
-						AddDebugLogLineM(false,logLocalClient, wxString::Format(wxT("KADEMLIA_CALLBACK_REQ (%i) to"),packet->GetPacketSize()) + GetFullIP());
+						AddDebugLogLineN(logClientKadUDP, CFormat(wxT("KadCallbackReq (size=%i) to %s")) % packet->GetPacketSize() % Uint32_16toStringIP_Port(GetBuddyIP(), GetBuddyPort()));
 						theStats::AddUpOverheadKad(packet->GetRealPacketSize());
 						SetDownloadState(DS_WAITCALLBACKKAD);
 					} else {
-						printf("Searching buddy for lowid connection\n");
+						AddLogLineN(_("Searching buddy for lowid connection"));
 						//Create search to find buddy.
 						Kademlia::CSearch *findSource = new Kademlia::CSearch;
 						findSource->SetSearchTypes(Kademlia::CSearch::FINDSOURCE);
@@ -1562,7 +1630,7 @@ bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon)
 							SetDownloadState(DS_WAITCALLBACKKAD);
 						} else {
 							//This should never happen..
-							wxASSERT(0);
+							wxFAIL;
 						}
 					}
 				}
@@ -1588,8 +1656,6 @@ bool CUpDownClient::Connect()
 	if (!m_socket->IsOk()) {
 		// Enable or disable crypting based on our and the remote clients preference
 		if (HasValidHash() && SupportsCryptLayer() && thePrefs::IsClientCryptLayerSupported() && (RequestsCryptLayer() || thePrefs::IsClientCryptLayerRequested())){
-//			printf("Set connection encryption for socket\n");
-			//DebugLog(_T("Enabling CryptLayer on outgoing connection to client %s"), DbgGetClientInfo()); // to be removed later
 			m_socket->SetConnectionEncryption(true, GetUserHash().GetHash(), false);
 		} else {
 			m_socket->SetConnectionEncryption(false, NULL, false);
@@ -1597,7 +1663,7 @@ bool CUpDownClient::Connect()
 		amuleIPV4Address tmp;
 		tmp.Hostname(GetConnectIP());
 		tmp.Service(GetUserPort());
-		AddDebugLogLineM(false, logClient, wxT("Trying to connect to ") + Uint32_16toStringIP_Port(GetConnectIP(),GetUserPort()));
+		AddDebugLogLineN(logClient, wxT("Trying to connect to ") + Uint32_16toStringIP_Port(GetConnectIP(),GetUserPort()));
 		m_socket->Connect(tmp, false);
 		// We should send hello packets AFTER connecting!
 		// so I moved it to OnConnect	
@@ -1609,7 +1675,6 @@ bool CUpDownClient::Connect()
 
 void CUpDownClient::ConnectionEstablished()
 {
-	
 	/* Kry - First thing, check if this client was just used to retrieve 
 	   info. That's some debug thing for myself... check connection_reason
 	   definition */
@@ -1618,8 +1683,8 @@ void CUpDownClient::ConnectionEstablished()
 	
 	#ifdef __DEBUG__
 	if (!connection_reason.IsEmpty()) {
-		printf("Got client info checking for %s: %s\nDisconnecting and deleting.\n",(const char*)unicode2char(connection_reason),(const char*)unicode2char(GetClientFullInfo()));
-		connection_reason.Clear(); // So we don't re-printf on destructor.
+		AddLogLineN(CFormat(wxT("Got client info checking for %s: %s\nDisconnecting and deleting.")) % connection_reason % GetClientFullInfo());
+		connection_reason.Clear(); // So we don't re-print on destructor.
 		Safe_Delete();
 		return;
 	}
@@ -1635,8 +1700,7 @@ void CUpDownClient::ConnectionEstablished()
 	if (m_dwDirectCallbackTimeout != 0){
 		theApp->clientlist->RemoveDirectCallback(this);
 		m_dwDirectCallbackTimeout = 0;
-		// TODO LOGREMOVE
-		AddDebugLogLineM(false, logClient, wxT("Direct Callback succeeded, connection established to ") + GetUserHash().Encode());
+		AddDebugLogLineN(logClient, wxT("Direct Callback succeeded, connection established to ") + Uint32toStringIP(GetConnectIP()));
 	}
 
 	switch (GetKadState()) {
@@ -1663,7 +1727,7 @@ void CUpDownClient::ConnectionEstablished()
 	if (GetChatState() == MS_CHATTING) {
 		bool result = true;
 		if (!m_pendingMessage.IsEmpty()) {
-			result = SendMessage(m_pendingMessage);
+			result = SendChatMessage(m_pendingMessage);
 		}
 		Notify_ChatConnResult(result,GUI_ID(GetIP(),GetUserPort()),m_pendingMessage);
 		m_pendingMessage.Clear();
@@ -1692,7 +1756,7 @@ void CUpDownClient::ConnectionEstablished()
 				CPacket* packet = new CPacket(OP_ACCEPTUPLOADREQ, 0, OP_EDONKEYPROT);
 				theStats::AddUpOverheadFileRequest(packet->GetPacketSize());
 				SendPacket(packet,true);
-				AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_ACCEPTUPLOADREQ to ") + GetFullIP() );
+				AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_ACCEPTUPLOADREQ to ") + GetFullIP() );
 			}
 	}
 	if (m_iFileListRequested == 1) {
@@ -1700,9 +1764,9 @@ void CUpDownClient::ConnectionEstablished()
 		theStats::AddUpOverheadOther(packet->GetPacketSize());
 		SendPacket(packet,true,true);
 		if (m_fSharedDirectories) {
-			AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_ASKSHAREDDIRS to ") + GetFullIP() );
+			AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_ASKSHAREDDIRS to ") + GetFullIP() );
 		} else {
-			AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_ASKSHAREDFILES to ") + GetFullIP() );
+			AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_ASKSHAREDFILES to ") + GetFullIP() );
 		}
 	}
 	
@@ -1735,7 +1799,7 @@ int CUpDownClient::GetHashType() const
 
 void CUpDownClient::SetSocket(CClientTCPSocket* socket)
 {
-#if defined(__DEBUG__) && !defined(EC_REMOTE)
+#ifdef __DEBUG__
 	if (m_socket == NULL && socket != NULL) {
 		theStats::SocketAssignedToClient();
 	} else if (m_socket != NULL && socket == NULL) {
@@ -1767,7 +1831,7 @@ void CUpDownClient::ReGetClientSoft()
 		}
 		// Isn't xMule annoying?
 		if ((m_clientSoft == SO_LXMULE) && (GetMuleVersion() > 0x26) && (GetMuleVersion() != 0x99)) {
-			m_clientSoftString += wxString::Format(_(" (Fake eMule version %#x)"),GetMuleVersion());
+			m_clientSoftString += CFormat(_(" (Fake eMule version %#x)")) % GetMuleVersion();
 		}
 		if ((m_clientSoft == SO_EMULE) && 
 			(
@@ -1799,10 +1863,10 @@ void CUpDownClient::ReGetClientSoft()
 					(m_byCompatibleClient != 0xf0)	// Chinese leech mod
 					&& (1==1) 						// Your ad here
 					) {
-					printf("Compatible client found with ET_COMPATIBLECLIENT of %#x\n",m_byCompatibleClient);
+					AddLogLineNS(CFormat(wxT("Compatible client found with ET_COMPATIBLECLIENT of %x")) % m_byCompatibleClient);
 				}
 				#endif
-				m_clientSoftString = GetSoftName(m_clientSoft) + wxString::Format(wxT("(%#x)"),m_byCompatibleClient);
+				m_clientSoftString = CFormat(wxT("%s(%#x)")) % GetSoftName(m_clientSoft) % m_byCompatibleClient;
 			} else {
 				// If we step here, it might mean 2 things:
 				// a eMule
@@ -1819,14 +1883,14 @@ void CUpDownClient::ReGetClientSoft()
 			m_nClientVersion = MAKE_CLIENT_VERSION(0,nClientMinVersion,0);
 			switch (m_clientSoft) {
 				case SO_AMULE:
-					m_clientVerString = wxString::Format(_("1.x (based on eMule v0.%u)"), nClientMinVersion);
+					m_clientVerString = CFormat(_("1.x (based on eMule v0.%u)")) % nClientMinVersion;
 					break;
 				case SO_LPHANT:
 					m_clientVerString = wxT("< v0.05");
 					break;
 				default:
 					clientModString = GetClientModString();
-					m_clientVerString = wxString::Format(wxT("v0.%u"), nClientMinVersion);
+					m_clientVerString = CFormat(wxT("v0.%u")) % nClientMinVersion;
 					break;
 			}
 		} else {
@@ -1840,28 +1904,31 @@ void CUpDownClient::ReGetClientSoft()
 				case SO_AMULE:
 				case SO_LXMULE:
 				case SO_HYDRANODE:
+				case SO_MLDONKEY:
+				case SO_NEW_MLDONKEY:
+				case SO_NEW2_MLDONKEY:					
 					// Kry - xMule started sending correct version tags on 1.9.1b.
 					// It only took them 4 months, and being told by me and the
 					// eMule+ developers, so I think they're slowly getting smarter.
 					// They are based on our implementation, so we use the same format
 					// for the version string.
-					m_clientVerString =  wxString::Format(wxT("v%u.%u.%u"), nClientMajVersion, nClientMinVersion, nClientUpVersion);
+					m_clientVerString = CFormat(wxT("v%u.%u.%u")) % nClientMajVersion % nClientMinVersion % nClientUpVersion;
 					break;
 				case SO_LPHANT:
-					m_clientVerString =  wxString::Format(wxT(" v%u.%.2u%c"), nClientMajVersion-1, nClientMinVersion, 'a' + nClientUpVersion);
+					m_clientVerString = CFormat(wxT(" v%u.%.2u%c")) % (nClientMajVersion-1) % nClientMinVersion % ('a' + nClientUpVersion);
 					break;
 				case SO_EMULEPLUS:
-					m_clientVerString =  wxString::Format(wxT("v%u"), nClientMajVersion);
+					m_clientVerString = CFormat(wxT("v%u")) % nClientMajVersion;
 					if(nClientMinVersion != 0) {
-						m_clientVerString +=  wxString::Format(wxT(".%u"), nClientMinVersion);
+						m_clientVerString += CFormat(wxT(".%u")) % nClientMinVersion;
 					}
 					if(nClientUpVersion != 0) {
-						m_clientVerString +=  wxString::Format(wxT("%c"), 'a' + nClientUpVersion - 1);
+						m_clientVerString += CFormat(wxT("%c")) % ('a' + nClientUpVersion - 1);
 					}
 					break;
 				default:
 					clientModString = GetClientModString();
-					m_clientVerString =  wxString::Format(wxT("v%u.%u%c"), nClientMajVersion, nClientMinVersion, 'a' + nClientUpVersion);
+					m_clientVerString = CFormat(wxT("v%u.%u%c")) % nClientMajVersion % nClientMinVersion % ('a' + nClientUpVersion);
 					break;
 			}
 		}
@@ -1909,27 +1976,27 @@ void CUpDownClient::ReGetClientSoft()
 		}
 		m_nClientVersion = MAKE_CLIENT_VERSION(nClientMajVersion, nClientMinVersion, nClientUpVersion);
 		if (nClientUpVersion) {
-			m_clientVerString = wxString::Format(wxT("v%u.%u.%u"), nClientMajVersion, nClientMinVersion, nClientUpVersion);
+			m_clientVerString = CFormat(wxT("v%u.%u.%u")) % nClientMajVersion % nClientMinVersion % nClientUpVersion;
 		} else {
-			m_clientVerString = wxString::Format(wxT("v%u.%u"), nClientMajVersion, nClientMinVersion);
+			m_clientVerString = CFormat(wxT("v%u.%u")) % nClientMajVersion % nClientMinVersion;
 		}
 	} else if (m_bIsML || (iHashType == SO_MLDONKEY)) {
 		m_clientSoft = SO_MLDONKEY;
 		m_clientSoftString = GetSoftName(m_clientSoft);
 		uint32 nClientMinVersion = m_nClientVersion;
 		m_nClientVersion = MAKE_CLIENT_VERSION(0, nClientMinVersion, 0);
-		m_clientVerString = wxString::Format(wxT("v0.%u"), nClientMinVersion);
+		m_clientVerString = CFormat(wxT("v0.%u")) % nClientMinVersion;
 	} else if (iHashType == SO_OLDEMULE) {
 		m_clientSoft = SO_OLDEMULE;
 		m_clientSoftString = GetSoftName(m_clientSoft);
 		uint32 nClientMinVersion = m_nClientVersion;
 		m_nClientVersion = MAKE_CLIENT_VERSION(0, nClientMinVersion, 0);
-		m_clientVerString = wxString::Format(wxT("v0.%u"), nClientMinVersion);
+		m_clientVerString = CFormat(wxT("v0.%u")) % nClientMinVersion;
 	} else {
 		m_clientSoft = SO_EDONKEY;
 		m_clientSoftString = GetSoftName(m_clientSoft);
 		m_nClientVersion *= 10;
-		m_clientVerString = wxString::Format(wxT("v%u.%u"), m_nClientVersion / 100000, (m_nClientVersion / 1000) % 100);
+		m_clientVerString = CFormat(wxT("v%u.%u")) % (m_nClientVersion / 100000) % ((m_nClientVersion / 1000) % 100);
 	}
 
 	m_clientVersionString = m_clientVerString;
@@ -1944,11 +2011,11 @@ void CUpDownClient::ReGetClientSoft()
 void CUpDownClient::RequestSharedFileList()
 {
 	if (m_iFileListRequested == 0) {
-		AddDebugLogLineM( false, logClient, wxString( wxT("Requesting shared files from ") ) + GetUserName() );
+		AddDebugLogLineN( logClient, wxString( wxT("Requesting shared files from ") ) + GetUserName() );
 		m_iFileListRequested = 1;
 		TryToConnect(true);
 	} else {
-		AddDebugLogLineM( false, logClient, CFormat( wxT("Requesting shared files from user %s (%u) is already in progress") ) % GetUserName() % GetUserIDHybrid() );
+		AddDebugLogLineN( logClient, CFormat( wxT("Requesting shared files from user %s (%u) is already in progress") ) % GetUserName() % GetUserIDHybrid() );
 	}
 }
 
@@ -2021,7 +2088,7 @@ bool CUpDownClient::SafeSendPacket(CPacket* packet)
 void CUpDownClient::SendPublicKeyPacket(){
 	// send our public key to the client who requested it
 	if (m_socket == NULL || credits == NULL || m_SecureIdentState != IS_KEYANDSIGNEEDED){
-		wxASSERT ( false );
+		wxFAIL;
 		return;
 	}
 	if (!theApp->CryptoAvailable())
@@ -2033,7 +2100,7 @@ void CUpDownClient::SendPublicKeyPacket(){
 	CPacket* packet = new CPacket(data, OP_EMULEPROT, OP_PUBLICKEY);
 
 	theStats::AddUpOverheadOther(packet->GetPacketSize());
-	AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_PUBLICKEY to ") + GetFullIP() );
+	AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_PUBLICKEY to ") + GetFullIP() );
 	SendPacket(packet,true,true);
 	m_SecureIdentState = IS_SIGNATURENEEDED;
 }
@@ -2042,7 +2109,7 @@ void CUpDownClient::SendPublicKeyPacket(){
 void CUpDownClient::SendSignaturePacket(){
 	// signate the public key of this client and send it
 	if (m_socket == NULL || credits == NULL || m_SecureIdentState == 0){
-		wxASSERT ( false );
+		wxFAIL;
 		return;
 	}
 
@@ -2054,7 +2121,7 @@ void CUpDownClient::SendSignaturePacket(){
 	}
 	// do we have a challenge value received (actually we should if we are in this function)
 	if (credits->m_dwCryptRndChallengeFrom == 0){
-		AddDebugLogLineM( false, logClient, wxString(wxT("Want to send signature but challenge value is invalid - User ")) + GetUserName());
+		AddDebugLogLineN( logClient, wxString(wxT("Want to send signature but challenge value is invalid - User ")) + GetUserName());
 		return;
 	}
 	// v2
@@ -2082,7 +2149,7 @@ void CUpDownClient::SendSignaturePacket(){
 
 	uint8 siglen = theApp->clientcredits->CreateSignature(credits, achBuffer,  250, ChallengeIP, byChaIPKind );
 	if (siglen == 0){
-		wxASSERT ( false );
+		wxFAIL;
 		return;
 	}
 	CMemFile data;
@@ -2095,7 +2162,7 @@ void CUpDownClient::SendSignaturePacket(){
 	CPacket* packet = new CPacket(data, OP_EMULEPROT, OP_SIGNATURE);
 
 	theStats::AddUpOverheadOther(packet->GetPacketSize());
-	AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_SIGNATURE to ") + GetFullIP() );
+	AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_SIGNATURE to ") + GetFullIP() );
 	SendPacket(packet,true,true);
 	m_SecureIdentState = IS_ALLREQUESTSSEND;
 }
@@ -2107,7 +2174,7 @@ void CUpDownClient::ProcessPublicKeyPacket(const byte* pachPacket, uint32 nSize)
 
 	if (m_socket == NULL || credits == NULL || pachPacket[0] != nSize-1
 		|| nSize == 0 || nSize > 250){
-		wxASSERT ( false );
+		wxFAIL;
 		return;
 	}
 	if (!theApp->CryptoAvailable())
@@ -2118,12 +2185,12 @@ void CUpDownClient::ProcessPublicKeyPacket(const byte* pachPacket, uint32 nSize)
 		if (m_SecureIdentState == IS_SIGNATURENEEDED){
 			SendSignaturePacket();
 		}
-		else if(m_SecureIdentState == IS_KEYANDSIGNEEDED){
+		else if (m_SecureIdentState == IS_KEYANDSIGNEEDED) {
 			// something is wrong
-			AddDebugLogLineM( false, logClient, wxT("Invalid State error: IS_KEYANDSIGNEEDED in ProcessPublicKeyPacket") );
+			AddDebugLogLineN( logClient, wxT("Invalid State error: IS_KEYANDSIGNEEDED in ProcessPublicKeyPacket") );
 		}
-	} else{
-		AddDebugLogLineM( false, logClient, wxT("Failed to use new received public key") );
+	} else {
+		AddDebugLogLineN( logClient, wxT("Failed to use new received public key") );
 	}
 }
 
@@ -2133,7 +2200,7 @@ void CUpDownClient::ProcessSignaturePacket(const byte* pachPacket, uint32 nSize)
 	// here we spread the good guys from the bad ones ;)
 
 	if (m_socket == NULL || credits == NULL || nSize == 0 || nSize > 250){
-		wxASSERT ( false );
+		wxFAIL;
 		return;
 	}
 
@@ -2143,7 +2210,7 @@ void CUpDownClient::ProcessSignaturePacket(const byte* pachPacket, uint32 nSize)
 	else if (pachPacket[0] == nSize-2 && (m_bySupportSecIdent & 2) > 0) //v2
 		byChaIPKind = pachPacket[nSize-1];
 	else{
-		wxASSERT ( false );
+		wxFAIL;
 		return;
 	}
 
@@ -2152,25 +2219,25 @@ void CUpDownClient::ProcessSignaturePacket(const byte* pachPacket, uint32 nSize)
 
 	// we accept only one signature per IP, to avoid floods which need a lot cpu time for cryptfunctions
 	if (m_dwLastSignatureIP == GetIP()){
-		AddDebugLogLineM( false, logClient, wxT("received multiple signatures from one client") );
+		AddDebugLogLineN( logClient, wxT("received multiple signatures from one client") );
 		return;
 	}
 	// also make sure this client has a public key
 	if (credits->GetSecIDKeyLen() == 0){
-		AddDebugLogLineM( false, logClient, wxT("received signature for client without public key") );
+		AddDebugLogLineN( logClient, wxT("received signature for client without public key") );
 		return;
 	}
 	// and one more check: did we ask for a signature and sent a challange packet?
 	if (credits->m_dwCryptRndChallengeFor == 0){
-		AddDebugLogLineM( false, logClient, wxT("received signature for client with invalid challenge value - User ") + GetUserName() );
+		AddDebugLogLineN( logClient, wxT("received signature for client with invalid challenge value - User ") + GetUserName() );
 		return;
 	}
 
-	if (theApp->clientcredits->VerifyIdent(credits, pachPacket+1, pachPacket[0], GetIP(), byChaIPKind ) ){
+	if (theApp->clientcredits->VerifyIdent(credits, pachPacket+1, pachPacket[0], GetIP(), byChaIPKind ) ) {
 		// result is saved in function above
-		AddDebugLogLineM( false, logClient, CFormat( wxT("'%s' has passed the secure identification, V2 State: %i") ) % GetUserName() % byChaIPKind );
+		AddDebugLogLineN( logClient, CFormat( wxT("'%s' has passed the secure identification, V2 State: %i") ) % GetUserName() % byChaIPKind );
 	} else {
-		AddDebugLogLineM( false, logClient, CFormat( wxT("'%s' has failed the secure identification, V2 State: %i") ) % GetUserName() % byChaIPKind );
+		AddDebugLogLineN( logClient, CFormat( wxT("'%s' has failed the secure identification, V2 State: %i") ) % GetUserName() % byChaIPKind );
 	}
 
 	m_dwLastSignatureIP = GetIP();
@@ -2188,7 +2255,7 @@ void CUpDownClient::SendSecIdentStatePacket(){
 			}
 		}
 		if (nValue == 0){
-			AddDebugLogLineM( false, logClient, wxT("Not sending SecIdentState Packet, because State is Zero") );
+			AddDebugLogLineN( logClient, wxT("Not sending SecIdentState Packet, because State is Zero") );
 			return;
 		}
 		// crypt: send random data to sign
@@ -2201,10 +2268,10 @@ void CUpDownClient::SendSecIdentStatePacket(){
 		CPacket* packet = new CPacket(data, OP_EMULEPROT, OP_SECIDENTSTATE);
 
 		theStats::AddUpOverheadOther(packet->GetPacketSize());
-		AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_SECIDENTSTATE to ") + GetFullIP() );
+		AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_SECIDENTSTATE to ") + GetFullIP() );
 		SendPacket(packet,true,true);
 	} else {
-		wxASSERT ( false );
+		wxFAIL;
 	}
 }
 
@@ -2253,11 +2320,12 @@ void CUpDownClient::InfoPacketsReceived()
 }
 
 
-bool CUpDownClient::CheckHandshakeFinished(uint32 WXUNUSED(protocol), uint32 WXUNUSED(opcode)) const
+bool CUpDownClient::CheckHandshakeFinished() const
 {
-	if (m_bHelloAnswerPending){
+	if (m_bHelloAnswerPending) {
 		// this triggers way too often.. need more time to look at this -> only create a warning
-		AddDebugLogLineM( false, logClient, wxT("Handshake not finished while processing packet.") );
+		// The reason for this is that 2 clients are connecting to each other at the same time..
+		AddDebugLogLineN( logClient, wxT("Handshake not finished while processing packet.") );
 		return false;
 	}
 
@@ -2265,13 +2333,13 @@ bool CUpDownClient::CheckHandshakeFinished(uint32 WXUNUSED(protocol), uint32 WXU
 }
 
 
-wxString CUpDownClient::GetClientFullInfo() {
-
+wxString CUpDownClient::GetClientFullInfo()
+{
 	if (m_clientVerString.IsEmpty()) {
 		ReGetClientSoft();
 	}
 
-	return CFormat( _("Client %s on IP:Port %s:%d using %s %s %s") )
+	return CFormat( wxT("Client %s on IP:Port %s:%d using %s %s %s") )
 		% ( m_Username.IsEmpty() ? wxString(_("Unknown")) : m_Username )
 		% GetFullIP()
 		% GetUserPort()
@@ -2281,18 +2349,33 @@ wxString CUpDownClient::GetClientFullInfo() {
 }
 
 
+wxString CUpDownClient::GetClientShortInfo()
+{
+	if (m_clientVerString.IsEmpty()) {
+		ReGetClientSoft();
+	}
 
-void CUpDownClient::SendPublicIPRequest(){
+	return CFormat( wxT("'%s' (%s %s %s)") )
+		% ( m_Username.IsEmpty() ? wxString(_("Unknown")) : m_Username )
+		% m_clientSoftString 
+		% m_clientVerString
+		% m_strModVersion;
+}
+
+
+void CUpDownClient::SendPublicIPRequest()
+{
 	if (IsConnected()){
 		CPacket* packet = new CPacket(OP_PUBLICIP_REQ,0,OP_EMULEPROT);
 		theStats::AddUpOverheadOther(packet->GetPacketSize());
-		AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_PUBLICIP_REQ to") + GetFullIP());
+		AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_PUBLICIP_REQ to ") + GetFullIP());
 		SendPacket(packet,true);
 		m_fNeedOurPublicIP = true;
 	}
 }
 
-void CUpDownClient::ProcessPublicIPAnswer(const byte* pbyData, uint32 uSize){
+void CUpDownClient::ProcessPublicIPAnswer(const byte* pbyData, uint32 uSize)
+{
 	if (uSize != 4) {
 		throw wxString(wxT("Wrong Packet size on Public IP answer"));
 	}
@@ -2318,14 +2401,13 @@ bool CUpDownClient::SendPacket(CPacket* packet, bool delpacket, bool controlpack
 		m_socket->SendPacket(packet, delpacket, controlpacket );
 		return true;
 	} else {
-		printf("CAUGHT DEAD SOCKET IN SENDPACKET()\n");
+		AddLogLineN(wxT("CAUGHT DEAD SOCKET IN SENDPACKET()"));
 		return false;
 	}
 }
 
 float CUpDownClient::SetDownloadLimit(uint32 reducedownload)
 {
-
 	// lfroen: in daemon it actually can happen
 		wxASSERT( m_socket );
 
@@ -2357,11 +2439,10 @@ float CUpDownClient::SetDownloadLimit(uint32 reducedownload)
 		}		
 		
 	} else {
-		printf("CAUGHT DEAD SOCKET IN SETDOWNLOADLIMIT() WITH SPEED %f\n", kBpsClient);
+		AddLogLineNS(CFormat(wxT("CAUGHT DEAD SOCKET IN SETDOWNLOADLIMIT() WITH SPEED %f")) % kBpsClient);
 	}
 	
 	return kBpsClient;
-	
 }
 
 void CUpDownClient::SetUserIDHybrid(uint32 nUserID)
@@ -2380,7 +2461,7 @@ void CUpDownClient::SetIP( uint32 val )
 
 	m_nConnectIP = val;
 	
-	m_FullUserIP = Uint32toStringIP(val);
+	m_FullUserIP = val;
 }
 
 
@@ -2398,30 +2479,50 @@ EUtf8Str CUpDownClient::GetUnicodeSupport() const
 	return m_bUnicodeSupport ? utf8strRaw : utf8strNone;
 }
 
+void CUpDownClient::SetSpammer(bool bVal)
+{ 
+	if (bVal) {
+		Ban();
+	} else if (IsBanned() && m_fIsSpammer) {
+		UnBan();
+	}
+	m_fIsSpammer = bVal;
+}
 
-uint8 CUpDownClient::GetSecureIdentState() {
+uint8 CUpDownClient::GetSecureIdentState()
+{
 	if (m_SecureIdentState != IS_UNAVAILABLE) {
 		if (!SecIdentSupRec) {
 			// This can be caused by a 0.30x based client which sends the old
 			// style Hello packet, and the mule info packet, but between them they
 			// send a secure ident state packet (after a hello but before we have 
 			// the SUI capabilities). This is a misbehaving client, and somehow I
-			// Feel like ti should be dropped. But then again, it won't harm to use
+			// feel like it should be dropped. But then again, it won't harm to use
 			// this SUI state if they are reporting no SUI (won't be used) and if 
 			// they report using SUI on the mule info packet, it's ok to use it.
-			
-			AddDebugLogLineM(false, logClient, wxT("A client sent secure ident state before telling us the SUI capabilities"));
-			AddDebugLogLineM(false, logClient, wxT("Client info: ") + GetClientFullInfo());
-			AddDebugLogLineM(false, logClient, wxT("This client won't be disconnected, but it should be. :P"));
+
+			AddDebugLogLineN(logClient, wxT("A client sent secure ident state before telling us the SUI capabilities"));
+			AddDebugLogLineN(logClient, wxT("Client info: ") + GetClientFullInfo());
+			AddDebugLogLineN(logClient, wxT("This client won't be disconnected, but it should be. :P"));
 		}
 	}
-	
+
 	return m_SecureIdentState;
 }
 
 
-bool CUpDownClient::SendMessage(const wxString& message)
+bool CUpDownClient::SendChatMessage(const wxString& message)
 {
+	if (GetChatCaptchaState() == CA_CAPTCHARECV) {
+		m_nChatCaptchaState = CA_SOLUTIONSENT;
+	} else if (GetChatCaptchaState() == CA_SOLUTIONSENT) {
+		wxFAIL; // we responsed to a captcha but didn't heard from the client afterwards - hopefully its just lag and this message will get through
+	} else {
+		m_nChatCaptchaState = CA_ACCEPTING;
+	}
+
+	SetSpammer(false);
+	IncMessagesSent();
 	// Already connecting?
 	if (GetChatState() == MS_CONNECTING) {
 		// Queue all messages till we're able to send them (or discard them)
@@ -2429,17 +2530,20 @@ bool CUpDownClient::SendMessage(const wxString& message)
 			m_pendingMessage += wxT("\n");
 		} else {
 			// There must be a message to send
-			wxASSERT(0);
+			// - except if we got disconnected. No need to assert therefore.
 		}
 		m_pendingMessage += message;		
 		return false;
 	}
 	if (IsConnected()) {
+		// If we are already connected when we send the first message,
+		// we have to update the chat status.
+		SetChatState(MS_CHATTING);
 		CMemFile data;
 		data.WriteString(message, GetUnicodeSupport());
 		CPacket* packet = new CPacket(data, OP_EDONKEYPROT, OP_MESSAGE);
 		theStats::AddUpOverheadOther(packet->GetPacketSize());
-		AddDebugLogLineM( false, logLocalClient, wxT("Local Client: OP_MESSAGE to ") + GetFullIP());
+		AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_MESSAGE to ") + GetFullIP());
 		SendPacket(packet, true, true);
 		return true;
 	} else {
@@ -2448,7 +2552,7 @@ bool CUpDownClient::SendMessage(const wxString& message)
 		// True to ignore "Too Many Connections"
 		TryToConnect(true);
 		return false;
-	}	
+	}
 }
 
 /* Kad stuff */
@@ -2470,7 +2574,7 @@ bool CUpDownClient::SendBuddyPing() {
 	SetLastBuddyPingPongTime();	
 	CPacket* buddyPing = new CPacket(OP_BUDDYPING, 0, OP_EMULEPROT);
 	theStats::AddUpOverheadKad(buddyPing->GetPacketSize());
-	AddDebugLogLineM(false, logLocalClient,wxT("Local Client: OP_BUDDYPING to ") + GetFullIP());
+	AddDebugLogLineN(logLocalClient,wxT("Local Client: OP_BUDDYPING to ") + GetFullIP());
 	return SafeSendPacket(buddyPing);
 }
 
@@ -2533,7 +2637,8 @@ uint64 CUpDownClient::GetUploadedTotal() const
 	return credits ? credits->GetUploadedTotal() : 0;
 }
 	
-double CUpDownClient::GetScoreRatio() const {
+double CUpDownClient::GetScoreRatio() const 
+{
 	return credits ? credits->GetScoreRatio(GetIP(), theApp->CryptoAvailable()) : 0;
 }
 
@@ -2552,9 +2657,296 @@ const wxString CUpDownClient::GetServerName() const
 	return ret;
 }
 
-bool CUpDownClient::ShouldReceiveCryptUDPPackets() const {
+bool CUpDownClient::ShouldReceiveCryptUDPPackets() const 
+{
 	return (thePrefs::IsClientCryptLayerSupported() && SupportsCryptLayer() && theApp->GetPublicIP() != 0
 		&& HasValidHash() && (thePrefs::IsClientCryptLayerRequested() || RequestsCryptLayer()) );
+}
+
+#ifdef AMULE_DAEMON
+
+void CUpDownClient::ProcessCaptchaRequest(CMemFile* WXUNUSED(data)) {}
+void CUpDownClient::ProcessCaptchaReqRes(uint8 WXUNUSED(nStatus)) {}
+void CUpDownClient::ProcessChatMessage(const wxString WXUNUSED(message)) {}
+
+#else
+
+void CUpDownClient::ProcessCaptchaRequest(CMemFile* data)
+{
+	uint64 id = GUI_ID(GetIP(),GetUserPort());
+	// received a captcha request, check if we actually accept it (only after sending a message ourself to this client)
+	if (GetChatCaptchaState() == CA_ACCEPTING && GetChatState() != MS_NONE
+		&& theApp->amuledlg->m_chatwnd->IsIdValid(id)) {
+		// read tags (for future use)
+		uint8 nTagCount = data->ReadUInt8();
+		if (nTagCount) {
+			AddDebugLogLineN(logClient, CFormat(wxT("Received captcha request from client (%s) with (%u) tags")) % GetFullIP() % nTagCount);
+			// and ignore them for now
+			for (uint32 i = 0; i < nTagCount; i++) {
+				CTag tag(*data, true);
+			}
+		}
+
+		// sanitize checks - we want a small captcha not a wallpaper
+		uint32 nSize = (uint32)(data->GetLength() - data->GetPosition());
+
+		if ( nSize > 128 && nSize < 4096 ) {
+			uint64 pos = data->GetPosition();
+			wxMemoryInputStream memstr(data->GetRawBuffer() + pos, nSize);
+			wxImage imgCaptcha(memstr, wxBITMAP_TYPE_BMP);
+
+			if (imgCaptcha.IsOk() && imgCaptcha.GetHeight() > 10 && imgCaptcha.GetHeight() < 50
+				&& imgCaptcha.GetWidth() > 10 && imgCaptcha.GetWidth() < 150 ) {
+				m_nChatCaptchaState = CA_CAPTCHARECV;
+				CCaptchaDialog * dialog = new CCaptchaDialog(theApp->amuledlg, imgCaptcha, id);
+				dialog->Show();
+
+			} else {
+				AddDebugLogLineN(logClient, CFormat(wxT("Received captcha request from client, processing image failed or invalid pixel size (%s)")) % GetFullIP());
+			}
+		} else {
+			AddDebugLogLineN(logClient, CFormat(wxT("Received captcha request from client, size sanitize check failed (%u) (%s)")) % nSize % GetFullIP());
+		}
+	} else {
+		AddDebugLogLineN(logClient, CFormat(wxT("Received captcha request from client, but don't accepting it at this time (%s)")) % GetFullIP());
+	}
+}
+
+void CUpDownClient::ProcessCaptchaReqRes(uint8 nStatus)
+{
+	uint64 id = GUI_ID(GetIP(),GetUserPort());
+	if (GetChatCaptchaState() == CA_SOLUTIONSENT && GetChatState() != MS_NONE
+		&& theApp->amuledlg->m_chatwnd->IsIdValid(id)) {
+		wxASSERT( nStatus < 3 );
+		m_nChatCaptchaState = CA_NONE;
+		theApp->amuledlg->m_chatwnd->ShowCaptchaResult(id, nStatus == 0);
+	} else {
+		m_nChatCaptchaState = CA_NONE;
+		AddDebugLogLineN(logClient, CFormat(wxT("Received captcha result from client, but not accepting it at this time (%s)")) % GetFullIP());
+	}
+}
+
+void CUpDownClient::ProcessChatMessage(wxString message)
+{
+	if (IsMessageFiltered(message)) {
+		AddLogLineC(CFormat(_("Message filtered from '%s' (IP:%s)")) % GetUserName() % GetFullIP());
+		return;
+	}
+
+	// advanced spamfilter check
+	if (thePrefs::IsChatCaptchaEnabled() && !IsFriend()) {
+		// captcha checks outrank any further checks - if the captcha has been solved, we assume it's not spam
+		// first check if we need to send a captcha request to this client
+		if (GetMessagesSent() == 0 && GetMessagesReceived() == 0 && GetChatCaptchaState() != CA_CAPTCHASOLVED) {
+			// we have never sent a message to this client, and no message from him has ever passed our filters
+			if (GetChatCaptchaState() != CA_CHALLENGESENT) {
+				// we also aren't currently expecting a captcha response
+				if (m_fSupportsCaptcha) {
+					// and he supports captcha, so send him one and store the message (without showing for now)
+					if (m_cCaptchasSent < 3) {	// no more than 3 tries
+						m_strCaptchaPendingMsg = message;
+						wxMemoryOutputStream memstr;
+						memstr.PutC(0); // no tags, for future use
+						CCaptchaGenerator captcha(4);
+						if (captcha.WriteCaptchaImage(memstr)){
+							m_strCaptchaChallenge = captcha.GetCaptchaText();
+							m_nChatCaptchaState = CA_CHALLENGESENT;
+							m_cCaptchasSent++;
+							CMemFile fileAnswer((byte*) memstr.GetOutputStreamBuffer()->GetBufferStart(), memstr.GetLength());
+							CPacket* packet = new CPacket(fileAnswer, OP_EMULEPROT, OP_CHATCAPTCHAREQ);
+							theStats::AddUpOverheadOther(packet->GetPacketSize());
+							AddLogLineN(CFormat(wxT("sent Captcha %s (%d)")) % m_strCaptchaChallenge % packet->GetPacketSize());
+							SafeSendPacket(packet);
+						} else {
+							wxFAIL;
+						}
+					}
+				} else {
+					// client doesn't support captchas, but we require them, tell him that it's not going to work out
+					// with an answer message (will not be shown and doesn't count as sent message)
+					if (m_cCaptchasSent < 1) {	// don't send this notifier more than once
+						m_cCaptchasSent++;
+						// always sent in english
+						SendChatMessage(wxT("In order to avoid spam messages, this user requires you to solve a captcha before you can send a message to him. However your client does not supports captchas, so you will not be able to chat with this user."));
+						AddDebugLogLineN(logClient, CFormat(wxT("Received message from client not supporting captchas, filtered and sent notifier (%s)")) % GetClientFullInfo());
+					} else {
+						AddDebugLogLineN(logClient, CFormat(wxT("Received message from client not supporting captchas, filtered, didn't send notifier (%s)")) % GetClientFullInfo());
+					}
+				}
+				return;
+			} else { // (GetChatCaptchaState() == CA_CHALLENGESENT)
+				// this message must be the answer to the captcha request we sent him, let's verify
+				wxASSERT( !m_strCaptchaChallenge.IsEmpty() );
+				if (m_strCaptchaChallenge.CmpNoCase(message.Trim().Right(std::min(message.Length(), m_strCaptchaChallenge.Length()))) == 0) {
+					// allright
+					AddDebugLogLineN(logClient, CFormat(wxT("Captcha solved, showing withheld message (%s)")) % GetClientFullInfo());
+					m_nChatCaptchaState = CA_CAPTCHASOLVED; // this state isn't persitent, but the messagecounter will be used to determine later if the captcha has been solved
+					// replace captchaanswer with withheld message and show it
+					message = m_strCaptchaPendingMsg;
+					m_cCaptchasSent = 0;
+					m_strCaptchaChallenge.Clear();
+					CPacket* packet = new CPacket(OP_CHATCAPTCHARES, 1, OP_EMULEPROT, false);
+					byte statusResponse = 0; // status response
+					packet->CopyToDataBuffer(0, &statusResponse, 1);
+					theStats::AddUpOverheadOther(packet->GetPacketSize());
+					SafeSendPacket(packet);
+				} else { // wrong, cleanup and ignore
+					AddDebugLogLineN(logClient, CFormat(wxT("Captcha answer failed (%s)")) % GetClientFullInfo());
+					m_nChatCaptchaState = CA_NONE;
+					m_strCaptchaChallenge.Clear();
+					m_strCaptchaPendingMsg.Clear();
+					CPacket* packet = new CPacket(OP_CHATCAPTCHARES, 1, OP_EMULEPROT, false);
+					byte statusResponse = (m_cCaptchasSent < 3) ? 1 : 2; // status response
+					packet->CopyToDataBuffer(0, &statusResponse, 1);
+					theStats::AddUpOverheadOther(packet->GetPacketSize());
+					SafeSendPacket(packet);
+					return; // nothing more todo
+				}
+			}	
+		}
+	}
+
+	if (thePrefs::IsAdvancedSpamfilterEnabled() && !IsFriend()) { // friends are never spammer... (but what if two spammers are friends :P )
+		bool bIsSpam = false;
+		if (m_fIsSpammer) {
+			bIsSpam = true;
+		} else {
+			// first fixed criteria: If a client sends me an URL in his first message before I respond to him
+			// there is a 99,9% chance that it is some poor guy advising his leech mod, or selling you .. well you know :P
+			if (GetMessagesSent() == 0) {
+				static wxArrayString urlindicators(wxStringTokenize(wxT("http:|www.|.de |.net |.com |.org |.to |.tk |.cc |.fr |ftp:|ed2k:|https:|ftp.|.info|.biz|.uk|.eu|.es|.tv|.cn|.tw|.ws|.nu|.jp"), wxT("|")));
+				for (size_t pos = urlindicators.GetCount(); pos--;) {
+					if (message.Find(urlindicators[pos]) != wxNOT_FOUND) {
+						bIsSpam = true;
+						break;
+					}
+				}
+				// second fixed criteria: he sent me 4 or more messages and I didn't answer him once
+				if (GetMessagesReceived() > 3) {
+					bIsSpam = true;
+				}
+			}
+		}
+		if (bIsSpam) {
+			AddDebugLogLineN(logClient, CFormat(wxT("'%s' has been marked as spammer")) % GetUserName());
+			SetSpammer(true);
+			theApp->amuledlg->m_chatwnd->EndSession(GUI_ID(GetIP(),GetUserPort()));
+			return;
+		}
+	}
+
+
+	wxString logMsg = CFormat(_("New message from '%s' (IP:%s)")) % GetUserName() % GetFullIP();
+	if(thePrefs::ShowMessagesInLog()) {
+		logMsg += wxT(": ") + message;
+	}
+	AddLogLineC(logMsg);
+	IncMessagesReceived();
+
+	Notify_ChatProcessMsg(GUI_ID(GetIP(), GetUserPort()), GetUserName() + wxT("|") + message);
+}
+
+bool CUpDownClient::IsMessageFiltered(const wxString& message)
+{
+	bool filtered = false;
+	// If we're chatting to the guy, we don't want to filter!
+	if (GetChatState() != MS_CHATTING) {
+		if (thePrefs::MsgOnlyFriends() && !IsFriend()) {
+			filtered = true;
+		} else if (thePrefs::MsgOnlySecure() && GetUserName().IsEmpty() ) {
+			filtered = true;
+		} else if (thePrefs::MustFilterMessages()) {
+			filtered = thePrefs::IsMessageFiltered(message);
+		}
+	}
+	if (filtered) {
+		SetSpammer(true);
+	}
+	return filtered;
+}
+
+#endif
+
+void CUpDownClient::SendSharedDirectories()
+{
+		// This list will contain all (unique) folders.
+		PathList foldersToSend;
+	   
+		// The shared folders
+		const unsigned folderCount = theApp->glob_prefs->shareddir_list.size();
+		for (unsigned i = 0; i < folderCount; ++i) {
+			foldersToSend.push_back(theApp->glob_prefs->shareddir_list[i]);
+		}
+		
+		// ... the categories folders ... (category 0 -> incoming)
+		for (unsigned i = 0; i < theApp->glob_prefs->GetCatCount(); ++i) {
+			foldersToSend.push_back(theApp->glob_prefs->GetCategory(i)->path);
+		}
+
+		// Strip duplicates
+		foldersToSend.sort();
+		foldersToSend.unique();
+		
+		// Build packet
+		CMemFile tempfile(80);
+		tempfile.WriteUInt32(foldersToSend.size());
+
+		PathList::iterator it = foldersToSend.begin();
+		for (; it != foldersToSend.end(); ++it) {
+			// Note: the public shared name contains the 'raw' path, so we can recognize it again.
+			//       the 'raw' path is determined using CPath::GetRaw()
+			tempfile.WriteString( theApp->sharedfiles->GetPublicSharedDirName(*it), GetUnicodeSupport() );
+		}
+
+		// ... and the Magic thing from the eDonkey Hybrids...
+		tempfile.WriteString(OP_INCOMPLETE_SHARED_FILES, GetUnicodeSupport());
+
+		// Send the packet.
+		CPacket* replypacket = new CPacket(tempfile, OP_EDONKEYPROT, OP_ASKSHAREDDIRSANS);
+		theStats::AddUpOverheadOther(replypacket->GetPacketSize());
+		AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_ASKSHAREDDIRSANS to ") + GetFullIP() );
+		SendPacket(replypacket, true, true);
+}
+
+void CUpDownClient::SendSharedFilesOfDirectory(const wxString& strReqDir)
+{
+	CKnownFilePtrList list;
+	
+	if (strReqDir == OP_INCOMPLETE_SHARED_FILES) {
+		// get all shared files from download queue
+		int iQueuedFiles = theApp->downloadqueue->GetFileCount();
+		for (int i = 0; i < iQueuedFiles; i++) {
+			CPartFile* pFile = theApp->downloadqueue->GetFileByIndex(i);
+			if (pFile == NULL || pFile->GetStatus(true) != PS_READY) {
+				continue;
+			}
+			list.push_back(pFile);
+		}
+	} else {
+		// get all shared files for the requested directory
+		const CPath *sharedDir = theApp->sharedfiles->GetDirForPublicSharedDirName(strReqDir);
+		if (sharedDir) {
+			theApp->sharedfiles->GetSharedFilesByDirectory(sharedDir->GetRaw(), list);
+		} else {
+			AddLogLineC(CFormat(_("User %s (%u) requested sharedfiles-list for not existing directory '%s' -> Ignored")) % GetUserName() % GetUserIDHybrid() % strReqDir);
+		}
+	}
+
+	CMemFile tempfile(80);
+	tempfile.WriteString(strReqDir, GetUnicodeSupport());
+	tempfile.WriteUInt32(list.size());
+	
+	while (!list.empty()) {
+		if (!list.front()->IsLargeFile() || SupportsLargeFiles()) {
+			list.front()->CreateOfferedFilePacket(&tempfile, NULL, this);
+		}
+		list.pop_front();
+	}
+	
+	CPacket* replypacket = new CPacket(tempfile, OP_EDONKEYPROT, OP_ASKSHAREDFILESDIRANS);
+	theStats::AddUpOverheadOther(replypacket->GetPacketSize());
+	AddDebugLogLineN( logLocalClient, wxT("Local Client: OP_ASKSHAREDFILESDIRANS to ") + GetFullIP() );
+	SendPacket(replypacket, true, true);
 }
 
 void CUpDownClient::SendFirewallCheckUDPRequest()
@@ -2582,7 +2974,7 @@ void CUpDownClient::SendFirewallCheckUDPRequest()
 void CUpDownClient::ProcessFirewallCheckUDPRequest(CMemFile* data)
 {
 	if (!Kademlia::CKademlia::IsRunning() || Kademlia::CKademlia::GetUDPListener() == NULL) {
-		//DebugLogWarning(_T("Ignored Kad Firewallrequest UDP because Kad is not running (%s)"), DbgGetClientInfo());
+		//DebugLogWarning(_T("Ignored Kad Firewallrequest UDP because Kad is not running (%s)"), GetClientFullInfo());
 		return;
 	}
 
@@ -2598,11 +2990,11 @@ void CUpDownClient::ProcessFirewallCheckUDPRequest(CMemFile* data)
 	uint16_t remoteExternPort = data->ReadUInt16();
 	uint32_t senderKey = data->ReadUInt32();
 	if (remoteInternPort == 0) {
-		//DebugLogError(_T("UDP Firewallcheck requested with Intern Port == 0 (%s)"), DbgGetClientInfo());
+		//DebugLogError(_T("UDP Firewallcheck requested with Intern Port == 0 (%s)"), GetClientFullInfo());
 		return;
 	}
 // 	if (senderKey == 0)
-// 		DebugLogWarning(_T("UDP Firewallcheck requested with SenderKey == 0 (%s)"), DbgGetClientInfo());
+// 		DebugLogWarning(_T("UDP Firewallcheck requested with SenderKey == 0 (%s)"), GetClientFullInfo());
 	
 	CMemFile testPacket1;
 	testPacket1.WriteUInt8(errorAlreadyKnown ? 1 : 0);
@@ -2618,7 +3010,7 @@ void CUpDownClient::ProcessFirewallCheckUDPRequest(CMemFile* data)
 		DebugSend(Kad2FirewalledUDP, wxUINT32_SWAP_ALWAYS(GetConnectIP()), remoteExternPort);
 		Kademlia::CKademlia::GetUDPListener()->SendPacket(testPacket2, KADEMLIA2_FIREWALLUDP, wxUINT32_SWAP_ALWAYS(GetConnectIP()), remoteExternPort, Kademlia::CKadUDPKey(senderKey, theApp->GetPublicIP(false)), NULL);
 	}
-	//DebugLog(_T("Answered UDP Firewallcheck request (%s)"), DbgGetClientInfo());
+	//DebugLog(_T("Answered UDP Firewallcheck request (%s)"), GetClientFullInfo());
 }
 
 void CUpDownClient::SetConnectOptions(uint8_t options, bool encryption, bool callback)
@@ -2628,4 +3020,34 @@ void CUpDownClient::SetConnectOptions(uint8_t options, bool encryption, bool cal
 	SetCryptLayerRequires((options & 0x04) != 0 && encryption);
 	SetDirectUDPCallbackSupport((options & 0x08) != 0 && callback);
 }
+
+
+#ifdef DEBUG_ZOMBIE_CLIENTS
+void CUpDownClient::Unlink(const wxString& from)
+{
+	std::multiset<wxString>::iterator it = m_linkedFrom.find(from);
+	if (it != m_linkedFrom.end()) {
+		m_linkedFrom.erase(it);
+	}
+	m_linked--;
+	if (!m_linked) {
+		if (m_linkedDebug) {
+			AddLogLineN(CFormat(wxT("Last reference to client %d %p unlinked, delete it.")) % ECID() % this);
+		}
+		delete this;
+	}
+}
+
+#else
+
+void CUpDownClient::Unlink()
+{
+	m_linked--;
+	if (!m_linked) {
+		delete this;
+	}
+}
+#endif
+
+
 // File_checked_for_headers

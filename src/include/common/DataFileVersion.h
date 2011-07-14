@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -43,6 +43,10 @@ enum CreditFileVersions {
 enum KnownFileListVersions {
 	MET_HEADER					= 0x0E,
 	MET_HEADER_WITH_LARGEFILES	= 0x0F
+};
+
+enum CanceledFileListVersions {
+	CANCELEDFILE_VERSION	= 0x21
 };
 
 #endif // DATAFILEVERSION_H

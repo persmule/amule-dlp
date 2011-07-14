@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -44,10 +44,10 @@
 // RELEASERS: REMOVE THE DEFINE ON THE RELEASES, PLEASE
 // AND FIX THE MOD_VERSION_LONG
 
-/* #undef __SVN__ */
+#define __SVN__
 
 #ifndef VERSION
-	#define VERSION "2.2.6"
+	#define VERSION "2.3.0"
 #endif
 
 #ifdef __SVN__
@@ -57,8 +57,8 @@
 #endif
 
 #define	VERSION_MJR		2
-#define	VERSION_MIN		2
-#define	VERSION_UPDATE		6
+#define	VERSION_MIN		3
+#define	VERSION_UPDATE		0
 
 #ifndef PACKAGE
 #define PACKAGE "amule"

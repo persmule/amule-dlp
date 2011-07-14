@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2004-2009 Angel Vidal Veiga ( kry@users.sourceforge.net )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -38,8 +38,13 @@ class CECPacketHandlerBase {
 
 class CECLoginPacket : public CECPacket {
 	public:
-		CECLoginPacket(const wxString &pass,
-						const wxString& client, const wxString& version);
+		CECLoginPacket(const wxString& client, const wxString& version,
+						bool canZLIB = true, bool canUTF8numbers = true, bool canNotify = false);
+};
+
+class CECAuthPacket : public CECPacket {
+	public:
+		CECAuthPacket(const wxString& pass);
 };
 
 //#warning Kry TODO - move to abstract layer.
@@ -50,10 +55,12 @@ private:
 		EC_INIT,         // initial state
 		EC_CONNECT_SENT, // socket connect request sent
 		EC_REQ_SENT,     // sent auth request to core, waiting for reply
-		EC_OK,           // core replyed "ok"
-		EC_FAIL          // core replyed "bad"
+		EC_SALT_RECEIVED,// received salt from core
+		EC_PASSWD_SENT,  // sent password to core, waiting for OK
+		EC_OK,           // core replied "ok"
+		EC_FAIL          // core replied "bad"
 	} m_ec_state;
-	
+
 	// fifo of handlers for on-the-air requests. all EC concept is working in fcfs
 	// order, so it is ok to assume that order of replies is same as order of requests
 	std::list<CECPacketHandlerBase *> m_req_fifo;
@@ -66,10 +73,17 @@ private:
 	wxString m_server_reply;
 	wxString m_client;
 	wxString m_version;
-	
+
+	bool m_canZLIB;
+	bool m_canUTF8numbers;
+	bool m_canNotify;
+
+	void WriteDoneAndQueueEmpty();	
 public:
 	// The event handler is used for notifying connect/close 
 	CRemoteConnect(wxEvtHandler* evt_handler);
+
+	void SetCapabilities(bool canZLIB, bool canUTF8numbers, bool canNotify);
 
 	bool ConnectToCore(
 		const wxString &host, int port,
@@ -86,8 +100,8 @@ public:
 	virtual void OnConnect(); // To override connection events
 	virtual void OnLost(); // To override close events
 
-	void SendRequest(CECPacketHandlerBase *handler, CECPacket *request);
-	void SendPacket(CECPacket *request);
+	void SendRequest(CECPacketHandlerBase *handler, const CECPacket *request);
+	void SendPacket(const CECPacket *request);
 	
 	/********************* EC API ********************/
 	
@@ -375,9 +389,12 @@ public:
 	// Retrieves the statistics tree
 	void GetStatsTree();
 
+	// Check if connection goes to local machine
+	bool IsConnectedToLocalHost();
+
 private:
-	virtual const CECPacket *OnPacketReceived(const CECPacket *packet);
-	bool ConnectionEstablished(const CECPacket *reply);
+	virtual const CECPacket *OnPacketReceived(const CECPacket *packet, uint32 trueSize);
+	bool ProcessAuthPacket(const CECPacket *reply);
 };
 
 DECLARE_LOCAL_EVENT_TYPE(wxEVT_EC_CONNECTION, wxEVT_USER_FIRST + 1000)

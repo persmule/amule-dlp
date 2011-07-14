@@ -1,9 +1,9 @@
 //								-*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -108,11 +108,11 @@ private:
 	void ProcessResultKeyword(const CUInt128 &answer, TagPtrList *info);
 	void ProcessResultNotes(const CUInt128 &answer, TagPtrList *info);
 	void JumpStart();
-	void SendFindValue(CContact *contact);
+	void SendFindValue(CContact *contact, bool reaskMore = false);
 	void PrepareToStop() throw();
 	void StorePacket();
 
-	uint8_t	GetRequestContactCount() const throw();
+	uint8_t	GetRequestContactCount() const;
 
 	bool		m_stopping;
 	time_t		m_created;
@@ -127,17 +127,21 @@ private:
 	CUInt128	m_target;
 	uint32_t	m_searchTermsDataSize;
 	uint8_t *	m_searchTermsData;
-	WordList	m_words;
+	WordList	m_words;  // list of words in the search string (populated in CSearchManager::PrepareFindKeywords)
 	wxString	m_fileName;
 	UIntList	m_fileIDs;
 	CKadClientSearcher *m_nodeSpecialSearchRequester; // used to callback result for NODESPECIAL searches
 
+	typedef std::map<CUInt128, bool>	RespondedMap;
+
 	ContactMap	m_possible;
 	ContactMap	m_tried;
-	ContactMap	m_responded;
+	RespondedMap	m_responded;
 	ContactMap	m_best;
 	ContactList	m_delete;
 	ContactMap	m_inUse;
+	CUInt128	m_closestDistantFound; // not used for the search itself, but for statistical data collecting
+	CContact *	m_requestedMoreNodesContact;
 };
 
 } // End namespace

@@ -1,9 +1,9 @@
 //								-*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -124,9 +124,9 @@ public:
 	bool AddNotes(const CUInt128& keyID, const CUInt128& sourceID, Kademlia::CEntry* entry, uint8_t& load);
 	bool AddLoad(const CUInt128& keyID, uint32_t time);
 	size_t GetFileKeyCount() const throw() { return m_Keyword_map.size(); }
-	void SendValidKeywordResult(const CUInt128& keyID, const SSearchTerm* pSearchTerms, uint32_t ip, uint16_t port, bool oldClient, bool kad2, uint16_t startPosition, const CKadUDPKey& senderKey);
-	void SendValidSourceResult(const CUInt128& keyID, uint32_t ip, uint16_t port, bool kad2, uint16_t startPosition, uint64_t fileSize, const CKadUDPKey& senderKey);
-	void SendValidNoteResult(const CUInt128& keyID, uint32_t ip, uint16_t port, bool kad2, uint64_t fileSize, const CKadUDPKey& senderKey);
+	void SendValidKeywordResult(const CUInt128& keyID, const SSearchTerm* pSearchTerms, uint32_t ip, uint16_t port, bool oldClient, uint16_t startPosition, const CKadUDPKey& senderKey);
+	void SendValidSourceResult(const CUInt128& keyID, uint32_t ip, uint16_t port, uint16_t startPosition, uint64_t fileSize, const CKadUDPKey& senderKey);
+	void SendValidNoteResult(const CUInt128& keyID, uint32_t ip, uint16_t port, uint64_t fileSize, const CKadUDPKey& senderKey);
 	bool SendStoreRequest(const CUInt128& keyID);
 	uint32_t m_totalIndexSource;
 	uint32_t m_totalIndexKeyword;

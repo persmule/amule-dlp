@@ -1,6 +1,7 @@
-<html><head><meta http-equiv="content-type" content="text/html; charset=UTF-8"><title>aMule CVS - Web Control Panel</title>
-
-<script language="JavaScript" type="text/javascript">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>aMule control panel</title><script language="JavaScript" type="text/javascript">
 
 function breakout_of_frame()
 {
@@ -19,49 +20,103 @@ function login_init()
 }
 
 </script>
-
-<style type="text/css">
-.ibutton
-{
-cursor:hand;
-position:relative;
-top:5;
-font-weight: bold;
-font-family: Tahoma, Verdana, Arial;
-font-size: 11px;
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link href="style.css" rel="stylesheet" type="text/css"><style type="text/css">
+<!--
+caption {
+	font-family: Helvetica;
+	font-size: 18px;
+	font-weight: bold;
+	color: #003161;
 }
-</style></head>
+th {
+	font-family: Helvetica;
+	font-size: 14px;
+	font-height: 22px;
+	font-weight: bold;
+	color: #003161;
+}
+a:link {
+	color: #003161;
+	text-decoration: none;
+}
+a:active {
+	color: #003161;
+	text-decoration: none;
+}
+a:visited {
+	color: #003161;
+	text-decoration: none;
+}
+a:hover {
+	color: #c0c0c0;
+	text-decoration: underline;
+}
+td {
+	font-family: Helvetica;
+	font-size: 12px;
+	font-weight: normal;
+}
+label {
+	font-family: Helvetica;
+	font-size: 14px;
+	font-weight: bold;
+}
+.texte {
+	font-family: Helvetica;
+	font-size: 12px;
+	font-weight: normal;
+}
+label {
+font-family:"trebuchet ms",sans-serif;
+font-size: 12px;
+font-weight:bold
+}
+input {
+border:1px solid #003161;
+background-color:  white;
+font-family:"trebuchet ms",sans-serif;
+font-size: 12px;
+color: #003161;
+}
+select, option {
+background-color:  white;
+font-size: 12px;
+color: #003161;
+}
+textarea {
+border:1px solid #003161;
+background-color: #90B6DB;
+font-family:"trebuchet ms",sans-serif;
+font-size: 12px;
+color: white;
+}
+-->
+</style>
+</head>
 
-<body onload="login_init();" alink="white" bgcolor="#cccccc" link="white" text="white" vlink="white">
-<table align="center" border="0" cellpadding="4" cellspacing="0" height="100%" width="100%">
-<tbody><tr><td align="center" valign="middle">
-<table align="center" border="0" cellpadding="4" cellspacing="0">
-<tbody><tr>
-<td align="center" bgcolor="#0066cc">
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.amule.org/" target="_blank"><img src="phpamule.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<p><font style="font-size: 10pt;" face="Tahoma"><b>Web Control Panel</b><br>Login</font></p>
-</td>
-</tr>
-<tr>
-<td align="center" bgcolor="#3399ff" valign="top">
-<form action="" method="post" name="login">
-<font style="font-size: 10pt;" face="Tahoma">&nbsp;<br>Enter your password here<br><br>
-<input name="pass" size="37" style="border: 1px none black;" value="" type="password">
-<br><br><input value="Login Now" type="submit"></font>
-</form>
-<br>
-<?php
-	if ($_SESSION["login_error"] != "") {
-		echo "<font color=blue size=+2>";
-		echo $_SESSION["login_error"];
-		echo "</font>";
-	}
-?>
-</td>
-</tr>
-</tbody></table>
-</td>
-</tr>
-</tbody></table>
-</body></html>
+<body  onload="login_init();" background="images/fond.gif" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" valign="middle">
+<table width="100%" height="180" border="0" cellpadding="0" cellspacing="0" valign="middle">
+  <tr>
+    <td align="center" valign="middle"> 
+      <table width="70%" height="90%" border="0" align="center" cellpadding="0" cellspacing="1" bgcolor="#000000">
+        <tr> 
+          <td><table width="100%" height="100%" border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF">
+              <tr valign="top"> 
+               <th width="366" height="180"><img src="images/loginlogo.jpg" width="366" height="180" border="0"></a></th>
+                <th width="100% "height="180" align="right" valign="middle" background="images/loginfond_haut.png"> 
+                  <form action="" method="post" name="login">
+                    Enter password : 
+                    <input name="pass" size="20" value="" type="password">
+                    &nbsp; 
+                    <input name="submit" type="submit" value="Submit">
+                    &nbsp;&nbsp; </form></th>
+              </tr>
+            </table></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

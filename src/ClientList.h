@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -27,6 +27,7 @@
 #define CLIENTLIST_H
 
 #include "DeadSourceList.h"	// Needed for CDeadSourceList
+#include "ClientRef.h"
 
 #include <deque>
 #include <set>
@@ -81,17 +82,13 @@ public:
 	void	AddClient( CUpDownClient* toadd );
 
 	/**
-	 * Schedules a client for deletion.
+	 * Removes a client from the  client lists.
 	 *
-	 * @param client The client to be deleted.
+	 * @param client The client to be removed.
 	 *
-	 * Call this function whenever a client is to be deleted, rather than 
-	 * directly deleting the client. If the client is on the global client-
-	 * list, then it will be scheduled for deletion, otherwise it will be 
-	 * deleted immediatly. Please check CUpDownClient::Safe_Delete for the
-	 * proper way to do this.
+	 * To be called from CUpDownClient::Safe_Delete only.
 	 */
-	void	AddToDeleteQueue( CUpDownClient* client );
+	void	RemoveClient( CUpDownClient* client );
 
 
 	/**
@@ -167,6 +164,25 @@ public:
 	CUpDownClient* FindClientByIP( uint32 clientip, uint16 port );
 
 
+	/**
+	 * Finds a client with the specified ip.
+	 *
+	 * @param clientip The IP of the client to find.
+	 *
+	 * Returns the first client found if there are several with same ip.
+	 */
+	CUpDownClient* FindClientByIP( uint32 clientip );
+
+
+	/**
+	 * Finds a client with the specified ECID.
+	 *
+	 * @param clientip The IP of the client to find.
+	 *
+	 */
+	CUpDownClient* FindClientByECID(uint32 ecid) const;
+
+
 	//! The list-type used to store clients IPs and other information
 	typedef std::map<uint32, uint32> ClientMap;
 	
@@ -234,15 +250,6 @@ public:
 
 
 	/**
-	 * Deletes clients previously queued for deletion
-	 *
-	 * This function takes care of deleting pending clients on the
-	 * deletion-queue.
-	 */
-	void	ProcessDeleteQueue();
-
-
-	/**
 	 * This function removes all clients filtered by the current IPFilter.
 	 *
 	 * Call this function after changing the current IPFiler list, to ensure
@@ -253,7 +260,7 @@ public:
 
 
 	//! The type of the list used to store client-pointers for a couple of tasks.
-	typedef std::deque<CUpDownClient*> SourceList;
+	typedef std::deque<CClientRef> SourceList;
 	
 
 	/**
@@ -280,9 +287,9 @@ public:
 
 
 	//! The type of the lists used to store IPs and IDs.
-	typedef std::multimap<uint32, CUpDownClient*> IDMap;
+	typedef std::multimap<uint32, CClientRef> IDMap;
 	//! The pairs of the IP/ID list.
-	typedef std::pair<uint32, CUpDownClient*> IDMapPair;
+	typedef std::pair<uint32, CClientRef> IDMapPair;
 
 
 	/**
@@ -316,7 +323,7 @@ public:
 	 *
 	 * @return Success
 	 */
-	 bool	SendMessage(uint64 client_id, const wxString& message);
+	 bool	SendChatMessage(uint64 client_id, const wxString& message);
 	 
 	/**
 	 * Stops a chat session with a client.
@@ -327,7 +334,9 @@ public:
 	uint8	GetBuddyStatus() const {return m_nBuddyStatus;}
 	// This must be used on CreateKadSourceLink and if we ever add the columns
 	// on shared files control.
-	CUpDownClient* GetBuddy() const { return m_pBuddy; }
+	CUpDownClient* GetBuddy() { return m_pBuddy.GetClient(); }
+	uint32 GetBuddyIP();
+	uint16 GetBuddyPort();
 	bool RequestTCP(Kademlia::CContact* contact, uint8_t connectOptions);
 	void RequestBuddy(Kademlia::CContact* contact, uint8_t connectOptions);
 	bool IncomingBuddy(Kademlia::CContact* contact, Kademlia::CUInt128* buddyID);
@@ -340,7 +349,7 @@ public:
 
 	// Direct Callback list
 	void	AddDirectCallbackClient(CUpDownClient *toAdd);
-	void	RemoveDirectCallback(CUpDownClient *toRemove) { m_currentDirectCallbacks.remove(toRemove); }
+	void	RemoveDirectCallback(CUpDownClient *toRemove) { m_currentDirectCallbacks.remove(CCLIENTREF(toRemove, wxEmptyString)); }
 	void	AddTrackCallbackRequests(uint32_t ip);
 	bool	AllowCallbackRequest(uint32_t ip) const;
 
@@ -391,9 +400,9 @@ private:
 
 
 	//! The type of the list used to store user-hashes.
-	typedef std::multimap<CMD4Hash, CUpDownClient*> HashMap;
+	typedef std::multimap<CMD4Hash, CClientRef> HashMap;
 	//! The pairs of the Hash-list.
-	typedef std::pair<CMD4Hash, CUpDownClient*> HashMapPair;
+	typedef std::pair<CMD4Hash, CClientRef> HashMapPair;
 
 
 	//! The map of clients with valid hashes
@@ -405,12 +414,6 @@ private:
 	//! The full lists of clients
 	IDMap	m_clientList;
 
-	//! This is the lists of clients that should be deleted
-	SourceList m_delete_queue;
-#ifdef __WXDEBUG__
-	bool m_delete_queue_closed;
-#endif
-	
 	//! This is the map of banned clients.
 	ClientMap m_bannedList;
 	//! This variable is used to keep track of the last time the banned-list was pruned.
@@ -428,8 +431,8 @@ private:
 	CDeadSourceList	m_deadSources;
 	
 	/* Kad Stuff */
-	std::set<CUpDownClient*>	m_KadSources;
-	CUpDownClient* m_pBuddy;
+	CClientRefSet	m_KadSources;
+	CClientRef		m_pBuddy;
 	uint8 m_nBuddyStatus;
 
 	typedef struct {
@@ -439,7 +442,7 @@ private:
 	typedef std::list<IpAndTicks>	IpAndTicksList;
 	IpAndTicksList			m_firewallCheckRequests;
 
-	typedef std::list<CUpDownClient *>	DirectCallbackList;
+	typedef CClientRefList	DirectCallbackList;
 	DirectCallbackList		m_currentDirectCallbacks;
 	IpAndTicksList			m_directCallbackRequests;
 };

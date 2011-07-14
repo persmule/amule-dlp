@@ -1,8 +1,8 @@
 //
 // MuleUnit: A minimalistic C++ Unit testing framework based on EasyUnit.
 //
-// Copyright (c) 2005-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (C) 2004 Barthelemy Dagenais (barthelemy@prologique.com)
+// Copyright (c) 2005-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Barthelemy Dagenais ( barthelemy@prologique.com )
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -58,8 +58,7 @@ namespace muleunit {
 
 
 CTestFailureException::CTestFailureException(const wxString& msg, const wxChar* file, long lineNumber)
-	: m_message(msg.ToAscii())
-	, m_bt(new BTList(g_backtrace))
+	: m_bt(new BTList(g_backtrace)), m_message(msg.ToAscii())
 {
 	m_bt->snapshot.push_back(BTEntry(file, lineNumber, msg));
 }
@@ -78,11 +77,7 @@ void CTestFailureException::PrintBT() const
 	for (; it != m_bt->snapshot.end(); ++it) {
 		indent += ' ';
 
-		Printf(wxT("%s%s:%i -- %s"), 
-			wxString(indent.c_str(), wxConvLocal).c_str(),
-			it->file.c_str(),
-			it->line,
-			it->msg.c_str());
+		Print(indent + it->file + wxString::Format(wxT(":%i -- "), it->line) + it->msg);
 	}
 }
 

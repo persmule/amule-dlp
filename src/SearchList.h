@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -92,8 +92,8 @@ public:
 	 */ 	
 	wxString StartNewSearch(uint32* searchID, SearchType type, const CSearchParams& params);
 
-	/** Stops the current search, if any is in progress. */
-	void StopGlobalSearch();
+	/** Stops the current search (global or Kad), if any is in progress. */
+	void StopSearch(bool globalOnly = false);
 
 	/** Returns the completion percentage of the current search. */
 	uint32 GetSearchProgress() const;
@@ -137,8 +137,8 @@ public:
 	 * @param serverIP The IP of the server sending the results.
 	 * @param serverPort The Port of the server sending the results.
 	 */
-	void    ProcessSearchAnswer(const uint8_t* packet, uint32_t size, bool optUTF8, uint32_t serverIP, uint16_t serverPort);
-
+	void	ProcessSearchAnswer(const uint8_t* packet, uint32_t size, bool optUTF8, uint32_t serverIP, uint16_t serverPort);
+	
 	/**
 	 * Processes a search-result sent via UDP. Only one result is read from the packet.
 	 *
@@ -163,6 +163,11 @@ public:
 	 */
 	void	KademliaSearchKeyword(uint32_t searchID, const Kademlia::CUInt128 *fileID, const wxString& name, uint64_t size, const wxString& type, uint32_t kadPublishInfo, const TagPtrList& taglist);
 	
+	/** Update a certain search result in all lists */
+	void UpdateSearchFileByHash(const CMD4Hash& hash);
+	
+	/** Mark current KAD search as finished */
+	void SetKadSearchFinished() { m_KadSearchFinished = true; }
 	
 private:
 	/** Event-handler for global searches. */
@@ -204,6 +209,9 @@ private:
 
 	//! Does the current search packet contain 64bit values?
 	bool		m_64bitSearchPacket;
+
+	//! If the current search is a KAD search this signals if it is finished.
+	bool		m_KadSearchFinished;
 
 	//! Queue of servers to ask when doing global searches.
 	//! TODO: Replace with 'cookie' system.

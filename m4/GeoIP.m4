@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # This file is part of the aMule Project.
 #
-# Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+# Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 #
 # Any parts of this program derived from the xMule, lMule or eMule project,
 # or contributed by third-party developers are copyrighted by their
@@ -30,11 +30,9 @@ dnl could be linked statically.
 dnl ---------------------------------------------------------------------------
 AC_DEFUN([MULE_CHECK_GEOIP],
 [
-	AC_ARG_ENABLE([geoip],
-		[AS_HELP_STRING([--enable-geoip], [compile with GeoIP IP2Country library])],
-		[ENABLE_IP2COUNTRY=$enableval], [ENABLE_IP2COUNTRY=no])
+	MULE_ARG_ENABLE([geoip], [no], [compile with GeoIP IP2Country library])
 
-	AS_IF([test ${ENABLE_IP2COUNTRY:-no} = yes], [
+	MULE_IF_ENABLED([geoip], [
 		AC_ARG_WITH([geoip-headers],
 			AS_HELP_STRING([--with-geoip-headers=DIR], [GeoIP include files location]),
 			[GEOIP_CPPFLAGS="-I$withval"])
@@ -86,18 +84,18 @@ AC_DEFUN([MULE_CHECK_GEOIP],
 						], [
 							GEOIP_LIBS="-Wl,-Bstatic $GEOIP_LIBS -Wl,-Bdynamic"
 						], [
-							AC_MSG_WARN([Cannot link GeoIP statically, because your linker ($LD) does not support it.])
+							MULE_WARNING([Cannot link GeoIP statically, because your linker ($LD) does not support it.])
 						])
 						MULE_RESTORE([LIBS])
 					])
 				])
 			], [
-				ENABLE_IP2COUNTRY=disabled
-				AC_MSG_WARN([GeoIP support has been disabled because the GeoIP libraries were not found])
+				MULE_ENABLEVAR([geoip])=disabled
+				MULE_WARNING([GeoIP support has been disabled because the GeoIP libraries were not found])
 			], [${GEOIP_WINSOCK_LIB:-}])
 		], [
-			ENABLE_IP2COUNTRY=disabled
-			AC_MSG_WARN([GeoIP support has been disabled because the GeoIP header files were not found])
+			MULE_ENABLEVAR([geoip])=disabled
+			MULE_WARNING([GeoIP support has been disabled because the GeoIP header files were not found])
 		])
 
 		MULE_RESTORE([CPPFLAGS])

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -25,15 +25,17 @@
 
 #include <wx/tokenzr.h>
 #include <wx/imaglist.h>
+#include <wx/datetime.h>
 
 #include "pixmaps/chat.ico.xpm"
 #include "ChatSelector.h"	// Interface declarations
 #include "Preferences.h"	// Needed for CPreferences
-#include "amule.h"		// Needed for theApp
-#include "updownclient.h"	// Needed for CUpDownClient
+#include "amule.h"			// Needed for theApp
+#include "ClientRef.h"		// Needed for CClientRef
 #include "OtherFunctions.h"
 #include "muuli_wdr.h"		// Needed for amuleSpecial
 #include "UserEvents.h"
+#include "Constants.h"		// Needed for MS_NONE
 
 //#warning Needed while not ported
 #include "ClientList.h"
@@ -193,7 +195,7 @@ bool CChatSelector::ProcessMessage(uint64 sender_id, const wxString& message)
 			// This must NOT happen.
 			// Build a client name based on the ID
 			uint32 ip = IP_FROM_GUI_ID(sender_id);
-			client_name =  wxString::Format(wxT("IP: %u.%u.%u.%u Port: %u"),(uint8)ip,(uint8)(ip>>8),(uint8)(ip>>16),(uint8)(ip>>24),(unsigned)PORT_FROM_GUI_ID(sender_id));
+			client_name = CFormat(wxT("IP: %s Port: %u")) % Uint32toStringIP(ip) % PORT_FROM_GUI_ID(sender_id);
 		}
 		
 		session = StartSession( sender_id, client_name, true );
@@ -238,11 +240,11 @@ bool CChatSelector::SendMessage( const wxString& message, const wxString& client
 	CChatSession* ci = (CChatSession*)GetPage( usedtab );
 
 	ci->m_active = true;
-	
+
 	//#warning EC needed here.
 	
 	#ifndef CLIENT_GUI
-	if (theApp->clientlist->SendMessage(ci->m_client_id, message)) {
+	if (theApp->clientlist->SendChatMessage(ci->m_client_id, message)) {
 		ci->AddText( thePrefs::GetUserNick(), COLOR_GREEN, false );
 		ci->AddText( wxT(": ") + message, COLOR_BLACK );
 	} else {
@@ -323,4 +325,39 @@ void CChatSelector::RefreshFriend(uint64 toupdate_id, const wxString& new_name)
 		// Nothing to be done here.
 	}
 }
+
+
+void CChatSelector::ShowCaptchaResult(uint64 id, bool ok)
+{
+	CChatSession* ci = GetPageByClientID(id);
+	if (ci)	{
+		ci->AddText(ok
+			? _("*** You have passed the captcha check and the user has received your message. ***")
+			: _("*** Your response to the captcha was wrong and your message has been ignored. You can request a new captcha by sending a new message. ***"),
+			COLOR_RED );
+	}
+}
+
+
+#ifdef CLIENT_GUI
+bool CChatSelector::GetCurrentClient(CClientRef&) const
+{
+	return false;
+}
+#else
+bool CChatSelector::GetCurrentClient(CClientRef& clientref) const
+{
+	// Get the chat session associated with the active tab
+	CChatSession* ci = (CChatSession*)GetPage(GetSelection());
+	
+	// Get the client that the session is open to
+	if (ci) {
+		clientref.Link(theApp->clientlist->FindClientByIP(IP_FROM_GUI_ID(ci->m_client_id), PORT_FROM_GUI_ID(ci->m_client_id)) CLIENT_DEBUGSTRING("CChatSelector::GetCurrentClient"));
+		return true;
+	} else {
+		return false;
+	}
+}
+#endif
+
 // File_checked_for_headers

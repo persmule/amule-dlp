@@ -1,9 +1,9 @@
 //								-*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -81,7 +81,7 @@ public:
 
 	bool	 InUse() const throw()				{ return m_inUse > 0; }
 	void	 IncUse() throw()				{ m_inUse++; }
-	void	 DecUse() throw()				{ if (m_inUse) m_inUse--; else wxFAIL; }
+	void	 DecUse()					{ if (m_inUse) m_inUse--; else { wxFAIL; } }
 
 	time_t	 GetCreatedTime() const throw()			{ return m_created; }
 
@@ -94,8 +94,6 @@ public:
 
 	uint8_t	 GetVersion() const throw()			{ return m_version; }
 	void	 SetVersion(uint8_t value) throw()		{ m_version = value; }
-
-	bool	 CheckIfKad2() throw()				{ return m_checkKad2 ? m_checkKad2 = false, true : false; }
 
 	const CKadUDPKey& GetUDPKey() const throw()		{ return m_udpKey; }
 	void	 SetUDPKey(const CKadUDPKey& key) throw()	{ m_udpKey = key; }
@@ -118,7 +116,6 @@ private:
 	time_t		m_created;
 	uint32_t	m_inUse;
 	uint8_t		m_version;
-	bool		m_checkKad2;
 	bool		m_ipVerified;
 	bool		m_receivedHelloPacket;
 	CKadUDPKey	m_udpKey;

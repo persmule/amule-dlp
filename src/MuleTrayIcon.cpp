@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2003-2009 Patrizio Bassi (Hetfield) ( hetfield@amule.org )
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2003-2011 Patrizio Bassi ( hetfield@amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -38,38 +38,15 @@
 #include <wx/menu.h>
 
 #include "amule.h" 			// Needed for theApp
-#include "amuleDlg.h" 			// Needed for IsShown
-#include "Preferences.h"		// Needed for thePrefs
-#include "ServerConnect.h"		// Needed for CServerConnect
+#include "amuleDlg.h" 		// Needed for IsShown
+#include "Preferences.h"	// Needed for thePrefs
+#include "ServerConnect.h"	// Needed for CServerConnect
 #include "Server.h"			// Needed for CServer
-#include "StatisticsDlg.h"		// Needed for CStatisticsDlg::getColors()
-#include "Statistics.h"			// Needed for theStats
-#include <common/Format.h>			// Needed for CFormat
-
-
-// Pop-up menu clickable entries
-enum {
-	TRAY_MENU_INFO = 0,
-	TRAY_MENU_CLIENTINFO=0,
-	TRAY_MENU_CLIENTINFO_ITEM = 13007,
-	TRAY_MENU_DISCONNECT,
-	TRAY_MENU_CONNECT,
-	TRAY_MENU_HIDE,
-	TRAY_MENU_SHOW,
-	TRAY_MENU_EXIT,
-	UPLOAD_ITEM1=12340,
-	UPLOAD_ITEM2=12341,
-	UPLOAD_ITEM3=12342,
-	UPLOAD_ITEM4=12343,
-	UPLOAD_ITEM5=12344,
-	UPLOAD_ITEM6=12345,
-	DOWNLOAD_ITEM1=54320,
-	DOWNLOAD_ITEM2=54321,
-	DOWNLOAD_ITEM3=54322,
-	DOWNLOAD_ITEM4=54323,
-	DOWNLOAD_ITEM5=54324,
-	DOWNLOAD_ITEM6=54325
-};
+#include "StatisticsDlg.h"	// Needed for CStatisticsDlg::getColors()
+#include "Statistics.h"		// Needed for theStats
+#include <common/Format.h>	// Needed for CFormat
+#include "Logger.h"
+#include <common/MenuIDs.h>	// Needed to access menu item constants
 
 /****************************************************/
 /******************* Event Table ********************/
@@ -102,7 +79,7 @@ END_EVENT_TABLE()
 
 long GetSpeedFromString(wxString label){
 	long temp;
-	label.Replace(wxT("kB/s"),wxT(""),TRUE);
+	label.Replace(_("kB/s"),wxT(""),TRUE);
 	label.Trim(FALSE);
 	label.Trim(TRUE);
 	label.ToLong(&temp);
@@ -118,11 +95,11 @@ void CMuleTrayIcon::SetUploadSpeed(wxCommandEvent& event){
 			wxMenuItem* item=menu->FindItem(event.GetId());
 			if (item!=NULL) {
 				long temp;
-				if (item->GetLabel()==(_("Unlimited"))) {
+				if (item->GetItemLabelText()==(_("Unlimited"))) {
 					temp=UNLIMITED;
 				}
 				else {
-					temp=GetSpeedFromString(item->GetLabel());
+					temp=GetSpeedFromString(item->GetItemLabelText());
 				}
 				thePrefs::SetMaxUpload(temp);
 
@@ -144,11 +121,11 @@ void CMuleTrayIcon::SetDownloadSpeed(wxCommandEvent& event){
 			wxMenuItem* item=menu->FindItem(event.GetId());
 			if (item!=NULL) {
 				long temp;
-				if (item->GetLabel()==(_("Unlimited"))) {
+				if (item->GetItemLabelText()==(_("Unlimited"))) {
 					temp=UNLIMITED;
 				}
 				else {
-					temp=GetSpeedFromString(item->GetLabel());
+					temp=GetSpeedFromString(item->GetItemLabelText());
 				}
 				thePrefs::SetMaxDownload(temp);
 
@@ -187,6 +164,7 @@ CMuleTrayIcon::CMuleTrayIcon()
 {
 	Old_Icon = -1;
 	Old_SpeedSize = 0xFFFF; // must be > any possible one.
+
 	// Create the background icons (speed improvement)
 	HighId_Icon_size = wxIcon(mule_TrayIcon_big_ico_xpm).GetHeight();
 	LowId_Icon_size = wxIcon(mule_Tr_yellow_big_ico_xpm).GetHeight();
@@ -195,16 +173,6 @@ CMuleTrayIcon::CMuleTrayIcon()
 
 CMuleTrayIcon::~CMuleTrayIcon() 
 {
-#ifdef __WXGTK__
-	// FIXME: EVIL HACK: We need to ensure that the superclass doesn't
-	// try to destroy a dangling pointer. See also CMuleTrayIcon::UpdateTray
-	// for comments on this issue.
-	if (m_iconWnd) {
-		if (wxTopLevelWindows.IndexOf((wxWindow*)m_iconWnd) == wxNOT_FOUND) {
-			m_iconWnd = NULL;
-		}
-	}
-#endif
 }
 
 /****************************************************/
@@ -227,7 +195,7 @@ void CMuleTrayIcon::SetTrayIcon(int Icon, uint32 percent)
 			Bar_ySize = Disconnected_Icon_size; 
 			break;
 		default:
-			wxASSERT(0);
+			wxFAIL;
 	}
 
 	// Lookup this values for speed improvement: don't draw if not needed
@@ -249,7 +217,7 @@ void CMuleTrayIcon::SetTrayIcon(int Icon, uint32 percent)
 					CurrentIcon = wxIcon(mule_Tr_grey_big_ico_xpm);
 					break;
 				default:
-					wxASSERT(0);
+					wxFAIL;
 			}
 		}
 
@@ -273,9 +241,7 @@ void CMuleTrayIcon::SetTrayIcon(int Icon, uint32 percent)
 		int Bar_xSize = 4; 
 		int Bar_xPos = CurrentIcon.GetWidth() - 5; 
 		
-		wxColour col= WxColourFromCr( CStatisticsDlg::getColors(11) );
-		wxBrush	brush(col);
-		IconWithSpeed.SetBrush(brush);
+		IconWithSpeed.SetBrush(*(wxTheBrushList->FindOrCreateBrush(CStatisticsDlg::getColors(11))));
 		IconWithSpeed.SetPen(*wxTRANSPARENT_PEN);
 		
 		IconWithSpeed.DrawRectangle(Bar_xPos + 1, Bar_ySize - NewSize, Bar_xSize -2 , NewSize);
@@ -307,27 +273,11 @@ void CMuleTrayIcon::SetTrayToolTip(const wxString& Tip)
 
 void CMuleTrayIcon::UpdateTray()
 {
-#ifdef __WXGTK__
-	// FIXME: EVIL HACK: As of wxGTK-2.8.7, closing of the trayicon
-	// window (caused for instance by a crashing kicker) is not
-	// handled, with the result that the pointer to the trayicon
-	// window becomes a dangling pointer. Since we have access to
-	// the pointer, and it's created as a top-level window, it's
-	// relatively easy to force the recreation of a valid window.
-	// Ugly as hell though ....
-	//
-	// This has been repported as bug #1872724:
-	// http://sourceforge.net/tracker/index.php?func=detail&aid=1872724&group_id=9863&atid=109863
-	if (m_iconWnd) {
-		if (wxTopLevelWindows.IndexOf((wxWindow*)m_iconWnd) == wxNOT_FOUND) {
-			printf("Traybar-icon lost, trying to recreate ...\n");
-			m_iconWnd = NULL;
-		}
-	}
-#endif
-
 	// Icon update and Tip update
-	if (IsOk()) {
+#ifndef __WXCOCOA__
+	if (IsOk()) 
+#endif
+	{
 		SetIcon(CurrentIcon, CurrentTip);
 	}	
 }
@@ -351,7 +301,7 @@ wxMenu* CMuleTrayIcon::CreatePopupMenu()
 		label += _("UL: None");
 	}
 	else { 
-		label += wxString::Format(_("UL: %u"), max_upload);
+		label += CFormat(_("UL: %u")) % max_upload;
 	}
 	label += wxT(", ");
 
@@ -361,13 +311,13 @@ wxMenu* CMuleTrayIcon::CreatePopupMenu()
 		label += _("DL: None");
 	}
 	else {
-		label += wxString::Format(_("DL: %u"), max_download);
+		label += CFormat(_("DL: %u")) % max_download;
 	}
 
 	traymenu->Append(TRAY_MENU_INFO, label);
-	label = wxString::Format(_("Download speed: %.1f"), theStats::GetDownloadRate() / 1024.0);
+	label = CFormat(_("Download speed: %.1f")) % (theStats::GetDownloadRate() / 1024.0);
 	traymenu->Append(TRAY_MENU_INFO, label);
-	label = wxString::Format(_("Upload speed: %.1f"), theStats::GetUploadRate() / 1024.0);
+	label = CFormat(_("Upload speed: %.1f")) % (theStats::GetUploadRate() / 1024.0);
 	traymenu->Append(TRAY_MENU_INFO, label);
 	traymenu->AppendSeparator();
 
@@ -387,8 +337,7 @@ wxMenu* CMuleTrayIcon::CreatePopupMenu()
 		wxString temp = _("ClientID: ");
 		
 		if (theApp->IsConnectedED2K()) {
-			unsigned long id = theApp->GetED2KID();
-			temp += wxString::Format(wxT("%lu"), id);
+			temp += CFormat(wxT("%u")) % theApp->GetED2KID();
 		} else {
 			temp += _("Not connected");
 		}
@@ -512,7 +461,7 @@ wxMenu* CMuleTrayIcon::CreatePopupMenu()
 			
 		for ( int i = 0; i < 5; i++ ) {
 			unsigned int tempspeed = (unsigned int)((double)max_ul_speed / 5) * (5 - i);
-			wxString temp = wxString::Format(wxT("%u kB/s"), tempspeed);
+			wxString temp = CFormat(wxT("%u %s")) % tempspeed % _("kB/s");
 			UploadSpeedMenu->Append((int)UPLOAD_ITEM1+i+1,temp);
 		}
 	}
@@ -533,7 +482,7 @@ wxMenu* CMuleTrayIcon::CreatePopupMenu()
 	
 		for ( int i = 0; i < 5; i++ ) {
 			unsigned int tempspeed = (unsigned int)((double)max_dl_speed / 5) * (5 - i);
-			wxString temp = wxString::Format(wxT("%d kB/s"), tempspeed);
+			wxString temp = CFormat(wxT("%d %s")) % tempspeed % _("kB/s");
 			DownloadSpeedMenu->Append((int)DOWNLOAD_ITEM1+i+1,temp);
 		}
 	}

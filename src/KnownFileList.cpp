@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -32,6 +32,9 @@
 #include "PartFile.h"		// Needed for CPartFile
 #include "amule.h"
 #include "Logger.h"
+#include "MemFile.h"
+#include "ScopedPtr.h"
+#include "SearchList.h"		// Needed for UpdateSearchFileByHash
 #include <common/Format.h>
 
 
@@ -43,7 +46,7 @@ inline bool CKnownFileList::KnownFileMatches(
 	uint64 in_size) const
 {
 	return
-		(knownFile->GetLastChangeDatetime() == in_date) &&
+		(knownFile->GetLastChangeDatetime() == (time_t)in_date) &&
 		(knownFile->GetFileSize() == in_size) &&
 		(knownFile->GetFileName() == filename);
 }
@@ -54,6 +57,9 @@ CKnownFileList::CKnownFileList()
 	accepted = 0;
 	requested = 0;
 	transferred = 0;
+	m_filename = wxT("known.met");
+	m_knownSizeMap = NULL;
+	m_duplicateSizeMap = NULL;
 	Init();
 }
 
@@ -68,7 +74,7 @@ bool CKnownFileList::Init()
 {
 	CFile file;
 	
-	CPath fullpath = CPath(theApp->ConfigDir + wxT("known.met"));
+	CPath fullpath = CPath(theApp->ConfigDir + m_filename);
 	if (!fullpath.FileExists()) {
 		// This is perfectly normal. The file was probably either
 		// deleted, or this is the first time running aMule.
@@ -76,40 +82,38 @@ bool CKnownFileList::Init()
 	}
 
 	if (!file.Open(fullpath)) {
-		AddLogLineM(true, _("WARNING: known.met cannot be opened."));
+		AddLogLineC(CFormat(_("WARNING: %s cannot be opened.")) % m_filename);
 		return false;
 	}
 	
 	try {
 		uint8 version = file.ReadUInt8();
 		if ((version != MET_HEADER) && (version != MET_HEADER_WITH_LARGEFILES)) {
-			AddLogLineM(true, _("WARNING: Knownfile list corrupted, contains invalid header."));
+			AddLogLineC(_("WARNING: Known file list corrupted, contains invalid header."));
 			return false;
 		}
 		
 		wxMutexLocker sLock(list_mut);
 		uint32 RecordsNumber = file.ReadUInt32();
-		AddDebugLogLineM(false, logKnownFiles,
-			wxString::Format(wxT("Reading %i known files from file format 0x%2.2x."),
-			RecordsNumber, version));
+		AddDebugLogLineN(logKnownFiles, CFormat(wxT("Reading %i known files from file format 0x%2.2x."))
+			% RecordsNumber % version);
 		for (uint32 i = 0; i < RecordsNumber; i++) {
-			std::auto_ptr<CKnownFile> record(new CKnownFile());
+			CScopedPtr<CKnownFile> record;
 			if (record->LoadFromFile(&file)) {
-				AddDebugLogLineM(false, logKnownFiles,
+				AddDebugLogLineN(logKnownFiles,
 					CFormat(wxT("Known file read: %s")) % record->GetFileName());
 				Append(record.release());
 			} else {
-				AddLogLineM(true,
-					wxT("Failed to load entry in knownfilelist, file may be corrupt"));
+				AddLogLineC(_("Failed to load entry in known file list, file may be corrupt"));
 			}
 		}
-		AddDebugLogLineM(false, logKnownFiles, wxT("Finished reading known files"));
+		AddDebugLogLineN(logKnownFiles, wxT("Finished reading known files"));
 	
 		return true;
 	} catch (const CInvalidPacket& e) {
-		AddLogLineM(true, wxT("Invalid entry in knownfilelist, file may be corrupt: ") + e.what());
+		AddLogLineC(_("Invalid entry in known file list, file may be corrupt: ") + e.what());
 	} catch (const CSafeIOException& e) {
-		AddLogLineM(true, CFormat(_("IO error while reading known.met file: %s")) % e.what());
+		AddLogLineC(CFormat(_("IO error while reading %s file: %s")) % m_filename % e.what());
 	}	
 	
 	return false;
@@ -118,7 +122,7 @@ bool CKnownFileList::Init()
 
 void CKnownFileList::Save()
 {
-	CFile file(theApp->ConfigDir + wxT("known.met"), CFile::write);
+	CFile file(theApp->ConfigDir + m_filename, CFile::write);
 	if (!file.IsOpened()) {
 		return;
 	}
@@ -155,7 +159,7 @@ void CKnownFileList::Save()
 		file.Seek(0);
 		file.WriteUInt8(bContainsAnyLargeFiles ? MET_HEADER_WITH_LARGEFILES : MET_HEADER);
 	} catch (const CIOFailureException& e) {
-		AddLogLineM(true, CFormat(_("Error while saving known.met file: %s")) % e.what());
+		AddLogLineC(CFormat(_("Error while saving %s file: %s")) % m_filename % e.what());
 	}
 }
 
@@ -164,17 +168,9 @@ void CKnownFileList::Clear()
 {	
 	wxMutexLocker sLock(list_mut);
 
-	for (CKnownFileMap::iterator it = m_knownFileMap.begin();
-	     it != m_knownFileMap.end(); ++it) {
-		delete it->second;
-	}
-	m_knownFileMap.clear();
-
-	for (KnownFileList::iterator it = m_duplicateFileList.begin();
-	     it != m_duplicateFileList.end(); ++it) {
-		delete *it;
-	}
-	m_duplicateFileList.clear();
+	DeleteContents(m_knownFileMap);
+	DeleteContents(m_duplicateFileList);
+	ReleaseIndex();
 }
 
 
@@ -185,11 +181,22 @@ CKnownFile* CKnownFileList::FindKnownFile(
 {
 	wxMutexLocker sLock(list_mut);
 	
-	for (CKnownFileMap::const_iterator it = m_knownFileMap.begin();
-	     it != m_knownFileMap.end(); ++it) {
-		CKnownFile *cur_file = it->second;
-		if (KnownFileMatches(cur_file, filename, in_date, in_size)) {
-			return cur_file;
+	if (m_knownSizeMap) {
+		std::pair<KnownFileSizeMap::const_iterator, KnownFileSizeMap::const_iterator> p;
+		p = m_knownSizeMap->equal_range((uint32) in_size);
+		for (KnownFileSizeMap::const_iterator it = p.first; it != p.second; it++) {
+			CKnownFile *cur_file = it->second;
+			if (KnownFileMatches(cur_file, filename, in_date, in_size)) {
+				return cur_file;
+			}
+		}
+	} else {
+		for (CKnownFileMap::const_iterator it = m_knownFileMap.begin();
+			 it != m_knownFileMap.end(); ++it) {
+			CKnownFile *cur_file = it->second;
+			if (KnownFileMatches(cur_file, filename, in_date, in_size)) {
+				return cur_file;
+			}
 		}
 	}
 
@@ -202,37 +209,25 @@ CKnownFile *CKnownFileList::IsOnDuplicates(
 	uint32 in_date,
 	uint64 in_size) const
 {
-	for (KnownFileList::const_iterator it = m_duplicateFileList.begin();
-	     it != m_duplicateFileList.end(); ++it) {
-		CKnownFile *cur_file = *it;
-		if (KnownFileMatches(cur_file, filename, in_date, in_size)) {
-			return cur_file;
+	if (m_duplicateSizeMap) {
+		std::pair<KnownFileSizeMap::const_iterator, KnownFileSizeMap::const_iterator> p;
+		p = m_duplicateSizeMap->equal_range((uint32) in_size);
+		for (KnownFileSizeMap::const_iterator it = p.first; it != p.second; it++) {
+			CKnownFile *cur_file = it->second;
+			if (KnownFileMatches(cur_file, filename, in_date, in_size)) {
+				return cur_file;
+			}
+		}
+	} else {
+		for (KnownFileList::const_iterator it = m_duplicateFileList.begin();
+			 it != m_duplicateFileList.end(); ++it) {
+			CKnownFile *cur_file = *it;
+			if (KnownFileMatches(cur_file, filename, in_date, in_size)) {
+				return cur_file;
+			}
 		}
 	}
 	return NULL;
-}
-
-
-bool CKnownFileList::IsKnownFile(const CKnownFile *file) 
-{
-	wxCHECK(file, false);
-
-	wxMutexLocker sLock(list_mut);
-
-	// For the map, search with the key
-	const CMD4Hash &key = file->GetFileHash();
-	CKnownFileMap::const_iterator itMap = m_knownFileMap.find(key);
-	if (itMap != m_knownFileMap.end()) {
-		return true;
-	}
-	// For the list, we have to iterate to search
-	for (KnownFileList::iterator it = m_duplicateFileList.begin();
-	     it != m_duplicateFileList.end(); ++it) {
-		if (*it == file) {
-			return true;
-		}
-	}
-	return false;
 }
 
 
@@ -252,14 +247,21 @@ CKnownFile* CKnownFileList::FindKnownFileByID(const CMD4Hash& hash)
 }
 
 
-bool CKnownFileList::SafeAddKFile(CKnownFile* toadd)
+bool CKnownFileList::SafeAddKFile(CKnownFile* toadd, bool afterHashing)
 {
-	wxMutexLocker sLock(list_mut);
-	return Append(toadd);
+	bool ret;
+	{
+		wxMutexLocker sLock(list_mut);
+		ret = Append(toadd, afterHashing);
+	}
+	if (ret) {
+		theApp->searchlist->UpdateSearchFileByHash(toadd->GetFileHash());
+	}
+	return ret;
 }
 
 
-bool CKnownFileList::Append(CKnownFile *Record)
+bool CKnownFileList::Append(CKnownFile *Record, bool afterHashing)
 {
 	if (Record->GetFileSize() > 0) {
 		const CMD4Hash& tkey = Record->GetFileHash();
@@ -268,33 +270,70 @@ bool CKnownFileList::Append(CKnownFile *Record)
 			m_knownFileMap[tkey] = Record;			
 			return true;
 		} else {
-			it->second;
-			time_t in_date =  it->second->GetLastChangeDatetime();
-			uint64 in_size =  it->second->GetFileSize();
-			CPath filename = it->second->GetFileName();
+			CKnownFile *existing = it->second;
+			time_t in_date = existing->GetLastChangeDatetime();
+			uint64 in_size = existing->GetFileSize();
+			CPath filename = existing->GetFileName();
 			if (KnownFileMatches(Record, filename, in_date, in_size) ||
 			    IsOnDuplicates(filename, in_date, in_size)) {
 				// The file is already on the list, ignore it.
 				return false;
 			} else {
+				if (afterHashing && in_size == Record->GetFileSize()) {
+					// We just hashed a "new" shared file and find it's already known under a different name or date.
+					// Guess what - it was probably renamed or touched.
+					// So copy over all properties from the existing known file and just keep name/date.
+					time_t newDate = Record->GetLastChangeDatetime();
+					CPath newName = Record->GetFileName();
+					CMemFile f;
+					existing->WriteToFile(&f);
+					f.Reset();
+					Record->LoadFromFile(&f);
+					Record->SetLastChangeDatetime(newDate);
+					Record->SetFileName(newName);
+				}
 				// The file is a duplicated hash. Add THE OLD ONE to the duplicates list.
-				m_duplicateFileList.push_back(m_knownFileMap[tkey]);
-				// Is this thread-safe? If John is not sure and I'm not sure either...
+				// (This is used when reading the known file list where the duplicates are stored in front.)
+				m_duplicateFileList.push_back(existing);
 				if (theApp->sharedfiles) {
 					// Removing the old kad keywords created with the old filename
-					theApp->sharedfiles->RemoveKeywords(it->second);
+					theApp->sharedfiles->RemoveKeywords(existing);
 				}
 				m_knownFileMap[tkey] = Record;	
 				return true;
 			}
 		}
 	} else {
-		AddDebugLogLineM(false, logGeneral,
+		AddDebugLogLineN(logGeneral,
 			CFormat(wxT("%s is 0-size, not added")) %
 			Record->GetFileName());
 		
 		return false;
 	}
+}
+
+// Make an index by size to speed up FindKnownFile
+// Size modulo 2^32 is enough here
+void CKnownFileList::PrepareIndex()
+{
+	ReleaseIndex();
+	m_knownSizeMap = new KnownFileSizeMap;
+	for (CKnownFileMap::const_iterator it = m_knownFileMap.begin(); it != m_knownFileMap.end(); it++) {
+		m_knownSizeMap->insert(std::pair<uint32, CKnownFile*>((uint32) it->second->GetFileSize(), it->second));
+	}
+	m_duplicateSizeMap = new KnownFileSizeMap;
+	for (KnownFileList::const_iterator it = m_duplicateFileList.begin(); it != m_duplicateFileList.end(); it++) {
+		m_duplicateSizeMap->insert(std::pair<uint32, CKnownFile*>((uint32) (*it)->GetFileSize(), *it));
+	}
+}
+
+
+void CKnownFileList::ReleaseIndex()
+{
+	delete m_knownSizeMap;
+	delete m_duplicateSizeMap;
+	m_knownSizeMap = NULL;
+	m_duplicateSizeMap = NULL;
 }
 
 // File_checked_for_headers

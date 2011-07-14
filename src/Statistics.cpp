@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
-// Copyright (C) 2005-2009  DÈvai Tam·s ( gonosztopi@amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2005-2011 D√©vai Tam√°s ( gonosztopi@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -30,21 +30,22 @@
 
 #include <ec/cpp/ECTag.h>		// Needed for CECTag
 
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 	#ifndef AMULE_DAEMON
 		#include <common/Format.h>		// Needed for CFormat
 	#endif
 	#include "DataToText.h"		// Needed for GetSoftName()
 	#include "Preferences.h"	// Needed for thePrefs
-	#include "amule.h"		// Needed for theApp
 	#include "ListenSocket.h"	// (tree, GetAverageConnections)
 	#include "ServerList.h"		// Needed for CServerList (tree)
 	#include <cmath>		// Needed for std::floor
 	#include "updownclient.h"	// Needed for CUpDownClient
 #else
+	#include "GetTickCount.h"	// Needed for GetTickCount64()
 	#include "Preferences.h"
 	#include <ec/cpp/RemoteConnect.h>		// Needed for CRemoteConnect
 #endif
+	#include "amule.h"		// Needed for theApp
 
 #include <wx/intl.h>
 
@@ -56,7 +57,7 @@
 #endif /* __BSD__ */
 
 
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 
 /*----- CPreciseRateCounter -----*/
 
@@ -119,7 +120,7 @@ void CStatTreeItemRateCounter::AddECValues(CECTag* tag) const
 #ifndef AMULE_DAEMON
 wxString CStatTreeItemPeakConnections::GetDisplayString() const
 {
-	return wxString::Format(wxGetTranslation(m_label), theStats::GetPeakConnections());
+	return CFormat(wxGetTranslation(m_label)) % theStats::GetPeakConnections();
 }
 #endif
 
@@ -139,17 +140,17 @@ CPreciseRateCounter*		CStatistics::s_downOverheadRate;
 CStatTreeItemRateCounter*	CStatistics::s_uploadrate;
 CStatTreeItemRateCounter*	CStatistics::s_downloadrate;
 
-#else /* EC_REMOTE */
+#else /* CLIENT_GUI */
 
 uint64	CStatistics::s_start_time;
 uint64	CStatistics::s_statData[sdTotalItems];
 
-#endif /* !EC_REMOTE / EC_REMOTE */
+#endif /* !CLIENT_GUI / CLIENT_GUI */
 
 // Tree root
 CStatTreeItemBase*		CStatistics::s_statTree;
 
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 // Uptime
 CStatTreeItemTimer*		CStatistics::s_uptime;
 
@@ -683,7 +684,7 @@ void CStatistics::InitStatsTree()
 	s_foundSources = (CStatTreeItemNativeCounter*)tmpRoot2->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Found Sources: %s"), stSortChildren | stSortByValue));
 	s_activeDownloads = (CStatTreeItemNativeCounter*)tmpRoot2->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Active Downloads (chunks): %s")));
 
-	tmpRoot1->AddChild(new CStatTreeItemRatio(wxTRANSLATE("Session UL:DL Ratio (Total): %s"), s_sessionUpload, s_sessionDownload), 3);
+	tmpRoot1->AddChild(new CStatTreeItemRatio(wxTRANSLATE("Session UL:DL Ratio (Total): %s"), s_sessionUpload, s_sessionDownload, thePrefs::GetTotalUploaded, thePrefs::GetTotalDownloaded), 3);
 
 	tmpRoot1 = s_statTree->AddChild(new CStatTreeItemBase(wxTRANSLATE("Connection")));
 	tmpRoot1->AddChild(new CStatTreeItemAverageSpeed(wxTRANSLATE("Average download rate (Session): %s"), s_sessionDownload, s_uptime));
@@ -700,14 +701,14 @@ void CStatistics::InitStatsTree()
 	tmpRoot1->AddChild(new CStatTreeItemPeakConnections(wxTRANSLATE("Peak Connections (estimate): %i")));
 
 	s_clients = (CStatTreeItemHiddenCounter*)s_statTree->AddChild(new CStatTreeItemHiddenCounter(wxTRANSLATE("Clients"), stSortChildren | stSortByValue));
-	s_unknown = (CStatTreeItemCounter*)s_clients->AddChild(new CStatTreeItemCounter(wxString(wxTRANSLATE("Unknown")) + wxT(": %s")), 6);
+	s_unknown = (CStatTreeItemCounter*)s_clients->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Unknown: %s")), 6); 
 	//s_lowID = (CStatTreeItem*)s_clients->AddChild(new CStatTreeItem(wxTRANSLATE("LowID: %u (%.2f%% Total %.2f%% Known)")), 5);
 	//s_secIdentOnOff = (CStatTreeItem*)s_clients->AddChild(new CStatTreeItem(wxTRANSLATE("SecIdent On/Off: %u (%.2f%%) : %u (%.2f%%)")), 4);
 #ifdef __DEBUG__
 	s_hasSocket = (CStatTreeItemNativeCounter*)s_clients->AddChild(new CStatTreeItemNativeCounter(wxT("HasSocket: %s")), 3);
 #endif
-	s_filtered = (CStatTreeItemNativeCounter*)s_clients->AddChild(new CStatTreeItemNativeCounter(wxString(wxTRANSLATE("Filtered")) +  wxT(": %s")), 2);
-	s_banned = (CStatTreeItemNativeCounter*)s_clients->AddChild(new CStatTreeItemNativeCounter(wxString(wxTRANSLATE("Banned")) + wxT(": %s")), 1);
+	s_filtered = (CStatTreeItemNativeCounter*)s_clients->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Filtered: %s")), 2);
+	s_banned = (CStatTreeItemNativeCounter*)s_clients->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Banned: %s")), 1);
 	s_clients->AddChild(new CStatTreeItemTotalClients(wxTRANSLATE("Total: %i Known: %i"), s_clients, s_unknown), 0x80000000);
 
 	// TODO: Use counters?
@@ -844,7 +845,7 @@ uint32 GetIdFromString(const wxString& str)
                 id ^= old_id;
                 id -= old_id;
         }
-	return ((id >> 1) + id | 0x00000100) & 0x7fffffff;
+	return (((id >> 1) + id) | 0x00000100) & 0x7fffffff;
 }
 
 void CStatistics::AddKnownClient(CUpDownClient *pClient)
@@ -925,7 +926,7 @@ void CStatistics::RemoveKnownClient(uint32 clientSoft, uint32 clientVersion, con
 	}
 }
 
-#else /* EC_REMOTE (CLIENT_GUI) */
+#else /* CLIENT_GUI */
 
 CStatistics::CStatistics(CRemoteConnect &conn)
 :
@@ -961,26 +962,49 @@ void CStatistics::UpdateStats(const CECPacket* stats)
 	s_statData[sdKadUsers] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_USERS)->GetInt();
 	s_statData[sdED2KFiles] = stats->GetTagByNameSafe(EC_TAG_STATS_ED2K_FILES)->GetInt();
 	s_statData[sdKadFiles] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_FILES)->GetInt();
+	s_statData[sdKadFirewalledUDP] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_FIREWALLED_UDP)->GetInt();
+	s_statData[sdKadIndexedSources] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_INDEXED_SOURCES)->GetInt();
+	s_statData[sdKadIndexedKeywords] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_INDEXED_KEYWORDS)->GetInt();
+	s_statData[sdKadIndexedNotes] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_INDEXED_NOTES)->GetInt();
+	s_statData[sdKadIndexedLoad] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_INDEXED_LOAD)->GetInt();
+	s_statData[sdKadIPAdress] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_IP_ADRESS)->GetInt();
+	s_statData[sdBuddyStatus] = stats->GetTagByNameSafe(EC_TAG_STATS_BUDDY_STATUS)->GetInt();
+	s_statData[sdBuddyIP] = stats->GetTagByNameSafe(EC_TAG_STATS_BUDDY_IP)->GetInt();
+	s_statData[sdBuddyPort] = stats->GetTagByNameSafe(EC_TAG_STATS_BUDDY_PORT)->GetInt();
+	s_statData[sdKadInLanMode] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_IN_LAN_MODE)->GetInt();
+
+	const CECTag * LoggerTag = stats->GetTagByName(EC_TAG_STATS_LOGGER_MESSAGE);
+	if (LoggerTag) {
+		for (CECTag::const_iterator it = LoggerTag->begin(); it != LoggerTag->end(); it++) {
+			theApp->AddRemoteLogLine(it->GetStringData());
+		}
+	}
 }
 
 
 void CStatistics::UpdateStatsTree()
 {
-	CECPacket request(EC_OP_GET_STATSTREE);
-	if (thePrefs::GetMaxClientVersions() != 0) {
-		request.AddTag(CECTag(EC_TAG_STATTREE_CAPPING, (uint8)thePrefs::GetMaxClientVersions()));
-	}
-	const CECPacket* reply = m_conn.SendRecvPacket(&request);
-	if (reply) {
-		const CECTag* treeRoot = reply->GetTagByName(EC_TAG_STATTREE_NODE);
-		if (treeRoot) {
-			delete s_statTree;
-			s_statTree = new CStatTreeItemBase(treeRoot);
-		}
-	}
-	delete reply;
 }
 
-#endif /* !EC_REMOTE */
+
+void CStatistics::RebuildStatTreeRemote(const CECTag * tag)
+{
+	delete s_statTree;
+	s_statTree = new CStatTreeItemBase(tag);
+}
+
+
+uint64 CStatistics::GetUptimeMillis()
+{
+	return GetTickCount64() - s_start_time;
+}
+
+
+uint64 CStatistics::GetUptimeSeconds()
+{
+	return (GetTickCount64() - s_start_time) / 1000;
+}
+
+#endif /* !CLIENT_GUI */
 
 // File_checked_for_headers

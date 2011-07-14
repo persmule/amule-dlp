@@ -1,10 +1,10 @@
 //								-*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2008-2009 Dévai Tamás (GonoszTopi) ( gonosztopi@amule.org )
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2008-2011 Dévai Tamás ( gonosztopi@amule.org )
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -73,7 +73,7 @@ public:
 	 * Generates a new number, copying the most significant 'numBits' bits from 'value'.
 	 * The remaining bits are randomly generated.
 	 */
-	CUInt128(const CUInt128& value, uint32_t numBits) throw();
+	CUInt128(const CUInt128& value, uint32_t numBits);
 
 	/** Bit at level 0 being most significant. */
 	unsigned GetBitNumber(unsigned bit) const throw()
@@ -86,18 +86,16 @@ public:
 
 	wxString ToHexString() const;
 	wxString ToBinaryString(bool trim = false) const;
-	void ToByteArray(uint8_t *b) const throw();
+	void ToByteArray(uint8_t *b) const;
 
 	uint32_t Get32BitChunk(unsigned val) const throw()
 	{
-		wxASSERT(val < 4);
-
-		return m_data[val];
+		return val < 4 ? m_data[val] : 0;
 	}
 
-	void Set32BitChunk(unsigned chunk, uint32_t value) throw()
+	void Set32BitChunk(unsigned chunk, uint32_t value)
 	{
-		wxASSERT(chunk < 4);
+		wxCHECK2(chunk < 4, return);
 
 		m_data[chunk] = value;
 	}
@@ -120,8 +118,6 @@ public:
 
 	CUInt128& SetValueBE(const uint8_t *valueBE) throw();
 
-	CUInt128& SetValueRandom();
-
 	/**
 	 * Stores value used by the crypt functions.
 	 *
@@ -131,12 +127,12 @@ public:
 	 * @param buf Buffer to hold the value. Must be large enough to hold the data (16 bytes at least),
 	 *	and must not be NULL.
 	 */
-	void StoreCryptValue(uint8_t *buf) const throw();
+	void StoreCryptValue(uint8_t *buf) const;
 
 	/** Bit at level 0 being most significant. */
-	CUInt128& SetBitNumber(unsigned bit, unsigned value) throw()
+	CUInt128& SetBitNumber(unsigned bit, unsigned value)
 	{
-		wxASSERT(bit <= 127);
+		wxCHECK(bit <= 127, *this);
 
 		if (value)
 			m_data[bit / 32] |= 1 << (31 - (bit % 32));

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -126,16 +126,16 @@ void CPartFileConvert::StartThread()
 	
 		switch ( s_convertPfThread->Create() ) {
 			case wxTHREAD_NO_ERROR:
-				AddDebugLogLineM( false, logPfConvert, wxT("A new thread has been created.") );
+				AddDebugLogLineN( logPfConvert, wxT("A new thread has been created.") );
 				break;
 			case wxTHREAD_RUNNING:
-				AddDebugLogLineM( true, logPfConvert, wxT("Error, attempt to create an already running thread!") );
+				AddDebugLogLineC( logPfConvert, wxT("Error, attempt to create an already running thread!") );
 				break;
 			case wxTHREAD_NO_RESOURCE:
-				AddDebugLogLineM( true, logPfConvert, wxT("Error, attempt to create a thread without resources!") );
+				AddDebugLogLineC( logPfConvert, wxT("Error, attempt to create a thread without resources!") );
 				break;
 			default:
-				AddDebugLogLineM( true, logPfConvert, wxT("Error, unknown error attempting to create a thread!") );
+				AddDebugLogLineC( logPfConvert, wxT("Error, unknown error attempting to create a thread!") );
 		}
 
 		// The thread shouldn't hog the CPU, as it will already be hogging the HD
@@ -153,7 +153,7 @@ void CPartFileConvert::StopThread()
 		return;
 	}
 
-	printf("Waiting for partfile convert thread to die...\n");
+	AddLogLineNS(_("Waiting for partfile convert thread to die..."));
 	while (s_convertPfThread) {
 		wxSleep(1);
 	}
@@ -170,11 +170,9 @@ wxThread::ExitCode CPartFileConvert::Entry()
 			wxMutexLocker lock(s_mutex);
 			s_pfconverting = NULL;
 			for (std::list<ConvertJob*>::iterator it = s_jobs.begin(); it != s_jobs.end(); ++it) {
-				s_pfconverting = *it;
-				if (s_pfconverting->state == CONV_QUEUE) {
+				if ((*it)->state == CONV_QUEUE) {
+					s_pfconverting = *it;
 					break;
-				} else {
-					s_pfconverting = NULL;
 				}
 			}
 		}
@@ -197,15 +195,15 @@ wxThread::ExitCode CPartFileConvert::Entry()
 				++imported;
 			}
 
+			Notify_ConvertUpdateJobInfo(s_pfconverting);
+
+			AddLogLineC(CFormat(_("Importing %s: %s")) % s_pfconverting->folder % GetConversionState(s_pfconverting->state));
+
 			if (TestDestroy()) {
 				wxMutexLocker lock(s_mutex);
 				DeleteContents(s_jobs);
 				break;
 			}
-
-			Notify_ConvertUpdateJobInfo(s_pfconverting);
-
-			AddLogLineM(true, CFormat(_("Importing %s: %s")) % s_pfconverting->folder % GetConversionState(s_pfconverting->state));
 		} else {
 			break; // nothing more to do now
 		}
@@ -218,7 +216,7 @@ wxThread::ExitCode CPartFileConvert::Entry()
 		theApp->sharedfiles->PublishNextTurn();
 	}
 
-	AddDebugLogLineM(false, logPfConvert, wxT("No more jobs on queue, exiting from thread."));
+	AddDebugLogLineN(logPfConvert, wxT("No more jobs on queue, exiting from thread."));
 
 	s_convertPfThread = NULL;
 
@@ -284,8 +282,6 @@ ConvStatus CPartFileConvert::performConvertToeMule(const CPath& fileName)
 				filePath.GetFullName().RemoveExt().GetExt().ToLong(&l);
 				fileindex = (unsigned)l;
 				filePath = finder.GetNextFile();
-				// GonoszTopi - why the hell does eMule need this??
-				//if (fileindex == 0) continue;
 				if (fileindex > maxindex) maxindex = fileindex;
 			}
 			float stepperpart;
@@ -296,7 +292,7 @@ ConvStatus CPartFileConvert::performConvertToeMule(const CPath& fileName)
 					if (maxindex * PARTSIZE <= s_pfconverting->size) {
 						s_pfconverting->spaceneeded = maxindex * PARTSIZE;
 					} else {
-						s_pfconverting->spaceneeded = ((s_pfconverting->size / PARTSIZE) * PARTSIZE) + (s_pfconverting->size % PARTSIZE);
+						s_pfconverting->spaceneeded = s_pfconverting->size;
 					}
 				} else {
 					stepperpart = 80.0f;
@@ -328,7 +324,7 @@ ConvStatus CPartFileConvert::performConvertToeMule(const CPath& fileName)
 			while (filename.IsOk()) {
 				// stats
 				++curindex;
-				buffer = wxString::Format(_("Loading data from old download file (%u of %u)"), curindex, partfilecount);
+				buffer = CFormat(_("Loading data from old download file (%u of %u)")) % curindex % partfilecount;
 
 				Notify_ConvertUpdateProgress(10 + (curindex * stepperpart), buffer);
 
@@ -348,19 +344,18 @@ ConvStatus CPartFileConvert::performConvertToeMule(const CPath& fileName)
 				inputfile.Read(ba, toReadWrite);
 				inputfile.Close();
 
-				buffer = wxString::Format(_("Saving data block into new single download file (%u of %u)"), curindex, partfilecount);
+				buffer = CFormat(_("Saving data block into new single download file (%u of %u)")) % curindex % partfilecount;
 
 				Notify_ConvertUpdateProgress(10 + (curindex * stepperpart), buffer);
 
 				// write the buffered data
-				file->m_hpartfile.Seek(chunkstart, wxFromStart);
-				file->m_hpartfile.Write(ba, toReadWrite);
+				file->m_hpartfile.WriteAt(ba, chunkstart, toReadWrite);
 
 				filename = finder.GetNextFile();
 			}
 			delete[] ba;
 		} catch (const CSafeIOException& e) {
-			AddDebugLogLineM(true, logPfConvert, wxT("IO error while converting partfiles: ") + e.what());
+			AddDebugLogLineC(logPfConvert, wxT("IO error while converting partfiles: ") + e.what());
 			
 			delete[] ba;
 			file->Delete();
@@ -383,7 +378,7 @@ ConvStatus CPartFileConvert::performConvertToeMule(const CPath& fileName)
 		if (freespace == wxInvalidOffset) {
 			delete file;
 			return CONV_IOERROR;
-		} else if (!s_pfconverting->removeSource && (freespace < s_pfconverting->spaceneeded)) {
+		} else if (freespace < s_pfconverting->spaceneeded) {
 			delete file;
 			return CONV_OUTOFDISKSPACE;
 		}
@@ -426,15 +421,13 @@ ConvStatus CPartFileConvert::performConvertToeMule(const CPath& fileName)
 
 	file->m_hashlist.clear();
 
-	DeleteContents(file->m_gaplist);
-
 	if (!file->LoadPartFile(thePrefs::GetTempDir(), file->GetPartMetFileName(), false)) {
 		//delete file;
 		file->Delete();
 		return CONV_BADFORMAT;
 	}
 
-	if (s_pfconverting->partmettype == PMT_NEWOLD || s_pfconverting->partmettype == PMT_SPLITTED ) {
+	if (s_pfconverting->partmettype == PMT_NEWOLD || s_pfconverting->partmettype == PMT_SPLITTED) {
 		file->SetCompletedSize(file->transferred);
 		file->m_iGainDueToCompression = 0;
 		file->m_iLostDueToCorruption = 0;

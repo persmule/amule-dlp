@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
-// Copyright (C) 2005-2009 DÈvai Tam·s ( gonosztopi@amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2005-2011 D√©vai Tam√°s ( gonosztopi@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -27,18 +27,10 @@
 #ifndef STATISTICS_H
 #define STATISTICS_H
 
+#include "Constants.h"		// Needed for StatsGraphType
 #include "StatTree.h"		// Needed for CStatTreeItem* classes
-#include "GetTickCount.h"	// Needed for GetTickCount64()
 
 #include <deque>		// Needed for std::deque
-
-enum StatsGraphType {
-	GRAPH_INVALID = 0,
-	GRAPH_DOWN,
-	GRAPH_UP,
-	GRAPH_CONN,
-	GRAPH_KAD
-};
 
 typedef struct UpdateInfo {
 	double timestamp;
@@ -62,7 +54,7 @@ typedef struct HistoryRecord {
 } HR;
 
 
-#ifndef EC_REMOTE
+#ifndef CLIENT_GUI
 
 /**
  * Counts precise rate/average on added bytes/values.
@@ -470,7 +462,7 @@ class CStatistics {
 	static uint16 s_kadNodesCur;
 };
 
-#else /* EC_REMOTE == CLIENT_GUI */
+#else /* CLIENT_GUI */
 
 class CECPacket;
 class CRemoteConnect;
@@ -486,6 +478,16 @@ enum StatDataIndex {
 	sdKadUsers,
 	sdED2KFiles,
 	sdKadFiles,
+	sdKadFirewalledUDP,
+	sdKadIndexedSources,
+	sdKadIndexedKeywords,
+	sdKadIndexedNotes,
+	sdKadIndexedLoad,
+	sdKadIPAdress,
+	sdBuddyStatus,
+	sdBuddyIP,
+	sdBuddyPort,
+	sdKadInLanMode,
 
 	sdTotalItems
 };
@@ -504,8 +506,8 @@ private:
 	CStatistics(CRemoteConnect &conn);
 	~CStatistics();
 
-	static	uint64	GetUptimeMillis()			{ return GetTickCount64() - s_start_time; }
-	static	uint64	GetUptimeSeconds()			{ return (GetTickCount64() - s_start_time) / 1000; }
+	static	uint64	GetUptimeMillis();
+	static	uint64	GetUptimeSeconds();
 
 	static	uint64	GetSessionSentBytes()			{ return 0; } // TODO
 	static	double	GetUploadRate()				{ return (double)s_statData[sdUpload]; }
@@ -525,16 +527,28 @@ private:
 	static	uint32	GetED2KFiles()			{ return s_statData[sdED2KFiles]; }
 	static	uint32	GetKadFiles() 			{ return s_statData[sdKadFiles]; }
 
+	static	bool	IsFirewalledKadUDP()	{ return s_statData[sdKadFirewalledUDP] != 0; }
+	static	uint32	GetKadIndexedSources()	{ return s_statData[sdKadIndexedSources]; }
+	static	uint32	GetKadIndexedKeywords()	{ return s_statData[sdKadIndexedKeywords]; }
+	static	uint32	GetKadIndexedNotes()	{ return s_statData[sdKadIndexedNotes]; }
+	static	uint32	GetKadIndexedLoad()		{ return s_statData[sdKadIndexedLoad]; }
+	static	uint32	GetKadIPAdress()		{ return s_statData[sdKadIPAdress]; }
+	static	uint8	GetBuddyStatus()		{ return s_statData[sdBuddyStatus]; }
+	static	uint32	GetBuddyIP()			{ return s_statData[sdBuddyIP]; }
+	static	uint32	GetBuddyPort()			{ return s_statData[sdBuddyPort]; }
+	static	bool	IsKadRunningInLanMode()	{ return s_statData[sdKadInLanMode] != 0; }
+
 	static	void	UpdateStats(const CECPacket* stats);
 
-		void	UpdateStatsTree();
-		void	SetAverageMinutes(uint8 minutes)	{ average_minutes = minutes; }
+	void	UpdateStatsTree();
+	void	RebuildStatTreeRemote(const CECTag *);
+	void	SetAverageMinutes(uint8 minutes)	{ average_minutes = minutes; }
 	
  private:
 	static	CStatTreeItemBase*	GetTreeRoot()		{ return s_statTree; }
 };
 
-#endif /* !EC_REMOTE / EC_REMOTE */
+#endif /* !CLIENT_GUI / CLIENT_GUI */
 
 
 /**

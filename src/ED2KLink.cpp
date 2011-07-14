@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -35,7 +35,7 @@
 
 #include "MemFile.h"			// Needed for CMemFile
 #include "NetworkFunctions.h"	// Needed for Uint32toStringIP
-
+#include <common/Format.h>		// Needed for CFormat
 
 
 CED2KLink::CED2KLink( LinkType type )
@@ -158,14 +158,18 @@ CED2KFileLink::CED2KFileLink(const wxString& link)
 	  m_bAICHHashValid(false)
 {
 	// Start tokenizing after the "ed2k:://|file|" part of the link
-	wxStringTokenizer tokens(link.Mid(13), wxT("|/"), wxTOKEN_RET_EMPTY_ALL);
+	wxStringTokenizer tokens(link, wxT("|"), wxTOKEN_RET_EMPTY_ALL);
 
 	// Must at least be ed2k://|file|NAME|SIZE|HASH|/
-	if (tokens.CountTokens() < 5) {
+	if (tokens.CountTokens() < 5 
+		|| tokens.GetNextToken() != wxT("ed2k://")
+		|| tokens.GetNextToken() != wxT("file")) {
 		throw wxString(wxT("Not a valid file link"));
 	}
 
 	m_name = UnescapeHTML(tokens.GetNextToken().Strip(wxString::both));
+	// We don't want a path in the name.
+	m_name.Replace(wxT("/"), wxT("_"));
 	
 	// Note that StrToULong returns ULONG_MAX if the value is
 	// too large to be contained in a unsigned long, which means
@@ -173,7 +177,7 @@ CED2KFileLink::CED2KFileLink(const wxString& link)
 	wxString size = tokens.GetNextToken().Strip(wxString::both);
 	m_size = StrToULongLong(size);
 	if ((m_size == 0) || (m_size > MAX_FILE_SIZE)) {
-		throw wxString::Format(wxT("Invalid file size %i"), m_size);
+		throw wxString(CFormat(wxT("Invalid file size %i")) % m_size);
 	}
 	
 	if (!m_hash.Decode(tokens.GetNextToken().Strip(wxString::both))) {
@@ -276,7 +280,7 @@ CED2KFileLink::~CED2KFileLink()
 
 wxString CED2KFileLink::GetLink() const
 {
-	return wxT("ed2k://|file|") + m_name + wxString::Format(wxT("|%u|"), m_size) + m_hash.Encode() + wxT("|/");
+	return CFormat(wxT("ed2k://|file|%s|%u|%s|/")) % m_name % m_size % m_hash.Encode();
 }
 
 

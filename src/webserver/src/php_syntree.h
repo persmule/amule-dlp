@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (C) 2005-2009 Froenchenko Leonid ( lfroen@amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2005-2011 Froenchenko Leonid ( lfroen@gmail.com / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -33,7 +33,13 @@
 #ifndef __STDC_FORMAT_MACROS
 	#define __STDC_FORMAT_MACROS
 #endif
+
+#ifdef _MSC_VER
+typedef unsigned __int64 uint64_t;
+#define YY_NO_UNISTD_H
+#else
 #include <inttypes.h>
+#endif
 
 #if !defined PRIu64
 # if defined(__alpha__) || defined(__ia64__) || defined(__ppc64__) || defined(__x86_64__) \
@@ -342,13 +348,13 @@ extern "C" {
 /*
  * lex/yacc stuff
  */
-	int yyerror(char *err);
-	int yyparse();
+	int phperror(char *err);
+	int phpparse();
 	
-	extern int yydebug;
-	extern FILE *yyin;
-	extern char *yytext;
-	extern int yylineno;
+	extern int pphdebug;
+	extern FILE *phpin;
+	extern char *phptext;
+	extern int phplineno;
 
 /* 
  * Syntax tree interface to parser
@@ -504,7 +510,7 @@ extern "C" {
 	// left = VAR(func_name), right=ARRAY(args)
 	void php_run_func_call(PHP_EXP_NODE *node, PHP_VALUE_NODE *result);
 
-#if defined(__GNUC__)
+#ifdef __GNUC__
 	void php_report_error(PHP_MSG_TYPE mtype, const char *msg, ...)  __attribute__ ((__format__ (__printf__, 2, 3)));
 #else
 	void php_report_error(PHP_MSG_TYPE mtype, const char *msg, ...);

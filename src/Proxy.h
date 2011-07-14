@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2004-2009 Marcelo Jimenez ( phoenix@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Marcelo Roberto Jimenez ( phoenix@amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -254,13 +254,8 @@ public:
 protected:
 	wxSocketBase		&ProxyWrite(wxSocketBase &socket, const void *buffer, wxUint32 nbytes);
 	wxSocketBase		&ProxyRead(wxSocketBase &socket, void *buffer);
-#ifndef AMULE_DAEMON
-	bool			CanReceive() const	{ return m_canReceive; };
-	bool			CanSend() const		{ return m_canSend; };
-#else
-	bool			CanReceive() const	{ return true; };
-	bool			CanSend() const		{ return true; };
-#endif
+	bool		CanReceive() const;
+	bool		CanSend() const;
 	//
 	// Initialized at constructor
 	//

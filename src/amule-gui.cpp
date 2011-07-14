@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -33,7 +33,6 @@
 #include "SharedFilesWnd.h"		// Needed for CSharedFilesWnd
 #include "Timer.h"				// Needed for CTimer
 #include "PartFile.h"			// Needed for CPartFile
-#include "updownclient.h"		// Needed for CUpDownClient
 
 #include "muuli_wdr.h"			// Needed for IDs
 #include "amuleDlg.h"			// Needed for CamuleDlg
@@ -68,7 +67,6 @@ BEGIN_EVENT_TABLE(CamuleGuiApp, wxApp)
 	EVT_MULE_TIMER(ID_CORE_TIMER_EVENT, CamuleGuiApp::OnCoreTimer)
 
 	EVT_MULE_NOTIFY(CamuleGuiApp::OnNotifyEvent)
-	EVT_MULE_LOGGING(CamuleGuiApp::OnLoggingEvent)
 	
 	// Async dns handling
 	EVT_MULE_INTERNAL(wxEVT_CORE_UDP_DNS_DONE, -1, CamuleGuiApp::OnUDPDnsDone)
@@ -111,9 +109,9 @@ CamuleGuiBase::~CamuleGuiBase()
 }
 
 
-void CamuleGuiBase::ShowAlert(wxString msg, wxString title, int flags)
+int CamuleGuiBase::ShowAlert(wxString msg, wxString title, int flags)
 {
-	wxMessageBox(msg, title, flags);
+	return wxMessageBox(msg, title, flags);
 }
 
 
@@ -187,15 +185,15 @@ int CamuleGuiBase::InitGui(bool geometry_enabled, wxString &geom_string)
 	// Should default/last-used position be overridden?
 #ifdef SVNDATE
 	#ifdef CLIENT_GUI
-		m_FrameTitle = wxString::Format(wxT("aMule remote control %s %s"), wxT( VERSION ), wxT( SVNDATE ));
+		m_FrameTitle = CFormat(wxT("aMule remote control %s %s")) % wxT( VERSION ) % wxT( SVNDATE );
 	#else
-		m_FrameTitle = wxString::Format(wxT("aMule %s %s"), wxT( VERSION ), wxT( SVNDATE ));
+		m_FrameTitle = CFormat(wxT("aMule %s %s")) % wxT( VERSION ) % wxT( SVNDATE );
 	#endif
 #else
 	#ifdef CLIENT_GUI
-		m_FrameTitle = wxString::Format(wxT("aMule remote control %s"), wxT( VERSION ));
+		m_FrameTitle = _("aMule remote control");
 	#else
-		m_FrameTitle = wxString::Format(wxT("aMule %s"), wxT( VERSION ));
+		m_FrameTitle = _("aMule");
 	#endif
 #endif
 	if ( geometry_enabled ) {
@@ -224,6 +222,20 @@ bool CamuleGuiBase::CopyTextToClipboard(wxString strText)
 }
 
 
+void CamuleGuiBase::AddGuiLogLine(const wxString& line)
+{
+	if (amuledlg) {
+		while ( !m_logLines.empty() ) {
+			amuledlg->AddLogLine(m_logLines.front());
+			m_logLines.pop_front();
+		}
+		amuledlg->AddLogLine(line);
+	} else {
+		m_logLines.push_back(line);
+	}
+}
+
+
 #ifndef CLIENT_GUI
 
 int CamuleGuiApp::InitGui(bool geometry_enable, wxString &geometry_string)
@@ -234,9 +246,9 @@ int CamuleGuiApp::InitGui(bool geometry_enable, wxString &geometry_string)
 }
 
 
-void CamuleGuiApp::ShowAlert(wxString msg, wxString title, int flags)
+int CamuleGuiApp::ShowAlert(wxString msg, wxString title, int flags)
 {
-	CamuleGuiBase::ShowAlert(msg, title, flags);
+	return CamuleGuiBase::ShowAlert(msg, title, flags);
 }
 
 
@@ -267,7 +279,7 @@ bool CamuleGuiApp::OnInit()
 	// Create the Core timer
 	core_timer = new CTimer(this,ID_CORE_TIMER_EVENT);
 	if (!core_timer) {
-		printf("Fatal Error: Failed to create Core Timer");
+		AddLogLineCS(_("Fatal Error: Failed to create Core Timer"));
 		OnExit();
 	}
 
@@ -308,22 +320,6 @@ wxString CamuleGuiApp::GetLog(bool reset)
 	return CamuleApp::GetLog(reset);
 }
 
-
-wxString CamuleGuiApp::GetServerLog(bool reset)
-{
-	if ( reset ) {
-		amuledlg->ResetLog(ID_SERVERINFO);
-	}
-	return CamuleApp::GetServerLog(reset);
-}
-
-
-void CamuleGuiApp::AddServerMessageLine(wxString &msg)
-{
-	amuledlg->AddServerMessageLine(msg);
-	CamuleApp::AddServerMessageLine(msg);
-}
-
 void CamuleGuiApp::AddDLPMessageLine(const wxString &msg)
 {
 	wxString message;
@@ -338,22 +334,19 @@ void CamuleGuiApp::AddDLPMessageLine(const wxString &msg)
 	amuledlg->AddDLPMessageLine(message);
 }
 
-void CamuleGuiApp::OnLoggingEvent(CLoggingEvent& evt)
+wxString CamuleGuiApp::GetServerLog(bool reset)
 {
-	if (amuledlg) {
-		while ( !m_logLines.empty() ) {
-			QueuedLogLine entry = m_logLines.front();
-			amuledlg->AddLogLine( entry.show, entry.line );
-			m_logLines.pop_front();
-		}
-		
-		amuledlg->AddLogLine(evt.IsCritical(), evt.Message());
-	} else {
-		QueuedLogLine entry = { evt.Message(), evt.IsCritical() };
-		m_logLines.push_back( entry );
+	if ( reset ) {
+		amuledlg->ResetLog(ID_SERVERINFO);
 	}
-			
-	CamuleApp::AddLogLine( evt.Message() );
+	return CamuleApp::GetServerLog(reset);
+}
+
+
+void CamuleGuiApp::AddServerMessageLine(wxString &msg)
+{
+	amuledlg->AddServerMessageLine(msg);
+	CamuleApp::AddServerMessageLine(msg);
 }
 
 #endif /* CLIENT_GUI */

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Robert Rostek ( tecxx@rrs.at )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Robert Rostek ( tecxx@rrs.at )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -28,6 +28,7 @@
 
 #include <wx/treectrl.h>
 #include <vector>
+#include <map>
 
 #include <common/Path.h>
 
@@ -61,28 +62,37 @@ private:
 	// return the full path of an item (like C:\abc\somewhere\inheaven\)
 	CPath GetFullPath(wxTreeItemId hItem);
 	// check status of an item has changed
-	void CheckChanged(wxTreeItemId hItem, bool bChecked);
+	void CheckChanged(wxTreeItemId hItem, bool bChecked, bool recursed);
 	// returns true if a subdirectory of strDir is shared
 	bool HasSharedSubdirectory(const CPath& path);
 	// set shared directories according to list
 	void UpdateSharedDirectories();
 	// when sharing a directory, make all parent directories red
 	void UpdateParentItems(wxTreeItemId hChild, bool add);
+	// set color red if there's a shared subdirectory
+	void SetHasSharedSubdirectory(wxTreeItemId hItem, bool add);
 
 	// share list access
 	bool IsShared(const CPath& path);
 	void AddShare(const CPath& path);
 	void DelShare(const CPath& path);
-	void MarkChildren(wxTreeItemId hChild, bool mark);
+	void MarkChildren(wxTreeItemId hChild, bool mark, bool recursed);
 	
 	void OnItemExpanding(wxTreeEvent& evt);
 	void OnRButtonDown(wxTreeEvent& evt);
 	void OnItemActivated(wxTreeEvent& evt);
 
-	PathList m_lstShared;
+	typedef std::pair<wxString, CPath> SharedMapItem;
+	typedef std::map<wxString, CPath> SharedMap;
+	SharedMap m_lstShared;
+	// get map key from path (normalized path)
+	wxString GetKey(const CPath& path);
 
 	bool m_IsInit;
+	// Are we running the remote GUI, and from a remote location?
+	bool m_IsRemote;
 	
+	wxTreeItemId m_root;
 	
 	DECLARE_EVENT_TABLE()
 };

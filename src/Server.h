@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -28,13 +28,10 @@
 
 #include "Tag.h"
 #include "OtherStructs.h"
+#include <ec/cpp/ECID.h>	// Needed for CECID
 
 #include <protocol/ed2k/Client2Server/TCP.h> 
 #include <protocol/ed2k/Client2Server/UDP.h> 
-
-#ifdef CLIENT_GUI
-#include <ec/cpp/ECSpecialTags.h>
-#endif
 
 class CFileDataIO;
 
@@ -47,16 +44,14 @@ class CFileDataIO;
 #define SRV_PR_MID			1
 #define SRV_PR_MIN			0
 
-class CServer
+class CServer : public CECID
 {
+friend class CServerListRem;
 public:
 	CServer(ServerMet_Struct* in_data);
 	CServer(uint16 in_port, const wxString i_addr);
 	CServer(CServer* pOld);
-
-#ifdef CLIENT_GUI
-	CServer(CEC_Server_Tag *);
-#endif
+	CServer(class CEC_Server_Tag *);
 
 	~CServer();
 	void		AddTag(CTag* in_tag)	{m_taglist.push_back(in_tag);}

@@ -1,7 +1,7 @@
 #							-*- Autoconf -*-
 # This file is part of the aMule Project.
 #
-# Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+# Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 #
 # Any parts of this program derived from the xMule, lMule or eMule project,
 # or contributed by third-party developers are copyrighted by their
@@ -45,7 +45,7 @@ dnl GENERATE_MANS_TO_INSTALL(TESTNAME, BASENAMEPATH)
 dnl
 dnl This function will generate the list of manpages to be installed.
 dnl
-dnl TESTNAME is the name of a variable that'll evaluate to yes if this
+dnl TESTNAME is the name of a FEATURE selected by MULE_ARG_ENABLE() if this
 dnl set of manpages need installing. The list of files will be returned in
 dnl the TESTNAME_MANPAGES variable.
 dnl
@@ -53,18 +53,20 @@ dnl BASENAMEPATH is the path and basename of the manpages we test for, relative
 dnl to the package root (top_srcdir)
 dnl ---------------------------------------------------------------------------
 AC_DEFUN([GENERATE_MANS_TO_INSTALL],
-[
-	AS_IF([test "$[]$1" = "yes"], [
-		AS_IF([test -z "$LINGUAS"],
-			[$1_MANPAGES=`ls -1 ${srcdir}/$2.* | sed -e 's:.*/::g'`],
-		[
-			$1_MANPAGES=`ls -1 ${srcdir}/$2.* | sed -e 's:.*/::g' | grep $Generate_Langs `
-			$1_MANPAGES="`basename $2.1` $[]$1_MANPAGES"
-		])
-		$1_MANPAGES=`echo $[]$1_MANPAGES | tr -d '\n'`
-	], [$1_MANPAGES=])
+[m4_define([MANPAGES], [m4_translit([$1], [a-z-], [A-Z_])[]_MANPAGES])dnl
 
-AC_SUBST([$1_MANPAGES])dnl
+	MULE_IF_ENABLED([$1], [
+		AS_IF([test -z "$LINGUAS"],
+			[MANPAGES=`ls -1 ${srcdir}/$2.* | sed -e 's:.*/::g'`],
+		[
+			MANPAGES=`ls -1 ${srcdir}/$2.* | sed -e 's:.*/::g' | grep $Generate_Langs`
+			MANPAGES="`basename $2.1` $[]MANPAGES"
+		])
+		MANPAGES=`echo $[]MANPAGES | tr -d '\n'`
+	], [MANPAGES=])
+
+AC_SUBST(MANPAGES)dnl
+m4_undefine([MANPAGES])dnl
 ])
 
 
@@ -78,27 +80,27 @@ AC_DEFUN([MULE_CHECK_NLS],
 	AC_ARG_WITH([language],
 		[AS_HELP_STRING([--with-language=<langs>],
 			[Specify a comma-separated list of languages you want to have installed. See po/LINGUAS for available languages])],
-		[AS_IF([test "$withval" = "all"], [LINGUAS='%UNSET%'], [LINGUAS="`echo $withval | sed -e 's/,/ /g'`"])])
+		[AS_IF([test "$withval" != "all"], [LINGUAS="`echo $withval | sed -e 's/,/ /g'`"])])
 
 	AM_GNU_GETTEXT([no-libtool], [need-ngettext])
 	AS_IF([test $USE_INCLUDED_LIBINTL = yes], [INCINTL=-I\${top_builddir}/intl])
 
 	AS_IF([test x$USE_NLS = xyes], [MULE_CHECK_AUTOPOINT(, [USE_NLS=no])])
-	AS_IF([test x$USE_NLS = xno -a x${enable_nls:-yes} = xyes], [AC_MSG_WARN([You need to install GNU gettext/gettext-tools to compile aMule with i18n support.])])
+	AS_IF([test x$USE_NLS = xno -a x${enable_nls:-yes} = xyes], [MULE_WARNING([You need to install GNU gettext/gettext-tools to compile aMule with i18n support.])])
 
 	AS_IF([test ${USE_NLS:-no} = yes], [
 		AC_MSG_CHECKING([for requested languages])
 		Generate_Langs=`echo $LINGUAS | $AWK ['OFS="\\\\|" { for (i = 1; i <= NF; ++i) $i = "\\\\." $i; print }']`
-		GENERATE_MANS_TO_INSTALL([AMULE_DAEMON], [docs/man/amuled])
-		GENERATE_MANS_TO_INSTALL([AMULECMD], [docs/man/amulecmd])
-		GENERATE_MANS_TO_INSTALL([WEB], [docs/man/amuleweb])
-		GENERATE_MANS_TO_INSTALL([AMULE_GUI], [docs/man/amulegui])
-		GENERATE_MANS_TO_INSTALL([CAS], [src/utils/cas/docs/cas])
-		GENERATE_MANS_TO_INSTALL([WXCAS], [src/utils/wxCas/docs/wxcas])
-		GENERATE_MANS_TO_INSTALL([ED2K], [docs/man/ed2k])
-		GENERATE_MANS_TO_INSTALL([ALC], [src/utils/aLinkCreator/docs/alc])
-		GENERATE_MANS_TO_INSTALL([ALCC], [src/utils/aLinkCreator/docs/alcc])
-		GENERATE_MANS_TO_INSTALL([MONOLITHIC], [docs/man/amule])
+		GENERATE_MANS_TO_INSTALL([amule-daemon], [docs/man/amuled])
+		GENERATE_MANS_TO_INSTALL([amulecmd], [docs/man/amulecmd])
+		GENERATE_MANS_TO_INSTALL([webserver], [docs/man/amuleweb])
+		GENERATE_MANS_TO_INSTALL([amule-gui], [docs/man/amulegui])
+		GENERATE_MANS_TO_INSTALL([cas], [src/utils/cas/docs/cas])
+		GENERATE_MANS_TO_INSTALL([wxcas], [src/utils/wxCas/docs/wxcas])
+		GENERATE_MANS_TO_INSTALL([ed2k], [docs/man/ed2k])
+		GENERATE_MANS_TO_INSTALL([alc], [src/utils/aLinkCreator/docs/alc])
+		GENERATE_MANS_TO_INSTALL([alcc], [src/utils/aLinkCreator/docs/alcc])
+		GENERATE_MANS_TO_INSTALL([monolithic], [docs/man/amule])
 		AC_MSG_RESULT([${LINGUAS:-all}])
 	])
 

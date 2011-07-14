@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2008-2009 Marcelo Roberto Jimenez ( phoenix@amule.org )
-// Copyright (c) 2008-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Marcelo Roberto Jimenez ( phoenix@amule.org )
+// Copyright (c) 2008-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -32,6 +32,8 @@ CTerminationProcessAmuleweb::CTerminationProcessAmuleweb(const wxString &cmd, lo
 CTerminationProcess(cmd),
 m_webserver_pid(webserver_pid)
 {
+	// Don't open a command window on Windows
+	Redirect();
 }
 
 

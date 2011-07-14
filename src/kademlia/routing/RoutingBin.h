@@ -1,9 +1,9 @@
 //								-*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -67,18 +67,19 @@ public:
 	CContact *GetOldest() const throw()		{ return m_entries.size() ? m_entries.front() : NULL; }
 
 	uint32_t  GetSize() const throw()		{ return m_entries.size(); }
-	void	  GetNumContacts(uint32_t& nInOutContacts, uint32_t& nInOutFilteredContacts, uint8_t minVersion) const;
+	void	  GetNumContacts(uint32_t& nInOutContacts, uint32_t& nInOutFilteredContacts, uint8_t minVersion) const throw();
 	uint32_t  GetRemaining() const throw()		{ return K - m_entries.size(); }
 	void	  GetEntries(ContactList *result, bool emptyFirst = true) const;
 	void	  GetClosestTo(uint32_t maxType, const CUInt128 &target, uint32_t maxRequired, ContactMap *result, bool emptyFirst = true, bool setInUse = false) const;
 	bool	  ChangeContactIPAddress(CContact *contact, uint32_t newIP);
 	void	  PushToBottom(CContact *contact); // puts an existing contact from X to the end of the list
-	CContact *GetRandomContact(uint32_t maxType, uint32_t minKadVersion) const throw();
+	CContact *GetRandomContact(uint32_t maxType, uint32_t minKadVersion) const;
 	void	  SetAllContactsVerified();
+	bool	  HasOnlyLANNodes() const throw();
 
 	static bool	CheckGlobalIPLimits(uint32_t ip, uint16_t port);
 
-	bool m_dontDeleteContacts;
+	bool	m_dontDeleteContacts;
 
 protected:
 	static void AdjustGlobalTracking(uint32_t ip, bool increase);

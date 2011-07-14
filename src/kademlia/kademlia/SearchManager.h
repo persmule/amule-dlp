@@ -1,9 +1,9 @@
 //								-*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -80,13 +80,13 @@ public:
 	static void ProcessResult(const CUInt128& target, const CUInt128& answer, TagPtrList *info);
 	static void ProcessPublishResult(const CUInt128& target, const uint8_t load, const bool loadResponse);
 
-	static void GetWords(const wxString& str, WordList *words);
+	static void GetWords(const wxString& str, WordList *words, bool allowDuplicates = false);
 
 	static void UpdateStats() throw();
 
 	static bool AlreadySearchingFor(const CUInt128& target) throw() { return m_searches.count(target) > 0; }
 
-	static const wxChar* GetInvalidKeywordChars() { return wxT(" ()[]{}<>,._-!?:;\\/"); }
+	static const wxChar* GetInvalidKeywordChars() { return wxT(" ()[]{}<>,._-!?:;\\/\""); }
 
 	static void CancelNodeFWCheckUDPSearch();
 	static bool FindNodeFWCheckUDP();

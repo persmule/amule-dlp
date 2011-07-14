@@ -1,9 +1,9 @@
 //								-*- C++ -*-
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal (Kry) ( kry@amule.org )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2003 Barry Dunne (http://www.emule-project.net)
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 Barry Dunne (http://www.emule-project.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -107,7 +107,7 @@ public:
 	bool	GetFindBuddy() throw()				{ return m_findBuddy ? m_findBuddy = false, true : false; }
 	void	SetFindBuddy(bool val = true) throw()		{ m_findBuddy = val; }
 
-	bool	GetUseExternKadPort() const throw()		{ return m_useExternKadPort; }
+	bool	GetUseExternKadPort() const;
 	void	SetUseExternKadPort(bool val) throw()		{ m_useExternKadPort = val; }
 
 	uint16_t GetExternalKadPort() const throw()		{ return m_externKadPort; }
@@ -116,7 +116,7 @@ public:
 	bool	 FindExternKadPort(bool reset = false);
 
 	static uint8_t	GetMyConnectOptions(bool encryption = true, bool callback = true);
-	static uint32_t GetUDPVerifyKey(uint32_t targetIP) throw();
+	static uint32_t GetUDPVerifyKey(uint32_t targetIP);
 
 	// Statistics
 	void	StatsIncUDPFirewalledNodes(bool firewalled) throw()	{ firewalled ? ++m_statsUDPFirewalledNodes : ++m_statsUDPOpenNodes; }
@@ -166,6 +166,13 @@ private:
 };
 
 } // End namespace
+
+#include "Kademlia.h"
+
+inline bool Kademlia::CPrefs::GetUseExternKadPort() const
+{
+	return m_useExternKadPort && !Kademlia::CKademlia::IsRunningInLANMode();
+}
 
 #endif //__PREFS_H__
 // File_checked_for_headers

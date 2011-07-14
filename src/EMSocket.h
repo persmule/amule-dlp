@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -40,7 +40,7 @@ class CPacket;
 #define	ES_CONNECTED		0x01
 
 
-const sint32 PACKET_HEADER_SIZE	= 6;
+const uint32 PACKET_HEADER_SIZE	= 6;
 
 
 class CEMSocket : public CEncryptedStreamSocket, public ThrottledFileSocket
@@ -50,7 +50,6 @@ public:
 	virtual ~CEMSocket();
 	
 	virtual void 	SendPacket(CPacket* packet, bool delpacket = true, bool controlpacket = true, uint32 actualPayloadSize = 0);
-    bool    HasQueues();
 	bool	IsConnected() { return byConnected==ES_CONNECTED;};
 	uint8	GetConState()	{return byConnected;}
 	void	SetDownloadLimit(uint32 limit);
@@ -102,12 +101,11 @@ private:
 	bool	pendingOnReceive;
 
 	// Download partial header
-	// actually, this holds only 'PACKET_HEADER_SIZE-1' bytes.
 	byte	pendingHeader[PACKET_HEADER_SIZE];
 	uint32	pendingHeaderSize;
 
 	// Download partial packet
-	CPacket* pendingPacket;
+	byte*	pendingPacket;
 	uint32  pendingPacketSize;
 
 	// Upload control

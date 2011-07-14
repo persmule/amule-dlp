@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Angel Vidal Veiga ( kry@users.sourceforge.net )
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -146,6 +146,12 @@ protected:
 
 	DECLARE_EVENT_TABLE()
 };
+
+#ifdef __WXMSW__
+	#define MULE_NOTEBOOK_TAB_HEIGHT 26
+#else
+	#define MULE_NOTEBOOK_TAB_HEIGHT 40
+#endif
 
 #endif
 // File_checked_for_headers

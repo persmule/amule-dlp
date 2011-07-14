@@ -1,7 +1,7 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 // Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
@@ -53,10 +53,8 @@ public:
 	~CSharedFilesCtrl();
 
 
-#ifndef CLIENT_GUI
 	/** Reloads the list of shared files. */
 	void	ShowFileList();
-#endif
 
 	/**
 	 * Adds the specified file to the list, updating filecount and more.
@@ -86,6 +84,10 @@ public:
 	 */
 	void	ShowFilesCount();
 	
+protected:
+	/// Return old column order.
+	wxString GetOldColumnOrder() const;
+
 private:
 	/**
 	 * Adds the specified file to the list. 
@@ -161,11 +163,6 @@ private:
 	 * Event-handler for the Create ED2K/Magnet URI items.
 	 */
 	void	OnCreateURI( wxCommandEvent& event );
-	
-	/**
-	 * Event handler for get-razorback stats menu item
-	 */	 
-	void OnGetRazorStats( wxCommandEvent& evt );
 	 
 	/**
 	 * Event-handler for the Edit Comment menu item.

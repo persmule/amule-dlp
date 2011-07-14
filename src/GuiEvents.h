@@ -1,9 +1,9 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2004-2009 Angel Vidal Veiga (kry@users.sourceforge.net)
-// Copyright (c) 2004-2009 Froenchenko Leonid (lfroen@users.sourceforge.net)
+// Copyright (c) 2004-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
+// Copyright (c) 2004-2011 Froenchenko Leonid (lfroen@users.sourceforge.net)
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -27,7 +27,7 @@
 #ifndef GUIEVENTS_H
 #define GUIEVENTS_H
 
-#include <wx/app.h>
+#include <wx/event.h>
 
 #include "Types.h"
 #include "Constants.h"
@@ -38,6 +38,8 @@ class CKnownFile;
 class CSearchFile;
 class CPartFile;
 class CServer;
+class CFriend;
+class CClientRef;
 
 
 DECLARE_LOCAL_EVENT_TYPE(MULE_EVT_NOTIFY, -1)
@@ -84,16 +86,17 @@ namespace MuleNotify
 	void SharedFilesUpdateItem(CKnownFile* file);
 
 	void DownloadCtrlUpdateItem(const void* item);
+	void SourceCtrlUpdateSource(uint32 source, SourceItemType type);
 	void DownloadCtrlAddFile(CPartFile* file);
-	void DownloadCtrlAddSource(CPartFile* owner, CUpDownClient* source, DownloadItemType type);
+	void SourceCtrlAddSource(CPartFile* owner, CClientRef source, SourceItemType type);
 	void DownloadCtrlRemoveFile(CPartFile* file);
-	void DownloadCtrlRemoveSource(const CUpDownClient* source, const CPartFile* owner);
+	void SourceCtrlRemoveSource(uint32 source, const CPartFile* owner);
 	void DownloadCtrlHideSource(CPartFile* file);
 	void DownloadCtrlSort();
 
-	void ClientCtrlAddClient(CUpDownClient* client, ViewType type);
-	void ClientCtrlRefreshClient(CUpDownClient* client, ViewType type);
-	void ClientCtrlRemoveClient(CUpDownClient* client, ViewType type);
+	void SharedCtrlAddClient(CKnownFile* owner, CClientRef client, SourceItemType type);
+	void SharedCtrlRefreshClient(uint32 client, SourceItemType type);
+	void SharedCtrlRemoveClient(uint32 client, const CKnownFile* owner);
 
 	void ServerAdd(CServer* server);
 	void ServerRemove(CServer* server);
@@ -112,13 +115,14 @@ namespace MuleNotify
 	void Search_Update_Sources(CSearchFile* result);
 	void Search_Add_Result(CSearchFile* result);
 
-	void ChatRefreshFriend(uint32 lastUsedIP, uint32 lastUsedPort, wxString name);
+	void ChatUpdateFriend(CFriend* Friend);
+	void ChatRemoveFriend(CFriend* Friend);
 	void ChatConnResult(bool success, uint64 id, wxString message);
 	void ChatProcessMsg(uint64 sender, wxString message);
+	void ChatSendCaptcha(wxString captcha, uint64 to_id);
 	
 	void ShowConnState(long state);
 	void ShowUserCount(wxString str);
-	void ShowQueueCount(uint32 count);
 	void ShowUpdateCatTabTitles();
 	void ShowGUI();
 
@@ -156,7 +160,7 @@ namespace MuleNotify
 
 	void KnownFile_Up_Prio_Set(CKnownFile* file, uint8 val);
 	void KnownFile_Up_Prio_Auto(CKnownFile* file);
-	void KnownFile_Comment_Set(CKnownFile* file, wxString comment);
+	void KnownFile_Comment_Set(CKnownFile* file, wxString comment, int8 rating);
 
 	void Search_Add_Download(CSearchFile* result, uint8 category);
 	void Search_Update_Progress(uint32 value);
@@ -164,6 +168,15 @@ namespace MuleNotify
 	void Download_Set_Cat_Prio(uint8 cat, uint8 newprio);
 	void Download_Set_Cat_Status(uint8 cat, int newstatus);
 
+	void Upload_Resort_Queue();
+
+	void Client_Delete(CClientRef client);
+
+	//
+	// Notifications that always create an event
+	//
+	void IPFilter_Reload();
+	void IPFilter_Update(wxString url);
 
 	////////////////////////////////////////////////////////////
 	// Notification utilities
@@ -391,6 +404,28 @@ namespace MuleNotify
 		HandleNotification(CMuleNotifier3<A1A, A2A, A3A>(func, arg1, arg2, arg3));
 	}
 	//@}
+
+	/**
+	 * The same as above, but these functions will always send an event,
+	 * even from the main thread.
+	 */
+	void HandleNotificationAlways(const CMuleNotiferBase& ntf);
+	
+	inline void DoNotifyAlways(void (*func)()) {
+		HandleNotificationAlways(CMuleNotifier0(func));
+	}
+	template <typename A1A, typename A1B>
+	inline void DoNotifyAlways(void (*func)(A1A), A1B arg1) {
+		HandleNotificationAlways(CMuleNotifier1<A1A>(func, arg1));
+	}
+	template <typename A1A, typename A1B, typename A2A, typename A2B>
+	inline void DoNotifyAlways(void (*func)(A1A, A2A), A1B arg1, A2B arg2) {
+		HandleNotificationAlways(CMuleNotifier2<A1A, A2A>(func, arg1, arg2));
+	}
+	template <typename A1A, typename A1B, typename A2A, typename A2B, typename A3A, typename A3B>
+	inline void DoNotifyAlways(void (*func)(A1A, A2A, A3A), A1B arg1, A2B arg2, A3B arg3) {
+		HandleNotificationAlways(CMuleNotifier3<A1A, A2A, A3A>(func, arg1, arg2, arg3));
+	}
 }
 
 
@@ -420,26 +455,18 @@ typedef void (wxEvtHandler::*MuleNotifyEventFunction)(CMuleGUIEvent&);
 // download ctrl
 #define Notify_DownloadCtrlUpdateItem(ptr)		MuleNotify::DoNotify(&MuleNotify::DownloadCtrlUpdateItem, ptr)
 #define Notify_DownloadCtrlAddFile(file)		MuleNotify::DoNotify(&MuleNotify::DownloadCtrlAddFile, file)
-#define Notify_DownloadCtrlAddSource(p0, p1, val)	MuleNotify::DoNotify(&MuleNotify::DownloadCtrlAddSource, p0, p1, val)
 #define Notify_DownloadCtrlRemoveFile(file)		MuleNotify::DoNotify(&MuleNotify::DownloadCtrlRemoveFile, file)
-#define Notify_DownloadCtrlRemoveSource(ptr0, ptr1)	MuleNotify::DoNotify(&MuleNotify::DownloadCtrlRemoveSource, ptr0, ptr1)
-#define Notify_DownloadCtrlHideSource(ptr)		MuleNotify::DoNotify(&MuleNotify::DownloadCtrlHideSource, ptr)
 #define Notify_DownloadCtrlSort()			MuleNotify::DoNotify(&MuleNotify::DownloadCtrlSort)
 
+// source ctrl
+#define Notify_SourceCtrlUpdateSource(ptr, val)		MuleNotify::DoNotify(&MuleNotify::SourceCtrlUpdateSource, ptr, val)
+#define Notify_SourceCtrlAddSource(p0, p1, val)	MuleNotify::DoNotify(&MuleNotify::SourceCtrlAddSource, p0, p1, val)
+#define Notify_SourceCtrlRemoveSource(ptr0, ptr1)	MuleNotify::DoNotify(&MuleNotify::SourceCtrlRemoveSource, ptr0, ptr1)
+
 // upload ctrl
-#define Notify_UploadCtrlAddClient(ptr)			MuleNotify::DoNotify(&MuleNotify::ClientCtrlAddClient, ptr, vtUploading)
-#define Notify_UploadCtrlRefreshClient(ptr)		MuleNotify::DoNotify(&MuleNotify::ClientCtrlRefreshClient, ptr, vtUploading)
-#define Notify_UploadCtrlRemoveClient(ptr)		MuleNotify::DoNotify(&MuleNotify::ClientCtrlRemoveClient, ptr, vtUploading)
-
-// client ctrl
-#define Notify_ClientCtrlAddClient(ptr)			MuleNotify::DoNotify(&MuleNotify::ClientCtrlAddClient, ptr, vtClients)
-#define Notify_ClientCtrlRefreshClient(ptr)		MuleNotify::DoNotify(&MuleNotify::ClientCtrlRefreshClient, ptr, vtClients)
-#define Notify_ClientCtrlRemoveClient(ptr)		MuleNotify::DoNotify(&MuleNotify::ClientCtrlRemoveClient, ptr, vtClients)
-
-// queue list
-#define Notify_QlistAddClient(ptr)			MuleNotify::DoNotify(&MuleNotify::ClientCtrlAddClient, ptr, vtQueued)
-#define Notify_QlistRefreshClient(ptr)			MuleNotify::DoNotify(&MuleNotify::ClientCtrlRefreshClient, ptr, vtQueued)
-#define Notify_QlistRemoveClient(ptr)			MuleNotify::DoNotify(&MuleNotify::ClientCtrlRemoveClient, ptr, vtQueued)
+#define Notify_SharedCtrlAddClient(p0, p1, val)			MuleNotify::DoNotify(&MuleNotify::SharedCtrlAddClient, p0, p1, val)
+#define Notify_SharedCtrlRefreshClient(ptr, val)		MuleNotify::DoNotify(&MuleNotify::SharedCtrlRefreshClient, ptr, val)
+#define Notify_SharedCtrlRemoveClient(p0, p1)		MuleNotify::DoNotify(&MuleNotify::SharedCtrlRemoveClient, p0, p1)
 
 // server
 #define Notify_ServerAdd(ptr)				MuleNotify::DoNotify(&MuleNotify::ServerAdd, ptr)
@@ -461,14 +488,15 @@ typedef void (wxEvtHandler::*MuleNotifyEventFunction)(CMuleGUIEvent&);
 #define Notify_Search_Add_Result(s)			MuleNotify::DoNotify(&MuleNotify::Search_Add_Result, s)
 
 // chat
-#define Notify_ChatRefreshFriend(val0, val1, s)		MuleNotify::DoNotify(&MuleNotify::ChatRefreshFriend, val0, val1, s)
+#define Notify_ChatUpdateFriend(ptr)			MuleNotify::DoNotify(&MuleNotify::ChatUpdateFriend, ptr)
+#define Notify_ChatRemoveFriend(ptr)			MuleNotify::DoNotify(&MuleNotify::ChatRemoveFriend, ptr)
 #define Notify_ChatConnResult(val0, val1, s)		MuleNotify::DoNotify(&MuleNotify::ChatConnResult, val0, val1, s)
 #define Notify_ChatProcessMsg(val0, s)			MuleNotify::DoNotify(&MuleNotify::ChatProcessMsg, val0, s)
+#define Notify_ChatSendCaptcha(val0, s)			MuleNotify::DoNotify(&MuleNotify::ChatSendCaptcha, val0, s)
 
 // misc
 #define Notify_ShowConnState(val)			MuleNotify::DoNotify(&MuleNotify::ShowConnState, val)
 #define Notify_ShowUserCount(str)			MuleNotify::DoNotify(&MuleNotify::ShowUserCount, str)
-#define Notify_ShowQueueCount(val)			MuleNotify::DoNotify(&MuleNotify::ShowQueueCount, val)
 #define Notify_ShowUpdateCatTabTitles()			MuleNotify::DoNotify(&MuleNotify::ShowUpdateCatTabTitles)
 #define Notify_ShowGUI()				MuleNotify::DoNotify(&MuleNotify::ShowGUI)
 
@@ -511,7 +539,7 @@ typedef void (wxEvtHandler::*MuleNotifyEventFunction)(CMuleGUIEvent&);
 // KnownFile
 #define CoreNotify_KnownFile_Up_Prio_Set(ptr, val)	MuleNotify::DoNotify(&MuleNotify::KnownFile_Up_Prio_Set, ptr, val)
 #define CoreNotify_KnownFile_Up_Prio_Auto(ptr)		MuleNotify::DoNotify(&MuleNotify::KnownFile_Up_Prio_Auto, ptr)
-#define CoreNotify_KnownFile_Comment_Set(ptr, val)	MuleNotify::DoNotify(&MuleNotify::KnownFile_Comment_Set, ptr, val)
+#define CoreNotify_KnownFile_Comment_Set(ptr, v0, v1)	MuleNotify::DoNotify(&MuleNotify::KnownFile_Comment_Set, ptr, v0, v1)
 
 // Search
 #define CoreNotify_Search_Add_Download(ptr, val)	MuleNotify::DoNotify(&MuleNotify::Search_Add_Download, ptr, val)
@@ -520,6 +548,20 @@ typedef void (wxEvtHandler::*MuleNotifyEventFunction)(CMuleGUIEvent&);
 // download queue
 #define CoreNotify_Download_Set_Cat_Prio(cat, pri)	MuleNotify::DoNotify(&MuleNotify::Download_Set_Cat_Prio, cat, pri)
 #define CoreNotify_Download_Set_Cat_Status(cat, st)	MuleNotify::DoNotify(&MuleNotify::Download_Set_Cat_Status, cat, st)
+
+// upload queue
+#define CoreNotify_Upload_Resort_Queue()			MuleNotify::DoNotify(&MuleNotify::Upload_Resort_Queue)
+
+// client
+#define CoreNotify_Client_Delete(client)			MuleNotify::DoNotify(&MuleNotify::Client_Delete, client)
+
+//
+// Notifications that always create an event
+//
+
+// IP filter
+#define NotifyAlways_IPFilter_Reload()			MuleNotify::DoNotifyAlways(&MuleNotify::IPFilter_Reload)
+#define NotifyAlways_IPFilter_Update(url)		MuleNotify::DoNotifyAlways(&MuleNotify::IPFilter_Update, url)
 
 #endif // __GUIEVENTS_H__
 

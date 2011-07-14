@@ -18,6 +18,7 @@ EXTRA_DIST = \
 	Parser.y \
 	Scanner.h.in \
 	Scanner.l \
+	IPFilterScanner.l \
 	muuli.wdr 
 
 bin_PROGRAMS = 
@@ -61,19 +62,21 @@ endif
 
 libmuleappcommon_a_SOURCES = \
 	CFile.cpp \
-	DataToText.cpp \
+	ClientCredits.cpp \
 	ED2KLink.cpp \
+	Friend.cpp \
+	GapList.cpp \
 	MagnetURI.cpp \
 	MemFile.cpp \
 	NetworkFunctions.cpp \
+	OtherFunctions.cpp \
 	Packet.cpp \
 	RLE.cpp \
 	SafeFile.cpp \
 	SHA.cpp \
 	Tag.cpp \
-	Timer.cpp \
-	RandomFunctions.cpp \
-	kademlia/utils/UInt128.cpp
+	TerminationProcess.cpp \
+	Timer.cpp
 
 libmuleappcommon_a_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) -I$(srcdir)/libs -I$(srcdir)/include $(CRYPTOPP_CPPFLAGS) $(LIBUPNP_CPPFLAGS)
 
@@ -83,14 +86,22 @@ libmuleappcommon_a_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) -I$(srcdir)/libs
 libmuleappcore_a_SOURCES = \
 	AsyncDNS.cpp \
 	DeadSourceList.cpp \
+	FileArea.cpp \
+	FileAutoClose.cpp \
+	IPFilterScanner.cpp \
 	Scanner.cpp \
 	Parser.cpp \
 	PlatformSpecific.cpp \
+	RandomFunctions.cpp \
+	RC4Encrypt.cpp \
+	StateMachine.cpp \
+	TerminationProcessAmuleweb.cpp \
+	ThreadScheduler.cpp \
+	UPnPBase.cpp \
 	kademlia/kademlia/Entry.cpp \
 	kademlia/kademlia/SearchManager.cpp \
 	kademlia/routing/RoutingBin.cpp \
-	StateMachine.cpp \
-	ThreadScheduler.cpp
+	kademlia/utils/UInt128.cpp
 
 libmuleappcore_a_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) -I$(srcdir)/libs -I$(srcdir)/include $(CRYPTOPP_CPPFLAGS) $(LIBUPNP_CPPFLAGS)
 
@@ -99,14 +110,12 @@ libmuleappcore_a_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) -I$(srcdir)/libs -
 
 libmuleappgui_a_SOURCES = \
 	BarShader.cpp \
-	ChatWnd.cpp \
 	ColorFrameCtrl.cpp \
-	CommentDialog.cpp \
-	CommentDialogLst.cpp \
-	DirectoryTreeCtrl.cpp \
 	EditServerListDlg.cpp \
 	extern/wxWidgets/listctrl.cpp \
 	FileDetailListCtrl.cpp \
+	IP2Country.cpp \
+	MuleColour.cpp \
 	MuleGifCtrl.cpp \
 	MuleListCtrl.cpp \
 	MuleNotebook.cpp \
@@ -117,13 +126,14 @@ libmuleappgui_a_SOURCES = \
 libmuleappgui_a_CPPFLAGS = $(AM_CPPFLAGS) $(WX_CPPFLAGS) -I$(srcdir)/libs -I$(srcdir)/include $(LIBUPNP_CPPFLAGS) $(GEOIP_CPPFLAGS)
 
 core_sources = \
-	RC4Encrypt.cpp \
 	amule.cpp \
 	BaseClient.cpp \
+	CanceledFileList.cpp \
 	ClientList.cpp \
 	ClientCreditsList.cpp \
 	ClientTCPSocket.cpp \
 	ClientUDPSocket.cpp \
+	CorruptionBlackBox.cpp \
 	DownloadClient.cpp \
 	DownloadQueue.cpp \
 	ECSpecialCoreTags.cpp \
@@ -131,20 +141,18 @@ core_sources = \
 	EncryptedStreamSocket.cpp \
 	EncryptedDatagramSocket.cpp \
 	ExternalConn.cpp \
-	Friend.cpp \
 	FriendList.cpp \
-	HTTPDownload.cpp \
 	IPFilter.cpp \
 	KnownFileList.cpp \
 	ListenSocket.cpp \
 	MuleUDPSocket.cpp \
-	PartFileConvert.cpp \
 	SearchFile.cpp \
 	SearchList.cpp \
 	ServerConnect.cpp \
 	ServerList.cpp \
 	ServerSocket.cpp \
 	ServerUDPSocket.cpp \
+	SHAHashSet.cpp \
 	SharedFileList.cpp \
 	ThreadTasks.cpp \
 	UploadBandwidthThrottler.cpp \
@@ -160,11 +168,6 @@ core_sources = \
 	kademlia/routing/Contact.cpp \
 	kademlia/routing/RoutingZone.cpp
 
-if ENABLE_UPNP
-core_sources += \
-	UPnPBase.cpp \
-	UPnPCompatibility.cpp
-endif
 
 #Dynamic Leecher Protection - Bill Lee
 if ENABLE_DLP
@@ -179,11 +182,15 @@ gui_sources = \
 	AddFriend.cpp \
 	CatDialog.cpp \
 	ChatSelector.cpp \
+	ChatWnd.cpp \
+	CommentDialog.cpp \
+	CommentDialogLst.cpp \
+	GenericClientListCtrl.cpp \
 	ClientDetailDialog.cpp \
+	DirectoryTreeCtrl.cpp \
 	FileDetailDialog.cpp \
 	KadDlg.cpp \
 	OScopeCtrl.cpp \
-	PartFileConvertDlg.cpp \
 	PrefsUnifiedDlg.cpp \
 	SearchDlg.cpp \
 	ServerWnd.cpp \
@@ -191,29 +198,24 @@ gui_sources = \
 	StatisticsDlg.cpp \
 	SearchListCtrl.cpp \
 	DownloadListCtrl.cpp \
-	ClientListCtrl.cpp \
+	SourceListCtrl.cpp \
+	SharedFilePeersListCtrl.cpp \
 	FriendListCtrl.cpp \
 	ServerListCtrl.cpp \
 	SharedFilesCtrl.cpp \
 	MuleTrayIcon.cpp \
 	TransferWnd.cpp 
 
-if ENABLE_IP2COUNTRY
-gui_sources += \
-	IP2Country.cpp
-endif
-
-
-remote_common_sources = \
-	OtherFunctions.cpp \
-	NetworkFunctions.cpp 
 
 common_sources = \
-	ClientCredits.cpp \
+	amuleAppCommon.cpp \
+	ClientRef.cpp \
+	DataToText.cpp \
 	ECSpecialMuleTags.cpp \
 	KnownFile.cpp \
 	GetTickCount.cpp \
 	GuiEvents.cpp \
+	HTTPDownload.cpp \
 	Logger.cpp \
 	PartFile.cpp \
 	Preferences.cpp \
@@ -221,16 +223,12 @@ common_sources = \
 	Server.cpp \
 	Statistics.cpp \
 	StatTree.cpp \
-	SHAHashSet.cpp \
-	TerminationProcess.cpp \
-	TerminationProcessAmuleweb.cpp \
-	UserEvents.cpp \
-	$(remote_common_sources)
+	UserEvents.cpp
 
 # Libs
 
 core_libs = -L. -lmuleappcore $(LIBUPNP_LDFLAGS) $(LIBUPNP_LIBS)
-gui_libs = -L. -lmuleappgui $(X11LIBS) $(WX_LIBS) $(GEOIP_LDFLAGS) $(GEOIP_LIBS)
+gui_libs = -L. -lmuleappgui $(WX_LIBS) $(GEOIP_LDFLAGS) $(GEOIP_LIBS)
 remote_common_libs = -Llibs/common -Llibs/ec/cpp -lmulecommon -lec $(BFD_LIBS) $(ZLIB_LDFLAGS) $(ZLIB_LIBS) $(RESOLV_LIB)
 common_libs = -L. -lmuleappcommon $(remote_common_libs) $(CRYPTOPP_LDFLAGS) $(CRYPTOPP_LIBS)
 
@@ -259,6 +257,10 @@ amulegui_SOURCES = \
 	$(common_sources)
 
 amule_SOURCES = \
+	CaptchaDialog.cpp \
+	CaptchaGenerator.cpp \
+	PartFileConvert.cpp \
+	PartFileConvertDlg.cpp \
 	$(core_sources) \
 	$(gui_sources) \
 	$(ec_sources) \
@@ -266,7 +268,6 @@ amule_SOURCES = \
 
 amuled_SOURCES = \
 	amuled.cpp \
-	Timer.cpp \
 	$(core_sources) \
 	$(ec_sources) \
 	$(common_sources)
@@ -277,7 +278,7 @@ amule_CXXFLAGS = $(AM_CXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CPPFLAGS_ONLY)
 amule_LDADD = $(common_libs) $(core_libs) $(gui_libs)
 
 amulegui_DEPENDENCIES = $(common_deps) $(gui_deps)
-amulegui_CPPFLAGS = $(AM_CPPFLAGS) $(gui_flags) $(common_flags) -DCLIENT_GUI -DEC_REMOTE
+amulegui_CPPFLAGS = $(AM_CPPFLAGS) $(gui_flags) $(common_flags) -DCLIENT_GUI
 amulegui_CXXFLAGS = $(AM_CXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
 amulegui_LDADD = $(gui_libs) $(common_libs) $(WXBASE_LIBS)
 
@@ -305,10 +306,12 @@ endif
 amulecmd_SOURCES = \
 	TextClient.cpp \
 	ExternalConnector.cpp \
-	$(remote_common_sources)
+	LoggerConsole.cpp \
+	OtherFunctions.cpp \
+	NetworkFunctions.cpp 
 
 amulecmd_DEPENDENCIES = $(remote_common_deps)
-amulecmd_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) $(common_flags) -DEC_REMOTE -DECSOCKET_USE_EVENTS=0
+amulecmd_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) $(common_flags)
 amulecmd_CXXFLAGS = $(AM_CXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
 #amulecmd_LDADD = $(WXBASE_LIBS) $(READLINE_LIBS) $(remote_common_libs)
 amulecmd_LDADD = -Llibs/common -Llibs/ec/cpp -lmulecommon -lec \
@@ -323,6 +326,10 @@ noinst_HEADERS = \
 		amuleIPV4Address.h \
 		ArchSpecific.h \
 		BarShader.h \
+		BitVector.h \
+		CanceledFileList.h \
+		CaptchaDialog.h \
+		CaptchaGenerator.h \
 		CatDialog.h \
 		CFile.h \
 		ChatSelector.h \
@@ -330,15 +337,16 @@ noinst_HEADERS = \
 		ClientCredits.h \
 		ClientCreditsList.h \
 		ClientDetailDialog.h \
-		ClientListCtrl.h \
+		SharedFilePeersListCtrl.h \
 		ClientList.h \
+		ClientRef.h \
 		ClientTCPSocket.h \
 		ClientUDPSocket.h \
 		ColorFrameCtrl.h \
-		Color.h \
 		CommentDialog.h \
 		CommentDialogLst.h \
 		Constants.h \
+		CorruptionBlackBox.h \
 		CryptoPP_Inc.h \
 		DataToText.h \
 		DeadSourceList.h \
@@ -352,19 +360,24 @@ noinst_HEADERS = \
 		EncryptedStreamSocket.h \
 		ExternalConnector.h \
 		ExternalConn.h \
+		FileArea.h \
+		FileAutoClose.h \
 		FileDetailDialog.h \
 		FileDetailListCtrl.h \
 		FileLock.h \
 		Friend.h \
 		FriendListCtrl.h \
 		FriendList.h \
+		GapList.h \
 		GetTickCount.h \
+		GenericClientListCtrl.h \
 		GuiEvents.h \
 		HTTPDownload.h \
 		inetdownload.h \
 		InternalEvents.h \
 		IP2Country.h \
 		IPFilter.h \
+		IPFilterScanner.h \
 		KadDlg.h \
 		KnownFile.h \
 		KnownFileList.h \
@@ -374,6 +387,7 @@ noinst_HEADERS = \
 		MD4Hash.h \
 		MemFile.h \
 		MuleCollection.h \
+		MuleColour.h \
 		MuleGifCtrl.h \
 		MuleListCtrl.h \
 		MuleNotebook.h \
@@ -421,6 +435,7 @@ noinst_HEADERS = \
 		SharedFileList.h \
 		SharedFilesCtrl.h \
 		SharedFilesWnd.h \
+		SourceListCtrl.h \
 		StateMachine.h \
 		StatisticsDlg.h \
 		Statistics.h \
@@ -436,6 +451,7 @@ noinst_HEADERS = \
 		TransferWnd.h \
 		Types.h \
 		updownclient.h \
+		UpDownClientEC.h \
 		UploadBandwidthThrottler.h \
 		UploadQueue.h \
 		UPnPBase.h \
@@ -453,9 +469,12 @@ $(srcdir)/Scanner.cpp: Scanner.l Parser.cpp
 		$(LEX) --header-file=$(srcdir)/Scanner.h -o $@ $(srcdir)/Scanner.l
 else
 $(srcdir)/Scanner.cpp: Scanner.l Parser.cpp
-		$(LEX) -o$@ $(srcdir)/Scanner.l; \
+		$(LEX) -o $@ $(srcdir)/Scanner.l; \
 		echo "// Empty file generated by a flex version unable to create headers" > $(srcdir)/Scanner.h
 endif
+
+$(srcdir)/IPFilterScanner.cpp: IPFilterScanner.l
+		$(LEX) -Pyyip -o $@ $(srcdir)/IPFilterScanner.l;
 
 # Resources
 
@@ -522,6 +541,6 @@ CLEANFILES = *-version.rc
 endif
 
 
-EXTRA__DIST__SUBDIRS = include kademlia remote-gui.net
+EXTRA__DIST__SUBDIRS = include kademlia
 include $(top_srcdir)/automake/dist-hook.am
 

@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2006-2009 Mikkel Schubert ( xaignar@users.sourceforge.net )
-// Copyright (c) 2006-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2006-2011 Mikkel Schubert ( xaignar@users.sourceforge.net )
+// Copyright (c) 2006-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -62,8 +62,8 @@ public:
    	{
 		hd = CreateFileA((file + "_lock").c_str(),
 			GENERIC_READ | GENERIC_WRITE, 
-			0,       // share - not shareable
-			NULL,    // security - not inheritable
+			FILE_SHARE_READ | FILE_SHARE_WRITE,		// share - shareable
+			NULL,									// security - not inheritable
 			CREATE_ALWAYS,
 			FILE_ATTRIBUTE_ARCHIVE, 
 			NULL);
@@ -153,7 +153,7 @@ private:
 		while (true) {
 			if (fcntl(m_fd, F_SETLKW, &lock) == 0) {
 				return true;
-			} else if ((errno != EACCES) and (errno != EAGAIN) and (errno != EINTR)) {
+			} else if ((errno != EACCES) && (errno != EAGAIN) && (errno != EINTR)) {
 				// Not an error we can recover from.
 				break;
 			}

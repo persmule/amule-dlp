@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2003-2009 aMule Team ( admin@amule.org / http://www.amule.org )
-// Copyright (c) 2002 Merkur ( devs@emule-project.net / http://www.emule-project.net )
+// Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2002-2011 Merkur ( devs@emule-project.net / http://www.emule-project.net )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -26,7 +26,6 @@
 #include "muuli_wdr.h"		// Needed for ID_CLOSEWNDFD
 #include "FileDetailListCtrl.h"	// Interface declarations
 
-#define LVCFMT_LEFT wxLIST_FORMAT_LEFT
 #define wxLIST_STATE_DESELECTED 0x0000
 
 BEGIN_EVENT_TABLE(CFileDetailListCtrl, CMuleListCtrl)
@@ -40,8 +39,8 @@ CFileDetailListCtrl::CFileDetailListCtrl(wxWindow * &parent, int id, const wxPoi
 	SetSortFunc(SortProc);
 	
 	// Initial sorting: Sources descending
-	InsertColumn(0, _("File Name"), LVCFMT_LEFT, 370);
-	InsertColumn(1, _("Sources"), LVCFMT_LEFT, 70);
+	InsertColumn(0, _("File Name"), wxLIST_FORMAT_LEFT, 370);
+	InsertColumn(1, _("Sources"), wxLIST_FORMAT_LEFT, 70);
 	
 	SetSorting(1, CMuleListCtrl::SORT_DES);
 
@@ -68,18 +67,15 @@ void CFileDetailListCtrl::OnSelect(wxListEvent& event)
 {
 	// Damn wxLC_SINGLE_SEL does not work! So we have to care for single selection ourselfs:
 	long realpos = event.m_itemIndex;
-	long pos=-1;
-	for(;;) {
+	long pos = -1;
+	do {
 		// Loop through all selected items
-		pos=GetNextItem(pos,wxLIST_NEXT_ALL,wxLIST_STATE_SELECTED);
-		if(pos==-1) {
-			// No more selected items left
-			break;
-		} else if (pos != realpos) {
+		pos = GetNextItem(pos, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+		if (pos != realpos && pos != -1) {
 			// Deselect all items except the one we have just clicked
 			SetItemState(pos, wxLIST_STATE_DESELECTED, wxLIST_STATE_SELECTED);
 		}
-	}
+	} while (pos != -1);
 
 	event.Skip();
 }

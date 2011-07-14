@@ -1,8 +1,8 @@
 //
 // This file is part of the aMule Project.
 //
-// Copyright (c) 2004-2009 Marcelo Roberto Jimenez ( phoenix@amule.org )
-// Copyright (c) 2006-2009 aMule Team ( admin@amule.org / http://www.amule.org )
+// Copyright (c) 2004-2011 Marcelo Roberto Jimenez ( phoenix@amule.org )
+// Copyright (c) 2006-2011 aMule Team ( admin@amule.org / http://www.amule.org )
 //
 // Any parts of this program derived from the xMule, lMule or eMule project,
 // or contributed by third-party developers are copyrighted by their
@@ -22,6 +22,12 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
+
+#ifdef HAVE_CONFIG_H
+#	include "config.h"		// Needed for ENABLE_UPNP
+#endif
+
+#ifdef ENABLE_UPNP
 
 #define UPNP_C
 
@@ -136,14 +142,14 @@ std::string CUPnPLib::processUPnPErrorMessage(
 				errorString <<
 				"'.";
 		}
-		AddLogLineM(false, logUPnP, msg);
+		AddLogLineU(false, logUPnP, msg);
 	} else {
 		msg << "Error: " <<
 			messsage <<
 			": UPnP SDK error: " <<
 			GetUPnPErrorMessage(errorCode) << 
 			" (" << errorCode << ").";
-		AddLogLineM(false, logUPnP, msg);
+		AddLogLineU(false, logUPnP, msg);
 	}
 	
 	return msg.str();
@@ -171,7 +177,7 @@ void CUPnPLib::ProcessActionResponse(
 		msg << "\n    Empty response for action '" <<
 			actionName << "'.";
 	}
-	AddDebugLogLineM(false, logUPnP, msg);
+	AddDebugLogLineN(logUPnP, msg);
 }
 
 
@@ -355,7 +361,7 @@ m_relatedStateVariable(upnpLib.Element_GetChildValueByTag(argument, "relatedStat
 		"\n        direction: "            << m_direction <<
 		"\n        retval: "               << m_retval <<
 		"\n        relatedStateVariable: " << m_relatedStateVariable;
-	AddDebugLogLineM(false, logUPnP, msg);
+	AddDebugLogLineN(logUPnP, msg);
 }
 
 
@@ -372,7 +378,7 @@ m_name(upnpLib.Element_GetChildValueByTag(action, "name"))
 	std::ostringstream msg;
 	msg <<	"\n    Action:"    <<
 		"\n        name: " << m_name;
-	AddDebugLogLineM(false, logUPnP, msg);
+	AddDebugLogLineN(logUPnP, msg);
 }
 
 
@@ -388,7 +394,7 @@ m_allowedValue(upnpLib.Element_GetTextValue(allowedValue))
 	std::ostringstream msg;
 	msg <<	"\n    AllowedValue:"      <<
 		"\n        allowedValue: " << m_allowedValue;
-	AddDebugLogLineM(false, logUPnP, msg);
+	AddDebugLogLineN(logUPnP, msg);
 }
 
 
@@ -411,7 +417,7 @@ m_sendEvents  (upnpLib.Element_GetAttributeByTag (stateVariable, "sendEvents"))
 		"\n        dataType: "     << m_dataType <<
 		"\n        defaultValue: " << m_defaultValue <<
 		"\n        sendEvents: "   << m_sendEvents;
-	AddDebugLogLineM(false, logUPnP, msg);
+	AddDebugLogLineN(logUPnP, msg);
 }
 
 
@@ -475,7 +481,7 @@ m_SCPD(NULL)
 		msg << "Error generating scpdURL from " <<
 			"|" << URLBase << "|" <<
 			m_SCPDURL << "|.";
-		AddDebugLogLineM(false, logUPnP, msg);
+		AddDebugLogLineN(logUPnP, msg);
 	} else {
 		m_absSCPDURL = scpdURL;
 	}
@@ -491,7 +497,7 @@ m_SCPD(NULL)
 		msg << "Error generating controlURL from " <<
 			"|" << URLBase << "|" <<
 			m_controlURL << "|.";
-		AddDebugLogLineM(false, logUPnP, msg);
+		AddDebugLogLineN(logUPnP, msg);
 	} else {
 		m_absControlURL = controlURL;
 	}
@@ -507,7 +513,7 @@ m_SCPD(NULL)
 		msg << "Error generating eventURL from " <<
 			"|" << URLBase << "|" <<
 			m_eventSubURL << "|.";
-		AddDebugLogLineM(false, logUPnP, msg);
+		AddDebugLogLineN(logUPnP, msg);
 	} else {
 		m_absEventSubURL = eventURL;
 	}
@@ -521,7 +527,7 @@ m_SCPD(NULL)
 		"\n        absControlURL: "  << m_absControlURL <<
 		"\n        eventSubURL: "    << m_eventSubURL <<
 		"\n        absEventSubURL: " << m_absEventSubURL;
-	AddDebugLogLineM(false, logUPnP, msg);
+	AddDebugLogLineN(logUPnP, msg);
 
 	if (m_serviceType == upnpLib.UPNP_SERVICE_WAN_IP_CONNECTION ||
 	    m_serviceType == upnpLib.UPNP_SERVICE_WAN_PPP_CONNECTION) {
@@ -542,7 +548,7 @@ m_SCPD(NULL)
 			msg.str("");
 			msg << "WAN Service Detected: '" <<
 				m_serviceType << "'.";
-			AddDebugLogLineM(true, logUPnP, msg);
+			AddDebugLogLineC(logUPnP, msg);
 			// Subscribe
 			upnpLib.m_ctrlPoint.Subscribe(*this);
 #if 0
@@ -552,14 +558,14 @@ m_SCPD(NULL)
 			msg << "WAN service detected again: '" <<
 				m_serviceType <<
 				"'. Will only use the first instance.";
-			AddDebugLogLineM(true, logUPnP, msg);
+			AddDebugLogLineC(logUPnP, msg);
 		}
 #endif
 	} else {
 		msg.str("");
 		msg << "Uninteresting service detected: '" <<
 			m_serviceType << "'. Ignoring.";
-		AddDebugLogLineM(true, logUPnP, msg);
+		AddDebugLogLineC(logUPnP, msg);
 	}
 }
 
@@ -577,7 +583,7 @@ bool CUPnPService::Execute(
 	if (m_SCPD.get() == NULL) {
 		msg << "Service without SCPD Document, cannot execute action '" << ActionName <<
 			"' for service '" << GetServiceType() << "'.";
-		AddDebugLogLineM(false, logUPnP, msg);
+		AddDebugLogLineN(logUPnP, msg);
 		return false;
 	}
 	std::ostringstream msgAction("Sending action ");
@@ -587,7 +593,7 @@ bool CUPnPService::Execute(
 	if (itAction == m_SCPD->GetActionList().end()) {
 		msg << "Invalid action name '" << ActionName <<
 			"' for service '" << GetServiceType() << "'.";
-		AddDebugLogLineM(false, logUPnP, msg);
+		AddDebugLogLineN(logUPnP, msg);
 		return false;
 	}
 	msgAction << ActionName << "(";
@@ -601,7 +607,7 @@ bool CUPnPService::Execute(
 			msg << "Invalid argument name '" << ArgValue[i].GetArgument() <<
 				"' for action '" << action.GetName() <<
 				"' for service '" << GetServiceType() << "'.";
-			AddDebugLogLineM(false, logUPnP, msg);
+			AddDebugLogLineN(logUPnP, msg);
 			return false;
 		}
 		const CUPnPArgument &argument = *(itArg->second);
@@ -611,7 +617,7 @@ bool CUPnPService::Execute(
 				ArgValue[i].GetArgument() <<
 				"' for action '" << action.GetName() <<
 				"' for service '" << GetServiceType() << "'.";
-			AddDebugLogLineM(false, logUPnP, msg);
+			AddDebugLogLineN(logUPnP, msg);
 			return false;
 		}
 		const std::string relatedStateVariableName =
@@ -626,7 +632,7 @@ bool CUPnPService::Execute(
 					"' for argument '" << argument.GetName() <<
 					"' for action '" << action.GetName() <<
 					"' for service '" << GetServiceType() << "'.";
-				AddDebugLogLineM(false, logUPnP, msg);
+				AddDebugLogLineN(logUPnP, msg);
 				return false;
 			}
 			const CUPnPStateVariable &stateVariable = *(itSVT->second);
@@ -638,7 +644,7 @@ bool CUPnPService::Execute(
 					"' for argument '" << argument.GetName() <<
 					"' for action '" << action.GetName() <<
 					"' for service '" << GetServiceType() << "'.";
-				AddDebugLogLineM(false, logUPnP, msg);
+				AddDebugLogLineN(logUPnP, msg);
 				return false;
 			}
 		}
@@ -654,7 +660,7 @@ bool CUPnPService::Execute(
 			"'";
 	}
 	msgAction << ")";		
-	AddDebugLogLineM(false, logUPnP, msgAction);
+	AddDebugLogLineN(logUPnP, msgAction);
 	// Everything is ok, make the action
 	IXML_Document *ActionDoc = NULL;
 	if (ArgValue.size()) {
@@ -678,7 +684,7 @@ bool CUPnPService::Execute(
 			0, NULL);
 		if (!ActionDoc) {
 			msg << "Error: UpnpMakeAction returned NULL.";
-			AddLogLineM(false, logUPnP, msg);
+			AddLogLineU(false, logUPnP, msg);
 			return false;
 		}
 	}
@@ -744,7 +750,7 @@ const std::string CUPnPService::GetStateVariable(
 		"='" <<
 		StVarVal <<
 		"'.";
-	AddDebugLogLineM(false, logUPnP, msg);
+	AddDebugLogLineN(logUPnP, msg);
 	return stdEmptyString;
 }
 
@@ -784,7 +790,7 @@ m_presentationURL  (upnpLib.Element_GetChildValueByTag(device, "presentationURL"
 		msg << "Error generating presentationURL from " <<
 			"|" << URLBase << "|" <<
 			m_presentationURL << "|.";
-		AddDebugLogLineM(false, logUPnP, msg);
+		AddDebugLogLineN(logUPnP, msg);
 	} else {
 		m_presentationURL = presURL;
 	}
@@ -803,7 +809,7 @@ m_presentationURL  (upnpLib.Element_GetChildValueByTag(device, "presentationURL"
 		"\n        UDN: "               << m_UDN <<
 		"\n        UPC: "               << m_UPC <<
 		"\n        presentationURL: "   << m_presentationURL;
-	AddDebugLogLineM(false, logUPnP, msg);
+	AddDebugLogLineN(logUPnP, msg);
 }
 
 
@@ -829,7 +835,7 @@ m_expires(expires)
 		"\n        Fixed URLBase: " << FixedURLBase <<
 		"\n        location: "      << m_location <<
 		"\n        expires: "       << m_expires;
-	AddDebugLogLineM(false, logUPnP, msg);
+	AddDebugLogLineN(logUPnP, msg);
 }
 
 
@@ -865,7 +871,7 @@ m_WanService(NULL)
 	ipAddress = UpnpGetServerIpAddress();
 	msg << "bound to " << ipAddress << ":" <<
 		port << ".";
-	AddLogLineM(false, logUPnP, msg);
+	AddLogLineU(false, logUPnP, msg);
 	msg.str("");
 	ret = UpnpRegisterClient(
 		static_cast<Upnp_FunPtr>(&CUPnPControlPoint::Callback),
@@ -936,7 +942,7 @@ bool CUPnPControlPoint::AddPortMappings(
 		msg <<  "UPnP Error: "
 			"CUPnPControlPoint::AddPortMapping: "
 			"WAN Service not detected.";
-		AddLogLineM(true, logUPnP, msg);
+		AddLogLineU(true, logUPnP, msg);
 		return false;
 	}
 	
@@ -998,7 +1004,7 @@ bool CUPnPControlPoint::AddPortMappings(
 	msg << "CUPnPControlPoint::DeletePortMappings: "
 		"m_ActivePortMappingsMap.size() == " <<
 		m_ActivePortMappingsMap.size();
-	AddDebugLogLineM(false, logUPnP, msg);
+	AddDebugLogLineN(logUPnP, msg);
 	
 	// Not very good, must find a better test
 	PortMappingNumberOfEntries.str(
@@ -1072,7 +1078,7 @@ bool CUPnPControlPoint::DeletePortMappings(
 		msg <<  "UPnP Error: "
 			"CUPnPControlPoint::DeletePortMapping: "
 			"WAN Service not detected.";
-		AddLogLineM(true, logUPnP, msg);
+		AddLogLineU(true, logUPnP, msg);
 		return false;
 	}
 	
@@ -1101,7 +1107,7 @@ bool CUPnPControlPoint::DeletePortMappings(
 					"CUPnPControlPoint::DeletePortMapping: "
 					"Mapping was not found in the active "
 					"mapping map.";
-				AddLogLineM(true, logUPnP, msg);
+				AddLogLineU(true, logUPnP, msg);
 			}
 			
 			// Delete the port mapping
@@ -1114,7 +1120,7 @@ bool CUPnPControlPoint::DeletePortMappings(
 	msg << "CUPnPControlPoint::DeletePortMappings: "
 		"m_ActivePortMappingsMap.size() == " <<
 		m_ActivePortMappingsMap.size();
-	AddDebugLogLineM(false, logUPnP, msg);
+	AddDebugLogLineN(logUPnP, msg);
 	
 	// Not very good, must find a better test
 	PortMappingNumberOfEntries.str(
@@ -1182,19 +1188,20 @@ upnpDiscovery:
 		int ret;
 		if (d_event->ErrCode != UPNP_E_SUCCESS) {
 			msg << upnpCP->m_upnpLib.GetUPnPErrorMessage(d_event->ErrCode) << ".";
-			AddDebugLogLineM(true, logUPnP, msg);
+			AddDebugLogLineC(logUPnP, msg);
 		}
 		// Get the XML tree device description in doc
 		ret = UpnpDownloadXmlDoc(d_event->Location, &doc); 
 		if (ret != UPNP_E_SUCCESS) {
 			msg << "Error retrieving device description from " <<
 				d_event->Location << ": " <<
-				upnpCP->m_upnpLib.GetUPnPErrorMessage(ret) << ".";
-			AddDebugLogLineM(true, logUPnP, msg);
+				upnpCP->m_upnpLib.GetUPnPErrorMessage(ret) <<
+				"(" << ret << ").";
+			AddDebugLogLineC(logUPnP, msg);
 		} else {
 			msg2 << "Retrieving device description from " <<
 				d_event->Location << ".";
-			AddDebugLogLineM(false, logUPnP, msg2);
+			AddDebugLogLineN(logUPnP, msg2);
 		}
 		if (doc) {
 			// Get the root node
@@ -1222,7 +1229,7 @@ upnpDiscovery:
 				// we don't want to spam our logs.
 				if (EventType != UPNP_DISCOVERY_ADVERTISEMENT_ALIVE) {
 					msg.str("Internet Gateway Device Detected.");
-					AddLogLineM(true, logUPnP, msg);
+					AddLogLineU(true, logUPnP, msg);
 				}
 				// Add the root device to our list
 				upnpCP->AddRootDevice(rootDevice, urlBase,
@@ -1237,7 +1244,7 @@ upnpDiscovery:
 		//fprintf(stderr, "Callback: UPNP_DISCOVERY_SEARCH_TIMEOUT\n");
 		// Search timeout
 		msg << "UPNP_DISCOVERY_SEARCH_TIMEOUT.";
-		AddDebugLogLineM(false, logUPnP, msg);
+		AddDebugLogLineN(logUPnP, msg);
 		
 		// Unlock the search timeout mutex
 		upnpCP->m_WaitForSearchTimeoutMutex.Unlock();
@@ -1252,7 +1259,7 @@ upnpDiscovery:
 			msg << "error(UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE): " <<
 				upnpCP->m_upnpLib.GetUPnPErrorMessage(dab_event->ErrCode) <<
 				".";
-			AddDebugLogLineM(true, logUPnP, msg);
+			AddDebugLogLineC(logUPnP, msg);
 		}
 		std::string devType = dab_event->DeviceType;
 		// Check for an InternetGatewayDevice and removes it from the list
@@ -1335,7 +1342,7 @@ upnpEventSubscriptionExpired:
 					es_event->PublisherUrl <<
 					"' with SID == '" <<
 					newSID << "'.";
-				AddDebugLogLineM(true, logUPnP, msg2);
+				AddDebugLogLineC(logUPnP, msg2);
 				// In principle, we should test to see if the
 				// service is the same. But here we only have one
 				// service, so...
@@ -1343,7 +1350,7 @@ upnpEventSubscriptionExpired:
 			} else {
 				msg << "Error: did not find service " <<
 					newSID << " in the service map.";
-				AddDebugLogLineM(true, logUPnP, msg);
+				AddDebugLogLineC(logUPnP, msg);
 			}
 		}
 		break;
@@ -1405,7 +1412,7 @@ upnpEventSubscriptionExpired:
 		msg << "error(UPNP_EVENT_SUBSCRIPTION_REQUEST): ";
 eventSubscriptionRequest:
 		msg << "This is not a UPnP Device, this is a UPnP Control Point, event ignored.";
-		AddDebugLogLineM(true, logUPnP, msg);
+		AddDebugLogLineC(logUPnP, msg);
 		break;
 	default:
 		// Humm, this is not good, we forgot to handle something...
@@ -1415,7 +1422,7 @@ eventSubscriptionRequest:
 		msg << "error(UPnP::Callback): Event not handled:'" <<
 			EventType << "'.";
 		fprintf(stderr, "%s\n", msg.str().c_str());
-		AddDebugLogLineM(true, logUPnP, msg);
+		AddDebugLogLineC(logUPnP, msg);
 		// Better not throw in the callback. Who would catch it?
 		//throw CUPnPException(msg);
 		break;
@@ -1455,7 +1462,7 @@ void CUPnPControlPoint::OnEventReceived(
 	} else {
 		msg << "\n    Empty property list.";
 	}
-	AddDebugLogLineM(true, logUPnP, msg);
+	AddDebugLogLineC(logUPnP, msg);
 	// Freeing that doc segfaults. Probably should not be freed.
 	//ixmlDocument_free(ChangedVariablesDoc);
 }
@@ -1526,7 +1533,7 @@ void CUPnPControlPoint::Subscribe(CUPnPService &service)
 		msg << "Successfully retrieved SCPD Document for service " <<
 			service.GetServiceType() << ", absEventSubURL: " <<
 			service.GetAbsEventSubURL() << ".";
-		AddLogLineM(true, logUPnP, msg);
+		AddLogLineU(true, logUPnP, msg);
 		msg.str("");
 
 		// Now try to subscribe to this service. If the subscription
@@ -1540,7 +1547,7 @@ void CUPnPControlPoint::Subscribe(CUPnPService &service)
 			msg << "Successfully subscribed to service " <<
 				service.GetServiceType() << ", absEventSubURL: " <<
 				service.GetAbsEventSubURL() << ".";
-			AddLogLineM(true, logUPnP, msg);
+			AddLogLineU(true, logUPnP, msg);
 		} else {
 			msg << "Error subscribing to service " <<
 				service.GetServiceType() << ", absEventSubURL: " <<
@@ -1551,14 +1558,14 @@ void CUPnPControlPoint::Subscribe(CUPnPService &service)
 	} else {
 		msg << "Error getting SCPD Document from " <<
 			service.GetAbsSCPDURL() << ".";
-		AddLogLineM(true, logUPnP, msg);
+		AddLogLineU(true, logUPnP, msg);
 	}
 	
 	return;
 
 	// Error processing	
 error:
-	AddLogLineM(true, logUPnP, msg);
+	AddLogLineU(true, logUPnP, msg);
 }
 
 
@@ -1571,5 +1578,4 @@ void CUPnPControlPoint::Unsubscribe(CUPnPService &service)
 	}
 }
 
-
-// File_checked_for_headers
+#endif /* ENABLE_UPNP */
