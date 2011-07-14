@@ -23,11 +23,6 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
-//Dynamic Leecher Protection - Bill Lee
-#ifdef AMULE_DLP
-#include "DLP.h"
-
-
 #include "amule.h"			// Interface declarations.
 
 #include <csignal>
@@ -91,6 +86,11 @@
 
 #ifdef __WXMAC__
 #include <wx/sysopt.h>			// Do_not_auto_remove
+#endif
+
+//Dynamic Leecher Protection - Bill Lee
+#ifdef AMULE_DLP
+#include "DLP.h"
 #endif
 
 #ifndef AMULE_DAEMON
@@ -519,7 +519,9 @@ bool CamuleApp::OnInit()
 	ipfilter	= new CIPFilter();
 
 	//DLP initialization - Bill Lee
+	#ifdef AMULE_DLP
 	theDLP = new DLP();
+	#endif
 
 	// Creates all needed listening sockets
 	wxString msg;

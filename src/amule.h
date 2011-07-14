@@ -557,5 +557,5 @@ extern CamuleDaemonApp *theApp;
 
 #ifdef AMULE_DLP
 class DLP;	//forward declaretion
-DLP* theDLP
-#endi
+DLP* theDLP;
+#endif

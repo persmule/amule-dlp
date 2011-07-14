@@ -5,7 +5,7 @@
 # xiaoqiao <29551030@qq.com>, 2007, 2008.
 # JimHu <jimhuyiwei@gmail.com>, 2009.
 # Xiaoqiao <wo@xiaoqiao.me>, 2010.
-+# Bill Lee <bill.lee.y@gmail.com>, 2010, 2011.
+# Bill Lee <bill.lee.y@gmail.com>, 2010, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: aMule 2.2.7\n"

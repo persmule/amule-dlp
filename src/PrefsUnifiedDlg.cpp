@@ -53,7 +53,11 @@
 #include "UserEvents.h"
 #include "PlatformSpecific.h"
 
-#include "updownclient.h"                      /* Dynamic Leech Protect - Bill Lee */
+//Dynamic Leech Protect - Bill Lee
+#ifdef AMULE_DLP
+#include "updownclient.h"
+#include "DLP.h"
+#endif
 
 BEGIN_EVENT_TABLE(PrefsUnifiedDlg,wxDialog)
 	// Events
@@ -1039,12 +1043,14 @@ void PrefsUnifiedDlg::OnButtonIPFilterUpdate(wxCommandEvent& WXUNUSED(event))
 }
 
 //Bill Lee
+#ifdef AMULE_DLP
 void PrefsUnifiedDlg::OnButtonReloadAntiLeech(wxCommandEvent& WXUNUSED(event)){
-	if( CUpDownClient::ReloadAntiLeech() )
+	if( theDLP->ReloadAntiLeech() )
 		wxMessageBox(_("Cannot load antiLeech!"), _("Message"), wxOK | wxICON_EXCLAMATION, this);
 	else
 		wxMessageBox(_("Succeed loading antiLeech!"), _("Message"), wxOK | wxICON_INFORMATION, this);
 }
+#endif
 
 
 void PrefsUnifiedDlg::OnPrefsPageChange(wxListEvent& event)

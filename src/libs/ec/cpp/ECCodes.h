@@ -127,8 +127,7 @@ enum ECOpCodes {
 	EC_OP_SHARED_FILE_SET_COMMENT       = 0x55,
 	EC_OP_SERVER_SET_STATIC_PRIO        = 0x56,
 	EC_OP_FRIEND                        = 0x57,
-	//UnOfficial OpCodes
-	EC_OP_ANTILEECH_RELOAD		= 0x80  /* Dynamic Leech Protect - Bill Lee */
+	EC_OP_ANTILEECH_RELOAD              = 0x80	
 };
 
 enum ECTagNames {
@@ -569,6 +568,7 @@ wxString GetDebugNameECOpCodes(uint8 arg)
 		case 0x55: return wxT("EC_OP_SHARED_FILE_SET_COMMENT");
 		case 0x56: return wxT("EC_OP_SERVER_SET_STATIC_PRIO");
 		case 0x57: return wxT("EC_OP_FRIEND");
+		case 0x80	: return wxT("EC_OP_ANTILEECH_RELOAD");
 		default: return CFormat(wxT("unknown %d 0x%x")) % arg % arg;
 	}
 }

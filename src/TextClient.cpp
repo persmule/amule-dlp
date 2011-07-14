@@ -76,7 +76,7 @@ enum {
 	CMD_ID_RELOAD_SHARED,
 	CMD_ID_RELOAD_IPFILTER_LOCAL,
 	CMD_ID_RELOAD_IPFILTER_NET,
-+	CMD_ID_RELOAD_ANTILEECH, /* Only used internally - Dynamic Leech Protect - Bill Lee */
+	CMD_ID_RELOAD_ANTILEECH, /* Only used internally - Dynamic Leech Protect - Bill Lee */
 	CMD_ID_SET_IPFILTER_ON,
 	CMD_ID_SET_IPFILTER_OFF,
  	CMD_ID_SET_IPFILTER_CLIENTS_ON,

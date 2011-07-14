@@ -25,7 +25,9 @@
 
 #include "Logger.h"
 
-#define PRE_CHECK(tag)	if( (!IsBanned) && antiLeech && (thePrefs::GetDLPCheckMask() & tag) )
+#include <wx/stdpaths.h>                        /* Needed for wxStandardPaths */
+
+#define PRE_CHECK(tag)	if( (!c->IsBanned()) && antiLeech && (thePrefs::GetDLPCheckMask() & tagn) )
 
 void DLP::CheckHelloTag(CUpDownClient* c, UINT tagn){
 	PRE_CHECK(PF_HELLOTAG){
@@ -60,7 +62,7 @@ bool DLP::DLPCheck(CUpDownClient* c){
 	CString modver(c->GetClientModString());
 	CString clientver(c->GetClientVerString());
 	CString uname(c->GetUserName());
-	CString uhash(c->wxString(GetUserHash().EncodeSTL().c_str(), wxConvUTF8));
+	CString uhash(wxString(c->GetUserHash().EncodeSTL().c_str(), wxConvUTF8));
 	
 	//CheckGhostMod
 	if(prefs & PF_GHOSTMOD) {
@@ -112,17 +114,17 @@ bool DLP::DLPCheck(CUpDownClient* c){
 
 int DLP::ReloadAntiLeech(){
 	//Unloading
-	AddLogLineM(false,  _("Checking if there is a antiLeech working..."));
+	AddLogLineN(  _("Checking if there is a antiLeech working..."));
 	if(antiLeechLib.IsLoaded()){
-		Destoryer fn = (Destoryer)(antiLeechLib->GetSymbol( wxT("destoryAntiLeechInstant")));
+		Destoryer fn = (Destoryer)(antiLeechLib.GetSymbol( wxT("destoryAntiLeechInstant")));
 		wxASSERT(fn);
-		AddLogLineM(false,  _("Unload previous antiLeech..."));
+		AddLogLineN(  _("Unload previous antiLeech..."));
 		fn(antiLeech);
 		antiLeech = NULL;
 		antiLeechLib.Unload();
 	}
 	else
-		AddLogLineM(false,  _("No working antiLeech exists."));
+		AddLogLineN(  _("No working antiLeech exists."));
 	//Get lib's location
 	wxStandardPathsBase &spb(wxStandardPaths::Get());
 #ifdef __WXMSW__
@@ -137,20 +139,20 @@ int DLP::ReloadAntiLeech(){
 	wxString userFile(theApp->ConfigDir + localName);
 	wxString fallbackFile(wxT("antiLeech"));
 	//Try to load lib;
-	AddLogLineM(false,  _("Trying to load antiLeech..."));
+	AddLogLineN(  _("Trying to load antiLeech..."));
 	if( !LoadFrom(userFile) ){
 		if( !LoadFrom(systemwideFile) ){
 			if( !LoadFrom(fallbackFile) ){
-				AddLogLineM(true,  _("No antiLeech available!"));
+				AddLogLineC(  _("No antiLeech available!"));
 				return 1;	//Not found
 			}
 		}
 	}
 	//Searching symbol "createAntiLeechInstant"
-	Creator fn = (Creator)(antiLeechLib->GetSymbol( wxT("createAntiLeechInstant") ));
+	Creator fn = (Creator)(antiLeechLib.GetSymbol( wxT("createAntiLeechInstant") ));
 	if(!fn){
 		antiLeechLib.Unload();
-		AddLogLineM(true,  _("antiLeech found, but it seems not to be a valid antiLeech!"));
+		AddLogLineC(  _("antiLeech found, but it seems not to be a valid antiLeech!"));
 		return 2;	//Found, but isn't antiLeech
 	}
 	//Try to create antiLeech
@@ -158,21 +160,21 @@ int DLP::ReloadAntiLeech(){
 	if(antiLeech){
 		wxString logline;
 		logline.Printf(_("Succeed loading antiLeech! Version: %d"), antiLeech->GetDLPVersion());
-		AddLogLineM(true, logline);
+		AddLogLineC( logline);
 		return 0;
 	}
 	//else
 	antiLeechLib.Unload();
-	AddLogLineM(true,  _("FAIL! An error occur when setting up antiLeech."));
+	AddLogLineC(  _("FAIL! An error occur when setting up antiLeech."));
 	return 3;	//Fail to create antiLeech instant
 
 }
 
 DLP::~DLP(){
 	if(antiLeechLib.IsLoaded()){
-		Destoryer fn = (Destoryer)(antiLeechLib->GetSymbol( wxT("destoryAntiLeechInstant")));
+		Destoryer fn = (Destoryer)(antiLeechLib.GetSymbol( wxT("destoryAntiLeechInstant")));
 		wxASSERT(fn);
-		AddLogLineM(false,  _("Unload previous antiLeech..."));
+		AddLogLineN(  _("Unload previous antiLeech..."));
 		fn(antiLeech);
 		//antiLeech = NULL;
 		//antiLeechLib.Unload();
@@ -181,5 +183,5 @@ DLP::~DLP(){
 
 bool DLP::LoadFrom(wxString& file){
 	antiLeechLib.Load(file);
-	return antiLeechLib.IsLoad();
+	return antiLeechLib.IsLoaded();
 }

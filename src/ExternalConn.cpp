@@ -56,6 +56,9 @@
 #include "kademlia/kademlia/Kademlia.h"
 #include "kademlia/kademlia/UDPFirewallTester.h"
 
+#ifdef AMULE_DLP
+#include "DLP.h"
+#endif
 
 //-------------------- File_Encoder --------------------
 
@@ -1366,12 +1369,14 @@ CECPacket *CECServerSocket::ProcessRequest2(const CECPacket *request)
 			}
 			break;
 		//Dynamic Leech Protect - Bill Lee
+		#ifdef AMULE_DLP
 		case EC_OP_ANTILEECH_RELOAD:
-			if( CUpDownClient::ReloadAntiLeech() )
+			if( theDLP->ReloadAntiLeech() )
 				response = new CECPacket(EC_OP_FAILED);
 			else
 				response = new CECPacket(EC_OP_NOOP);
 			break;
+		#endif
 		//
 		// Status requests
 		//

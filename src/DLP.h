@@ -16,9 +16,11 @@
 //
 
 class IantiLeech;	//forward declaretion
-class wxDynamicLibrary;
 
 #include "updownclient.h"	// Needed for CUpDownClient
+#include "antiLeech_wx.h"
+
+#include <wx/dynlib.h>
 
 class DLP
 {
