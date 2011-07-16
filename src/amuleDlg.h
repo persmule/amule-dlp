@@ -115,7 +115,9 @@ public:
 
 	void AddLogLine(const wxString& line);
 	void AddServerMessageLine(wxString& message);
+	#ifdef AMULE_DLP
 	void AddDLPMessageLine(const wxString& msg); /* Modified by Bill Lee */
+	#endif
 	void ResetLog(int id);
 	
 	void ShowUserCount(const wxString& info = wxEmptyString);

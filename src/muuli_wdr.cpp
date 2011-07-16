@@ -1776,6 +1776,7 @@ wxSizer *PreferencesServerTab( wxWindow *parent, bool call_fit, bool set_sizer )
     return item0;
 }
 
+#ifdef AMULE_DLP
 wxSizer *PreferencesDLPTab( wxWindow *parent, bool call_fit, bool set_sizer )
 {
 	wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
@@ -1818,6 +1819,7 @@ wxSizer *PreferencesDLPTab( wxWindow *parent, bool call_fit, bool set_sizer )
 
 	return item0;
 }
+#endif
 
 wxSizer *PreferencesFilesTab( wxWindow *parent, bool call_fit, bool set_sizer )
 {

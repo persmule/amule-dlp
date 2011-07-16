@@ -580,7 +580,9 @@ public:
 	static void		SetPreventSleepWhileDownloading(bool status) { s_preventSleepWhileDownloading = status; }
 	
 	// Dynamic Leecher Protection
+	#ifdef AMULE_DLP
 	static unsigned int GetDLPCheckMask()		{return s_DLPCheckMask;}
+	#endif
 protected:
 	static	int32 GetRecommendedMaxConnections();
 
@@ -821,6 +823,7 @@ protected:
 	static wxString s_StatsServerURL;
 		
 	// Dynamic Leecher Protection
+	#ifdef AMULE_DLP
 	static bool s_DLPCheckModString;
 	static bool s_DLPCheckUsername;
 	static bool s_DLPCheckUserHash;
@@ -831,6 +834,7 @@ protected:
 	//static bool s_DLPCheckminiMule; //Added by Bill Lee
 	static bool s_DLPCheckGhostMod; //Added by Bill Lee
 	static unsigned int s_DLPCheckMask;
+	#endif
 };
 
 

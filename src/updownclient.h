@@ -581,7 +581,9 @@ public:
 
 	bool		HasDisabledSharedFiles() const { return m_fNoViewSharedFiles; }
 	
+	#ifdef AMULE_DLP
 	bool		HasNonOfficialOpCodes() const { return dlp_nonofficialopcodes; }	 //Dynamic Leecher Protection - Bill Lee
+	#endif
 
 private:
 	
@@ -844,7 +846,9 @@ private:
 	wxString	connection_reason;
 #endif
 
+	#ifdef AMULE_DLP
 	bool dlp_nonofficialopcodes; //Dynamic Leecher Protect - Bill Lee
+	#endif
 };
 
 

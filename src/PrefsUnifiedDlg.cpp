@@ -117,7 +117,9 @@ BEGIN_EVENT_TABLE(PrefsUnifiedDlg,wxDialog)
 	EVT_LIST_ITEM_SELECTED(ID_PREFSLISTCTRL,PrefsUnifiedDlg::OnPrefsPageChange)
 
 	//Dynamic Leech Protect - Bill Lee
+	#ifdef AMULE_DLP
 	EVT_BUTTON(IDC_RELOADANTILEECH,		PrefsUnifiedDlg::OnButtonReloadAntiLeech)
+	#endif
 
 	EVT_INIT_DIALOG(PrefsUnifiedDlg::OnInitDialog)
 

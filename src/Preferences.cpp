@@ -347,6 +347,7 @@ protected:
 };
 
 /* Dynamic Leecher Protection */
+#ifdef AMULE_DLP
 bool CPreferences::s_DLPCheckModString;
 bool CPreferences::s_DLPCheckUsername;
 bool CPreferences::s_DLPCheckUserHash;
@@ -357,6 +358,7 @@ bool CPreferences::s_DLPCheckVeryCDMod;
 //bool CPreferences::s_DLPCheckminiMule; //Added by Bill Lee
 bool CPreferences::s_DLPCheckGhostMod;
 unsigned int CPreferences::s_DLPCheckMask;
+#endif
 
 /** Cfg class for wxStrings. */
 class Cfg_Str : public Cfg_Tmpl<wxString>
@@ -1118,6 +1120,7 @@ void CPreferences::BuildItemList( const wxString& appdir )
 	/**
 	 * Dynamic Leecher Protection
 	 **/
+	#ifdef AMULE_DLP
 	NewCfgItem(IDC_CHECKMODSTRING, 		(new Cfg_Bool( wxT("/DLP/CheckModString"), s_DLPCheckModString, true )));
 	NewCfgItem(IDC_CHECKUSERNAME, 		(new Cfg_Bool( wxT("/DLP/CheckUsername"), s_DLPCheckUsername, true )));
 	NewCfgItem(IDC_CHECKUSERHASH, 		(new Cfg_Bool( wxT("/DLP/CheckUserHash"), s_DLPCheckUserHash, true )));
@@ -1127,6 +1130,7 @@ void CPreferences::BuildItemList( const wxString& appdir )
 	NewCfgItem(IDC_CHECKVERYCDMOD, 		(new Cfg_Bool( wxT("/DLP/CheckVeryCDMod"), s_DLPCheckVeryCDMod, false )));
 	//NewCfgItem(IDC_CHECKMINIMULE,		(new Cfg_Bool( wxT("/DLP/CheckminiMule"), s_DLPCheckminiMule, true))); //Added by Bill Lee
 	NewCfgItem(IDC_CHECKGHOSTMOD, 		(new Cfg_Bool( wxT("/DLP/CheckGhostMod"), s_DLPCheckGhostMod, true ))); //Added by Bill Lee.
+	#endif
 
 	/**
 	 * Files
