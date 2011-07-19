@@ -294,7 +294,9 @@ void CUpDownClient::Init()
 	m_cMessagesReceived = 0;
 	m_cMessagesSent = 0;
 
+	#ifdef AMULE_DLP
 	dlp_nonofficialopcodes = false; //Dynamic Leecher Protect
+	#endif
 
 }
 

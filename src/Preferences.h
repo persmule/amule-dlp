@@ -605,7 +605,9 @@ private:
 	void SavePreferences();
 	
 	// Dynamic Leecher Protection
+	#ifdef AMULE_DLP
 	void CalcDLPCheckMask();
+	#endif
 
 protected:
 ////////////// USER

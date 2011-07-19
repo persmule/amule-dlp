@@ -320,6 +320,7 @@ wxString CamuleGuiApp::GetLog(bool reset)
 	return CamuleApp::GetLog(reset);
 }
 
+#ifdef AMULE_DLP
 void CamuleGuiApp::AddDLPMessageLine(const wxString &msg)
 {
 	wxString message;
@@ -333,6 +334,7 @@ void CamuleGuiApp::AddDLPMessageLine(const wxString &msg)
 	message = wxString(tbuf, wxConvUTF8) + msg;
 	amuledlg->AddDLPMessageLine(message);
 }
+#endif
 
 wxString CamuleGuiApp::GetServerLog(bool reset)
 {

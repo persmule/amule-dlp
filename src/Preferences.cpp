@@ -1007,7 +1007,9 @@ CPreferences::CPreferences()
 	s_userhash[14] = 111;
 	
 	// Dynamic Leecher Protection
+	#ifdef AMULE_DLP
 	CalcDLPCheckMask();
+	#endif
 	
 #ifndef CLIENT_GUI
 	LoadPreferences();
@@ -1539,7 +1541,9 @@ void CPreferences::Save()
 	SavePreferences();
 	
 	// Dynamic Leecher Protection
+	#ifdef AMULE_DLP
 	CalcDLPCheckMask();
+	#endif
 
 	#ifndef CLIENT_GUI
 	CTextFile sdirfile;
@@ -1552,6 +1556,7 @@ void CPreferences::Save()
 	#endif
 }
 
+#ifdef AMULE_DLP
 void CPreferences::CalcDLPCheckMask()
 {
 	s_DLPCheckMask = 0;
@@ -1565,6 +1570,7 @@ void CPreferences::CalcDLPCheckMask()
 	if (s_DLPCheckVeryCDMod) s_DLPCheckMask |= PF_VERYCDEMULE;
 	//if (s_DLPCheckminiMule) s_DLPCheckMask |= PF_MINIMULE; //Added by Bill Lee
 }
+#endif
 
 CPreferences::~CPreferences()
 {

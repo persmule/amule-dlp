@@ -665,6 +665,7 @@ void CamuleDlg::AddServerMessageLine(wxString& message)
 	}
 }
 
+#ifdef AMULE_DLP
 void CamuleDlg::AddDLPMessageLine(const wxString& msg) /* modified by Bill Lee */
 {
 	wxTextCtrl* cv = CastByID( ID_DLPINFO, m_serverwnd, wxTextCtrl );
@@ -677,6 +678,7 @@ void CamuleDlg::AddDLPMessageLine(const wxString& msg) /* modified by Bill Lee *
 		cv->ShowPosition(cv->GetLastPosition()-1);
 	}
 }
+#endif
 
 void CamuleDlg::ShowConnectionState(bool skinChanged)
 {
