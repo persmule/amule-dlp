@@ -51,8 +51,10 @@
 
 #include "UserEvents.h"
 
+#ifdef AMULE_DLP
 #include "DLPPref.h"
 #include "antiLeech.h"
+#endif
 
 #ifndef AMULE_DAEMON
 #include <wx/valgen.h>

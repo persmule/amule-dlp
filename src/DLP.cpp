@@ -14,6 +14,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
+#include "Logger.h"
 
 #include "DLP.h"
 #include "antiLeech.h"
@@ -22,8 +23,6 @@
 #include "DLPPref.h"
 #include "Preferences.h"	// Needed for CPreferences
 #include "amule.h"		// Needed for theApp
-
-#include "Logger.h"
 
 #include <wx/stdpaths.h>                        /* Needed for wxStandardPaths */
 

@@ -55,7 +55,6 @@
 
 //Dynamic Leech Protect - Bill Lee
 #ifdef AMULE_DLP
-#include "updownclient.h"
 #include "DLP.h"
 #endif
 
