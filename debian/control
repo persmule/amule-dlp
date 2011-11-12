@@ -16,8 +16,8 @@ Build-Depends:
  libpng12-dev,
  libreadline-dev,
  libupnp3-dev,
- libwxgtk2.8-dev,
- wx2.8-i18n,
+ libwxgtk2.8-dev (>= 2.8.12),
+ wx2.8-i18n (>= 2.8.12),
  zlib1g-dev,
 Standards-Version: 3.9.2
 Homepage: http://www.amule.org
