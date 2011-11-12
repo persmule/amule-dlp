@@ -1,3 +1,17 @@
+amule (2.3.1-1) unstable; urgency=low
+
+  * New upstream release (upload to unstable)
+  * [c290c56] add a rule to import a new upstream tarball
+  * [e509f4d] don't remove .gitignore
+  * [ab10242] bump Standards-Version to 3.9.2 (no changes needed)
+  * [2b9fa5f] fix build* targets
+  * [c51726b] correctly document how to use import-orig
+  * [5abb7c2] Imported Upstream version 2.3.1
+  * [26d8a7e] bump wx 2.8 version needed; Closes: #612962
+  * [77940fe] updated version_check.diff to new upstream code
+
+ -- Sandro Tosi <morph@debian.org>  Sat, 12 Nov 2011 19:31:28 +0100
+
 amule (2.3.1~rc1-1) experimental; urgency=low
 
   * Imported Upstream version 2.3.1~rc1+repack
