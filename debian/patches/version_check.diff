@@ -1,12 +1,14 @@
 Disable NewVersionCheck by Default (Closes: #554623)
---- a/src/Preferences.cpp
-+++ b/src/Preferences.cpp
-@@ -1152,7 +1152,7 @@ void CPreferences::BuildItemList( const
+Index: amule/src/Preferences.cpp
+===================================================================
+--- amule.orig/src/Preferences.cpp	2011-11-12 17:52:00.000000000 +0100
++++ amule/src/Preferences.cpp	2011-11-12 18:33:43.999852356 +0100
+@@ -1210,7 +1210,7 @@
  	/**
  	 * Version check
  	 **/
 -	 NewCfgItem(IDC_NEWVERSION,	(new Cfg_Bool( wxT("/eMule/NewVersionCheck"), s_NewVersionCheck, true )));
 +	 NewCfgItem(IDC_NEWVERSION,	(new Cfg_Bool( wxT("/eMule/NewVersionCheck"), s_NewVersionCheck, false )));
- 	 
+ 
  	 /**
  	  * Obfuscation
