@@ -526,7 +526,7 @@ bool CamuleApp::OnInit()
 		// We use the thread base because I don't want a dialog to pop up.
 		CHTTPDownloadThread* version_check = 
 			new CHTTPDownloadThread(wxT("http://amule.sourceforge.net/lastversion"),
-				theApp->ConfigDir + wxT("last_version_check"), theApp->ConfigDir + wxT("last_version"), HTTP_VersionCheck, false, true);
+				theApp->ConfigDir + wxT("last_version_check"), theApp->ConfigDir + wxT("last_version"), HTTP_VersionCheck, false, false);
 		version_check->Create();
 		version_check->Run();
 	}
@@ -963,10 +963,10 @@ void CamuleApp::OnlineSig(bool zero /* reset stats (used on shutdown) */)
 	amulesig_out.AddLine(thePrefs::GetUserNick());
 
 	// Total received in bytes
-	amulesig_out.AddLine( CFormat( wxT("%llu") ) % (theStats::GetSessionReceivedBytes() + thePrefs::GetTotalDownloaded()) );
+	amulesig_out.AddLine(CFormat(wxT("%llu")) % theStats::GetTotalReceivedBytes());
 
 	// Total sent in bytes
-	amulesig_out.AddLine( CFormat( wxT("%llu") ) % (theStats::GetSessionSentBytes() + thePrefs::GetTotalUploaded()) );
+	amulesig_out.AddLine(CFormat(wxT("%llu")) % theStats::GetTotalSentBytes());
 
 	// amule version
 #ifdef SVNDATE
@@ -1228,19 +1228,7 @@ void CamuleApp::OnCoreTimer(CTimerEvent& WXUNUSED(evt))
 
 	if (msCur-msPrevSave >= 60000) {
 		msPrevSave = msCur;
-		wxString buffer;
-		
-		// Save total upload/download to preferences
-		wxConfigBase* cfg = wxConfigBase::Get();
-		buffer = CFormat(wxT("%llu")) % (theStats::GetSessionReceivedBytes() + thePrefs::GetTotalDownloaded());
-		cfg->Write(wxT("/Statistics/TotalDownloadedBytes"), buffer);
-
-		buffer = CFormat(wxT("%llu")) % (theStats::GetSessionSentBytes() + thePrefs::GetTotalUploaded());
-		cfg->Write(wxT("/Statistics/TotalUploadedBytes"), buffer);
-
-		// Write changes to file
-		cfg->Flush();
-
+		theStats::Save();
 	}
 
 	// Special
@@ -1280,22 +1268,19 @@ void CamuleApp::OnFinishedHashing(CHashingEvent& evt)
 			dynamic_cast<CPartFile*>(owner)->PartFileHashFinished(result);
 		}
 	} else {
-		static int filecount;
-		static uint64 bytecount;
+		static uint64 bytecount = 0;
 
 		if (knownfiles->SafeAddKFile(result, true)) {
 			AddDebugLogLineN(logKnownFiles,
 				CFormat(wxT("Safe adding file to sharedlist: %s")) % result->GetFileName());
 			sharedfiles->SafeAddKFile(result);
 
-			filecount++;
 			bytecount += result->GetFileSize();
-			// If we have added 30 files or files with a total size of ~300mb
-			if ( ( filecount == 30 ) || ( bytecount >= 314572800 ) ) {
+			// If we have added files with a total size of ~300mb
+			if (bytecount >= 314572800) {
 				AddDebugLogLineN(logKnownFiles, wxT("Failsafe for crash on file hashing creation"));
 				if ( m_app_state != APP_STATE_SHUTTINGDOWN ) {
 					knownfiles->Save();
-					filecount = 0;
 					bytecount = 0;
 				}
 			}
@@ -1431,12 +1416,7 @@ void CamuleApp::ShutDown()
 		knownfiles->Save();
 	}
 
-	thePrefs::Add2TotalDownloaded(theStats::GetSessionReceivedBytes());
-	thePrefs::Add2TotalUploaded(theStats::GetSessionSentBytes());
-
-	if (glob_prefs) {
-		glob_prefs->Save();
-	}
+	theStats::Save();
 
 	CPath configFileName = CPath(ConfigDir + m_configFile);
 	CPath::BackupFile(configFileName, wxT(".bak"));
@@ -1828,9 +1808,9 @@ void CamuleApp::ShowUserCount() {
 
 void CamuleApp::ListenSocketHandler(wxSocketEvent& event)
 {
-	wxCHECK_RET(listensocket, wxT("Connection-event for NULL'd listen-socket"));
-	wxCHECK_RET(event.GetSocketEvent() == wxSOCKET_CONNECTION,
-		wxT("Invalid event received for listen-socket"));
+	{ wxCHECK_RET(listensocket, wxT("Connection-event for NULL'd listen-socket")); }
+	{ wxCHECK_RET(event.GetSocketEvent() == wxSOCKET_CONNECTION,
+		wxT("Invalid event received for listen-socket")); }
 	
 	if (m_app_state == APP_STATE_RUNNING) {
 		listensocket->OnAccept(0);

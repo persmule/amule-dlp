@@ -388,17 +388,16 @@ public:
 	}
 };
 
-class CServerConnectRem : public CECPacketHandlerBase {
+class CServerConnectRem {
 	CRemoteConnect *m_Conn;
 	uint32 m_ID;
 	
 	CServer *m_CurrServer;
-	
-	virtual void HandlePacket(const CECPacket *packet);
-	
+
 public:
+	void HandlePacket(const CECPacket *packet);
+	
 	CServerConnectRem(CRemoteConnect *);
-	bool ReQuery();
 	
 	bool IsConnected() { return (m_ID != 0) && (m_ID != 0xffffffff); }
 	bool IsConnecting() { return m_ID == 0xffffffff; }
@@ -504,16 +503,17 @@ public:
 	//
 	// Actions
 	//
-	void AddFilesFromDirectory(const CPath&);
 	void Reload(bool sendtoserver = true, bool firstload = false);
 	bool RenameFile(CKnownFile* file, const CPath& newName);
 	void SetFileCommentRating(CKnownFile* file, const wxString& newComment, int8 newRating);
+	void CopyFileList(std::vector<CKnownFile*>& out_list) const;
 };
 
 class CKnownFilesRem : public CRemoteContainer<CKnownFile, uint32, CEC_SharedFile_Tag> {
 	CKnownFile * CreateKnownFile(CEC_SharedFile_Tag *tag, CKnownFile *file = NULL);
 	CPartFile  * CreatePartFile(CEC_PartFile_Tag *tag);
 
+	bool m_initialUpdate;	// improved handling for first data transfer
 public:
 	CKnownFilesRem(CRemoteConnect * conn);
 	

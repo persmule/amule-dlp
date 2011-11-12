@@ -51,6 +51,7 @@
 #define _WINDOWS_
 #define _WINSOCK2API_
 #define _WS2TCPIP_H_
+#define _WSPIAPI_H_
 #include <GeoIP.h>
 #endif
 
@@ -76,16 +77,16 @@ CIP2Country::CIP2Country(const wxString& configDir)
 	m_geoip = NULL;
 	m_DataBaseName = wxT("GeoIP.dat");
 	m_DataBasePath = configDir + m_DataBaseName;
-	if (m_CountryDataMap.empty()) {
-// this must go to enable - when all usages of GetCountryData() (ClientListCtrl, DownloadListCtrl) are surrounded with an IsEnabled()
-// right now, flags are loaded even when it's disabled
-		LoadFlags();
-	}
 }
 
 void CIP2Country::Enable()
 {
 	Disable();
+
+	if (m_CountryDataMap.empty()) {
+		LoadFlags();
+	}
+
 	if (!CPath::FileExists(m_DataBasePath)) {
 		Update();
 		return;

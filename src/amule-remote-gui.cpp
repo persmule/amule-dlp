@@ -153,13 +153,12 @@ void CamuleRemoteGuiApp::OnPollTimer(wxTimerEvent&)
 	
 	switch (request_step) {
 	case 0:
-		serverconnect->ReQuery();
+		// We used to update the connection state here, but that's done with the stats in the next step now.
 		request_step++;
 		break;
 	case 1: {
-		CECPacket stats_req(EC_OP_STAT_REQ);
+		CECPacket stats_req(EC_OP_STAT_REQ, EC_DETAIL_INC_UPDATE);
 		m_connect->SendRequest(&m_stats_updater, &stats_req);
-		amuledlg->ShowTransferRate();			
 		request_step++;
 		break;
 	}
@@ -737,15 +736,6 @@ void CServerConnectRem::ConnectToServer(CServer *server)
 }
 
 
-bool CServerConnectRem::ReQuery()
-{
-	CECPacket stat_req(EC_OP_GET_CONNSTATE);
-	m_Conn->SendRequest(this, &stat_req);
-
-	return true;
-}
-	
-
 void CServerConnectRem::HandlePacket(const CECPacket *packet)
 {
 	CEC_ConnState_Tag *tag =
@@ -967,16 +957,6 @@ void CSharedFilesRem::Reload(bool, bool)
 }
 
 
-void CSharedFilesRem::AddFilesFromDirectory(const CPath& path)
-{
-	CECPacket req(EC_OP_SHAREDFILES_ADD_DIRECTORY);
-
-	req.AddTag(CECTag(EC_TAG_PREFS_DIRECTORIES, path.GetRaw()));
-	
-	m_conn->SendPacket(&req);
-}
-
-
 bool CSharedFilesRem::RenameFile(CKnownFile* file, const CPath& newName)
 {
 	// We use the printable name, as the filename originated from user input,
@@ -1001,6 +981,15 @@ void CSharedFilesRem::SetFileCommentRating(CKnownFile* file, const wxString& new
 	request.AddTag(CECTag(EC_TAG_KNOWNFILE_RATING, newRating));
 
 	m_conn->SendPacket(&request);
+}
+
+
+void CSharedFilesRem::CopyFileList(std::vector<CKnownFile*>& out_list) const
+{
+	out_list.reserve(size());
+	for (const_iterator it = begin(); it != end(); it++) {
+		out_list.push_back(it->second);
+	}
 }
 
 
@@ -1072,7 +1061,9 @@ void CKnownFilesRem::ProcessItemUpdate(CEC_SharedFile_Tag *tag, CKnownFile *file
 	transferred += file->statistic.transferred;
 	accepted += file->statistic.transferred;
 	
-	theApp->amuledlg->m_sharedfileswnd->sharedfilesctrl->UpdateItem(file);
+	if (!m_initialUpdate) {
+		theApp->amuledlg->m_sharedfileswnd->sharedfilesctrl->UpdateItem(file);
+	}
 
 	if (file->IsPartFile()) {
 		ProcessItemUpdatePartfile((CEC_PartFile_Tag *) tag, (CPartFile *) file);
@@ -1110,11 +1101,19 @@ void CKnownFilesRem::ProcessUpdate(const CECTag *reply, CECPacket *, int)
 		} else if (tagname == EC_TAG_KNOWNFILE || tagname == EC_TAG_PARTFILE) {
 			CEC_SharedFile_Tag *tag = (CEC_SharedFile_Tag *) curTag;
 			uint32 id = tag->ID();
-			core_files.insert(id);
-			if ( m_items_hash.count(id) ) {
-				// Item already known: update it
-				ProcessItemUpdate(tag, m_items_hash[id]);
-			} else {
+			bool isNew = true;
+			if (!m_initialUpdate) {
+				core_files.insert(id);
+				std::map<uint32, CKnownFile*>::iterator it2 = m_items_hash.find(id);
+				if (it2 != m_items_hash.end() ) {
+					// Item already known: update it
+					if (tag->HasChildTags()) {
+						ProcessItemUpdate(tag, it2->second);
+					}
+					isNew = false;
+				}
+			}
+			if (isNew) {
 				CKnownFile * newFile;
 				if (tag->GetTagName() == EC_TAG_PARTFILE) {
 					CPartFile *file = new CPartFile((CEC_PartFile_Tag *) tag);
@@ -1126,17 +1125,25 @@ void CKnownFilesRem::ProcessUpdate(const CECTag *reply, CECPacket *, int)
 					newFile = new CKnownFile(tag);
 					ProcessItemUpdate(tag, newFile);
 					(*theApp->sharedfiles)[id] = newFile;
-					theApp->amuledlg->m_sharedfileswnd->sharedfilesctrl->ShowFile(newFile);
+					if (!m_initialUpdate) {
+						theApp->amuledlg->m_sharedfileswnd->sharedfilesctrl->ShowFile(newFile);
+					}
 				}
 				AddItem(newFile);
 			}
 		}
 	}
-	// remove items no longer present
-	for(iterator it = begin(); it != end();) {
-		iterator it2 = it++;
-		if (!core_files.count(GetItemID(*it2))) {
-			RemoveItem(it2);	// This calls DeleteItem, where it is removed from lists and views.
+
+	if (m_initialUpdate) {
+		theApp->amuledlg->m_sharedfileswnd->sharedfilesctrl->ShowFileList();
+		m_initialUpdate = false;
+	} else {
+		// remove items no longer present
+		for(iterator it = begin(); it != end();) {
+			iterator it2 = it++;
+			if (!core_files.count(GetItemID(*it2))) {
+				RemoveItem(it2);	// This calls DeleteItem, where it is removed from lists and views.
+			}
 		}
 	}
 }
@@ -1146,6 +1153,7 @@ CKnownFilesRem::CKnownFilesRem(CRemoteConnect * conn) : CRemoteContainer<CKnownF
 	requested = 0;
 	transferred = 0;
 	accepted = 0;
+	m_initialUpdate = true;
 }
 
 
@@ -1206,7 +1214,7 @@ CUpDownClient::CUpDownClient(CEC_UpDownClient_Tag *tag) : CECID(tag->ID())
 	m_nUserIDHybrid			= 0;
 	m_nUserPort				= 0;
 	m_nClientVersion		= 0;
-	m_fNoViewSharedFiles	= false;
+	m_fNoViewSharedFiles	= true;
 	m_identState			= IS_NOTAVAILABLE;
 	m_bRemoteQueueFull		= false;
 
@@ -2078,7 +2086,10 @@ const CSearchResultList& CSearchListRem::GetSearchResults(long nSearchID)
 void CStatsUpdaterRem::HandlePacket(const CECPacket *packet)
 {
 	theStats::UpdateStats(packet);
+	theApp->amuledlg->ShowTransferRate();			
 	theApp->ShowUserCount(); // maybe there should be a check if a usercount changed ?
+	// handle the connstate tag which is included in the stats packet
+	theApp->serverconnect->HandlePacket(packet);
 }
 
 

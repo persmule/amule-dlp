@@ -171,6 +171,7 @@ CMuleListCtrl( parent, winid, pos, size, style | wxLC_OWNERDRAW, validator, name
 
 	m_category = 0;
 	m_filecount = 0;
+	m_ItemSelectionChangePending = false;
 	LoadSettings();
 	
 	//m_ready = true;
@@ -564,11 +565,10 @@ void CDownloadListCtrl::OnGetFeedback(wxCommandEvent& WXUNUSED(event))
 
 void CDownloadListCtrl::OnViewFileInfo( wxCommandEvent& WXUNUSED(event) )
 {
-	ItemList files = ::GetSelectedItems( this );
+	long index = GetNextItem( -1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED );
 
-	if ( files.size() == 1 ) {
-		CFileDetailDialog dialog( this, files.front()->GetFile() );
-		dialog.ShowModal();
+	if (index >= 0) {
+		ShowFileDetailDialog(index);
 	}
 }
 
@@ -603,23 +603,30 @@ void CDownloadListCtrl::OnItemActivated( wxListEvent& evt )
 
 void CDownloadListCtrl::OnItemSelectionChanged( wxListEvent& )
 {	
-	if (!IsSorting()) {
-		CKnownFileVector filesVector;
-		filesVector.reserve(GetSelectedItemCount());
-
-		long index = GetNextItem( -1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED );
-		
-		while ( index > -1 ) {
-			CPartFile* file = ((FileCtrlItem_Struct*)GetItemData( index ))->GetFile();
-			if (file->IsPartFile()) {
-				filesVector.push_back(file);
-			}
-			index = GetNextItem( index, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED );
-		}
-		
-		std::sort(filesVector.begin(), filesVector.end());
-		theApp->amuledlg->m_transferwnd->clientlistctrl->ShowSources(filesVector);
+	if (!m_ItemSelectionChangePending && !IsSorting()) {
+		m_ItemSelectionChangePending = true;
+		Notify_DownloadCtrlDoItemSelectionChanged();
 	}
+}
+
+void CDownloadListCtrl::DoItemSelectionChanged()
+{	
+	m_ItemSelectionChangePending = false;
+	CKnownFileVector filesVector;
+	filesVector.reserve(GetSelectedItemCount());
+
+	long index = GetNextItem( -1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED );
+		
+	while ( index > -1 ) {
+		CPartFile* file = ((FileCtrlItem_Struct*)GetItemData( index ))->GetFile();
+		if (file->IsPartFile()) {
+			filesVector.push_back(file);
+		}
+		index = GetNextItem( index, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED );
+	}
+		
+	std::sort(filesVector.begin(), filesVector.end());
+	theApp->amuledlg->m_transferwnd->clientlistctrl->ShowSources(filesVector);
 }
 
 void CDownloadListCtrl::OnMouseRightClick(wxListEvent& evt)
@@ -763,12 +770,23 @@ void CDownloadListCtrl::OnMouseMiddleClick(wxListEvent& evt)
 {
 	// Check if clicked item is selected. If not, unselect all and select it.
 	long index = CheckSelection(evt);
-	if ( index < 0 ) {
-		return;
+	if (index >= 0) {
+		ShowFileDetailDialog(index);
 	}
+}
 
+
+void CDownloadListCtrl::ShowFileDetailDialog(long index)
+{
+	// Make list of part files in control
+	std::vector<CPartFile *> files;
+	int nrItems = GetItemCount();
+	files.reserve(nrItems);
+	for (int i = 0; i < nrItems; i++) {
+		files.push_back(((FileCtrlItem_Struct*)GetItemData(i))->GetFile());
+	}
 	bool autosort = thePrefs::AutoSortDownload(false);
-	CFileDetailDialog(this, ((FileCtrlItem_Struct*)GetItemData( index ))->GetFile()).ShowModal();
+	CFileDetailDialog(this, files, index).ShowModal();
 	thePrefs::AutoSortDownload(autosort);
 }
 
