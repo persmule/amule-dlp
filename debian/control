@@ -7,7 +7,6 @@ Build-Depends:
  autotools-dev,
  autopoint,
  debhelper (>= 7),
- quilt,
 ##
  libcrypto++-dev,
  libgd2-xpm-dev,
