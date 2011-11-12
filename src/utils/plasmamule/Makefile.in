@@ -237,7 +237,6 @@ INTLBISON = @INTLBISON@
 INTLLIBS = @INTLLIBS@
 INTLOBJS = @INTLOBJS@
 INTL_LIBTOOL_SUFFIX_PREFIX = @INTL_LIBTOOL_SUFFIX_PREFIX@
-KBUILDSYCOCA = @KBUILDSYCOCA@
 KDE4_CONFIG = @KDE4_CONFIG@
 KDE_APPLNK_PATH = @KDE_APPLNK_PATH@
 KDE_HEADER_DIR = @KDE_HEADER_DIR@
@@ -291,6 +290,7 @@ POSUB = @POSUB@
 POW_LIB = @POW_LIB@
 QT_CORE_CXXFLAGS = @QT_CORE_CXXFLAGS@
 QT_CORE_LIBS = @QT_CORE_LIBS@
+QT_DBUS_LDFLAGS = @QT_DBUS_LDFLAGS@
 QT_GUI_CXXFLAGS = @QT_GUI_CXXFLAGS@
 QT_GUI_LIBS = @QT_GUI_LIBS@
 QT_MOC = @QT_MOC@
@@ -303,8 +303,6 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 SVNDATE = @SVNDATE@
-UPDATE_MIME_DATABASE = @UPDATE_MIME_DATABASE@
-USER_INSTALL_HOOK = @USER_INSTALL_HOOK@
 USE_INCLUDED_LIBINTL = @USE_INCLUDED_LIBINTL@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
@@ -404,7 +402,7 @@ nodist_plasma_applet_plasmamule_so_SOURCES = plasma-applet-plasmamule.moc
 plasma_engine_plasmamule_so_CXXFLAGS = -shared -I${KDE_HEADER_DIR} ${QT_CORE_CXXFLAGS} -DPIC -fPIC ${DEBUGFLAG}
 plasma_applet_plasmamule_so_CXXFLAGS = -shared -D__IMG_PATH__=\"${KDE_ICON_PATH}\" -I${KDE_HEADER_DIR} ${QT_GUI_CXXFLAGS} -DPIC -fPIC ${DEBUGFLAG}
 plasmamule_engine_feeder_CXXFLAGS = -I${KDE_HEADER_DIR} ${QT_GUI_CXXFLAGS} ${DEBUGFLAG}
-plasmamule_engine_feeder_LDFLAGS = ${QT_GUI_LIBS} -lkdecore -lplasma
+plasmamule_engine_feeder_LDFLAGS = ${QT_GUI_LIBS} -lkdecore -lplasma ${QT_DBUS_LDFLAGS}
 noinst_HEADERS = plasma-engine-plasmamule.h plasma-applet-plasmamule.h plasmamule-dbus.h qt-emc.h
 CLEANFILES = *.moc
 MAINTAINERCLEANFILES = Makefile.in
@@ -877,8 +875,7 @@ info-am:
 install-data-am: install-dist_appsDATA install-dist_iconDATA \
 	install-dist_mimeDATA install-dist_serviceDATA \
 	install-modulesPROGRAMS
-	@$(NORMAL_INSTALL)
-	$(MAKE) $(AM_MAKEFLAGS) install-data-hook
+
 install-dvi: install-dvi-am
 
 install-dvi-am:
@@ -926,14 +923,14 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_appsDATA \
 	uninstall-dist_iconDATA uninstall-dist_mimeDATA \
 	uninstall-dist_serviceDATA uninstall-modulesPROGRAMS
 
-.MAKE: all check install install-am install-data-am install-strip
+.MAKE: all check install install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
 	clean-generic clean-modulesPROGRAMS ctags distclean \
 	distclean-compile distclean-generic distclean-tags distdir dvi \
 	dvi-am html html-am info info-am install install-am \
 	install-binPROGRAMS install-data install-data-am \
-	install-data-hook install-dist_appsDATA install-dist_iconDATA \
+	install-dist_appsDATA install-dist_iconDATA \
 	install-dist_mimeDATA install-dist_serviceDATA install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-info install-info-am install-man \
@@ -949,12 +946,6 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_appsDATA \
 
 %.moc : %.h
 	${QT_MOC} -o $@ $<
-
-install-data-hook: ${USER_INSTALL_HOOK}
-
-USER_INSTALL:
-	${UPDATE_MIME_DATABASE} ${KDE_MIME_PATH}
-	${KBUILDSYCOCA}
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

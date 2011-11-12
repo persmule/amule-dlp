@@ -17,7 +17,7 @@ ec_taglen_t	uint32
 Type Enum
 Name ProtocolVersion
 DataType uint16
-EC_CURRENT_PROTOCOL_VERSION	0x0203
+EC_CURRENT_PROTOCOL_VERSION	0x0204
 [/Section]
 
 # This flags are used on the transmission layer.
@@ -77,7 +77,6 @@ EC_OP_ULOAD_QUEUE                   0x20
 
 EC_OP_SHARED_FILES                  0x22
 EC_OP_SHAREDFILES_RELOAD            0x23
-EC_OP_SHAREDFILES_ADD_DIRECTORY     0x24
 
 EC_OP_RENAME_FILE                   0x25
 
@@ -202,6 +201,9 @@ EC_TAG_STATS_UL_SPEED                     0x0200
 	EC_TAG_STATS_BUDDY_IP                     0x0215
 	EC_TAG_STATS_BUDDY_PORT                   0x0216
 	EC_TAG_STATS_KAD_IN_LAN_MODE              0x0217
+	EC_TAG_STATS_TOTAL_SENT_BYTES             0x0218
+	EC_TAG_STATS_TOTAL_RECEIVED_BYTES         0x0219
+	EC_TAG_STATS_SHARED_FILE_COUNT            0x021A
 
 EC_TAG_PARTFILE                           0x0300
 	EC_TAG_PARTFILE_NAME                      0x0301

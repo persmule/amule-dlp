@@ -17,7 +17,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -255,4 +255,16 @@ void DecodePartMetFile(const CFileDataIO& file)
 		}
 	}
 	cout << '\n';
+}
+
+void DecodeStatisticsDat(const CFileDataIO& file)
+{
+	uint8_t version = file.ReadUInt8();
+	cout << "Version : " << (unsigned)version << '\n';
+	if (version == 0) {
+		uint64_t tmp = file.ReadUInt64();
+		cout << "Total sent bytes     : " << tmp << " (" << CastItoXBytes(tmp) << ")\n";
+		tmp = file.ReadUInt64();
+		cout << "Total received bytes : " << tmp << " (" << CastItoXBytes(tmp) << ")\n";
+	}
 }

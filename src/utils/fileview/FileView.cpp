@@ -17,7 +17,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -32,8 +32,8 @@
 #include "../../CFile.h"
 
 #define VERSION_MAJOR	0
-#define VERSION_MINOR	9
-#define VERSION_MICRO	7
+#define VERSION_MINOR	10
+#define VERSION_MICRO	0
 
 class CFileView : public wxApp
 {
@@ -142,6 +142,8 @@ int CFileView::OnRun()
 					DecodeClientsMet(file);
 				} else if (basename == wxT("known.met")) {
 					DecodeKnownMet(file);
+				} else if (basename == wxT("statistics.dat")) {
+					DecodeStatisticsDat(file);
 				} else if (basename.Find(wxT(".part.met")) != wxNOT_FOUND) {
 					DecodePartMetFile(file);
 				} else {
