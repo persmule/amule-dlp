@@ -135,7 +135,7 @@ binary-common:
 	dh_builddeb
 
 import-orig:
-	# call it like ./debian/rules import-orig <path to the new tarball>
+	# call it like ./debian/rules import-orig TARBALL=<path to the new tarball>
 	git-import-orig --filter=debian/* --filter=config.{sub,guess} --pristine-tar --filter-pristine-tar ${TARBALL}
 
 #
