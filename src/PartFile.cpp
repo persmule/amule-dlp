@@ -587,12 +587,8 @@ uint8 CPartFile::LoadPartFile(const CPath& in_directory, const CPath& filename, 
 			if (!m_hashlist.empty()) {
 				CreateHashFromHashlist(m_hashlist, &checkhash);
 			}
-			bool flag=false;
-			if (m_abyFileHash == checkhash) {
-				flag=true;
-			} else {
+			if (m_abyFileHash != checkhash) {
 				m_hashlist.clear();
-				flag=false;
 			}
 		}			
 	} catch (const CInvalidPacket& e) {
@@ -1372,10 +1368,7 @@ uint32 CPartFile::Process(uint32 reducedownload/*in percent*/,uint8 m_icounter)
 	// If buffer size exceeds limit, or if not written within time limit, flush data
 	if (	(m_nTotalBufferData > thePrefs::GetFileBufferSize()) ||
 		(dwCurTick > (m_nLastBufferFlushTime + BUFFER_TIME_LIMIT))) {
-		// Avoid flushing while copying preview file
-		if (!m_bPreviewing) {
-			FlushBuffer();
-		}
+		FlushBuffer();
 	}
 
 
@@ -2230,8 +2223,11 @@ void CPartFile::Delete()
 	// Barry - Need to tell any connected clients to stop sending the file
 	StopFile(true);
 	AddDebugLogLineN(logPartFile, wxT("\tStopped"));
-	
-	uint16 removed = theApp->uploadqueue->SuspendUpload(GetFileHash(), true);
+
+#ifdef __DEBUG__
+	uint16 removed =
+#endif
+		theApp->uploadqueue->SuspendUpload(GetFileHash(), true);
 	AddDebugLogLineN(logPartFile, CFormat(wxT("\tSuspended upload to %d clients")) % removed);
 	theApp->sharedfiles->RemoveFile(this);
 	AddDebugLogLineN(logPartFile, wxT("\tRemoved from shared"));
@@ -2267,7 +2263,7 @@ void CPartFile::Delete()
 	if (!CPath::RemoveFile(BAKName)) {
 		AddDebugLogLineC(logPartFile, CFormat(wxT("Failed to delete '%s'")) % BAKName);
 	} else {
-		AddDebugLogLineN(logPartFile, wxT("\tRemoved .BAK"));
+		AddDebugLogLineN(logPartFile, wxT("\tRemoved .bak"));
 	}
 	
 	CPath SEEDSName = m_fullname.AppendExt(wxT(".seeds"));
@@ -3654,7 +3650,6 @@ void CPartFile::Init()
 	m_count = 0;
 	percentcompleted = 0;
 	completedsize=0;
-	m_bPreviewing = false;
 	lastseencomplete = 0;
 	m_availablePartsCount=0;
 	m_ClientSrcAnswered = 0;
@@ -3663,7 +3658,6 @@ void CPartFile::Init()
 	m_nTotalBufferData = 0;
 	m_nLastBufferFlushTime = 0;
 	m_bPercentUpdated = false;
-	m_bRecoveringArchive = false;
 	m_iGainDueToCompression = 0;
 	m_iLostDueToCorruption = 0;
 	m_iTotalPacketsSavedDueToICH = 0;

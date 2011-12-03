@@ -57,6 +57,8 @@
 #include "UploadBandwidthThrottler.h"
 #include "GuiEvents.h"		// Needed for Notify_*
 #include "ListenSocket.h"
+#include "DownloadQueue.h"
+#include "PartFile.h"
 
 
 //TODO rewrite the whole networkcode, use overlapped sockets
@@ -71,9 +73,8 @@ CUploadQueue::CUploadQueue()
 }
 
 
-CUpDownClient* CUploadQueue::SortGetBestClient(bool sortonly)
+void CUploadQueue::SortGetBestClient(CClientRef * bestClient)
 {
-	CUpDownClient* newclient = NULL;
 	uint32 tick = GetTickCount();
 	m_lastSort = tick;
 	CClientRefList::iterator it = m_waitinglist.begin();
@@ -123,11 +124,12 @@ CUpDownClient* CUploadQueue::SortGetBestClient(bool sortonly)
 	// - find best high id client
 	// - mark all better low id clients as enabled for upload
 	uint16 rank = 1;
+	bool bestClientFound = false;
 	for (it = m_waitinglist.begin(); it != m_waitinglist.end(); ) {
 		CClientRefList::iterator it2 = it++;
 		CUpDownClient* cur_client = it2->GetClient();
 		cur_client->SetUploadQueueWaitingPosition(rank++);
-		if (newclient) {
+		if (bestClientFound) {
 			// There's a better high id client
 			cur_client->m_bAddNextConnect = false;
 		} else {
@@ -136,9 +138,10 @@ CUpDownClient* CUploadQueue::SortGetBestClient(bool sortonly)
 				cur_client->m_bAddNextConnect = true;
 			} else {
 				// We found a high id client (or a currently connected low id client)
-				newclient = cur_client;
+				bestClientFound = true;
 				cur_client->m_bAddNextConnect = false;
-				if (!sortonly) {
+				if (bestClient) {
+					bestClient->Link(cur_client CLIENT_DEBUGSTRING("CUploadQueue::SortGetBestClient"));
 					RemoveFromWaitingQueue(it2);
 					rank--;
 					lastupslotHighID = true; // VQB LowID alternate
@@ -160,17 +163,28 @@ CUpDownClient* CUploadQueue::SortGetBestClient(bool sortonly)
 			);
 	}
 #endif	// __DEBUG__
-
-	return newclient;
 }
 
 
 void CUploadQueue::AddUpNextClient(CUpDownClient* directadd)
 {
 	CUpDownClient* newclient = NULL;
+	CClientRef newClientRef;
 	// select next client or use given client
 	if (!directadd) {
-		newclient = SortGetBestClient(false);
+		SortGetBestClient(&newClientRef);
+		newclient = newClientRef.GetClient();
+#if EXTENDED_UPLOADQUEUE
+		if (!newclient) {
+			// Nothing to upload. Try to find something from the sources.
+			if (PopulatePossiblyWaitingList() > 0) {
+				newClientRef = * m_possiblyWaitingList.begin();
+				m_possiblyWaitingList.pop_front();
+				newclient = newClientRef.GetClient();
+				AddDebugLogLineN( logLocalClient, wxT("Added client from possiblyWaitingList ") + newclient->GetFullIP() );
+			}
+		}
+#endif
 		if (!newclient) {
 			return;
 		}
@@ -230,7 +244,11 @@ void CUploadQueue::Process()
 	//  and the kicked client will instantly get it back if he has HighID.)
 	// Also, if we are running out of sockets, don't add new clients, but also don't kick existing ones,
 	// or uploading will cease right away.
+#if EXTENDED_UPLOADQUEUE
+	if (tick - m_nLastStartUpload < 1000
+#else
 	if (m_waitinglist.empty() || tick - m_nLastStartUpload < 1000
+#endif
 		|| theApp->listensocket->TooManySockets()) {
 		m_allowKicking = false;
 	// Already a slot free, try to fill it
@@ -271,7 +289,7 @@ void CUploadQueue::Process()
 
 	// Periodically resort queue if it doesn't happen anyway
 	if ((sint32) (tick - m_lastSort) > MIN2MS(2)) {
-		SortGetBestClient(true);
+		SortGetBestClient();
 	}
 }
 
@@ -496,7 +514,7 @@ void CUploadQueue::AddClientToQueue(CUpDownClient* client)
 		// add to waiting queue
 		m_waitinglist.push_back(CCLIENTREF(client, wxT("CUploadQueue::AddClientToQueue m_waitinglist.push_back")));
 		// and sort it to update queue ranks
-		SortGetBestClient(true);
+		SortGetBestClient();
 		theStats::AddWaitingClient();
 		client->ClearAskedCount();
 		client->SetUploadState(US_ONUPLOADQUEUE);
@@ -664,5 +682,70 @@ void CUploadQueue::RemoveFromWaitingQueue(CClientRefList::iterator pos)
 	todelete->ClearScore();
 	todelete->SetUploadQueueWaitingPosition(0);
 }
+
+#if EXTENDED_UPLOADQUEUE
+
+int CUploadQueue::PopulatePossiblyWaitingList()
+{
+	static uint32 lastPopulate = 0;
+	uint32 tick = GetTickCount();
+	int ret = m_possiblyWaitingList.size();
+	if (tick - lastPopulate > MIN2MS(15)) {
+		// repopulate in any case after this time
+		m_possiblyWaitingList.clear();
+	} else if (ret || tick - lastPopulate < SEC2MS(30)) {
+		// don't retry too fast if list is empty
+		return ret;
+	}
+	lastPopulate = tick;
+
+	// Get our downloads
+	int nrDownloads = theApp->downloadqueue->GetFileCount();
+	for (int idownload = 0; idownload < nrDownloads; idownload++) {
+		CPartFile * download = theApp->downloadqueue->GetFileByIndex(idownload);
+		if (!download || download->GetAvailablePartCount() == 0) {
+			continue;
+		}
+		const CKnownFile::SourceSet& sources = download->GetSourceList();
+		if (sources.empty()) {
+			continue;
+		}
+		// Make a table which parts are available. No need to notify a client 
+		// which needs nothing we have.
+		uint16 parts = download->GetPartCount();
+		std::vector<bool> partsAvailable;
+		partsAvailable.resize(parts);
+		for (uint32 i = parts; i--;) {
+			partsAvailable[i] = download->IsComplete(i);
+		}
+		for (CKnownFile::SourceSet::const_iterator it = sources.begin(); it != sources.end(); it++) {
+			// Iterate over our sources, find those where download == upload
+			CUpDownClient * client = it->GetClient();
+			if (!client || client->GetUploadFile() != download || client->HasLowID()) {
+				continue;
+			}
+			const BitVector& partStatus = client->GetPartStatus();
+			if (partStatus.size() != parts) {
+				continue;
+			}
+			// Do we have something for him?
+			bool haveSomething = false;
+			for (uint32 i = parts; i--;) {
+				if (partsAvailable[i] && !partStatus.get(i)) {
+					haveSomething = true;
+					break;
+				}
+			}
+			if (haveSomething) {
+				m_possiblyWaitingList.push_back(*it);
+			}
+		}
+	}
+	ret = m_possiblyWaitingList.size();
+	AddDebugLogLineN(logLocalClient, CFormat(wxT("Populated PossiblyWaitingList: %d")) % ret);
+	return ret;
+}
+
+#endif // EXTENDED_UPLOADQUEUE
 
 // File_checked_for_headers

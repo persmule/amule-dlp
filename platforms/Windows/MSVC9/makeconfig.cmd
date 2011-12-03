@@ -14,6 +14,7 @@ call svnversion >nul 2>&1
 if errorlevel 1 goto nosvnversion
 FOR /F %%i IN ('svnversion src') DO set svnv=%%i
 if %svnv%==exported goto nosvnversion
+if %svnv%==Unversioned goto nosvnversion
 
 :foundsvnversion
 echo SVNDATE is %svnv%
@@ -24,7 +25,7 @@ goto finish
 
 :nosvnversion
 echo release build, version from ^<common/ClientVersion.h^>
-echo #include ^<common/ClientVersion.h^> >>config.h
+echo #include ^<src/include/common/ClientVersion.h^> >>config.h
 
 :finish
 echo #define CRYPTOPP_INCLUDE_PREFIX	../cryptopp>>config.h

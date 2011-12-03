@@ -16,7 +16,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -67,7 +67,7 @@ BEGIN_EVENT_TABLE(CamuleGuiApp, wxApp)
 	EVT_MULE_TIMER(ID_CORE_TIMER_EVENT, CamuleGuiApp::OnCoreTimer)
 
 	EVT_MULE_NOTIFY(CamuleGuiApp::OnNotifyEvent)
-	
+
 	// Async dns handling
 	EVT_MULE_INTERNAL(wxEVT_CORE_UDP_DNS_DONE, -1, CamuleGuiApp::OnUDPDnsDone)
 
@@ -181,8 +181,24 @@ int CamuleGuiBase::InitGui(bool geometry_enabled, wxString &geom_string)
 			}
 		}
 	}
-	
+
+	ResetTitle();
+
 	// Should default/last-used position be overridden?
+	if ( geometry_enabled ) {
+		amuledlg = new CamuleDlg(NULL, m_FrameTitle,
+		                         wxPoint(geometry_x,geometry_y),
+		                         wxSize( geometry_width, geometry_height - 58 ));
+	} else {
+		amuledlg = new CamuleDlg(NULL, m_FrameTitle);
+	}
+
+	return 0;
+}
+
+// Sets m_FrameTitle
+void CamuleGuiBase::ResetTitle()
+{
 #ifdef SVNDATE
 	#ifdef CLIENT_GUI
 		m_FrameTitle = CFormat(wxT("aMule remote control %s %s")) % wxT( VERSION ) % wxT( SVNDATE );
@@ -195,16 +211,12 @@ int CamuleGuiBase::InitGui(bool geometry_enabled, wxString &geom_string)
 	#else
 		m_FrameTitle = _("aMule");
 	#endif
-#endif
-	if ( geometry_enabled ) {
-		amuledlg = new CamuleDlg(NULL, m_FrameTitle,
-		                         wxPoint(geometry_x,geometry_y),
-		                         wxSize( geometry_width, geometry_height - 58 ));
-	} else {
-		amuledlg = new CamuleDlg(NULL, m_FrameTitle);
-	}
 
-	return 0;
+	if (thePrefs::ShowVersionOnTitle()) {
+		m_FrameTitle += wxT(' ');
+		m_FrameTitle += wxT( VERSION );
+	}
+#endif
 }
 
 
@@ -217,7 +229,7 @@ bool CamuleGuiBase::CopyTextToClipboard(wxString strText)
 		wxTheClipboard->SetData(new wxTextDataObject(strText));
 		wxTheClipboard->Close();
 	}
-	
+
 	return ClipBoardOpen;
 }
 

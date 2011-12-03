@@ -472,6 +472,7 @@ const CECPacket *CECServerSocket::Authenticate(const CECPacket *request)
 					% (canZLIB ? wxT("yes") : wxT("no"))
 					% (canUTF8numbers ? wxT("yes") : wxT("no"))
 					% (m_haveNotificationSupport ? wxT("yes") : wxT("no")));
+				if (canZLIB && canUTF8numbers) {}	// get rid of unused variable warning
 			} else {
 				response = new CECPacket(EC_OP_AUTH_FAIL);
 				response->AddTag(CECTag(EC_TAG_STRING, wxTRANSLATE("Invalid protocol version.")
@@ -564,10 +565,18 @@ static CECPacket *Get_EC_Response_StatRequest(const CECPacket *request, CLoggerA
 
 	switch (request->GetDetailLevel()) {
 		case EC_DETAIL_FULL:
+		// This is not an actual INC_UPDATE.
+		// amulegui only sets the detail level of the stats package to EC_DETAIL_INC_UPDATE
+		// so that the included conn state tag is created the way it is needed here.
+		case EC_DETAIL_INC_UPDATE:
 			response->AddTag(CECTag(EC_TAG_STATS_UP_OVERHEAD, (uint32)theStats::GetUpOverheadRate()));
 			response->AddTag(CECTag(EC_TAG_STATS_DOWN_OVERHEAD, (uint32)theStats::GetDownOverheadRate()));
 			response->AddTag(CECTag(EC_TAG_STATS_BANNED_COUNT, /*(uint32)*/theStats::GetBannedCount()));
 			AddLoggerTag(response, LoggerAccess);
+			// Needed only for the remote tray icon context menu
+			response->AddTag(CECTag(EC_TAG_STATS_TOTAL_SENT_BYTES, theStats::GetTotalSentBytes()));
+			response->AddTag(CECTag(EC_TAG_STATS_TOTAL_RECEIVED_BYTES, theStats::GetTotalReceivedBytes()));
+			response->AddTag(CECTag(EC_TAG_STATS_SHARED_FILE_COUNT, theStats::GetSharedFileCount()));
 		case EC_DETAIL_WEB:
 		case EC_DETAIL_CMD:
 			response->AddTag(CECTag(EC_TAG_STATS_UL_SPEED, (uint32)theStats::GetUploadRate()));
@@ -606,7 +615,6 @@ static CECPacket *Get_EC_Response_StatRequest(const CECPacket *request, CLoggerA
 				response->AddTag(CECTag(EC_TAG_STATS_BUDDY_PORT, BuddyPort));
 			}
 		case EC_DETAIL_UPDATE:
-		case EC_DETAIL_INC_UPDATE:
 			break;
 	};
 

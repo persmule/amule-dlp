@@ -135,14 +135,16 @@ CEC_ConnState_Tag::CEC_ConnState_Tag(EC_DETAIL_LEVEL detail_level) : CECTag(EC_T
 {
 	if (theApp->IsConnectedED2K()) {
 		if ( theApp->serverconnect->GetCurrentServer() ) {
-			if (detail_level == EC_DETAIL_CMD) {
-				AddTag(CEC_Server_Tag(theApp->serverconnect->GetCurrentServer(), detail_level));
-			} else {
+			if (detail_level == EC_DETAIL_INC_UPDATE) {
 				// Send no full server tag, just the ECID of the connected server
 				AddTag(CECTag(EC_TAG_SERVER, theApp->serverconnect->GetCurrentServer()->ECID()));
+			} else {
+				AddTag(CEC_Server_Tag(theApp->serverconnect->GetCurrentServer(), detail_level));
 			}
 		}
 		AddTag(CECTag(EC_TAG_ED2K_ID, theApp->GetED2KID()));
+	} else if (theApp->serverconnect->IsConnecting()) {
+		AddTag(CECTag(EC_TAG_ED2K_ID, 0xffffffff));
 	}
 
 	AddTag(CECTag(EC_TAG_CLIENT_ID, theApp->GetID()));	
@@ -249,8 +251,8 @@ CEC_SharedFile_Tag::CEC_SharedFile_Tag(const CKnownFile *file, EC_DETAIL_LEVEL d
 	AddTag(EC_TAG_PARTFILE_ED2K_LINK,
 			theApp->CreateED2kLink(file, (theApp->IsConnectedED2K() && !theApp->serverconnect->IsLowID())), valuemap);
 
-	AddTag(EC_TAG_KNOWNFILE_COMMENT, file->GetFileComment());
-	AddTag(EC_TAG_KNOWNFILE_RATING, file->GetFileRating());
+	AddTag(EC_TAG_KNOWNFILE_COMMENT, file->GetFileComment(), valuemap);
+	AddTag(EC_TAG_KNOWNFILE_RATING, file->GetFileRating(), valuemap);
 }
 
 CEC_UpDownClient_Tag::CEC_UpDownClient_Tag(const CUpDownClient* client, EC_DETAIL_LEVEL detail_level, CValueMap *valuemap) :

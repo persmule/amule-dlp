@@ -1,6 +1,15 @@
-Version 2.3.0 - Don't go looking for names on release candidates.
+Version 2.4.0 - The river knows.
 ----------
-2011-??-??
+201?-??-??
+
+--------------------------------------------------------------------------------
+
+Version 2.3.1 - The "unobvious evil date" version.
+----------
+2011-11-11
+
+	btkaos:
+		* Show if a client shares its file list in client view
 
 	freddy77:
 		* Various optimizations of memory usage
@@ -66,6 +75,10 @@ Version 2.3.0 - Don't go looking for names on release candidates.
 		  translators
 		* Several fixes and improvements for the sanity checker script
 		* Fix bfd detection
+		* Add year bumper script
+		* Move statistics from config to statistics.dat
+		* New preference setting to show application version on the title
+		* Fix man page installation for several languages
 
 	Greek:
 		* Part number is now an extra column in the download list
@@ -103,6 +116,11 @@ Version 2.3.0 - Don't go looking for names on release candidates.
 		* Dynamic adjustment of threshold for rarity of download files
 		* Option to prevent the computer from sleeping while downloading in MSW and MacOSX >= 10.5
 		* Mac fixes
+		* Fixed "out of memory" crashes caused by wxWidgets - so wxWidgets 2.8.12 is required now!
+		* Show warning dialog if "Change language" is selected and no languages are installed
+		* Added backtrace support for MacOSX
+		* Add locale support in the mac bundle with updated scripts 
+		  (translations are now supported on MacOSX builds)
 
 	lfroen:
 		* php prefix for lex/yacc
@@ -234,6 +252,12 @@ Version 2.3.0 - Don't go looking for names on release candidates.
 		* Prevent flicker when sorting already sorted lists
 		* Prevent creation of more than 99 categories, since that's the limit
 		* Fixed saving of sort orders
+		* Allow switching through files in file detail dialog
+		* Improve performance when many small files are hashed
+		* Fix: if a file had more than two copies shared it was hashed on every startup
+		* Show directory in search list for "view shared files" searches
+		* Safe writing of known.met and nodes.dat (don't overwrite existing until write is finished)
+		* Show directory in search list for "view shared files" searches
 
 	Vollstrecker:
 		* Unify copyright lines
@@ -241,7 +265,6 @@ Version 2.3.0 - Don't go looking for names on release candidates.
 		* Various Updates in debian/ see debian/changelog
 		* Added crash handling in command-line tools
 		* Fix for autoconf-2.64.
-		* Raised minimum wxWidgets version to 2.8.8
 		* Make amulecmd help command work without connection
 		* New translation concept for manpages
 		* KDE Plasma applet to show stats

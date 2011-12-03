@@ -33,7 +33,7 @@ typedef uint8_t ec_tagtype_t;
 typedef uint32_t ec_taglen_t;
 
 enum ProtocolVersion {
-	EC_CURRENT_PROTOCOL_VERSION = 0x0203
+	EC_CURRENT_PROTOCOL_VERSION = 0x0204
 };
 
 enum ECFlags {
@@ -76,7 +76,6 @@ enum ECOpCodes {
 	EC_OP_ULOAD_QUEUE                   = 0x20,
 	EC_OP_SHARED_FILES                  = 0x22,
 	EC_OP_SHAREDFILES_RELOAD            = 0x23,
-	EC_OP_SHAREDFILES_ADD_DIRECTORY     = 0x24,
 	EC_OP_RENAME_FILE                   = 0x25,
 	EC_OP_SEARCH_START                  = 0x26,
 	EC_OP_SEARCH_STOP                   = 0x27,
@@ -174,6 +173,9 @@ enum ECTagNames {
 		EC_TAG_STATS_BUDDY_IP                     = 0x0215,
 		EC_TAG_STATS_BUDDY_PORT                   = 0x0216,
 		EC_TAG_STATS_KAD_IN_LAN_MODE              = 0x0217,
+		EC_TAG_STATS_TOTAL_SENT_BYTES             = 0x0218,
+		EC_TAG_STATS_TOTAL_RECEIVED_BYTES         = 0x0219,
+		EC_TAG_STATS_SHARED_FILE_COUNT            = 0x021A,
 	EC_TAG_PARTFILE                           = 0x0300,
 		EC_TAG_PARTFILE_NAME                      = 0x0301,
 		EC_TAG_PARTFILE_PARTMETID                 = 0x0302,
@@ -466,7 +468,7 @@ enum EcPrefs {
 wxString GetDebugNameProtocolVersion(uint16 arg)
 {
 	switch (arg) {
-		case 0x0203: return wxT("EC_CURRENT_PROTOCOL_VERSION");
+		case 0x0204: return wxT("EC_CURRENT_PROTOCOL_VERSION");
 		default: return CFormat(wxT("unknown %d 0x%x")) % arg % arg;
 	}
 }
@@ -517,7 +519,6 @@ wxString GetDebugNameECOpCodes(uint8 arg)
 		case 0x20: return wxT("EC_OP_ULOAD_QUEUE");
 		case 0x22: return wxT("EC_OP_SHARED_FILES");
 		case 0x23: return wxT("EC_OP_SHAREDFILES_RELOAD");
-		case 0x24: return wxT("EC_OP_SHAREDFILES_ADD_DIRECTORY");
 		case 0x25: return wxT("EC_OP_RENAME_FILE");
 		case 0x26: return wxT("EC_OP_SEARCH_START");
 		case 0x27: return wxT("EC_OP_SEARCH_STOP");
@@ -619,6 +620,9 @@ wxString GetDebugNameECTagNames(uint16 arg)
 		case 0x0215: return wxT("EC_TAG_STATS_BUDDY_IP");
 		case 0x0216: return wxT("EC_TAG_STATS_BUDDY_PORT");
 		case 0x0217: return wxT("EC_TAG_STATS_KAD_IN_LAN_MODE");
+		case 0x0218: return wxT("EC_TAG_STATS_TOTAL_SENT_BYTES");
+		case 0x0219: return wxT("EC_TAG_STATS_TOTAL_RECEIVED_BYTES");
+		case 0x021A: return wxT("EC_TAG_STATS_SHARED_FILE_COUNT");
 		case 0x0300: return wxT("EC_TAG_PARTFILE");
 		case 0x0301: return wxT("EC_TAG_PARTFILE_NAME");
 		case 0x0302: return wxT("EC_TAG_PARTFILE_PARTMETID");

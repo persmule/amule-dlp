@@ -27,7 +27,7 @@
 public interface ECCodes {
 
 
-public final static short EC_CURRENT_PROTOCOL_VERSION = 0x0203;
+public final static short EC_CURRENT_PROTOCOL_VERSION = 0x0204;
 
 public final static int EC_FLAG_ZLIB	 = 0x00000001;
 public final static int EC_FLAG_UTF8_NUMBERS = 0x00000002;
@@ -66,7 +66,6 @@ public final static byte EC_OP_DLOAD_QUEUE                   = 0x1F;
 public final static byte EC_OP_ULOAD_QUEUE                   = 0x20;
 public final static byte EC_OP_SHARED_FILES                  = 0x22;
 public final static byte EC_OP_SHAREDFILES_RELOAD            = 0x23;
-public final static byte EC_OP_SHAREDFILES_ADD_DIRECTORY     = 0x24;
 public final static byte EC_OP_RENAME_FILE                   = 0x25;
 public final static byte EC_OP_SEARCH_START                  = 0x26;
 public final static byte EC_OP_SEARCH_STOP                   = 0x27;
@@ -162,6 +161,9 @@ public final static short 	EC_TAG_STATS_BUDDY_STATUS                 = 0x0214;
 public final static short 	EC_TAG_STATS_BUDDY_IP                     = 0x0215;
 public final static short 	EC_TAG_STATS_BUDDY_PORT                   = 0x0216;
 public final static short 	EC_TAG_STATS_KAD_IN_LAN_MODE              = 0x0217;
+public final static short 	EC_TAG_STATS_TOTAL_SENT_BYTES             = 0x0218;
+public final static short 	EC_TAG_STATS_TOTAL_RECEIVED_BYTES         = 0x0219;
+public final static short 	EC_TAG_STATS_SHARED_FILE_COUNT            = 0x021A;
 public final static short EC_TAG_PARTFILE                           = 0x0300;
 public final static short 	EC_TAG_PARTFILE_NAME                      = 0x0301;
 public final static short 	EC_TAG_PARTFILE_PARTMETID                 = 0x0302;
