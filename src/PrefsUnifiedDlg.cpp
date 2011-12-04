@@ -1087,10 +1087,15 @@ void PrefsUnifiedDlg::OnButtonIPFilterUpdate(wxCommandEvent& WXUNUSED(event))
 //Bill Lee
 #ifdef AMULE_DLP
 void PrefsUnifiedDlg::OnButtonReloadAntiLeech(wxCommandEvent& WXUNUSED(event)){
+	#ifndef CLIENT_GUI
 	if( theDLP->ReloadAntiLeech() )
 		wxMessageBox(_("Cannot load antiLeech!"), _("Message"), wxOK | wxICON_EXCLAMATION, this);
 	else
 		wxMessageBox(_("Succeed loading antiLeech!"), _("Message"), wxOK | wxICON_INFORMATION, this);
+	#else
+	AddLogLineN(_("Reload antiLeech from remote GUI has not been implemented."));
+	wxMessageBox(_("Sorry, it has not been implemented yet!"));
+	#endif
 }
 #endif
 
