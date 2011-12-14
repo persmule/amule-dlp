@@ -12,7 +12,9 @@ Build-Depends:
  libgd2-xpm-dev,
  libgeoip-dev,
  libglib2.0-dev,
+ kdelibs5-dev,
  libpng12-dev,
+ libqt4-dev,
  libreadline-dev,
  libupnp3-dev,
  libwxgtk2.8-dev (>= 2.8.12),
@@ -119,3 +121,11 @@ Description: ed2k links handling support for GNOME web browsers
  This package contains a schemas file that allows ed2k links handling support
  with any GNOME web browser that use GConf. For example: Firefox, Epiphany,
  Flock, Seamonkey or Galeon.
+
+Package: amule-plasmamule
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: amule | amule-daemon
+Description: kde plasmoid to control amule
+ plasmoid to control the amule application and helper apps and mimetype
+ for handling emulecollections
