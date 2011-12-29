@@ -31,13 +31,13 @@ objdir = $(CURDIR)/obj-$(DEB_HOST_GNU_TYPE)
 
 # CFLAGS
 
-CFLAGS = -Wall -g
+CFLAGS = `dpkg-buildflags --get CFLAGS`
+CFLAGS += -Wall
 
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0
-else
-	CFLAGS += -O2
-endif
+CXXFLAGS = `dpkg-buildflags --get CXXFLAGS`
+
+LDFLAGS_DEF += `dpkg-buildflags --get LDFLAGS`
+CPPFLAGS_DEF = `dpkg-buildflags --get CPPFLAGS`
 
 ###
 
@@ -51,7 +51,7 @@ $(objdir)/config.status: configure
 
 	-mkdir $(objdir)
 	cd $(objdir) && \
-	env CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" ../configure $(confflags)
+	env CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CPPFLAGS_DEF)" LDFLAGS="$(LDFLAGS_DEF)" ../configure $(confflags)
 
 	touch $@
 
