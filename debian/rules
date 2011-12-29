@@ -1,7 +1,5 @@
 #! /usr/bin/make -f
 
-include /usr/share/quilt/quilt.make
-
 ###
 
 # Configure arguments
@@ -43,7 +41,7 @@ endif
 
 ###
 
-$(objdir)/config.status: configure $(QUILT_STAMPFN)
+$(objdir)/config.status: configure
 	dh_testdir
 
 	ln -sf /usr/share/misc/config.sub .
@@ -72,7 +70,7 @@ build-stamp: $(objdir)/config.status
 
 #
 
-clean: unpatch
+clean:
 	dh_testdir
 	dh_testroot
 
