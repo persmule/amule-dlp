@@ -1,3 +1,16 @@
+amule (2.3.1-2) unstable; urgency=low
+
+  [ Sandro Tosi ]
+  * [9fd98bf] remove unneeded b-d on quilt
+  * [2310fc3] remove explicit reference to quilt, we're using 3.0 (quilt) now
+  * [ecc91bc] enable hardening flags; thanks to Moritz Muehlenhoff;
+    Closes: #653503
+
+  [ Vollstrecker ]
+  * [b88ae44] Added plasma-applett pkg
+
+ -- Sandro Tosi <morph@debian.org>  Fri, 30 Dec 2011 22:11:04 +0100
+
 amule (2.3.1-1) unstable; urgency=low
 
   * New upstream release (upload to unstable)
