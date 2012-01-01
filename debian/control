@@ -122,7 +122,7 @@ Description: ed2k links handling support for GNOME web browsers
  with any GNOME web browser that use GConf. For example: Firefox, Epiphany,
  Flock, Seamonkey or Galeon.
 
-Package: amule-plasmamule
+Package: plasma-widget-amule
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: amule | amule-daemon
