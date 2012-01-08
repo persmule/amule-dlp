@@ -1,3 +1,10 @@
+amule (2.3.1-4) unstable; urgency=low
+
+  * [a83f55a] don't install magnet.protocol, already provided by ktorrent;
+    thanks to Nicolas DEGAND for the report; Closes: #654686
+
+ -- Sandro Tosi <morph@debian.org>  Sun, 08 Jan 2012 22:40:06 +0100
+
 amule (2.3.1-3) unstable; urgency=low
 
   * [7aeed3f] rename amule-plasmamule into plasma-widget-amule; thanks to Sune
