@@ -1,3 +1,10 @@
+amule (2.3.1-5) unstable; urgency=low
+
+  * [6c58eb0] use libupnp-dev in b-d to easy libupnp transition; thanks to Nick
+    Leverton for the report; Closes: #656830
+
+ -- Sandro Tosi <morph@debian.org>  Sun, 22 Jan 2012 14:09:56 +0100
+
 amule (2.3.1-4) unstable; urgency=low
 
   * [a83f55a] don't install magnet.protocol, already provided by ktorrent;
