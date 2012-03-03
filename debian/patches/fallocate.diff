@@ -1,4 +1,4 @@
-Disable fallocate #562992
+Disable fallocate #562992 (only on hppa, alpha re-enables as per #661876)
 
 This is only a workaround to fix FTBFS, the configure check is wrong and needs to be fixed:
 http://www.amule.org/abugs/view.php?id=1572
@@ -10,7 +10,7 @@ http://www.amule.org/abugs/view.php?id=1572
  #include <errno.h>
  
 +// #562992
-+#if defined(__alpha__) || defined(__hppa__)
++#if defined(__hppa__)
 +#undef HAVE_FALLOCATE
 +#endif
 +
