@@ -13,7 +13,7 @@ Build-Depends:
  libgeoip-dev,
  libglib2.0-dev,
  kdelibs5-dev,
- libpng12-dev,
+ libpng-dev,
  libqt4-dev,
  libreadline-dev,
  libupnp-dev,
