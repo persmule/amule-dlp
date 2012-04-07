@@ -1,0 +1,30 @@
+Description: Use (hardening) build flags from environment (dpkg-buildflags).
+ The BUILD_*FLAGS are not set to same values as *FLAGS and only used in this
+ Makefile.
+ .
+ Necessary for hardening flags.
+Author: Simon Ruderich <simon@ruderich.org>
+Last-Update: 2012-03-12
+
+--- amule-2.3.1.orig/src/libs/ec/cpp/Makefile.in
++++ amule-2.3.1/src/libs/ec/cpp/Makefile.in
+@@ -623,7 +623,7 @@ uninstall-am:
+ 
+ 
+ mkFileSum$(BUILD_EXEEXT): $(top_srcdir)/src/utils/mkFileSum.c
+-	$(BUILD_CC) $(BUILD_CFLAGS) $(BUILD_CPPFLAGS) $(BUILD_LDFLAGS) $^ -o $@
++	$(BUILD_CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ -o $@
+ 
+ ECVersion.h: EC-timestamp
+ 	@if test ! -f $@; then \
+--- amule-2.3.1.orig/src/libs/ec/cpp/Makefile.am
++++ amule-2.3.1/src/libs/ec/cpp/Makefile.am
+@@ -35,7 +35,7 @@ BUILT_SOURCES = ECVersion.h
+ CLEANFILES = ECVersion.h EC-timestamp mkFileSum$(BUILD_EXEEXT)
+ 
+ mkFileSum$(BUILD_EXEEXT): $(top_srcdir)/src/utils/mkFileSum.c
+-	$(BUILD_CC) $(BUILD_CFLAGS) $(BUILD_CPPFLAGS) $(BUILD_LDFLAGS) $^ -o $@
++	$(BUILD_CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ -o $@
+ 
+ ECVersion.h: EC-timestamp
+ 	@if test ! -f $@; then \
