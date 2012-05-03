@@ -1,8 +1,15 @@
-amule (2.3.1-7) UNRELEASED; urgency=low
+amule (2.3.1-7) unstable; urgency=low
 
-  *
+  * [af4640e] build-depends on libpng-dev, to prepare for libpng transition;
+    thanks to Nobuhiro Iwamatsu for the report; Closes: #662267
+  * [c6b9487] enable hardening flags for mkFileSum.c too; thanks to Simon
+    Ruderich for the patch; Closes: #653503
+  * [117b5c6] Handle libupnp3->libupnp6 transition; thanks to Adam D. Barratt
+    for the report and Nick Leverton for the patch; Closes: #670962
+  * [2c2f6d5] Bump Standards-Version to 3.9.3 (no changes needed)
+  * [6bae44f] don't ignore real errors with lintian-overrides
 
- -- Sandro Tosi <morph@debian.org>  Sat, 07 Apr 2012 22:22:04 +0200
+ -- Sandro Tosi <morph@debian.org>  Thu, 03 May 2012 22:11:58 +0200
 
 amule (2.3.1-6) unstable; urgency=low
 
