@@ -4,3 +4,4 @@ use_xdg-open_as_preview_default.diff
 fallocate.diff
 version_check.diff
 libs-use-dpkg-buildflags.diff
+libupnp-fix-publisherurl.patch
