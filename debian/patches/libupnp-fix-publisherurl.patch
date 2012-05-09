@@ -1,7 +1,6 @@
 Description: Handle libupnp3->libupnp6 transition
 Author: Nick Leverton <nick@leverton.org>
-Forwarded: yes
-Bug: http://forum.amule.org/index.php?topic=19738
+Forwarded: not-needed
 Bug-Debian: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=670962
 Index: amule/src/UPnPBase.cpp
 ===================================================================
