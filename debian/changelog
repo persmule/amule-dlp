@@ -1,3 +1,14 @@
+amule (2.3.1-8) unstable; urgency=low
+
+  * [27f7932] mark libupnp patch as not-needed for forward (it's a Debian
+    specific change due to Debian specific API change)
+  * [6536ca2] Fixed compilation with gcc 4.7; thanks to Lucas Nussbaum for the
+    report; Closes: #674375
+  * [9c376cb] revert fix to pass hardening flags to mkFileSum.c, suggested by
+    upstream and fix cross-compilation
+
+ -- Sandro Tosi <morph@debian.org>  Sat, 16 Jun 2012 18:06:09 +0200
+
 amule (2.3.1-7) unstable; urgency=low
 
   * [af4640e] build-depends on libpng-dev, to prepare for libpng transition;
