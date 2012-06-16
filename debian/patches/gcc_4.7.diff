@@ -1,0 +1,23 @@
+Description: Fixed compilation with gcc 4.7
+Origin: http://code.google.com/p/amule/source/detail?r=10772
+Index: amule/src/ObservableQueue.h
+===================================================================
+--- amule.orig/src/ObservableQueue.h	2011-04-12 00:27:40.915973489 +0200
++++ amule/src/ObservableQueue.h	2012-06-16 15:35:15.822669062 +0200
+@@ -331,14 +331,14 @@
+ template <typename ValueType>
+ void CObservableQueue<ValueType>::ObserverAdded( ObserverType* o )
+ {
+-	NotifyObservers( EventType( EventType::STARTING ), o );
++	this->NotifyObservers( EventType( EventType::STARTING ), o );
+ }
+ 
+ 
+ template <typename ValueType>
+ void CObservableQueue<ValueType>::ObserverRemoved( ObserverType* o )
+ {
+-	NotifyObservers( EventType( EventType::STOPPING ), o );
++	this->NotifyObservers( EventType( EventType::STOPPING ), o );
+ }
+ 
+ 

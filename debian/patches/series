@@ -5,3 +5,4 @@ fallocate.diff
 version_check.diff
 libs-use-dpkg-buildflags.diff
 libupnp-fix-publisherurl.patch
+gcc_4.7.diff
