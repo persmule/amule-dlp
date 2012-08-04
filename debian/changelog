@@ -1,3 +1,11 @@
+amule (2.3.1-9) unstable; urgency=low
+
+  * [bd952ab] handle gracefully (ie not crashing) an empty statistics.dat file;
+    thanks to florian for the report and to Michael Stapelberg for preparing
+    the patch; Closes: #683680
+
+ -- Sandro Tosi <morph@debian.org>  Sat, 04 Aug 2012 12:24:53 +0200
+
 amule (2.3.1-8) unstable; urgency=low
 
   * [27f7932] mark libupnp patch as not-needed for forward (it's a Debian
