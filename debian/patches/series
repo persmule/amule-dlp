@@ -5,3 +5,4 @@ fallocate.diff
 version_check.diff
 libupnp-fix-publisherurl.patch
 gcc_4.7.diff
+handle_empty_statistics_file.patch

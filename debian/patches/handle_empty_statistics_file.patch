@@ -1,0 +1,44 @@
+Description: Cope with empty statistics.dat file
+ If, for some reason (corruption), the ~/.aMule/statistics.dat is empty, aMule
+ will refuse to start until the file is deleted. This patch catches the
+ occuring exception, logs the problem, and then continues as if the file did
+ not exist in the first place.
+Bug-Debian: http://bugs.debian.org/683680
+Last-Update: 2012-02-11
+Origin: upstream, http://www.amule.org/abugs/view.php?id=1704
+Forwarded: not-needed
+
+Index: amule/src/Statistics.cpp
+===================================================================
+--- amule.orig/src/Statistics.cpp	2012-08-04 10:44:30.564102710 +0200
++++ amule/src/Statistics.cpp	2012-08-04 10:44:39.708219780 +0200
+@@ -50,6 +50,7 @@
+ #endif
+ 
+ #include "amule.h"		// Needed for theApp
++#include "Logger.h"
+ #include <wx/intl.h>
+ 
+ #ifdef __BSD__
+@@ -311,12 +312,16 @@
+ 
+ 	s_totalSent = 0;
+ 	s_totalReceived = 0;
+-	if (f.Open(JoinPaths(theApp->ConfigDir, wxT("statistics.dat")))) {
+-		uint8_t version = f.ReadUInt8();
+-		if (version == 0) {
+-			s_totalSent = f.ReadUInt64();
+-			s_totalReceived = f.ReadUInt64();
++	try {
++		if (f.Open(JoinPaths(theApp->ConfigDir, wxT("statistics.dat")))) {
++			uint8_t version = f.ReadUInt8();
++			if (version == 0) {
++				s_totalSent = f.ReadUInt64();
++				s_totalReceived = f.ReadUInt64();
++			}
+ 		}
++	} catch (CSafeIOException e) {
++		AddLogLineN(e.what());
+ 	}
+ 
+ 	// Load old values from config
