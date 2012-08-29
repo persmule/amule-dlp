@@ -1,3 +1,11 @@
+amule (2.3.1-10) experimental; urgency=low
+
+  * [1bc37b9] Fix build with ld --as-needed; thanks to Ilya Barygin for the
+    report and patch; Closes: #677209
+  * [a917a2b] provide package with debug symbols
+
+ -- Sandro Tosi <morph@debian.org>  Wed, 29 Aug 2012 16:50:05 +0200
+
 amule (2.3.1-9) unstable; urgency=low
 
   * [bd952ab] handle gracefully (ie not crashing) an empty statistics.dat file;
