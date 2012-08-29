@@ -1,0 +1,25 @@
+Description: fix build with --as-needed linker option
+Author: Ilya Barygin <randomaction@ubuntu.com>
+
+--- amule-2.3.1.orig/src/utils/plasmamule/Makefile.am
++++ amule-2.3.1/src/utils/plasmamule/Makefile.am
+@@ -31,7 +31,7 @@ plasma_engine_plasmamule_so_CXXFLAGS = -
+ plasma_applet_plasmamule_so_CXXFLAGS = -shared -D__IMG_PATH__=\"${KDE_ICON_PATH}\" -I${KDE_HEADER_DIR} ${QT_GUI_CXXFLAGS} -DPIC -fPIC ${DEBUGFLAG}
+ plasmamule_engine_feeder_CXXFLAGS = -I${KDE_HEADER_DIR} ${QT_GUI_CXXFLAGS} ${DEBUGFLAG}
+ 
+-plasmamule_engine_feeder_LDFLAGS = ${QT_GUI_LIBS} -lkdecore -lplasma ${QT_DBUS_LDFLAGS}
++plasmamule_engine_feeder_LDADD = ${QT_GUI_LIBS} -lkdecore -lplasma ${QT_DBUS_LDFLAGS}
+ 
+ noinst_HEADERS = plasma-engine-plasmamule.h plasma-applet-plasmamule.h plasmamule-dbus.h qt-emc.h
+ 
+--- amule-2.3.1.orig/src/utils/plasmamule/Makefile.in
++++ amule-2.3.1/src/utils/plasmamule/Makefile.in
+@@ -402,7 +402,7 @@ nodist_plasma_applet_plasmamule_so_SOURC
+ plasma_engine_plasmamule_so_CXXFLAGS = -shared -I${KDE_HEADER_DIR} ${QT_CORE_CXXFLAGS} -DPIC -fPIC ${DEBUGFLAG}
+ plasma_applet_plasmamule_so_CXXFLAGS = -shared -D__IMG_PATH__=\"${KDE_ICON_PATH}\" -I${KDE_HEADER_DIR} ${QT_GUI_CXXFLAGS} -DPIC -fPIC ${DEBUGFLAG}
+ plasmamule_engine_feeder_CXXFLAGS = -I${KDE_HEADER_DIR} ${QT_GUI_CXXFLAGS} ${DEBUGFLAG}
+-plasmamule_engine_feeder_LDFLAGS = ${QT_GUI_LIBS} -lkdecore -lplasma ${QT_DBUS_LDFLAGS}
++plasmamule_engine_feeder_LDADD = ${QT_GUI_LIBS} -lkdecore -lplasma ${QT_DBUS_LDFLAGS}
+ noinst_HEADERS = plasma-engine-plasmamule.h plasma-applet-plasmamule.h plasmamule-dbus.h qt-emc.h
+ CLEANFILES = *.moc
+ MAINTAINERCLEANFILES = Makefile.in
