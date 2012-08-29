@@ -125,7 +125,7 @@ binary-common:
 	dh_icons
 	dh_gconf -pamule-gnome-support
 	dh_link
-	dh_strip
+	dh_strip --dbg-package=amule-dbg
 	dh_compress
 	dh_fixperms
 	dh_installdeb

@@ -129,3 +129,14 @@ Recommends: amule | amule-daemon
 Description: kde plasmoid to control amule
  plasmoid to control the amule application and helper apps and mimetype
  for handling emulecollections
+
+Package: amule-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: amule (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: client for the eD2k and Kad networks, like eMule (debug symbols)
+ aMule is a peer-to-peer file sharing application, designed to connect
+ to the eDonkey and Kad networks.
+ .
+ This package contains the debug symbols for amule.
