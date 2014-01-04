@@ -9,7 +9,7 @@ Build-Depends:
  debhelper (>= 7),
 ##
  libcrypto++-dev,
- libgd2-xpm-dev,
+ libgd2-dev,
  libgeoip-dev,
  libglib2.0-dev,
  kdelibs5-dev,
