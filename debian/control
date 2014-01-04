@@ -22,8 +22,8 @@ Build-Depends:
  zlib1g-dev,
 Standards-Version: 3.9.5
 Homepage: http://www.amule.org
-Vcs-Git: git://git.debian.org/git/pkg-amule/amule.git
-Vcs-Browser: http://git.debian.org/?p=pkg-amule/amule.git
+Vcs-Git: git://anonscm.debian.org/pkg-amule/amule.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-amule/amule.git
 
 Package: amule
 Architecture: any
