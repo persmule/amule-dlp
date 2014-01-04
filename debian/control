@@ -20,7 +20,7 @@ Build-Depends:
  libwxgtk2.8-dev (>= 2.8.12),
  wx2.8-i18n (>= 2.8.12),
  zlib1g-dev,
-Standards-Version: 3.9.3
+Standards-Version: 3.9.5
 Homepage: http://www.amule.org
 Vcs-Git: git://git.debian.org/git/pkg-amule/amule.git
 Vcs-Browser: http://git.debian.org/?p=pkg-amule/amule.git
