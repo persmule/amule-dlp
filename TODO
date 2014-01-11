@@ -2,3 +2,5 @@
 (Fixed)The present amule-dlp cannot realize wheather a legal libantiLeech is present, and will crash when using libantiLeech's functions first time. So, the first thing to do seems to add a judgement to the code within DLP.cpp.
 
 Make configure not check libbfd when invoked without "--enable-debug".
+
+If amuled is launched with -f, it cannot die a normal death, you must kill it twice. Now I am using raf's daemon(1) to support it.
