@@ -738,7 +738,8 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 
 	//Dynamic Leecher Protection - Bill Lee
 	#ifdef AMULE_DLP
-	theDLP->DLPCheck(this);
+	if(theDLP->IsValid())
+	  theDLP->DLPCheck(this);
 	#endif
 
 	return bIsMule;
@@ -1043,7 +1044,8 @@ bool CUpDownClient::ProcessMuleInfoPacket(const byte* pachPacket, uint32 nSize)
 
 	//Dynamic Leecher Protection - Added by Bill Lee
 	#ifdef AMULE_DLP
-	theDLP->DLPCheck(this);
+	if(theDLP->IsValid())
+	  theDLP->DLPCheck(this);
 	#endif
 	
 	return (protocol_version == 0xFF); // This was a OS_Info?

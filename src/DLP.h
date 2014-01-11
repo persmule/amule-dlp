@@ -25,7 +25,7 @@ class IantiLeech;	//forward declaretion
 class DLP
 {
 public:
-	DLP() : antiLeech(NULL) {	ReloadAntiLeech();	}
+	DLP() : antiLeech(NULL) {	DLPInitState=ReloadAntiLeech();	}
 	~DLP();
 
 	void CheckHelloTag(CUpDownClient*, UINT tagnumber);
@@ -33,6 +33,8 @@ public:
 	bool DLPCheck(CUpDownClient*);
 
 	int ReloadAntiLeech();
+	int GetInitState(void){return DLPInitState;}
+	bool IsValid(void){return (0==DLPInitState);}
 
 private:
 	typedef IantiLeech* (*Creator)();
@@ -40,6 +42,7 @@ private:
 
 	wxDynamicLibrary antiLeechLib;
 	IantiLeech* antiLeech;
+	int DLPInitState;
 
 	bool LoadFrom(wxString& file);
 };
