@@ -441,7 +441,7 @@ AC_DEFUN([MULE_CHECK_BFD],
 	for bfd_ldadd in "" "${LIBINTL}" "-ldl" "-ldl ${LIBINTL}"; do
 		MULE_BACKUP([LIBS])
 		MULE_BACKUP([LDFLAGS])
-		MULE_PREPEND([LIBS], [-lbfd -liberty ${bfd_ldadd} ${ZLIB_LIBS}])
+		MULE_PREPEND([LIBS], [-lbfd  ${bfd_ldadd} ${ZLIB_LIBS}])
 		MULE_APPEND([LDFLAGS], [${ZLIB_LDFLAGS}])
 		AC_LINK_IFELSE([
 			AC_LANG_PROGRAM([[
@@ -453,7 +453,7 @@ AC_DEFUN([MULE_CHECK_BFD],
 		], [
 			result=yes
 			BFD_CPPFLAGS="-DHAVE_BFD"
-			BFD_LIBS="-lbfd -liberty ${bfd_ldadd}"
+			BFD_LIBS="-lbfd  ${bfd_ldadd}"
 			MULE_RESTORE([LIBS])
 			MULE_RESTORE([LDFLAGS])
 			break
