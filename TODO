@@ -1,0 +1,3 @@
+
+The present amule-dlp cannot realize wheather a legal libantiLeech is present, and will crash when using libantiLeech's functions first time. So, the first thing to do seems to add a judgement to the code within DLP.cpp.
+
