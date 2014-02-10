@@ -499,20 +499,21 @@ void CamuleDlg::OnAboutButton(wxCommandEvent& WXUNUSED(ev))
 	msg << _("Snapshot:") << wxT("\n ") << wxT(SVNDATE);
 #endif
 	msg << wxT("\n\n") << _("'All-Platform' p2p client based on eMule \n\n") <<
-		_("Website: http://www.amule.org \n") <<
-		_("Forum: http://forum.amule.org \n") <<
-		_("FAQ: http://wiki.amule.org \n\n") <<
-		_("Contact: admin@amule.org (administrative issues) \n") <<
-		_("Copyright (c) 2003-2011 aMule Team \n\n") <<
-		_("Part of aMule is based on \n") <<
-		_("Kademlia: Peer-to-peer routing based on the XOR metric.\n") <<
-                _(" Copyright (c) 2002-2011 Petar Maymounkov ( petar@post.harvard.edu )\n") <<
-		_("http://kademlia.scs.cs.nyu.edu\n") <<
-		_("\nDynamic Leech Protection\n") <<
-		_(" Homepage: http://amule-dlp.googlecode.com \n") <<
-		_(" Copyright (C) 2002-2007 Xtreme-Mod \n") <<
-		_(" Copyright (C) 2009 greensea \n") <<
-		_(" Copyright (C) 2009-2011 Bill Lee \n");
+	  _("Website: http://www.amule.org \n") <<
+	  _("Forum: http://forum.amule.org \n") <<
+	  _("FAQ: http://wiki.amule.org \n\n") <<
+	  _("Contact: admin@amule.org (administrative issues) \n") <<
+	  _("Copyright (c) 2003-2011 aMule Team \n\n") <<
+	  _("Part of aMule is based on \n") <<
+	  _("Kademlia: Peer-to-peer routing based on the XOR metric.\n") <<
+	  _(" Copyright (c) 2002-2011 Petar Maymounkov ( petar@post.harvard.edu )\n") <<
+	  _("http://kademlia.scs.cs.nyu.edu\n") <<
+	  _("\nDynamic Leech Protection\n") <<
+	  _(" Homepage: https://github.com/persmule/amule-dlp \n") <<
+	  _(" Copyright (C) 2002-2007 Xtreme-Mod \n") <<
+	  _(" Copyright (C) 2009 greensea \n") <<
+	  _(" Copyright (C) 2009-2011 Bill Lee \n") <<
+	  _(" Copyright (C) 2014 Persmule \n");
 
 	if (m_is_safe_state) {
 		wxMessageBox(msg, _("Message"), wxOK | wxICON_INFORMATION, this);
