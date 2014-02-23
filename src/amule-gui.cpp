@@ -203,13 +203,13 @@ void CamuleGuiBase::ResetTitle()
 	#ifdef CLIENT_GUI
 		m_FrameTitle = CFormat(wxT("aMule remote control %s %s")) % wxT( VERSION ) % wxT( SVNDATE );
 	#else
-		m_FrameTitle = CFormat(wxT("aMule %s %s")) % wxT( VERSION ) % wxT( SVNDATE );
+		m_FrameTitle = CFormat(wxT(PACKAGE" %s %s")) % wxT( VERSION ) % wxT( SVNDATE ); //Altered by Persmule
 	#endif
 #else
 	#ifdef CLIENT_GUI
 		m_FrameTitle = _("aMule remote control");
 	#else
-		m_FrameTitle = _("aMule");
+		m_FrameTitle = _(PACKAGE); //Altered by Persmule
 	#endif
 
 	if (thePrefs::ShowVersionOnTitle()) {

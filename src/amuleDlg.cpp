@@ -492,13 +492,14 @@ void CamuleDlg::OnAboutButton(wxCommandEvent& WXUNUSED(ev))
 #ifdef CLIENT_GUI
 	msg << _("aMule remote control ") << wxT(VERSION);
 #else
-	msg << wxT("aMule ") << wxT(VERSION);
+	msg << wxT(PACKAGE" ") << wxT(VERSION);
 #endif
 	msg << wxT(" ");
 #ifdef SVNDATE
 	msg << _("Snapshot:") << wxT("\n ") << wxT(SVNDATE);
 #endif
-	msg << wxT("\n\n") << _("'All-Platform' p2p client based on eMule \n\n") <<
+	msg << wxT("\n\n") << _("'All-Platform' p2p client based on eMule, \n") <<
+	  _("with Dynamic Leecher Protection. \n\n") <<
 	  _("Website: http://www.amule.org \n") <<
 	  _("Forum: http://forum.amule.org \n") <<
 	  _("FAQ: http://wiki.amule.org \n\n") <<
