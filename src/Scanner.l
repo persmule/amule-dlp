@@ -25,7 +25,7 @@ extern int yyerror(wxString errstr);
 #define	YY_INPUT			ReadLexBuff
 #define	YY_FATAL_ERROR		FatalLexError
 
-static void ReadLexBuff(char* pcBuff, int& riResult, size_t uMaxSize);
+static void ReadLexBuff(char* pcBuff, size_t& riResult, size_t uMaxSize);
 static void FatalLexError(yyconst char msg[]);
 
 static char* _pszLexBuff;
@@ -159,7 +159,7 @@ keywordchar		[^ \"()]
 
 %%
 
-static void ReadLexBuff(char* pcBuff, int& riResult, size_t uMaxSize)
+static void ReadLexBuff(char* pcBuff, size_t& riResult, size_t uMaxSize)
 {
 	wxASSERT( _pszLexBuff != NULL );
 	
