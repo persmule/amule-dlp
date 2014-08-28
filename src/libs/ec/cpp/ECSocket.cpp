@@ -17,7 +17,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -172,23 +172,25 @@ void CQueuedData::Read(void *data, size_t len)
 }
 
 
-void CQueuedData::WriteToSocket(CECSocket *sock)
+uint32 CQueuedData::WriteToSocket(CECSocket *sock)
 {
-	wxCHECK_RET(m_rd_ptr < m_wr_ptr,
+	wxCHECK_MSG(m_rd_ptr < m_wr_ptr, 0,
 		wxT("Reading past written data in WriteToSocket"));
-	
-	sock->SocketWrite(m_rd_ptr, GetUnreadDataLength());
-	m_rd_ptr += sock->GetLastCount();
+
+	uint32 write = sock->SocketWrite(m_rd_ptr, GetUnreadDataLength());
+	m_rd_ptr += write;
+	return write;
 }
 
 
-void CQueuedData::ReadFromSocket(CECSocket *sock, size_t len)
+uint32 CQueuedData::ReadFromSocket(CECSocket *sock, size_t len)
 {
 	const size_t canWrite = std::min(GetRemLength(), len);
 	wxASSERT(len == canWrite);
 
-	sock->SocketRead(m_wr_ptr, canWrite);
-	m_wr_ptr += sock->GetLastCount();
+	uint32 read = sock->SocketRead(m_wr_ptr, canWrite);
+	m_wr_ptr += read;
+	return read;
 }
 
 
@@ -206,9 +208,9 @@ size_t CQueuedData::ReadFromSocketAll(CECSocket *sock, size_t len)
 		}
 
 		wxASSERT(m_wr_ptr + read_rem <= &m_data[0] + m_data.size());
-		sock->SocketRead(m_wr_ptr, read_rem);
-		m_wr_ptr += sock->GetLastCount();
-		read_rem -= sock->GetLastCount();
+		uint32 read = sock->SocketRead(m_wr_ptr, read_rem);
+		m_wr_ptr += read;
+		read_rem -= read;
 
 		if (sock->SocketRealError()) {
 			AddDebugLogLineN(logEC, wxT("ReadFromSocketAll: socket error"));
@@ -257,22 +259,20 @@ size_t CQueuedData::GetUnreadDataLength() const
 //
 
 CECSocket::CECSocket(bool use_events)
-:
-m_use_events(use_events),
-m_in_ptr(EC_SOCKET_BUFFER_SIZE),
-m_out_ptr(EC_SOCKET_BUFFER_SIZE),
-m_curr_rx_data(new CQueuedData(EC_SOCKET_BUFFER_SIZE)),
-m_curr_tx_data(new CQueuedData(EC_SOCKET_BUFFER_SIZE)),
-m_rx_flags(0),
-m_tx_flags(0),
-// setup initial state: 4 flags + 4 length
-m_bytes_needed(EC_HEADER_SIZE),
-m_in_header(true),
-m_my_flags(0x20),
-m_haveNotificationSupport(false)
-{
-	
-}
+	: m_use_events(use_events),
+	  m_in_ptr(EC_SOCKET_BUFFER_SIZE),
+	  m_out_ptr(EC_SOCKET_BUFFER_SIZE),
+	  m_curr_rx_data(new CQueuedData(EC_SOCKET_BUFFER_SIZE)),
+	  m_curr_tx_data(new CQueuedData(EC_SOCKET_BUFFER_SIZE)),
+	  m_rx_flags(0),
+	  m_tx_flags(0),
+	  // setup initial state: 4 flags + 4 length
+	  m_bytes_needed(EC_HEADER_SIZE),
+	  m_in_header(true),
+	  m_curr_packet_len(0),
+	  m_my_flags(0x20),
+	  m_haveNotificationSupport(false)
+{}
 
 CECSocket::~CECSocket()
 {
@@ -299,7 +299,7 @@ void CECSocket::SendPacket(const CECPacket *packet)
 const CECPacket *CECSocket::SendRecvPacket(const CECPacket *packet)
 {
 	SendPacket(packet);
-	
+
 	if (m_curr_rx_data->ReadFromSocketAll(this, EC_HEADER_SIZE) != EC_HEADER_SIZE
 		|| SocketError()		// This is a synchronous read, so WouldBlock is an error too.
 		|| !ReadHeader()) {
@@ -348,8 +348,8 @@ std::string CECSocket::GetLastErrorMsg()
 	return error_string.str();
 }
 
-bool CECSocket::SocketRealError() 
-{ 
+bool CECSocket::SocketRealError()
+{
 	bool ret = false;
 	if (InternalError()) {
 		int lastError = InternalGetLastError();
@@ -380,16 +380,15 @@ void CECSocket::OnInput()
 {
 	size_t bytes_rx = 0;
 	do {
-		m_curr_rx_data->ReadFromSocket(this, m_bytes_needed);
+		bytes_rx = m_curr_rx_data->ReadFromSocket(this, m_bytes_needed);
 		if (SocketRealError()) {
 			AddDebugLogLineN(logEC, wxT("OnInput: socket error"));
 			OnError();
 			// socket already disconnected in this point
 			return;
 		}
-		bytes_rx = GetLastCount();
 		m_bytes_needed -= bytes_rx;
-	
+
 		if (m_bytes_needed == 0) {
 			if (m_in_header) {
 				m_in_header = false;
@@ -440,7 +439,7 @@ void CECSocket::OnOutput()
 			if ( !WaitSocketWrite(10, 0) ) {
 				// Still not through ?
 				if (WouldBlock()) {
-					// WouldBlock() is only EAGAIN or EWOULD_BLOCK, 
+					// WouldBlock() is only EAGAIN or EWOULD_BLOCK,
 					// and those shouldn't create an infinite wait.
 					// So give it another chance.
 					continue;
@@ -474,7 +473,7 @@ size_t CECSocket::ReadBufferFromSocket(void *buffer, size_t required_len)
 
 	if (m_curr_rx_data->GetUnreadDataLength() < required_len) {
 		// need more data that we have. Looks like nothing will help here
-		AddDebugLogLineN(logEC, CFormat(wxT("ReadBufferFromSocket: not enough data (%d < %d)")) 
+		AddDebugLogLineN(logEC, CFormat(wxT("ReadBufferFromSocket: not enough data (%d < %d)"))
 			% m_curr_rx_data->GetUnreadDataLength() % required_len);
 		return 0;
 	}
@@ -736,7 +735,7 @@ uint32 CECSocket::WritePacket(const CECPacket *packet)
 	std::list<CQueuedData*>::iterator outputStart = m_output_queue.begin();
 	uint32 outputQueueSize = m_output_queue.size();
 	for (uint32 i = 1; i < outputQueueSize; i++) {
-		outputStart++;
+		++outputStart;
 	}
 
 	uint32_t flags = 0x20;
@@ -750,7 +749,7 @@ uint32 CECSocket::WritePacket(const CECPacket *packet)
 
 	flags &= m_my_flags;
 	m_tx_flags = flags;
-	
+
 	if (flags & EC_FLAG_ZLIB) {
 		m_z.zalloc = Z_NULL;
 		m_z.zfree = Z_NULL;
@@ -767,24 +766,24 @@ uint32 CECSocket::WritePacket(const CECPacket *packet)
 
 	uint32_t tmp_flags = ENDIAN_HTONL(flags);
 	WriteBufferToSocket(&tmp_flags, sizeof(uint32));
-	
+
 	// preallocate 4 bytes in buffer for packet length
 	uint32_t packet_len = 0;
 	WriteBufferToSocket(&packet_len, sizeof(uint32));
-	
+
 	packet->WritePacket(*this);
 
-	// Finalize zlib compression and move current data to outout queue
+	// Finalize zlib compression and move current data to output queue
 	FlushBuffers();
 
 	// find the beginning of our data in the output queue
 	if (outputQueueSize) {
-		outputStart++;
+		++outputStart;
 	} else {
 		outputStart = m_output_queue.begin();
 	}
 	// now calculate actual size of data
-	for(std::list<CQueuedData*>::iterator it = outputStart; it != m_output_queue.end(); it++) {
+	for(std::list<CQueuedData*>::iterator it = outputStart; it != m_output_queue.end(); ++it) {
 		packet_len += (uint32_t)(*it)->GetDataLength();
 	}
 	// header size is not counted
@@ -792,7 +791,7 @@ uint32 CECSocket::WritePacket(const CECPacket *packet)
 	// now write actual length at offset 4
 	uint32 packet_len_E = ENDIAN_HTONL(packet_len);
 	(*outputStart)->WriteAt(&packet_len_E, 4, 4);
-	
+
 	if (flags & EC_FLAG_ZLIB) {
 		int zerror = deflateEnd(&m_z);
 		if ( zerror != Z_OK ) {
@@ -809,7 +808,7 @@ const CECPacket *CECSocket::ReadPacket()
 	CECPacket *packet = 0;
 
 	uint32_t flags = m_rx_flags;
-	
+
 	if ( ((flags & 0x60) != 0x20) || (flags & EC_FLAG_UNKNOWN_MASK) ) {
 		// Protocol error - other end might use an older protocol
 		AddDebugLogLineN(logEC, wxT("ReadPacket: protocol error"));
@@ -825,7 +824,7 @@ const CECPacket *CECSocket::ReadPacket()
 	    m_z.opaque = Z_NULL;
 	    m_z.avail_in = 0;
 	    m_z.next_in = 0;
-	    
+
 		int zerror = inflateInit(&m_z);
 		if (zerror != Z_OK) {
 			AddDebugLogLineN(logEC, wxT("ReadPacket: zlib error"));
@@ -838,7 +837,7 @@ const CECPacket *CECSocket::ReadPacket()
 
 	m_curr_rx_data->ToZlib(m_z);
 	packet = new CECPacket();
-	
+
 	if (!packet->ReadFromSocket(*this)) {
 		AddDebugLogLineN(logEC, wxT("ReadPacket: error in packet read"));
 		cout << "ReadPacket: error in packet read" << endl;

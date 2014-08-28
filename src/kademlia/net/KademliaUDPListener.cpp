@@ -66,14 +66,11 @@ there client on the eMule forum..
 #include "../../ScopedPtr.h"
 #include "../../IPFilter.h"
 #include "../../RandomFunctions.h"		// Needed for GetRandomUint128()
+#include "../../CompilerSpecific.h"		// Needed for __FUNCTION__
 
 #include <wx/tokenzr.h>
 
 #define THIS_DEBUG_IS_JUST_FOR_KRY_DONT_TOUCH_IT_KTHX 0
-
-#if defined(__SUNPRO_CC)
-#define __FUNCTION__ __FILE__+__LINE__
-#endif
 
 #define CHECK_PACKET_SIZE(OP, SIZE) \
 	if (lenPacket OP (uint32_t)(SIZE)) \
@@ -118,7 +115,7 @@ void CKademliaUDPListener::SendMyDetails(uint8_t opcode, uint32_t ip, uint16_t p
 {
 	CMemFile packetdata;
 	packetdata.WriteUInt128(CKademlia::GetPrefs()->GetKadID());
-	
+
 	if (kadVersion > 1) {
 		packetdata.WriteUInt16(thePrefs::GetPort());
 		packetdata.WriteUInt8(KADEMLIA_VERSION);
@@ -585,6 +582,7 @@ void CKademliaUDPListener::Process2HelloResponseAck(const uint8_t *packetData, u
 	// Additional packet to complete a three-way-handshake, making sure the remote contact is not using a spoofed ip.
 	CMemFile bio(packetData, lenPacket);
 	CUInt128 remoteID = bio.ReadUInt128();
+	// cppcheck-suppress duplicateBranch
 	if (!CKademlia::GetRoutingZone()->VerifyContact(remoteID, ip)) {
 		AddDebugLogLineN(logKadRouting, wxT("Unable to find valid sender in routing table (sender: ") + KadIPToString(ip) + wxT(")"));
 	} else {
@@ -653,7 +651,7 @@ void CKademliaUDPListener::ProcessKademlia2Request(const uint8_t *packetData, ui
 	CUInt128 target = bio.ReadUInt128();
 	// Convert Target to Distance as this is how we store contacts.
 	CUInt128 distance(CKademlia::GetPrefs()->GetKadID());
-	distance.XOR(target);
+	distance ^= target;
 
 	// This makes sure we are not mistaken identify. Some client may have fresh installed and have a new KadID.
 	CUInt128 check = bio.ReadUInt128();
@@ -702,6 +700,7 @@ void CKademliaUDPListener::ProcessKademlia2Response(const uint8_t *packetData, u
 	CUInt128 contactID;
 	if (IsLegacyChallenge(target, ip, KADEMLIA2_REQ, contactID)) {
 		// yup it is, set the contact as verified
+		// cppcheck-suppress duplicateBranch
 		if (!routingZone->VerifyContact(contactID, ip)) {
 			AddDebugLogLineN(logKadRouting, wxT("Unable to find valid sender in routing table (sender: ") + KadIPToString(ip) + wxT(")"));
 		} else {
@@ -779,7 +778,7 @@ void CKademliaUDPListener::Free(SSearchTerm* pSearchTerms)
 
 SSearchTerm* CKademliaUDPListener::CreateSearchExpressionTree(CMemFile& bio, int iLevel)
 {
-	// the max. depth has to match our own limit for creating the search expression 
+	// the max. depth has to match our own limit for creating the search expression
 	// (see also 'ParsedSearchExpression' and 'GetSearchPacket')
 	if (iLevel >= 24){
 		AddDebugLogLineN(logKadSearch, wxT("***NOTE: Search expression tree exceeds depth limit!"));
@@ -793,14 +792,11 @@ SSearchTerm* CKademliaUDPListener::CreateSearchExpressionTree(CMemFile& bio, int
 		if (boolop == 0x00) { // AND
 			SSearchTerm* pSearchTerm = new SSearchTerm;
 			pSearchTerm->type = SSearchTerm::AND;
-			//TRACE(" AND");
-			if ((pSearchTerm->left = CreateSearchExpressionTree(bio, iLevel)) == NULL){
-				wxFAIL;
+			if ((pSearchTerm->left = CreateSearchExpressionTree(bio, iLevel)) == NULL) {
 				delete pSearchTerm;
 				return NULL;
 			}
-			if ((pSearchTerm->right = CreateSearchExpressionTree(bio, iLevel)) == NULL){
-				wxFAIL;
+			if ((pSearchTerm->right = CreateSearchExpressionTree(bio, iLevel)) == NULL) {
 				Free(pSearchTerm->left);
 				delete pSearchTerm;
 				return NULL;
@@ -809,14 +805,11 @@ SSearchTerm* CKademliaUDPListener::CreateSearchExpressionTree(CMemFile& bio, int
 		} else if (boolop == 0x01) { // OR
 			SSearchTerm* pSearchTerm = new SSearchTerm;
 			pSearchTerm->type = SSearchTerm::OR;
-			//TRACE(" OR");
-			if ((pSearchTerm->left = CreateSearchExpressionTree(bio, iLevel)) == NULL){
-				wxFAIL;
+			if ((pSearchTerm->left = CreateSearchExpressionTree(bio, iLevel)) == NULL) {
 				delete pSearchTerm;
 				return NULL;
 			}
-			if ((pSearchTerm->right = CreateSearchExpressionTree(bio, iLevel)) == NULL){
-				wxFAIL;
+			if ((pSearchTerm->right = CreateSearchExpressionTree(bio, iLevel)) == NULL) {
 				Free(pSearchTerm->left);
 				delete pSearchTerm;
 				return NULL;
@@ -825,14 +818,11 @@ SSearchTerm* CKademliaUDPListener::CreateSearchExpressionTree(CMemFile& bio, int
 		} else if (boolop == 0x02) { // NOT
 			SSearchTerm* pSearchTerm = new SSearchTerm;
 			pSearchTerm->type = SSearchTerm::NOT;
-			//TRACE(" NOT");
-			if ((pSearchTerm->left = CreateSearchExpressionTree(bio, iLevel)) == NULL){
-				wxFAIL;
+			if ((pSearchTerm->left = CreateSearchExpressionTree(bio, iLevel)) == NULL) {
 				delete pSearchTerm;
 				return NULL;
 			}
-			if ((pSearchTerm->right = CreateSearchExpressionTree(bio, iLevel)) == NULL){
-				wxFAIL;
+			if ((pSearchTerm->right = CreateSearchExpressionTree(bio, iLevel)) == NULL) {
 				Free(pSearchTerm->left);
 				delete pSearchTerm;
 				return NULL;
@@ -844,17 +834,17 @@ SSearchTerm* CKademliaUDPListener::CreateSearchExpressionTree(CMemFile& bio, int
 		}
 	} else if (op == 0x01) { // String
 		wxString str(bio.ReadString(true));
-		
+
 		// Make lowercase, the search code expects lower case strings!
-		str.MakeLower(); 
-		
+		str.MakeLower();
+
 		SSearchTerm* pSearchTerm = new SSearchTerm;
 		pSearchTerm->type = SSearchTerm::String;
 		pSearchTerm->astr = new wxArrayString;
 
 		// pre-tokenize the string term
 		//#warning TODO: TokenizeOptQuotedSearchTerm
-		wxStringTokenizer token(str, CSearchManager::GetInvalidKeywordChars(),wxTOKEN_DEFAULT );
+		wxStringTokenizer token(str, CSearchManager::GetInvalidKeywordChars(), wxTOKEN_DEFAULT );
 		while (token.HasMoreTokens()) {
 			wxString strTok(token.GetNextToken());
 			if (!strTok.IsEmpty()) {
@@ -961,11 +951,11 @@ void CKademliaUDPListener::ProcessSearchResponse(CMemFile& bio)
 
 		// Get info about answer
 		// NOTE: this is the one and only place in Kad where we allow string conversion to local code page in
-		// case we did not receive an UTF8 string. this is for backward compatibility for search results which are 
+		// case we did not receive an UTF8 string. this is for backward compatibility for search results which are
 		// supposed to be 'viewed' by user only and not feed into the Kad engine again!
 		// If that tag list is once used for something else than for viewing, special care has to be taken for any
 		// string conversion!
- 		CScopedContainer<TagPtrList> tags;
+		CScopedContainer<TagPtrList> tags;
 		bio.ReadTagPtrList(tags.get(), true/*bOptACP*/);
 		CSearchManager::ProcessResult(target, answer, tags.get());
 		count--;
@@ -1013,7 +1003,7 @@ void CKademliaUDPListener::Process2PublishKeyRequest(const uint8_t *packetData, 
 	CUInt128 file = bio.ReadUInt128();
 
 	CUInt128 distance(CKademlia::GetPrefs()->GetKadID());
-	distance.XOR(file);
+	distance ^= file;
 
 	if (distance.Get32BitChunk(0) > SEARCHTOLERANCE && !::IsLanIP(wxUINT32_SWAP_ALWAYS(ip))) {
 		return;
@@ -1032,8 +1022,8 @@ void CKademliaUDPListener::Process2PublishKeyRequest(const uint8_t *packetData, 
 		{
 			entry->m_uIP = ip;
 			entry->m_uUDPport = port;
-			entry->m_uKeyID.SetValue(file);
-			entry->m_uSourceID.SetValue(target);
+			entry->m_uKeyID = file;
+			entry->m_uSourceID = target;
 			entry->m_tLifeTime = (uint32_t)time(NULL) + KADEMLIAREPUBLISHTIMEK;
 			entry->m_bSource = false;
 			uint32_t tags = bio.ReadUInt8();
@@ -1111,7 +1101,7 @@ void CKademliaUDPListener::Process2PublishSourceRequest(const uint8_t *packetDat
 	CUInt128 file = bio.ReadUInt128();
 
 	CUInt128 distance(CKademlia::GetPrefs()->GetKadID());
-	distance.XOR(file);
+	distance ^= file;
 
 	if (distance.Get32BitChunk(0) > SEARCHTOLERANCE && !::IsLanIP(wxUINT32_SWAP_ALWAYS(ip))) {
 		return;
@@ -1125,8 +1115,8 @@ void CKademliaUDPListener::Process2PublishSourceRequest(const uint8_t *packetDat
 	try {
 		entry->m_uIP = ip;
 		entry->m_uUDPport = port;
-		entry->m_uKeyID.SetValue(file);
-		entry->m_uSourceID.SetValue(target);
+		entry->m_uKeyID = file;
+		entry->m_uSourceID = target;
 		entry->m_bSource = false;
 		entry->m_tLifeTime = (uint32_t)time(NULL) + KADEMLIAREPUBLISHTIMES;
 		bool addUDPPortTag = true;
@@ -1291,7 +1281,7 @@ void CKademliaUDPListener::Process2PublishNotesRequest(const uint8_t *packetData
 	CUInt128 target = bio.ReadUInt128();
 
 	CUInt128 distance(CKademlia::GetPrefs()->GetKadID());
-	distance.XOR(target);
+	distance ^= target;
 
 	if (distance.Get32BitChunk(0) > SEARCHTOLERANCE && !::IsLanIP(wxUINT32_SWAP_ALWAYS(ip))) {
 		return;
@@ -1303,8 +1293,8 @@ void CKademliaUDPListener::Process2PublishNotesRequest(const uint8_t *packetData
 	try {
 		entry->m_uIP = ip;
 		entry->m_uUDPport = port;
-		entry->m_uKeyID.SetValue(target);
-		entry->m_uSourceID.SetValue(source);
+		entry->m_uKeyID = target;
+		entry->m_uSourceID = source;
 		entry->m_bSource = false;
 		uint32_t tags = bio.ReadUInt8();
 		while (tags > 0) {
@@ -1477,7 +1467,7 @@ void CKademliaUDPListener::ProcessFindBuddyResponse(const uint8_t *packetData, u
 
 	CMemFile bio(packetData, lenPacket);
 	CUInt128 check = bio.ReadUInt128();
-	check.XOR(CUInt128(true));
+	check ^= CUInt128(true);
 	if (CKademlia::GetPrefs()->GetKadID() == check) {
 		CUInt128 userID = bio.ReadUInt128();
 		uint16_t tcpport = bio.ReadUInt16();
@@ -1532,7 +1522,7 @@ void CKademliaUDPListener::Process2Ping(uint32_t ip, uint16_t port, const CKadUD
 	CMemFile packetdata(2);
 	packetdata.WriteUInt16(port);
 	DebugSend(Kad2Pong, ip, port);
-	SendPacket(packetdata, KADEMLIA2_PONG, ip, port, senderKey, NULL); 
+	SendPacket(packetdata, KADEMLIA2_PONG, ip, port, senderKey, NULL);
 }
 
 // KADEMLIA2_PONG
@@ -1545,6 +1535,7 @@ void CKademliaUDPListener::Process2Pong(const uint8_t *packetData, uint32_t lenP
 	CUInt128 contactID;
 	if (IsLegacyChallenge(CUInt128((uint32_t)0), ip, KADEMLIA2_PING, contactID)) {
 		// yup it is, set the contact as verified
+		// cppcheck-suppress duplicateBranch
 		if (!CKademlia::GetRoutingZone()->VerifyContact(contactID, ip)) {
 			AddDebugLogLineN(logKadRouting, wxT("Unable to find valid sender in routing table (sender: ") + KadIPToString(ip) + wxT(")"));
 		} else {

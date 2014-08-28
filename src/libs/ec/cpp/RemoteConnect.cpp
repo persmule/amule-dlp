@@ -17,7 +17,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -27,6 +27,7 @@
 
 #include <common/MD5Sum.h>
 #include <common/Format.h>
+#include "../../../amuleIPV4Address.h"
 
 #include <wx/intl.h>
 
@@ -69,7 +70,7 @@ CECPacket(EC_OP_AUTH_PASSWD)
 
 /*!
  * Connection to remote core
- * 
+ *
  */
 
 CRemoteConnect::CRemoteConnect(wxEvtHandler* evt_handler)
@@ -92,7 +93,7 @@ m_canNotify(false)
 }
 
 void CRemoteConnect::SetCapabilities(bool canZLIB, bool canUTF8numbers, bool canNotify)
-{ 
+{
 	m_canZLIB = canZLIB;
 	if (canZLIB) {
 		m_my_flags |= EC_FLAG_ZLIB;
@@ -105,14 +106,14 @@ void CRemoteConnect::SetCapabilities(bool canZLIB, bool canUTF8numbers, bool can
 }
 
 bool CRemoteConnect::ConnectToCore(const wxString &host, int port,
-	const wxString &WXUNUSED(login), const wxString &pass, 
+	const wxString &WXUNUSED(login), const wxString &pass,
 	const wxString& client, const wxString& version)
 {
 	m_connectionPassword = pass;
-	
+
 	m_client = client;
 	m_version = version;
-	
+
 	// don't even try to connect without a valid password
 	if (m_connectionPassword.IsEmpty() || m_connectionPassword == wxT("d41d8cd98f00b204e9800998ecf8427e")) {
 		m_server_reply = _("You must specify a non-empty password.");
@@ -134,6 +135,8 @@ bool CRemoteConnect::ConnectToCore(const wxString &host, int port,
 	addr.Service(port);
 
 	if (ConnectSocket(addr)) {
+		// We get here only in case of synchronous connect.
+		// Otherwise we continue in OnConnect.
 		CECLoginPacket login_req(m_client, m_version, m_canZLIB, m_canUTF8numbers, m_canNotify);
 
 		std::auto_ptr<const CECPacket> getSalt(SendRecvPacket(&login_req));
@@ -158,8 +161,8 @@ bool CRemoteConnect::ConnectToCore(const wxString &host, int port,
 
 bool CRemoteConnect::IsConnectedToLocalHost()
 {
-	wxIPV4address addr;
-	return GetPeer(addr) ? addr.IsLocalHost() : false;
+	amuleIPV4Address addr;
+	return addr.Hostname(GetPeer()) ? addr.IsLocalHost() : false;
 }
 
 void CRemoteConnect::WriteDoneAndQueueEmpty()
@@ -171,7 +174,7 @@ void CRemoteConnect::OnConnect() {
 		wxASSERT(m_ec_state == EC_CONNECT_SENT);
 		CECLoginPacket login_req(m_client, m_version, m_canZLIB, m_canUTF8numbers, m_canNotify);
 		CECSocket::SendPacket(&login_req);
-		
+
 		m_ec_state = EC_REQ_SENT;
 	} else {
 		// do nothing, calling code will take from here
@@ -202,7 +205,7 @@ const CECPacket *CRemoteConnect::OnPacketReceived(const CECPacket *packet, uint3
 		case EC_PASSWD_SENT:
 			ProcessAuthPacket(packet);
 			break;
-		case EC_OK: 
+		case EC_OK:
 			if ( !m_req_fifo.empty() ) {
 				CECPacketHandlerBase *handler = m_req_fifo.front();
 				m_req_fifo.pop_front();
@@ -216,7 +219,7 @@ const CECPacket *CRemoteConnect::OnPacketReceived(const CECPacket *packet, uint3
 		default:
 			break;
 	}
-	
+
 	// no reply by default
 	return next_packet;
 }
@@ -239,7 +242,7 @@ void CRemoteConnect::SendPacket(const CECPacket *request)
 
 bool CRemoteConnect::ProcessAuthPacket(const CECPacket *reply) {
 	bool result = false;
-	
+
 	if (!reply) {
 		m_server_reply = _("EC connection failed. Empty reply.");
 		CloseSocket();
@@ -274,7 +277,7 @@ bool CRemoteConnect::ProcessAuthPacket(const CECPacket *reply) {
 			} else {
 				m_server_reply = _("External Connection: Handshake failed.");
 			}
-			CloseSocket();	
+			CloseSocket();
 		}
 	}
 	if ( m_notifier ) {
@@ -288,12 +291,12 @@ bool CRemoteConnect::ProcessAuthPacket(const CECPacket *reply) {
 
 void CRemoteConnect::StartKad() {
 	CECPacket req(EC_OP_KAD_START);
-	SendPacket(&req);	
+	SendPacket(&req);
 }
 
 void CRemoteConnect::StopKad() {
 	CECPacket req(EC_OP_KAD_STOP);
-	SendPacket(&req);	
+	SendPacket(&req);
 }
 
 void CRemoteConnect::ConnectED2K(uint32 ip, uint16 port) {
@@ -306,7 +309,7 @@ void CRemoteConnect::ConnectED2K(uint32 ip, uint16 port) {
 
 void CRemoteConnect::DisconnectED2K() {
 	CECPacket req(EC_OP_SERVER_DISCONNECT);
-	SendPacket(&req);	
+	SendPacket(&req);
 }
 
 void CRemoteConnect::RemoveServer(uint32 ip, uint16 port) {

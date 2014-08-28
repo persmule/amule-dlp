@@ -17,7 +17,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -35,7 +35,7 @@
 wxString CEC_PartFile_Tag::GetFileStatusString() const
 {
 	uint8 nFileStatus = FileStatus();
-	
+
         if ((nFileStatus == PS_HASHING) || (nFileStatus == PS_WAITINGFORHASH)) {
                 return _("Hashing");
         } else {
@@ -149,7 +149,7 @@ wxString CEC_StatTree_Node_Tag::GetDisplayString() const
 		}
 	}
 	CFormat label(my_label);
-	for (const_iterator it = begin(); it != end(); it++) {
+	for (const_iterator it = begin(); it != end(); ++it) {
 		if (it->GetTagName() == EC_TAG_STAT_NODE_VALUE) {
 			FormatValue(label, &*it);
 		}

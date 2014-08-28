@@ -18,7 +18,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -52,7 +52,7 @@ class CTagSet : public std::set<T> {
 	public:
 		CTagSet(const CECPacket *request) : std::set<T>()
 		{
-			for (CECPacket::const_iterator it = request->begin(); it != request->end(); it++) {
+			for (CECPacket::const_iterator it = request->begin(); it != request->end(); ++it) {
 				const CECTag *tag = & *it;
 				if ( tag->GetTagName() == OP ) {
 					InSet(tag, T());
@@ -69,7 +69,7 @@ class CObjTagMap {
 		{
 			return m_obj_map[ECID];
 		}
-		
+
 		size_t size()
 		{
 			return m_obj_map.size();
@@ -79,6 +79,18 @@ class CObjTagMap {
 
 class CECServerSocket;
 class ECNotifier;
+class ExternalConn;
+
+class CExternalConnListener : public CLibSocketServer
+{
+public:
+	CExternalConnListener(const amuleIPV4Address& adr, int flags, ExternalConn * conn)
+		: CLibSocketServer(adr, flags), m_conn(conn) {}
+	void OnAccept();
+private:
+	ExternalConn * m_conn;
+};
+
 
 class ExternalConn : public wxEvtHandler
 {
@@ -89,8 +101,8 @@ private:
 public:
 	ExternalConn(amuleIPV4Address addr, wxString *msg);
 	~ExternalConn();
-	
-	wxSocketServer *m_ECServer;
+
+	CExternalConnListener *m_ECServer;
 	ECNotifier *m_ec_notifier;
 
 	void AddSocket(CECServerSocket *s);
@@ -119,19 +131,19 @@ class ECPartFileMsgSource : public ECUpdateMsgSource {
 			bool m_removed;
 			bool m_finished;
 			bool m_dirty;
-			CPartFile *m_file;
+			const CPartFile *m_file;
 		} PARTFILE_STATUS;
 		std::map<CMD4Hash, PARTFILE_STATUS> m_dirty_status;
 	public:
 		ECPartFileMsgSource();
-		
-		void SetDirty(CPartFile *file);
-		void SetNew(CPartFile *file);
-		void SetCompleted(CPartFile *file);
-		void SetRemoved(CPartFile *file);
-		
+
+		void SetDirty(const CPartFile *file);
+		void SetNew(const CPartFile *file);
+		void SetCompleted(const CPartFile *file);
+		void SetRemoved(const CPartFile *file);
+
 		virtual CECPacket *GetNextPacket();
-	
+
 };
 
 class ECKnownFileMsgSource : public ECUpdateMsgSource {
@@ -140,16 +152,16 @@ class ECKnownFileMsgSource : public ECUpdateMsgSource {
 			bool m_comment_changed;
 			bool m_removed;
 			bool m_dirty;
-			CKnownFile *m_file;
+			const CKnownFile *m_file;
 		} KNOWNFILE_STATUS;
 		std::map<CMD4Hash, KNOWNFILE_STATUS> m_dirty_status;
 	public:
 		ECKnownFileMsgSource();
 
-		void SetDirty(CKnownFile *file);
-		void SetNew(CKnownFile *file);
-		void SetRemoved(CKnownFile *file);
-		
+		void SetDirty(const CKnownFile *file);
+		void SetNew(const CKnownFile *file);
+		void SetRemoved(const CKnownFile *file);
+
 		virtual CECPacket *GetNextPacket();
 };
 
@@ -167,7 +179,7 @@ class ECStatusMsgSource : public ECUpdateMsgSource {
 		uint32 GetKadStatus();
 	public:
 		ECStatusMsgSource();
-		
+
 		virtual CECPacket *GetNextPacket();
 };
 
@@ -176,17 +188,17 @@ class ECSearchMsgSource : public ECUpdateMsgSource {
 			bool m_new;
 			bool m_child_dirty;
 			bool m_dirty;
-			CSearchFile *m_file;
+			const CSearchFile *m_file;
 		} SEARCHFILE_STATUS;
 		std::map<CMD4Hash, SEARCHFILE_STATUS> m_dirty_status;
 	public:
 		ECSearchMsgSource();
-		
-		void SetDirty(CSearchFile *file);
-		void SetChildDirty(CSearchFile *file);
-	
+
+		void SetDirty(const CSearchFile *file);
+		void SetChildDirty(const CSearchFile *file);
+
 		void FlushStatus();
-	
+
 		virtual CECPacket *GetNextPacket();
 };
 
@@ -200,15 +212,15 @@ class ECNotifier {
 			EC_CLIENT,
 			EC_STATUS,
 			EC_KNOWN,
-			
+
 			EC_STATUS_LAST_PRIO
 		};
-		
+
 		//ECUpdateMsgSource *m_msg_source[EC_STATUS_LAST_PRIO];
 		std::map<CECServerSocket *, ECUpdateMsgSource **> m_msg_source;
-		
+
 		void NextPacketToSocket();
-		
+
 		CECPacket *GetNextPacket(ECUpdateMsgSource *msg_source_array[]);
 		// Make class non assignable
 		void operator=(const ECNotifier&);
@@ -216,23 +228,23 @@ class ECNotifier {
 	public:
 		ECNotifier();
 		~ECNotifier();
-		
+
 		void Add_EC_Client(CECServerSocket *sock);
 		void Remove_EC_Client(CECServerSocket *sock);
-		
+
 		CECPacket *GetNextPacket(CECServerSocket *sock);
-		
+
 		//
 		// Interface to notification macros
 		//
-		void DownloadFile_SetDirty(CPartFile *file);
-		void DownloadFile_RemoveFile(CPartFile *file);
-		void DownloadFile_RemoveSource(CPartFile *file);
-		void DownloadFile_AddFile(CPartFile *file);
-		void DownloadFile_AddSource(CPartFile *file);
-		
-		void SharedFile_AddFile(CKnownFile *file);
-		void SharedFile_RemoveFile(CKnownFile *file);
+		void DownloadFile_SetDirty(const CPartFile *file);
+		void DownloadFile_RemoveFile(const CPartFile *file);
+		void DownloadFile_RemoveSource(const CPartFile *file);
+		void DownloadFile_AddFile(const CPartFile *file);
+		void DownloadFile_AddSource(const CPartFile *file);
+
+		void SharedFile_AddFile(const CKnownFile *file);
+		void SharedFile_RemoveFile(const CKnownFile *file);
 		void SharedFile_RemoveAllFiles();
 
 };

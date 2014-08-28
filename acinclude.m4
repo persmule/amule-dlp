@@ -251,7 +251,7 @@ AC_DEFUN([MULE_CHECK_SYSTEM],
 		MULELDFLAGS="-bind_at_load"
 		touch src/Scanner.cpp
 		;;
-	openbsd*) 
+	openbsd*)
 		SYS=openbsd
 		LIBS="$LIBS -L/usr/local/lib"
 		MULECPPFLAGS="-D__OPENBSD__"
@@ -311,7 +311,7 @@ dnl Checks type of compilation requested by user, and sets various flags
 dnl accordingly.
 dnl ---------------------------------------------------------------------------
 AC_DEFUN([MULE_COMPILATION_FLAGS],
-[AC_REQUIRE([MULE_CHECK_GLIBCXX])dnl
+[dnl AC_REQUIRE([MULE_CHECK_GLIBCXX])dnl
 
 	MULE_ARG_ENABLE([debug],	[yes],	[disable additional debugging output])
 	MULE_ARG_ENABLE([profile],	[no],	[enable code profiling])
@@ -362,6 +362,46 @@ AC_LANG_ASSERT([C++])dnl
 ])
 
 dnl ---------------------------------------------------------------------------
+dnl MULE_CHECK_STRICT_ALIASING
+dnl
+dnl Checks whether the C++ compiler uses strict aliasing.
+dnl This check could use the C compiler, but the source is C++ and the two
+dnl compilers are not necessarily the same, or they might use different
+dnl compiler flags...
+dnl ---------------------------------------------------------------------------
+AC_DEFUN([MULE_CHECK_STRICT_ALIASING],
+[AC_LANG_ASSERT([C++])dnl
+
+	AH_TEMPLATE([GCC_USES_STRICT_ALIASING], [Define to 1 if the C++ compiler is the GNU C++ compiler and it is using strict aliasing.])
+
+	AS_IF([test ${GCC:-no} = yes],
+	[
+		dnl Backup current flags and turn warnings into errors
+		MULE_BACKUP([CXXFLAGS])
+		MULE_APPEND([CXXFLAGS], [$MULECPPFLAGS $MULECFLAGS $MULECXXFLAGS -Werror])
+
+		AC_MSG_CHECKING([whether the C++ compiler ($CXX) uses strict aliasing])
+		AC_COMPILE_IFELSE([
+			AC_LANG_PROGRAM([], [[
+				int a;
+				short *b = (short*)&a;
+				short c = *b;
+
+				return c;
+			]])
+		], [
+			AC_MSG_RESULT([no])
+		], [
+			AC_MSG_RESULT([yes])
+			AC_DEFINE([GCC_USES_STRICT_ALIASING])
+		])
+
+		dnl Restore flags
+		MULE_RESTORE([CXXFLAGS])
+	])
+])
+
+dnl ---------------------------------------------------------------------------
 dnl MULE_CHECK_WX_SUPPORTS_LARGEFILE
 dnl
 dnl Test that wxWidgets is built with support for large-files. If not
@@ -389,7 +429,7 @@ AC_DEFUN([MULE_CHECK_WX_SUPPORTS_LARGEFILE],
 		AC_MSG_RESULT([no])
 		AC_MSG_ERROR([
 	Support for large files in wxWidgets is required by aMule.
-	To continue you must recompile wxWidgets with support for 
+	To continue you must recompile wxWidgets with support for
 	large files enabled.])
 	])
 
@@ -529,9 +569,13 @@ dnl ---------------------------------------------------------------------------
 AC_DEFUN([MULE_CHECK_CXXABI],
 [AC_LANG_ASSERT([C++])dnl
 
+	AC_CHECK_HEADERS([typeinfo])
 	AC_MSG_CHECKING([for <cxxabi.h> and __cxa_demangle()])
 	AC_LINK_IFELSE([
 		AC_LANG_PROGRAM([[
+			#ifdef HAVE_TYPEINFO
+			#	include <typeinfo>
+			#endif
 			#include <cxxabi.h>
 		]], [[
 			int status;
@@ -642,7 +686,7 @@ AC_DEFUN([MULE_DENOISER],
 
 	AC_CONFIG_COMMANDS([denoiser], [[if test $denoiserlevel -gt 0; then
 		if test ! -d src/utils/scripts; then mkdir -p src/utils/scripts; fi
-		sed -e "1{x;s/.*/1/;x;};/^[ 	]*\$/d;/^#if /{/level.*$denoiserlevel/{x;s/^/1/;x;b0;};x;s/^/0/;x;:0;d;};/^#else/{x;/^1/{s/1/0/;b1;};s/0/1/;:1;x;d;};/^#endif/{x;s/.//;x;d;};/^[ 	]*#/d;x;/^1/{x;b;};x;d" \
+		sed -e "1{x;s/.*/1/;x;};/^[	 ]*\$/d;/^#if /{/level.*$denoiserlevel/{x;s/^/1/;x;b0;};x;s/^/0/;x;:0;d;};/^#else/{x;/^1/{s/1/0/;b1;};s/0/1/;:1;x;d;};/^#endif/{x;s/.//;x;d;};/^[	 ]*#/d;x;/^1/{x;b;};x;d" \
 			$srcdir/src/utils/scripts/denoiser.rules > src/utils/scripts/denoiser.sed
 		for i in `find . -name 'Makefile' -print`; do
 			if test -n "`head -n 1 $i | grep '^#'`"; then

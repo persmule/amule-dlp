@@ -10,8 +10,8 @@
 /// Copyright (c) 2004-2011 Marcelo Roberto Jimenez ( phoenix@amule.org )
 ///
 /// Pixmaps from:
-/// 	http://jimmac.musichall.cz/ikony.php3 
-/// 	http://www.everaldo.com 
+///	http://jimmac.musichall.cz/ikony.php3
+///	http://www.everaldo.com
 ///	http://www.icomania.com
 ///
 /// This program is free software; you can redistribute it and/or modify
@@ -31,27 +31,24 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
-// For all others, include the necessary headers
-#ifndef WX_PRECOMP
-    #include "wx/wx.h"
-#endif
-
-#include <wx/textfile.h>
-#include <wx/file.h>
-#include <wx/timer.h>
-#include <wx/listbox.h>
-#include <wx/url.h>
-#include <wx/uri.h>
-#include <wx/filename.h>
 #include <wx/clipbrd.h>
 #include <wx/dataobj.h>
+#include <wx/file.h>
 #include <wx/filedlg.h>
+#include <wx/filename.h>
+#include <wx/button.h>
+#include <wx/icon.h>
+#include <wx/log.h>
+#include <wx/msgdlg.h>
+#include <wx/statbox.h>
+#include <wx/stattext.h>
+#include <wx/textfile.h>
+#include <wx/timer.h>
+#include <wx/toolbar.h>
+#include <wx/uri.h>
+#include <wx/url.h>
 
-#ifdef __WXMSW__
+#ifdef __WINDOWS__ 
 	#include <winerror.h>
 	#include <shlobj.h>
 #elif defined(__WXMAC__)
@@ -75,7 +72,7 @@ AlcFrame::AlcFrame (const wxString & title):
     wxFrame ((wxFrame *) NULL, -1, title)
 {
   // Give it an icon
-#ifdef __WXMSW__
+#ifdef __WINDOWS__ 
   wxIcon icon(wxT("alc"));
 #else
   wxIcon icon;
@@ -328,7 +325,7 @@ AlcFrame::OnBrowseButton (wxCommandEvent & WXUNUSED(event))
 void
 AlcFrame::SetFileToHash()
 {
-#ifdef __WXMSW__
+#ifdef __WINDOWS__ 
 	wxString browseroot;
 	LPITEMIDLIST pidl;
 	HRESULT hr = SHGetSpecialFolderLocation(NULL, CSIDL_PERSONAL, &pidl);
@@ -501,14 +498,10 @@ bool AlcFrame::Hook(int percent)
 /// Compute Hashes on Start Button
 void AlcFrame::OnStartButton (wxCommandEvent & WXUNUSED(event))
 {
-  size_t i;
   wxString filename = m_inputFileTextCtrl->GetValue();
 
   if (!filename.empty ())
     {
-      // Initialize computation
-      m_goAhead=true;
-
       // Chrono
       wxStopWatch chrono;
 
@@ -551,7 +544,7 @@ void AlcFrame::OnStartButton (wxCommandEvent & WXUNUSED(event))
           // Get URLs
           wxArrayString arrayOfUrls;
           wxString url;
-          for (i=0;i < m_inputUrlListBox->GetCount();++i)
+          for (size_t i = 0; i < m_inputUrlListBox->GetCount(); ++i)
             {
               url=m_inputUrlListBox->GetString(i);
               if (url.Right(1) == wxT("/"))
@@ -600,9 +593,8 @@ AlcFrame::OnAddUrlButton (wxCommandEvent & WXUNUSED(event))
   if (!url.IsEmpty())
     {
       // Check if the URL already exist in list
-      size_t i;
       bool UrlNotExists = true;
-      for (i=0;i < m_inputUrlListBox->GetCount();++i)
+      for (size_t i = 0; i < m_inputUrlListBox->GetCount(); ++i)
         {
           if (url == m_inputUrlListBox->GetString(i))
             {

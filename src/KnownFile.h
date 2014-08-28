@@ -65,11 +65,9 @@ typedef vector<CTag> ArrayOfCTag;
 
 class CFileStatistic
 {
-	friend class CKnownFile;
 	friend class CKnownFilesRem;
-
 public:
-	CFileStatistic();
+	CFileStatistic(CKnownFile *parent);
 	void	AddRequest();
 	void	AddAccepted();
 	void    AddTransferred(uint64 bytes);
@@ -82,9 +80,9 @@ public:
 	void	SetAllTimeAccepts(uint32 new_value)	{ alltimeaccepted = new_value; };
 	uint64	GetAllTimeTransferred() const		{return alltimetransferred;}
 	void	SetAllTimeTransferred(uint64 new_value)	{ alltimetransferred = new_value; };
-	CKnownFile* fileParent;
 
 private:
+	CKnownFile* fileParent;
 	uint16 requested;
 	uint64 transferred;
 	uint16 accepted;
@@ -135,11 +133,11 @@ public:
 
 	/* Comment and rating */
 	virtual const wxString&	GetFileComment() const { return m_strComment; }
-	virtual int8	GetFileRating() 		const { return m_iRating; }
+	virtual int8	GetFileRating()		const { return m_iRating; }
 
 	bool	HasComment() const		{ return m_hasComment; }
 	bool	HasRating() const		{ return (m_iUserRating != 0); }
-	int8	UserRating() const 		{ return m_iUserRating; }
+	int8	UserRating() const		{ return m_iUserRating; }
 
 protected:
 	//! CAbstractFile is not assignable.
@@ -147,7 +145,7 @@ protected:
 
 	CMD4Hash	m_abyFileHash;
 	// comment/rating are read from the config and cached in these variables,
-	// so make the mutable to allow GetFileComment() to be a const method
+	// so make them mutable to allow GetFileComment() to be a const method
 	mutable	wxString	m_strComment;
 	mutable	int8		m_iRating;
 	bool		m_hasComment;
@@ -225,7 +223,7 @@ public:
 
 	// comment
 	const wxString&	GetFileComment()	const	{ if (!m_bCommentLoaded) LoadComment(); return m_strComment; }
-	int8	GetFileRating() 			const	{ if (!m_bCommentLoaded) LoadComment(); return m_iRating; }
+	int8	GetFileRating()			const	{ if (!m_bCommentLoaded) LoadComment(); return m_iRating; }
 
 	void	SetFileCommentRating(const wxString& strNewComment, int8 iNewRating);
 	void	SetPublishedED2K( bool val );
@@ -270,9 +268,9 @@ public:
 	ArrayOfUInts16 m_AvailPartFrequency;
 
 	/**
- 	 * Returns a base-16 encoding of the master hash, or
- 	 * an empty string if no such hash exists.
- 	 */
+	 * Returns a base-16 encoding of the master hash, or
+	 * an empty string if no such hash exists.
+	 */
 	wxString GetAICHMasterHash() const;
 	/** Returns true if the AICH-Hashset is valid, and verified or complete. */
 	bool HasProperAICHHashSet() const;
@@ -302,8 +300,11 @@ public:
 	void	SetShowPeers( bool val )	{ m_showPeers = val; }
 	bool	ShowPeers()	const			{ return m_showPeers; }
 
+	virtual	void SetHashingProgress(uint16) const {}	// does something for CPartFile only
+	uint16	GetHashingProgress() const	{ return m_hashingProgress; }
+
 #ifdef CLIENT_GUI
-	CKnownFile(CEC_SharedFile_Tag *);
+	CKnownFile(const CEC_SharedFile_Tag *);
 	friend class CKnownFilesRem;
 	RLE_Data m_partStatus;
 
@@ -342,6 +343,10 @@ protected:
 	uint8	m_iUpPriority;
 	bool	m_bAutoUpPriority;
 	bool	m_PublishedED2K;
+	// Index of part being hashed, 0: no hashing in progress.
+	// The known file is const in the hashing thread, so rather drill this little hole by making it mutable
+	// than opening it all up.
+	mutable	uint16 m_hashingProgress;
 
 	/* Kad stuff */
 	Kademlia::WordList wordlist;

@@ -38,7 +38,7 @@
 CPartFileConvertDlg*	CPartFileConvertDlg::s_convertgui = NULL;
 
 
-#ifndef __WXMSW__
+#ifndef __WINDOWS__ 
 /* XPM */
 static const char * convert_xpm[] = {
 "16 16 9 1",
@@ -67,7 +67,7 @@ static const char * convert_xpm[] = {
 "    #$%$#       ",
 "     #$#        ",
 "      #         "};
-#endif /* ! __WXMSW__ */
+#endif /* ! __WINDOWS__  */
 
 // Modeless Dialog Implementation
 // CPartFileConvertDlg dialog
@@ -94,6 +94,14 @@ CPartFileConvertDlg::CPartFileConvertDlg(wxWindow* parent)
 	m_joblist->InsertColumn(3, _("Filehash"),	wxLIST_FORMAT_LEFT, 100);
 
 	SetIcon(wxICON(convert));
+
+#ifdef CLIENT_GUI
+	// There's no remote directory browser (yet), thus disable the
+	// directory selector unless we're using a localhost connection
+	if (!theApp->m_connect->IsConnectedToLocalHost()) {
+		CastChild(IDC_ADDITEM, wxButton)->Enable(false);
+	}
+#endif
 }
 
 // Static methods

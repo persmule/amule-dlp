@@ -29,14 +29,7 @@
 #define _ALCPIX_H
 
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
-// For all others, include the necessary headers
-#ifndef WX_PRECOMP
-    #include "wx/wx.h"
-#endif
+#include <wx/bitmap.h>
 
 // Switch between themes (select just one of them)
 //#define WANT_KDE_THEME 1
@@ -45,7 +38,7 @@ class AlcPix
   {
   private:
     static const char *m_about_xpm[];
-#ifndef __WXMSW__
+#ifndef __WINDOWS__ 
     static const char *m_alc_xpm[];
 #endif
     static const char *m_copy_xpm[];

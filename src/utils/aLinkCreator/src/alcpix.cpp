@@ -26,15 +26,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
-// For all others, include the necessary headers
-#ifndef WX_PRECOMP
-    #include "wx/wx.h"
-#endif
-
 #include "alcpix.h"
 
 wxBitmap AlcPix::getPixmap(const wxString& name)
@@ -44,7 +35,7 @@ wxBitmap AlcPix::getPixmap(const wxString& name)
       wxBitmap bitmap(m_about_xpm);
       return bitmap;
     }
-#ifndef __WXMSW__
+#ifndef __WINDOWS__ 
   else if (name == wxT("alc"))
     {
       wxBitmap bitmap(m_alc_xpm);
@@ -370,7 +361,7 @@ AlcPix::m_about_xpm[]=
     "JXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJXJX"
   };
 
-#ifndef __WXMSW__
+#ifndef __WINDOWS__ 
 const char *
 AlcPix::m_alc_xpm[]=
   { /* XPM */
@@ -552,7 +543,7 @@ AlcPix::m_alc_xpm[]=
     "c.c.c.c.c.c.    . . . .     c.c.c.c.c.c.    . .         c.c.c.c.",
     "c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c."
   };
-#endif /* !__WXMSW__ */
+#endif /* !__WINDOWS__  */
 
 const char *
 AlcPix::m_copy_xpm[]=
@@ -1574,7 +1565,7 @@ AlcPix::m_about_xpm[]=
     "                                                                "
   };
 
-#ifndef __WXMSW__
+#ifndef __WINDOWS__ 
 const char *
 AlcPix::m_alc_xpm[]=
   { /* XPM */
@@ -1756,7 +1747,7 @@ AlcPix::m_alc_xpm[]=
     "c.c.c.c.c.c.    . . . .     c.c.c.c.c.c.    . .         c.c.c.c.",
     "c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c."
   };
-#endif /* !__WXMSW__ */
+#endif /* !__WINDOWS__  */
 
 const char *
 AlcPix::m_copy_xpm[]=

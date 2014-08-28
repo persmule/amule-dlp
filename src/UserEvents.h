@@ -16,7 +16,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -29,7 +29,7 @@
 
 
 #ifdef _MSC_VER
-	#define ATTR(x) 
+	#define ATTR(x)
 #else
 	#define ATTR(x) __attribute__((x))
 #endif
@@ -61,47 +61,41 @@ const int USEREVENTS_FIRST_ID	=	11500;	/* Some safe GUI ID to start from */
 		USEREVENTS_REPLACE_VAR( \
 			wxT("FILE"), \
 			wxTRANSLATE("The full path to the file."), \
-			((CPartFile*)object)->GetFullName().GetRaw() ) \
+			static_cast<const CPartFile*>(object)->GetFullName().GetRaw() ) \
 		USEREVENTS_REPLACE_VAR( \
 			wxT("NAME"), \
 			wxTRANSLATE("The name of the file without path component."), \
-			((CPartFile*)object)->GetFileName().GetRaw() ) \
+			static_cast<const CPartFile*>(object)->GetFileName().GetRaw() ) \
 		USEREVENTS_REPLACE_VAR( \
 			wxT("HASH"), \
 			wxTRANSLATE("The eD2k hash of the file."), \
-			((CPartFile*)object)->GetFileHash().Encode() ) \
+			static_cast<const CPartFile*>(object)->GetFileHash().Encode() ) \
 		USEREVENTS_REPLACE_VAR( \
 			wxT("SIZE"), \
 			wxTRANSLATE("The size of the file in bytes."), \
-			(wxString)(CFormat(wxT("%llu")) % ((CPartFile*)object)->GetFileSize()) ) \
+			(CFormat(wxT("%llu")) % static_cast<const CPartFile*>(object)->GetFileSize()).GetString() ) \
 		USEREVENTS_REPLACE_VAR( \
 			wxT("DLACTIVETIME"), \
 			wxTRANSLATE("Cumulative download activity time."), \
-			CastSecondsToHM(((CPartFile*)object)->GetDlActiveTime()) ) \
+			CastSecondsToHM(static_cast<const CPartFile*>(object)->GetDlActiveTime()) ) \
 	) \
-	USEREVENTS_EVENT( \
-		NewChatSession, \
-		wxTRANSLATE("New chat session started"), \
+	USEREVENTS_EVENT(NewChatSession, wxTRANSLATE("New chat session started"), \
 		USEREVENTS_REPLACE_VAR( \
 			wxT("SENDER"), \
 			wxTRANSLATE("Message sender."), \
-			*((wxString*)object) ) \
+			*static_cast<const wxString*>(object) ) \
 	) \
-	USEREVENTS_EVENT( \
-		OutOfDiskSpace, \
-		wxTRANSLATE("Out of space"), \
+	USEREVENTS_EVENT(OutOfDiskSpace, wxTRANSLATE("Out of space"), \
 		USEREVENTS_REPLACE_VAR( \
 			wxT("PARTITION"), \
 			wxTRANSLATE("Disk partition."), \
-			wxString((wxChar*)object) ) \
+			wxString(static_cast<const wxChar*>(object)) ) \
 	) \
-	USEREVENTS_EVENT( \
-		ErrorOnCompletion, \
-		wxTRANSLATE("Error on completion"), \
+	USEREVENTS_EVENT(ErrorOnCompletion, wxTRANSLATE("Error on completion"), \
 		USEREVENTS_REPLACE_VAR( \
 			wxT("FILE"), \
 			wxTRANSLATE("The full path to the file."), \
-			((CPartFile*)object)->GetFullName().GetRaw() ) \
+			static_cast<const CPartFile*>(object)->GetFullName().GetRaw() ) \
 	)
 
 

@@ -77,7 +77,7 @@
 #endif
 #include "IPFilter.h"
 
-#ifndef __WXMSW__
+#ifndef __WINDOWS__ 
 #include "aMule.xpm"
 #endif
 
@@ -211,7 +211,7 @@ m_clientSkinNames(CLIENT_SKIN_SIZE)
 	wxInitAllImageHandlers();
 	Apply_Clients_Skin();
 
-#ifdef __WXMSW__
+#ifdef __WINDOWS__ 
 	wxSystemOptions::SetOption(wxT("msw.remap"), 0);
 #endif
 
@@ -1060,7 +1060,7 @@ void CamuleDlg::DoIconize(bool iconize)
 void CamuleDlg::OnMinimize(wxIconizeEvent& evt)
 {
 // Evil Hack: check if the mouse is inside the window
-#ifndef __WXMSW__
+#ifndef __WINDOWS__ 
 	if (GetScreenRect().Contains(wxGetMousePosition()))
 #endif
 	{
@@ -1085,7 +1085,7 @@ void CamuleDlg::OnGUITimer(wxTimerEvent& WXUNUSED(evt))
 
 	static uint32	msPrev1, msPrev5;
 
-	uint32 			msCur = theStats::GetUptimeMillis();
+	uint32			msCur = theStats::GetUptimeMillis();
 
 	// can this actually happen under wxwin ?
 	if (!SafeState()) {
@@ -1125,6 +1125,7 @@ void CamuleDlg::OnGUITimer(wxTimerEvent& WXUNUSED(evt))
 			m_transferwnd->clientlistctrl->SortList();
 			m_sharedfileswnd->peerslistctrl->SortList();
 		}
+		m_kademliawnd->UpdateNodeCount(CStatistics::GetKadNodes());
 	}
 
 	if (msCur-msPrev1 > 1000) {  // every second
@@ -1213,7 +1214,7 @@ bool CamuleDlg::Check_and_Init_Skin()
 	wxString userDir(JoinPaths(GetConfigDir(), wxT("skins")) + wxFileName::GetPathSeparator());
 
 	wxStandardPathsBase &spb(wxStandardPaths::Get());
-#ifdef __WXMSW__
+#ifdef __WINDOWS__ 
 	wxString dataDir(spb.GetPluginsDir());
 #elif defined(__WXMAC__)
 		wxString dataDir(spb.GetDataDir());
@@ -1429,19 +1430,19 @@ void CamuleDlg::OnExit(wxCommandEvent& WXUNUSED(evt))
 
 void CamuleDlg::DoNetworkRearrange()
 {
+#if !defined(__WXOSX_COCOA__)
+	// in Mac OS with wxWidgets >= 3.0 and COCOA the following seems to cause problems
+	// (window is not refreshed after changes in network settings)
 	wxWindowUpdateLocker freezer(this);
+#endif
 
 	wxToolBarToolBase* toolbarTool = m_wndToolbar->RemoveTool(ID_BUTTONNETWORKS);
 
+	// set the log windows
 	wxNotebook* logs_notebook = CastChild( ID_SRVLOG_NOTEBOOK, wxNotebook);
-	wxNotebook* networks_notebook = CastChild( ID_NETNOTEBOOK, wxNotebook);
 
 	while (logs_notebook->GetPageCount() > 1) {
 		logs_notebook->RemovePage(logs_notebook->GetPageCount() - 1);
-	}
-
-	while (networks_notebook->GetPageCount() > 0) {
-		networks_notebook->RemovePage(networks_notebook->GetPageCount() - 1);
 	}
 
 	if (thePrefs::GetNetworkED2K()) {
@@ -1451,57 +1452,88 @@ void CamuleDlg::DoNetworkRearrange()
 		logs_notebook->AddPage(m_logpages[2].page, m_logpages[2].name);
 	}
 
-	m_networkpages[0].page->Show(thePrefs::GetNetworkED2K());
-
 	if (thePrefs::GetNetworkKademlia()) {
 		logs_notebook->AddPage(m_logpages[3].page, m_logpages[3].name);
 	}
 
-	m_networkpages[1].page->Show(thePrefs::GetNetworkKademlia());
+	// Set the main window.
+	// If we have both networks active, activate a notebook to select between them.
+	// If only one is active, show the window directly without a surrounding one tab notebook.
 
-	networks_notebook->Show(thePrefs::GetNetworkED2K() && thePrefs::GetNetworkKademlia());
+	// States:
+	// 1: ED2K only
+	// 2: Kad only
+	// 3: both (in Notebook)
 
-	wxWindow* replacement = NULL;
-
-	m_networknotebooksizer->Clear();
-
+	static uint8 currentState = 3;		// on startup we have both enabled
+	uint8 newState;
 	if (thePrefs::GetNetworkED2K() && thePrefs::GetNetworkKademlia()) {
+		newState = 3;
 		toolbarTool->SetLabel(_("Networks"));
-
-		m_networkpages[0].page->Reparent(networks_notebook);
-		m_networkpages[1].page->Reparent(networks_notebook);
-
-		networks_notebook->AddPage(m_networkpages[0].page, m_networkpages[0].name);
-		networks_notebook->AddPage(m_networkpages[1].page, m_networkpages[1].name);
-
-		replacement = networks_notebook;
-
-	} else if (thePrefs::GetNetworkED2K()) {
+	}
+	else if (thePrefs::GetNetworkED2K()) {
+		newState = 1;
 		toolbarTool->SetLabel(_("eD2k network"));
-		replacement = m_networkpages[0].page;
-		m_networkpages[1].page->Reparent(m_networknotebooksizer->GetContainingWindow());
-	} else if (thePrefs::GetNetworkKademlia()) {
-		toolbarTool->SetLabel(_("Kad network"));
-		m_networkpages[0].page->Reparent(m_networknotebooksizer->GetContainingWindow());
-		replacement = m_networkpages[1].page;
-	} else {
-		// No networks.
-		toolbarTool->SetLabel(_("No network"));
+	}
+	else {			// Kad only or no network
+		newState = 2;	// no network makes no sense anyway, so just show Kad there
+		toolbarTool->SetLabel(thePrefs::GetNetworkKademlia() ? _("Kad network") : _("No network"));
 	}
 
-	if (replacement) {
+	if (newState != currentState) {
+		wxNotebook* networks_notebook = CastChild(ID_NETNOTEBOOK, wxNotebook);
+		// First hide all windows
+		networks_notebook->Show(false);
+		m_networkpages[0].page->Show(false);
+		m_networkpages[1].page->Show(false);
+		m_networknotebooksizer->Clear();
+
+		wxWindow* replacement = NULL;
+
+		// Move both pages into the notebook if they aren't already there.
+		if (currentState == 1) {	// ED2K
+			m_networkpages[0].page->Reparent(networks_notebook);
+			networks_notebook->InsertPage(0, m_networkpages[0].page, m_networkpages[0].name);
+		} else if (currentState == 2) {	// Kad
+			m_networkpages[1].page->Reparent(networks_notebook);
+			networks_notebook->AddPage(m_networkpages[1].page, m_networkpages[1].name);
+		}
+
+		// Now both pages are in the notebook. If we want to show one of them outside, move it back out again.
+		// Windows that are part of a notebook can't be reparented.
+		if (newState == 3) {
+			// Since we messed with the notebook, we now have to show both pages, one after the other.
+			// Otherwise GTK gets confused and shows the first tab only.
+			// (So much for "platform independent".)
+			networks_notebook->SetSelection(1);
+			m_networkpages[1].page->Show();
+			networks_notebook->SetSelection(0);
+			m_networkpages[0].page->Show();
+			replacement = networks_notebook;
+		} else if (newState == 1) {
+			replacement = m_networkpages[0].page;
+			networks_notebook->RemovePage(0);
+		} else {
+			replacement = m_networkpages[1].page;
+			networks_notebook->RemovePage(1);
+		}
+
 		replacement->Reparent(m_networknotebooksizer->GetContainingWindow());
-		m_networknotebooksizer->Add( replacement, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxTOP, 5 );
+		replacement->Show();
+		m_networknotebooksizer->Add(replacement, 1, wxGROW | wxALIGN_CENTER_VERTICAL | wxTOP, 5);
 		m_networknotebooksizer->Layout();
+		currentState = newState;
 	}
+
+	// Tool bar
 
 	m_wndToolbar->InsertTool(2, toolbarTool);
-
 	m_wndToolbar->EnableTool(ID_BUTTONNETWORKS, (thePrefs::GetNetworkED2K() || thePrefs::GetNetworkKademlia()));
 	m_wndToolbar->EnableTool(ID_BUTTONCONNECT, (thePrefs::GetNetworkED2K() || thePrefs::GetNetworkKademlia()) && theApp->ipfilter->IsReady());
 
 	m_wndToolbar->Realize();
 
+	ShowConnectionState();	// status in the bottom right
 	m_searchwnd->FixSearchTypes();
 }
 

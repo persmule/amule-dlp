@@ -36,12 +36,14 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@WEB_TRUE@am__append_1 = webserver
+
+# build webserver after current
+@WEB_TRUE@am__append_1 = . webserver
 @INSTALL_SKINS_TRUE@am__append_2 = skins
 bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
 	$(am__EXEEXT_4) $(am__EXEEXT_5)
 @MONOLITHIC_TRUE@am__append_3 = amule
-@COMPILE_CMD_TRUE@am__append_4 = amulecmd   
+@COMPILE_CMD_TRUE@am__append_4 = amulecmd
 @ED2K_TRUE@am__append_5 = ed2k
 @AMULE_GUI_TRUE@am__append_6 = amulegui
 @AMULE_DAEMON_TRUE@am__append_7 = amuled
@@ -58,23 +60,23 @@ DIST_COMMON = $(noinst_HEADERS) $(srcdir)/Makefile.am \
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/GeoIP.m4 \
-	$(top_srcdir)/m4/build-tools.m4 $(top_srcdir)/m4/codeset.m4 \
-	$(top_srcdir)/m4/cryptopp.m4 $(top_srcdir)/m4/fallocate.m4 \
-	$(top_srcdir)/m4/gdlib.m4 $(top_srcdir)/m4/gettext.m4 \
-	$(top_srcdir)/m4/glibc21.m4 $(top_srcdir)/m4/iconv.m4 \
-	$(top_srcdir)/m4/intdiv0.m4 $(top_srcdir)/m4/inttypes-pri.m4 \
-	$(top_srcdir)/m4/inttypes.m4 $(top_srcdir)/m4/inttypes_h.m4 \
-	$(top_srcdir)/m4/isc-posix.m4 $(top_srcdir)/m4/kde.m4 \
-	$(top_srcdir)/m4/lcmessage.m4 $(top_srcdir)/m4/lib-ld.m4 \
-	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
-	$(top_srcdir)/m4/libpng.m4 $(top_srcdir)/m4/libupnp.m4 \
-	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/pkg.m4 \
-	$(top_srcdir)/m4/plasmamule.m4 $(top_srcdir)/m4/progtest.m4 \
-	$(top_srcdir)/m4/qt.m4 $(top_srcdir)/m4/readline.m4 \
-	$(top_srcdir)/m4/stdint_h.m4 $(top_srcdir)/m4/uintmax_t.m4 \
-	$(top_srcdir)/m4/ulonglong.m4 $(top_srcdir)/m4/wxwin.m4 \
-	$(top_srcdir)/m4/zlib.m4 $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/configure.in
+	$(top_srcdir)/m4/boost.m4 $(top_srcdir)/m4/build-tools.m4 \
+	$(top_srcdir)/m4/codeset.m4 $(top_srcdir)/m4/cryptopp.m4 \
+	$(top_srcdir)/m4/fallocate.m4 $(top_srcdir)/m4/gdlib.m4 \
+	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/glibc21.m4 \
+	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intdiv0.m4 \
+	$(top_srcdir)/m4/inttypes-pri.m4 $(top_srcdir)/m4/inttypes.m4 \
+	$(top_srcdir)/m4/inttypes_h.m4 $(top_srcdir)/m4/isc-posix.m4 \
+	$(top_srcdir)/m4/kde.m4 $(top_srcdir)/m4/lcmessage.m4 \
+	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
+	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libpng.m4 \
+	$(top_srcdir)/m4/libupnp.m4 $(top_srcdir)/m4/nls.m4 \
+	$(top_srcdir)/m4/pkg.m4 $(top_srcdir)/m4/plasmamule.m4 \
+	$(top_srcdir)/m4/progtest.m4 $(top_srcdir)/m4/qt.m4 \
+	$(top_srcdir)/m4/readline.m4 $(top_srcdir)/m4/stdint_h.m4 \
+	$(top_srcdir)/m4/uintmax_t.m4 $(top_srcdir)/m4/ulonglong.m4 \
+	$(top_srcdir)/m4/wxwin.m4 $(top_srcdir)/m4/zlib.m4 \
+	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -145,6 +147,10 @@ am_libmuleappgui_a_OBJECTS = libmuleappgui_a-BarShader.$(OBJEXT) \
 	libmuleappgui_a-MuleCollection.$(OBJEXT) \
 	libmuleappgui_a-muuli_wdr.$(OBJEXT)
 libmuleappgui_a_OBJECTS = $(am_libmuleappgui_a_OBJECTS)
+libmulesocket_a_AR = $(AR) $(ARFLAGS)
+libmulesocket_a_LIBADD =
+am_libmulesocket_a_OBJECTS = libmulesocket_a-LibSocket.$(OBJEXT)
+libmulesocket_a_OBJECTS = $(am_libmulesocket_a_OBJECTS)
 @MONOLITHIC_TRUE@am__EXEEXT_1 = amule$(EXEEXT)
 @COMPILE_CMD_TRUE@am__EXEEXT_2 = amulecmd$(EXEEXT)
 @ED2K_TRUE@am__EXEEXT_3 = ed2k$(EXEEXT)
@@ -215,6 +221,7 @@ am__DEPENDENCIES_1 =
 am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__DEPENDENCIES_3 = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 am__DEPENDENCIES_4 = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
@@ -335,14 +342,16 @@ AM_V_GEN = $(am__v_GEN_$(V))
 am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
 am__v_GEN_0 = @echo "  GEN   " $@;
 SOURCES = $(libmuleappcommon_a_SOURCES) $(libmuleappcore_a_SOURCES) \
-	$(libmuleappgui_a_SOURCES) $(amule_SOURCES) \
-	$(amulecmd_SOURCES) $(nodist_amulecmd_SOURCES) \
-	$(amuled_SOURCES) $(nodist_amuled_SOURCES) $(amulegui_SOURCES) \
-	$(ed2k_SOURCES) $(nodist_ed2k_SOURCES)
+	$(libmuleappgui_a_SOURCES) $(libmulesocket_a_SOURCES) \
+	$(amule_SOURCES) $(amulecmd_SOURCES) \
+	$(nodist_amulecmd_SOURCES) $(amuled_SOURCES) \
+	$(nodist_amuled_SOURCES) $(amulegui_SOURCES) $(ed2k_SOURCES) \
+	$(nodist_ed2k_SOURCES)
 DIST_SOURCES = $(libmuleappcommon_a_SOURCES) \
 	$(libmuleappcore_a_SOURCES) $(libmuleappgui_a_SOURCES) \
-	$(amule_SOURCES) $(amulecmd_SOURCES) $(amuled_SOURCES) \
-	$(amulegui_SOURCES) $(ed2k_SOURCES)
+	$(libmulesocket_a_SOURCES) $(amule_SOURCES) \
+	$(amulecmd_SOURCES) $(amuled_SOURCES) $(amulegui_SOURCES) \
+	$(ed2k_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -358,7 +367,7 @@ AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
 	distdir
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = libs utils pixmaps webserver skins
+DIST_SUBDIRS = libs utils pixmaps . webserver skins
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 am__relativize = \
   dir0=`pwd`; \
@@ -402,6 +411,12 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BFD_CPPFLAGS = @BFD_CPPFLAGS@
 BFD_LIBS = @BFD_LIBS@
+BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
+BOOST_LDPATH = @BOOST_LDPATH@
+BOOST_ROOT = @BOOST_ROOT@
+BOOST_SYSTEM_LDFLAGS = @BOOST_SYSTEM_LDFLAGS@
+BOOST_SYSTEM_LDPATH = @BOOST_SYSTEM_LDPATH@
+BOOST_SYSTEM_LIBS = @BOOST_SYSTEM_LIBS@
 BUILD_CC = @BUILD_CC@
 BUILD_CFLAGS = @BUILD_CFLAGS@
 BUILD_CPPFLAGS = @BUILD_CPPFLAGS@
@@ -428,6 +443,7 @@ DATADIRNAME = @DATADIRNAME@
 DEBUGFLAG = @DEBUGFLAG@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_CONFIGURE_FLAGS = @DISTCHECK_CONFIGURE_FLAGS@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
@@ -518,6 +534,7 @@ RC = @RC@
 RCFLAGS = @RCFLAGS@
 READLINE_LIBS = @READLINE_LIBS@
 RESOLV_LIB = @RESOLV_LIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -609,15 +626,22 @@ AM_LDFLAGS = $(MULELDFLAGS)
 SUBDIRS = libs utils pixmaps $(am__append_1) $(am__append_2)
 EXTRA_DIST = \
 	aMule.xpm \
+	LibSocketAsio.cpp \
+	LibSocketWX.cpp \
 	Parser.y \
 	Scanner.h.in \
 	Scanner.l \
 	IPFilterScanner.l \
-	muuli.wdr 
+	muuli.wdr
 
 
 # Sources
-noinst_LIBRARIES = $(am__append_8) $(am__append_9) $(am__append_10)
+noinst_LIBRARIES = libmulesocket.a $(am__append_8) $(am__append_9) \
+	$(am__append_10)
+
+# Socket lib (WX or Asio)
+libmulesocket_a_SOURCES = LibSocket.cpp
+libmulesocket_a_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) $(BOOST_CPPFLAGS) -I$(srcdir)/libs -I$(srcdir)/include
 
 # Common to core/gui/monolithic
 libmuleappcommon_a_SOURCES = \
@@ -677,7 +701,7 @@ libmuleappgui_a_SOURCES = \
 	MuleNotebook.cpp \
 	MuleTextCtrl.cpp \
 	MuleCollection.cpp \
-	muuli_wdr.cpp 
+	muuli_wdr.cpp
 
 libmuleappgui_a_CPPFLAGS = $(AM_CPPFLAGS) $(WX_CPPFLAGS) -I$(srcdir)/libs -I$(srcdir)/include $(LIBUPNP_CPPFLAGS) $(GEOIP_CPPFLAGS)
 core_sources = \
@@ -751,7 +775,7 @@ gui_sources = \
 	ServerListCtrl.cpp \
 	SharedFilesCtrl.cpp \
 	MuleTrayIcon.cpp \
-	TransferWnd.cpp 
+	TransferWnd.cpp
 
 common_sources = \
 	amuleAppCommon.cpp \
@@ -777,11 +801,11 @@ core_libs = -L. -lmuleappcore $(LIBUPNP_LDFLAGS) $(LIBUPNP_LIBS) \
 	$(am__append_11)
 gui_libs = -L. -lmuleappgui $(WX_LIBS) $(GEOIP_LDFLAGS) $(GEOIP_LIBS)
 remote_common_libs = -Llibs/common -Llibs/ec/cpp -lmulecommon -lec $(BFD_LIBS) $(ZLIB_LDFLAGS) $(ZLIB_LIBS) $(RESOLV_LIB)
-common_libs = -L. -lmuleappcommon $(remote_common_libs) $(CRYPTOPP_LDFLAGS) $(CRYPTOPP_LIBS)
+common_libs = -L. -lmuleappcommon $(remote_common_libs) -lmulesocket $(BOOST_SYSTEM_LDFLAGS) $(BOOST_SYSTEM_LIBS) $(CRYPTOPP_LDFLAGS) $(CRYPTOPP_LIBS)
 core_deps = libmuleappcore.a
 gui_deps = libmuleappgui.a
 remote_common_deps = libs/common/libmulecommon.a libs/ec/cpp/libec.a
-common_deps = libmuleappcommon.a $(remote_common_deps)
+common_deps = libmuleappcommon.a $(remote_common_deps) libmulesocket.a
 
 #
 # Flags
@@ -821,16 +845,15 @@ amule_LDADD = $(common_libs) $(core_libs) $(gui_libs) $(am__append_12)
 amulegui_DEPENDENCIES = $(common_deps) $(gui_deps) $(am__append_15)
 amulegui_CPPFLAGS = $(AM_CPPFLAGS) $(gui_flags) $(common_flags) -DCLIENT_GUI
 amulegui_CXXFLAGS = $(AM_CXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
-amulegui_LDADD = $(gui_libs) $(common_libs) $(WXBASE_LIBS) \
-	$(am__append_14)
+amulegui_LDADD = $(common_libs) $(gui_libs) $(am__append_14)
 amuled_DEPENDENCIES = $(core_deps) $(common_deps)
-amuled_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) $(core_flags) $(common_flags) -DAMULE_DAEMON 
+amuled_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) $(core_flags) $(common_flags) -DAMULE_DAEMON
 amuled_CXXFLAGS = $(AM_CXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
 amuled_LDADD = $(common_libs) $(core_libs) $(WXBASE_LIBS)
 ed2k_SOURCES = \
 	ED2KLinkParser.cpp \
 	MagnetURI.cpp \
-	MuleCollection.cpp	
+	MuleCollection.cpp
 
 ed2k_CPPFLAGS = $(AM_CPPFLAGS) -DUSE_STD_STRING
 
@@ -843,14 +866,14 @@ amulecmd_SOURCES = \
 	ExternalConnector.cpp \
 	LoggerConsole.cpp \
 	OtherFunctions.cpp \
-	NetworkFunctions.cpp 
+	NetworkFunctions.cpp
 
-amulecmd_DEPENDENCIES = $(remote_common_deps)
+amulecmd_DEPENDENCIES = $(remote_common_deps) libmulesocket.a
 amulecmd_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) $(common_flags)
 amulecmd_CXXFLAGS = $(AM_CXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
 #amulecmd_LDADD = $(WXBASE_LIBS) $(READLINE_LIBS) $(remote_common_libs)
-amulecmd_LDADD = -Llibs/common -Llibs/ec/cpp -lmulecommon -lec \
-	$(WXBASE_LIBS) $(READLINE_LIBS) $(BFD_LIBS) $(ZLIB_LDFLAGS) $(ZLIB_LIBS) $(RESOLV_LIB)
+amulecmd_LDADD = -Llibs/common -Llibs/ec/cpp -L. -lmulecommon -lec -lmulesocket \
+	$(WXBASE_LIBS) $(READLINE_LIBS) $(BFD_LIBS) $(ZLIB_LDFLAGS) $(ZLIB_LIBS) $(RESOLV_LIB) $(BOOST_SYSTEM_LDFLAGS) $(BOOST_SYSTEM_LIBS)
 
 noinst_HEADERS = \
 		AddFriend.h \
@@ -916,6 +939,7 @@ noinst_HEADERS = \
 		KadDlg.h \
 		KnownFile.h \
 		KnownFileList.h \
+		LibSocket.h \
 		ListenSocket.h \
 		Logger.h \
 		MagnetURI.h \
@@ -1052,6 +1076,10 @@ libmuleappgui.a: $(libmuleappgui_a_OBJECTS) $(libmuleappgui_a_DEPENDENCIES)
 	$(AM_V_at)-rm -f libmuleappgui.a
 	$(AM_V_AR)$(libmuleappgui_a_AR) libmuleappgui.a $(libmuleappgui_a_OBJECTS) $(libmuleappgui_a_LIBADD)
 	$(AM_V_at)$(RANLIB) libmuleappgui.a
+libmulesocket.a: $(libmulesocket_a_OBJECTS) $(libmulesocket_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libmulesocket.a
+	$(AM_V_AR)$(libmulesocket_a_AR) libmulesocket.a $(libmulesocket_a_OBJECTS) $(libmulesocket_a_LIBADD)
+	$(AM_V_at)$(RANLIB) libmulesocket.a
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	test -z "$(bindir)" || $(MKDIR_P) "$(DESTDIR)$(bindir)"
@@ -1358,6 +1386,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmuleappgui_a-MuleTextCtrl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmuleappgui_a-listctrl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmuleappgui_a-muuli_wdr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmulesocket_a-LibSocket.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -2126,6 +2155,22 @@ libmuleappgui_a-muuli_wdr.obj: muuli_wdr.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='muuli_wdr.cpp' object='libmuleappgui_a-muuli_wdr.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmuleappgui_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libmuleappgui_a-muuli_wdr.obj `if test -f 'muuli_wdr.cpp'; then $(CYGPATH_W) 'muuli_wdr.cpp'; else $(CYGPATH_W) '$(srcdir)/muuli_wdr.cpp'; fi`
+
+libmulesocket_a-LibSocket.o: LibSocket.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmulesocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libmulesocket_a-LibSocket.o -MD -MP -MF $(DEPDIR)/libmulesocket_a-LibSocket.Tpo -c -o libmulesocket_a-LibSocket.o `test -f 'LibSocket.cpp' || echo '$(srcdir)/'`LibSocket.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmulesocket_a-LibSocket.Tpo $(DEPDIR)/libmulesocket_a-LibSocket.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='LibSocket.cpp' object='libmulesocket_a-LibSocket.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmulesocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libmulesocket_a-LibSocket.o `test -f 'LibSocket.cpp' || echo '$(srcdir)/'`LibSocket.cpp
+
+libmulesocket_a-LibSocket.obj: LibSocket.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmulesocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libmulesocket_a-LibSocket.obj -MD -MP -MF $(DEPDIR)/libmulesocket_a-LibSocket.Tpo -c -o libmulesocket_a-LibSocket.obj `if test -f 'LibSocket.cpp'; then $(CYGPATH_W) 'LibSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/LibSocket.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmulesocket_a-LibSocket.Tpo $(DEPDIR)/libmulesocket_a-LibSocket.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='LibSocket.cpp' object='libmulesocket_a-LibSocket.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmulesocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libmulesocket_a-LibSocket.obj `if test -f 'LibSocket.cpp'; then $(CYGPATH_W) 'LibSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/LibSocket.cpp'; fi`
 
 amule-CaptchaDialog.o: CaptchaDialog.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(amule_CPPFLAGS) $(CPPFLAGS) $(amule_CXXFLAGS) $(CXXFLAGS) -MT amule-CaptchaDialog.o -MD -MP -MF $(DEPDIR)/amule-CaptchaDialog.Tpo -c -o amule-CaptchaDialog.o `test -f 'CaptchaDialog.cpp' || echo '$(srcdir)/'`CaptchaDialog.cpp

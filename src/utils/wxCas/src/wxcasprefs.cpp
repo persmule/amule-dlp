@@ -27,18 +27,9 @@
 /// 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// For compilers that support precompilation, includes "wx/wx.h"
-
-#ifdef __BORLANDC__
- #pragma hdrstop
-#endif
-
-// For all others, include the necessary headers
-#ifndef WX_PRECOMP
- #include "wx/wx.h"
-#endif
 
 #include <wx/config.h>
+#include <wx/dirdlg.h>
 
 #include "wxcasprefs.h"
 #include "wxcascte.h"
@@ -390,7 +381,7 @@ WxCasPrefs::OnValidateButton ( wxCommandEvent& WXUNUSED( event ) )
 		// Reload amulesig.dat
 		wxFileName amulesig( m_osPathTextCtrl->GetValue (),
 		                     WxCasCte::AMULESIG_FILENAME );
-		( ( WxCasFrame* ) GetParent() ) ->SetAmuleSigFile( amulesig );
+		dynamic_cast<WxCasFrame*>( GetParent() )->SetAmuleSigFile( amulesig );
 
 		prefs->Write ( WxCasCte::AMULESIG_PATH_KEY,
 		               m_osPathTextCtrl->GetValue () );
@@ -399,7 +390,7 @@ WxCasPrefs::OnValidateButton ( wxCommandEvent& WXUNUSED( event ) )
 	// Restart timer if refresh interval has changed
 	if ( prefs->Read ( WxCasCte::REFRESH_RATE_KEY, WxCasCte::DEFAULT_REFRESH_RATE ) !=
 	        m_refreshSpinButton->GetValue () ) {
-		( ( WxCasFrame* ) GetParent() ) ->ChangeRefreshPeriod( 1000 * m_refreshSpinButton->GetValue () );
+		dynamic_cast<WxCasFrame*>( GetParent() )->ChangeRefreshPeriod( 1000 * m_refreshSpinButton->GetValue () );
 
 		// Write refresh interval
 		prefs->Write ( WxCasCte::REFRESH_RATE_KEY,
@@ -427,7 +418,7 @@ WxCasPrefs::OnValidateButton ( wxCommandEvent& WXUNUSED( event ) )
 			// Restart timer if update interval has changed
 			if ( prefs->Read ( WxCasCte::FTP_UPDATE_RATE_KEY, WxCasCte::DEFAULT_FTP_UPDATE_RATE ) !=
 			        m_ftpUpdateSpinButton->GetValue () ) {
-				( ( WxCasFrame* ) GetParent() ) ->ChangeFtpUpdatePeriod( 60000 * m_refreshSpinButton->GetValue () );
+				dynamic_cast<WxCasFrame*>( GetParent() )->ChangeFtpUpdatePeriod( 60000 * m_refreshSpinButton->GetValue () );
 				prefs->Write ( WxCasCte::FTP_UPDATE_RATE_KEY,
 				               m_ftpUpdateSpinButton->GetValue () );
 			}

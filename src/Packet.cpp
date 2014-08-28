@@ -17,7 +17,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -37,20 +37,20 @@
 // Copy constructor
 CPacket::CPacket(CPacket &p)
 {
-	size 		= p.size;
+	size		= p.size;
 	opcode		= p.opcode;
-	prot 		= p.prot;
-	m_bSplitted 	= p.m_bSplitted;
+	prot		= p.prot;
+	m_bSplitted	= p.m_bSplitted;
 	m_bLastSplitted = p.m_bLastSplitted;
-	m_bPacked 	= p.m_bPacked;
-	m_bFromPF 	= p.m_bFromPF;
+	m_bPacked	= p.m_bPacked;
+	m_bFromPF	= p.m_bFromPF;
 	memcpy(head, p.head, sizeof head);
 	tempbuffer	= NULL;
 	if (p.completebuffer) {
-		completebuffer 	= new byte[size + 10];;
-		pBuffer 	= completebuffer + sizeof(Header_Struct);
+		completebuffer	= new byte[size + 10];;
+		pBuffer	= completebuffer + sizeof(Header_Struct);
 	} else {
-		completebuffer 	= NULL;
+		completebuffer	= NULL;
 		if (p.pBuffer) {
 			pBuffer = new byte[size];
 		} else {
@@ -63,34 +63,34 @@ CPacket::CPacket(CPacket &p)
 
 CPacket::CPacket(uint8 protocol)
 {
-	size 		= 0;
+	size		= 0;
 	opcode		= 0;
-	prot 		= protocol;
-	m_bSplitted 	= false;
+	prot		= protocol;
+	m_bSplitted	= false;
 	m_bLastSplitted = false;
-	m_bPacked 	= false;
-	m_bFromPF 	= false;
+	m_bPacked	= false;
+	m_bFromPF	= false;
 	memset(head, 0, sizeof head);
 	tempbuffer	= NULL;
-	completebuffer 	= NULL;
-	pBuffer 	= NULL;
+	completebuffer	= NULL;
+	pBuffer	= NULL;
 }
 
 // only used for receiving packets
 CPacket::CPacket(byte* rawHeader, byte *buf)
 {
 	memset(head, 0, sizeof head);
-	Header_Struct* header = (Header_Struct*)rawHeader;
-	size 		= ENDIAN_SWAP_32(header->packetlength) - 1;
+	Header_Struct* header = reinterpret_cast<Header_Struct*>(rawHeader);
+	size		= ENDIAN_SWAP_32(header->packetlength) - 1;
 	opcode		= header->command;
 	prot		= header->eDonkeyID;
-	m_bSplitted 	= false;
+	m_bSplitted	= false;
 	m_bLastSplitted = false;
-	m_bPacked 	= false;
-	m_bFromPF 	= false;
+	m_bPacked	= false;
+	m_bFromPF	= false;
 	tempbuffer	= NULL;
-	completebuffer 	= NULL;
-	pBuffer 	= buf;
+	completebuffer	= NULL;
+	pBuffer	= buf;
 }
 
 CPacket::CPacket(const CMemFile& datafile, uint8 protocol, uint8 ucOpcode)
@@ -98,15 +98,15 @@ CPacket::CPacket(const CMemFile& datafile, uint8 protocol, uint8 ucOpcode)
 	size		= datafile.GetLength();
 	opcode		= ucOpcode;
 	prot		= protocol;
-	m_bSplitted 	= false;
+	m_bSplitted	= false;
 	m_bLastSplitted = false;
-	m_bPacked 	= false;
-	m_bFromPF 	= false;
+	m_bPacked	= false;
+	m_bFromPF	= false;
 	memset(head, 0, sizeof head);
 	tempbuffer = NULL;
 	completebuffer = new byte[size + sizeof(Header_Struct)/*Why this 4?*/];
 	pBuffer = completebuffer + sizeof(Header_Struct);
-	
+
 	// Write contents of MemFile to buffer (while keeping original position in file)
 	off_t position = datafile.GetPosition();
 	datafile.Seek(0, wxFromStart);
@@ -119,9 +119,9 @@ CPacket::CPacket(int8 in_opcode, uint32 in_size, uint8 protocol, bool bFromPF)
 	size		= in_size;
 	opcode		= in_opcode;
 	prot		= protocol;
-	m_bSplitted 	= false;
+	m_bSplitted	= false;
 	m_bLastSplitted = false;
-	m_bPacked 	= false;
+	m_bPacked	= false;
 	m_bFromPF	= bFromPF;
 	memset(head, 0, sizeof head);
 	tempbuffer	= NULL;
@@ -157,10 +157,10 @@ CPacket::~CPacket()
 	if (completebuffer) {
 		delete [] completebuffer;
 	} else if (pBuffer) {
-	// On the other hand, if completebuffer is NULL and pBuffer is not NULL 
+	// On the other hand, if completebuffer is NULL and pBuffer is not NULL
 		delete [] pBuffer;
 	}
-	
+
 	if (tempbuffer) {
 		delete [] tempbuffer;
 	}
@@ -168,7 +168,7 @@ CPacket::~CPacket()
 
 uint32 CPacket::GetPacketSizeFromHeader(const byte* rawHeader)
 {
-	Header_Struct* header = (Header_Struct*)rawHeader;
+	const Header_Struct* header = reinterpret_cast<const Header_Struct*>(rawHeader);
 	uint32 size = ENDIAN_SWAP_32(header->packetlength);
 	if (size < 1 || size >= 0x7ffffff0u)
 		return 0;
@@ -224,7 +224,7 @@ byte* CPacket::DetachPacket() {
 byte* CPacket::GetHeader() {
 	wxASSERT( !m_bSplitted );
 
-	Header_Struct* header = (Header_Struct*) head;
+	Header_Struct* header = reinterpret_cast<Header_Struct*>(head);
 	header->command = opcode;
 	header->eDonkeyID =  prot;
 	header->packetlength = ENDIAN_SWAP_32(size + 1);
@@ -236,7 +236,7 @@ byte* CPacket::GetUDPHeader() {
 	wxASSERT( !m_bSplitted );
 
 	memset(head, 0, 6);
-	UDP_Header_Struct* header = (UDP_Header_Struct*) head;
+	UDP_Header_Struct* header = reinterpret_cast<UDP_Header_Struct*>(head);
 	header->eDonkeyID =  prot;
 	header->command = opcode;
 
@@ -263,11 +263,11 @@ void CPacket::PackPacket()
 	} else {
 		prot = OP_PACKEDPROT;
 	}
-	
+
 	memcpy(pBuffer, output, newsize);
 	delete[] output;
 	m_bPacked = true;
-	
+
 	size = newsize;
 }
 
@@ -314,7 +314,7 @@ void CPacket::Copy16ToDataBuffer(const void* data)
 
 
 void CPacket::CopyUInt32ToDataBuffer(uint32 data, unsigned int offset)
-{ 
+{
 	wxCHECK_RET(offset <= size - sizeof(uint32), wxT("Bad offset in CopyUInt32ToDataBuffer."));
 	PokeUInt32( pBuffer + offset, data );
 }

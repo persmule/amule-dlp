@@ -129,11 +129,13 @@ keywordchar		[^ \"()]
 						} else {
 							if ((unsigned char)c >= 0x80/* && IsDBCSLeadByte(yytext[0]) */){
 								psz[i++] = (unsigned char)c;
-								if (i >= l){
-									psz = (char*)realloc(psz, l += 128);
-									if (psz == NULL){
+								if (i >= l) {
+									char *tmp = (char*)realloc(psz, l += 128);
+									if (tmp == NULL){
 										yyerror("Less memory for string");
 										break;
+									} else {
+										psz = tmp;
 									}
 								}
 								c = yyinput();
@@ -141,11 +143,13 @@ keywordchar		[^ \"()]
 						}
 
 						psz[i++] = (unsigned char)c;
-						if (i >= l){
-							psz = (char*)realloc(psz, l += 128);
-							if (psz == NULL){
+						if (i >= l) {
+							char *tmp = (char*)realloc(psz, l += 128);
+							if (tmp == NULL){
 								yyerror("Less memory for string");
 								break;
+							} else {
+								psz = tmp;
 							}
 						}
 					}
@@ -162,7 +166,7 @@ keywordchar		[^ \"()]
 static void ReadLexBuff(char* pcBuff, int& riResult, size_t uMaxSize)
 {
 	wxASSERT( _pszLexBuff != NULL );
-	
+
 	if (_pszLexBuff == NULL) {
 		YY_FATAL_ERROR("Input in flex scanner failed");
 	}
@@ -193,7 +197,7 @@ void LexInit(const wxString& pszInput)
 void LexFree()
 {
 	yylex_destroy();
-	
+
 	yyleng = 0;
 	yytext = NULL;
 	yyin = NULL;
@@ -205,7 +209,7 @@ void LexFree()
 	yy_did_buffer_switch_on_eof = 0;
 	yy_last_accepting_state = 0;
 	yy_last_accepting_cpos = NULL;
-	
+
 #if YY_STACK_USED
 	yy_start_stack_ptr = 0;
 	yy_start_stack_depth = 0;

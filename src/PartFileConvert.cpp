@@ -47,13 +47,14 @@ struct ConvertJob {
 	CPath		folder;
 	CPath		filename;
 	wxString	filehash;
-	int		format;
 	ConvStatus	state;
 	uint32_t	size;
 	uint32_t	spaceneeded;
 	uint8		partmettype;
 	bool		removeSource;
-	ConvertJob()	{ id=s_nextJobId++; size=0; spaceneeded=0; partmettype=PMT_UNKNOWN; removeSource=true; }
+	ConvertJob(const CPath& file, bool deleteSource, ConvStatus status)
+		: id(s_nextJobId++), folder(file), state(status), size(0), spaceneeded(0), partmettype(PMT_UNKNOWN), removeSource(deleteSource)
+		{}
 };
 
 ConvertInfo::ConvertInfo(ConvertJob *job)
@@ -104,11 +105,8 @@ void CPartFileConvert::ConvertToeMule(const CPath& file, bool deletesource)
 	if (!file.FileExists()) {
 		return;
 	}
-	
-	ConvertJob* newjob = new ConvertJob();
-	newjob->folder = file;
-	newjob->removeSource = deletesource;
-	newjob->state = CONV_QUEUE;
+
+	ConvertJob* newjob = new ConvertJob(file, deletesource, CONV_QUEUE);
 
 	wxMutexLocker lock(s_mutex);
 
@@ -123,7 +121,7 @@ void CPartFileConvert::StartThread()
 {
 	if (!s_convertPfThread) {
 		s_convertPfThread = new CPartFileConvert();
-	
+
 		switch ( s_convertPfThread->Create() ) {
 			case wxTHREAD_NO_ERROR:
 				AddDebugLogLineN( logPfConvert, wxT("A new thread has been created.") );
@@ -140,7 +138,7 @@ void CPartFileConvert::StartThread()
 
 		// The thread shouldn't hog the CPU, as it will already be hogging the HD
 		s_convertPfThread->SetPriority(WXTHREAD_MIN_PRIORITY);
-		
+
 		s_convertPfThread->Run();
 	}
 }
@@ -225,9 +223,8 @@ wxThread::ExitCode CPartFileConvert::Entry()
 
 ConvStatus CPartFileConvert::performConvertToeMule(const CPath& fileName)
 {
-	wxString filepartindex, buffer;
-	unsigned fileindex;
-	
+	wxString filepartindex;
+
 	CPath folder	= fileName.GetPath();
 	CPath partfile	= fileName.GetFullName();
 	CPath newfilename;
@@ -267,9 +264,10 @@ ConvStatus CPartFileConvert::performConvertToeMule(const CPath& fileName)
 	}
 
 	if (s_pfconverting->partmettype == PMT_SPLITTED) {
+		unsigned fileindex;
 		char *ba = new char [PARTSIZE];
 
-		try {			
+		try {
 			CFile inputfile;
 
 			// just count
@@ -324,9 +322,8 @@ ConvStatus CPartFileConvert::performConvertToeMule(const CPath& fileName)
 			while (filename.IsOk()) {
 				// stats
 				++curindex;
-				buffer = CFormat(_("Loading data from old download file (%u of %u)")) % curindex % partfilecount;
 
-				Notify_ConvertUpdateProgress(10 + (curindex * stepperpart), buffer);
+				Notify_ConvertUpdateProgress(10 + (curindex * stepperpart), CFormat(_("Loading data from old download file (%u of %u)")) % curindex % partfilecount);
 
 				long l;
 				filename.GetFullName().RemoveExt().GetExt().ToLong(&l);
@@ -337,16 +334,14 @@ ConvStatus CPartFileConvert::performConvertToeMule(const CPath& fileName)
 				}
 
 				uint32 chunkstart = (fileindex - 1) * PARTSIZE;
-				
+
 				// open, read data of the part-part-file into buffer, close file
 				inputfile.Open(filename, CFile::read);
 				uint64 toReadWrite = std::min<uint64>(PARTSIZE, inputfile.GetLength());
 				inputfile.Read(ba, toReadWrite);
 				inputfile.Close();
 
-				buffer = CFormat(_("Saving data block into new single download file (%u of %u)")) % curindex % partfilecount;
-
-				Notify_ConvertUpdateProgress(10 + (curindex * stepperpart), buffer);
+				Notify_ConvertUpdateProgress(10 + (curindex * stepperpart), CFormat(_("Saving data block into new single download file (%u of %u)")) % curindex % partfilecount);
 
 				// write the buffered data
 				file->m_hpartfile.WriteAt(ba, chunkstart, toReadWrite);
@@ -356,16 +351,16 @@ ConvStatus CPartFileConvert::performConvertToeMule(const CPath& fileName)
 			delete[] ba;
 		} catch (const CSafeIOException& e) {
 			AddDebugLogLineC(logPfConvert, wxT("IO error while converting partfiles: ") + e.what());
-			
+
 			delete[] ba;
 			file->Delete();
 			return CONV_IOERROR;
 		}
-		
+
 		file->m_hpartfile.Close();
 	}
 	// import an external common format partdownload
-	else //if (pfconverting->partmettype==PMT_DEFAULTOLD || pfconverting->partmettype==PMT_NEWOLD || Shareaza  ) 
+	else //if (pfconverting->partmettype==PMT_DEFAULTOLD || pfconverting->partmettype==PMT_NEWOLD || Shareaza  )
 	{
 		if (!s_pfconverting->removeSource) {
 			wxMutexLocker lock(s_mutex);
@@ -437,7 +432,7 @@ ConvStatus CPartFileConvert::performConvertToeMule(const CPath& fileName)
 
 	theApp->downloadqueue->AddDownload(file, thePrefs::AddNewFilesPaused(), 0);
 	file->SavePartFile();
-	
+
 	if (file->GetStatus(true) == PS_READY) {
 		theApp->sharedfiles->SafeAddKFile(file); // part files are always shared files
 	}

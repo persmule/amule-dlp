@@ -16,7 +16,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -61,6 +61,7 @@
 
 #include <ec/cpp/ECFileConfig.h>	// Needed for CECFileConfig
 #include <common/MD5Sum.h>
+#include "OtherFunctions.h"		// Needed for GetPassword()
 
 #ifdef _MSC_VER  // silly warnings about deprecated functions
 #pragma warning(disable:4996)
@@ -195,10 +196,12 @@ void CCommandTree::PrintHelpFor(const wxString& command) const
 CaMuleExternalConnector::CaMuleExternalConnector()
 	: m_configFile(NULL),
 	  m_port(-1),
+	  m_ZLIB(false),
 	  m_KeepQuiet(false),
 	  m_Verbose(false),
 	  m_interactive(false),
 	  m_commands(*this),
+	  m_appname(NULL),
 	  m_ECClient(NULL),
 	  m_InputLine(NULL),
 	  m_NeedsConfigSave(false),
@@ -231,7 +234,7 @@ void CaMuleExternalConnector::Show(const wxString &s)
 {
 	if( !m_KeepQuiet ) {
 		printf("%s", (const char *)unicode2char(s));
-#ifdef __WXMSW__
+#ifdef __WINDOWS__ 
 		fflush(stdout);
 #endif
 	}
@@ -308,7 +311,7 @@ void CaMuleExternalConnector::GetCommand(const wxString &prompt, char* buffer, s
 {
 #ifdef HAVE_LIBREADLINE
 		char *text = readline(unicode2char(prompt + wxT("$ ")));
-		if (text && *text && 
+		if (text && *text &&
 		    (m_InputLine == 0 || strcmp(text,m_InputLine) != 0)) {
 		  add_history (text);
 		}
@@ -361,29 +364,13 @@ void CaMuleExternalConnector::ConnectAndRun(const wxString &ProgName, const wxSt
 
 	// HostName, Port and Password
 	if ( m_password.IsEmpty() ) {
-		wxString pass_plain;
-		#ifndef __WXMSW__
-			pass_plain = char2unicode(getpass("Enter password for mule connection: "));
-		#else
-			//#warning This way, pass enter is not hidden on windows. Bad thing.
-			char temp_str[512];
-			fflush(stdin);
-			printf("Enter password for mule connection: \n");
-			fflush(stdout);
-			fgets(temp_str, 512, stdin);
-			temp_str[strlen(temp_str)-1] = '\0';
-			pass_plain = char2unicode(temp_str);
-		#endif
-		wxCHECK2(m_password.Decode(MD5Sum(pass_plain).GetHash()), /* Do nothing. */ );
+		m_password = GetPassword(true);
 		// MD5 hash for an empty string, according to rfc1321.
 		if (m_password.Encode() == wxT("D41D8CD98F00B204E9800998ECF8427E")) {
 			m_password.Clear();
 		}
-
-		// Clear plain-text password
-		pass_plain		= wxT("01234567890123456789");
 	}
-	
+
 	if (!m_password.IsEmpty()) {
 
 		// Create the socket
@@ -565,13 +552,17 @@ void CaMuleExternalConnector::SaveConfigFile()
 
 bool CaMuleExternalConnector::OnInit()
 {
-#ifndef __WXMSW__
+#ifndef __WINDOWS__ 
 	#if wxUSE_ON_FATAL_EXCEPTION
 		// catch fatal exceptions
 		wxHandleFatalExceptions(true);
 	#endif
 #endif
 
+	// If we didn't know that OnInit is called only once when creating the
+	// object, it could cause a memory leak. The two pointers below should
+	// be free()'d before assigning the new value.
+	// cppcheck-suppress publicAllocationError
 	m_strFullVersion = strdup((const char *)unicode2char(GetMuleVersion()));
 	m_strOSDescription = strdup((const char *)unicode2char(wxGetOsDescription()));
 
@@ -630,7 +621,7 @@ wxAppTraits* CaMuleExternalConnector::CreateTraits()
 void CaMuleExternalConnector::OnFatalException()
 {
 	/* Print the backtrace */
-	fprintf(stderr, "\n--------------------------------------------------------------------------------\n");	
+	fprintf(stderr, "\n--------------------------------------------------------------------------------\n");
 	fprintf(stderr, "A fatal error has occurred and %s has crashed.\n", m_appname);
 	fprintf(stderr, "Please assist us in fixing this problem by posting the backtrace below in our\n");
 	fprintf(stderr, "'aMule Crashes' forum and include as much information as possible regarding the\n");
@@ -641,10 +632,10 @@ void CaMuleExternalConnector::OnFatalException()
 	fprintf(stderr, "----------------------------=| BACKTRACE FOLLOWS: |=----------------------------\n");
 	fprintf(stderr, "Current version is: %s %s\n", m_appname, m_strFullVersion);
 	fprintf(stderr, "Running on: %s\n\n", m_strOSDescription);
-	
+
 	print_backtrace(1); // 1 == skip this function.
-	
-	fprintf(stderr, "\n--------------------------------------------------------------------------------\n");	
+
+	fprintf(stderr, "\n--------------------------------------------------------------------------------\n");
 }
 #endif
 

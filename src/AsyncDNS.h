@@ -18,7 +18,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -30,7 +30,7 @@
 #include <wx/string.h>
 #include <wx/thread.h>
 
-// Implementation of Asynchronous dns resolving using wxThread 
+// Implementation of Asynchronous dns resolving using wxThread
 //	 and internal wxIPV4address handling of dns
 
 class wxEvtHandler;
@@ -49,8 +49,7 @@ enum DnsSolveType {
 class CAsyncDNS : public wxThread
 {
 public:
-	/** Note: wxChar* is used to circument the thread-unsafe wxString reference counting. */
-	CAsyncDNS(const wxChar* ipName, DnsSolveType type, wxEvtHandler* handler, void* socket = NULL);
+	CAsyncDNS(const wxString& ipName, DnsSolveType type, wxEvtHandler* handler, void* socket = NULL);
 	virtual ExitCode Entry();
 
 private:

@@ -42,7 +42,7 @@ there client on the eMule forum..
  * Each zone is either an internal node or a leaf node.
  * Internal nodes have "bin == null" and "subZones[i] != null",
  * leaf nodes have "subZones[i] == null" and "bin != null".
- * 
+ *
  * All key unique id's are relative to the center (self), which
  * is considered to be 000..000
  */
@@ -142,14 +142,13 @@ void CRoutingZone::ReadFile(const wxString& specialNodesdat)
 	bool doHaveVerifiedContacts = false;
 	// Read in the saved contact list
 	try {
-		uint32_t numContacts = 0;
 		uint32_t validContacts = 0;
 		CFile file;
 		if (CPath::FileExists(specialNodesdat.IsEmpty() ? m_filename : specialNodesdat) && file.Open(m_filename, CFile::read)) {
 			// Get how many contacts in the saved list.
 			// NOTE: Older clients put the number of contacts here...
 			//       Newer clients always have 0 here to prevent older clients from reading it.
-			numContacts = file.ReadUInt32();
+			uint32_t numContacts = file.ReadUInt32();
 			uint32_t fileVersion = 0;
 			if (numContacts == 0) {
 				if (file.GetLength() >= 8) {
@@ -251,10 +250,10 @@ void CRoutingZone::ReadBootstrapNodesDat(CFileDataIO& file)
 
 			if (::IsGoodIPPort(wxUINT32_SWAP_ALWAYS(ip), udpPort)) {
 				if (!theApp->ipfilter->IsFiltered(wxUINT32_SWAP_ALWAYS(ip)) &&
-				    !(udpPort == 53 && contactVersion <= 5) && 
+				    !(udpPort == 53 && contactVersion <= 5) &&
 				    (contactVersion > 1))	// only kad2 nodes
 				{
-					// we want the 50 nodes closest to our own ID (provides randomness between different users and gets has good chances to get a bootstrap with close Nodes which is a nice start for our routing table) 
+					// we want the 50 nodes closest to our own ID (provides randomness between different users and gets has good chances to get a bootstrap with close Nodes which is a nice start for our routing table)
 					CUInt128 distance = me;
 					distance ^= id;
 					validContacts++;
@@ -458,7 +457,7 @@ bool CRoutingZone::Add(CContact *contact, bool& update, bool& outIpVerified)
 						m_bin->SetAlive(contactUpdate);
 						AddDebugLogLineN(logKadRouting, CFormat(wxT("Updated kad contact refreshtimer only for legacy kad2 contact (%s, %u)")) % KadIPToString(contactUpdate->GetIPAddress()) % contactUpdate->GetVersion());
 					} else {
-						AddDebugLogLineN(logKadRouting, CFormat(wxT("Rejected value update for legacy kad2 contact (%s -> %s, %u -> %u)")) 
+						AddDebugLogLineN(logKadRouting, CFormat(wxT("Rejected value update for legacy kad2 contact (%s -> %s, %u -> %u)"))
 							% KadIPToString(contactUpdate->GetIPAddress()) % KadIPToString(contact->GetIPAddress()) % contactUpdate->GetVersion() % contact->GetVersion());
 						update = false;
 					}
@@ -573,7 +572,7 @@ void CRoutingZone::GetAllEntries(ContactList *result, bool emptyFirst) const
 		m_bin->GetEntries(result, emptyFirst);
 	} else {
 		m_subZones[0]->GetAllEntries(result, emptyFirst);
-		m_subZones[1]->GetAllEntries(result, false);			
+		m_subZones[1]->GetAllEntries(result, false);
 	}
 }
 
@@ -609,7 +608,7 @@ uint32_t CRoutingZone::GetMaxDepth() const throw()
 void CRoutingZone::Split()
 {
 	StopTimer();
-		
+
 	m_subZones[0] = GenSubZone(0);
 	m_subZones[1] = GenSubZone(1);
 
@@ -710,7 +709,7 @@ bool CRoutingZone::OnBigTimer() const
 }
 
 //This is used when we find a leaf and want to know what this sample looks like.
-//We fall back two levels and take a sample to try to minimize any areas of the 
+//We fall back two levels and take a sample to try to minimize any areas of the
 //tree that will give very bad results.
 uint32_t CRoutingZone::EstimateCount() const
 {
@@ -730,7 +729,7 @@ uint32_t CRoutingZone::EstimateCount() const
 	// First calculate users assuming the tree is full.
 	// Modify count by bin size.
 	// Modify count by how full the tree is.
-	
+
 	// LowIDModififier
 	// Modify count by assuming 20% of the users are firewalled and can't be a contact for < 0.49b nodes
 	// Modify count by actual statistics of Firewalled ratio for >= 0.49b if we are not firewalled ourself
@@ -746,7 +745,7 @@ uint32_t CRoutingZone::EstimateCount() const
 	float newRatio = CKademlia::GetPrefs()->StatsGetKadV8Ratio();
 	float firewalledModifyTotal = 0;
 	if (newRatio > 0 && firewalledModifyNew > 0) {	// weight the old and the new modifier based on how many new contacts we have
-		firewalledModifyTotal = (newRatio * firewalledModifyNew) + ((1 - newRatio) * firewalledModifyOld); 
+		firewalledModifyTotal = (newRatio * firewalledModifyNew) + ((1 - newRatio) * firewalledModifyOld);
 	} else {
 		firewalledModifyTotal = firewalledModifyOld;
 	}
@@ -760,7 +759,7 @@ void CRoutingZone::OnSmallTimer()
 	if (!IsLeaf()) {
 		return;
 	}
-	
+
 	CContact *c = NULL;
 	time_t now = time(NULL);
 	ContactList entries;
@@ -812,7 +811,7 @@ void CRoutingZone::OnSmallTimer()
 			CKademlia::GetUDPListener()->SendMyDetails(KADEMLIA2_HELLO_REQ, c->GetIPAddress(), c->GetUDPPort(), c->GetVersion(), 0, NULL, false);
 			wxASSERT(c->GetUDPKey() == CKadUDPKey(0));
 		} else {
-			wxFAIL;
+			//wxFAIL;	// thanks, I'm having enough problems without any Kad asserts
 		}
 	}
 }
@@ -855,7 +854,7 @@ uint32_t CRoutingZone::GetBootstrapContacts(ContactList *results, uint32_t maxRe
 	uint32_t count = 0;
 	ContactList top;
 	TopDepth(LOG_BASE_EXPONENT, &top);
-	if (top.size() > 0) {
+	if (!top.empty()) {
 		for (ContactList::const_iterator it = top.begin(); it != top.end(); ++it) {
 			results->push_back(*it);
 			count++;

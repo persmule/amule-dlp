@@ -18,13 +18,13 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 #
 
-AC_INIT([aMule], [2.3.1], [admin@amule.org])
+AC_INIT([aMule],[SVN],[admin@amule.org])
 AM_INIT_AUTOMAKE
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
@@ -32,6 +32,7 @@ AC_PREREQ(2.59)
 
 AC_CONFIG_SRCDIR([src/amule.cpp])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 AM_MAINTAINER_MODE
 
 dnl Check host system.
@@ -56,6 +57,7 @@ AC_PROG_MAKE_SET
 AC_PROG_LEX
 AC_PROG_INSTALL
 AC_PROG_RANLIB
+AC_PROG_SED
 AC_PROG_YACC
 
 dnl Find the right ranlib, even when cross-compiling
@@ -132,13 +134,10 @@ AC_SUBST([AMULEWEB_DEFS])dnl
 
 # Check for perl File::Copy
 AC_MSG_CHECKING([for File::Copy])
-AS_IF([perl -e "require File::Copy" 2>/dev/null], [AC_MSG_RESULT([ok])], 
+AS_IF([perl -e "require File::Copy" 2>/dev/null], [AC_MSG_RESULT([ok])],
 	[MULE_WARNING(
 		[File::Copy perl module is required by the mldonkey_importer script.
 		If you want to use this script please install File::Copy from CPAN.])])
-
-# Check if we need to install skins
-MULE_IF_ENABLED_ANY([monolithic, amule-gui], [INSTALL_SKINS=yes], [INSTALL_SKINS=no])
 
 # Check for GeoIP (required for IP2Country capability)
 MULE_IF_ENABLED_ANY([monolithic, amule-gui], [MULE_CHECK_GEOIP])
@@ -156,10 +155,10 @@ MULE_IF_ENABLED_ANY([monolithic, amule-daemon, amule-gui, amulecmd, webserver, a
 	WX_CONFIG_CHECK([2.8.12], [wxWin=1],,, [$WXCONFIG_FLAGS])
 	AS_IF([test "$wxWin" != 1],
 		[AC_MSG_ERROR([
-		wxWidgets must be installed on your system but wx-config 
-		script couldn't be found. Please check that wx-config is 
-		in path or specified by --with-wx-config=path flag, the 
-		directory where wxWidgets libraries are installed (returned 
+		wxWidgets must be installed on your system but wx-config
+		script couldn't be found. Please check that wx-config is
+		in path or specified by --with-wx-config=path flag, the
+		directory where wxWidgets libraries are installed (returned
 		by 'wx-config --libs' command) is in LD_LIBRARY_PATH or
 		equivalent variable and wxWidgets version is 2.8.12 or above.
 		])]
@@ -222,16 +221,21 @@ MULE_IF_ENABLED_ANY([monolithic, amule-daemon, amule-gui, fileview],
 	installation directory).])
 ])])
 
+MULE_COMPILATION_FLAGS
+
 dnl Checks requiring C++
 MULE_IF_ENABLED_ANY([monolithic, amule-daemon, amule-gui, amulecmd, webserver, ed2k, alc, alcc, wxcas, fileview],
 [AC_LANG_PUSH([C++])
-MULE_CHECK_GLIBCXX
+dnl MULE_CHECK_GLIBCXX
+MULE_CHECK_STRICT_ALIASING
 MULE_IF_ENABLED_ANY([monolithic, amule-daemon, alc, alcc], [MULE_CHECK_WX_SUPPORTS_LARGEFILE])
 
 # Check if the compiler is broken, wrt. exceptions.
 MULE_CHECK_EXCEPTIONS
 
 MULE_CHECK_CXXABI
+
+MULE_IF_ENABLED_ANY([monolithic, amule-daemon, amule-gui, amulecmd, webserver], [MULE_CHECK_BOOST([1.47])])
 AC_LANG_POP([C++])
 ])
 
@@ -331,8 +335,6 @@ MULE_CHECK_EXECINFO
 AC_CACHE_SAVE
 
 # Other tests
-# aMule options
-MULE_COMPILATION_FLAGS
 
 # autoconf >= 2.60 already defines ${docdir}, but we always need it.
 AC_MSG_CHECKING([for docdir])
@@ -366,7 +368,7 @@ AM_CONDITIONAL(NEED_RC, test x$SYS = xwin32 -a "$RC" != ":")
 AM_CONDITIONAL(NEED_CORESERVICES, test x$SYS = xdarwin)
 AM_CONDITIONAL(COMPILE_NLS, test x$USE_NLS = xyes)
 AM_CONDITIONAL(GENERATE_FLEX_HEADER, test x$HAVE_FLEX_EXTENDED = xyes)
-AM_CONDITIONAL(INSTALL_SKINS, test x$INSTALL_SKINS = xyes)
+AM_CONDITIONAL(INSTALL_SKINS, test MULE_IS_ENABLED_ANY([monolithic, amule-gui]))
 AM_CONDITIONAL(PLASMAMULE, test MULE_IS_ENABLED([plasmamule]))
 
 AM_CONDITIONAL([COMPILE_LIB_COMMON],	[test MULE_IS_ENABLED_ANY([monolithic, amule-daemon, amulecmd, webserver, amule-gui, fileview])])
@@ -374,9 +376,6 @@ AM_CONDITIONAL([COMPILE_LIB_EC],	[test MULE_IS_ENABLED_ANY([monolithic, amule-da
 
 # Check for readline library
 MULE_IF_ENABLED_ANY([amulecmd, webserver], [VL_LIB_READLINE])
-
-AS_IF([test ${PLASMAMULE:-no} = yes],
-[PLASMAMULE_CHECKS])
 
 # DO NOT MOVE UP... THERE'S A REASON TO BE HERE!!
 
@@ -434,8 +433,8 @@ echo
 echo "  Configured aMule ${PACKAGE_VERSION}${SVN_REVISION} for '${host}'."
 echo
 echo "  aMule enabled options:"
-echo 
-echo "  **** aMule Core ****" 
+echo
+echo "  **** aMule Core ****"
 echo "  Prefix where aMule should be installed?                    ${prefix:-none}"
 echo "  Should aMule be compiled with i18n support?                ${USE_NLS:-no}"
 echo "  Should aMule be compiled in debug mode?                    MULE_STATUSOF([debug])"
@@ -478,6 +477,14 @@ MULE_IF_ENABLED_ANY([monolithic, amule-daemon, amule-gui, amulecmd, webserver, a
 	AS_IF([test $WX_SHARED -eq 1], [wxinfo="$wxinfo,shared"], [wxinfo="$wxinfo,static"])
 	echo "                             wxWidgets             ${WX_VERSION_FULL} ($wxinfo)"
 ])
+AS_IF([test ${with_boost:-no} != no],
+[MULE_IF(
+	[test ${with_boost:-no} = disabled],
+		[echo "                             boost                 Not detected"],
+	[test ${boost_cv_inc_path:-yes} != yes],
+		[echo "                             boost                 `echo ${boost_cv_lib_version} | sed -e 's/_/./g'` (in ${boost_cv_inc_path})"],
+		[echo "                             boost                 `echo ${boost_cv_lib_version} | sed -e 's/_/./g'`"],
+)])
 MULE_IF_ENABLED_ANY([monolithic, amule-daemon, amule-gui, fileview],
 	[echo "                             crypto++              ${CRYPTOPP_VERSION_STRING} (${CRYPTOPP_STYLE}, in ${CRYPTOPP_PREFIX})"])
 MULE_IF_ENABLED([upnp], [
@@ -487,14 +494,14 @@ MULE_IF_ENABLED([upnp], [
 if test ${enable_nls:-yes} = yes; then
 AS_IF([test x$USE_NLS = xno],
 	[libintl_found="Not detected"],
-	[AS_IF([test x$USE_INCLUDED_LIBINTL = xyes], 
-		[libintl_found="included"], 
+	[AS_IF([test x$USE_INCLUDED_LIBINTL = xyes],
+		[libintl_found="included"],
 		[libintl_found="system"])])
 echo "                             libintl               $libintl_found"
 fi
 MULE_IF_ENABLED([geoip],
 	[AS_IF([test -z "${with_geoip_headers:-}${with_geoip_lib:-}"], [geoip_style=system], [geoip_style=user])
-	MULE_IF_ENABLED_ANY([monolithic, amule-gui], 
+	MULE_IF_ENABLED_ANY([monolithic, amule-gui],
 		[echo "                             libGeoIP              ${geoip_style}"])])
 MULE_IF_ENABLED([webserver],
 	[echo "                             libpng                ${LIBPNG_VERSION:-Not detected}"])

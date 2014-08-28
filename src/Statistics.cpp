@@ -51,6 +51,7 @@
 
 #include "amule.h"		// Needed for theApp
 #include <wx/intl.h>
+#include "Logger.h"
 
 #ifdef __BSD__
 	// glibc -> bsd libc
@@ -77,7 +78,7 @@ void CPreciseRateCounter::CalculateRate(uint64_t now)
 
 	// Checking maximal timespan, but make sure not to remove
 	// the extra node in m_tick_history.
-	while (timespan > m_timespan && m_byte_history.size() > 0) {
+	while (timespan > m_timespan && !m_byte_history.empty()) {
 		m_total -= m_byte_history.front();
 		m_byte_history.pop_front();
 		m_tick_history.pop_front();
@@ -86,7 +87,7 @@ void CPreciseRateCounter::CalculateRate(uint64_t now)
 
 	// Count rate/average
 	if (m_count_average) {
-		if (m_byte_history.size() > 0) {
+		if (!m_byte_history.empty()) {
 			m_rate = m_total / (double)m_byte_history.size();
 		}
 	} else {
@@ -179,7 +180,7 @@ CStatTreeItemPackets*		CStatistics::s_sourceXchgDownOverhead;
 CStatTreeItemPackets*		CStatistics::s_serverDownOverhead;
 CStatTreeItemPackets*		CStatistics::s_kadDownOverhead;
 CStatTreeItemCounter*		CStatistics::s_cryptDownOverhead;
-CStatTreeItemNativeCounter*	CStatistics::s_foundSources;
+CStatTreeItemCounter*		CStatistics::s_foundSources;
 CStatTreeItemNativeCounter*	CStatistics::s_activeDownloads;
 
 // Connection
@@ -311,12 +312,17 @@ void CStatistics::Load()
 
 	s_totalSent = 0;
 	s_totalReceived = 0;
-	if (f.Open(JoinPaths(theApp->ConfigDir, wxT("statistics.dat")))) {
-		uint8_t version = f.ReadUInt8();
-		if (version == 0) {
-			s_totalSent = f.ReadUInt64();
-			s_totalReceived = f.ReadUInt64();
+	try {
+		CPath path(JoinPaths(theApp->ConfigDir, wxT("statistics.dat")));
+		if (path.FileExists() && f.Open(path)) {
+			uint8_t version = f.ReadUInt8();
+			if (version == 0) {
+				s_totalSent = f.ReadUInt64();
+				s_totalReceived = f.ReadUInt64();
+			}
 		}
+	} catch (const CSafeIOException& e) {
+		AddLogLineN(e.what());
 	}
 
 	// Load old values from config
@@ -438,7 +444,7 @@ void CStatistics::RecordHistory()
 	}
 
 	// now save the latest data point in this node
- 	listPOS phr = --listHR.end();
+	listPOS phr = --listHR.end();
 	phr->kBytesSent = GetSessionSentBytes() / 1024.0;
 	phr->kBytesReceived = GetSessionReceivedBytes() / 1024.0;
 	phr->kBpsUpCur = GetUploadRate() / 1024.0;
@@ -600,7 +606,7 @@ void CStatistics::ComputeAverages(
 	StatsGraphType	which_graph)	// the graph which will receive the points
 {
 	double		sTarget, kValueRun;
-	uint64 		avgTime = average_minutes * 60;
+	uint64		avgTime = average_minutes * 60;
 	unsigned	nBtPoints = (unsigned)(avgTime / sStep);
 
 	CPreciseRateCounter* runningAvg = NULL;
@@ -724,92 +730,92 @@ void CStatistics::InitStatsTree()
 	CStatTreeItemBase* tmpRoot1;
 	CStatTreeItemBase* tmpRoot2;
 
-	s_uptime = (CStatTreeItemTimer*)s_statTree->AddChild(new CStatTreeItemTimer(wxTRANSLATE("Uptime: %s")));
+	s_uptime = static_cast<CStatTreeItemTimer*>(s_statTree->AddChild(new CStatTreeItemTimer(wxTRANSLATE("Uptime: %s"))));
 
 	tmpRoot1 = s_statTree->AddChild(new CStatTreeItemBase(wxTRANSLATE("Transfer"), stSortChildren));
 
 	tmpRoot2 = tmpRoot1->AddChild(new CStatTreeItemBase(wxTRANSLATE("Uploads")), 2);
-	s_sessionUpload = (CStatTreeItemUlDlCounter*)tmpRoot2->AddChild(new CStatTreeItemUlDlCounter(wxTRANSLATE("Uploaded Data (Session (Total)): %s"), theStats::GetTotalSentBytes, stSortChildren | stSortByValue));
+	s_sessionUpload = static_cast<CStatTreeItemUlDlCounter*>(tmpRoot2->AddChild(new CStatTreeItemUlDlCounter(wxTRANSLATE("Uploaded Data (Session (Total)): %s"), theStats::GetTotalSentBytes, stSortChildren | stSortByValue)));
 	// Children will be added on-the-fly
-	s_totalUpOverhead = (CStatTreeItemPacketTotals*)tmpRoot2->AddChild(new CStatTreeItemPacketTotals(wxTRANSLATE("Total Overhead (Packets): %s")));
-	s_fileReqUpOverhead = (CStatTreeItemPackets*)tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("File Request Overhead (Packets): %s")));
+	s_totalUpOverhead = static_cast<CStatTreeItemPacketTotals*>(tmpRoot2->AddChild(new CStatTreeItemPacketTotals(wxTRANSLATE("Total Overhead (Packets): %s"))));
+	s_fileReqUpOverhead = static_cast<CStatTreeItemPackets*>(tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("File Request Overhead (Packets): %s"))));
 	s_totalUpOverhead->AddPacketCounter(s_fileReqUpOverhead);
-	s_sourceXchgUpOverhead = (CStatTreeItemPackets*)tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("Source Exchange Overhead (Packets): %s")));
+	s_sourceXchgUpOverhead = static_cast<CStatTreeItemPackets*>(tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("Source Exchange Overhead (Packets): %s"))));
 	s_totalUpOverhead->AddPacketCounter(s_sourceXchgUpOverhead);
-	s_serverUpOverhead = (CStatTreeItemPackets*)tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("Server Overhead (Packets): %s")));
+	s_serverUpOverhead = static_cast<CStatTreeItemPackets*>(tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("Server Overhead (Packets): %s"))));
 	s_totalUpOverhead->AddPacketCounter(s_serverUpOverhead);
-	s_kadUpOverhead = (CStatTreeItemPackets*)tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("Kad Overhead (Packets): %s")));
+	s_kadUpOverhead = static_cast<CStatTreeItemPackets*>(tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("Kad Overhead (Packets): %s"))));
 	s_totalUpOverhead->AddPacketCounter(s_kadUpOverhead);
-	s_cryptUpOverhead = (CStatTreeItemCounter*)tmpRoot2->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Crypt overhead (UDP): %s")));
+	s_cryptUpOverhead = static_cast<CStatTreeItemCounter*>(tmpRoot2->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Crypt overhead (UDP): %s"))));
 	s_cryptUpOverhead->SetDisplayMode(dmBytes);
-	s_activeUploads = (CStatTreeItemNativeCounter*)tmpRoot2->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Active Uploads: %s")));
-	s_waitingUploads = (CStatTreeItemNativeCounter*)tmpRoot2->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Waiting Uploads: %s")));
-	s_totalSuccUploads = (CStatTreeItemCounter*)tmpRoot2->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Total successful upload sessions: %s")));
-	s_totalFailedUploads = (CStatTreeItemCounter*)tmpRoot2->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Total failed upload sessions: %s")));
+	s_activeUploads = static_cast<CStatTreeItemNativeCounter*>(tmpRoot2->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Active Uploads: %s"))));
+	s_waitingUploads = static_cast<CStatTreeItemNativeCounter*>(tmpRoot2->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Waiting Uploads: %s"))));
+	s_totalSuccUploads = static_cast<CStatTreeItemCounter*>(tmpRoot2->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Total successful upload sessions: %s"))));
+	s_totalFailedUploads = static_cast<CStatTreeItemCounter*>(tmpRoot2->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Total failed upload sessions: %s"))));
 	s_totalUploadTime = new CStatTreeItemCounter(wxEmptyString);
 	tmpRoot2->AddChild(new CStatTreeItemAverage(wxTRANSLATE("Average upload time: %s"), s_totalUploadTime, s_totalSuccUploads, dmTime));
 
 	tmpRoot2 = tmpRoot1->AddChild(new CStatTreeItemBase(wxTRANSLATE("Downloads")), 1);
-	s_sessionDownload = (CStatTreeItemUlDlCounter*)tmpRoot2->AddChild(new CStatTreeItemUlDlCounter(wxTRANSLATE("Downloaded Data (Session (Total)): %s"), theStats::GetTotalReceivedBytes, stSortChildren | stSortByValue));
+	s_sessionDownload = static_cast<CStatTreeItemUlDlCounter*>(tmpRoot2->AddChild(new CStatTreeItemUlDlCounter(wxTRANSLATE("Downloaded Data (Session (Total)): %s"), theStats::GetTotalReceivedBytes, stSortChildren | stSortByValue)));
 	// Children will be added on-the-fly
-	s_totalDownOverhead = (CStatTreeItemPacketTotals*)tmpRoot2->AddChild(new CStatTreeItemPacketTotals(wxTRANSLATE("Total Overhead (Packets): %s")));
-	s_fileReqDownOverhead = (CStatTreeItemPackets*)tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("File Request Overhead (Packets): %s")));
+	s_totalDownOverhead = static_cast<CStatTreeItemPacketTotals*>(tmpRoot2->AddChild(new CStatTreeItemPacketTotals(wxTRANSLATE("Total Overhead (Packets): %s"))));
+	s_fileReqDownOverhead = static_cast<CStatTreeItemPackets*>(tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("File Request Overhead (Packets): %s"))));
 	s_totalDownOverhead->AddPacketCounter(s_fileReqDownOverhead);
-	s_sourceXchgDownOverhead = (CStatTreeItemPackets*)tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("Source Exchange Overhead (Packets): %s")));
+	s_sourceXchgDownOverhead = static_cast<CStatTreeItemPackets*>(tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("Source Exchange Overhead (Packets): %s"))));
 	s_totalDownOverhead->AddPacketCounter(s_sourceXchgDownOverhead);
-	s_serverDownOverhead = (CStatTreeItemPackets*)tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("Server Overhead (Packets): %s")));
+	s_serverDownOverhead = static_cast<CStatTreeItemPackets*>(tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("Server Overhead (Packets): %s"))));
 	s_totalDownOverhead->AddPacketCounter(s_serverDownOverhead);
-	s_kadDownOverhead = (CStatTreeItemPackets*)tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("Kad Overhead (Packets): %s")));
+	s_kadDownOverhead = static_cast<CStatTreeItemPackets*>(tmpRoot2->AddChild(new CStatTreeItemPackets(wxTRANSLATE("Kad Overhead (Packets): %s"))));
 	s_totalDownOverhead->AddPacketCounter(s_kadDownOverhead);
-	s_cryptDownOverhead = (CStatTreeItemCounter*)tmpRoot2->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Crypt overhead (UDP): %s")));
+	s_cryptDownOverhead = static_cast<CStatTreeItemCounter*>(tmpRoot2->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Crypt overhead (UDP): %s"))));
 	s_cryptDownOverhead->SetDisplayMode(dmBytes);
-	s_foundSources = (CStatTreeItemNativeCounter*)tmpRoot2->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Found Sources: %s"), stSortChildren | stSortByValue));
-	s_activeDownloads = (CStatTreeItemNativeCounter*)tmpRoot2->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Active Downloads (chunks): %s")));
+	s_foundSources = static_cast<CStatTreeItemCounter*>(tmpRoot2->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Found Sources: %s"), stSortChildren | stSortByValue)));
+	s_activeDownloads = static_cast<CStatTreeItemNativeCounter*>(tmpRoot2->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Active Downloads (chunks): %s"))));
 
 	tmpRoot1->AddChild(new CStatTreeItemRatio(wxTRANSLATE("Session UL:DL Ratio (Total): %s"), s_sessionUpload, s_sessionDownload, theStats::GetTotalSentBytes, theStats::GetTotalReceivedBytes), 3);
 
 	tmpRoot1 = s_statTree->AddChild(new CStatTreeItemBase(wxTRANSLATE("Connection")));
 	tmpRoot1->AddChild(new CStatTreeItemAverageSpeed(wxTRANSLATE("Average download rate (Session): %s"), s_sessionDownload, s_uptime));
 	tmpRoot1->AddChild(new CStatTreeItemAverageSpeed(wxTRANSLATE("Average upload rate (Session): %s"), s_sessionUpload, s_uptime));
-	s_downloadrate = (CStatTreeItemRateCounter*)tmpRoot1->AddChild(new CStatTreeItemRateCounter(wxTRANSLATE("Max download rate (Session): %s"), true, 30000));
-	s_uploadrate = (CStatTreeItemRateCounter*)tmpRoot1->AddChild(new CStatTreeItemRateCounter(wxTRANSLATE("Max upload rate (Session): %s"), true, 30000));
-	s_reconnects = (CStatTreeItemReconnects*)tmpRoot1->AddChild(new CStatTreeItemReconnects(wxTRANSLATE("Reconnects: %i")));
-	s_sinceFirstTransfer = (CStatTreeItemTimer*)tmpRoot1->AddChild(new CStatTreeItemTimer(wxTRANSLATE("Time Since First Transfer: %s"), stHideIfZero));
-	s_sinceConnected = (CStatTreeItemTimer*)tmpRoot1->AddChild(new CStatTreeItemTimer(wxTRANSLATE("Connected To Server Since: %s")));
-	s_activeConnections = (CStatTreeItemCounterMax*)tmpRoot1->AddChild(new CStatTreeItemCounterMax(wxTRANSLATE("Active Connections (estimate): %i")));
-	s_limitReached = (CStatTreeItemMaxConnLimitReached*)tmpRoot1->AddChild(new CStatTreeItemMaxConnLimitReached(wxTRANSLATE("Max Connection Limit Reached: %s")));
-	s_avgConnections = (CStatTreeItemSimple*)tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Average Connections (estimate): %g")));
+	s_downloadrate = static_cast<CStatTreeItemRateCounter*>(tmpRoot1->AddChild(new CStatTreeItemRateCounter(wxTRANSLATE("Max download rate (Session): %s"), true, 30000)));
+	s_uploadrate = static_cast<CStatTreeItemRateCounter*>(tmpRoot1->AddChild(new CStatTreeItemRateCounter(wxTRANSLATE("Max upload rate (Session): %s"), true, 30000)));
+	s_reconnects = static_cast<CStatTreeItemReconnects*>(tmpRoot1->AddChild(new CStatTreeItemReconnects(wxTRANSLATE("Reconnects: %i"))));
+	s_sinceFirstTransfer = static_cast<CStatTreeItemTimer*>(tmpRoot1->AddChild(new CStatTreeItemTimer(wxTRANSLATE("Time Since First Transfer: %s"), stHideIfZero)));
+	s_sinceConnected = static_cast<CStatTreeItemTimer*>(tmpRoot1->AddChild(new CStatTreeItemTimer(wxTRANSLATE("Connected To Server Since: %s"))));
+	s_activeConnections = static_cast<CStatTreeItemCounterMax*>(tmpRoot1->AddChild(new CStatTreeItemCounterMax(wxTRANSLATE("Active Connections (estimate): %i"))));
+	s_limitReached = static_cast<CStatTreeItemMaxConnLimitReached*>(tmpRoot1->AddChild(new CStatTreeItemMaxConnLimitReached(wxTRANSLATE("Max Connection Limit Reached: %s"))));
+	s_avgConnections = static_cast<CStatTreeItemSimple*>(tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Average Connections (estimate): %g"))));
 	s_avgConnections->SetValue(0.0);
 	tmpRoot1->AddChild(new CStatTreeItemPeakConnections(wxTRANSLATE("Peak Connections (estimate): %i")));
 
-	s_clients = (CStatTreeItemHiddenCounter*)s_statTree->AddChild(new CStatTreeItemHiddenCounter(wxTRANSLATE("Clients"), stSortChildren | stSortByValue));
-	s_unknown = (CStatTreeItemCounter*)s_clients->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Unknown: %s")), 6);
-	//s_lowID = (CStatTreeItem*)s_clients->AddChild(new CStatTreeItem(wxTRANSLATE("LowID: %u (%.2f%% Total %.2f%% Known)")), 5);
-	//s_secIdentOnOff = (CStatTreeItem*)s_clients->AddChild(new CStatTreeItem(wxTRANSLATE("SecIdent On/Off: %u (%.2f%%) : %u (%.2f%%)")), 4);
+	s_clients = static_cast<CStatTreeItemHiddenCounter*>(s_statTree->AddChild(new CStatTreeItemHiddenCounter(wxTRANSLATE("Clients"), stSortChildren | stSortByValue)));
+	s_unknown = static_cast<CStatTreeItemCounter*>(s_clients->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Unknown: %s")), 6));
+	//s_lowID = static_cast<CStatTreeItem*>(s_clients->AddChild(new CStatTreeItem(wxTRANSLATE("LowID: %u (%.2f%% Total %.2f%% Known)")), 5));
+	//s_secIdentOnOff = static_cast<CStatTreeItem*>(s_clients->AddChild(new CStatTreeItem(wxTRANSLATE("SecIdent On/Off: %u (%.2f%%) : %u (%.2f%%)")), 4));
 #ifdef __DEBUG__
-	s_hasSocket = (CStatTreeItemNativeCounter*)s_clients->AddChild(new CStatTreeItemNativeCounter(wxT("HasSocket: %s")), 3);
+	s_hasSocket = static_cast<CStatTreeItemNativeCounter*>(s_clients->AddChild(new CStatTreeItemNativeCounter(wxT("HasSocket: %s")), 3));
 #endif
-	s_filtered = (CStatTreeItemNativeCounter*)s_clients->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Filtered: %s")), 2);
-	s_banned = (CStatTreeItemNativeCounter*)s_clients->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Banned: %s")), 1);
+	s_filtered = static_cast<CStatTreeItemNativeCounter*>(s_clients->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Filtered: %s")), 2));
+	s_banned = static_cast<CStatTreeItemNativeCounter*>(s_clients->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Banned: %s")), 1));
 	s_clients->AddChild(new CStatTreeItemTotalClients(wxTRANSLATE("Total: %i Known: %i"), s_clients, s_unknown), 0x80000000);
 
 	// TODO: Use counters?
 	tmpRoot1 = s_statTree->AddChild(new CStatTreeItemBase(wxTRANSLATE("Servers")));
-	s_workingServers = (CStatTreeItemSimple*)tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Working Servers: %i")));
-	s_failedServers = (CStatTreeItemSimple*)tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Failed Servers: %i")));
-	s_totalServers = (CStatTreeItemNativeCounter*)tmpRoot1->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Total: %s")));
-	s_deletedServers = (CStatTreeItemNativeCounter*)tmpRoot1->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Deleted Servers: %s")));
-	s_filteredServers = (CStatTreeItemNativeCounter*)tmpRoot1->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Filtered Servers: %s")));
-	s_usersOnWorking = (CStatTreeItemSimple*)tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Users on Working Servers: %llu")));
-	s_filesOnWorking = (CStatTreeItemSimple*)tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Files on Working Servers: %llu")));
-	s_totalUsers = (CStatTreeItemSimple*)tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Total Users: %llu")));
-	s_totalFiles = (CStatTreeItemSimple*)tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Total Files: %llu")));
-	s_serverOccupation = (CStatTreeItemSimple*)tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Server Occupation: %.2f%%")));
+	s_workingServers = static_cast<CStatTreeItemSimple*>(tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Working Servers: %i"))));
+	s_failedServers = static_cast<CStatTreeItemSimple*>(tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Failed Servers: %i"))));
+	s_totalServers = static_cast<CStatTreeItemNativeCounter*>(tmpRoot1->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Total: %s"))));
+	s_deletedServers = static_cast<CStatTreeItemNativeCounter*>(tmpRoot1->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Deleted Servers: %s"))));
+	s_filteredServers = static_cast<CStatTreeItemNativeCounter*>(tmpRoot1->AddChild(new CStatTreeItemNativeCounter(wxTRANSLATE("Filtered Servers: %s"))));
+	s_usersOnWorking = static_cast<CStatTreeItemSimple*>(tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Users on Working Servers: %llu"))));
+	s_filesOnWorking = static_cast<CStatTreeItemSimple*>(tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Files on Working Servers: %llu"))));
+	s_totalUsers = static_cast<CStatTreeItemSimple*>(tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Total Users: %llu"))));
+	s_totalFiles = static_cast<CStatTreeItemSimple*>(tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Total Files: %llu"))));
+	s_serverOccupation = static_cast<CStatTreeItemSimple*>(tmpRoot1->AddChild(new CStatTreeItemSimple(wxTRANSLATE("Server Occupation: %.2f%%"))));
 	s_serverOccupation->SetValue(0.0);
 
 	tmpRoot1 = s_statTree->AddChild(new CStatTreeItemBase(wxTRANSLATE("Shared Files")));
-	s_numberOfShared = (CStatTreeItemCounter*)tmpRoot1->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Number of Shared Files: %s")));
-	s_sizeOfShare = (CStatTreeItemCounter*)tmpRoot1->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Total size of Shared Files: %s")));
+	s_numberOfShared = static_cast<CStatTreeItemCounter*>(tmpRoot1->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Number of Shared Files: %s"))));
+	s_sizeOfShare = static_cast<CStatTreeItemCounter*>(tmpRoot1->AddChild(new CStatTreeItemCounter(wxTRANSLATE("Total size of Shared Files: %s"))));
 	s_sizeOfShare->SetDisplayMode(dmBytes);
 	tmpRoot1->AddChild(new CStatTreeItemAverage(wxTRANSLATE("Average file size: %s"), s_sizeOfShare, s_numberOfShared, dmBytes));
 }
@@ -847,11 +853,11 @@ void CStatistics::UpdateStatsTree()
 
 void CStatistics::AddSourceOrigin(unsigned origin)
 {
-	CStatTreeItemNativeCounter* counter = (CStatTreeItemNativeCounter*)s_foundSources->GetChildById(0x0100 + origin);
+	CStatTreeItemCounter* counter = static_cast<CStatTreeItemCounter*>(s_foundSources->GetChildById(0x0100 + origin));
 	if (counter) {
 		++(*counter);
 	} else {
-		counter = new CStatTreeItemNativeCounter(OriginToText(origin) + wxT(": %s"), stHideIfZero | stShowPercent);
+		counter = new CStatTreeItemCounter(OriginToText(origin) + wxT(": %s"), stHideIfZero | stShowPercent);
 		++(*counter);
 		s_foundSources->AddChild(counter, 0x0100 + origin);
 	}
@@ -859,7 +865,7 @@ void CStatistics::AddSourceOrigin(unsigned origin)
 
 void CStatistics::RemoveSourceOrigin(unsigned origin)
 {
-	CStatTreeItemNativeCounter* counter = (CStatTreeItemNativeCounter*)s_foundSources->GetChildById(0x0100 + origin);
+	CStatTreeItemCounter* counter = static_cast<CStatTreeItemCounter*>(s_foundSources->GetChildById(0x0100 + origin));
 	wxASSERT(counter);
 	--(*counter);
 }
@@ -888,7 +894,7 @@ void CStatistics::AddDownloadFromSoft(uint8 SoftType, uint32 bytes)
 	uint32 id = GetSoftID(SoftType);
 
 	if (s_sessionDownload->HasChildWithId(id)) {
-		(*((CStatTreeItemCounter*)s_sessionDownload->GetChildById(id))) += bytes;
+		(*static_cast<CStatTreeItemCounter*>(s_sessionDownload->GetChildById(id))) += bytes;
 	} else {
 		CStatTreeItemCounter* tmp = new CStatTreeItemCounter(GetSoftName(SoftType) + wxT(": %s"));
 		tmp->SetDisplayMode(dmBytes);
@@ -902,7 +908,7 @@ void CStatistics::AddUploadToSoft(uint8 SoftType, uint32 bytes)
 	uint32 id = GetSoftID(SoftType);
 
 	if (s_sessionUpload->HasChildWithId(id)) {
-		(*((CStatTreeItemCounter*)s_sessionUpload->GetChildById(id))) += bytes;
+		(*static_cast<CStatTreeItemCounter*>(s_sessionUpload->GetChildById(id))) += bytes;
 	} else {
 		CStatTreeItemCounter* tmp = new CStatTreeItemCounter(GetSoftName(SoftType) + wxT(": %s"));
 		tmp->SetDisplayMode(dmBytes);
@@ -940,7 +946,7 @@ void CStatistics::AddKnownClient(CUpDownClient *pClient)
 	CStatTreeItemCounter *client;
 
 	if (s_clients->HasChildWithId(id)) {
-		client = (CStatTreeItemCounter*)s_clients->GetChildById(id);
+		client = static_cast<CStatTreeItemCounter*>(s_clients->GetChildById(id));
 		++(*client);
 	} else {
 		uint32 flags = stSortChildren | stShowPercent | stHideIfZero;
@@ -960,7 +966,7 @@ void CStatistics::AddKnownClient(CUpDownClient *pClient)
 	uint32 clientVersion = pClient->GetVersion();
 
 	if (versionRoot->HasChildWithId(clientVersion)) {
-		CStatTreeItemCounter *version = (CStatTreeItemCounter*)versionRoot->GetChildById(clientVersion);
+		CStatTreeItemCounter *version = static_cast<CStatTreeItemCounter*>(versionRoot->GetChildById(clientVersion));
 		++(*version);
 	} else {
 		const wxString& versionStr = pClient->GetVersionString();
@@ -973,7 +979,7 @@ void CStatistics::AddKnownClient(CUpDownClient *pClient)
 		const wxString& OSInfo = pClient->GetClientOSInfo();
 		uint32 OS_ID = OSInfo.IsEmpty() ? 0 : GetIdFromString(OSInfo);
 		CStatTreeItemBase* OSRoot = client->GetChildById(1);
-		CStatTreeItemCounter* OSNode = (CStatTreeItemCounter*)OSRoot->GetChildById(OS_ID);
+		CStatTreeItemCounter* OSNode = static_cast<CStatTreeItemCounter*>(OSRoot->GetChildById(OS_ID));
 		if (OSNode) {
 			++(*OSNode);
 		} else {
@@ -990,19 +996,19 @@ void CStatistics::RemoveKnownClient(uint32 clientSoft, uint32 clientVersion, con
 
 	uint32 id = GetSoftID(clientSoft);
 
-	CStatTreeItemCounter *client = (CStatTreeItemCounter*)s_clients->GetChildById(id);
+	CStatTreeItemCounter *client = static_cast<CStatTreeItemCounter*>(s_clients->GetChildById(id));
 	wxASSERT(client);
 	--(*client);
 
 	CStatTreeItemBase *versionRoot = SupportsOSInfo(clientSoft) ? client->GetChildById(2) : client;
 
-	CStatTreeItemCounter *version = (CStatTreeItemCounter*)versionRoot->GetChildById(clientVersion);
+	CStatTreeItemCounter *version = static_cast<CStatTreeItemCounter*>(versionRoot->GetChildById(clientVersion));
 	wxASSERT(version);
 	--(*version);
 
 	if (SupportsOSInfo(clientSoft)) {
 		uint32 OS_ID = OSInfo.IsEmpty() ? 0 : GetIdFromString(OSInfo);
-		CStatTreeItemCounter* OSNode = (CStatTreeItemCounter*)client->GetChildById(1)->GetChildById(OS_ID);
+		CStatTreeItemCounter* OSNode = static_cast<CStatTreeItemCounter*>(client->GetChildById(1)->GetChildById(OS_ID));
 		wxASSERT(OSNode);
 		--(*OSNode);
 	}
@@ -1011,8 +1017,7 @@ void CStatistics::RemoveKnownClient(uint32 clientSoft, uint32 clientVersion, con
 #else /* CLIENT_GUI */
 
 CStatistics::CStatistics(CRemoteConnect &conn)
-:
-m_conn(conn)
+	: m_conn(conn)
 {
 	s_start_time = GetTickCount64();
 
@@ -1050,6 +1055,7 @@ void CStatistics::UpdateStats(const CECPacket* stats)
 	s_statData[sdKadIndexedNotes] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_INDEXED_NOTES)->GetInt();
 	s_statData[sdKadIndexedLoad] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_INDEXED_LOAD)->GetInt();
 	s_statData[sdKadIPAdress] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_IP_ADRESS)->GetInt();
+	s_statData[sdKadNodes] = stats->GetTagByNameSafe(EC_TAG_STATS_KAD_NODES)->GetInt();
 	s_statData[sdBuddyStatus] = stats->GetTagByNameSafe(EC_TAG_STATS_BUDDY_STATUS)->GetInt();
 	s_statData[sdBuddyIP] = stats->GetTagByNameSafe(EC_TAG_STATS_BUDDY_IP)->GetInt();
 	s_statData[sdBuddyPort] = stats->GetTagByNameSafe(EC_TAG_STATS_BUDDY_PORT)->GetInt();
@@ -1060,7 +1066,7 @@ void CStatistics::UpdateStats(const CECPacket* stats)
 
 	const CECTag * LoggerTag = stats->GetTagByName(EC_TAG_STATS_LOGGER_MESSAGE);
 	if (LoggerTag) {
-		for (CECTag::const_iterator it = LoggerTag->begin(); it != LoggerTag->end(); it++) {
+		for (CECTag::const_iterator it = LoggerTag->begin(); it != LoggerTag->end(); ++it) {
 			theApp->AddRemoteLogLine(it->GetStringData());
 		}
 	}
@@ -1068,8 +1074,7 @@ void CStatistics::UpdateStats(const CECPacket* stats)
 
 
 void CStatistics::UpdateStatsTree()
-{
-}
+{}
 
 
 void CStatistics::RebuildStatTreeRemote(const CECTag * tag)

@@ -17,7 +17,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -35,19 +35,19 @@
 #define	CURRENT_VERSION_SHORT			0x47
 
 // This is only used to server login. It has no real "version" meaning anymore.
-#define	EDONKEYVERSION				0x3c 
+#define	EDONKEYVERSION				0x3c
 
-// aMule version 
+// aMule version
 
 // No more Mod Version unless we're cvs
 
 // RELEASERS: REMOVE THE DEFINE ON THE RELEASES, PLEASE
 // AND FIX THE MOD_VERSION_LONG
 
-/* #undef __SVN__ */
+#define __SVN__
 
 #ifndef VERSION
-	#define VERSION "2.3.1"
+	#define VERSION "2.4.0"
 #endif
 
 #ifdef __SVN__
@@ -57,8 +57,8 @@
 #endif
 
 #define	VERSION_MJR		2
-#define	VERSION_MIN		3
-#define	VERSION_UPDATE		1
+#define	VERSION_MIN		4
+#define	VERSION_UPDATE		0
 
 #ifndef PACKAGE
 #define PACKAGE "amule"

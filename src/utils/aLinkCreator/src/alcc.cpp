@@ -24,14 +24,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
-// For all others, include the necessary headers
-#ifndef WX_PRECOMP
-    #include "wx/wx.h"
-#endif
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"             // Needed for PACKAGE
@@ -39,6 +31,7 @@
 #define PACKAGE "amule"
 #endif
 
+#include <wx/log.h>
 
 #include "alcc.h"
 #include "ed2khash.h"
@@ -57,7 +50,7 @@ int alcc::OnRun ()
   wxLogStderr * stderrLog = new wxLogStderr;
   wxLogStderr * stdoutLog = new wxLogStderr(stdout);
   delete wxLog::SetActiveTarget(stderrLog); // Log on Stderr
-#if wxCHECK_VERSION(2, 9, 0)  
+#if wxCHECK_VERSION(2, 9, 0)
   wxLog::SetTimestamp("");   // Disable timestamp on messages
 #else
   wxLog::SetTimestamp(NULL); // Disable timestamp on messages

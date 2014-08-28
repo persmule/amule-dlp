@@ -28,15 +28,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#ifdef __BORLANDC__
- #pragma hdrstop
-#endif
-
-// For all others, include the necessary headers
-#ifndef WX_PRECOMP
- #include "wx/wx.h"
-#endif
-
 #include "onlinesig.h"
 
 #include <wx/txtstrm.h>
@@ -54,7 +45,7 @@ OnLineSig::OnLineSig ( const wxFileName& file,
 
 	m_absoluteMaxDL = absoluteMaxDL;
 	m_absoluteMaxDlDate = absoluteMaxDlDate;
-	
+
 	m_isSessionMaxDlReseted = false;
 	m_isAbsoluteMaxDlReseted = false;
 
@@ -76,7 +67,7 @@ OnLineSig::SetAmuleSig ( const wxFileName& file )
 void
 OnLineSig::Refresh ()
 {
-	wxFile file; 
+	wxFile file;
 	if ( file.Open(m_amulesig.GetFullPath ()) ) {
 		wxFileInputStream input ( file );
 
@@ -125,7 +116,7 @@ OnLineSig::Refresh ()
 		}
 	}
 	file.Close();
-	
+
 }
 
 int OnLineSig::GetAmuleState() const
@@ -267,7 +258,7 @@ wxString OnLineSig::GetConnexionIDType () const
 		return ( wxString ( _( "HighID" ) ) );
 	} else if ( m_connexionID == wxT( "L" ) ) {
                 return ( wxString ( _( "LowID" ) ) );
-	}	
+	}
 	else {
 		return ( wxString ( _( "Not Connected" ) ) );
 	}

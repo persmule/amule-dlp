@@ -29,14 +29,7 @@
 #define _ALC_H
 
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
-// For all others, include the necessary headers
-#ifndef WX_PRECOMP
-    #include "wx/wx.h"
-#endif
+#include <wx/app.h>
 
 #include "alcframe.h"
 
@@ -45,10 +38,10 @@ class alc:public wxApp
   {
   private:
     AlcFrame *m_alcFrame;
-    
+
   protected:
     wxLocale m_locale; // Used to tell wxCas to use aMule catalog
-    
+
   public:
     virtual bool OnInit ();
     AlcFrame *GetMainFrame();
