@@ -6,7 +6,8 @@ AM_LDFLAGS = $(MULELDFLAGS)
 SUBDIRS = libs utils pixmaps
 
 if WEB
-SUBDIRS += webserver
+# build webserver after current
+SUBDIRS += . webserver
 endif
 
 if INSTALL_SKINS
@@ -15,20 +16,22 @@ endif
 
 EXTRA_DIST = \
 	aMule.xpm \
+	LibSocketAsio.cpp \
+	LibSocketWX.cpp \
 	Parser.y \
 	Scanner.h.in \
 	Scanner.l \
 	IPFilterScanner.l \
-	muuli.wdr 
+	muuli.wdr
 
-bin_PROGRAMS = 
+bin_PROGRAMS =
 
 if MONOLITHIC
 bin_PROGRAMS += amule
 endif
 
 if COMPILE_CMD
-bin_PROGRAMS += amulecmd   
+bin_PROGRAMS += amulecmd
 endif
 
 if ED2K
@@ -44,7 +47,7 @@ bin_PROGRAMS += amuled
 endif
 
 # Sources
-noinst_LIBRARIES =
+noinst_LIBRARIES = libmulesocket.a
 if MONOLITHIC
 noinst_LIBRARIES += libmuleappcore.a libmuleappgui.a libmuleappcommon.a
 else
@@ -56,6 +59,12 @@ noinst_LIBRARIES += libmuleappgui.a libmuleappcommon.a
 endif
 endif
 endif
+
+
+# Socket lib (WX or Asio)
+
+libmulesocket_a_SOURCES = LibSocket.cpp
+libmulesocket_a_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) $(BOOST_CPPFLAGS) -I$(srcdir)/libs -I$(srcdir)/include
 
 
 # Common to core/gui/monolithic
@@ -121,7 +130,7 @@ libmuleappgui_a_SOURCES = \
 	MuleNotebook.cpp \
 	MuleTextCtrl.cpp \
 	MuleCollection.cpp \
-	muuli_wdr.cpp 
+	muuli_wdr.cpp
 
 libmuleappgui_a_CPPFLAGS = $(AM_CPPFLAGS) $(WX_CPPFLAGS) -I$(srcdir)/libs -I$(srcdir)/include $(LIBUPNP_CPPFLAGS) $(GEOIP_CPPFLAGS)
 
@@ -197,7 +206,7 @@ gui_sources = \
 	ServerListCtrl.cpp \
 	SharedFilesCtrl.cpp \
 	MuleTrayIcon.cpp \
-	TransferWnd.cpp 
+	TransferWnd.cpp
 
 
 common_sources = \
@@ -223,12 +232,12 @@ common_sources = \
 core_libs = -L. -lmuleappcore $(LIBUPNP_LDFLAGS) $(LIBUPNP_LIBS)
 gui_libs = -L. -lmuleappgui $(WX_LIBS) $(GEOIP_LDFLAGS) $(GEOIP_LIBS)
 remote_common_libs = -Llibs/common -Llibs/ec/cpp -lmulecommon -lec $(BFD_LIBS) $(ZLIB_LDFLAGS) $(ZLIB_LIBS) $(RESOLV_LIB)
-common_libs = -L. -lmuleappcommon $(remote_common_libs) $(CRYPTOPP_LDFLAGS) $(CRYPTOPP_LIBS)
+common_libs = -L. -lmuleappcommon $(remote_common_libs) -lmulesocket $(BOOST_SYSTEM_LDFLAGS) $(BOOST_SYSTEM_LIBS) $(CRYPTOPP_LDFLAGS) $(CRYPTOPP_LIBS)
 
 core_deps = libmuleappcore.a
 gui_deps = libmuleappgui.a
 remote_common_deps = libs/common/libmulecommon.a libs/ec/cpp/libec.a
-common_deps = libmuleappcommon.a $(remote_common_deps)
+common_deps = libmuleappcommon.a $(remote_common_deps) libmulesocket.a
 
 if SYS_WIN32
 core_libs += -lshlwapi
@@ -273,17 +282,17 @@ amule_LDADD = $(common_libs) $(core_libs) $(gui_libs)
 amulegui_DEPENDENCIES = $(common_deps) $(gui_deps)
 amulegui_CPPFLAGS = $(AM_CPPFLAGS) $(gui_flags) $(common_flags) -DCLIENT_GUI
 amulegui_CXXFLAGS = $(AM_CXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
-amulegui_LDADD = $(gui_libs) $(common_libs) $(WXBASE_LIBS)
+amulegui_LDADD = $(common_libs) $(gui_libs)
 
 amuled_DEPENDENCIES = $(core_deps) $(common_deps)
-amuled_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) $(core_flags) $(common_flags) -DAMULE_DAEMON 
+amuled_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) $(core_flags) $(common_flags) -DAMULE_DAEMON
 amuled_CXXFLAGS = $(AM_CXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
 amuled_LDADD = $(common_libs) $(core_libs) $(WXBASE_LIBS)
 
 ed2k_SOURCES = \
 	ED2KLinkParser.cpp \
 	MagnetURI.cpp \
-	MuleCollection.cpp	
+	MuleCollection.cpp
 
 ed2k_CPPFLAGS = $(AM_CPPFLAGS) -DUSE_STD_STRING
 
@@ -301,14 +310,14 @@ amulecmd_SOURCES = \
 	ExternalConnector.cpp \
 	LoggerConsole.cpp \
 	OtherFunctions.cpp \
-	NetworkFunctions.cpp 
+	NetworkFunctions.cpp
 
-amulecmd_DEPENDENCIES = $(remote_common_deps)
+amulecmd_DEPENDENCIES = $(remote_common_deps) libmulesocket.a
 amulecmd_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) $(common_flags)
 amulecmd_CXXFLAGS = $(AM_CXXFLAGS) $(WX_CFLAGS_ONLY) $(WX_CXXFLAGS_ONLY)
 #amulecmd_LDADD = $(WXBASE_LIBS) $(READLINE_LIBS) $(remote_common_libs)
-amulecmd_LDADD = -Llibs/common -Llibs/ec/cpp -lmulecommon -lec \
-	$(WXBASE_LIBS) $(READLINE_LIBS) $(BFD_LIBS) $(ZLIB_LDFLAGS) $(ZLIB_LIBS) $(RESOLV_LIB)
+amulecmd_LDADD = -Llibs/common -Llibs/ec/cpp -L. -lmulecommon -lec -lmulesocket \
+	$(WXBASE_LIBS) $(READLINE_LIBS) $(BFD_LIBS) $(ZLIB_LDFLAGS) $(ZLIB_LIBS) $(RESOLV_LIB) $(BOOST_SYSTEM_LDFLAGS) $(BOOST_SYSTEM_LIBS)
 
 noinst_HEADERS = \
 		AddFriend.h \
@@ -374,6 +383,7 @@ noinst_HEADERS = \
 		KadDlg.h \
 		KnownFile.h \
 		KnownFileList.h \
+		LibSocket.h \
 		ListenSocket.h \
 		Logger.h \
 		MagnetURI.h \

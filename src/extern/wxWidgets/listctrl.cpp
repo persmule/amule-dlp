@@ -3,7 +3,7 @@
 // Purpose:     generic implementation of wxListCtrl
 // Author:      Robert Roebling
 //              Vadim Zeitlin (virtual list control support)
-// Id:          $Id: listctrl.cpp 10612 2011-09-18 11:01:52Z sturedman $
+// Id:          $Id: listctrl.cpp 10680 2011-11-20 18:08:59Z gonosztopi $
 // Copyright:   Copyright (c) 1998-2011 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -624,7 +624,7 @@ public:
     }
 
     void OnChildFocus(wxChildFocusEvent& event);
-    
+
     void DrawImage( int index, wxDC *dc, int x, int y );
     void GetImageSize( int index, int &width, int &height ) const;
     int GetTextLength( const wxString &s ) const;

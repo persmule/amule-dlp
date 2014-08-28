@@ -15,7 +15,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -62,10 +62,10 @@ PlasmaMuleApplet::PlasmaMuleApplet(QObject *parent, const QVariantList &args)
 PlasmaMuleApplet::~PlasmaMuleApplet()
 {
 }
- 
+
 void PlasmaMuleApplet::init()
 {
-	m_debugChannel = KDebug::registerArea ("plasmamule-applet", 
+	m_debugChannel = KDebug::registerArea ("plasmamule-applet",
 #ifdef __DEBUG__
 	true
 #else
@@ -98,12 +98,12 @@ void PlasmaMuleApplet::paintInterface(QPainter *painter,
 	font.setBold(true);
 	painter->setFont(font);
 	if (!m_config_found)
-	{	
+	{
 		painter->drawText(contentsRect, Qt::AlignCenter,
 		"aMule not configured or installed");
 	}
 	else if (!m_os_active)
-	{	
+	{
 		painter->drawText(contentsRect, Qt::AlignCenter,
 		"Online Signature disabled");
 	} else if (m_uptime == 0)
@@ -377,7 +377,7 @@ void PlasmaMuleApplet::dropEvent(QGraphicsSceneDragDropEvent * event)
 	{
 		sendLinkToEngine (event->mimeData()->text(), 0, this, m_debugChannel);
 	} else {
-		for (constIterator = m_catNames.constBegin(); constIterator != m_catNames.constEnd(); constIterator++)
+		for (constIterator = m_catNames.constBegin(); constIterator != m_catNames.constEnd(); ++constIterator)
 		{
 			menu->addAction(*constIterator);
 			if (constIterator != m_catNames.constEnd())
@@ -406,7 +406,7 @@ void PlasmaMuleApplet::contextMenuEvent(QGraphicsSceneContextMenuEvent * event)
 		menu.addAction (KIcon("folder"), QString("Default"));
 	} else {
 		QMenu *open_sub_menu = menu.addMenu("Open Incoming");
-		for (constIterator = m_catNames.constBegin(); constIterator != m_catNames.constEnd(); constIterator++)
+		for (constIterator = m_catNames.constBegin(); constIterator != m_catNames.constEnd(); ++constIterator)
 		{
 			open_sub_menu->addAction(KIcon("folder"), "Folder for " + *constIterator);
 			if (constIterator != m_catNames.constEnd())
@@ -437,10 +437,10 @@ void PlasmaMuleApplet::contextMenuEvent(QGraphicsSceneContextMenuEvent * event)
 			{
 				menu.addAction(KIcon("arrow-down-double"), "Download Link from Selection");
 			}
-		} else 	{
+		} else	{
 			QMenu *download_sub_menu = menu.addMenu("Download Link");
 
-			for (constIterator = m_catNames.constBegin(); constIterator != m_catNames.constEnd(); constIterator++)
+			for (constIterator = m_catNames.constBegin(); constIterator != m_catNames.constEnd(); ++constIterator)
 			{
 				if (!clipboard->text(QClipboard::Clipboard).isEmpty())
 				{
@@ -498,7 +498,7 @@ void PlasmaMuleApplet::contextMenuEvent(QGraphicsSceneContextMenuEvent * event)
 		{
 			kDebug(m_debugChannel) << "Opening Folder " << m_catDirs.at(m_catNames.indexOf(selectedItem->text().remove("Folder for ")));
 			KUrl url(m_catDirs.at(m_catNames.indexOf(selectedItem->text().remove("Folder for "))) + "/");
-                	(void) new KRun( url, 0, true );
+			(void) new KRun( url, 0, true );
 		} else if (selectedItem->text().startsWith("Download"))
 		{
 			if (selectedItem->text().remove("Download Link from ") == "Clipboard")

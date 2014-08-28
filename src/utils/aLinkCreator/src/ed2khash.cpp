@@ -25,37 +25,12 @@
 /// 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 ////////////////////////////////////////////////////////////////////////////////
 
-// For compilers that support precompilation, includes "wx/wx.h"
-
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
-// For all others, include the necessary headers
-#ifndef WX_PRECOMP
-    #include "wx/wx.h"
-#endif
 
 #include <wx/ffile.h>
+#include <wx/log.h>
 #include <wx/regex.h>
 
 #include "ed2khash.h"
-
-
-// efe, sorry for that, i have not enough time to do the right thing now, but 
-// please, create a file called like unicodestuff.h and put this. Include in 
-// alcc.c and here. And remove this stupid comment :)
-//-----------------------------------------------------------------------------
-// efe, this can be put in a separete include file, if you want to reuse
-static wxCSConv aMuleConv(wxS("iso8859-1"));
-#ifdef wxUSE_UNICODE
-        #define unicode2char(x) (const char*) aMuleConv.cWX2MB(x)
-        #define char2unicode(x) aMuleConv.cMB2WX(x)
-#else
-        #define unicode2char(x) x.c_str()
-        #define char2unicode(x) x
-#endif
-//-----------------------------------------------------------------------------
 
 
 /// Constructor
@@ -79,7 +54,8 @@ bool Ed2kHash::SetED2KHashFromFile(const wxFileName& filename, MD4Hook hook)
   wxFFile file(filename.GetFullPath(), wxT("rbS"));
   if (! file.IsOpened())
     {
-      wxLogError (_("Unable to open %s"),unicode2char(filename.GetFullPath()));
+	  // This doesn't make much sense to me, but it is what it was before and actually works.
+	  wxLogError(_("Unable to open %s"), ((const char*)filename.GetFullPath().mb_str(wxConvISO8859_1)));
       return (false);
     }
   else
@@ -136,6 +112,7 @@ bool Ed2kHash::SetED2KHashFromFile(const wxFileName& filename, MD4Hook hook)
                 }
               else
                 {
+		  delete [] buf;
                   return (false);
                 }
 
@@ -160,8 +137,16 @@ bool Ed2kHash::SetED2KHashFromFile(const wxFileName& filename, MD4Hook hook)
 #endif
 #else
 
-          tmpCharHash = (unsigned char*)realloc(tmpCharHash,
+          unsigned char *tmpPtr = (unsigned char*)realloc(tmpCharHash,
                                                 sizeof(unsigned char) * (MD4_HASHLEN_BYTE * partcount));
+	  if (tmpPtr) {
+		  tmpCharHash = tmpPtr;
+	  } else {
+		  delete [] buf;
+		  free(tmpCharHash);
+		  wxLogError(_("Out of memory while calculating ed2k hash!"));
+		  return (false);
+	  }
           memcpy ( tmpCharHash + MD4_HASHLEN_BYTE * (partcount - 1), ret, MD4_HASHLEN_BYTE );
 #endif
 
@@ -230,7 +215,7 @@ wxString Ed2kHash::GetED2KLink(const bool addPartHashes, const wxArrayString* ar
   if ( arrayOfUrls && !arrayOfUrls->IsEmpty())
     {
       size_t i;
-      for ( i = 0; i < arrayOfUrls->GetCount(); i++ ) 
+      for ( i = 0; i < arrayOfUrls->GetCount(); i++ )
         {
           ed2kLink += wxT("s=") + (*arrayOfUrls)[i] + wxT("|");
         }

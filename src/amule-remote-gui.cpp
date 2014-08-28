@@ -16,7 +16,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -71,16 +71,16 @@ CEConnectDlg::CEConnectDlg()
 wxDialog(theApp->amuledlg, -1, _("Connect to remote amule"), wxDefaultPosition)
 {
 	CoreConnect(this, true);
-	
+
 	wxString pref_host, pref_port;
 	wxConfig::Get()->Read(wxT("/EC/Host"), &pref_host, wxT("localhost"));
 	wxConfig::Get()->Read(wxT("/EC/Port"), &pref_port, wxT("4712"));
 	wxConfig::Get()->Read(wxT("/EC/Password"), &pwd_hash);
-	
+
 	CastChild(ID_REMOTE_HOST, wxTextCtrl)->SetValue(pref_host);
 	CastChild(ID_REMOTE_PORT, wxTextCtrl)->SetValue(pref_port);
 	CastChild(ID_EC_PASSWD, wxTextCtrl)->SetValue(pwd_hash);
-	
+
 	CentreOnParent();
 }
 
@@ -100,7 +100,7 @@ void CEConnectDlg::OnOK(wxCommandEvent& evt)
 {
 	wxString s_port = CastChild(ID_REMOTE_PORT, wxTextCtrl)->GetValue();
 	port = StrToLong(s_port);
-	
+
 	host = CastChild(ID_REMOTE_HOST, wxTextCtrl)->GetValue();
 	passwd = CastChild(ID_EC_PASSWD, wxTextCtrl)->GetValue();
 
@@ -121,7 +121,7 @@ BEGIN_EVENT_TABLE(CamuleRemoteGuiApp, wxApp)
 
 	EVT_CUSTOM(wxEVT_EC_CONNECTION, -1, CamuleRemoteGuiApp::OnECConnection)
 	EVT_CUSTOM(wxEVT_EC_INIT_DONE, -1, CamuleRemoteGuiApp::OnECInitDone)
-	
+
 	EVT_MULE_NOTIFY(CamuleRemoteGuiApp::OnNotifyEvent)
 
 #ifdef ENABLE_IP2COUNTRY
@@ -137,7 +137,7 @@ IMPLEMENT_APP(CamuleRemoteGuiApp)
 int CamuleRemoteGuiApp::OnExit()
 {
 	StopTickTimer();
-	
+
 	return wxApp::OnExit();
 }
 
@@ -146,11 +146,11 @@ void CamuleRemoteGuiApp::OnPollTimer(wxTimerEvent&)
 {
 	static int request_step = 0;
 	static uint32 msPrevStats = 0;
-	
+
 	if (m_connect->RequestFifoFull()) {
 		return;
 	}
-	
+
 	switch (request_step) {
 	case 0:
 		// We used to update the connection state here, but that's done with the stats in the next step now.
@@ -216,6 +216,10 @@ void CamuleRemoteGuiApp::ShutDown(wxCloseEvent &WXUNUSED(evt))
 	delete poll_timer;
 	poll_timer = NULL;
 
+	m_AsioService->Stop();
+	delete m_AsioService;
+	m_AsioService = NULL;
+
 	// Destroy the EC socket
 	m_connect->Destroy();
 	m_connect = NULL;
@@ -235,7 +239,7 @@ bool CamuleRemoteGuiApp::OnInit()
 {
 	StartTickTimer();
 	amuledlg = NULL;
-	
+
 	// Get theApp
 	theApp = &wxGetApp();
 
@@ -255,12 +259,14 @@ bool CamuleRemoteGuiApp::OnInit()
 	}
 
 	m_connect = new CRemoteConnect(this);
-	
+
+	m_AsioService = new CAsioService;
+
 	glob_prefs = new CPreferencesRem(m_connect);
 	long enableZLIB;
 	wxConfig::Get()->Read(wxT("/EC/ZLIB"), &enableZLIB, 1);
 	m_connect->SetCapabilities(enableZLIB != 0, true, false);	// ZLIB, UTF8 numbers, notification
-	
+
 	InitCustomLanguages();
 	InitLocale(m_locale, StrLang2wx(thePrefs::GetLanguageID()));
 
@@ -268,7 +274,7 @@ bool CamuleRemoteGuiApp::OnInit()
 		AddLogLineNS(_("Going to event loop..."));
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -288,7 +294,7 @@ bool CamuleRemoteGuiApp::ShowConnectionDialog()
 		dialog->OnOK(evt);
 	} else if (dialog->ShowModal() != wxID_OK) {
 		dialog->Destroy();
-		
+
 		return false;
 	}
 	AddLogLineNS(_("Connecting..."));
@@ -296,11 +302,11 @@ bool CamuleRemoteGuiApp::ShowConnectionDialog()
 		dialog->Login(), dialog->PassHash(),
 		wxT("amule-remote"), wxT("0x0001"))) {
 		wxMessageBox(_("Connection failed "),_("ERROR"),wxOK);
-		
+
 		return false;
 	}
 
-	return true;	
+	return true;
 }
 
 
@@ -321,6 +327,8 @@ void CamuleRemoteGuiApp::OnECConnection(wxEvent& event) {
 		} else {		// server disconnected (probably terminated) later
 			wxMessageBox(_("Connection closed - aMule has terminated probably."), _("ERROR"), wxOK);
 		}
+		wxCloseEvent ev;
+		ShutDown(ev);
 		ExitMainLoop();
 	}
 }
@@ -339,7 +347,7 @@ void CamuleRemoteGuiApp::OnNotifyEvent(CMuleGUIEvent& evt)
 
 
 void CamuleRemoteGuiApp::Startup() {
-	
+
 	if (dialog->SaveUserPass()) {
 		wxConfig::Get()->Write(wxT("/EC/Host"), dialog->Host());
 		wxConfig::Get()->Write(wxT("/EC/Port"), dialog->Port());
@@ -347,20 +355,20 @@ void CamuleRemoteGuiApp::Startup() {
 	}
 	dialog->Destroy();
 	dialog = NULL;
-	
+
 	m_ConnState = 0;
 	m_clientID  = 0;
 
 	serverconnect = new CServerConnectRem(m_connect);
 	m_statistics = new CStatistics(*m_connect);
 	stattree = new CStatTreeRem(m_connect);
-	
+
 	clientlist = new CUpDownClientListRem(m_connect);
 	searchlist = new CSearchListRem(m_connect);
 	serverlist = new CServerListRem(m_connect);
 	friendlist = new CFriendListRem(m_connect);
 
-	
+
 	sharedfiles	= new CSharedFilesRem(m_connect);
 	knownfiles = new CKnownFilesRem(m_connect);
 
@@ -377,10 +385,10 @@ void CamuleRemoteGuiApp::Startup() {
 	knownfiles->DoRequery(EC_OP_GET_UPDATE, EC_TAG_KNOWNFILE);
 
 	// Start the Poll Timer
-	poll_timer->Start(1000);	
+	poll_timer->Start(1000);
 	amuledlg->StartGuiTimer();
 
-	// Now activate GeoIP, so that the download dialog doesn't get destroyed immediately 
+	// Now activate GeoIP, so that the download dialog doesn't get destroyed immediately
 #ifdef ENABLE_IP2COUNTRY
 	if (thePrefs::IsGeoIPEnabled()) {
 		amuledlg->m_IP2Country->Enable();
@@ -479,7 +487,7 @@ void CamuleRemoteGuiApp::BootstrapKad(uint32 ip, uint16 port)
 	CECPacket req(EC_OP_KAD_BOOTSTRAP_FROM_IP);
 	req.AddTag(CECTag(EC_TAG_BOOTSTRAP_IP, ip));
 	req.AddTag(CECTag(EC_TAG_BOOTSTRAP_PORT, port));
-	
+
 	m_connect->SendPacket(&req);
 }
 
@@ -488,7 +496,7 @@ void CamuleRemoteGuiApp::UpdateNotesDat(const wxString& url)
 {
 	CECPacket req(EC_OP_KAD_UPDATE_FROM_URL);
 	req.AddTag(CECTag(EC_TAG_KADEMLIA_UPDATE_URL, url));
-	
+
 	m_connect->SendPacket(&req);
 }
 
@@ -514,10 +522,10 @@ uint32 CamuleRemoteGuiApp::GetID() const
 
 void CamuleRemoteGuiApp::ShowUserCount() {
 	wxString buffer;
-	
+
 	static const wxString s_singlenetstatusformat = _("Users: %s | Files: %s");
 	static const wxString s_bothnetstatusformat = _("Users: E: %s K: %s | Files: E: %s K: %s");
-	
+
 	if (thePrefs::GetNetworkED2K() && thePrefs::GetNetworkKademlia()) {
 		buffer = CFormat(s_bothnetstatusformat) % CastItoIShort(theStats::GetED2KUsers()) % CastItoIShort(theStats::GetKadUsers()) % CastItoIShort(theStats::GetED2KFiles()) % CastItoIShort(theStats::GetKadFiles());
 	} else if (thePrefs::GetNetworkED2K()) {
@@ -534,7 +542,7 @@ void CamuleRemoteGuiApp::ShowUserCount() {
 
 /*
  * Preferences: holds both local and remote settings.
- * 
+ *
  * First, everything is loaded from local config file. Later, settings
  * that are relevant on remote side only are loaded thru EC
  */
@@ -566,11 +574,11 @@ CPreferencesRem::CPreferencesRem(CRemoteConnect *conn)
 
 void CPreferencesRem::HandlePacket(const CECPacket *packet)
 {
-	((CEC_Prefs_Packet *)packet)->Apply();
+	static_cast<const CEC_Prefs_Packet *>(packet)->Apply();
 
 	const CECTag *cat_tags = packet->GetTagByName(EC_TAG_PREFS_CATEGORIES);
 	if (cat_tags) {
-		for (CECTag::const_iterator it = cat_tags->begin(); it != cat_tags->end(); it++) {
+		for (CECTag::const_iterator it = cat_tags->begin(); it != cat_tags->end(); ++it) {
 			const CECTag &cat_tag = *it;
 			Category_Struct *cat = new Category_Struct;
 			cat->title = cat_tag.GetTagByName(EC_TAG_CATEGORY_TITLE)->GetStringData();
@@ -589,7 +597,7 @@ void CPreferencesRem::HandlePacket(const CECPacket *packet)
 	}
 	wxECInitDoneEvent event;
 	theApp->AddPendingEvent(event);
-	
+
 }
 
 
@@ -601,9 +609,9 @@ bool CPreferencesRem::LoadRemote()
 
 	// bring categories too
 	req.AddTag(CECTag(EC_TAG_SELECT_PREFS, m_exchange_recv_selected_prefs));
-	
+
 	m_conn->SendRequest(this, &req);
-	
+
 	return true;
 }
 
@@ -629,7 +637,7 @@ void CCatHandler::HandlePacket(const CECPacket *packet)
 			int cat = catTag->GetInt();
 			Category_Struct* cs = theApp->glob_prefs->GetCategory(cat);
 			wxMessageBox(CFormat(_("Can't create directory '%s' for category '%s', keeping directory '%s'."))
-				% cs->path.GetPrintable() % cs->title % pathTag->GetStringData(), 
+				% cs->path.GetPrintable() % cs->title % pathTag->GetStringData(),
 				_("ERROR"), wxOK);
 			cs->path = CPath(pathTag->GetStringData());
 			theApp->amuledlg->m_transferwnd->UpdateCategory(cat);
@@ -659,9 +667,9 @@ bool CPreferencesRem::CreateCategory(
 	category->comment	= comment;
 	category->color		= color;
 	category->prio		= prio;
-			
+
 	AddCat(category);
-	
+
 	return true;
 }
 
@@ -738,19 +746,18 @@ void CServerConnectRem::ConnectToServer(CServer *server)
 
 void CServerConnectRem::HandlePacket(const CECPacket *packet)
 {
-	CEC_ConnState_Tag *tag =
-		(CEC_ConnState_Tag *)packet->GetTagByName(EC_TAG_CONNSTATE);
+	const CEC_ConnState_Tag *tag = static_cast<const CEC_ConnState_Tag *>(packet->GetTagByName(EC_TAG_CONNSTATE));
 	if (!tag) {
 		return;
 	}
-	
+
 	theApp->m_ConnState = 0;
 	CServer *server;
 	m_ID = tag->GetEd2kId();
 	theApp->m_clientID = tag->GetClientId();
-	
+
 	if (tag->IsConnectedED2K()) {
-		CECTag *srvtag = tag->GetTagByName(EC_TAG_SERVER);
+		const CECTag *srvtag = tag->GetTagByName(EC_TAG_SERVER);
 		if (srvtag) {
 			server = theApp->serverlist->GetByID(srvtag->GetInt());
 			if (server != m_CurrServer) {
@@ -775,7 +782,7 @@ void CServerConnectRem::HandlePacket(const CECPacket *packet)
 			theApp->m_ConnState |= CONNECTED_KAD_NOT;
 		}
 	}
-	
+
 	theApp->amuledlg->ShowConnectionState();
 }
 
@@ -802,7 +809,7 @@ void CServerListRem::UpdateServerMetFromURL(wxString url)
 {
 	CECPacket req(EC_OP_SERVER_UPDATE_FROM_URL);
 	req.AddTag(CECTag(EC_TAG_SERVERS_UPDATE_URL, url));
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -816,7 +823,7 @@ void CServerListRem::SetStaticServer(CServer* server, bool isStatic)
 	CECPacket req(EC_OP_SERVER_SET_STATIC_PRIO);
 	req.AddTag(CECTag(EC_TAG_SERVER, server->ECID()));
 	req.AddTag(CECTag(EC_TAG_SERVER_STATIC, isStatic));
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -830,7 +837,7 @@ void CServerListRem::SetServerPrio(CServer* server, uint32 prio)
 	CECPacket req(EC_OP_SERVER_SET_STATIC_PRIO);
 	req.AddTag(CECTag(EC_TAG_SERVER, server->ECID()));
 	req.AddTag(CECTag(EC_TAG_SERVER_PRIO, prio));
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -862,7 +869,7 @@ CServer *CServerListRem::GetServerByIPTCP(uint32 WXUNUSED(nIP), uint16 WXUNUSED(
 	return 0;
 }
 
-CServer *CServerListRem::CreateItem(CEC_Server_Tag *tag)
+CServer *CServerListRem::CreateItem(const CEC_Server_Tag *tag)
 {
 	CServer * server = new CServer(tag);
 	ProcessItemUpdate(tag, server);
@@ -883,7 +890,7 @@ uint32 CServerListRem::GetItemID(CServer *server)
 }
 
 
-void CServerListRem::ProcessItemUpdate(CEC_Server_Tag * tag, CServer * server)
+void CServerListRem::ProcessItemUpdate(const CEC_Server_Tag * tag, CServer * server)
 {
 	if (!tag->HasChildTags()) {
 		return;
@@ -892,25 +899,25 @@ void CServerListRem::ProcessItemUpdate(CEC_Server_Tag * tag, CServer * server)
 	tag->ServerDesc(& server->description);
 	tag->ServerVersion(& server->m_strVersion);
 	tag->GetMaxUsers(& server->maxusers);
-	
+
 	tag->GetFiles(& server->files);
 	tag->GetUsers(& server->users);
-   
+
 	tag->GetPrio(& server->preferences); // SRV_PR_NORMAL = 0, so it's ok
     tag->GetStatic(& server->staticservermember);
 
 	tag->GetPing(& server->ping);
-	tag->GetFailed(& server->failedcount);	
+	tag->GetFailed(& server->failedcount);
 
 	theApp->amuledlg->m_serverwnd->serverlistctrl->RefreshServer(server);
 }
 
 
-CServer::CServer(CEC_Server_Tag *tag) : CECID(tag->GetInt())
+CServer::CServer(const CEC_Server_Tag *tag) : CECID(tag->GetInt())
 {
 	ip = tag->GetTagByNameSafe(EC_TAG_SERVER_IP)->GetInt();
 	port = tag->GetTagByNameSafe(EC_TAG_SERVER_PORT)->GetInt();
-	
+
 	Init();
 }
 
@@ -935,7 +942,7 @@ void CIPFilterRem::Update(wxString url)
 {
 	CECPacket req(EC_OP_IPFILTER_UPDATE);
 	req.AddTag(CECTag(EC_TAG_STRING, url));
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -952,7 +959,7 @@ CSharedFilesRem::CSharedFilesRem(CRemoteConnect *conn)
 void CSharedFilesRem::Reload(bool, bool)
 {
 	CECPacket req(EC_OP_SHAREDFILES_RELOAD);
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -968,7 +975,7 @@ bool CSharedFilesRem::RenameFile(CKnownFile* file, const CPath& newName)
 	request.AddTag(CECTag(EC_TAG_PARTFILE_NAME, strNewName));
 
 	m_conn->SendPacket(&request);
-	
+
 	return true;
 }
 
@@ -987,7 +994,7 @@ void CSharedFilesRem::SetFileCommentRating(CKnownFile* file, const wxString& new
 void CSharedFilesRem::CopyFileList(std::vector<CKnownFile*>& out_list) const
 {
 	out_list.reserve(size());
-	for (const_iterator it = begin(); it != end(); it++) {
+	for (const_iterator it = begin(); it != end(); ++it) {
 		out_list.push_back(it->second);
 	}
 }
@@ -1001,7 +1008,7 @@ void CKnownFilesRem::DeleteItem(CKnownFile * file)
 		theApp->sharedfiles->erase(id);
 	}
 	if (theApp->downloadqueue->count(id)) {
-		theApp->amuledlg->m_transferwnd->downloadlistctrl->RemoveFile((CPartFile *) file);
+		theApp->amuledlg->m_transferwnd->downloadlistctrl->RemoveFile(static_cast<CPartFile *>(file));
 		theApp->downloadqueue->erase(id);
 	}
 	delete file;
@@ -1014,9 +1021,9 @@ uint32 CKnownFilesRem::GetItemID(CKnownFile *file)
 }
 
 
-void CKnownFilesRem::ProcessItemUpdate(CEC_SharedFile_Tag *tag, CKnownFile *file)
+void CKnownFilesRem::ProcessItemUpdate(const CEC_SharedFile_Tag *tag, CKnownFile *file)
 {
-	CECTag *parttag = tag->GetTagByName(EC_TAG_PARTFILE_PART_STATUS);
+	const CECTag *parttag = tag->GetTagByName(EC_TAG_PARTFILE_PART_STATUS);
 	if (parttag) {
 		const uint8 *data =	file->m_partStatus.Decode(
 				(uint8 *)parttag->GetTagData(),
@@ -1034,6 +1041,7 @@ void CKnownFilesRem::ProcessItemUpdate(CEC_SharedFile_Tag *tag, CKnownFile *file
 	}
 	tag->UpPrio(&file->m_iUpPriorityEC);
 	tag->GetAICHHash(file->m_AICHMasterHash);
+	// Bad thing - direct writing another class' members
 	tag->GetRequests(&file->statistic.requested);
 	tag->GetAllRequests(&file->statistic.alltimerequested);
 	tag->GetAccepts(&file->statistic.accepted);
@@ -1060,25 +1068,25 @@ void CKnownFilesRem::ProcessItemUpdate(CEC_SharedFile_Tag *tag, CKnownFile *file
 	requested += file->statistic.requested;
 	transferred += file->statistic.transferred;
 	accepted += file->statistic.transferred;
-	
+
 	if (!m_initialUpdate) {
 		theApp->amuledlg->m_sharedfileswnd->sharedfilesctrl->UpdateItem(file);
 	}
 
 	if (file->IsPartFile()) {
-		ProcessItemUpdatePartfile((CEC_PartFile_Tag *) tag, (CPartFile *) file);
+		ProcessItemUpdatePartfile(static_cast<const CEC_PartFile_Tag *>(tag), static_cast<CPartFile *>(file));
 	}
 }
 
 void CSharedFilesRem::SetFilePrio(CKnownFile *file, uint8 prio)
 {
 	CECPacket req(EC_OP_SHARED_SET_PRIO);
-	
+
 	CECTag hashtag(EC_TAG_PARTFILE, file->GetFileHash());
 	hashtag.AddTag(CECTag(EC_TAG_PARTFILE_PRIO, prio));
-	
+
 	req.AddTag(hashtag);
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -1089,7 +1097,7 @@ void CKnownFilesRem::ProcessUpdate(const CECTag *reply, CECPacket *, int)
 	accepted = 0;
 
 	std::set<uint32> core_files;
-	for (CECPacket::const_iterator it = reply->begin(); it != reply->end(); it++) {
+	for (CECPacket::const_iterator it = reply->begin(); it != reply->end(); ++it) {
 		const CECTag * curTag = &*it;
 		ec_tagname_t tagname = curTag->GetTagName();
 		if (tagname == EC_TAG_CLIENT) {
@@ -1099,7 +1107,7 @@ void CKnownFilesRem::ProcessUpdate(const CECTag *reply, CECPacket *, int)
 		} else if (tagname == EC_TAG_FRIEND) {
 			theApp->friendlist->ProcessUpdate(curTag, NULL, EC_TAG_FRIEND);
 		} else if (tagname == EC_TAG_KNOWNFILE || tagname == EC_TAG_PARTFILE) {
-			CEC_SharedFile_Tag *tag = (CEC_SharedFile_Tag *) curTag;
+			const CEC_SharedFile_Tag *tag = static_cast<const CEC_SharedFile_Tag *>(curTag);
 			uint32 id = tag->ID();
 			bool isNew = true;
 			if (!m_initialUpdate) {
@@ -1116,7 +1124,7 @@ void CKnownFilesRem::ProcessUpdate(const CECTag *reply, CECPacket *, int)
 			if (isNew) {
 				CKnownFile * newFile;
 				if (tag->GetTagName() == EC_TAG_PARTFILE) {
-					CPartFile *file = new CPartFile((CEC_PartFile_Tag *) tag);
+					CPartFile *file = new CPartFile(static_cast<const CEC_PartFile_Tag *>(tag));
 					ProcessItemUpdate(tag, file);
 					(*theApp->downloadqueue)[id] = file;
 					theApp->amuledlg->m_transferwnd->downloadlistctrl->AddFile(file);
@@ -1167,7 +1175,7 @@ CRemoteContainer<CClientRef, uint32, CEC_UpDownClient_Tag>(conn, true)
 }
 
 
-CClientRef::CClientRef(CEC_UpDownClient_Tag *tag)
+CClientRef::CClientRef(const CEC_UpDownClient_Tag *tag)
 {
 	m_client = new CUpDownClient(tag);
 #ifdef DEBUG_ZOMBIE_CLIENTS
@@ -1178,7 +1186,7 @@ CClientRef::CClientRef(CEC_UpDownClient_Tag *tag)
 }
 
 
-CUpDownClient::CUpDownClient(CEC_UpDownClient_Tag *tag) : CECID(tag->ID())
+CUpDownClient::CUpDownClient(const CEC_UpDownClient_Tag *tag) : CECID(tag->ID())
 {
 	m_linked = 0;
 #ifdef DEBUG_ZOMBIE_CLIENTS
@@ -1249,13 +1257,13 @@ void CUpDownClient::Unlink()
 #endif
 
 
-uint64 CUpDownClient::GetDownloadedTotal() const 
+uint64 CUpDownClient::GetDownloadedTotal() const
 {
 	return credits->GetDownloadedTotal();
 }
 
 
-uint64 CUpDownClient::GetUploadedTotal() const 
+uint64 CUpDownClient::GetUploadedTotal() const
 {
 	return credits->GetUploadedTotal();
 }
@@ -1275,11 +1283,11 @@ CUpDownClient::~CUpDownClient()
 }
 
 
-CClientRef *CUpDownClientListRem::CreateItem(CEC_UpDownClient_Tag *tag)
+CClientRef *CUpDownClientListRem::CreateItem(const CEC_UpDownClient_Tag *tag)
 {
 	CClientRef *client = new CClientRef(tag);
 	ProcessItemUpdate(tag, client);
-	
+
 	return client;
 }
 
@@ -1323,7 +1331,7 @@ uint32 CUpDownClientListRem::GetItemID(CClientRef *client)
 
 
 void CUpDownClientListRem::ProcessItemUpdate(
-	CEC_UpDownClient_Tag *tag,
+	const CEC_UpDownClient_Tag *tag,
 	CClientRef *clientref)
 {
 	if (!tag->HasChildTags()) {
@@ -1369,7 +1377,7 @@ void CUpDownClientListRem::ProcessItemUpdate(
 	tag->RemoteQueueRank(&client->m_nRemoteQueueRank);
 	client->m_bRemoteQueueFull = client->m_nRemoteQueueRank == 0xffff;
 	tag->OldRemoteQueueRank(&client->m_nOldRemoteQueueRank);
-	
+
 	tag->ClientDownloadState(client->m_nDownloadState);
 	if (tag->ClientUploadState(client->m_nUploadState)) {
 		if (client->m_nUploadState == US_UPLOADING) {
@@ -1378,7 +1386,7 @@ void CUpDownClientListRem::ProcessItemUpdate(
 			theApp->m_allUploadingKnownFile->RemoveUploadingClient(client);
 		}
 	}
-	
+
 	tag->SpeedUp(&client->m_nUpDatarate);
 	if ( client->m_nDownloadState == DS_DOWNLOADING ) {
 		tag->SpeedDown(&client->m_kBpsDown);
@@ -1390,9 +1398,8 @@ void CUpDownClientListRem::ProcessItemUpdate(
 	//tag->XferTime(&client->m_UpStartTimeDelay);
 	//tag->LastReqTime(&client->m_dwLastUpRequest);
 	//tag->QueueTime(&client->m_WaitStartTime);
-	
-	CreditStruct *credit_struct =
-		(CreditStruct *)client->credits->GetDataStruct();
+
+	CreditStruct *credit_struct = const_cast<CreditStruct *>(client->credits->GetDataStruct());
 	tag->XferUp(&credit_struct->uploaded);
 	tag->XferUpSession(&client->m_nTransferredUp);
 
@@ -1428,7 +1435,7 @@ void CUpDownClientListRem::ProcessItemUpdate(
 		}
 		CKnownFile * kf = theApp->knownfiles->GetByID(fileID);
 		if (kf && kf->IsCPartFile()) {
-			client->m_reqfile = (CPartFile *) kf;
+			client->m_reqfile = static_cast<CPartFile *>(kf);
 			client->m_reqfile->AddSource(client);
 			client->m_downPartStatus.setsize(kf->GetPartCount(), 0);
 			Notify_SourceCtrlAddSource(client->m_reqfile, CCLIENTREF(client, wxT("AddSource")), A4AF_SOURCE);
@@ -1437,7 +1444,7 @@ void CUpDownClientListRem::ProcessItemUpdate(
 	}
 
 	// Part status
-	CECTag * partStatusTag = tag->GetTagByName(EC_TAG_CLIENT_PART_STATUS);
+	const CECTag * partStatusTag = tag->GetTagByName(EC_TAG_CLIENT_PART_STATUS);
 	if (partStatusTag) {
 		if (partStatusTag->GetTagDataLen() == 0) {
 			// empty tag means full source
@@ -1460,7 +1467,7 @@ void CUpDownClientListRem::ProcessItemUpdate(
 				type = UNAVAILABLE_SOURCE;
 				break;
 		}
-			
+
 		Notify_SourceCtrlUpdateSource(client->ECID(), type);
 	}
 
@@ -1490,7 +1497,7 @@ void CUpDownClientListRem::ProcessItemUpdate(
 		notified = false;
 	}
 
-	if (!notified && client->m_uploadingfile 
+	if (!notified && client->m_uploadingfile
 		&& (client->m_uploadingfile->ShowPeers() || (client->m_nUploadState == US_UPLOADING))) {
 			// notify if KnowFile is selected, or if it's uploading (in case clients are in show uploading mode)
 		SourceItemType type;
@@ -1510,7 +1517,7 @@ void CUpDownClientListRem::ProcessItemUpdate(
 
 /*
  * Download queue container: hold PartFiles with progress status
- * 
+ *
  */
 
 
@@ -1520,7 +1527,7 @@ bool CDownQueueRem::AddLink(const wxString &link, uint8 cat)
 	CECTag link_tag(EC_TAG_STRING, link);
 	link_tag.AddTag(CECTag(EC_TAG_PARTFILE_CAT, cat));
 	req.AddTag(link_tag);
-	
+
 	m_conn->SendPacket(&req);
 	return true;
 }
@@ -1531,7 +1538,7 @@ void CDownQueueRem::ResetCatParts(int cat)
 	// Called when category is deleted. Command will be performed on the remote side,
 	// but files still should be updated here right away, or drawing errors (colour not available)
 	// will happen.
-	for (iterator it = begin(); it != end(); it++) {
+	for (iterator it = begin(); it != end(); ++it) {
 		CPartFile* file = it->second;
 		file->RemoveCategory(cat);
 	}
@@ -1539,14 +1546,14 @@ void CDownQueueRem::ResetCatParts(int cat)
 
 
 
-void CKnownFilesRem::ProcessItemUpdatePartfile(CEC_PartFile_Tag *tag, CPartFile *file)
+void CKnownFilesRem::ProcessItemUpdatePartfile(const CEC_PartFile_Tag *tag, CPartFile *file)
 {
 	//
 	// update status
 	//
 	tag->Speed(&file->m_kbpsDown);
 	file->kBpsDown = file->m_kbpsDown / 1024.0;
-	
+
 	tag->SizeXfer(&file->transferred);
 	tag->SizeDone(&file->completedsize);
 	tag->SourceXferCount(&file->transferingsrc);
@@ -1562,13 +1569,14 @@ void CKnownFilesRem::ProcessItemUpdatePartfile(CEC_PartFile_Tag *tag, CPartFile 
 	tag->AvailablePartCount(&file->m_availablePartsCount);
 	tag->Shared(&file->m_isShared);
 	tag->A4AFAuto(file->m_is_A4AF_auto);
+	tag->HashingProgress(file->m_hashingProgress);
 
 	tag->GetLostDueToCorruption(&file->m_iLostDueToCorruption);
 	tag->GetGainDueToCompression(&file->m_iGainDueToCompression);
 	tag->TotalPacketsSavedDueToICH(&file->m_iTotalPacketsSavedDueToICH);
 
 	tag->FileCat(&file->m_category);
-	
+
 	tag->DownPrio(&file->m_iDownPriorityEC);
 	if ( file->m_iDownPriorityEC >= 10 ) {
 		file->m_iDownPriority = file->m_iDownPriorityEC - 10;
@@ -1583,9 +1591,9 @@ void CKnownFilesRem::ProcessItemUpdatePartfile(CEC_PartFile_Tag *tag, CPartFile 
 	//
 	// Copy part/gap status
 	//
-	CECTag *gaptag = tag->GetTagByName(EC_TAG_PARTFILE_GAP_STATUS);
-	CECTag *parttag = tag->GetTagByName(EC_TAG_PARTFILE_PART_STATUS);
-	CECTag *reqtag = tag->GetTagByName(EC_TAG_PARTFILE_REQ_STATUS);
+	const CECTag *gaptag = tag->GetTagByName(EC_TAG_PARTFILE_GAP_STATUS);
+	const CECTag *parttag = tag->GetTagByName(EC_TAG_PARTFILE_PART_STATUS);
+	const CECTag *reqtag = tag->GetTagByName(EC_TAG_PARTFILE_REQ_STATUS);
 	if (gaptag || parttag || reqtag) {
 		PartFileEncoderData &encoder = file->m_PartFileEncoderData;
 
@@ -1622,12 +1630,12 @@ void CKnownFilesRem::ProcessItemUpdatePartfile(CEC_PartFile_Tag *tag, CPartFile 
 			}
 		}
 	}
-	
+
 	// Get source names and counts
-	CECTag *srcnametag = tag->GetTagByName(EC_TAG_PARTFILE_SOURCE_NAMES);
+	const CECTag *srcnametag = tag->GetTagByName(EC_TAG_PARTFILE_SOURCE_NAMES);
 	if (srcnametag) {
 		SourcenameItemMap &map = file->GetSourcenameItemMap();
-		for (CECTag::const_iterator it = srcnametag->begin(); it != srcnametag->end(); it++) {
+		for (CECTag::const_iterator it = srcnametag->begin(); it != srcnametag->end(); ++it) {
 			uint32 key = it->GetInt();
 			int count = it->GetTagByNameSafe(EC_TAG_PARTFILE_SOURCE_NAMES_COUNTS)->GetInt();
 			if (count == 0) {
@@ -1642,9 +1650,9 @@ void CKnownFilesRem::ProcessItemUpdatePartfile(CEC_PartFile_Tag *tag, CPartFile 
 			}
 		}
 	}
-	
+
 	// Get comments
-	CECTag *commenttag = tag->GetTagByName(EC_TAG_PARTFILE_COMMENTS);
+	const CECTag *commenttag = tag->GetTagByName(EC_TAG_PARTFILE_COMMENTS);
 	if (commenttag) {
 		file->ClearFileRatingList();
 		for (CECTag::const_iterator it = commenttag->begin(); it != commenttag->end(); ) {
@@ -1656,14 +1664,14 @@ void CKnownFilesRem::ProcessItemUpdatePartfile(CEC_PartFile_Tag *tag, CPartFile 
 		}
 		file->UpdateFileRatingCommentAvail();
 	}
-		
+
 	// Update A4AF sources
 	ListOfUInts32 & clientIDs = file->GetA4AFClientIDs();
-	CECTag *a4aftag = tag->GetTagByName(EC_TAG_PARTFILE_A4AF_SOURCES);
+	const CECTag *a4aftag = tag->GetTagByName(EC_TAG_PARTFILE_A4AF_SOURCES);
 	if (a4aftag) {
 		file->ClearA4AFList();
 		clientIDs.clear();
-		for (CECTag::const_iterator it = a4aftag->begin(); it != a4aftag->end(); it++) {
+		for (CECTag::const_iterator it = a4aftag->begin(); it != a4aftag->end(); ++it) {
 			if (it->GetTagName() != EC_TAG_ECID) {	// should always be this
 				continue;
 			}
@@ -1688,7 +1696,7 @@ void CKnownFilesRem::ProcessItemUpdatePartfile(CEC_PartFile_Tag *tag, CPartFile 
 			}
 		}
 	}
-		
+
 	theApp->amuledlg->m_transferwnd->downloadlistctrl->UpdateItem(file);
 
 	// If file is shared check if it is already listed in shared files.
@@ -1704,7 +1712,7 @@ void CDownQueueRem::SendFileCommand(CPartFile *file, ec_tagname_t cmd)
 {
 	CECPacket req(cmd);
 	req.AddTag(CECTag(EC_TAG_PARTFILE, file->GetFileHash()));
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -1712,11 +1720,11 @@ void CDownQueueRem::SendFileCommand(CPartFile *file, ec_tagname_t cmd)
 void CDownQueueRem::Prio(CPartFile *file, uint8 prio)
 {
 	CECPacket req(EC_OP_PARTFILE_PRIO_SET);
-	
+
 	CECTag hashtag(EC_TAG_PARTFILE, file->GetFileHash());
 	hashtag.AddTag(CECTag(EC_TAG_PARTFILE_PRIO, prio));
 	req.AddTag(hashtag);
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -1724,13 +1732,13 @@ void CDownQueueRem::Prio(CPartFile *file, uint8 prio)
 void CDownQueueRem::AutoPrio(CPartFile *file, bool flag)
 {
 	CECPacket req(EC_OP_PARTFILE_PRIO_SET);
-	
+
 	CECTag hashtag(EC_TAG_PARTFILE, file->GetFileHash());
-	
+
 	hashtag.AddTag(CECTag(EC_TAG_PARTFILE_PRIO,
 		(uint8)(flag ? PR_AUTO : file->GetDownPriority())));
 	req.AddTag(hashtag);
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -1739,11 +1747,11 @@ void CDownQueueRem::Category(CPartFile *file, uint8 cat)
 {
 	CECPacket req(EC_OP_PARTFILE_SET_CAT);
 	file->SetCategory(cat);
-	
+
 	CECTag hashtag(EC_TAG_PARTFILE, file->GetFileHash());
 	hashtag.AddTag(CECTag(EC_TAG_PARTFILE_CAT, cat));
 	req.AddTag(hashtag);
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -1754,7 +1762,7 @@ void CDownQueueRem::AddSearchToDownload(CSearchFile* file, uint8 category)
 	CECTag hashtag(EC_TAG_PARTFILE, file->GetFileHash());
 	hashtag.AddTag(CECTag(EC_TAG_PARTFILE_CAT, category));
 	req.AddTag(hashtag);
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -1762,10 +1770,10 @@ void CDownQueueRem::AddSearchToDownload(CSearchFile* file, uint8 category)
 void CDownQueueRem::ClearCompleted(const ListOfUInts32 & ecids)
 {
 	CECPacket req(EC_OP_CLEAR_COMPLETED);
-	for (ListOfUInts32::const_iterator it = ecids.begin(); it != ecids.end(); it++) {
+	for (ListOfUInts32::const_iterator it = ecids.begin(); it != ecids.end(); ++it) {
 		req.AddTag(CECTag(EC_TAG_ECID, *it));
 	}
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -1786,7 +1794,7 @@ void CFriendListRem::HandlePacket(const CECPacket *)
 }
 
 
-CFriend * CFriendListRem::CreateItem(CEC_Friend_Tag * tag)
+CFriend * CFriendListRem::CreateItem(const CEC_Friend_Tag * tag)
 {
 	CFriend * Friend = new CFriend(tag->ID());
 	ProcessItemUpdate(tag, Friend);
@@ -1807,7 +1815,7 @@ uint32 CFriendListRem::GetItemID(CFriend * Friend)
 }
 
 
-void CFriendListRem::ProcessItemUpdate(CEC_Friend_Tag * tag, CFriend * Friend)
+void CFriendListRem::ProcessItemUpdate(const CEC_Friend_Tag * tag, CFriend * Friend)
 {
 	if (!tag->HasChildTags()) {
 		return;
@@ -1829,7 +1837,7 @@ void CFriendListRem::ProcessItemUpdate(CEC_Friend_Tag * tag, CFriend * Friend)
 			// Unlink
 			Friend->UnLinkClient(false);
 		}
-	} 
+	}
 	if (!notified) {
 		Notify_ChatUpdateFriend(Friend);
 	}
@@ -1839,11 +1847,11 @@ void CFriendListRem::ProcessItemUpdate(CEC_Friend_Tag * tag, CFriend * Friend)
 void CFriendListRem::AddFriend(const CClientRef& toadd)
 {
 	CECPacket req(EC_OP_FRIEND);
-	
+
 	CECEmptyTag addtag(EC_TAG_FRIEND_ADD);
 	addtag.AddTag(CECTag(EC_TAG_CLIENT, toadd.ECID()));
 	req.AddTag(addtag);
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -1851,14 +1859,14 @@ void CFriendListRem::AddFriend(const CClientRef& toadd)
 void CFriendListRem::AddFriend(const CMD4Hash& userhash, uint32 lastUsedIP, uint32 lastUsedPort, const wxString& name)
 {
 	CECPacket req(EC_OP_FRIEND);
-	
+
 	CECEmptyTag addtag(EC_TAG_FRIEND_ADD);
 	addtag.AddTag(CECTag(EC_TAG_FRIEND_HASH, userhash));
 	addtag.AddTag(CECTag(EC_TAG_FRIEND_IP, lastUsedIP));
 	addtag.AddTag(CECTag(EC_TAG_FRIEND_PORT, lastUsedPort));
 	addtag.AddTag(CECTag(EC_TAG_FRIEND_NAME, name));
 	req.AddTag(addtag);
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -1866,11 +1874,11 @@ void CFriendListRem::AddFriend(const CMD4Hash& userhash, uint32 lastUsedIP, uint
 void CFriendListRem::RemoveFriend(CFriend* toremove)
 {
 	CECPacket req(EC_OP_FRIEND);
-	
+
 	CECEmptyTag removetag(EC_TAG_FRIEND_REMOVE);
 	removetag.AddTag(CECTag(EC_TAG_FRIEND, toremove->ECID()));
 	req.AddTag(removetag);
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -1878,11 +1886,11 @@ void CFriendListRem::RemoveFriend(CFriend* toremove)
 void CFriendListRem::SetFriendSlot(CFriend* Friend, bool new_state)
 {
 	CECPacket req(EC_OP_FRIEND);
-	
+
 	CECTag slottag(EC_TAG_FRIEND_FRIENDSLOT, new_state);
 	slottag.AddTag(CECTag(EC_TAG_FRIEND, Friend->ECID()));
 	req.AddTag(slottag);
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -1890,11 +1898,11 @@ void CFriendListRem::SetFriendSlot(CFriend* Friend, bool new_state)
 void CFriendListRem::RequestSharedFileList(CFriend* Friend)
 {
 	CECPacket req(EC_OP_FRIEND);
-	
+
 	CECEmptyTag sharedtag(EC_TAG_FRIEND_SHARED);
 	sharedtag.AddTag(CECTag(EC_TAG_FRIEND, Friend->ECID()));
 	req.AddTag(sharedtag);
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -1902,11 +1910,11 @@ void CFriendListRem::RequestSharedFileList(CFriend* Friend)
 void CFriendListRem::RequestSharedFileList(CClientRef& client)
 {
 	CECPacket req(EC_OP_FRIEND);
-	
+
 	CECEmptyTag sharedtag(EC_TAG_FRIEND_SHARED);
 	sharedtag.AddTag(CECTag(EC_TAG_CLIENT, client.ECID()));
 	req.AddTag(sharedtag);
-	
+
 	m_conn->SendPacket(&req);
 }
 
@@ -1922,7 +1930,7 @@ CSearchListRem::CSearchListRem(CRemoteConnect *conn) : CRemoteContainer<CSearchF
 
 
 wxString CSearchListRem::StartNewSearch(
-	uint32* nSearchID, SearchType search_type, 
+	uint32* nSearchID, SearchType search_type,
 	const CSearchList::CSearchParams& params)
 {
 	CECPacket search_req(EC_OP_SEARCH_START);
@@ -1936,12 +1944,12 @@ wxString CSearchListRem::StartNewSearch(
 		CEC_Search_Tag(params.searchString, ec_search_type,
 		params.typeText, params.extension, params.availability,
 		params.minSize, params.maxSize));
-		
+
 	m_conn->SendPacket(&search_req);
 	m_curr_search = *(nSearchID); // No kad remote search yet.
-	
+
 	Flush();
-	
+
 	return wxEmptyString; // EC reply will have the error mesg is needed.
 }
 
@@ -1965,7 +1973,7 @@ void CSearchListRem::HandlePacket(const CECPacket *packet)
 }
 
 
-CSearchFile::CSearchFile(CEC_SearchFile_Tag *tag)
+CSearchFile::CSearchFile(const CEC_SearchFile_Tag *tag)
 :
 CECID(tag->ID()),
 m_parent(NULL),
@@ -1981,7 +1989,7 @@ m_kadPublishInfo(0)
 	SetFileName(CPath(tag->FileName()));
 	m_abyFileHash = tag->FileHash();
 	SetFileSize(tag->SizeFull());
-	
+
 	m_searchID = theApp->searchlist->m_curr_search;
 	uint32 parentID = tag->ParentID();
 	if (parentID) {
@@ -2002,17 +2010,17 @@ void CSearchFile::AddChild(CSearchFile* file)
 
 // dtor is virtual - must be implemented
 CSearchFile::~CSearchFile()
-{	
+{
 }
 
 
-CSearchFile *CSearchListRem::CreateItem(CEC_SearchFile_Tag *tag)
+CSearchFile *CSearchListRem::CreateItem(const CEC_SearchFile_Tag *tag)
 {
 	CSearchFile *file = new CSearchFile(tag);
 	ProcessItemUpdate(tag, file);
-	
+
 	theApp->amuledlg->m_searchwnd->AddResult(file);
-	
+
 	return file;
 }
 
@@ -2029,7 +2037,7 @@ uint32 CSearchListRem::GetItemID(CSearchFile *file)
 }
 
 
-void CSearchListRem::ProcessItemUpdate(CEC_SearchFile_Tag *tag, CSearchFile *file)
+void CSearchListRem::ProcessItemUpdate(const CEC_SearchFile_Tag *tag, CSearchFile *file)
 {
 	uint32 sourceCount = file->m_sourceCount;
 	uint32 completeSourceCount = file->m_completeSourceCount;
@@ -2086,7 +2094,7 @@ const CSearchResultList& CSearchListRem::GetSearchResults(long nSearchID)
 void CStatsUpdaterRem::HandlePacket(const CECPacket *packet)
 {
 	theStats::UpdateStats(packet);
-	theApp->amuledlg->ShowTransferRate();			
+	theApp->amuledlg->ShowTransferRate();
 	theApp->ShowUserCount(); // maybe there should be a check if a usercount changed ?
 	// handle the connstate tag which is included in the stats packet
 	theApp->serverconnect->HandlePacket(packet);
@@ -2110,7 +2118,7 @@ bool CUpDownClient::SwapToAnotherFile(
 	req.AddTag(CECTag(EC_TAG_CLIENT, ECID()));
 	req.AddTag(CECTag(EC_TAG_PARTFILE, toFile->GetFileHash()));
 	theApp->m_connect->SendPacket(&req);
-	
+
 	return true;
 }
 
@@ -2171,7 +2179,7 @@ void CPartFile::UpdateFileRatingCommentAvail()
 	FileRatingList::iterator it = m_FileRatingList.begin();
 	for (; it != m_FileRatingList.end(); ++it) {
 		SFileRating& cur_rat = *it;
-		
+
 		if (!cur_rat.Comment.IsEmpty()) {
 			m_hasComment = true;
 		}
@@ -2179,17 +2187,17 @@ void CPartFile::UpdateFileRatingCommentAvail()
 		uint8 rating = cur_rat.Rating;
 		if (rating) {
 			wxASSERT(rating <= 5);
-			
+
 			ratingCount++;
 			m_iUserRating += rating;
 		}
 	}
-	
+
 	if (ratingCount) {
 		m_iUserRating /= ratingCount;
 		wxASSERT(m_iUserRating > 0 && m_iUserRating <= 5);
 	}
-	
+
 	if ((prevComment != m_hasComment) || (prevRating != m_iUserRating)) {
 		UpdateDisplayedInfo();
 	}

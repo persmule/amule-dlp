@@ -27,15 +27,7 @@
 #define _ALCC_H
 
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
-// For all others, include the necessary headers
-#ifndef WX_PRECOMP
-    #include "wx/wx.h"
-#endif
-
+#include <wx/app.h>
 #include <wx/cmdline.h>
 
 //-----------------------------------------------------------------------------
@@ -64,14 +56,14 @@ class alcc : public wxAppConsole
 
     /// Command line preocessing
     virtual bool OnCmdLineParsed(wxCmdLineParser& cmdline);
-    
+
   protected:
     wxLocale m_locale; // Used to tell wxCas to use aMule catalog
-    
+
   public:
     /// Application
     virtual int OnRun ();
-    
+
     /// Cleaning on exit
     virtual int OnExit();
 };

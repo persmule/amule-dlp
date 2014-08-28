@@ -16,7 +16,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -52,13 +52,13 @@ MD5Sum::MD5Sum(const uint8* buffer, size_t len)
 	Calculate(buffer, len);
 }
 
-wxString MD5Sum::Calculate(const wxString& sSource)
+void MD5Sum::Calculate(const wxString& sSource)
 {
 	// Nothing we can do against this unicode2char
-	return Calculate( (const uint8*)(const char*)unicode2char(sSource), sSource.Length());
+	Calculate( (const uint8*)(const char*)unicode2char(sSource), sSource.Length());
 }
 
-wxString MD5Sum::Calculate(const uint8* buffer, size_t len)
+void MD5Sum::Calculate(const uint8* buffer, size_t len)
 {
 	MD5_CTX context;
 	unsigned char digest[16];
@@ -67,20 +67,20 @@ wxString MD5Sum::Calculate(const uint8* buffer, size_t len)
 	MD5Update (&context, buffer, len);
 	MD5Final (digest, &context);
 
-	m_sHash.Clear();
-	for (int i = 0; i < 16; ++i) {
-		wxString sT;
-		sT = CFormat(wxT("%02x")) % digest[i];
-		m_sHash += sT;
-	}
-
 	memcpy(m_rawhash, digest, 16);
-	
-	return m_sHash;
+	m_sHash.Clear();
 }
 
 wxString MD5Sum::GetHash()
 {
+	if (m_sHash.empty()) {
+		// That's still far from optimal, but called much less often.
+		for (int i = 0; i < 16; ++i) {
+			wxString sT;
+			sT = CFormat(wxT("%02x")) % m_rawhash[i];
+			m_sHash += sT;
+		}
+	}
 	return m_sHash;
 }
 
@@ -188,7 +188,7 @@ void MD5Update (MD5_CTX *context, const unsigned char *input, size_t inputLen)
 }
 
 /* MD5 finalization. Ends an MD5 message-digest operation, writing the
- * the message digest and zeroizing the context. 
+ * the message digest and zeroizing the context.
  */
 void MD5Final (unsigned char digest[16], MD5_CTX *context)
 {

@@ -25,7 +25,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -34,36 +34,9 @@
 
 #include "MuleCollection.h"
 
-
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <string>
-#include <vector>
-
-
-CollectionFile::CollectionFile(
-	const std::string &fileName,
-	uint64_t fileSize,
-	const std::string &fileHash)
-:
-m_fileName(fileName),
-m_fileSize(fileSize),
-m_fileHash(fileHash)
-{
-}
-
-
-CMuleCollection::CMuleCollection()
-:
-vCollection(0)
-{
-}
-
-
-CMuleCollection::~CMuleCollection()
-{
-}
 
 
 bool CMuleCollection::Open(const std::string &File)
@@ -72,67 +45,12 @@ bool CMuleCollection::Open(const std::string &File)
 }
 
 
-std::string CMuleCollection::GetEd2kLink(size_t index) const
-{
-	if (index >= GetFileCount()) {
-		return "Invalid Index!";
-	}
-	
-	std::stringstream retvalue;
-	// ed2k://|file|fileName|fileSize|fileHash|/
-	retvalue
-		<< "ed2k://|file|" << GetFileName(index)
-		<< "|" << GetFileSize(index)
-		<< "|" << GetFileHash(index)
-		<< "|/";
-		
-	return retvalue.str();
-}
-
-
-std::string CMuleCollection::GetFileName(size_t index) const
-{
-	if (index >= GetFileCount()) {
-		return "Invalid Index!";
-	}
-
-	std::string retvalue = vCollection[index].m_fileName;
-	if (retvalue.empty()) {
-		return "Empty String!";
-	}
-			
-	return retvalue;
-}
-
-
-uint64_t CMuleCollection::GetFileSize(size_t index) const
-{
-	if (index >= GetFileCount()) {
-		return 0;
-	}
-	
-	return vCollection[index].m_fileSize;
-}
-
-
-std::string CMuleCollection::GetFileHash(size_t index) const
-{
-	if (index >= GetFileCount()) {
-		return "Invalid Index!";
-	}
-	std::string retvalue = vCollection[index].m_fileHash;
-	if (retvalue.empty()) {
-		return "Empty String!";
-	}
-			
-	return retvalue;
-}
-
 template <typename intType>
 intType CMuleCollection::ReadInt(std::ifstream& infile)
 {
 	intType integer = 0;
 	infile.read(reinterpret_cast<char *>(&integer),sizeof(intType));
+	// TODO: byte-sex
 	return integer;
 }
 
@@ -159,27 +77,27 @@ std::string CMuleCollection::ReadString(std::ifstream& infile, int TagType = 0x0
 bool CMuleCollection::OpenBinary(const std::string &File)
 {
 	std::ifstream infile;
-	
+
 	infile.open(File.c_str(), std::ifstream::in|std::ifstream::binary);
 	if(!infile.is_open()) {
 		return false;
 	}
 
 	uint32_t cVersion = ReadInt<uint32_t>(infile);
-		
+
 	if (!infile.good() ||
 	    ( cVersion != 0x01 && cVersion != 0x02)) {
 			infile.close();
 			return false;
 	}
-	
+
 	uint32_t hTagCount = ReadInt<uint32_t>(infile);
 	if (!infile.good() ||
 	    hTagCount > 3) {
 		infile.close();
 		return false;
 	}
-	
+
 	for (size_t hTi = 0; hTi < hTagCount;hTi++) {
 		 int hTagType = infile.get();
 
@@ -188,7 +106,7 @@ bool CMuleCollection::OpenBinary(const std::string &File)
 		if (hTagFormat != 0x0001) {
 			infile.close();
 			return false;
-		}			
+		}
 
 		int hTag = infile.get();
 		if (!infile.good()) {
@@ -198,12 +116,12 @@ bool CMuleCollection::OpenBinary(const std::string &File)
 		switch (hTag) {
 		// FT_FILENAME
 		case 0x01: {
-			std::string fileName = ReadString(infile, hTagType);
+			/*std::string fileName =*/ ReadString(infile, hTagType);
 			break;
 		}
 		// FT_COLLECTIONAUTHOR
 		case 0x31: {
-			std::string CollectionAuthor = ReadString(infile, hTagType);
+			/*std::string CollectionAuthor =*/ ReadString(infile, hTagType);
 			break;
 		}
 		// FT_COLLECTIONAUTHORKEY
@@ -228,7 +146,7 @@ bool CMuleCollection::OpenBinary(const std::string &File)
 	}
 
 	uint32_t cFileCount = ReadInt<uint32_t>(infile);
-	
+
 	/*
 	softlimit is set to 1024 to avoid problems with big uint32_t values
 	I don't believe anyone would want to use an emulecollection file
@@ -241,20 +159,22 @@ bool CMuleCollection::OpenBinary(const std::string &File)
 		infile.close();
 		return false;
 	}
-	
+
+	vCollection.reserve(cFileCount);
+
 	for (size_t cFi = 0; cFi < cFileCount; ++cFi) {
 		uint32_t fTagCount = ReadInt<uint32_t>(infile);
 
 		if (!infile.good() ||
-		    fTagCount > 5) {
+		    fTagCount > 6) {
 			infile.close();
 			return false;
 		}
-		
+
 		std::string fileHash = std::string(32, '0');
-		uint64_t fileSize = 0;			
+		uint64_t fileSize = 0;
 		std::string fileName;
-		std::string FileComment;
+		std::string rootHash;
 		for(size_t fTi = 0; fTi < fTagCount; ++fTi) {
 			int fTagType = infile.get();
 			if (!infile.good()) {
@@ -267,7 +187,7 @@ bool CMuleCollection::OpenBinary(const std::string &File)
 				infile.close();
 				return false;
 			}
-			
+
 			switch (fTag) {
 			// FT_FILEHASH
 			case 0x28: {
@@ -278,6 +198,11 @@ bool CMuleCollection::OpenBinary(const std::string &File)
 					fileHash[pos*2] = hex[((bFileHash[pos] >> 4) & 0xF)];
 					fileHash[(pos*2) + 1] = hex[(bFileHash[pos]) & 0x0F];
 				}
+				break;
+			}
+			// FT_AICH_FILEHASH
+			case 0x27: {
+				rootHash = ReadString(infile, 0x02);
 				break;
 			}
 			// FT_FILESIZE
@@ -313,7 +238,7 @@ bool CMuleCollection::OpenBinary(const std::string &File)
 			}
 			// FT_FILECOMMENT
 			case 0xF6: {
-				FileComment = ReadString(infile, fTagType^0x80);
+				/* std::string FileComment =*/ ReadString(infile, fTagType^0x80);
 				break;
 			}
 			// FT_FILERATING
@@ -321,7 +246,7 @@ bool CMuleCollection::OpenBinary(const std::string &File)
 				if (fTagType == 0x89) { // TAGTYPE_UINT8
 					// uint8_t FileRating =
 						infile.get();
-						
+
 				} else {
 					infile.close();
 					return false;
@@ -339,7 +264,19 @@ bool CMuleCollection::OpenBinary(const std::string &File)
 				return false;
 			}
 		}
-		AddFile(fileName, fileSize, fileHash);
+
+		if (!fileName.empty() && fileSize > 0) {
+			std::stringstream link;
+			// ed2k://|file|fileName|fileSize|fileHash|/
+			link	<< "ed2k://|file|" << fileName
+				<< "|" << fileSize
+				<< "|" << fileHash;
+			if (!rootHash.empty()) {
+				link << "|h=" << rootHash;
+			}
+			link << "|/";
+			vCollection.push_back(link.str());
+		}
 	}
 	infile.close();
 
@@ -349,102 +286,26 @@ bool CMuleCollection::OpenBinary(const std::string &File)
 
 bool CMuleCollection::OpenText(const std::string &File)
 {
-	int numLinks = 0;
 	std::string line;
 	std::ifstream infile;
-	
+
 	infile.open(File.c_str(), std::ifstream::in|std::ifstream::binary);
 	if (!infile.is_open()) {
 		return false;
 	}
-	
+
 	while (getline(infile, line, (char)10 /* LF */)) {
 		int last = line.size()-1;
 		if ((1 < last) && ((char)13 /* CR */ == line.at(last))) {
 			line.erase(last);
 		}
-		if (AddLink(line)) {
-			numLinks++;
+		if (line.size() > 50 &&
+		    line.substr(0, 13) == "ed2k://|file|" &&
+		    line.substr(line.size() - 2) == "|/") {
+			vCollection.push_back(line);
 		}
 	}
 	infile.close();
-	
-	if(numLinks == 0) {
-		return false;
-	}
-		
-	return true;
+
+	return !vCollection.empty();
 }
-
-
-bool CMuleCollection::AddLink(const std::string &Link)
-{
-	// 12345678901234       56       7 + 32 + 89 = 19+32=51
-	// ed2k://|file|fileName|fileSize|fileHash|/
-	if (Link.size() < 51 ||
-	    Link.substr(0,13) != "ed2k://|file|" ||
-	    Link.substr(Link.size()-2) != "|/") {
-		return false;
-	}
-	
-	size_t iName = Link.find("|",13);
-	if (iName == std::string::npos) {
-		return false;
-	}
-	std::string fileName = Link.substr(13,iName-13);
-
-	size_t iSize = Link.find("|",iName+1);
-	if (iSize == std::string::npos) {
-		return false;
-	}
-	std::stringstream sFileSize;
-	sFileSize << Link.substr(iName+1,iSize-iName-1);
-	uint64_t fileSize;
-	if ((sFileSize >> std::dec >> fileSize).fail()) {
-		return false;
-	}
-
-	size_t iHash = Link.find("|",iSize+1);
-	if (iHash == std::string::npos) {
-		return false;
-	}
-	std::string fileHash = Link.substr(iSize+1,32);
-
-	return AddFile(fileName, fileSize, fileHash);
-}
-
-
-bool CMuleCollection::AddFile(
-	const std::string &fileName,
-	uint64_t fileSize,
-	const std::string &fileHash)
-{
-	if (fileName == "" ||
-	    fileSize == 0 ||
-	    fileSize > 0xffffffffLL ||
-	    !IsValidHash(fileHash)) {
-		return false;
-	}
-		
-	vCollection.push_back(
-		CollectionFile(fileName, fileSize, fileHash));
-	return true;
-}
-
-
-bool CMuleCollection::IsValidHash(const std::string &fileHash)
-{
-	if (fileHash.size() != 32 || fileHash == "") {
-		return false;
-	}
-	
-	// fileHash needs to be a valid MD4Hash
-	std::string hex = "0123456789abcdefABCDEF";
-	for(size_t i = 0; i < fileHash.size(); ++i) {
-		if (hex.find(fileHash[i]) == std::string::npos) {
-			return false;
-		}
-	}
-	return true;	
-}
-

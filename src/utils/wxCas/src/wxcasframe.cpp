@@ -28,19 +28,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifdef __BORLANDC__
- #pragma hdrstop
-#endif
-
-// For all others, include the necessary headers
-#ifndef WX_PRECOMP
- #include "wx/wx.h"
-#endif
-
 #include <wx/config.h>
+#include <wx/dcmemory.h>
 #include <wx/datetime.h>
 #include <wx/filedlg.h>
+#include <wx/icon.h>
 #include <wx/image.h>
+#include <wx/log.h>
+#include <wx/msgdlg.h>
 #include <wx/protocol/ftp.h>
 #include <wx/version.h>
 #include <wx/wfstream.h>
@@ -56,7 +51,7 @@ WxCasFrame::WxCasFrame ( const wxString & title ) :
 		wxFrame ( ( wxFrame * ) NULL, -1, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE )
 {
 	// Give it an icon
-#ifdef __WXMSW__
+#ifdef __WINDOWS__ 
 	wxIcon icon(wxT("wxcas"));
 #else
 	wxIcon icon;
@@ -107,7 +102,7 @@ WxCasFrame::WxCasFrame ( const wxString & title ) :
 	// Main Panel static line
 	m_staticLine = new wxStaticLine ( m_mainPanel, -1 );
 
-#ifdef __WXMSW__
+#ifdef __WINDOWS__ 
 
 	m_BottomStaticLine = new wxStaticLine ( m_mainPanel, -1 );
 #endif
@@ -186,7 +181,7 @@ WxCasFrame::WxCasFrame ( const wxString & title ) :
 
 	m_mainPanelVBox->Add ( m_absHitPanelSBoxSizer, 0, wxALL | wxALIGN_CENTER | wxGROW, 10 );
 
-#ifdef __WXMSW__
+#ifdef __WINDOWS__ 
 
 	m_mainPanelVBox->Add ( m_BottomStaticLine, 0, wxALL | wxALIGN_CENTER | wxGROW );
 #endif
@@ -282,7 +277,7 @@ WxCasFrame::GetStatImage () const
 	wxMemoryDC memdc;
 	memdc.SelectObject ( statBitmap );
 
-#ifdef __WXMSW__
+#ifdef __WINDOWS__ 
 
 	memdc.
 	SetFont ( wxFont ( 6, wxSWISS, wxNORMAL, wxBOLD ) );
@@ -572,9 +567,9 @@ WxCasFrame::UpdateStatsPanel ()
 	m_statLine_1->SetLabel ( newline );
 
 	newMaxLineCount = GetMaxUInt( newline.Length (), newMaxLineCount );
-	// aMule is stopped 
-	//if ( m_aMuleSig->GetRunTime () == 0 
-	
+	// aMule is stopped
+	//if ( m_aMuleSig->GetRunTime () == 0
+
 	// aMule is not running
 	if ( m_aMuleSig->GetUpStatus () == 0) {
 		status = _( "Oh Oh, aMule is not running..." );
@@ -793,7 +788,7 @@ WxCasFrame::UpdateStatsPanel ()
 		newMaxLineCount = GetMaxUInt( newline.Length (), newMaxLineCount );
 #endif
 		status = _( "aMule is running" );
-	}	
+	}
 	//both disconnected
 	else if ( (m_aMuleSig->GetAmuleState () == 0) && (m_aMuleSig->GetKadState () == 0)) {
 		// Stat line 2
@@ -1040,12 +1035,12 @@ WxCasFrame::MakeStatLine_2() const
 	if ( notTooLongName.Length() > 32 ) {
 		notTooLongName = notTooLongName.Left( 32 ) + wxT( "..." );
 	}
-	
+
 	if ((m_aMuleSig->GetAmuleState () == 0) && (m_aMuleSig->GetKadState() == 0)){
 	wxString newline = m_aMuleSig->GetUser ()
 	                   + _( " is not connected !" );
 	return ( newline );
-	}	
+	}
 	if (m_aMuleSig->GetAmuleState () == 0) {
 	wxString newline = m_aMuleSig->GetUser ()
 	                   + _( " is connected to " )
@@ -1134,7 +1129,7 @@ WxCasFrame::MakeStatLine_7() const
 	wxDateTime now = wxDateTime::Now();
 	wxString newline = _( "Time: " )
 	                   + now.Format( wxDefaultDateTimeFormat , wxDateTime::Local );
-	
+
 	return ( newline );
 }
 

@@ -16,7 +16,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -33,6 +33,7 @@
 #include "SearchList.h"
 #include "IPFilter.h"
 #include "Friend.h"
+#include "Logger.h"
 
 #ifndef AMULE_DAEMON
 #	include "ChatWnd.h"
@@ -55,6 +56,9 @@
 
 #ifndef CLIENT_GUI
 #	include "UploadQueue.h"
+#	include "EMSocket.h"
+#	include "ListenSocket.h"
+#	include "MuleUDPSocket.h"
 #endif
 
 #include <common/MacrosProgramSpecific.h>
@@ -93,7 +97,7 @@ namespace MuleNotify
 	{
 		theApp->downloadqueue->AddSearchToDownload(file, category);
 	}
-	
+
 
 	void ShowUserCount(wxString NOT_ON_DAEMON(str))
 	{
@@ -120,11 +124,11 @@ namespace MuleNotify
 #endif
 	}
 
-	
+
 	void DownloadCtrlUpdateItem(const void* item)
 	{
 #ifndef CLIENT_GUI
-		theApp->ECServerHandler->m_ec_notifier->DownloadFile_SetDirty((CPartFile *)item);
+		theApp->ECServerHandler->m_ec_notifier->DownloadFile_SetDirty(static_cast<const CPartFile*>(item));
 #endif
 #ifndef AMULE_DAEMON
 		if (theApp->amuledlg->m_transferwnd && theApp->amuledlg->m_transferwnd->downloadlistctrl) {
@@ -164,7 +168,7 @@ namespace MuleNotify
 		theApp->amuledlg->Iconize(false);
 #endif
 	}
-	
+
 	void SourceCtrlUpdateSource(uint32 NOT_ON_DAEMON(source), SourceItemType NOT_ON_DAEMON(type))
 	{
 #ifndef AMULE_DAEMON
@@ -173,7 +177,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void SourceCtrlAddSource(CPartFile* NOT_ON_DAEMON(owner), CClientRef NOT_ON_DAEMON(source), SourceItemType NOT_ON_DAEMON(type))
 	{
 #ifndef AMULE_DAEMON
@@ -182,7 +186,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void SourceCtrlRemoveSource(uint32 NOT_ON_DAEMON(source), const CPartFile* NOT_ON_DAEMON(owner))
 	{
 #ifndef AMULE_DAEMON
@@ -191,7 +195,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void SharedCtrlAddClient(CKnownFile* NOT_ON_DAEMON(owner), CClientRef NOT_ON_DAEMON(source), SourceItemType NOT_ON_DAEMON(type))
 	{
 #ifndef AMULE_DAEMON
@@ -200,7 +204,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void SharedCtrlRefreshClient(uint32 NOT_ON_DAEMON(client), SourceItemType NOT_ON_DAEMON(type))
 	{
 #ifndef AMULE_DAEMON
@@ -209,7 +213,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void SharedCtrlRemoveClient(uint32 NOT_ON_DAEMON(source), const CKnownFile* NOT_ON_DAEMON(owner))
 	{
 #ifndef AMULE_DAEMON
@@ -218,7 +222,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void ServerRefresh(CServer* NOT_ON_DAEMON(server))
 	{
 #ifndef AMULE_DAEMON
@@ -227,7 +231,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void ChatUpdateFriend(CFriend * NOT_ON_DAEMON(toupdate))
 	{
 #ifndef AMULE_DAEMON
@@ -236,7 +240,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void ChatRemoveFriend(CFriend * toremove)
 	{
 #ifndef AMULE_DAEMON
@@ -246,9 +250,9 @@ namespace MuleNotify
 #endif
 		delete toremove;
 	}
-	
+
 #ifdef CLIENT_GUI
-	
+
 	void PartFile_Swap_A4AF(CPartFile* file)
 	{
 		theApp->downloadqueue->SendFileCommand(file, EC_OP_PARTFILE_SWAP_A4AF_THIS);
@@ -258,7 +262,7 @@ namespace MuleNotify
 	{
 		theApp->downloadqueue->SendFileCommand(file, EC_OP_PARTFILE_SWAP_A4AF_THIS_AUTO);
 	}
-	
+
 	void PartFile_Swap_A4AF_Others(CPartFile* file)
 	{
 		theApp->downloadqueue->SendFileCommand(file, EC_OP_PARTFILE_SWAP_A4AF_OTHERS);
@@ -268,12 +272,12 @@ namespace MuleNotify
 	{
 		theApp->downloadqueue->SendFileCommand(file, EC_OP_PARTFILE_PAUSE);
 	}
-	
+
 	void PartFile_Resume(CPartFile* file)
 	{
 		theApp->downloadqueue->SendFileCommand(file, EC_OP_PARTFILE_RESUME);
 	}
-	
+
 	void PartFile_Stop(CPartFile* file)
 	{
 		theApp->downloadqueue->SendFileCommand(file, EC_OP_PARTFILE_STOP);
@@ -293,17 +297,17 @@ namespace MuleNotify
 	{
 		theApp->downloadqueue->SendFileCommand(file, EC_OP_PARTFILE_DELETE);
 	}
-	
+
 	void PartFile_SetCat(CPartFile* file, uint32 val)
 	{
 		theApp->downloadqueue->Category(file, val);
 	}
-	
+
 	void KnownFile_Up_Prio_Set(CKnownFile* file, uint8 val)
 	{
 		theApp->sharedfiles->SetFilePrio(file, val);
 	}
-	
+
 	void KnownFile_Up_Prio_Auto(CKnownFile* file)
 	{
 		theApp->sharedfiles->SetFilePrio(file, PR_AUTO);
@@ -313,15 +317,15 @@ namespace MuleNotify
 	{
 		theApp->sharedfiles->SetFileCommentRating(file, comment, rating);
 	}
-	
+
 	void Download_Set_Cat_Prio(uint8, uint8)
 	{
 	}
-	
+
 	void Download_Set_Cat_Status(uint8, int)
 	{
 	}
-	
+
 	void Upload_Resort_Queue()
 	{
 	}
@@ -345,7 +349,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void SharedFilesRemoveAllFiles()
 	{
 #ifndef AMULE_DAEMON
@@ -355,7 +359,7 @@ namespace MuleNotify
 #endif
 	}
 
-	
+
 	void SharedFilesShowFileList()
 	{
 #ifndef AMULE_DAEMON
@@ -404,7 +408,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void ServerAdd(CServer* NOT_ON_DAEMON(server))
 	{
 #ifndef AMULE_DAEMON
@@ -413,7 +417,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void ServerRemove(CServer* NOT_ON_DAEMON(server))
 	{
 #ifndef AMULE_DAEMON
@@ -427,9 +431,9 @@ namespace MuleNotify
 	{
 		if (theApp->serverlist) {
 			theApp->serverlist->RemoveDeadServers();
-		}		
+		}
 	}
-	
+
 	void ServerRemoveAll()
 	{
 #ifndef AMULE_DAEMON
@@ -438,7 +442,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void ServerHighlight(CServer* NOT_ON_DAEMON(server), bool NOT_ON_DAEMON(highlight))
 	{
 #ifndef AMULE_DAEMON
@@ -447,7 +451,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void ServerFreeze()
 	{
 #ifndef AMULE_DAEMON
@@ -456,7 +460,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void ServerThaw()
 	{
 #ifndef AMULE_DAEMON
@@ -465,7 +469,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void ServerUpdateED2KInfo()
 	{
 #ifndef AMULE_DAEMON
@@ -474,13 +478,13 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void ServerUpdateKadKInfo()
 	{
 #ifndef AMULE_DAEMON
 		if (theApp->amuledlg->m_serverwnd) {
 			theApp->amuledlg->m_serverwnd->UpdateKadInfo();
-		}		
+		}
 #endif
 	}
 
@@ -493,7 +497,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void SearchLocalEnd()
 	{
 #ifndef AMULE_DAEMON
@@ -512,7 +516,7 @@ namespace MuleNotify
 #endif
 		theApp->searchlist->SetKadSearchFinished();
 	}
-	
+
 	void Search_Update_Sources(CSearchFile* result)
 	{
 		result->SetDownloadStatus();
@@ -522,7 +526,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void Search_Add_Result(CSearchFile* NOT_ON_DAEMON(result))
 	{
 #ifndef AMULE_DAEMON
@@ -532,7 +536,7 @@ namespace MuleNotify
 #endif
 	}
 
-	
+
 	void ChatConnResult(bool NOT_ON_DAEMON(success), uint64 NOT_ON_DAEMON(id), wxString NOT_ON_DAEMON(message))
 	{
 #ifndef AMULE_DAEMON
@@ -541,7 +545,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void ChatProcessMsg(uint64 NOT_ON_DAEMON(sender), wxString NOT_ON_DAEMON(message))
 	{
 #ifndef AMULE_DAEMON
@@ -550,7 +554,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 
 	void ChatSendCaptcha(wxString NOT_ON_DAEMON(captcha), uint64 NOT_ON_DAEMON(to_id))
 	{
@@ -560,7 +564,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 
 	void ShowConnState(long NOT_ON_DAEMON(forceUpdate))
 	{
@@ -568,7 +572,7 @@ namespace MuleNotify
 		theApp->amuledlg->ShowConnectionState(forceUpdate != 0);
 #endif
 	}
-	
+
 	void ShowUpdateCatTabTitles()
 	{
 #ifndef AMULE_DAEMON
@@ -588,7 +592,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void CategoryUpdate(uint32 NOT_ON_DAEMON(cat))
 	{
 #ifndef AMULE_DAEMON
@@ -599,7 +603,7 @@ namespace MuleNotify
 		}
 #endif
 	}
-	
+
 	void CategoryDelete(uint32 cat)
 	{
 #ifdef AMULE_DAEMON
@@ -618,7 +622,7 @@ namespace MuleNotify
 #endif
 	}
 
-	
+
 	void PartFile_Swap_A4AF(CPartFile* file)
 	{
 		if ((file->GetStatus(false) == PS_READY || file->GetStatus(false) == PS_EMPTY)) {
@@ -628,12 +632,12 @@ namespace MuleNotify
 			}
 		}
 	}
-	
+
 	void PartFile_Swap_A4AF_Auto(CPartFile* file)
 	{
 		file->SetA4AFAuto(!file->IsA4AFAuto());
 	}
-	
+
 	void PartFile_Swap_A4AF_Others(CPartFile* file)
 	{
 		if ((file->GetStatus(false) == PS_READY) || (file->GetStatus(false) == PS_EMPTY)) {
@@ -643,10 +647,11 @@ namespace MuleNotify
 			}
 		}
 	}
-	
+
 	void PartFile_Pause(CPartFile* file)
 	{
 		file->PauseFile();
+		file->SavePartFile();
 	}
 
 	void PartFile_Resume(CPartFile* file)
@@ -658,6 +663,7 @@ namespace MuleNotify
 	void PartFile_Stop(CPartFile* file)
 	{
 		file->StopFile();
+		file->SavePartFile();
 	}
 
 	void PartFile_PrioAuto(CPartFile* file, bool val)
@@ -669,42 +675,42 @@ namespace MuleNotify
 	{
 		file->SetDownPriority(newDownPriority, bSave);
 	}
-	
+
 	void PartFile_Delete(CPartFile* file)
 	{
 		file->Delete();
 	}
-	
+
 	void PartFile_SetCat(CPartFile* file, uint32 val)
 	{
 		file->SetCategory(val);
 	}
 
-	
+
 	void KnownFile_Up_Prio_Set(CKnownFile* file, uint8 val)
 	{
 		file->SetAutoUpPriority(false);
 		file->SetUpPriority(val);
 	}
-	
+
 	void KnownFile_Up_Prio_Auto(CKnownFile* file)
 	{
 		file->SetAutoUpPriority(true);
 		file->UpdateAutoUpPriority();
 	}
-	
+
 	void KnownFile_Comment_Set(CKnownFile* file, wxString comment, int8 rating)
 	{
 		file->SetFileCommentRating(comment, rating);
 		SharedFilesUpdateItem(file);
 	}
-	
+
 
 	void Download_Set_Cat_Prio(uint8 cat, uint8 newprio)
 	{
 		theApp->downloadqueue->SetCatPrio(cat, newprio);
 	}
-	
+
 	void Download_Set_Cat_Status(uint8 cat, int newstatus)
 	{
 		theApp->downloadqueue->SetCatStatus(cat, newstatus);
@@ -768,5 +774,33 @@ namespace MuleNotify
 #endif	// #ifndef AMULE_DAEMON
 
 #endif	// #ifndef CLIENT_GUI
+
+	void FixAmuleGuiLinkage()
+	{
+		// HACK: LibSocketWX is needed in libec, but discarded from libmuleappcommon before,
+		//       unless we use something from it in a non-lib module.
+		//       I could have done LOTS of full-non-lib builds in the time required to track
+		//       this down. >:(
+		//		 Function is never called of course.
+		amuleIPV4Address dummy;
+	}
+
+	void UDPSocketSend(CMuleUDPSocket * NOT_ON_REMOTEGUI(socket))
+	{
+#ifndef CLIENT_GUI
+		AddDebugLogLineF(logAsio, wxT("UDPSocketSend"));
+		socket->OnSend(0);
+#endif
+	}
+
+	void UDPSocketReceive(CMuleUDPSocket * NOT_ON_REMOTEGUI(socket))
+	{
+#ifndef CLIENT_GUI
+		AddDebugLogLineF(logAsio, wxT("UDPSocketReceive"));
+		socket->OnReceive(0);
+#endif
+	}
+
+
 }
 // File_checked_for_headers

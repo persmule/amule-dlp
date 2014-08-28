@@ -16,7 +16,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -48,23 +48,23 @@ class CPath;
 class wxEvtHandler;
 class wxTimer;
 class wxTimerEvent;
-	
+
 #include <wx/dialog.h>
 
 class CEConnectDlg : public wxDialog {
 	wxString host;
 	int port;
-	
+
 	wxString pwd_hash;
 	wxString login, passwd;
 	bool m_save_user_pass;
-	
+
 	DECLARE_EVENT_TABLE()
 public:
 	CEConnectDlg();
-	
+
 	void OnOK(wxCommandEvent& event);
-	
+
 	wxString Host() { return host; }
 	int Port() { return port; }
 
@@ -102,7 +102,7 @@ public:
 						const wxString& comment, uint32 color, uint8 prio);
 
 	void RemoveCat(uint8 cat);
-	
+
 	bool LoadRemote();
 	void SendToRemote();
 };
@@ -120,25 +120,25 @@ protected:
 		STATUS_REQ_SENT, // sent request for item status
 		FULL_REQ_SENT    // sent request for full info
 	} m_state;
-	
+
 	CRemoteConnect *m_conn;
 
 	std::list<T *> m_items;
 	std::map<I, T *> m_items_hash;
-	
+
 	// .size() is O(N) operation in stl
 	int m_item_count;
-	
+
 	// use incremental tags algorithm
 	bool m_inc_tags;
-	
+
 	// command that will be used in full request
 	int m_full_req_cmd, m_full_req_tag;
-	
+
 	virtual void HandlePacket(const CECPacket *packet)
 	{
 		switch(this->m_state) {
-			case IDLE: wxFAIL; // not expecting anything
+			case IDLE: wxFAIL; break; // not expecting anything
 			case STATUS_REQ_SENT:
 				// if derived class choose not to proceed, return - but with good status
 				this->m_state = IDLE;
@@ -150,9 +150,9 @@ protected:
 						// Non-incremental tags: we might get partial info on new items.
 						// Collect all this items in a tag, and then request full info about them.
 						CECPacket req_full(this->m_full_req_cmd);
-				
+
 						ProcessUpdate(packet, &req_full, m_full_req_tag);
-					
+
 						// Phase 3: request full info about files we don't have yet
 						if ( req_full.HasChildTags() ) {
 							m_conn->SendRequest(this, &req_full);
@@ -169,18 +169,17 @@ protected:
 	}
 public:
 	CRemoteContainer(CRemoteConnect *conn, bool inc_tags)
-	{
-		m_state = IDLE;
-		
-		m_conn = conn;
-		m_item_count = 0;
-		m_inc_tags = inc_tags;
-	}
-	
+		: m_state(IDLE),
+		  m_conn(conn),
+		  m_item_count(0),
+		  m_inc_tags(inc_tags),
+		  m_full_req_cmd(0),
+		  m_full_req_tag(0)
+	{}
+
 	virtual ~CRemoteContainer()
-	{
-	}
-	
+	{}
+
 	typedef typename std::list<T *>::iterator iterator;
 	iterator begin() { return m_items.begin(); }
 	iterator end() { return m_items.end(); }
@@ -189,7 +188,7 @@ public:
 	{
 		return m_item_count;
 	}
-	
+
 	void AddItem(T *item)
 	{
 		m_items.push_back(item);
@@ -209,7 +208,7 @@ public:
 		m_items_hash.clear();
 		m_item_count = 0;
 	}
-			
+
 	//
 	// Flush & reload
 	//
@@ -227,11 +226,11 @@ public:
 		for(typename std::list<T *>::iterator j = this->m_items.begin(); j != this->m_items.end(); j++) {
 			this->DeleteItem(*j);
 		}
-		
+
 		Flush();
-		
+
 		ProcessFull(reply.get());
-		
+
 		return true;
 	}
 	*/
@@ -241,10 +240,10 @@ public:
 			return;
 		}
 
-		for(typename std::list<T *>::iterator j = this->m_items.begin(); j != this->m_items.end(); j++) {
+		for(typename std::list<T *>::iterator j = this->m_items.begin(); j != this->m_items.end(); ++j) {
 			this->DeleteItem(*j);
 		}
-		
+
 		Flush();
 
 		CECPacket req(cmd);
@@ -252,7 +251,7 @@ public:
 		this->m_state = FULL_REQ_SENT;
 		this->m_full_req_cmd = cmd;
 	}
-	
+
 	//
 	// Following are like basicly same code as in webserver. Eventually it must
 	// be same class
@@ -275,14 +274,14 @@ public:
 	bool DoRequery(int cmd, int tag)
 	{
 		CECPacket req_sts(cmd, m_inc_tags ? EC_DETAIL_INC_UPDATE : EC_DETAIL_UPDATE);
-	
+
 		//
 		// Phase 1: request status
 		CScopedPtr<const CECPacket> reply(this->m_conn->SendRecvPacket(&req_sts));
 		if ( !reply.get() ) {
 			return false;
 		}
-		
+
 		if ( !this->Phase1Done(reply.get()) ) {
 			// if derived class choose not to proceed, return - but with good status
 			return true;
@@ -290,11 +289,11 @@ public:
 		//
 		// Phase 2: update status, mark new files for subsequent query
 		CECPacket req_full(cmd);
-	
+
 		ProcessUpdate(reply.get(), &req_full, tag);
-	
+
 		reply.reset();
-	
+
 		if ( !m_inc_tags ) {
 			// Phase 3: request full info about files we don't have yet
 			if ( req_full.GetTagCount() ) {
@@ -311,8 +310,8 @@ public:
 
 	void ProcessFull(const CECPacket *reply)
 	{
-		for (CECPacket::const_iterator it = reply->begin(); it != reply->end(); it++) {
-			G *tag = (G *) & *it;
+		for (CECPacket::const_iterator it = reply->begin(); it != reply->end(); ++it) {
+			const G *tag = static_cast<const G *>(&*it);
 			// initialize item data from EC tag
 			AddItem(CreateItem(tag));
 		}
@@ -335,12 +334,12 @@ public:
 	virtual void ProcessUpdate(const CECTag *reply, CECPacket *full_req, int req_type)
 	{
 		std::set<I> core_files;
-		for (CECPacket::const_iterator it = reply->begin(); it != reply->end(); it++) {
-			G *tag = (G *) & *it;
+		for (CECPacket::const_iterator it = reply->begin(); it != reply->end(); ++it) {
+			const G *tag = static_cast<const G *>(&*it);
 			if ( tag->GetTagName() != req_type ) {
 				continue;
 			}
-	
+
 			core_files.insert(tag->ID());
 			if ( m_items_hash.count(tag->ID()) ) {
 				// Item already known: update it
@@ -367,7 +366,7 @@ public:
 		}
 	}
 
-	virtual T *CreateItem(G *)
+	virtual T *CreateItem(const G *)
 	{
 		return 0;
 	}
@@ -378,7 +377,7 @@ public:
 	{
 		return I();
 	}
-	virtual void ProcessItemUpdate(G *, T *)
+	virtual void ProcessItemUpdate(const G *, T *)
 	{
 	}
 
@@ -391,20 +390,20 @@ public:
 class CServerConnectRem {
 	CRemoteConnect *m_Conn;
 	uint32 m_ID;
-	
+
 	CServer *m_CurrServer;
 
 public:
 	void HandlePacket(const CECPacket *packet);
-	
+
 	CServerConnectRem(CRemoteConnect *);
-	
+
 	bool IsConnected() { return (m_ID != 0) && (m_ID != 0xffffffff); }
 	bool IsConnecting() { return m_ID == 0xffffffff; }
 	bool IsLowID() { return m_ID < 16777216; }
 	uint32 GetClientID() { return m_ID; }
 	CServer *GetCurrentServer() { return m_CurrServer; }
-	
+
 	//
 	// Actions
 	//
@@ -416,7 +415,7 @@ public:
 
 class CServerListRem : public CRemoteContainer<CServer, uint32, CEC_Server_Tag> {
 	uint32 m_TotalUser, m_TotalFile;
-	
+
 	virtual void HandlePacket(const CECPacket *packet);
 public:
 	CServerListRem(CRemoteConnect *);
@@ -425,9 +424,9 @@ public:
 		total_user = m_TotalUser;
 		total_file = m_TotalFile;
 	}
-	
+
 	void UpdateUserFileStatus(CServer *server);
-	
+
 	CServer* GetServerByAddress(const wxString& address, uint16 port) const;
 	CServer* GetServerByIPTCP(uint32 nIP, uint16 nPort) const;
 
@@ -440,14 +439,14 @@ public:
 	void SetServerPrio(CServer* server, uint32 prio);
 	void SaveServerMet() {}	// not needed here
 	void FilterServers() {}	// not needed here
-	
+
 	//
 	// template
 	//
-	CServer *CreateItem(CEC_Server_Tag *);
+	CServer *CreateItem(const CEC_Server_Tag *);
 	void DeleteItem(CServer *);
 	uint32 GetItemID(CServer *);
-	void ProcessItemUpdate(CEC_Server_Tag *, CServer *);
+	void ProcessItemUpdate(const CEC_Server_Tag *, CServer *);
 };
 
 class CUpDownClientListRem : public CRemoteContainer<CClientRef, uint32, CEC_UpDownClient_Tag> {
@@ -458,26 +457,26 @@ public:
 	//
 	// template
 	//
-	CClientRef *CreateItem(CEC_UpDownClient_Tag *);
+	CClientRef *CreateItem(const CEC_UpDownClient_Tag *);
 	void DeleteItem(CClientRef *);
 	uint32 GetItemID(CClientRef *);
-	void ProcessItemUpdate(CEC_UpDownClient_Tag *, CClientRef *);
+	void ProcessItemUpdate(const CEC_UpDownClient_Tag *, CClientRef *);
 };
 
 class CDownQueueRem : public std::map<uint32, CPartFile*> {
 	CRemoteConnect *m_conn;
 public:
 	CDownQueueRem(CRemoteConnect * conn) { m_conn = conn; }
-	
+
 	CPartFile* GetFileByID(uint32 id);
-	
+
 	//
 	// User actions
 	//
 	void Prio(CPartFile *file, uint8 prio);
 	void AutoPrio(CPartFile *file, bool flag);
 	void Category(CPartFile *file, uint8 cat);
-	
+
 	void SendFileCommand(CPartFile *file, ec_tagname_t cmd);
 	//
 	// Actions
@@ -495,7 +494,7 @@ class CSharedFilesRem  : public std::map<uint32, CKnownFile*> {
 	CRemoteConnect *m_conn;
 public:
 	CSharedFilesRem(CRemoteConnect * conn);
-	
+
 	CKnownFile *GetFileByID(uint32 id);
 
 	void SetFilePrio(CKnownFile *file, uint8 prio);
@@ -510,13 +509,13 @@ public:
 };
 
 class CKnownFilesRem : public CRemoteContainer<CKnownFile, uint32, CEC_SharedFile_Tag> {
-	CKnownFile * CreateKnownFile(CEC_SharedFile_Tag *tag, CKnownFile *file = NULL);
-	CPartFile  * CreatePartFile(CEC_PartFile_Tag *tag);
+	CKnownFile * CreateKnownFile(const CEC_SharedFile_Tag *tag, CKnownFile *file = NULL);
+	CPartFile  * CreatePartFile(const CEC_PartFile_Tag *tag);
 
 	bool m_initialUpdate;	// improved handling for first data transfer
 public:
 	CKnownFilesRem(CRemoteConnect * conn);
-	
+
 	CKnownFile *FindKnownFileByID(uint32 id) { return GetByID(id); }
 
 	uint16 requested;
@@ -526,21 +525,21 @@ public:
 	//
 	// template
 	//
-	CKnownFile *CreateItem(CEC_SharedFile_Tag *) { wxFAIL; return NULL; }	// unused, required by template
+	CKnownFile *CreateItem(const CEC_SharedFile_Tag *) { wxFAIL; return NULL; }	// unused, required by template
 	void DeleteItem(CKnownFile *);
 	uint32 GetItemID(CKnownFile *);
-	void ProcessItemUpdate(CEC_SharedFile_Tag *, CKnownFile *);
+	void ProcessItemUpdate(const CEC_SharedFile_Tag *, CKnownFile *);
 	bool Phase1Done(const CECPacket *) { return true; }
 	void ProcessUpdate(const CECTag *reply, CECPacket *full_req, int req_type);
 
-	void ProcessItemUpdatePartfile(CEC_PartFile_Tag *, CPartFile *);
+	void ProcessItemUpdatePartfile(const CEC_PartFile_Tag *, CPartFile *);
 };
 
 class CIPFilterRem {
 	CRemoteConnect *m_conn;
 public:
 	CIPFilterRem(CRemoteConnect *conn);
-	
+
 	//
 	// Actions
 	//
@@ -553,7 +552,7 @@ class CSearchListRem : public CRemoteContainer<CSearchFile, uint32, CEC_SearchFi
 	virtual void HandlePacket(const CECPacket *);
 public:
 	CSearchListRem(CRemoteConnect *);
-	
+
 	int m_curr_search;
 	typedef std::map<long, CSearchResultList> ResultMap;
 	ResultMap m_results;
@@ -567,16 +566,16 @@ public:
 
 	wxString StartNewSearch(uint32* nSearchID, SearchType search_type,
 		const CSearchList::CSearchParams& params);
-		
+
 	void StopSearch(bool globalOnly = false);
-	
+
 	//
 	// template
 	//
-	CSearchFile *CreateItem(CEC_SearchFile_Tag *);
+	CSearchFile *CreateItem(const CEC_SearchFile_Tag *);
 	void DeleteItem(CSearchFile *);
 	uint32 GetItemID(CSearchFile *);
-	void ProcessItemUpdate(CEC_SearchFile_Tag *, CSearchFile *);
+	void ProcessItemUpdate(const CEC_SearchFile_Tag *, CSearchFile *);
 	bool Phase1Done(const CECPacket *);
 };
 
@@ -595,10 +594,10 @@ public:
 	//
 	// template
 	//
-	CFriend *CreateItem(CEC_Friend_Tag *);
+	CFriend *CreateItem(const CEC_Friend_Tag *);
 	void DeleteItem(CFriend *);
 	uint32 GetItemID(CFriend *);
-	void ProcessItemUpdate(CEC_Friend_Tag *, CFriend *);
+	void ProcessItemUpdate(const CEC_Friend_Tag *, CFriend *);
 };
 
 class CStatsUpdaterRem : public CECPacketHandlerBase {
@@ -631,7 +630,7 @@ class CamuleRemoteGuiApp : public wxApp, public CamuleGuiBase, public CamuleAppC
 	int OnExit();
 
 	void OnPollTimer(wxTimerEvent& evt);
-	
+
 	void OnECConnection(wxEvent& event);
 	void OnECInitDone(wxEvent& event);
 	void OnNotifyEvent(CMuleGUIEvent& evt);
@@ -655,6 +654,8 @@ public:
 	void ShutDown(wxCloseEvent &evt);
 
 	CPreferencesRem *glob_prefs;
+
+	CAsioService*	m_AsioService;
 
 	//
 	// Provide access to core data thru EC
@@ -687,14 +688,14 @@ public:
 	bool IsConnected() const { return IsConnectedED2K() || IsConnectedKad(); }
 	bool IsFirewalled() const;
 	bool IsConnectedED2K() const;
-	bool IsConnectedKad() const 
-	{ 
-		return ((m_ConnState & CONNECTED_KAD_OK) 
+	bool IsConnectedKad() const
+	{
+		return ((m_ConnState & CONNECTED_KAD_OK)
 				|| (m_ConnState & CONNECTED_KAD_FIREWALLED));
 	}
 	bool IsFirewalledKad() const { return (m_ConnState & CONNECTED_KAD_FIREWALLED) != 0; }
-	
-	bool IsKadRunning() const { return ((m_ConnState & CONNECTED_KAD_OK) 
+
+	bool IsKadRunning() const { return ((m_ConnState & CONNECTED_KAD_OK)
 				|| (m_ConnState & CONNECTED_KAD_FIREWALLED)
 				|| (m_ConnState & CONNECTED_KAD_NOT)); }
 
@@ -717,7 +718,7 @@ public:
 
 	void StartKad();
 	void StopKad();
-	
+
 	/** Bootstraps kad from the specified IP (must be in hostorder). */
 	void BootstrapKad(uint32 ip, uint16 port);
 	/** Updates the nodes.dat file from the specified url. */
@@ -726,11 +727,11 @@ public:
 	void DisconnectED2K();
 
 	bool CryptoAvailable() const;
-	
+
 	uint32 GetED2KID() const;
 	uint32 GetID() const;
 	void ShowUserCount();
-	
+
 	uint8 m_ConnState;
 	uint32 m_clientID;
 

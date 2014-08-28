@@ -1,6 +1,6 @@
 //
 // This file is part of the aMule Project.
-//  
+//
 // Copyright (c) 2004-2011 shakraw ( shakraw@users.sourceforge.net )
 // Copyright (c) 2004-2011 Angel Vidal ( kry@amule.org )
 // Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
@@ -18,7 +18,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -31,13 +31,30 @@
 
 
 #if !wxCHECK_VERSION(2, 9, 0)
-	#ifdef __WXMSW__
-		// MSW: can't run amuled with 2.8 anyway, just get it compiled
-		#define AMULEWEB_DUMMY
-	#else
-		#define AMULEWEB28
+
+	// wx 2.8 needs a hand-made event loop in any case
+	#define AMULEWEB28_EVENTLOOP
+
+	// wx 2.8 also needs extra socket code, unless we have ASIO sockets
+	// 
+	#ifdef HAVE_CONFIG_H
+	#	include "config.h"		// defines ASIO_SOCKETS
 	#endif
+
+	#ifndef ASIO_SOCKETS
+		// MSW: can't run amuled with 2.8 without ASIO sockets, just get it compiled
+		#ifndef __WINDOWS__ 
+			#define AMULEWEB28_SOCKETS
+		#endif
+	#endif
+
 #endif
+
+namespace MuleNotify {
+	class CMuleGUIEvent;
+}
+
+using MuleNotify::CMuleGUIEvent;
 
 
 class CamulewebApp
@@ -46,10 +63,13 @@ public CaMuleExternalConnector
 {
 	class CWebServerBase *m_webserver;
 
-#ifdef AMULEWEB28
+#ifdef AMULEWEB28_SOCKETS
 	class CWebserverGSocketFuncTable *m_table;
 public:
 	wxAppTraits *CreateTraits();
+#endif
+#ifdef AMULEWEB28_EVENTLOOP
+public:
 	CamulewebApp();
 #endif
 
@@ -88,11 +108,12 @@ public:
 
 	virtual wxString SetLocale(const wxString& language);
 
+	void OnNotifyEvent(CMuleGUIEvent& evt);
 	DECLARE_EVENT_TABLE();
-	
+
 private:
 	virtual bool	OnInit();
-	virtual int 	OnRun();
+	virtual int	OnRun();
 
 	bool	m_localTemplate;
 };

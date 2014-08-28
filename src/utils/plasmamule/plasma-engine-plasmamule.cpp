@@ -15,7 +15,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -88,14 +88,14 @@ void PlasmaMuleEngine::init ()
 		Home += "/";
 	}
 
-	m_debugChannel = KDebug::registerArea ("plasmamule-engine", 
+	m_debugChannel = KDebug::registerArea ("plasmamule-engine",
 #ifdef __DEBUG__
 	true
 #else
 	false
 #endif
 	);
-  
+
 	regDbus();
 	initVals();
 }
@@ -144,7 +144,7 @@ void PlasmaMuleEngine::engine_add_link (const QString &link, const int &category
 
 	QString link_to_write;
 
-	
+
 	if (link.startsWith("ed2k:") || link.startsWith("magnet:"))
 	{
 		link_to_write = link;
@@ -161,7 +161,7 @@ void PlasmaMuleEngine::engine_add_link (const QString &link, const int &category
 		if (collection->isValid())
 		{
 			QStringList links = collection->getLinks();
-			for (QStringList::const_iterator constIterator = links.constBegin(); constIterator != links.constEnd(); constIterator++)
+			for (QStringList::const_iterator constIterator = links.constBegin(); constIterator != links.constEnd(); ++constIterator)
 			{
 				link_to_write.append(*constIterator);
 
@@ -264,7 +264,7 @@ void PlasmaMuleEngine::initVals ()
 		connect (&m_dirwatcher, SIGNAL (created (const QString &)), SLOT (new_file (const QString&)));
 	}
 
-	for (constIterator = tempIncomingDirs.constBegin(); constIterator != tempIncomingDirs.constEnd(); constIterator++)
+	for (constIterator = tempIncomingDirs.constBegin(); constIterator != tempIncomingDirs.constEnd(); ++constIterator)
 	{
 		if (!m_dirwatcher.contains(*constIterator))
 		{
@@ -276,7 +276,7 @@ void PlasmaMuleEngine::initVals ()
 		}
 	}
 
-	for (constIterator = m_incoming_dirs.constBegin(); constIterator != m_incoming_dirs.constEnd(); constIterator++)
+	for (constIterator = m_incoming_dirs.constBegin(); constIterator != m_incoming_dirs.constEnd(); ++constIterator)
 	{
 		if (!cleanedIncomingDirs.contains (*constIterator))
 		{

@@ -6,7 +6,7 @@
  *  Author:       Pedro de Oliveira <falso@rdk.homeip.net>
  *
  *  Copyright (c) 2004-2011 Pedro de Oliveira ( falso@rdk.homeip-net )
- * 
+ *
  *  This file is part of aMule.
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,12 +29,13 @@
 #ifndef CAS_CONFIGFILE_H
 #define CAS_CONFIGFILE_H
 
-#define IMG_TEXTLINES 7
+#define IMG_TEXTLINES		7
+#define MAX_CONF_ARG_LEN	120
 
 typedef struct {
-	char font[120];
-	char source[120];
-	char template[120];
+	char font[MAX_CONF_ARG_LEN+1];
+	char source[MAX_CONF_ARG_LEN+1];
+	char template[MAX_CONF_ARG_LEN+1];
 	int x[IMG_TEXTLINES];
 	int y[IMG_TEXTLINES];
 	int enabled[IMG_TEXTLINES];

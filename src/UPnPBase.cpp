@@ -17,7 +17,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -29,25 +29,36 @@
 
 #ifdef ENABLE_UPNP
 
-#define UPNP_C
+// check for broken Debian-hacked libUPnP
+#include <upnp.h>
+#ifdef STRING_H			// defined in UpnpString.h Yes, I would have liked UPNPSTRING_H much better.
+#define BROKEN_DEBIAN_LIBUPNP
+#endif
 
 #include "UPnPBase.h"
 
-
-#include <dlfcn.h>		// For dlopen(), dlsym(), dlclose()
 #include <algorithm>		// For transform()
 
-
-#ifdef __GNUC__
-	#if __GNUC__ >= 4
-		#define REINTERPRET_CAST(x) reinterpret_cast<x>
-	#endif
-#endif
-#ifndef REINTERPRET_CAST
-	// Let's hope that function pointers are equal in size to data pointers
-	#define REINTERPRET_CAST(x) (x)
+#ifdef BROKEN_DEBIAN_LIBUPNP
+  #define GET_UPNP_STRING(a) UpnpString_get_String(a)
+#else
+  #define GET_UPNP_STRING(a) (a)
 #endif
 
+std::string stdEmptyString;
+
+const char s_argument[] = "argument";
+const char s_argumentList[] = "argumentList";
+const char s_action[] = "action";
+const char s_actionList[] = "actionList";
+const char s_allowedValue[] = "allowedValue";
+const char s_allowedValueList[] = "allowedValueList";
+const char s_stateVariable[] = "stateVariable";
+const char s_serviceStateTable[] = "serviceStateTable";
+const char s_service[] = "service";
+const char s_serviceList[] = "serviceList";
+const char s_device[] = "device";
+const char s_deviceList[] = "deviceList";
 
 /**
  * Case insensitive std::string comparison
@@ -132,12 +143,12 @@ std::string CUPnPLib::processUPnPErrorMessage(
 			": Error code :'";
 		if (doc) {
 			CUPnPError e(*this, doc);
-			msg << e.getErrorCode() << 
+			msg << e.getErrorCode() <<
 				"', Error description :'" <<
 				e.getErrorDescription() <<
 				"'.";
 		} else {
-			msg << errorCode << 
+			msg << errorCode <<
 				"', Error description :'" <<
 				errorString <<
 				"'.";
@@ -147,11 +158,11 @@ std::string CUPnPLib::processUPnPErrorMessage(
 		msg << "Error: " <<
 			messsage <<
 			": UPnP SDK error: " <<
-			GetUPnPErrorMessage(errorCode) << 
+			GetUPnPErrorMessage(errorCode) <<
 			" (" << errorCode << ").";
 		AddLogLineU(false, logUPnP, msg);
 	}
-	
+
 	return msg.str();
 }
 
@@ -187,9 +198,8 @@ void CUPnPLib::ProcessActionResponse(
 IXML_Element *CUPnPLib::Element_GetRootElement(
 	IXML_Document *doc) const
 {
-	IXML_Element *root = REINTERPRET_CAST(IXML_Element *)(
-		ixmlNode_getFirstChild(
-			REINTERPRET_CAST(IXML_Node *)(doc)));
+	IXML_Element *root = reinterpret_cast<IXML_Element *>(
+		ixmlNode_getFirstChild(&doc->n));
 
 	return root;
 }
@@ -201,10 +211,9 @@ IXML_Element *CUPnPLib::Element_GetRootElement(
 IXML_Element *CUPnPLib::Element_GetFirstChild(
 	IXML_Element *parent) const
 {
-	IXML_Node *node = REINTERPRET_CAST(IXML_Node *)(parent);
-	IXML_Node *child = ixmlNode_getFirstChild(node);
+	IXML_Node *child = ixmlNode_getFirstChild(&parent->n);
 
-	return REINTERPRET_CAST(IXML_Element *)(child);
+	return reinterpret_cast<IXML_Element *>(child);
 }
 
 
@@ -214,10 +223,9 @@ IXML_Element *CUPnPLib::Element_GetFirstChild(
 IXML_Element *CUPnPLib::Element_GetNextSibling(
 	IXML_Element *child) const
 {
-	IXML_Node *node = REINTERPRET_CAST(IXML_Node *)(child);
-	IXML_Node *sibling = ixmlNode_getNextSibling(node);
+	IXML_Node *sibling = ixmlNode_getNextSibling(&child->n);
 
-	return REINTERPRET_CAST(IXML_Element *)(sibling);
+	return reinterpret_cast<IXML_Element *>(sibling);
 }
 
 
@@ -227,8 +235,7 @@ IXML_Element *CUPnPLib::Element_GetNextSibling(
 const DOMString CUPnPLib::Element_GetTag(
 	IXML_Element *element) const
 {
-	IXML_Node *node = REINTERPRET_CAST(IXML_Node *)(element);
-	const DOMString tag = ixmlNode_getNodeName(node);
+	const DOMString tag = ixmlNode_getNodeName(&element->n);
 
 	return tag;
 }
@@ -243,8 +250,7 @@ const std::string CUPnPLib::Element_GetTextValue(
 	if (!element) {
 		return stdEmptyString;
 	}
-	IXML_Node *text = ixmlNode_getFirstChild(
-		REINTERPRET_CAST(IXML_Node *)(element));
+	IXML_Node *text = ixmlNode_getFirstChild(&element->n);
 	const DOMString s = ixmlNode_getNodeValue(text);
 	std::string ret;
 	if (s) {
@@ -280,16 +286,15 @@ IXML_Element *CUPnPLib::Element_GetFirstChildByTag(
 	if (!element || !tag) {
 		return NULL;
 	}
-	
-	IXML_Node *node = REINTERPRET_CAST(IXML_Node *)(element);
-	IXML_Node *child = ixmlNode_getFirstChild(node);
+
+	IXML_Node *child = ixmlNode_getFirstChild(&element->n);
 	const DOMString childTag = ixmlNode_getNodeName(child);
 	while(child && childTag && strcmp(tag, childTag)) {
 		child = ixmlNode_getNextSibling(child);
 		childTag = ixmlNode_getNodeName(child);
 	}
 
-	return REINTERPRET_CAST(IXML_Element *)(child);
+	return reinterpret_cast<IXML_Element *>(child);
 }
 
 
@@ -303,23 +308,22 @@ IXML_Element *CUPnPLib::Element_GetNextSiblingByTag(
 	if (!element || !tag) {
 		return NULL;
 	}
-	
-	IXML_Node *child = REINTERPRET_CAST(IXML_Node *)(element);
+
+	IXML_Node *child = &element->n;
 	const DOMString childTag = NULL;
 	do {
 		child = ixmlNode_getNextSibling(child);
 		childTag = ixmlNode_getNodeName(child);
 	} while(child && childTag && strcmp(tag, childTag));
 
-	return REINTERPRET_CAST(IXML_Element *)(child);
+	return reinterpret_cast<IXML_Element *>(child);
 }
 
 
 const std::string CUPnPLib::Element_GetAttributeByTag(
 	IXML_Element *element, const DOMString tag) const
 {
-	IXML_NamedNodeMap *NamedNodeMap = ixmlNode_getAttributes(
-		REINTERPRET_CAST(IXML_Node *)(element));
+	IXML_NamedNodeMap *NamedNodeMap = ixmlNode_getAttributes(&element->n);
 	IXML_Node *attribute = ixmlNamedNodeMap_getNamedItem(NamedNodeMap, tag);
 	const DOMString s = ixmlNode_getNodeValue(attribute);
 	std::string ret;
@@ -470,7 +474,7 @@ m_SCPD(NULL)
 {
 	std::ostringstream msg;
 	int errcode;
-	
+
 	std::vector<char> vscpdURL(URLBase.length() + m_SCPDURL.length() + 1);
 	char *scpdURL = &vscpdURL[0];
 	errcode = UpnpResolveURL(
@@ -659,11 +663,11 @@ bool CUPnPService::Execute(
 			ArgValue[i].GetValue() <<
 			"'";
 	}
-	msgAction << ")";		
+	msgAction << ")";
 	AddDebugLogLineN(logUPnP, msgAction);
 	// Everything is ok, make the action
 	IXML_Document *ActionDoc = NULL;
-	if (ArgValue.size()) {
+	if (!ArgValue.empty()) {
 		for (unsigned int i = 0; i < ArgValue.size(); ++i) {
 			int ret = UpnpAddToAction(
 				&ActionDoc,
@@ -699,7 +703,7 @@ bool CUPnPService::Execute(
 		NULL);
 	return true;
 #endif
-	
+
 	// Send the action synchronously
 	IXML_Document *RespDoc = NULL;
 	int ret = UpnpSendAction(
@@ -715,11 +719,11 @@ bool CUPnPService::Execute(
 		return false;
 	}
 	ixmlDocument_free(ActionDoc);
-	
+
 	// Check the response document
 	m_upnpLib.ProcessActionResponse(
 		RespDoc, action.GetName());
-	
+
 	// Free the response document
 	ixmlDocument_free(RespDoc);
 
@@ -794,7 +798,7 @@ m_presentationURL  (upnpLib.Element_GetChildValueByTag(device, "presentationURL"
 	} else {
 		m_presentationURL = presURL;
 	}
-	
+
 	msg.str("");
 	msg <<	"\n    Device: "                <<
 		"\n        friendlyName: "      << m_friendlyName <<
@@ -857,7 +861,7 @@ m_WanService(NULL)
 	s_CtrlPoint = this;
 	// Null string at first
 	std::ostringstream msg;
-	
+
 	// Start UPnP
 	int ret;
 	char *ipAddress = NULL;
@@ -885,7 +889,7 @@ m_WanService(NULL)
 	// We could ask for just the right device here. If the root device
 	// contains the device we want, it will respond with the full XML doc,
 	// including the root device and every sub-device it has.
-	// 
+	//
 	// But lets find out what we have in our network by calling UPNP_ROOT_DEVICE.
 	//
 	// We should not search twice, because this will produce two
@@ -945,7 +949,7 @@ bool CUPnPControlPoint::AddPortMappings(
 		AddLogLineU(true, logUPnP, msg);
 		return false;
 	}
-	
+
 	int n = upnpPortMapping.size();
 	bool ok = false;
 
@@ -955,15 +959,15 @@ bool CUPnPControlPoint::AddPortMappings(
 			"PortMappingNumberOfEntries"));
 	unsigned long oldNumberOfEntries;
 	PortMappingNumberOfEntries >> oldNumberOfEntries;
-	
+
 	// Add the enabled port mappings
 	for (int i = 0; i < n; ++i) {
 		if (upnpPortMapping[i].getEnabled() == "1") {
-			// Add the mapping to the control point 
+			// Add the mapping to the control point
 			// active mappings list
 			m_ActivePortMappingsMap[upnpPortMapping[i].getKey()] =
 				upnpPortMapping[i];
-			
+
 			// Add the port mapping
 			PrivateAddPortMapping(upnpPortMapping[i]);
 		}
@@ -981,12 +985,12 @@ bool CUPnPControlPoint::AddPortMappings(
 	m_WanService->GetStateVariable("ExternalIPAddress");
 	m_WanService->GetStateVariable("PortMappingNumberOfEntries");
 	m_WanService->GetStateVariable("PortMappingLeaseDuration");
-	
+
 	// Just for testing
 	std::vector<CUPnPArgumentValue> argval;
 	argval.resize(0);
 	m_WanService->Execute("GetStatusInfo", argval);
-	
+
 #if 0
 	// These do not work. Their value must be requested for a
 	// specific port mapping.
@@ -998,14 +1002,14 @@ bool CUPnPControlPoint::AddPortMappings(
 	m_WanService->GetStateVariable("InternalClient");
 	m_WanService->GetStateVariable("PortMappingDescription");
 #endif
-	
+
 	// Debug only
 	msg.str("");
 	msg << "CUPnPControlPoint::DeletePortMappings: "
 		"m_ActivePortMappingsMap.size() == " <<
 		m_ActivePortMappingsMap.size();
 	AddDebugLogLineN(logUPnP, msg);
-	
+
 	// Not very good, must find a better test
 	PortMappingNumberOfEntries.str(
 		m_WanService->GetStateVariable(
@@ -1013,7 +1017,7 @@ bool CUPnPControlPoint::AddPortMappings(
 	unsigned long newNumberOfEntries;
 	PortMappingNumberOfEntries >> newNumberOfEntries;
 	ok = newNumberOfEntries - oldNumberOfEntries == 4;
-	
+
 	return ok;
 }
 
@@ -1036,11 +1040,11 @@ bool CUPnPControlPoint::PrivateAddPortMapping(
 {
 	// Get an IP address. The UPnP server one must do.
 	std::string ipAddress(UpnpGetServerIpAddress());
-	
+
 	// Start building the action
 	std::string actionName("AddPortMapping");
 	std::vector<CUPnPArgumentValue> argval(8);
-	
+
 	// Action parameters
 	argval[0].SetArgument("NewRemoteHost");
 	argval[0].SetValue("");
@@ -1058,7 +1062,7 @@ bool CUPnPControlPoint::PrivateAddPortMapping(
 	argval[6].SetValue(upnpPortMapping.getDescription());
 	argval[7].SetArgument("NewLeaseDuration");
 	argval[7].SetValue("0");
-	
+
 	// Execute
 	bool ret = true;
 	for (ServiceMap::iterator it = m_ServiceMap.begin();
@@ -1081,21 +1085,21 @@ bool CUPnPControlPoint::DeletePortMappings(
 		AddLogLineU(true, logUPnP, msg);
 		return false;
 	}
-	
+
 	int n = upnpPortMapping.size();
 	bool ok = false;
-	
+
 	// Check the number of port mappings before
 	std::istringstream PortMappingNumberOfEntries(
 		m_WanService->GetStateVariable(
 			"PortMappingNumberOfEntries"));
 	unsigned long oldNumberOfEntries;
 	PortMappingNumberOfEntries >> oldNumberOfEntries;
-	
+
 	// Delete the enabled port mappings
 	for (int i = 0; i < n; ++i) {
 		if (upnpPortMapping[i].getEnabled() == "1") {
-			// Delete the mapping from the control point 
+			// Delete the mapping from the control point
 			// active mappings list
 			PortMappingMap::iterator it =
 				m_ActivePortMappingsMap.find(
@@ -1109,19 +1113,19 @@ bool CUPnPControlPoint::DeletePortMappings(
 					"mapping map.";
 				AddLogLineU(true, logUPnP, msg);
 			}
-			
+
 			// Delete the port mapping
 			PrivateDeletePortMapping(upnpPortMapping[i]);
 		}
 	}
-	
+
 	// Debug only
 	msg.str("");
 	msg << "CUPnPControlPoint::DeletePortMappings: "
 		"m_ActivePortMappingsMap.size() == " <<
 		m_ActivePortMappingsMap.size();
 	AddDebugLogLineN(logUPnP, msg);
-	
+
 	// Not very good, must find a better test
 	PortMappingNumberOfEntries.str(
 		m_WanService->GetStateVariable(
@@ -1129,7 +1133,7 @@ bool CUPnPControlPoint::DeletePortMappings(
 	unsigned long newNumberOfEntries;
 	PortMappingNumberOfEntries >> newNumberOfEntries;
 	ok = oldNumberOfEntries - newNumberOfEntries == 4;
-	
+
 	return ok;
 }
 
@@ -1140,7 +1144,7 @@ bool CUPnPControlPoint::PrivateDeletePortMapping(
 	// Start building the action
 	std::string actionName("DeletePortMapping");
 	std::vector<CUPnPArgumentValue> argval(3);
-	
+
 	// Action parameters
 	argval[0].SetArgument("NewRemoteHost");
 	argval[0].SetValue("");
@@ -1148,7 +1152,7 @@ bool CUPnPControlPoint::PrivateDeletePortMapping(
 	argval[1].SetValue(upnpPortMapping.getPort());
 	argval[2].SetArgument("NewProtocol");
 	argval[2].SetValue(upnpPortMapping.getProtocol());
-	
+
 	// Execute
 	bool ret = true;
 	for (ServiceMap::iterator it = m_ServiceMap.begin();
@@ -1169,7 +1173,7 @@ int CUPnPControlPoint::Callback(Upnp_EventType EventType, void *Event, void * /*
 	// happen with a wrong cookie and... boom!
 	// CUPnPControlPoint *upnpCP = static_cast<CUPnPControlPoint *>(Cookie);
 	CUPnPControlPoint *upnpCP = CUPnPControlPoint::s_CtrlPoint;
-	
+
 	//fprintf(stderr, "Callback: %d, Cookie: %p\n", EventType, Cookie);
 	switch (EventType) {
 	case UPNP_DISCOVERY_ADVERTISEMENT_ALIVE:
@@ -1191,7 +1195,7 @@ upnpDiscovery:
 			AddDebugLogLineC(logUPnP, msg);
 		}
 		// Get the XML tree device description in doc
-		ret = UpnpDownloadXmlDoc(d_event->Location, &doc); 
+		ret = UpnpDownloadXmlDoc(d_event->Location, &doc);
 		if (ret != UPNP_E_SUCCESS) {
 			msg << "Error retrieving device description from " <<
 				d_event->Location << ": " <<
@@ -1220,7 +1224,7 @@ upnpDiscovery:
 			if (stdStringIsEqualCI(devType, upnpCP->m_upnpLib.UPNP_DEVICE_IGW)) {
 				// This condition can be used to auto-detect
 				// the UPnP device we are interested in.
-				// Obs.: Don't block the entry here on this 
+				// Obs.: Don't block the entry here on this
 				// condition! There may be more than one device,
 				// and the first that enters may not be the one
 				// we are interested in!
@@ -1245,10 +1249,10 @@ upnpDiscovery:
 		// Search timeout
 		msg << "UPNP_DISCOVERY_SEARCH_TIMEOUT.";
 		AddDebugLogLineN(logUPnP, msg);
-		
+
 		// Unlock the search timeout mutex
 		upnpCP->m_WaitForSearchTimeoutMutex.Unlock();
-		
+
 		break;
 	}
 	case UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE: {
@@ -1299,15 +1303,15 @@ upnpEventRenewalComplete:
 		} else {
 #if 0
 			TvCtrlPointHandleSubscribeUpdate(
-				es_event->PublisherUrl,
+				GET_UPNP_STRING(es_event->PublisherUrl),
 				es_event->Sid,
 				es_event->TimeOut );
 #endif
 		}
-		
+
 		break;
 	}
-	
+
 	case UPNP_EVENT_AUTORENEWAL_FAILED:
 		//fprintf(stderr, "Callback: UPNP_EVENT_AUTORENEWAL_FAILED\n");
 		msg << "error(UPNP_EVENT_AUTORENEWAL_FAILED): ";
@@ -1324,7 +1328,7 @@ upnpEventSubscriptionExpired:
 		int TimeOut = 1801;
 		int ret = UpnpSubscribe(
 			upnpCP->m_UPnPClientHandle,
-			es_event->PublisherUrl,
+			GET_UPNP_STRING(es_event->PublisherUrl),
 			&TimeOut,
 			newSID);
 		if (ret != UPNP_E_SUCCESS) {
@@ -1333,13 +1337,13 @@ upnpEventSubscriptionExpired:
 				msg.str(), es_event->ErrCode, NULL, NULL);
 		} else {
 			ServiceMap::iterator it =
-				upnpCP->m_ServiceMap.find(es_event->PublisherUrl);
+				upnpCP->m_ServiceMap.find(GET_UPNP_STRING(es_event->PublisherUrl));
 			if (it != upnpCP->m_ServiceMap.end()) {
 				CUPnPService &service = *(it->second);
 				service.SetTimeout(TimeOut);
 				service.SetSID(newSID);
 				msg2 << "Re-subscribed to EventURL '" <<
-					es_event->PublisherUrl <<
+					GET_UPNP_STRING(es_event->PublisherUrl) <<
 					"' with SID == '" <<
 					newSID << "'.";
 				AddDebugLogLineC(logUPnP, msg2);
@@ -1387,7 +1391,7 @@ upnpEventSubscriptionExpired:
 				msg.str(), sv_event->ErrCode, NULL, NULL);
 		} else {
 #if 0
-			// Warning: The use of UpnpGetServiceVarStatus and 
+			// Warning: The use of UpnpGetServiceVarStatus and
 			// UpnpGetServiceVarStatusAsync is deprecated by the
 			// UPnP forum.
 			TvCtrlPointHandleGetVar(
@@ -1398,7 +1402,7 @@ upnpEventSubscriptionExpired:
 		}
 		break;
 	}
-	// ignore these cases, since this is not a device 
+	// ignore these cases, since this is not a device
 	case UPNP_CONTROL_GET_VAR_REQUEST:
 		//fprintf(stderr, "Callback: UPNP_CONTROL_GET_VAR_REQUEST\n");
 		msg << "error(UPNP_CONTROL_GET_VAR_REQUEST): ";
@@ -1427,7 +1431,7 @@ eventSubscriptionRequest:
 		//throw CUPnPException(msg);
 		break;
 	}
-	
+
 	return 0;
 }
 
@@ -1474,7 +1478,7 @@ void CUPnPControlPoint::AddRootDevice(
 {
 	// Lock the Root Device List
 	CUPnPMutexLocker lock(m_RootDeviceListMutex);
-	
+
 	// Root node's URLBase
 	std::string OriginalURLBase(urlBase);
 	std::string FixedURLBase(OriginalURLBase.empty() ?
@@ -1560,10 +1564,10 @@ void CUPnPControlPoint::Subscribe(CUPnPService &service)
 			service.GetAbsSCPDURL() << ".";
 		AddLogLineU(true, logUPnP, msg);
 	}
-	
+
 	return;
 
-	// Error processing	
+	// Error processing
 error:
 	AddLogLineU(true, logUPnP, msg);
 }

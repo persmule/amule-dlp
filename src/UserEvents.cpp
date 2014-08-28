@@ -16,7 +16,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -55,13 +55,13 @@ static struct {
 #ifdef __WXDEBUG__
 inline bool CheckIndex(const unsigned int idx)
 {
-	return (idx < sizeof(s_EventList) / sizeof(s_EventList[0]));
+	return (idx < itemsof(s_EventList));
 }
 #endif
 
 unsigned int CUserEvents::GetCount()
 {
-	return sizeof(s_EventList) / sizeof(s_EventList[0]);
+	return itemsof(s_EventList);
 }
 
 const wxString& CUserEvents::GetDisplayName(enum EventType event)

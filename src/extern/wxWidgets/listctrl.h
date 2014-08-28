@@ -3,7 +3,7 @@
 // Purpose:     Generic list control
 // Author:      Robert Roebling
 // Created:     01/02/97
-// RCS-ID:      $Id: listctrl.h 10579 2011-06-13 08:50:25Z gonosztopi $
+// RCS-ID:      $Id: listctrl.h 10680 2011-11-20 18:08:59Z gonosztopi $
 // Copyright:   Copyright (c) 1998-2011 Robert Roebling and Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -92,7 +92,7 @@ public:
     bool SetItemPtrData(long item, wxUIntPtr data);
 #endif // wxABI 2.8.4+
 
-// It is not certain that sizeof(long) == sizeof(void*), and since we 
+// It is not certain that sizeof(long) == sizeof(void*), and since we
 // just about only use pointers as item-data, I've choosen to disable
 // this function to prevent mistakes. Use SetItemPtrData instead.
 #if 0
@@ -205,7 +205,7 @@ public:
     virtual bool SetCursor( const wxCursor &cursor );
 
     virtual int GetScrollPos(int orient) const;
-    virtual void SetScrollPos(int orient, int pos, bool refresh = true); 
+    virtual void SetScrollPos(int orient, int pos, bool refresh = true);
 
 #if wxUSE_DRAG_AND_DROP
     virtual void SetDropTarget( wxDropTarget *dropTarget );
@@ -290,7 +290,7 @@ public:
     : wxGenericListCtrl(parent, winid, pos, size, style, validator, name)
     {
     }
-    
+
 };
 #endif // !__WXMSW__ || __WXUNIVERSAL__
 

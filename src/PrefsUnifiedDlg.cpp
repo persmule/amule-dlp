@@ -27,6 +27,7 @@
 #include "PrefsUnifiedDlg.h"
 
 #include <common/Constants.h>
+#include <common/Macros.h>		// Needed for itemsof()
 
 #include <wx/colordlg.h>
 #include <wx/tooltip.h>
@@ -38,7 +39,6 @@
 #include "SharedFileList.h"		// Needed for CSharedFileList
 #include "StatisticsDlg.h"		// Needed for graph parameters, colors
 #include "IPFilter.h"			// Needed for CIPFilter
-#include "SearchList.h"
 #include "ClientList.h"
 #include "DirectoryTreeCtrl.h"	// Needed for CDirectoryTreeCtrl
 #include "Preferences.h"
@@ -51,7 +51,7 @@
 #include "ServerList.h"
 #include "Statistics.h"
 #include "UserEvents.h"
-#include "PlatformSpecific.h"
+#include "PlatformSpecific.h"		// Needed for PLATFORMSPECIFIC_CAN_PREVENT_SLEEP_MODE
 
 BEGIN_EVENT_TABLE(PrefsUnifiedDlg,wxDialog)
 	// Events
@@ -167,7 +167,7 @@ struct PrefsPage
 	//! Function pointer to the wxDesigner function creating the dialog.
 	wxSizer*	(*m_function)(wxWindow*, bool, bool );
 	//! The index of the image used on the list.
-	int 		m_imageidx;
+	int		m_imageidx;
 };
 
 
@@ -243,15 +243,16 @@ wxDialog(parent, -1, _("Preferences"),
 
 		if (pages[i].m_function == PreferencesGeneralTab) {
 			// This must be done now or pages won't Fit();
-			#ifdef __WXMSW__
+			#ifdef __WINDOWS__ 
 				CastChild(IDC_BROWSERTABS, wxCheckBox)->Enable(false);
-			#endif /* __WXMSW__ */
+			#endif /* __WINDOWS__  */
 			CastChild(IDC_PREVIEW_NOTE, wxStaticText)->SetLabel(_("The following variables will be substituted:\n    %PARTFILE - full path to the file\n    %PARTNAME - file name only"));
 			#ifdef __WXMAC__
 				FindWindow(IDC_ENABLETRAYICON)->Show(false);
 				FindWindow(IDC_MINTRAY)->Show(false);
 			#else
 				FindWindow(IDC_MACHIDEONCLOSE)->Show(false);
+				thePrefs::SetHideOnClose(false);
 			#endif
 		} else if (pages[i].m_function == PreferencesEventsTab) {
 
@@ -438,7 +439,7 @@ bool PrefsUnifiedDlg::TransferToWindow()
 
 	FindWindow(IDC_MACHIDEONCLOSE)->Enable(true);
 	FindWindow(IDC_EXIT)->Enable(!thePrefs::HideOnClose());
-	if (!thePrefs::HideOnClose()) {
+	if (thePrefs::HideOnClose()) {
 		CastChild(IDC_EXIT, wxCheckBox)->SetValue(false);
 	}
 
@@ -613,6 +614,10 @@ void PrefsUnifiedDlg::OnOk(wxCommandEvent& WXUNUSED(event))
 		restart_needed = true;
 		restart_needed_msg += _("- External connect interface changed.\n");
 	}
+	if (CfgChanged(IDC_SUPPORT_PO)) {
+		restart_needed = true;
+		restart_needed_msg += _("- Protocol obfuscation support changed.\n");
+	}
 
 	// Force port checking
 	thePrefs::SetPort(thePrefs::GetPort());
@@ -738,7 +743,7 @@ void PrefsUnifiedDlg::OnOk(wxCommandEvent& WXUNUSED(event))
 	}
 
 	if (restart_needed) {
-		wxMessageBox(restart_needed_msg + _("\nYou MUST restart aMule now.\nIf you do not restart now, don't complain if anything bad happens.\n"), 
+		wxMessageBox(restart_needed_msg + _("\nYou MUST restart aMule now.\nIf you do not restart now, don't complain if anything bad happens.\n"),
 			_("WARNING"), wxOK | wxICON_EXCLAMATION, this);
 	}
 
@@ -786,7 +791,7 @@ void PrefsUnifiedDlg::OnCheckBoxChange(wxCommandEvent& event)
 	// Check if this checkbox is one of the User Events checkboxes
 	if (id >= USEREVENTS_FIRST_ID &&
 	    id < USEREVENTS_FIRST_ID +
-	    	(int)CUserEvents::GetCount() * USEREVENTS_IDS_PER_EVENT) {
+		(int)CUserEvents::GetCount() * USEREVENTS_IDS_PER_EVENT) {
 		// The corresponding text control always has
 		// an ID one greater than the checkbox
 		FindWindow(id + 1)->Enable(value);
@@ -1031,7 +1036,7 @@ void PrefsUnifiedDlg::OnButtonBrowseApplication(wxCommandEvent& event)
 			return;
 	}
 	wxString wildcard = CFormat(_("Executable%s"))
-#ifdef __WXMSW__
+#ifdef __WINDOWS__ 
 		% wxT(" (*.exe)|*.exe");
 #else
 		% wxT("|*");
@@ -1077,7 +1082,7 @@ void PrefsUnifiedDlg::OnPrefsPageChange(wxListEvent& event)
 	prefs_sizer->Detach( m_CurrentPanel );
 	m_CurrentPanel->Show( false );
 
-	m_CurrentPanel = (wxPanel *) m_PrefsIcons->GetItemData(event.GetIndex());
+	m_CurrentPanel = reinterpret_cast<wxPanel*>(m_PrefsIcons->GetItemData(event.GetIndex()));
 	if (pages[event.GetIndex()].m_function == PreferencesDirectoriesTab) {
 		CastChild(IDC_SHARESELECTOR, CDirectoryTreeCtrl)->Init();
 	}

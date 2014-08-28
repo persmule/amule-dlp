@@ -17,7 +17,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -46,7 +46,7 @@
 #include <list>			// Needed for std::list
 #include <wx/string.h>		// Needed for wxString
 #include <wx/thread.h>		// Needed for wxMutex
-#include "Types.h" 
+#include "Types.h"
 
 #ifndef CLIENT_GUI
 
@@ -126,7 +126,7 @@ public:
 	 */
 	CStatTreeItemBase(const wxString &label, unsigned flags = stNone)
 		: m_label(label), m_parent(NULL), m_flags(flags), m_id(0),
-		m_uniqueid(NewStatTreeItemId())
+		m_visible_counter(0), m_uniqueid(NewStatTreeItemId())
 		{}
 #else
 	/**
@@ -1040,7 +1040,7 @@ public:
 	 * @see CStatTreeItemBase::GetDisplayString()
 	 */
 	virtual	wxString GetDisplayString() const;
-#endif	
+#endif
 
 protected:
 	/**

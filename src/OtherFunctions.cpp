@@ -17,7 +17,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -37,10 +37,9 @@
 
 #include <wx/stdpaths.h> // Do_not_auto_remove
 #include <common/StringFunctions.h>
-#include <common/ClientVersion.h>	
+#include <common/ClientVersion.h>
 #include <common/MD5Sum.h>
 #include <common/Path.h>
-#include "MD4Hash.h"
 #include "Logger.h"
 #include "BitVector.h"		// Needed for BitVector
 
@@ -52,16 +51,16 @@
 	#include <cerrno>
 #else
 	#include <wx/utils.h>
-#endif	
+#endif
 
 
 wxString GetMuleVersion()
 {
 	wxString ver(wxT(VERSION));
-	
+
 	ver += wxT(" compiled with ");
 
-	
+
 	// Figure out the wx build-type
 	#if   defined(__WXGTK20__)
 		ver += wxT("wxGTK2");
@@ -78,22 +77,28 @@ wxString GetMuleVersion()
 	// 2.8 Mac
 	#elif defined(__WXMAC__)
 		ver += wxT("wxMac");
-	#elif defined(__WXMSW__) && defined(__VISUALC__)
+	#elif defined(__WXBASE__)
+		ver += wxT("wxBase");
+	#elif defined(__WINDOWS__) && defined(__VISUALC__)
 		ver += wxT("wxMSW VC");
-	#elif defined(__WXMSW__)
+	#elif defined(__WINDOWS__)
 		ver += wxT("wxMSW");
 	#endif
 
 	ver += CFormat(wxT(" v%d.%d.%d")) % wxMAJOR_VERSION % wxMINOR_VERSION % wxRELEASE_NUMBER;
 
+	if (!MuleBoostVersion.IsEmpty()) {
+		ver += wxT(" and Boost ") + MuleBoostVersion;
+	}
+
 #ifdef __DEBUG__
 	ver += wxT(" (Debugging)");
 #endif
-	
+
 #ifdef SVNDATE
 	ver += CFormat(wxT(" (Snapshot: %s)")) % wxT(SVNDATE);
 #endif
-	
+
 	return ver;
 }
 
@@ -153,7 +158,7 @@ wxString CastSecondsToHM(uint32 count, uint16 msecs)
 				% (count + ((float)msecs/1000)) % _("secs");
 		}
 	} else if (count < 3600) {
-		return CFormat(wxT("%u:%02u %s")) 
+		return CFormat(wxT("%u:%02u %s"))
 			% (count/60) % (count % 60) % _("mins");
 	} else if (count < 86400) {
 		return CFormat(wxT("%u:%02u %s"))
@@ -187,7 +192,7 @@ FileType GetFiletype(const CPath& filename)
 wxString GetFiletypeDesc(FileType type, bool translated)
 {
 	switch ( type ) {
-		case ftVideo:	
+		case ftVideo:
 			if (translated) {
 				return _("Videos");
 			} else {
@@ -200,49 +205,49 @@ wxString GetFiletypeDesc(FileType type, bool translated)
 			} else {
 				return wxT("Audio");
 			}
-			break;			
-		case ftArchive:	
+			break;
+		case ftArchive:
 			if (translated) {
 				return _("Archives");
 			} else {
 				return wxT("Archives");
 			}
-			break;			
+			break;
 		case ftCDImage:
 			if (translated) {
 				return _("CD-Images");
 			} else {
 				return wxT("CD-Images");
 			}
-			break;			
+			break;
 		case ftPicture:
 			if (translated) {
 				return _("Pictures");
 			} else {
 				return wxT("Pictures");
 			}
-			break;			
+			break;
 		case ftText:
 			if (translated) {
 				return _("Texts");
 			} else {
 				return wxT("Texts");
 			}
-			break;			
+			break;
 		case ftProgram:
 			if (translated) {
 				return _("Programs");
 			} else {
 				return wxT("Programs");
 			}
-			break;			
+			break;
 		default:
 			if (translated) {
 				return _("Any");
 			} else {
 				return wxT("Any");
 			}
-			break;			
+			break;
 	}
 }
 
@@ -492,7 +497,7 @@ wxString EncodeBase64(const char *pbBufferIn, unsigned int bufLen)
 {
 	wxString pbBufferOut;
 	wxString strHeader;
-	
+
 	if( !strHeaderLine.IsEmpty() ) {
 		strHeader = wxT("-----BEGIN ") + strHeaderLine + wxT("-----");
 		if( g_fUseCRLF ) {
@@ -504,12 +509,12 @@ wxString EncodeBase64(const char *pbBufferIn, unsigned int bufLen)
 	unsigned long nDiv = ((unsigned long)bufLen) / 3;
 	unsigned long nRem = ((unsigned long)bufLen) % 3;
 	unsigned int NewLineSize = g_fUseCRLF ? 2 : 1;
-	
+
 	// Allocate enough space in the output buffer to speed up things
 	pbBufferOut.Alloc(
 		strHeader.Len() * 2 +		// header/footer
-		(bufLen * 4) / 3 + 1 + 		// Number of codes
-		nDiv           * NewLineSize + 	// Number of new lines
+		(bufLen * 4) / 3 + 1 +		// Number of codes
+		nDiv           * NewLineSize +	// Number of new lines
 		(nRem ? 1 : 0) * NewLineSize );	// Last line
 	pbBufferOut = strHeader;
 
@@ -578,7 +583,7 @@ wxString EncodeBase64(const char *pbBufferIn, unsigned int bufLen)
 		}
 		pbBufferOut += wxT("\n");
 	}
-	
+
 	return pbBufferOut;
 }
 
@@ -593,7 +598,7 @@ unsigned int DecodeBase64(const wxString &base64Buffer, unsigned int base64BufLe
 		*buffer = 0;
 		nData = 1;
 	}
-	
+
 	for(unsigned int j = 0; j < base64BufLen; ++j) {
 		wxChar c = base64Buffer[j];
 		wxChar bits = wxT('z');
@@ -659,7 +664,7 @@ unsigned int DecodeBase64(const wxString &base64Buffer, unsigned int base64BufLe
 	} else {
 		buffer[i+nData] = 0;
 	}
-	
+
 	return i + nData;
 }
 
@@ -668,7 +673,7 @@ unsigned int DecodeBase64(const wxString &base64Buffer, unsigned int base64BufLe
 wxString GetCatTitle(AllCategoryFilter cat)
 {
 	switch (cat) {
-		case acfAll:	 	 return _("all");
+		case acfAll:		 return _("all");
 		case acfAllOthers:   return _("all others");
 		case acfIncomplete:	 return _("Incomplete");
 		case acfCompleted:	 return _("Completed");
@@ -676,14 +681,14 @@ wxString GetCatTitle(AllCategoryFilter cat)
 		case acfDownloading: return _("Downloading");
 		case acfErroneous:	 return _("Erroneous");
 		case acfPaused:		 return _("Paused");
-		case acfStopped:	 return _("Stopped");		
+		case acfStopped:	 return _("Stopped");
 		case acfVideo:		 return _("Video");
 		case acfAudio:		 return _("Audio");
 		case acfArchive:	 return _("Archive");
 		case acfCDImages:	 return _("CD-Images");
 		case acfPictures:	 return _("Pictures");
 		case acfText:		 return _("Text");
-		case acfActive:		 return _("Active");		
+		case acfActive:		 return _("Active");
 		default: return wxT("?");
 	}
 }
@@ -902,14 +907,17 @@ public:
 		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".sub"),   ED2KFT_CDIMAGE));	// Subtitle File
 		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".toast"), ED2KFT_CDIMAGE));	// Toast Disc Image
 
+		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".azw"),   ED2KFT_DOCUMENT));	// EBook File
 		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".chm"),   ED2KFT_DOCUMENT));	// Compiled HTML Help File
 		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".css"),   ED2KFT_DOCUMENT));	// Cascading Style Sheet
 		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".diz"),   ED2KFT_DOCUMENT));	// Description in Zip File
 		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".doc"),   ED2KFT_DOCUMENT));	// Document File
 		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".dot"),   ED2KFT_DOCUMENT));	// Document Template File
+		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".epub"),  ED2KFT_DOCUMENT));	// EBook File
 		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".hlp"),   ED2KFT_DOCUMENT));	// Help File
 		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".htm"),   ED2KFT_DOCUMENT));	// HTML File
 		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".html"),  ED2KFT_DOCUMENT));	// HTML File
+		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".mobi"),  ED2KFT_DOCUMENT));	// EBook File
 		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".nfo"),   ED2KFT_DOCUMENT));	// Warez Information File
 		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".odp"),   ED2KFT_DOCUMENT));	// OpenDocument Presentation
 		ED2KFileTypesMap.insert(SED2KFileTypeMapElement(wxT(".ods"),   ED2KFT_DOCUMENT));	// OpenDocument Spreadsheet
@@ -947,7 +955,7 @@ EED2KFileType GetED2KFileTypeID(const CPath& fileName)
 	if (ext.IsEmpty()) {
 		return ED2KFT_ANY;
 	}
-	
+
 	SED2KFileTypeMap::iterator it = ED2KFileTypesMap.find(wxT(".") + ext);
 	if (it != ED2KFileTypesMap.end()) {
 		return it->second.GetType();
@@ -1015,10 +1023,10 @@ wxString DumpMemToStr(const void *buff, int n, const wxString& msg, bool ok)
 {
 	const unsigned char *p = (const unsigned char *)buff;
 	int lines = (n + 15)/ 16;
-	
+
 	wxString result;
 	// Allocate aproximetly what is needed
-	result.Alloc( ( lines + 1 ) * 80 ); 
+	result.Alloc( ( lines + 1 ) * 80 );
 	if ( !msg.IsEmpty() ) {
 		result += msg + wxT(" - ok=") + ( ok ? wxT("true, ") : wxT("false, ") );
 	}
@@ -1027,12 +1035,12 @@ wxString DumpMemToStr(const void *buff, int n, const wxString& msg, bool ok)
 	for ( int i = 0; i < lines; ++i) {
 		// Show address
 		result += CFormat(wxT("%08x  ")) % (i * 16);
-		
+
 		// Show two columns of hex-values
 		for ( int j = 0; j < 2; ++j) {
 			for ( int k = 0; k < 8; ++k) {
 				int pos = 16 * i + 8 * j + k;
-				
+
 				if ( pos < n ) {
 					result += CFormat(wxT("%02x ")) % p[pos];
 				} else {
@@ -1061,7 +1069,7 @@ wxString DumpMemToStr(const void *buff, int n, const wxString& msg, bool ok)
 		result += wxT("|\n");
 	}
 	result.Shrink();
-	
+
 	return result;
 }
 
@@ -1116,7 +1124,7 @@ wxString GetConfigDir(const wxString &configFileBase)
 
 /*************************** Locale specific stuff ***************************/
 
-#ifndef __WXMSW__
+#ifndef __WINDOWS__ 
 #	define	SETWINLANG(LANG, SUBLANG)
 #else
 #	define	SETWINLANG(LANG, SUBLANG) \
@@ -1144,9 +1152,9 @@ void InitCustomLanguages()
 
 void InitLocale(wxLocale& locale, int language)
 {
-	locale.Init(language, wxLOCALE_LOAD_DEFAULT); 
-	
-#if defined(__WXMAC__) || defined(__WXMSW__)
+	locale.Init(language, wxLOCALE_LOAD_DEFAULT);
+
+#if defined(__WXMAC__) || defined(__WINDOWS__ )
 	locale.AddCatalogLookupPathPrefix(JoinPaths(wxStandardPaths::Get().GetDataDir(), wxT("locale")));
 #endif
 	locale.AddCatalog(wxT(PACKAGE));
@@ -1165,7 +1173,7 @@ int StrLang2wx(const wxString& language)
 			// Traditional Chinese: original Chinese, used in Taiwan, Hong Kong and Macau.
 			// Simplified Chinese: simplified Chinese characters used in Mainland China since 1950s, and in some other places such as Singapore and Malaysia.
 			//
-			// Chinese (Traditional) contains zh_TW, zh_HK and zh_MO (but there are differences in some words). 
+			// Chinese (Traditional) contains zh_TW, zh_HK and zh_MO (but there are differences in some words).
 			// Because of most Traditional Chinese user are in Taiwan, zh_TW becomes the representation of Traditional Chinese.
 			// Chinese (Simplified) contains zh_CN, zh_SG and zh_MY. In the same reason, zh_CN becomes the representation of Simplified Chinese.
 			// (see http://forum.amule.org/index.php?topic=13208.msg98043#msg98043 )
@@ -1200,30 +1208,35 @@ wxString wxLang2Str(const int lang)
 
 /*****************************************************************************/
 
-wxString GetPassword() {
-wxString pass_plain;
-CMD4Hash password;
-		#ifndef __WXMSW__
-			pass_plain = char2unicode(getpass("Enter password for mule connection: "));
-		#else
-			//#warning This way, pass enter is not hidden on windows. Bad thing.
-			char temp_str[512];
-			fflush(stdin);
-			printf("Enter password for mule connection: \n");
-			fflush(stdout);
-			fgets(temp_str, 512, stdin);
-			temp_str[strlen(temp_str)-1] = '\0';
-			pass_plain = char2unicode(temp_str);
-		#endif
-		wxCHECK2(password.Decode(MD5Sum(pass_plain).GetHash()), /* Do nothing. */ );
+CMD4Hash GetPassword(bool allowEmptyPassword)
+{
+	wxString pass_plain;
+	CMD4Hash password;
+#ifndef __WINDOWS__ 
+	pass_plain = char2unicode(getpass("Enter password for mule connection: "));
+#else
+	//#warning This way, pass enter is not hidden on windows. Bad thing.
+	char temp_str[512];
+	// Though fflush() on an input stream is undefined behaviour by the standard,
+	// the MSVCRT version does seem to clear the input buffers.
+	// cppcheck-suppress fflushOnInputStream
+	fflush(stdin);
+	printf("Enter password for mule connection: \n");
+	fflush(stdout);
+	fgets(temp_str, 512, stdin);
+	temp_str[strlen(temp_str)-1] = '\0';
+	pass_plain = char2unicode(temp_str);
+#endif
+	wxCHECK2(password.Decode(MD5Sum(pass_plain).GetHash()), /* Do nothing. */ );
+	if (!allowEmptyPassword) {
 		// MD5 hash for an empty string, according to rfc1321.
 		if (password.Encode() == wxT("D41D8CD98F00B204E9800998ECF8427E")) {
 			printf("No empty password allowed.\n");
-			return GetPassword();
+			return GetPassword(false);
 		}
+	}
 
-
-return password.Encode();
+	return password;
 }
 
 

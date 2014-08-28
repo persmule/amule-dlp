@@ -27,11 +27,6 @@
 /// 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// For compilers that support precompilation
-
-#ifdef __BORLANDC__
-#pragma hdrstop
-#endif
 
 #include <wx/filename.h>
 
@@ -43,7 +38,7 @@
 		#include <wx/mac/corefoundation/cfstring.h>  // Do_not_auto_remove
 	#endif
 	#include <wx/intl.h> // Do_not_auto_remove
-#elif defined(__WXMSW__)
+#elif defined(__WINDOWS__ )
 	#include <winerror.h> // Do_not_auto_remove
 	#include <shlobj.h> // Do_not_auto_remove
 	#include <wx/msw/winundef.h>
@@ -147,8 +142,8 @@ wxString GetDefaultAmulesigPath()
 		#endif
 	}
 
-#elif defined(__WXMSW__)
- 
+#elif defined(__WINDOWS__ )
+
 	LPITEMIDLIST pidl;
 
 	HRESULT hr = SHGetSpecialFolderLocation(NULL, CSIDL_APPDATA, &pidl);

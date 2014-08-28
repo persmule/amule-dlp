@@ -36,16 +36,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
-// For all others, include the necessary headers
-#ifndef WX_PRECOMP
-    #include "wx/wx.h"
-#endif
-
 #include <wx/ffile.h>
+#include <wx/intl.h>
 
 #include "md4.h"
 #include "bithelp.h"
@@ -166,8 +158,9 @@ void MD4::MD4Final(struct MD4Context *ctx, unsigned char* digest)
   byteReverse(ctx->in, 14);
 
   // Append length in bits and transform
-  ((uint32_t *) ctx->in)[14] = ctx->bits[0];
-  ((uint32_t *) ctx->in)[15] = ctx->bits[1];
+  uint32_t * in32 = (uint32_t *) ctx->in;
+  in32[14] = ctx->bits[0];
+  in32[15] = ctx->bits[1];
 
   MD4Transform(ctx->buf, (uint32_t *) ctx->in);
   byteReverse((unsigned char *) ctx->buf, 4);
@@ -176,7 +169,7 @@ void MD4::MD4Final(struct MD4Context *ctx, unsigned char* digest)
     {
       memcpy(digest, ctx->buf, 16);
     }
-  memset(ctx, 0, sizeof(ctx));	// In case it's sensitive
+  memset(ctx, 0, sizeof(*ctx));	// In case it's sensitive
 }
 
 /// The three core functions
@@ -318,7 +311,6 @@ wxString MD4::calcMd4FromString(const wxString &buf)
 /// Get Md4 hash from a file
 wxString MD4::calcMd4FromFile(const wxString &filename, MD4Hook hook)
 {
-  unsigned int bufSize;
   unsigned char ret[MD4_HASHLEN_BYTE];
   MD4Context hdc;
 
@@ -331,7 +323,7 @@ wxString MD4::calcMd4FromFile(const wxString &filename, MD4Hook hook)
     }
   else
     {
-      bufSize = calcBufSize(file.Length());
+      unsigned int bufSize = calcBufSize(file.Length());
       char *buf = new char[bufSize];
 
       bool keep_going = true;
@@ -356,6 +348,7 @@ wxString MD4::calcMd4FromFile(const wxString &filename, MD4Hook hook)
             }
           else
             {
+              delete [] buf;
               return (_("Cancelled !"));
             }
         }

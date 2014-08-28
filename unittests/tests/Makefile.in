@@ -42,23 +42,23 @@ subdir = unittests/tests
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/GeoIP.m4 \
-	$(top_srcdir)/m4/build-tools.m4 $(top_srcdir)/m4/codeset.m4 \
-	$(top_srcdir)/m4/cryptopp.m4 $(top_srcdir)/m4/fallocate.m4 \
-	$(top_srcdir)/m4/gdlib.m4 $(top_srcdir)/m4/gettext.m4 \
-	$(top_srcdir)/m4/glibc21.m4 $(top_srcdir)/m4/iconv.m4 \
-	$(top_srcdir)/m4/intdiv0.m4 $(top_srcdir)/m4/inttypes-pri.m4 \
-	$(top_srcdir)/m4/inttypes.m4 $(top_srcdir)/m4/inttypes_h.m4 \
-	$(top_srcdir)/m4/isc-posix.m4 $(top_srcdir)/m4/kde.m4 \
-	$(top_srcdir)/m4/lcmessage.m4 $(top_srcdir)/m4/lib-ld.m4 \
-	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
-	$(top_srcdir)/m4/libpng.m4 $(top_srcdir)/m4/libupnp.m4 \
-	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/pkg.m4 \
-	$(top_srcdir)/m4/plasmamule.m4 $(top_srcdir)/m4/progtest.m4 \
-	$(top_srcdir)/m4/qt.m4 $(top_srcdir)/m4/readline.m4 \
-	$(top_srcdir)/m4/stdint_h.m4 $(top_srcdir)/m4/uintmax_t.m4 \
-	$(top_srcdir)/m4/ulonglong.m4 $(top_srcdir)/m4/wxwin.m4 \
-	$(top_srcdir)/m4/zlib.m4 $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/configure.in
+	$(top_srcdir)/m4/boost.m4 $(top_srcdir)/m4/build-tools.m4 \
+	$(top_srcdir)/m4/codeset.m4 $(top_srcdir)/m4/cryptopp.m4 \
+	$(top_srcdir)/m4/fallocate.m4 $(top_srcdir)/m4/gdlib.m4 \
+	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/glibc21.m4 \
+	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intdiv0.m4 \
+	$(top_srcdir)/m4/inttypes-pri.m4 $(top_srcdir)/m4/inttypes.m4 \
+	$(top_srcdir)/m4/inttypes_h.m4 $(top_srcdir)/m4/isc-posix.m4 \
+	$(top_srcdir)/m4/kde.m4 $(top_srcdir)/m4/lcmessage.m4 \
+	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
+	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libpng.m4 \
+	$(top_srcdir)/m4/libupnp.m4 $(top_srcdir)/m4/nls.m4 \
+	$(top_srcdir)/m4/pkg.m4 $(top_srcdir)/m4/plasmamule.m4 \
+	$(top_srcdir)/m4/progtest.m4 $(top_srcdir)/m4/qt.m4 \
+	$(top_srcdir)/m4/readline.m4 $(top_srcdir)/m4/stdint_h.m4 \
+	$(top_srcdir)/m4/uintmax_t.m4 $(top_srcdir)/m4/ulonglong.m4 \
+	$(top_srcdir)/m4/wxwin.m4 $(top_srcdir)/m4/zlib.m4 \
+	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -99,7 +99,10 @@ FormatTest_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	../muleunit/libmuleunit.a
 am_NetworkFunctionsTest_OBJECTS =  \
 	NetworkFunctionsTest-NetworkFunctionsTest.$(OBJEXT) \
-	NetworkFunctionsTest-NetworkFunctions.$(OBJEXT)
+	NetworkFunctionsTest-NetworkFunctions.$(OBJEXT) \
+	NetworkFunctionsTest-LibSocket.$(OBJEXT) \
+	NetworkFunctionsTest-Format.$(OBJEXT) \
+	NetworkFunctionsTest-strerror_r.$(OBJEXT)
 NetworkFunctionsTest_OBJECTS = $(am_NetworkFunctionsTest_OBJECTS)
 NetworkFunctionsTest_LDADD = $(LDADD)
 NetworkFunctionsTest_DEPENDENCIES = $(am__DEPENDENCIES_1) \
@@ -195,6 +198,12 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BFD_CPPFLAGS = @BFD_CPPFLAGS@
 BFD_LIBS = @BFD_LIBS@
+BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
+BOOST_LDPATH = @BOOST_LDPATH@
+BOOST_ROOT = @BOOST_ROOT@
+BOOST_SYSTEM_LDFLAGS = @BOOST_SYSTEM_LDFLAGS@
+BOOST_SYSTEM_LDPATH = @BOOST_SYSTEM_LDPATH@
+BOOST_SYSTEM_LIBS = @BOOST_SYSTEM_LIBS@
 BUILD_CC = @BUILD_CC@
 BUILD_CFLAGS = @BUILD_CFLAGS@
 BUILD_CPPFLAGS = @BUILD_CPPFLAGS@
@@ -221,6 +230,7 @@ DATADIRNAME = @DATADIRNAME@
 DEBUGFLAG = @DEBUGFLAG@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DISTCHECK_CONFIGURE_FLAGS = @DISTCHECK_CONFIGURE_FLAGS@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
@@ -311,6 +321,7 @@ RC = @RC@
 RCFLAGS = @RCFLAGS@
 READLINE_LIBS = @READLINE_LIBS@
 RESOLV_LIB = @RESOLV_LIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -396,9 +407,9 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 
-# If any tests uses more than a cpp/h fileset, then 
+# If any tests uses more than a cpp/h fileset, then
 # make a seperate subfolder for it to reduce clutter.
-#SUBDIRS = 
+#SUBDIRS =
 EXTRA_DIST = TextFileTest_dos.txt TextFileTest_unix.txt
 
 # Use this to be able to catch assertions as exceptions
@@ -425,7 +436,7 @@ StringFunctionsTest_SOURCES = StringFunctionsTest.cpp $(top_srcdir)/src/libs/com
 #FileFunctionsTest_SOURCES = FileFunctionsTest.cpp $(top_srcdir)/src/FileFunctions.cpp $(top_srcdir)/src/SafeFile.cpp $(top_srcdir)/src/CFile.cpp $(top_srcdir)/src/kademlia/utils/UInt128.cpp $(top_srcdir)/src/CryptoPP.cpp
 
 # Tests for the various network functions.
-NetworkFunctionsTest_SOURCES = NetworkFunctionsTest.cpp $(top_srcdir)/src/NetworkFunctions.cpp
+NetworkFunctionsTest_SOURCES = NetworkFunctionsTest.cpp $(top_srcdir)/src/NetworkFunctions.cpp $(top_srcdir)/src/LibSocket.cpp $(top_srcdir)/src/libs/common/Format.cpp $(top_srcdir)/src/libs/common/strerror_r.c
 NetworkFunctionsTest_CPPFLAGS = $(AM_CPPFLAGS) -DEC_REMOTE # Needed to avoid compiling the http-thread
 
 # Tests for the classes that implement the CFileDataIO interface
@@ -436,7 +447,7 @@ PathTest_SOURCES = PathTest.cpp $(top_srcdir)/src/libs/common/Path.cpp $(top_src
 
 # Tests for the CTextFile class
 TextFileTest_SOURCES = TextFileTest.cpp $(top_srcdir)/src/libs/common/Path.cpp $(top_srcdir)/src/libs/common/StringFunctions.cpp $(top_srcdir)/src/libs/common/TextFile.cpp
-TextFileTest_CPPFLAGS = $(AM_CPPFLAGS) -DSRCDIR="$(srcdir)" 
+TextFileTest_CPPFLAGS = $(AM_CPPFLAGS) -DSRCDIR="$(srcdir)"
 
 # Tests for the CTag class
 CTagTest_SOURCES = CTagTest.cpp  $(top_srcdir)/src/SafeFile.cpp  $(top_srcdir)/src/MemFile.cpp $(top_srcdir)/src/Tag.cpp $(top_srcdir)/src/libs/common/Format.cpp $(top_srcdir)/src/libs/common/strerror_r.c
@@ -518,8 +529,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Format.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/FormatTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MemFile.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NetworkFunctionsTest-Format.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NetworkFunctionsTest-LibSocket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NetworkFunctionsTest-NetworkFunctions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NetworkFunctionsTest-NetworkFunctionsTest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NetworkFunctionsTest-strerror_r.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Path.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PathTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RangeMapTest.Po@am__quote@
@@ -565,6 +579,22 @@ strerror_r.obj: $(top_srcdir)/src/libs/common/strerror_r.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/libs/common/strerror_r.c' object='strerror_r.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o strerror_r.obj `if test -f '$(top_srcdir)/src/libs/common/strerror_r.c'; then $(CYGPATH_W) '$(top_srcdir)/src/libs/common/strerror_r.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/libs/common/strerror_r.c'; fi`
+
+NetworkFunctionsTest-strerror_r.o: $(top_srcdir)/src/libs/common/strerror_r.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(NetworkFunctionsTest_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT NetworkFunctionsTest-strerror_r.o -MD -MP -MF $(DEPDIR)/NetworkFunctionsTest-strerror_r.Tpo -c -o NetworkFunctionsTest-strerror_r.o `test -f '$(top_srcdir)/src/libs/common/strerror_r.c' || echo '$(srcdir)/'`$(top_srcdir)/src/libs/common/strerror_r.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/NetworkFunctionsTest-strerror_r.Tpo $(DEPDIR)/NetworkFunctionsTest-strerror_r.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/libs/common/strerror_r.c' object='NetworkFunctionsTest-strerror_r.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(NetworkFunctionsTest_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o NetworkFunctionsTest-strerror_r.o `test -f '$(top_srcdir)/src/libs/common/strerror_r.c' || echo '$(srcdir)/'`$(top_srcdir)/src/libs/common/strerror_r.c
+
+NetworkFunctionsTest-strerror_r.obj: $(top_srcdir)/src/libs/common/strerror_r.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(NetworkFunctionsTest_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT NetworkFunctionsTest-strerror_r.obj -MD -MP -MF $(DEPDIR)/NetworkFunctionsTest-strerror_r.Tpo -c -o NetworkFunctionsTest-strerror_r.obj `if test -f '$(top_srcdir)/src/libs/common/strerror_r.c'; then $(CYGPATH_W) '$(top_srcdir)/src/libs/common/strerror_r.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/libs/common/strerror_r.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/NetworkFunctionsTest-strerror_r.Tpo $(DEPDIR)/NetworkFunctionsTest-strerror_r.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/libs/common/strerror_r.c' object='NetworkFunctionsTest-strerror_r.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(NetworkFunctionsTest_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o NetworkFunctionsTest-strerror_r.obj `if test -f '$(top_srcdir)/src/libs/common/strerror_r.c'; then $(CYGPATH_W) '$(top_srcdir)/src/libs/common/strerror_r.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/libs/common/strerror_r.c'; fi`
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -741,6 +771,38 @@ NetworkFunctionsTest-NetworkFunctions.obj: $(top_srcdir)/src/NetworkFunctions.cp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/src/NetworkFunctions.cpp' object='NetworkFunctionsTest-NetworkFunctions.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(NetworkFunctionsTest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o NetworkFunctionsTest-NetworkFunctions.obj `if test -f '$(top_srcdir)/src/NetworkFunctions.cpp'; then $(CYGPATH_W) '$(top_srcdir)/src/NetworkFunctions.cpp'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/NetworkFunctions.cpp'; fi`
+
+NetworkFunctionsTest-LibSocket.o: $(top_srcdir)/src/LibSocket.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(NetworkFunctionsTest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT NetworkFunctionsTest-LibSocket.o -MD -MP -MF $(DEPDIR)/NetworkFunctionsTest-LibSocket.Tpo -c -o NetworkFunctionsTest-LibSocket.o `test -f '$(top_srcdir)/src/LibSocket.cpp' || echo '$(srcdir)/'`$(top_srcdir)/src/LibSocket.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/NetworkFunctionsTest-LibSocket.Tpo $(DEPDIR)/NetworkFunctionsTest-LibSocket.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/src/LibSocket.cpp' object='NetworkFunctionsTest-LibSocket.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(NetworkFunctionsTest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o NetworkFunctionsTest-LibSocket.o `test -f '$(top_srcdir)/src/LibSocket.cpp' || echo '$(srcdir)/'`$(top_srcdir)/src/LibSocket.cpp
+
+NetworkFunctionsTest-LibSocket.obj: $(top_srcdir)/src/LibSocket.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(NetworkFunctionsTest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT NetworkFunctionsTest-LibSocket.obj -MD -MP -MF $(DEPDIR)/NetworkFunctionsTest-LibSocket.Tpo -c -o NetworkFunctionsTest-LibSocket.obj `if test -f '$(top_srcdir)/src/LibSocket.cpp'; then $(CYGPATH_W) '$(top_srcdir)/src/LibSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/LibSocket.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/NetworkFunctionsTest-LibSocket.Tpo $(DEPDIR)/NetworkFunctionsTest-LibSocket.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/src/LibSocket.cpp' object='NetworkFunctionsTest-LibSocket.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(NetworkFunctionsTest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o NetworkFunctionsTest-LibSocket.obj `if test -f '$(top_srcdir)/src/LibSocket.cpp'; then $(CYGPATH_W) '$(top_srcdir)/src/LibSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/LibSocket.cpp'; fi`
+
+NetworkFunctionsTest-Format.o: $(top_srcdir)/src/libs/common/Format.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(NetworkFunctionsTest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT NetworkFunctionsTest-Format.o -MD -MP -MF $(DEPDIR)/NetworkFunctionsTest-Format.Tpo -c -o NetworkFunctionsTest-Format.o `test -f '$(top_srcdir)/src/libs/common/Format.cpp' || echo '$(srcdir)/'`$(top_srcdir)/src/libs/common/Format.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/NetworkFunctionsTest-Format.Tpo $(DEPDIR)/NetworkFunctionsTest-Format.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/src/libs/common/Format.cpp' object='NetworkFunctionsTest-Format.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(NetworkFunctionsTest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o NetworkFunctionsTest-Format.o `test -f '$(top_srcdir)/src/libs/common/Format.cpp' || echo '$(srcdir)/'`$(top_srcdir)/src/libs/common/Format.cpp
+
+NetworkFunctionsTest-Format.obj: $(top_srcdir)/src/libs/common/Format.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(NetworkFunctionsTest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT NetworkFunctionsTest-Format.obj -MD -MP -MF $(DEPDIR)/NetworkFunctionsTest-Format.Tpo -c -o NetworkFunctionsTest-Format.obj `if test -f '$(top_srcdir)/src/libs/common/Format.cpp'; then $(CYGPATH_W) '$(top_srcdir)/src/libs/common/Format.cpp'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/libs/common/Format.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/NetworkFunctionsTest-Format.Tpo $(DEPDIR)/NetworkFunctionsTest-Format.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/src/libs/common/Format.cpp' object='NetworkFunctionsTest-Format.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(NetworkFunctionsTest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o NetworkFunctionsTest-Format.obj `if test -f '$(top_srcdir)/src/libs/common/Format.cpp'; then $(CYGPATH_W) '$(top_srcdir)/src/libs/common/Format.cpp'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/libs/common/Format.cpp'; fi`
 
 TextFileTest-TextFileTest.o: TextFileTest.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TextFileTest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TextFileTest-TextFileTest.o -MD -MP -MF $(DEPDIR)/TextFileTest-TextFileTest.Tpo -c -o TextFileTest-TextFileTest.o `test -f 'TextFileTest.cpp' || echo '$(srcdir)/'`TextFileTest.cpp

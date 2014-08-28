@@ -16,7 +16,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -95,9 +95,9 @@ m4_define([REQUIRED_VERSION_MICRO], [m4_bregexp(REQUIRED_VERSION, [\([0-9]+\)\.\
 			SAVED_LDFLAGS=$LDFLAGS
 			SAVED_LIBS=$LIBS
 
-			CFLAGS+=" $LIBPNG_CFLAGS"
-			LDFLAGS+=" $LIBPNG_LDFLAGS"
-			LIBS+=" $LIBPNG_LIBS"
+			CFLAGS="$CFLAGS $LIBPNG_CFLAGS"
+			LDFLAGS="$LDFLAGS $LIBPNG_LDFLAGS"
+			LIBS="$LIBS $LIBPNG_LIBS"
 
 			AC_LINK_IFELSE([
 				AC_LANG_PROGRAM([[

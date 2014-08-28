@@ -31,14 +31,7 @@
 #define _WXCASPIX_H
 
 
-#ifdef __BORLANDC__
- #pragma hdrstop
-#endif
-
-// For all others, include the necessary headers
-#ifndef WX_PRECOMP
- #include "wx/wx.h"
-#endif
+#include <wx/bitmap.h>
 
 class WxCasPix
 {
@@ -50,7 +43,7 @@ private:
 	static const char *m_save_xpm[];
 	static const char *m_stat_xpm[];
 	static const char *m_stop_xpm[];
-#ifndef __WXMSW__
+#ifndef __WINDOWS__ 
 	static const char *m_wxcas_xpm[];
 #endif
 

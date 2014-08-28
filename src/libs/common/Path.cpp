@@ -16,7 +16,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -26,39 +26,19 @@
 #include "StringFunctions.h"		// Needed for filename2char()
 
 #include <wx/file.h>
-#if defined __WXMSW__ || defined __IRIX__
+#if defined __WINDOWS__  || defined __IRIX__
 #	include <wx/ffile.h>
 #endif
 #include <wx/utils.h>
 #include <wx/filename.h>
-
-
-// This is required in order to ensure that wx can "handle" filenames
-// using a different encoding than the current system-wide setting. If
-// this is not done, such filenames will fail during conversion to/from
-// multibyte (as in cWC2MB/cMB2WC).
-#if !wxUSE_GUI && !defined(__WXMSW__)
-void* setFNConv()
-{
-	// This uses the same method as wxApp::Initialize under GTK2
-	wxString encName = wxLocale::GetSystemEncodingName().Upper();
-	if (encName.IsEmpty() || (encName == wxT("US-ASCII"))) {
-		encName = wxT("UTF-8");
-	}
-
-	return wxConvFileName = new wxConvBrokenFileNames(encName);
-}
-
-// Ensure intialization
-static void* s_foo = setFNConv();
-#endif
+#include <algorithm>	// Needed for std::min
 
 
 // Windows has case-insensitive paths, so we use a
 // case-insensitive cmp for that platform. TODO:
 // Perhaps it would be better to simply lowercase
 // m_filesystem in the constructor ...
-#ifdef __WXMSW__
+#ifdef __WINDOWS__ 
 	#define PATHCMP(a, b)		wxStricmp(a, b)
 	#define PATHNCMP(a, b, n)	wxStrnicmp(a, b, n)
 #else
@@ -150,7 +130,7 @@ wxString DoCleanup(const wxString& filename, bool keepSpaces, bool isFAT32)
 				if (isFAT32) {
 					continue;
 				}
-				
+
 			default:
 				if ((c == wxT(' ')) && !keepSpaces) {
 					result += wxT("%20");
@@ -198,10 +178,10 @@ wxString DoRemoveExt(const wxString& path)
 /** Readies a path for use with wxAccess.. */
 wxString DoCleanPath(const wxString& path)
 {
-#ifdef __WXMSW__
+#ifdef __WINDOWS__ 
 	// stat fails on windows if there are trailing path-separators.
 	wxString cleanPath = StripSeparators(path, wxString::trailing);
-	
+
 	// Root paths must end with a separator (X:\ rather than X:).
 	// See comments in wxDirExists.
 	if ((cleanPath.Length() == 2) && (cleanPath.Last() == wxT(':'))) {
@@ -233,7 +213,7 @@ bool IsSameAs(const wxString& a, const wxString& b)
 	// lead to some unexpected behavior.
 	wxFileName fn1(a);
 	wxFileName fn2(b);
-	
+
 	fn1.Normalize(flags, cwd);
 	fn2.Normalize(flags, cwd);
 
@@ -269,12 +249,12 @@ CPath::CPath(const wxString& filename)
 		// saved as UTF8, even if the system is not unicode enabled,
 		// preserving the original filename till the user has fixed
 		// his system ...
-#ifdef __WXMSW__
+#ifdef __WINDOWS__ 
 		// Magic fails on Windows where we always work with wide char file names.
 		m_filesystem = DeepCopy(filename);
 		m_printable = m_filesystem;
 #else
-		fn = wxConvUTF8.cWC2MB(filename);
+		fn = filename.utf8_str();
 		m_filesystem = wxConvFile.cMB2WC(fn);
 
 		// There's no need to try to unmangle the filename here.
@@ -296,7 +276,7 @@ CPath::CPath(const CPath& other)
 
 CPath CPath::FromUniv(const wxString& path)
 {
-	wxCharBuffer fn = wxConvISO8859_1.cWC2MB(path);
+	wxCharBuffer fn = path.mb_str(wxConvISO8859_1);
 
 	return CPath(wxConvFile.cMB2WC(fn));
 
@@ -309,7 +289,7 @@ wxString CPath::ToUniv(const CPath& path)
 	// as a raw bytestream (which is what ISO8859-1 amounts
 	// to), we can always recreate the on-disk filename, as
 	// if we had read it using wx functions.
-	wxCharBuffer fn = wxConvFile.cWC2MB(path.m_filesystem);
+	wxCharBuffer fn = path.m_filesystem.mb_str(wxConvFile);
 
 	return wxConvISO8859_1.cMB2WC(fn);
 }
@@ -471,7 +451,7 @@ CPath CPath::JoinPaths(const CPath& other) const
 		return CPath(other);
 	} else if (!other.IsOk()) {
 		return CPath(*this);
-	} 
+	}
 
 	CPath joinedPath;
 	// DeepCopy shouldn't be needed, as JoinPaths results in the creation of a new string.
@@ -508,7 +488,7 @@ CPath CPath::AppendExt(const wxString& ext) const
 {
 	wxASSERT(ext.IsAscii());
 
-	// Though technically, and empty extension would simply 
+	// Though technically, and empty extension would simply
 	// be another . at the end of the filename, we ignore them.
 	if (ext.IsEmpty()) {
 		return *this;
@@ -566,7 +546,7 @@ bool CPath::StartsWith(const CPath& other) const
 	// normalized first (in the constructor).
 	const wxString a = StripSeparators(m_filesystem, wxString::trailing) + wxFileName::GetPathSeparator();
 	const wxString b = StripSeparators(other.m_filesystem, wxString::trailing) + wxFileName::GetPathSeparator();
-	
+
 	if (a.Length() < b.Length()) {
 		// Cannot possibly be a prefix.
 		return false;
@@ -602,8 +582,8 @@ bool CPath::BackupFile(const CPath& src, const wxString& appendix)
 	CPath dst = CPath(src.m_filesystem + appendix);
 
 	if (CPath::CloneFile(src, dst, true)) {
-		// Try to ensure that the backup gets physically written 
-#if defined __WXMSW__ || defined __IRIX__
+		// Try to ensure that the backup gets physically written
+#if defined __WINDOWS__  || defined __IRIX__
 		wxFFile backupFile;
 #else
 		wxFile backupFile;
@@ -699,7 +679,7 @@ wxString CPath::TruncatePath(size_t length, bool isFilePath) const
 	}
 
 	if (file.Length() > length) {
-		if (length > 5) {		
+		if (length > 5) {
 			file = file.Left(length - 5) + wxT("[...]");
 		} else {
 			file.Clear();

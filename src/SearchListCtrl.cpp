@@ -17,7 +17,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -44,7 +44,7 @@ BEGIN_EVENT_TABLE(CSearchListCtrl, CMuleListCtrl)
 
 	EVT_MENU( MP_GETED2KLINK,     CSearchListCtrl::OnPopupGetUrl)
 	EVT_MENU( MP_RAZORSTATS,      CSearchListCtrl::OnRazorStatsCheck)
-	EVT_MENU( MP_SEARCHRELATED,   CSearchListCtrl::OnRelatedSearch)	
+	EVT_MENU( MP_SEARCHRELATED,   CSearchListCtrl::OnRelatedSearch)
 	EVT_MENU( MP_MARK_AS_KNOWN,   CSearchListCtrl::OnMarkAsKnown)
 	EVT_MENU( MP_RESUME,          CSearchListCtrl::OnPopupDownload)
 	EVT_MENU_RANGE( MP_ASSIGNCAT, MP_ASSIGNCAT + 99, CSearchListCtrl::OnPopupDownload )
@@ -98,7 +98,7 @@ m_filterEnabled(false)
 	if ( s_lists.empty() ) {
 		// Set the name to enable loading of settings
 		SetTableName( wxT("Search") );
-	
+
 		LoadSettings();
 
 		// Unset the name to avoid the settings getting saved every time a list is closed
@@ -162,8 +162,8 @@ void CSearchListCtrl::AddResult(CSearchFile* toshow)
 				// No children left, and the parent is filtered.
 				m_filteredOut.push_back(toshow);
 				return;
-			}			
-		} else {		
+			}
+		} else {
 			m_filteredOut.push_back(toshow);
 			return;
 		}
@@ -188,7 +188,7 @@ void CSearchListCtrl::AddResult(CSearchFile* toshow)
 #ifdef __WXDEBUG__
 	{
 		if (newid > 0) {
-			CSearchFile* before = (CSearchFile*)GetItemData(newid - 1);
+			CSearchFile* before = reinterpret_cast<CSearchFile*>(GetItemData(newid - 1));
 			wxASSERT(before);
 			if (parent) {
 				wxASSERT((before->GetParent() == parent) || (before == parent));
@@ -196,9 +196,9 @@ void CSearchListCtrl::AddResult(CSearchFile* toshow)
 				wxASSERT(before->GetParent() != toshow);
 			}
 		}
-		
+
 		if ((int)newid < GetItemCount() - 1) {
-			CSearchFile* after = (CSearchFile*)GetItemData(newid + 1);
+			CSearchFile* after = reinterpret_cast<CSearchFile*>(GetItemData(newid + 1));
 			wxASSERT(after);
 			if (parent) {
 				wxASSERT((after->GetParent() == parent) || (!after->GetParent()));
@@ -254,7 +254,7 @@ void CSearchListCtrl::AddResult(CSearchFile* toshow)
 void CSearchListCtrl::RemoveResult(CSearchFile* toremove)
 {
 	ShowChildren(toremove, false);
-	
+
 	long index = FindItem(-1, reinterpret_cast<wxUIntPtr>(toremove));
 	if (index != -1) {
 		DeleteItem(index);
@@ -322,7 +322,7 @@ void CSearchListCtrl::UpdateItemColor(long index)
 	if (GetItem(item)) {
 		CMuleColour newcol(wxSYS_COLOUR_WINDOWTEXT);
 
-		CSearchFile* file = (CSearchFile*)GetItemData(index);
+		CSearchFile* file = reinterpret_cast<CSearchFile*>(GetItemData(index));
 
 		int red		= newcol.Red();
 		int green	= newcol.Green();
@@ -357,7 +357,7 @@ void CSearchListCtrl::UpdateItemColor(long index)
 		wxListItem newitem;
 		newitem.SetId( index );
 		newitem.SetTextColour( wxColour( red, green, blue ) );
-		SetItem( newitem );	
+		SetItem( newitem );
 	}
 }
 
@@ -389,20 +389,20 @@ void CSearchListCtrl::SetFilter(const wxString& regExp, bool invert, bool filter
 	} else {
 		m_filterText = regExp;
 	}
-	
+
 	m_filter.Compile(m_filterText, wxRE_DEFAULT | wxRE_ICASE);
 	m_filterKnown = filterKnown;
 	m_invert = invert;
-	
+
 	if (m_filterEnabled) {
 		// Swap the list of filtered results so we can freely add new items to the list
 		ResultList curFiltered;
 		std::swap(curFiltered, m_filteredOut);
-	
+
 		// Filter items already on the list
 		for (int i = 0; i < GetItemCount();) {
-			CSearchFile* file = (CSearchFile*)GetItemData(i);
-		
+			CSearchFile* file = reinterpret_cast<CSearchFile*>(GetItemData(i));
+
 			if (IsFiltered(file)) {
 				++i;
 			} else {
@@ -428,7 +428,7 @@ void CSearchListCtrl::EnableFiltering(bool enabled)
 {
 	if (enabled != m_filterEnabled) {
 		m_filterEnabled = enabled;
-		
+
 		if (enabled) {
 			SetFilter(m_filterText, m_invert, m_filterKnown);
 		} else {
@@ -453,7 +453,7 @@ bool CSearchListCtrl::IsFiltered(const CSearchFile* file)
 {
 	// By default, everything is displayed
 	bool result = true;
-	
+
 	if (m_filterEnabled && m_filter.IsValid()) {
 		result = m_filter.Matches(file->GetFileName().GetPrintable());
 		result = ((result && !m_invert) || (!result && m_invert));
@@ -468,8 +468,8 @@ bool CSearchListCtrl::IsFiltered(const CSearchFile* file)
 
 int CSearchListCtrl::SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData)
 {
-	CSearchFile* file1 = (CSearchFile*)item1;
-	CSearchFile* file2 = (CSearchFile*)item2;
+	CSearchFile* file1 = reinterpret_cast<CSearchFile*>(item1);
+	CSearchFile* file2 = reinterpret_cast<CSearchFile*>(item2);
 
 	// Modifies the result, 1 for ascending, -1 for decending
 	int modifier = (sortData & CMuleListCtrl::SORT_DES) ? -1 : 1;
@@ -529,7 +529,7 @@ int CSearchListCtrl::SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData)
 			result = cmp;
 			break;
 		}
-		
+
 		// Sort by file-types
 		case ID_SEARCH_COL_TYPE: {
 			result = GetFiletypeByName(file1->GetFileName()).Cmp(GetFiletypeByName(file2->GetFileName()));
@@ -545,7 +545,7 @@ int CSearchListCtrl::SortProc(wxUIntPtr item1, wxUIntPtr item2, long sortData)
 		case ID_SEARCH_COL_FILEID:
 			result = CmpAny(file2->GetFileHash(), file1->GetFileHash());
 			break;
-		
+
 		// Sort by file status
 		case ID_SEARCH_COL_STATUS:
 			result = CmpAny(DetermineStatusPrintable(file2), DetermineStatusPrintable(file1));
@@ -570,7 +570,7 @@ void CSearchListCtrl::SetSorting(unsigned column, unsigned order)
 	// First collapse all parent items
 	// Backward order means our index won't be influenced by items getting collapsed.
 	for (int i = GetItemCount(); i--;) {
-		CSearchFile* file = ((CSearchFile*)GetItemData(i));
+		CSearchFile* file = reinterpret_cast<CSearchFile*>(GetItemData(i));
 		if (file->ShowChildren()) {
 			ShowChildren(file, false);
 		}
@@ -618,19 +618,19 @@ void CSearchListCtrl::SyncOtherLists(CSearchListCtrl *src)
 void CSearchListCtrl::OnRightClick(wxListEvent& event)
 {
 	CheckSelection(event);
-	
+
 	if (GetSelectedItemCount()) {
 		// Create the popup-menu
 		wxMenu menu(_("File"));
 		menu.Append(MP_RESUME, _("Download"));
-		
+
 		wxMenu* cats = new wxMenu(_("Category"));
 		cats->Append(MP_ASSIGNCAT, _("Main"));
 		for (unsigned i = 1; i < theApp->glob_prefs->GetCatCount(); i++) {
 			cats->Append(MP_ASSIGNCAT + i,
 				theApp->glob_prefs->GetCategory(i)->title);
 		}
-		
+
 		menu.Append(MP_MENU_CATS, _("Download in category"), cats);
 		menu.AppendSeparator();
 
@@ -667,7 +667,7 @@ void CSearchListCtrl::OnColumnLClick( wxListEvent& event )
 {
 	// Let the real event handler do its work first
 	CMuleListCtrl::OnColumnLClick( event );
-	
+
 	SyncOtherLists( this );
 }
 
@@ -680,12 +680,12 @@ void CSearchListCtrl::OnColumnResize( wxListEvent& WXUNUSED(event) )
 
 void CSearchListCtrl::OnPopupGetUrl( wxCommandEvent& WXUNUSED(event) )
 {
-	wxString URIs;	
-	
+	wxString URIs;
+
 	long index = GetNextItem( -1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED );
-	
+
 	while (index != -1) {
-		CSearchFile* file = (CSearchFile*)GetItemData( index );
+		CSearchFile* file = reinterpret_cast<CSearchFile*>(GetItemData(index));
 
 		URIs += theApp->CreateED2kLink( file ) + wxT("\n");
 
@@ -705,7 +705,7 @@ void CSearchListCtrl::OnRazorStatsCheck( wxCommandEvent& WXUNUSED(event) )
 		return;
 	}
 
-	CSearchFile* file = (CSearchFile*)GetItemData( item );
+	CSearchFile* file = reinterpret_cast<CSearchFile*>(GetItemData(item));
 	theApp->amuledlg->LaunchUrl(thePrefs::GetStatsServerURL() + file->GetFileHash().Encode());
 }
 
@@ -717,7 +717,7 @@ void CSearchListCtrl::OnRelatedSearch( wxCommandEvent& WXUNUSED(event) )
 		return;
 	}
 
-	CSearchFile* file = (CSearchFile*)GetItemData( item );
+	CSearchFile* file = reinterpret_cast<CSearchFile*>(GetItemData(item));
 	theApp->searchlist->StopSearch(true);
 	theApp->amuledlg->m_searchwnd->ResetControls();
 	CastByID( IDC_SEARCHNAME, theApp->amuledlg->m_searchwnd, wxTextCtrl )->
@@ -731,7 +731,7 @@ void CSearchListCtrl::OnMarkAsKnown( wxCommandEvent& WXUNUSED(event) )
 #ifndef CLIENT_GUI
 	long index = GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
 	while (index > -1) {
-		CSearchFile *searchFile = (CSearchFile *)GetItemData(index);
+		CSearchFile *searchFile = reinterpret_cast<CSearchFile *>(GetItemData(index));
 		CKnownFile *knownFile(new CKnownFile(*searchFile));
 		theApp->knownfiles->SafeAddKFile(knownFile);
 		index = GetNextItem(index, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
@@ -754,7 +754,7 @@ void CSearchListCtrl::OnPopupDownload(wxCommandEvent& event)
 
 void CSearchListCtrl::OnItemActivated(wxListEvent& event)
 {
-	CSearchFile* file = ((CSearchFile*)GetItemData(event.GetIndex()));
+	CSearchFile* file = reinterpret_cast<CSearchFile*>(GetItemData(event.GetIndex()));
 	if (file->HasChildren()) {
 		ShowChildren(file, !file->ShowChildren());
 	} else {
@@ -782,16 +782,16 @@ void CSearchListCtrl::DownloadSelected(int category)
 	if (category == -1) {
 		// Defaults to main category
 		category = 0;
-		
+
 		if (CastByID(IDC_EXTENDEDSEARCHCHECK, NULL, wxCheckBox)->GetValue()) {
 			category = CastByID(ID_AUTOCATASSIGN, NULL, wxChoice)->GetSelection();
-		}		
+		}
 	}
-	
+
 	// Process all selections
 	long index = GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
 	while (index > -1) {
-		CSearchFile* file = (CSearchFile*)GetItemData(index);
+		CSearchFile* file = reinterpret_cast<CSearchFile*>(GetItemData(index));
 		CoreNotify_Search_Add_Download(file, category);
 		index = GetNextItem(index, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
 	}
@@ -808,7 +808,7 @@ const wxBrush& GetBrush(wxSystemColour index)
 void CSearchListCtrl::OnDrawItem(
 	int item, wxDC* dc, const wxRect& rect, const wxRect& rectHL, bool highlighted)
 {
-	CSearchFile* file = (CSearchFile*)GetItemData(item);
+	CSearchFile* file = reinterpret_cast<CSearchFile*>(GetItemData(item));
 
 	// Define text-color and background
 	if (highlighted) {
@@ -853,10 +853,10 @@ void CSearchListCtrl::OnDrawItem(
 
 			// Make a copy of the current rectangle so we can apply specific tweaks
 			wxRect target_rec = cur_rec;
-			
+
 			// will ensure that text is about in the middle ;)
 			target_rec.y += iTextOffset;
-			
+
 			if (i == 0) {
 				if (file->HasChildren() || file->GetParent()) {
 					tree_show = (listitem.GetWidth() > 0);
@@ -873,9 +873,9 @@ void CSearchListCtrl::OnDrawItem(
 				// Check if the rating icon should be drawn
 				if (file->HasRating()) {
 					int image = Client_InvalidRating_Smiley + file->UserRating() - 1;
-					
+
 					int imgWidth = 16;
-					
+
 					theApp->amuledlg->m_imagelist.Draw(image, *dc, target_rec.GetX(),
 							target_rec.GetY() - 1, wxIMAGELIST_DRAW_TRANSPARENT);
 
@@ -884,20 +884,20 @@ void CSearchListCtrl::OnDrawItem(
 					target_rec.width -= imgWidth + 4;
 				}
 			}
-		
+
 			wxListItem cellitem;
 			cellitem.SetColumn(i);
 			cellitem.SetId(item);
 
 			// Force clipper (clip 2 px more than the rectangle from the right side)
 			wxDCClipper clipper(*dc, target_rec.x, target_rec.y, target_rec.width - 2, target_rec.height);
-			
+
 			if (GetItem(cellitem)) {
 				dc->DrawText(cellitem.GetText(), target_rec.GetX(), target_rec.GetY());
 			} else {
 				dc->DrawText(wxT("GetItem failed!"), target_rec.GetX(), target_rec.GetY());
 			}
-			
+
 			// Increment to the next column
 			cur_rec.x += listitem.GetWidth();
 		}
@@ -908,7 +908,7 @@ void CSearchListCtrl::OnDrawItem(
 		// Gather some information
 		const bool notLast = (item + 1 < GetItemCount());
 		const bool notFirst = (item != 0);
-		const bool hasNext = notLast && ((CSearchFile*)GetItemData(item + 1))->GetParent();
+		const bool hasNext = notLast && reinterpret_cast<CSearchFile*>(GetItemData(item + 1))->GetParent();
 		const int middle = cur_rec.y + ( cur_rec.height + 1 ) / 2;
 
 		// Set up a new pen for drawing the tree
@@ -928,7 +928,7 @@ void CSearchListCtrl::OnDrawItem(
 				dc->DrawLine(treeCenter, middle, treeCenter, cur_rec.y - 1);
 			}
 		} else if (file->HasChildren()) {
-		   	if (file->ShowChildren()) {
+			if (file->ShowChildren()) {
 				// Draw empty circle
 				dc->SetBrush(*wxTRANSPARENT_BRUSH);
 			} else {
@@ -950,7 +950,7 @@ void CSearchListCtrl::OnDrawItem(
 		CSearchFile* parent = file->GetParent();
 
 		if (item > 0) {
-			CSearchFile* before = (CSearchFile*)GetItemData(item - 1);
+			CSearchFile* before = reinterpret_cast<CSearchFile*>(GetItemData(item - 1));
 			wxASSERT(before);
 			if (parent) {
 				wxASSERT((before->GetParent() == parent) || (before == parent));
@@ -958,9 +958,9 @@ void CSearchListCtrl::OnDrawItem(
 				wxASSERT(before->GetParent() != file);
 			}
 		}
-		
+
 		if (item < GetItemCount() - 1) {
-			CSearchFile* after = (CSearchFile*)GetItemData(item + 1);
+			CSearchFile* after = reinterpret_cast<CSearchFile*>(GetItemData(item + 1));
 			wxASSERT(after);
 			if (parent) {
 				wxASSERT((after->GetParent() == parent) || (!after->GetParent()));
@@ -976,7 +976,7 @@ void CSearchListCtrl::OnDrawItem(
 void CSearchListCtrl::ShowChildren(CSearchFile* file, bool show)
 {
 	Freeze();
-		
+
 	file->SetShowChildren(show);
 
 	const CSearchResultList& results = file->GetChildren();

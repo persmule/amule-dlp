@@ -16,7 +16,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -26,6 +26,7 @@
 #define FORMAT_H
 
 #include <list>
+#include <string> // Needed to use std::string
 #include "MuleDebug.h"
 
 
@@ -92,7 +93,7 @@ class CFormat
 		unsigned	argIndex;	//!< Argument index. (Position, unless specified otherwise.)
 		wxChar		flag;		//!< The optional flag character.
 		unsigned	width;		//!< The optional field width.
-		signed 		precision;	//!< The optional precision value.
+		signed		precision;	//!< The optional precision value.
 		// length is not stored
 		wxChar		type;		//!< The conversion type.
 		size_t		startPos;	//!< Position of the first character of the format-specifier in the format-string.
@@ -111,7 +112,7 @@ public:
 	/**
 	 * Constructor.
 	 *
-	 * This form is required to construct from a plain char * 
+	 * This form is required to construct from a plain char *
 	 * with wx 2.9
 	 *
 	 * @param str The format-string to be used.
@@ -138,17 +139,18 @@ public:
 	// explicit overloads to avoid pass-by-value even in debug builds.
 	CFormat& operator%(const wxString& value)		{ return this->operator%<const wxString&>(value); }
 	CFormat& operator%(const CFormat& value)		{ return this->operator%<const wxString&>(value); }
+	CFormat& operator%(const std::string& value)	{ return this->operator%<const wxString&>(wxString(value.c_str(), wxConvUTF8)); }
 
 	/**
 	 * Returns the resulting string.
 	 */
 	wxString GetString() const;
-	
+
 	/**
 	 * Implicit conversion to wxString.
 	 */
 	operator wxString() const		{ return GetString(); };
-	 
+
 private:
 	/**
 	 * Initialize internal structures.

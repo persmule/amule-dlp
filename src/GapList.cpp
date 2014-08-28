@@ -16,7 +16,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
@@ -36,7 +36,7 @@ void CGapList::Init(uint64 fileSize, bool isEmpty)
 	m_iPartCount = fileSize / PARTSIZE + 1;
 	m_sizeLastPart = fileSize % PARTSIZE;
 	// file with size of n * PARTSIZE
-	if (m_sizeLastPart == 0 
+	if (m_sizeLastPart == 0
 		&& fileSize) {  // that's only for pre-init in ctor
 		m_sizeLastPart = PARTSIZE;
 		m_iPartCount--;
@@ -46,10 +46,12 @@ void CGapList::Init(uint64 fileSize, bool isEmpty)
 	if (isEmpty) {
 		m_partsComplete.resize(m_iPartCount, incomplete);
 		AddGap(0, fileSize - 1);
+		m_totalGapSize = fileSize;
 	} else {
 		m_partsComplete.resize(m_iPartCount, complete);
+		m_totalGapSize = 0;
 	}
-	m_totalGapSizeValid = false;
+	m_totalGapSizeValid = true;
 }
 
 
@@ -101,7 +103,7 @@ void CGapList::AddGap(uint64 gapstart, uint64 gapend)
 			break;
 		}
 	}
-	// for fastest insertion point to the element AFTER which we want to insert	
+	// for fastest insertion point to the element AFTER which we want to insert
 	if (it != m_gaplist.begin()) {
 		--it;
 	}
@@ -205,10 +207,10 @@ uint64 CGapList::GetGapSize()
 {
 	if (!m_totalGapSizeValid) {
 		m_totalGapSizeValid = true;
-   		m_totalGapSize = 0;
+		m_totalGapSize = 0;
 
 		ListType::const_iterator it = m_gaplist.begin();
-		for (; it != m_gaplist.end(); it++) {
+		for (; it != m_gaplist.end(); ++it) {
 			m_totalGapSize += it->first - it->second + 1;
 		}
 	}
@@ -267,7 +269,7 @@ bool CGapList::IsComplete(uint64 gapstart, uint64 gapend) const
 			||(curGapStart >= gapstart    && curGapStart <= gapend)
 			||(curGapEnd   <= gapend      && curGapEnd   >= gapstart)
 			||(gapstart    >= curGapStart && gapend      <= curGapEnd)) {
-			return false;	
+			return false;
 		}
 		if (curGapStart > gapend) {
 			break;
