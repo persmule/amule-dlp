@@ -5,7 +5,7 @@ http://www.amule.org/abugs/view.php?id=1572
 
 --- a/src/ThreadTasks.cpp
 +++ b/src/ThreadTasks.cpp
-@@ -506,6 +506,15 @@ void CCompletionTask::OnExit()
+@@ -531,6 +531,15 @@ void CCompletionTask::OnExit()
  #include <stdlib.h>
  #include <errno.h>
  

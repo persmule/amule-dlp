@@ -1,10 +1,8 @@
-Index: amule/src/utils/cas/configfile.c
-===================================================================
---- amule.orig/src/utils/cas/configfile.c	2011-04-12 00:27:42.000000000 +0200
-+++ amule/src/utils/cas/configfile.c	2011-04-17 11:50:56.448061821 +0200
-@@ -44,7 +44,7 @@
+--- a/src/utils/cas/configfile.c
++++ b/src/utils/cas/configfile.c
+@@ -52,7 +52,7 @@ int writeconfig(void)
  		"# font_size - size the font\n",
- 		"# source_image - image where the text will be writen\n",
+ 		"# source_image - image where the text will be written\n",
  		"# *_line - x,y,[1/0] enabled or disabled\n\n",
 -		"font /usr/share/fonts/corefonts/times.ttf\n",
 +		"font /usr/share/fonts/truetype/ttf-dejavu/DejaVuSerif.ttf\n",

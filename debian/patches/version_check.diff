@@ -1,9 +1,7 @@
 Disable NewVersionCheck by Default (Closes: #554623)
-Index: amule/src/Preferences.cpp
-===================================================================
---- amule.orig/src/Preferences.cpp	2011-11-12 17:52:00.000000000 +0100
-+++ amule/src/Preferences.cpp	2011-11-12 18:33:43.999852356 +0100
-@@ -1210,7 +1210,7 @@
+--- a/src/Preferences.cpp
++++ b/src/Preferences.cpp
+@@ -1213,7 +1213,7 @@ void CPreferences::BuildItemList( const
  	/**
  	 * Version check
  	 **/
