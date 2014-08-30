@@ -3,8 +3,10 @@ amule (2.3.1+git1a369e47-1) UNRELEASED; urgency=medium
   * New upsteam GIT snapshot repository; add support to WX 3.0; Closes: #751241
   * debian/patches/*
     - refreshed, removed patches merged upstream
+  * debian/control
+    - upgraded b-d to WX 3.0
 
- -- Sandro Tosi <morph@debian.org>  Sat, 30 Aug 2014 19:49:20 +0100
+ -- Sandro Tosi <morph@debian.org>  Sat, 30 Aug 2014 19:49:53 +0100
 
 amule (2.3.1-11) unstable; urgency=low
 
