@@ -1,3 +1,9 @@
+amule (2.3.1+git1a369e47-1) UNRELEASED; urgency=medium
+
+  * New upsteam GIT snapshot repository; add support to WX 3.0; Closes: #751241
+
+ -- Sandro Tosi <morph@debian.org>  Sat, 30 Aug 2014 19:47:14 +0100
+
 amule (2.3.1-11) unstable; urgency=low
 
   [ Dmitry Smirnov ]
