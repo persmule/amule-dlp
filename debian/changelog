@@ -5,8 +5,10 @@ amule (2.3.1+git1a369e47-1) UNRELEASED; urgency=medium
     - refreshed, removed patches merged upstream
   * debian/control
     - upgraded b-d to WX 3.0
+  * debian/watch
+    - mangle Debian version for Git snapshot
 
- -- Sandro Tosi <morph@debian.org>  Sat, 30 Aug 2014 19:49:53 +0100
+ -- Sandro Tosi <morph@debian.org>  Sat, 30 Aug 2014 19:54:23 +0100
 
 amule (2.3.1-11) unstable; urgency=low
 

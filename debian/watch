@@ -1,3 +1,3 @@
 version=3
-opts="uversionmangle=s/rc/~rc/,dversionmangle=s/.debian.//" \
+opts="uversionmangle=s/rc/~rc/,dversionmangle=s/.debian.//,dversionmangle=s/\+git\w+$//" \
   http://sf.net/amule/aMule-(.*)\.tar.bz2
