@@ -1,0 +1,19 @@
+<schemalist>
+  <schema id="org.gnome.aMule" path="/desktop/gnome/url-handlers/ed2k/">
+    <key name="command" type="s">
+      <default>'ed2k "%s"'</default>
+      <summary>The command to handle ed2k URLs</summary>
+      <description>The command to handle ed2k URLs.</description>
+    </key>
+    <key name="needs-terminal" type="b">
+      <default>false</default>
+      <summary>Whether command to handle ed2k URLs needs a terminal</summary>
+      <description>Whether command to handle ed2k URLs needs a terminal.</description>
+    </key>
+    <key name="enabled" type="b">
+      <default>true</default>
+      <summary>Whether command to handle ed2k URLs is enabled</summary>
+      <description>Whether command to handle ed2k URLs is enabled.</description>
+    </key>
+  </schema>
+</schemalist>
