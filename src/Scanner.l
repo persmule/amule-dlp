@@ -26,7 +26,7 @@ extern int yyerror(wxString errstr);
 #define	YY_FATAL_ERROR		FatalLexError
 
 static void ReadLexBuff(char* pcBuff, size_t& riResult, size_t uMaxSize);
-
+static void ReadLexBuff(char* pcBuff, int& riResult, size_t uMaxSize);
 static void FatalLexError(yyconst char msg[]);
 
 static char* _pszLexBuff;
