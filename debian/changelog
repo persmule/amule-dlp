@@ -1,3 +1,10 @@
+amule (2.3.1+git1a369e47-2) UNRELEASED; urgency=medium
+
+  * fix "plasma-widget-amule" shared MIME registration, thanks to Dmitry Smirnov
+    for the report and patch; Closes: #761462
+
+ -- Sandro Tosi <morph@debian.org>  Sat, 25 Oct 2014 19:35:52 +0100
+
 amule (2.3.1+git1a369e47-1) unstable; urgency=medium
 
   * New upsteam GIT snapshot repository; add support to WX 3.0; Closes: #751241
@@ -7,8 +14,6 @@ amule (2.3.1+git1a369e47-1) unstable; urgency=medium
     - upgraded b-d to WX 3.0
   * debian/watch
     - mangle Debian version for Git snapshot
-  * fix "plasma-widget-amule" shared MIME registration, thanks to Dmitry Smirnov
-    for the report and patch; Closes: #761462
 
  -- Sandro Tosi <morph@debian.org>  Sat, 30 Aug 2014 19:57:47 +0100
 
