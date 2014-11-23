@@ -2,7 +2,7 @@
 
 set -e
 
-DIVERSIONS=`env LC_ALL=C /usr/sbin/dpkg-divert --list | grep -E 'by amule(-utils)?$'` || true
+DIVERSIONS=`env LC_ALL=C dpkg-divert --list | grep -E 'by amule(-utils)?$'` || true
 
 if [ -n "$DIVERSIONS" ]; then
     echo "$DIVERSIONS" | while read diversion of FILE to DIVERTED by PACKAGE; do
