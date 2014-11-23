@@ -1,3 +1,10 @@
+amule (2.3.1+git1a369e47-3) unstable; urgency=medium
+
+  * [c82d03e] remove absolute path from dpkg-divert calls; thanks to Guillem
+    Jover for the report and patch; Closes: #769847
+
+ -- Sandro Tosi <morph@debian.org>  Sun, 23 Nov 2014 13:57:01 +0000
+
 amule (2.3.1+git1a369e47-2) unstable; urgency=medium
 
   [ Dmitry Smirnov ]
