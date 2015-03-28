@@ -110,6 +110,7 @@ enum {
 	CMD_ID_DOWNLOAD,
 	// IDs for deprecated commands
 	CMD_ID_SET_IPFILTER
+
 };
 
 // method to create a SearchFile

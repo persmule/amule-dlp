@@ -1,3 +1,4 @@
+//
 // This file is part of the aMule Project.
 //
 // Copyright (c) 2003-2011 aMule Team ( admin@amule.org / http://www.amule.org )
