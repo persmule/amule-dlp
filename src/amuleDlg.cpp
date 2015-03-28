@@ -1482,9 +1482,6 @@ void CamuleDlg::DoNetworkRearrange()
 
 
 	m_networkpages[1].page->Show(thePrefs::GetNetworkKademlia());
-=======
-
-	m_networkpages[1].page->Show(thePrefs::GetNetworkKademlia());
 	networks_notebook->Show(thePrefs::GetNetworkED2K() && thePrefs::GetNetworkKademlia());
 
 	wxWindow* replacement = NULL;
