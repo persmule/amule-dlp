@@ -102,3 +102,9 @@ You can contribute to aMule several ways:
 [7]: http://wiki.amule.org/wiki/Translations	   "Translating aMule"
 [8]: http://wiki.amule.org/wiki/Translating_Wiki   "Translating the wiki"
 [9]: http://wiki.amule.org/wiki/Translating_Docs   "Translating the documentation"
+
+amule-dlp
+=========
+
+Dynamic Leech Protection(DLP) is a part of eMule Xtreme Mod at first. This project aim to make DLP available for aMule. Bill Lee did most development before 2012, while I migrate them to GitHub.
+
