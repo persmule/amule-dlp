@@ -680,6 +680,8 @@ void CamuleDlg::AddDLPMessageLine(const wxString& msg) /* modified by Bill Lee *
 		}
 		cv->ShowPosition(cv->GetLastPosition()-1);
 	}
+	//Dynamic Leech Protect - persmule
+	DlpAddLogLine(msg);
 }
 #endif
 

@@ -310,6 +310,8 @@ private:
 };
 
 extern CLogger theLogger;
+//Dynamic Leech Protect - persmule
+extern CLogger dlpLogger;
 
 /**
  * This class forwards log-lines from wxWidgets to CLogger.
@@ -455,6 +457,9 @@ public:
 	#endif
 	#define AddLogLineF(string) theLogger.AddLogLine(__TFILE__, __LINE__, false, logStandard, string, false, false)
 #endif
+
+//Dynamic Leech Protect - persmule
+#define DlpAddLogLine(string) dlpLogger.AddLogLine(__TFILE__, __LINE__, false, logStandard, string, false, false)
 
 #endif
 // File_checked_for_headers
