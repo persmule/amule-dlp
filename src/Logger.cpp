@@ -305,6 +305,8 @@ void CLogger::FlushApplog()
 }
 
 CLogger theLogger;
+//Dynamic Leech Protect - persmule
+CLogger dlpLogger;
 
 BEGIN_EVENT_TABLE(CLogger, wxEvtHandler)
 	EVT_MULE_LOGGING(CLogger::OnLoggingEvent)
