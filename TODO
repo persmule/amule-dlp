@@ -1,2 +1,4 @@
 
 If amuled is launched with -f, it cannot die a normal death, you must kill it twice. Now I am using raf's daemon(1) to support it.
+
+There is a bug within the build system, which causes an auto-generated file Scanner.h placed in the original /path/to/configure/src/ directory. So if you run configure script in another directory (eg. /path/to/configure/build/), the make may fail, until you copy the Scanner.h to build/src manually.
