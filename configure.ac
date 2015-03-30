@@ -24,7 +24,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 #
 
-AC_INIT([aMule],[SVN],[admin@amule.org])
+AC_INIT([aMule-dlp], [SVN], [admin@amule.org])
 AM_INIT_AUTOMAKE
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
@@ -88,6 +88,14 @@ MULE_IF_ENABLED([static], [MULE_APPEND([LDFLAGS], [-static])])
 
 KDE_CONFIG_OPTIONS
 QT_CONFIG_OPTIONS
+
+#Dynamic Leecher Protection - Bill Lee
+AC_ARG_ENABLE(
+	[dlp],
+	[AS_HELP_STRING(
+		[--disable-dlp],
+		[Do not compile DLP.])],
+	[ENABLE_DLP=$enableval], [ENABLE_DLP=yes])
 
 # Default is yes, because they're most likely compatible.
 # However, this is only used when cross-compiling.
@@ -457,6 +465,8 @@ AM_CONDITIONAL(COMPILE_NLS, test x$USE_NLS = xyes)
 AM_CONDITIONAL(GENERATE_FLEX_HEADER, test x$HAVE_FLEX_EXTENDED = xyes)
 AM_CONDITIONAL(INSTALL_SKINS, test MULE_IS_ENABLED_ANY([monolithic, amule-gui]))
 AM_CONDITIONAL(PLASMAMULE, test MULE_IS_ENABLED([plasmamule]))
+#Dynamic Leech Protection - Bill Lee
+AM_CONDITIONAL(ENABLE_DLP, test x$ENABLE_DLP = xyes)
 
 AM_CONDITIONAL([COMPILE_LIB_COMMON],	[test MULE_IS_ENABLED_ANY([monolithic, amule-daemon, amulecmd, webserver, amule-gui, fileview])])
 AM_CONDITIONAL([COMPILE_LIB_EC],	[test MULE_IS_ENABLED_ANY([monolithic, amule-daemon, amulecmd, webserver, amule-gui])])

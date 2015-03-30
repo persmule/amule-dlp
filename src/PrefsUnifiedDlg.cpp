@@ -53,6 +53,11 @@
 #include "UserEvents.h"
 #include "PlatformSpecific.h"		// Needed for PLATFORMSPECIFIC_CAN_PREVENT_SLEEP_MODE
 
+//Dynamic Leech Protect - Bill Lee
+#ifdef AMULE_DLP
+#include "DLP.h"
+#endif
+
 BEGIN_EVENT_TABLE(PrefsUnifiedDlg,wxDialog)
 	// Events
 #define USEREVENTS_EVENT(ID, NAME, VARS) \
@@ -113,6 +118,11 @@ BEGIN_EVENT_TABLE(PrefsUnifiedDlg,wxDialog)
 	EVT_BUTTON(IDC_IPFILTERUPDATE,		PrefsUnifiedDlg::OnButtonIPFilterUpdate)
 	EVT_CHOICE(IDC_COLORSELECTOR,		PrefsUnifiedDlg::OnColorCategorySelected)
 	EVT_LIST_ITEM_SELECTED(ID_PREFSLISTCTRL,PrefsUnifiedDlg::OnPrefsPageChange)
+
+	//Dynamic Leech Protect - Bill Lee
+	#ifdef AMULE_DLP
+	EVT_BUTTON(IDC_RELOADANTILEECH,		PrefsUnifiedDlg::OnButtonReloadAntiLeech)
+	#endif
 
 	EVT_INIT_DIALOG(PrefsUnifiedDlg::OnInitDialog)
 
@@ -187,6 +197,9 @@ PrefsPage pages[] =
 	{ wxTRANSLATE("Online Signature"),	PreferencesOnlineSigTab,	21 },
 	{ wxTRANSLATE("Advanced"),			PreferencesaMuleTweaksTab,	12 },
 	{ wxTRANSLATE("Events"),			PreferencesEventsTab,		5 }
+#ifdef AMULE_DLP
+	,{ wxTRANSLATE("DLP"),				PreferencesDLPTab,			5}
+#endif
 #ifdef __DEBUG__
 	,{ wxTRANSLATE("Debugging"),		PreferencesDebug,			25 }
 #endif
@@ -1086,6 +1099,21 @@ void PrefsUnifiedDlg::OnButtonIPFilterUpdate(wxCommandEvent& WXUNUSED(event))
 {
 	theApp->ipfilter->Update( CastChild( IDC_IPFILTERURL, wxTextCtrl )->GetValue() );
 }
+
+//Bill Lee
+#ifdef AMULE_DLP
+void PrefsUnifiedDlg::OnButtonReloadAntiLeech(wxCommandEvent& WXUNUSED(event)){
+	#ifndef CLIENT_GUI
+	if( theDLP->ReloadAntiLeech() )
+		wxMessageBox(_("Cannot load antiLeech!"), _("Message"), wxOK | wxICON_EXCLAMATION, this);
+	else
+		wxMessageBox(_("Succeed loading antiLeech!"), _("Message"), wxOK | wxICON_INFORMATION, this);
+	#else
+	AddLogLineN(_("Reload antiLeech from remote GUI has not been implemented."));
+	wxMessageBox(_("Sorry, it has not been implemented yet!"));
+	#endif
+}
+#endif
 
 
 void PrefsUnifiedDlg::OnPrefsPageChange(wxListEvent& event)

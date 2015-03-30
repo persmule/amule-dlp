@@ -50,8 +50,10 @@
 	#define VERSION "2.4.0"
 #endif
 
-#ifdef __SVN__
+#if defined __SVN__
 	#define	MOD_VERSION_LONG		wxT("aMule SVN")
+#elif defined AMULE_DLP
+	#define	MOD_VERSION_LONG		(wxT("aMule-dlp ") wxT(VERSION))
 #else
 	#define	MOD_VERSION_LONG		(wxT("aMule ") wxT(VERSION))
 #endif
