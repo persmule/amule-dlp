@@ -354,6 +354,8 @@ if (NOT (BUILD_MONOLITHIC OR BUILD_DAEMON))
 	list (APPEND experimental_options_without_target ENABLE_QUIC)
 endif()
 
+option(AMULE_DLP "Enable DLP support" ON)
+
 foreach (experimental_option IN LISTS AMULE_EXPERIMENTAL_OPTIONS)
 	# ENABLE_ALL_EXPERIMENTAL wins over an individual switch: option() leaves
 	# an unset switch defined as OFF, so an explicit -DENABLE_X=NO is

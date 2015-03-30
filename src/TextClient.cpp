@@ -71,6 +71,9 @@ enum
 	CMD_ID_RELOAD_SHARED,
 	CMD_ID_RELOAD_IPFILTER_LOCAL,
 	CMD_ID_RELOAD_IPFILTER_NET,
+#ifdef AMULE_DLP
+	CMD_ID_RELOAD_ANTILEECH, /* Only used internally - Dynamic Leech Protect - Bill Lee */
+#endif
 	CMD_ID_SET_IPFILTER_ON,
 	CMD_ID_SET_IPFILTER_OFF,
 	CMD_ID_SET_IPFILTER_CLIENTS_ON,
@@ -332,6 +335,13 @@ int CamulecmdApp::ProcessCommand(int CmdId)
 			request_list.push_back(new CECPacket(EC_OP_CONNECT));
 		}
 		break;
+
+//Dynamic Leech Protect - Bill Lee
+#ifdef AMULE_DLP
+		case CMD_ID_RELOAD_ANTILEECH:
+			request_list.push_back(new CECPacket(EC_OP_ANTILEECH_RELOAD));
+			break;
+#endif
 
 	case CMD_ID_CONNECT_ED2K:
 		request_list.push_back(new CECPacket(EC_OP_SERVER_CONNECT));
@@ -1193,6 +1203,10 @@ void CamulecmdApp::OnInitCommandSet()
 	tmp->AddCommand(
 		"ED2K", CMD_ID_CONNECT_ED2K, wxTRANSLATE("Connect to eD2k only."), "", CMD_PARAM_NEVER);
 	tmp->AddCommand("Kad", CMD_ID_CONNECT_KAD, wxTRANSLATE("Connect to Kad only."), "", CMD_PARAM_NEVER);
+
+#ifdef AMULE_DLP
+	tmp->AddCommand("AntiLeech", CMD_ID_RELOAD_ANTILEECH, wxTRANSLATE("Reloads antiLeech."), "", CMD_PARAM_NEVER); //Bill Lee
+#endif
 
 	tmp = m_commands.AddCommand("Disconnect",
 		CMD_ID_DISCONNECT,

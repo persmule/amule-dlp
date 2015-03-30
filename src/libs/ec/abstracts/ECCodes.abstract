@@ -219,6 +219,9 @@ EC_OP_GET_KAD_LOOKUPS               0x69
 ## Identity/path are checked before unlink. NOOP on success; FAILED + STRING
 ## on failure, leaving the file shared/listed. Never calls CPartFile::Delete.
 EC_OP_KNOWNFILE_DELETE              0x6A
+
+EC_OP_ANTILEECH_RELOAD              0x80
+
 [/Section]
 
 [Section Content]

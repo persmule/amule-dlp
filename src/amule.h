@@ -205,6 +205,10 @@ protected:
 	wxString m_geometryString;
 	// Default basename until InitCommon selects the absolute log path.
 	wxString m_logFile;
+#ifdef AMULE_DLP
+  	//Dynamic Leech Protect - persmule
+	wxString m_dlplogFile;
+#endif
 	wxString m_appName;
 	wxString m_PidFile;
 
@@ -774,6 +778,10 @@ public:
 	wxString GetLog(bool reset = false);
 	wxString GetServerLog(bool reset = false);
 	void AddServerMessageLine(wxString &msg);
+//Bill Lee
+#ifdef AMULE_DLP
+	void AddDLPMessageLine(const wxString &msg);
+#endif
 	wxDECLARE_EVENT_TABLE();
 };
 
@@ -808,6 +816,10 @@ public:
 
 	virtual int ShowAlert(wxString msg, wxString title, int flags);
 
+//Bill Lee
+#ifdef AMULE_DLP
+	void AddDLPMessageLine(const wxString &msg);
+#endif
 	wxDECLARE_EVENT_TABLE();
 };
 
@@ -818,3 +830,8 @@ extern CamuleDaemonApp *theApp;
 
 #endif // AMULE_H
 // File_checked_for_headers
+
+#ifdef AMULE_DLP
+class DLP;	//forward declaretion
+extern DLP* theDLP;
+#endif

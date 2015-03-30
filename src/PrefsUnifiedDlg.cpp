@@ -116,8 +116,14 @@ PrefsUnifiedDlg *s_openPrefsDlg = nullptr;
 #endif
 } // namespace
 
+//Dynamic Leech Protect - Bill Lee
+#ifdef AMULE_DLP
+#include "DLP.h"
+#endif
+
 wxBEGIN_EVENT_TABLE(PrefsUnifiedDlg, wxDialog)
 // Events
+
 #define USEREVENTS_EVENT(ID, NAME, VARS) \
 	EVT_CHECKBOX(USEREVENTS_FIRST_ID + CUserEvents::ID * USEREVENTS_IDS_PER_EVENT + 1, \
 		PrefsUnifiedDlg::OnCheckBoxChange) \
@@ -214,6 +220,11 @@ wxBEGIN_EVENT_TABLE(PrefsUnifiedDlg, wxDialog)
 	EVT_CHOICE(IDC_COLORSELECTOR, PrefsUnifiedDlg::OnColorCategorySelected)
 	EVT_DATAVIEW_SELECTION_CHANGED(ID_PREFSLISTCTRL, PrefsUnifiedDlg::OnPrefsPageChange)
 
+//Dynamic Leech Protect - Bill Lee
+#ifdef AMULE_DLP
+	EVT_BUTTON(IDC_RELOADANTILEECH,		PrefsUnifiedDlg::OnButtonReloadAntiLeech)
+#endif
+
 	EVT_INIT_DIALOG(PrefsUnifiedDlg::OnInitDialog)
 
 	EVT_COMMAND_SCROLL(IDC_SLIDER, PrefsUnifiedDlg::OnScrollBarChange)
@@ -289,6 +300,10 @@ PrefsPage pages[] = { { wxTRANSLATE("General"), PreferencesGeneralTab, 13, "pref
 	{ wxTRANSLATE("IP2Country"), PreferencesIP2CountryTab, 13, "prefs_ip2country" },
 #endif
 	{ wxTRANSLATE("Advanced"), PreferencesaMuleTweaksTab, 12, "prefs_advanced" }
+#ifdef AMULE_DLP
+	,
+	{ wxTRANSLATE("DLP"), PreferencesDLPTab, 5, "prefs_dlp" }
+#endif
 #ifdef __DEBUG__
 	,
 	{ wxTRANSLATE("Debugging"), PreferencesDebug, 25, "prefs_debug" }
@@ -2283,6 +2298,21 @@ void PrefsUnifiedDlg::OnButtonIPFilterUpdate(wxCommandEvent &WXUNUSED(event))
 
 #ifdef GEOIP_GUI
 PrefsUnifiedDlg *PrefsUnifiedDlg::s_activeInstance = NULL;
+
+//Bill Lee
+#ifdef AMULE_DLP
+void PrefsUnifiedDlg::OnButtonReloadAntiLeech(wxCommandEvent& WXUNUSED(event)){
+	#ifndef CLIENT_GUI
+	if( theDLP->ReloadAntiLeech() )
+		wxMessageBox(_("Cannot load antiLeech!"), _("Message"), wxOK | wxICON_EXCLAMATION, this);
+	else
+		wxMessageBox(_("Succeed loading antiLeech!"), _("Message"), wxOK | wxICON_INFORMATION, this);
+	#else
+	AddLogLineN(_("Reload antiLeech from remote GUI has not been implemented."));
+	wxMessageBox(_("Sorry, it has not been implemented yet!"));
+	#endif
+}
+#endif
 
 PrefsUnifiedDlg::~PrefsUnifiedDlg()
 {
