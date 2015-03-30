@@ -1478,6 +1478,8 @@ void CamuleDlg::DoNetworkRearrange()
 		logs_notebook->AddPage(m_logpages[3].page, m_logpages[3].name);
 	}
 
+	logs_notebook->AddPage(m_logpages[4].page, m_logpages[4].name);
+
 	// Set the main window.
 	// If we have both networks active, activate a notebook to select between them.
 	// If only one is active, show the window directly without a surrounding one tab notebook.
