@@ -46,6 +46,7 @@ BEGIN_EVENT_TABLE(CServerWnd,wxPanel)
 	EVT_BUTTON(ID_BTN_RESET, CServerWnd::OnBnClickedResetLog)
 	EVT_BUTTON(ID_BTN_RESET_SERVER, CServerWnd::OnBnClickedResetServerLog)
 	EVT_SPLITTER_SASH_POS_CHANGED(ID_SRV_SPLITTER,CServerWnd::OnSashPositionChanged)
+	EVT_BUTTON(ID_BTN_RESET_DLP, CServerWnd::OnBnClickedResetDLPLog)
 END_EVENT_TABLE()
 
 
@@ -152,6 +153,11 @@ void CServerWnd::OnBnClickedResetServerLog(wxCommandEvent& WXUNUSED(evt))
 	theApp->GetServerLog(true); // Reset it
 }
 
+void CServerWnd::OnBnClickedResetDLPLog(wxCommandEvent& WXUNUSED(evt))
+{
+	wxTextCtrl* cv= CastByID( ID_DLPINFO, this, wxTextCtrl );
+	cv->Clear();
+}
 
 void CServerWnd::UpdateED2KInfo()
 {

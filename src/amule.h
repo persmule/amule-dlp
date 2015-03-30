@@ -410,6 +410,7 @@ public:
 	wxString GetLog(bool reset = false);
 	wxString GetServerLog(bool reset = false);
 	void AddServerMessageLine(wxString &msg);
+	void AddDLPMessageLine(const wxString &msg);
 	DECLARE_EVENT_TABLE()
 };
 
@@ -580,6 +581,8 @@ public:
 
 	virtual int ShowAlert(wxString msg, wxString title, int flags);
 
+	void AddDLPMessageLine(const wxString &msg);
+	
 	DECLARE_EVENT_TABLE()
 };
 
@@ -590,3 +593,8 @@ extern CamuleDaemonApp *theApp;
 
 #endif // AMULE_H
 // File_checked_for_headers
+
+#ifdef AMULE_DLP
+class DLP;	//forward declaretion
+extern DLP* theDLP;
+#endif

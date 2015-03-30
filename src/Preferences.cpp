@@ -51,6 +51,11 @@
 
 #include "UserEvents.h"
 
+#ifdef AMULE_DLP
+#include "DLPPref.h"
+#include "antiLeech.h"
+#endif
+
 #ifndef AMULE_DAEMON
 #include <wx/valgen.h>
 #include "muuli_wdr.h"
@@ -344,6 +349,19 @@ protected:
 	wxWindow*	m_widget;
 };
 
+/* Dynamic Leecher Protection */
+#ifdef AMULE_DLP
+bool CPreferences::s_DLPCheckModString;
+bool CPreferences::s_DLPCheckUsername;
+bool CPreferences::s_DLPCheckUserHash;
+bool CPreferences::s_DLPCheckHelloTag;
+bool CPreferences::s_DLPCheckInfoTag;
+//bool CPreferences::s_DLPCheckEasyMule;
+bool CPreferences::s_DLPCheckVeryCDMod;
+//bool CPreferences::s_DLPCheckminiMule; //Added by Bill Lee
+bool CPreferences::s_DLPCheckGhostMod;
+unsigned int CPreferences::s_DLPCheckMask;
+#endif
 
 /** Cfg class for wxStrings. */
 class Cfg_Str : public Cfg_Tmpl<wxString>
@@ -953,6 +971,11 @@ CPreferences::CPreferences()
 	s_userhash[5] = 14;
 	s_userhash[14] = 111;
 
+	// Dynamic Leecher Protection
+	#ifdef AMULE_DLP
+	CalcDLPCheckMask();
+	#endif
+
 #ifndef CLIENT_GUI
 	LoadPreferences();
 	ReloadSharedFolders();
@@ -1062,6 +1085,20 @@ void CPreferences::BuildItemList( const wxString& appdir )
 	NewCfgItem( IDC_NETWORKKAD, (new Cfg_Bool( wxT("/eMule/ConnectToKad"),	s_ConnectToKad, true )) );
 	NewCfgItem( IDC_NETWORKED2K, ( new Cfg_Bool( wxT("/eMule/ConnectToED2K"),	s_ConnectToED2K, true ) ));
 
+	/**
+	 * Dynamic Leecher Protection
+	 **/
+	#ifdef AMULE_DLP
+	NewCfgItem(IDC_CHECKMODSTRING, 		(new Cfg_Bool( wxT("/DLP/CheckModString"), s_DLPCheckModString, true )));
+	NewCfgItem(IDC_CHECKUSERNAME, 		(new Cfg_Bool( wxT("/DLP/CheckUsername"), s_DLPCheckUsername, true )));
+	NewCfgItem(IDC_CHECKUSERHASH, 		(new Cfg_Bool( wxT("/DLP/CheckUserHash"), s_DLPCheckUserHash, true )));
+	NewCfgItem(IDC_CHECKHELLOTAG, 		(new Cfg_Bool( wxT("/DLP/CheckHelloTag"), s_DLPCheckHelloTag, true )));
+	NewCfgItem(IDC_CHECKINFOTAG, 		(new Cfg_Bool( wxT("/DLP/CheckInfoTag"), s_DLPCheckInfoTag, true )));
+	//NewCfgItem(IDC_CHECKEASYMULE, 		(new Cfg_Bool( wxT("/DLP/CheckEasyMule"), s_DLPCheckEasyMule, true ))); //Modified by Bill Lee
+	NewCfgItem(IDC_CHECKVERYCDMOD, 		(new Cfg_Bool( wxT("/DLP/CheckVeryCDMod"), s_DLPCheckVeryCDMod, false )));
+	//NewCfgItem(IDC_CHECKMINIMULE,		(new Cfg_Bool( wxT("/DLP/CheckminiMule"), s_DLPCheckminiMule, true))); //Added by Bill Lee
+	NewCfgItem(IDC_CHECKGHOSTMOD, 		(new Cfg_Bool( wxT("/DLP/CheckGhostMod"), s_DLPCheckGhostMod, true ))); //Added by Bill Lee.
+	#endif
 
 	/**
 	 * Files
@@ -1471,6 +1508,11 @@ void CPreferences::Save()
 	}
 
 	SavePreferences();
+	
+	// Dynamic Leecher Protection
+	#ifdef AMULE_DLP
+	CalcDLPCheckMask();
+	#endif
 
 	#ifndef CLIENT_GUI
 	CTextFile sdirfile;
@@ -1483,6 +1525,21 @@ void CPreferences::Save()
 	#endif
 }
 
+#ifdef AMULE_DLP
+void CPreferences::CalcDLPCheckMask()
+{
+	s_DLPCheckMask = 0;
+	if (s_DLPCheckModString) s_DLPCheckMask |= PF_MODSTRING;
+	if (s_DLPCheckUsername) s_DLPCheckMask |= PF_USERNAME;
+	if (s_DLPCheckUserHash) s_DLPCheckMask |= PF_USERHASH;
+	if (s_DLPCheckHelloTag) s_DLPCheckMask |= PF_HELLOTAG;
+	if (s_DLPCheckInfoTag) s_DLPCheckMask |= PF_INFOTAG;
+	if (s_DLPCheckGhostMod) s_DLPCheckMask |= PF_GHOSTMOD;
+	//if (s_DLPCheckEasyMule) s_DLPCheckMask |= PF_EASYMULE;
+	if (s_DLPCheckVeryCDMod) s_DLPCheckMask |= PF_VERYCDEMULE;
+	//if (s_DLPCheckminiMule) s_DLPCheckMask |= PF_MINIMULE; //Added by Bill Lee
+}
+#endif
 
 CPreferences::~CPreferences()
 {

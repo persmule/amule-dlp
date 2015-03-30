@@ -114,6 +114,9 @@ public:
 
 	void AddLogLine(const wxString& line);
 	void AddServerMessageLine(wxString& message);
+	#ifdef AMULE_DLP
+	void AddDLPMessageLine(const wxString& msg); /* Modified by Bill Lee */
+	#endif
 	void ResetLog(int id);
 
 	void ShowUserCount(const wxString& info = wxEmptyString);
@@ -231,7 +234,7 @@ private:
 	WX_DECLARE_STRING_HASH_MAP(wxZipEntry*, ZipCatalog);
 	ZipCatalog cat;
 
-	PageType m_logpages[4];
+	PageType m_logpages[5];
 	PageType m_networkpages[2];
 
 	bool LoadGUIPrefs(bool override_pos, bool override_size);

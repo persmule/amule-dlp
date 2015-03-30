@@ -504,6 +504,49 @@ AC_DEFUN([MULE_CHECK_CCACHE],
 
 
 dnl ----------------------------------------------------
+dnl MULE_CHECK_BFD
+dnl check if bfd.h is on the system and usable
+dnl ----------------------------------------------------
+AC_DEFUN([MULE_CHECK_BFD],
+[AC_REQUIRE([MULE_CHECK_NLS])dnl
+
+	AC_MSG_CHECKING([for bfd])
+	result=no
+	for bfd_ldadd in "" "${LIBINTL}" "-ldl" "-ldl ${LIBINTL}"; do
+		MULE_BACKUP([LIBS])
+		MULE_BACKUP([LDFLAGS])
+		MULE_PREPEND([LIBS], [-lbfd  ${bfd_ldadd} ${ZLIB_LIBS}])
+		MULE_APPEND([LDFLAGS], [${ZLIB_LDFLAGS}])
+		AC_LINK_IFELSE([
+			AC_LANG_PROGRAM([[
+				#include <ansidecl.h>
+				#include <bfd.h>
+			]], [[
+				char *dummy = bfd_errmsg(bfd_get_error());
+			]])
+		], [
+			result=yes
+			BFD_CPPFLAGS="-DHAVE_BFD"
+			BFD_LIBS="-lbfd  ${bfd_ldadd}"
+			MULE_RESTORE([LIBS])
+			MULE_RESTORE([LDFLAGS])
+			break
+		])
+		MULE_RESTORE([LIBS])
+		MULE_RESTORE([LDFLAGS])
+	done
+
+	AC_MSG_RESULT([$result])
+
+	AS_IF([test $result = no],
+		[MULE_WARNING([bfd.h not found or unusable, please install binutils development package if you are a developer or want to help testing aMule])])
+
+AC_SUBST([BFD_CPPFLAGS])dnl
+AC_SUBST([BFD_LIBS])dnl
+])
+
+
+dnl ----------------------------------------------------
 dnl MULE_CHECK_FLEX_EXTENDED
 dnl check if flex can produce header files
 dnl ----------------------------------------------------
@@ -596,8 +639,8 @@ AC_DEFUN([MULE_CHECK_EXECINFO],
 			#include <execinfo.h>
 		]], [[
 			void *bt[1];
-			int n = backtrace((void **)&bt, 1);
-			char **bt_syms = backtrace_symbols(bt, n);
+			int n = backtrace(&bt, 1);
+			const char **bt_syms = backtrace_symbols(bt, n);
 		]])
 	], [
 		AH_TEMPLATE([HAVE_EXECINFO], [Define to 1 if you have the <execinfo.h> header which declares backtrace()])

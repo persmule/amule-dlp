@@ -23,6 +23,11 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
+//Dynamic Leech Protect - Bill Lee
+#ifdef AMULE_DLP
+#include "DLP.h"
+#endif
+
 #include <wx/wx.h>
 #include <wx/mstream.h>
 #include <wx/tokenzr.h>
@@ -83,9 +88,7 @@
 #include "kademlia/kademlia/UDPFirewallTester.h"
 #include "kademlia/routing/RoutingZone.h"
 
-
 //#define __PACKET_DEBUG__
-
 
 // some client testing variables
 static wxString crash_name = wxT("[Invalid User Name]");
@@ -289,6 +292,10 @@ void CUpDownClient::Init()
 	m_cCaptchasSent = 0;
 	m_cMessagesReceived = 0;
 	m_cMessagesSent = 0;
+
+	#ifdef AMULE_DLP
+	dlp_nonofficialopcodes = false; //Dynamic Leecher Protect
+	#endif
 
 }
 
@@ -634,7 +641,16 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 				m_byEmuleVersion = 0x99;
 				m_fSharedDirectories = 1;
 				dwEmuleTags |= 4;
-				break;
+				break;				
+			//Bill Lee start
+			//Dynamic Leecher Protection
+			#ifdef AMULE_DLP
+			default:	//if tag isn't those above, it may be used by leecher.
+				theDLP->CheckHelloTag(this, temptag.GetNameID());
+				dlp_nonofficialopcodes = true; //to detect Ghost Mod
+					break;
+			//Bill Lee end
+			#endif
 		}
 	}
 
@@ -716,6 +732,12 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile& data)
 	if (GetKadPort() && GetKadVersion() > 1) {
 		Kademlia::CKademlia::Bootstrap(wxUINT32_SWAP_ALWAYS(GetIP()), GetKadPort());
 	}
+
+	//Dynamic Leecher Protection - Bill Lee
+	#ifdef AMULE_DLP
+	if(theDLP->IsValid())
+	  theDLP->DLPCheck(this);
+	#endif
 
 	return bIsMule;
 }
@@ -966,6 +988,14 @@ bool CUpDownClient::ProcessMuleInfoPacket(const byte* pachPacket, uint32 nSize)
 							% GetClientFullInfo()
 					);
 
+					//Bill Lee start
+					//Dynamic Leecher Protection
+					#ifdef AMULE_DLP
+					theDLP->CheckInfoTag(this, temptag.GetNameID());
+					dlp_nonofficialopcodes = true;
+					#endif
+					//Bill Lee end
+
 					break;
 			}
 		}
@@ -1003,6 +1033,12 @@ bool CUpDownClient::ProcessMuleInfoPacket(const byte* pachPacket, uint32 nSize)
 		m_byInfopacketsReceived |= IP_EMULEPROTPACK;
 	}
 
+	//Dynamic Leecher Protection - Added by Bill Lee
+	#ifdef AMULE_DLP
+	if(theDLP->IsValid())
+	  theDLP->DLPCheck(this);
+	#endif
+	
 	return (protocol_version == 0xFF); // This was a OS_Info?
 }
 
@@ -1032,8 +1068,9 @@ void CUpDownClient::SendHelloTypePacket(CMemFile* data)
 		tagcount += 2;
 	}
 	tagcount ++; // eMule misc flags 2 (kad version)
+	
+	#if (defined __SVN__ || defined AMULE_DLP)
 
-	#ifdef __SVN__
 	// Kry - This is the tagcount!!! Be sure to update it!!
 	// Last update: CT_EMULECOMPAT_OPTIONS included
 	data->WriteUInt32(tagcount + 1);
@@ -1156,7 +1193,7 @@ void CUpDownClient::SendHelloTypePacket(CMemFile* data)
 
 	tagMisCompatOptions.WriteTagToFile(data);
 
-#ifdef __SVN__
+#if (defined __SVN__ || defined AMULE_DLP)
 	wxString mod_name(MOD_VERSION_LONG);
 	CTagString tagModName(ET_MOD_VERSION, mod_name);
 	tagModName.WriteTagToFile(data);

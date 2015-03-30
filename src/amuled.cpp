@@ -784,4 +784,8 @@ int CamuleDaemonApp::ShowAlert(wxString msg, wxString title, int flags)
 	return 0;	// That's neither yes nor no, ok, cancel
 }
 
+void CamuleDaemonApp::AddDLPMessageLine(const wxString &msg)
+{
+}
+
 // File_checked_for_headers
