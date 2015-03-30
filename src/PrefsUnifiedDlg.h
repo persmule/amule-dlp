@@ -124,6 +124,9 @@ protected:
 	void OnUserEventSelected(wxListEvent& event);
 	void OnLanguageChoice(wxCommandEvent &event);
 	void CreateEventPanels(const int idx, const wxString& vars, wxWindow* parent);
+	#ifdef AMULE_DLP
+	void OnButtonReloadAntiLeech(wxCommandEvent &event); /* Dynamic Leech Protect - Bill Lee */
+	#endif
 
 	void OnInitDialog( wxInitDialogEvent& evt );
 

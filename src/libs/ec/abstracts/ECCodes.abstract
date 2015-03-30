@@ -148,6 +148,8 @@ EC_OP_SERVER_SET_STATIC_PRIO        0x56
 
 EC_OP_FRIEND                        0x57
 
+EC_OP_ANTILEECH_RELOAD              0x80	
+
 [/Section]
 
 [Section Content]

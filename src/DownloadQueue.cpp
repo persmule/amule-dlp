@@ -623,6 +623,15 @@ void CDownloadQueue::CheckAndAddSource(CPartFile* sender, CUpDownClient* source)
 		return;
 	}
 
+	//Dynamic Leecher Protect - Bill Lee
+	#ifdef AMULE_DLP
+	if ( source->IsBanned() ){
+		source->Safe_Delete();
+		return;
+	}
+	#endif
+	//Bill Lee end
+
 	// Filter sources which are known to be dead/useless
 	if ( theApp->clientlist->IsDeadSource( source ) || sender->IsDeadSource(source) ) {
 		source->Safe_Delete();

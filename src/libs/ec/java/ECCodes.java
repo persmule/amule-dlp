@@ -112,6 +112,7 @@ public final static byte EC_OP_CLIENT_SWAP_TO_ANOTHER_FILE   = 0x54;
 public final static byte EC_OP_SHARED_FILE_SET_COMMENT       = 0x55;
 public final static byte EC_OP_SERVER_SET_STATIC_PRIO        = 0x56;
 public final static byte EC_OP_FRIEND                        = 0x57;
+public final static byte EC_OP_ANTILEECH_RELOAD              = 0x80	;
 
 public final static short EC_TAG_STRING                             = 0x0000;
 public final static short EC_TAG_PASSWD_HASH                        = 0x0001;
