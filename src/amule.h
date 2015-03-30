@@ -135,6 +135,8 @@ protected:
 	bool		m_geometryEnabled;
 	wxString	m_geometryString;
 	wxString	m_logFile;
+	//Dynamic Leech Protect - persmule
+	wxString	m_dlplogFile;
 	wxString	m_appName;
 	wxString	m_PidFile;
 
