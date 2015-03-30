@@ -335,6 +335,10 @@ wxSizer *transferDlg( wxWindow *parent, bool call_fit = TRUE, bool set_sizer = T
 #define ID_BTN_RESET_SERVER 10240
 wxSizer *ServerInfoLog( wxWindow *parent, bool call_fit = TRUE, bool set_sizer = TRUE );
 
+#define ID_DLPINFO 22001
+#define ID_BTN_RESET_DLP 22002
+wxSizer *DLPInfoLog( wxWindow *parent, bool call_fit = TRUE, bool set_sizer = TRUE );
+
 #define ID_LOGVIEW 10241
 #define ID_BTN_RESET 10242
 wxSizer *aMuleLog( wxWindow *parent, bool call_fit = TRUE, bool set_sizer = TRUE );
@@ -423,6 +427,21 @@ wxSizer *CoreConnect( wxWindow *parent, bool call_fit = TRUE, bool set_sizer = T
 #define ID_VERBOSEDEBUGLOGFILE 10306
 #define ID_DEBUGCATS 10307
 wxSizer *PreferencesDebug( wxWindow *parent, bool call_fit = TRUE, bool set_sizer = TRUE );
+
+/* Dynamic Leecher Protection */
+#define IDC_CHECKMODSTRING 11001
+#define IDC_CHECKUSERNAME 11002
+#define IDC_CHECKUSERHASH 11003
+#define IDC_CHECKHELLOTAG 11004
+#define IDC_CHECKINFOTAG 11005
+#define IDC_CHECKEASYMULE 11006
+#define IDC_CHECKVERYCDMOD 11007
+#define IDC_CHECKMINIMULE 11008
+#define IDC_CHECKGHOSTMOD 11009
+#ifdef AMULE_DLP
+#define IDC_RELOADANTILEECH 11010 //Bill Lee
+wxSizer *PreferencesDLPTab( wxWindow *parent, bool call_fit = TRUE, bool set_sizer = TRUE );
+#endif
 
 extern wxSizer *IDC_CURJOB;
 #define IDC_CONV_PB_LABEL 10308

@@ -1769,6 +1769,51 @@ wxSizer *PreferencesServerTab( wxWindow *parent, bool call_fit, bool set_sizer )
     return item0;
 }
 
+#ifdef AMULE_DLP
+wxSizer *PreferencesDLPTab( wxWindow *parent, bool call_fit, bool set_sizer )
+{
+	wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
+
+	wxButton* btnReload = new wxButton( parent, IDC_RELOADANTILEECH, _("Reload antiLeech"), wxDefaultPosition, wxDefaultSize, 0 ); //Bill Lee
+
+	wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Dynamic Leecher Protection Options") );
+	wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
+
+	wxCheckBox *item4 = new wxCheckBox( parent, IDC_CHECKMODSTRING, _("Check bad modstring"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item4, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	wxCheckBox *item5 = new wxCheckBox( parent, IDC_CHECKUSERNAME, _("Check bad username"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item5, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	wxCheckBox *item6 = new wxCheckBox( parent, IDC_CHECKUSERHASH, _("Check bad userhash"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item6, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	wxCheckBox *item7 = new wxCheckBox( parent, IDC_CHECKHELLOTAG, _("Check bad hello tag"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item7, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	wxCheckBox *item8 = new wxCheckBox( parent, IDC_CHECKINFOTAG, _("Check bad info tag"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item8, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	wxCheckBox *item9 = new wxCheckBox( parent, IDC_CHECKGHOSTMOD, _("Check ghost mod"), wxDefaultPosition, wxDefaultSize, 0);
+	item1->Add( item9, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	wxCheckBox *item10 = new wxCheckBox( parent, IDC_CHECKVERYCDMOD, _("Ban eMule VeryCD mod(Please consider carefully whether to use)"), wxDefaultPosition, wxDefaultSize, 0 ); //Modified by Bill Lee
+	item1->Add( item10, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	item0->Add( btnReload, 0, wxGROW|wxALL, 5); //Bill Lee
+	item0->Add( item1, 0, wxGROW|wxALL, 5 );
+
+	if (set_sizer)
+	{
+	parent->SetSizer( item0 );
+	if (call_fit)
+	    item0->SetSizeHints( parent );
+	}
+
+	return item0;
+}
+#endif
+
 wxSizer *PreferencesFilesTab( wxWindow *parent, bool call_fit, bool set_sizer )
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
@@ -2587,6 +2632,42 @@ wxSizer *serverListDlgUp( wxWindow *parent, bool call_fit, bool set_sizer )
     return item0;
 }
 
+wxSizer *DLPInfoLog( wxWindow *parent, bool call_fit, bool set_sizer )
+{
+    wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
+
+    wxBoxSizer *item1 = new wxBoxSizer( wxHORIZONTAL );
+
+    wxStaticBitmap *item2 = new wxStaticBitmap( parent, -1, amuleDlgImages( 3 ), wxDefaultPosition, wxDefaultSize );
+    item2->SetToolTip( _("Display DLP log") );
+    item1->Add( item2, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxStaticText *item3 = new wxStaticText( parent, -1, _("DLP Info"), wxDefaultPosition, wxDefaultSize, 0 );
+    item1->Add( item3, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    item0->Add( item1, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+    wxBoxSizer *item4 = new wxBoxSizer( wxHORIZONTAL );
+
+    CMuleTextCtrl *item5 = new CMuleTextCtrl( parent, ID_DLPINFO, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxVSCROLL );
+    item4->Add( item5, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
+
+    wxButton *item6 = new wxButton( parent, ID_BTN_RESET_DLP, _("Reset"), wxDefaultPosition, wxDefaultSize, 0 );
+    item6->SetToolTip( _("Click this button to reset the log.") );
+    item4->Add( item6, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+
+    item0->Add( item4, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
+
+    if (set_sizer)
+    {
+        parent->SetSizer( item0 );
+        if (call_fit)
+            item0->SetSizeHints( parent );
+    }
+    
+    return item0;
+}
+
 wxSizer *serverListDlgDown( wxWindow *parent, bool call_fit, bool set_sizer )
 {
     wxStaticBox *item1 = new wxStaticBox( parent, -1, wxT("") );
@@ -2602,7 +2683,7 @@ wxSizer *serverListDlgDown( wxWindow *parent, bool call_fit, bool set_sizer )
     wxPanel *item4 = new wxPanel( item3, -1 );
     aMuleLog( item4, FALSE );
     item3->AddPage( item4, _("aMule Log") );
-
+	
     wxPanel *item5 = new wxPanel( item3, -1 );
     ServerInfoLog( item5, FALSE );
     item3->AddPage( item5, _("Server Info") );
@@ -2614,6 +2695,10 @@ wxSizer *serverListDlgDown( wxWindow *parent, bool call_fit, bool set_sizer )
     wxPanel *item7 = new wxPanel( item3, -1 );
     Kad_Info( item7, FALSE );
     item3->AddPage( item7, _("Kad Info") );
+	
+	wxPanel *item8 = new wxPanel( item3, -1);
+	DLPInfoLog( item8, FALSE);
+	item3->AddPage(item8, _("DLP Info"));
 
     item0->Add( item2, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 

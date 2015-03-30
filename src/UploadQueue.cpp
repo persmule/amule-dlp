@@ -390,6 +390,11 @@ void CUploadQueue::AddClientToQueue(CUpDownClient* client)
 		return;
 	}
 
+	//Dynamic Leecher Protect - Bill Lee
+	#if defined AMULE_DLP && defined __DEBUG__
+	AddLogLineN(client->GetClientFullInfo());
+	#endif
+
 	client->AddAskedCount();
 	client->SetLastUpRequest();
 

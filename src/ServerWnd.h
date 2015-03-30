@@ -50,6 +50,7 @@ private:
 	void OnBnClickedUpdateservermetfromurl(wxCommandEvent& evt);
 	void OnBnClickedResetLog(wxCommandEvent& evt);
 	void OnBnClickedResetServerLog(wxCommandEvent& evt);
+	void OnBnClickedResetDLPLog(wxCommandEvent& evt);
 
 	DECLARE_EVENT_TABLE()
 };

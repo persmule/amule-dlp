@@ -5,6 +5,7 @@
 # xiaoqiao <29551030@qq.com>, 2007, 2008.
 # JimHu <jimhuyiwei@gmail.com>, 2009.
 # Xiaoqiao <wo@xiaoqiao.me>, 2010.
+# Bill Lee <bill.lee.y@gmail.com>, 2010, 2011.
 # Yi Qi <u4781098@anu.edu.au>,2011.
 #
 msgid ""
@@ -466,9 +467,15 @@ msgstr "版权所有 (c) 2002-2008 Petar Maymounkov ( petar@post.harvard.edu )\n
 msgid "http://kademlia.scs.cs.nyu.edu\n"
 msgstr "http://kademlia.scs.cs.nyu.edu\n"
 
-#: src/amuleDlg.cpp:513 src/KadDlg.cpp:189 src/PartFile.cpp:920
-#: src/PartFile.cpp:928 src/PrefsUnifiedDlg.cpp:629
-#: src/PrefsUnifiedDlg.cpp:734 src/PrefsUnifiedDlg.cpp:847
+msgid "\nDynamic Leech Protection\n"
+msgstr "\n动态吸血保护\n"
+
+msgid " Homepage: http://amule-dlp.googlecode.com \n"
+msgstr " 主页：http://amule-dlp.googlecode.com \n"
+
+#: src/amuleDlg.cpp:513 src/KadDlg.cpp:192 src/PartFile.cpp:920
+#: src/PartFile.cpp:928 src/PrefsUnifiedDlg.cpp:624
+#: src/PrefsUnifiedDlg.cpp:729 src/PrefsUnifiedDlg.cpp:842
 msgid "Message"
 msgstr "消息"
 
@@ -3854,6 +3861,9 @@ msgstr "Kad 信息"
 #: src/muuli_wdr.cpp:2645
 msgid "Click on this button to update the nodes list from URL ..."
 msgstr "按此更新节点列表自网址..."
+
+msgid "DLP Info"
+msgstr "动态反吸血信息"
 
 #: src/muuli_wdr.cpp:2649
 msgid "Nodes (0)"
@@ -7652,6 +7662,48 @@ msgstr "正在处理请求 [已重定向]："
 #~ "\n"
 #~ "\n"
 #~ "此外，浏览器设定已经被重设为系统默认值。如有必要，请重新配置浏览器选项。\n"
+
+msgid "Dynamic Leecher Protection Options"
+msgstr "动态反吸血保护选项"
+
+msgid "Reload antiLeech"
+msgstr "重新装载 antiLeech"
+
+msgid "Check bad modstring"
+msgstr "根据 Mod 名字检测吸血驴"
+
+msgid "Check bad username"
+msgstr "根据用户名字检测吸血驴"
+
+msgid "Check bad userhash"
+msgstr "检测错误的用户哈希值"
+
+msgid "Check bad hello tag"
+msgstr "根据握手标签(HelloTag)检测吸血驴"
+
+msgid "Check bad info tag"
+msgstr "根据 InfoTag 检测吸血驴"
+
+msgid "Check ghost mod"
+msgstr "检测幽灵客户端(Ghost Mod)"
+
+#~ msgid "Ban VeryCD easyMule2"
+#~ msgstr "屏蔽 VeryCD easyMule2"
+
+msgid "Ban eMule VeryCD mod(Please consider carefully whether to use)"
+msgstr "屏蔽 VeryCD eMule（请慎重考虑是否使用）"
+
+#~ msgid "Ban VeryCD miniMule"
+#~ msgstr "屏蔽 VeryCD miniMule"
+
+msgid "Trying to load antiLeech..."
+msgstr "尝试加载 antiLeech..."
+
+msgid "No antiLeech available!"
+msgstr "未找到 antiLeech!"
+
+msgid "Succeed loading antiLeech! Version: %d"
+msgstr "成功加载 antiLeech! 版本： %d"
 
 #~ msgid "Fetching status..."
 #~ msgstr "正在获取状态..."
