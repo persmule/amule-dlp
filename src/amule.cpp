@@ -90,6 +90,11 @@
 #include <wx/sysopt.h>			// Do_not_auto_remove
 #endif
 
+//Dynamic Leecher Protection - Bill Lee
+#ifdef AMULE_DLP
+#include "DLP.h"
+#endif
+
 #ifndef AMULE_DAEMON
 	#ifdef __WXMAC__
 		#include <CoreFoundation/CFBundle.h>  // Do_not_auto_remove
@@ -519,6 +524,11 @@ bool CamuleApp::OnInit()
 	downloadqueue	= new CDownloadQueue();
 	uploadqueue	= new CUploadQueue();
 	ipfilter	= new CIPFilter();
+
+	//DLP initialization - Bill Lee
+	#ifdef AMULE_DLP
+	theDLP = new DLP();
+	#endif
 
 	// Creates all needed listening sockets
 	wxString msg;
@@ -2062,3 +2072,8 @@ DEFINE_LOCAL_EVENT_TYPE(wxEVT_CORE_SOURCE_DNS_DONE)
 DEFINE_LOCAL_EVENT_TYPE(wxEVT_CORE_UDP_DNS_DONE)
 DEFINE_LOCAL_EVENT_TYPE(wxEVT_CORE_SERVER_DNS_DONE)
 // File_checked_for_headers
+
+//Dynamic Leech Protect - Bill Lee
+#ifdef AMULE_DLP
+DLP* theDLP;
+#endif

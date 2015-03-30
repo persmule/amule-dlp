@@ -315,7 +315,7 @@ m_clientSkinNames(CLIENT_SKIN_SIZE)
 	wxNotebook* logs_notebook = CastChild( ID_SRVLOG_NOTEBOOK, wxNotebook);
 	wxNotebook* networks_notebook = CastChild( ID_NETNOTEBOOK, wxNotebook);
 
-	wxASSERT(logs_notebook->GetPageCount() == 4);
+	wxASSERT(logs_notebook->GetPageCount() == 5);
 	wxASSERT(networks_notebook->GetPageCount() == 2);
 
 	for (uint32 i = 0; i < logs_notebook->GetPageCount(); ++i) {
@@ -492,22 +492,29 @@ void CamuleDlg::OnAboutButton(wxCommandEvent& WXUNUSED(ev))
 #ifdef CLIENT_GUI
 	msg << _("aMule remote control ") << wxT(VERSION);
 #else
-	msg << wxT("aMule ") << wxT(VERSION);
+	msg << wxT(PACKAGE" ") << wxT(VERSION);
 #endif
 	msg << wxT(" ");
 #ifdef SVNDATE
 	msg << _("Snapshot:") << wxT("\n ") << wxT(SVNDATE);
 #endif
-	msg << wxT("\n\n") << _("'All-Platform' p2p client based on eMule \n\n") <<
-		_("Website: http://www.amule.org \n") <<
-		_("Forum: http://forum.amule.org \n") <<
-		_("FAQ: http://wiki.amule.org \n\n") <<
-		_("Contact: admin@amule.org (administrative issues) \n") <<
-		_("Copyright (c) 2003-2011 aMule Team \n\n") <<
-		_("Part of aMule is based on \n") <<
-		_("Kademlia: Peer-to-peer routing based on the XOR metric.\n") <<
-                _(" Copyright (c) 2002-2011 Petar Maymounkov ( petar@post.harvard.edu )\n") <<
-		_("http://kademlia.scs.cs.nyu.edu\n");
+	msg << wxT("\n\n") << _("'All-Platform' p2p client based on eMule, \n") <<
+	  _("with Dynamic Leecher Protection. \n\n") <<
+	  _("Website: http://www.amule.org \n") <<
+	  _("Forum: http://forum.amule.org \n") <<
+	  _("FAQ: http://wiki.amule.org \n\n") <<
+	  _("Contact: admin@amule.org (administrative issues) \n") <<
+	  _("Copyright (c) 2003-2011 aMule Team \n\n") <<
+	  _("Part of aMule is based on \n") <<
+	  _("Kademlia: Peer-to-peer routing based on the XOR metric.\n") <<
+	  _(" Copyright (c) 2002-2011 Petar Maymounkov ( petar@post.harvard.edu )\n") <<
+	  _("http://kademlia.scs.cs.nyu.edu\n") <<
+	  _("\nDynamic Leech Protection\n") <<
+	  _(" Homepage: https://github.com/persmule/amule-dlp \n") <<
+	  _(" Copyright (C) 2002-2007 Xtreme-Mod \n") <<
+	  _(" Copyright (C) 2009 greensea \n") <<
+	  _(" Copyright (C) 2009-2011 Bill Lee \n") <<
+	  _(" Copyright (C) 2014 Persmule \n");
 
 	if (m_is_safe_state) {
 		wxMessageBox(msg, _("Message"), wxOK | wxICON_INFORMATION, this);
@@ -661,6 +668,20 @@ void CamuleDlg::AddServerMessageLine(wxString& message)
 	}
 }
 
+#ifdef AMULE_DLP
+void CamuleDlg::AddDLPMessageLine(const wxString& msg) /* modified by Bill Lee */
+{
+	wxTextCtrl* cv = CastByID( ID_DLPINFO, m_serverwnd, wxTextCtrl );
+	if(cv) {
+		if (msg.Length() > 500) {
+			cv->AppendText(msg.Left(500) + wxT("\n"));
+		} else {
+			cv->AppendText(msg + wxT("\n"));
+		}
+		cv->ShowPosition(cv->GetLastPosition()-1);
+	}
+}
+#endif
 
 void CamuleDlg::ShowConnectionState(bool skinChanged)
 {

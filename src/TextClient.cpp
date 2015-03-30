@@ -73,6 +73,7 @@ enum {
 	CMD_ID_RELOAD_SHARED,
 	CMD_ID_RELOAD_IPFILTER_LOCAL,
 	CMD_ID_RELOAD_IPFILTER_NET,
+	CMD_ID_RELOAD_ANTILEECH, /* Only used internally - Dynamic Leech Protect - Bill Lee */
 	CMD_ID_SET_IPFILTER_ON,
 	CMD_ID_SET_IPFILTER_OFF,
 	CMD_ID_SET_IPFILTER_CLIENTS_ON,
@@ -240,6 +241,12 @@ int CamulecmdApp::ProcessCommand(int CmdId)
 		case CMD_ID_DISCONNECT_KAD:
 			request_list.push_back(new CECPacket(EC_OP_KAD_STOP));
 			break;
+		//Dynamic Leech Protect - Bill Lee
+		#ifdef AMULE_DLP
+		case CMD_ID_RELOAD_ANTILEECH:
+			request_list.push_back(new CECPacket(EC_OP_ANTILEECH_RELOAD));
+			break;
+		#endif
 
 		case CMD_ID_RELOAD_SHARED:
 			request_list.push_back(new CECPacket(EC_OP_SHAREDFILES_RELOAD));
@@ -903,6 +910,9 @@ void CamulecmdApp::OnInitCommandSet()
 	tmp2->AddCommand(wxT("Net"), CMD_ID_RELOAD_IPFILTER_NET, wxTRANSLATE("Update IP filtering table from URL."),
 					wxTRANSLATE("If URL is omitted the URL from the preferences is used."), CMD_PARAM_OPTIONAL);
 
+	#ifdef AMULE_DLP
+	tmp->AddCommand(wxT("AntiLeech"), CMD_ID_RELOAD_ANTILEECH, wxTRANSLATE("Reloads antiLeech."), wxEmptyString, CMD_PARAM_NEVER); //Bill Lee
+	#endif
 	tmp = m_commands.AddCommand(wxT("Connect"), CMD_ID_CONNECT, wxTRANSLATE("Connect to the network."),
 				    wxTRANSLATE("This will connect to all networks that are enabled in Preferences.\nYou may also optionally specify a server address in IP:Port form, to connect to\nthat server only. The IP must be a dotted decimal IPv4 address,\nor a resolvable DNS name."), CMD_PARAM_OPTIONAL);
 	tmp->AddCommand(wxT("ED2K"), CMD_ID_CONNECT_ED2K, wxTRANSLATE("Connect to eD2k only."), wxEmptyString, CMD_PARAM_NEVER);
