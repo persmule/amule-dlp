@@ -85,6 +85,8 @@ void CLogger::AddLogLine(
 }
 
 CLogger theLogger;
+//Dynamic Leech Protect - persmule
+CLogger dlpLogger;
 
 BEGIN_EVENT_TABLE(CLogger, wxEvtHandler)
 END_EVENT_TABLE()

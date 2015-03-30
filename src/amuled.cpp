@@ -786,6 +786,8 @@ int CamuleDaemonApp::ShowAlert(wxString msg, wxString title, int flags)
 
 void CamuleDaemonApp::AddDLPMessageLine(const wxString &msg)
 {
+  //Dynamic Leech Protect - persmule
+  DlpAddLogLine(msg);
 }
 
 // File_checked_for_headers
