@@ -62,6 +62,10 @@ if (BUILD_MONOLITHIC OR BUILD_DAEMON)
 		list (APPEND CORE_SOURCES QuicContext.cpp QuicGnuTlsSession.cpp QuicNgtcp2Adapter.cpp QuicSocketTransport.cpp QuicStreamAcceptor.cpp)
 	endif()
 
+	if (AMULE_DLP)
+		list (APPEND CORE_SOURCES DLP.cpp)
+	endif()
+
 	# Only compiled in when the switch is on. Every call site is behind the
 	# same guard, so with the switch off these two would be dead weight in
 	# the binary; the unit tests compile them directly, so gating them here

@@ -512,6 +512,13 @@ public:
 		uint32 *lenUnzipped,
 		int iRecursion = 0);
 	void UpdateDisplayedInfo(bool force = false);
+#if defined (__DEBUG__) || defined (AMULE_DLP)
+	/* 
+	 * This function is essential for dlp to produce ban log.
+	 * So I decide to retain it when dlp is enabled.
+	 */
+	wxString	GetClientFullInfo();
+#endif
 
 	// "View Files" (browse): the search ID this peer's listing is filed under, allocated before
 	// the request goes out -- by the EC handler for a remote browse, by RequestSharedFileList
@@ -724,6 +731,10 @@ public:
 	bool WantsStreamObfuscation() const;
 
 	bool HasDisabledSharedFiles() const { return m_fNoViewSharedFiles; }
+#ifdef AMULE_DLP
+	//Dynamic Leecher Protection - Bill Lee
+	bool HasNonOfficialOpCodes() const { return dlp_nonofficialopcodes; }	 
+#endif
 
 private:
 	CClientCredits *credits;
@@ -979,6 +990,10 @@ private:
 	   disconnected once checked. */
 #ifdef __DEBUG__
 	wxString connection_reason;
+#endif
+
+#ifdef AMULE_DLP
+	bool dlp_nonofficialopcodes; //Dynamic Leecher Protect - Bill Lee
 #endif
 };
 

@@ -207,6 +207,8 @@ EC_OP_REFRESH_MEDIA_METADATA        0x67
 ## Additive: the flip op is unchanged, so an older client is unaffected, and a
 ## core that does not know this one answers EC_OP_FAILED.
 EC_OP_PARTFILE_SET_A4AF_AUTO        0x68
+EC_OP_ANTILEECH_RELOAD              0x80
+
 [/Section]
 
 [Section Content]

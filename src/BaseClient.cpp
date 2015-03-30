@@ -23,6 +23,11 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
 //
 
+//Dynamic Leech Protect - Bill Lee
+#ifdef AMULE_DLP
+#include "DLP.h"
+#endif
+
 #include <wx/wx.h>
 #include <wx/mstream.h>
 #include <wx/tokenzr.h>
@@ -299,6 +304,11 @@ void CUpDownClient::Init()
 	m_cCaptchasSent = 0;
 	m_cMessagesReceived = 0;
 	m_cMessagesSent = 0;
+
+#ifdef AMULE_DLP
+	dlp_nonofficialopcodes = false; //Dynamic Leecher Protect
+#endif
+
 }
 
 CUpDownClient::~CUpDownClient()
@@ -730,6 +740,14 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile &data)
 					CFormat("Ignoring unknown vendor tag 0x%02X in hello from %s") %
 						temptag.GetNameID() % GetFullIP());
 			}
+//Bill Lee start
+//Dynamic Leecher Protection
+#ifdef AMULE_DLP
+			//if tag isn't those above, it may be used by leecher.
+			theDLP->CheckHelloTag(this, temptag.GetNameID());
+			dlp_nonofficialopcodes = true; //to detect Ghost Mod
+//Bill Lee end
+#endif
 			break;
 		}
 	}
@@ -850,6 +868,12 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile &data)
 	if (GetIP() != 0 && GetKadPort() && GetKadVersion() > 1) {
 		Kademlia::CKademlia::Bootstrap(wxUINT32_SWAP_ALWAYS(GetIP()), GetKadPort());
 	}
+
+	//Dynamic Leecher Protection - Bill Lee
+#ifdef AMULE_DLP
+	if(theDLP->IsValid())
+	  theDLP->DLPCheck(this);
+#endif
 
 	return bIsMule;
 }
@@ -1096,6 +1120,13 @@ bool CUpDownClient::ProcessMuleInfoPacket(const uint8_t *pachPacket, uint32 nSiz
 					CFormat("Unknown Mule tag (%s) from client: %s") %
 						temptag.GetFullInfo() % GetClientFullInfo());
 
+//Bill Lee start
+//Dynamic Leecher Protection
+#ifdef AMULE_DLP
+				theDLP->CheckInfoTag(this, temptag.GetNameID());
+				dlp_nonofficialopcodes = true;
+#endif
+//Bill Lee end
 				break;
 			}
 		}
@@ -1134,6 +1165,12 @@ bool CUpDownClient::ProcessMuleInfoPacket(const uint8_t *pachPacket, uint32 nSiz
 		m_byInfopacketsReceived |= IP_EMULEPROTPACK;
 	}
 
+	//Dynamic Leecher Protection - Added by Bill Lee
+#ifdef AMULE_DLP
+	if(theDLP->IsValid())
+	  theDLP->DLPCheck(this);
+#endif
+
 	return (protocol_version == 0xFF); // This was a OS_Info?
 }
 
@@ -1165,7 +1202,7 @@ void CUpDownClient::SendHelloTypePacket(CMemFile *data)
 		tagcount++;
 	}
 
-#ifdef __GIT__
+#if (defined __GIT__ || defined AMULE_DLP)
 	// Kry - This is the tagcount!!! Be sure to update it!!
 	// Last update: CT_EMULECOMPAT_OPTIONS included
 	data->WriteUInt32(tagcount + 1);
@@ -1288,7 +1325,7 @@ void CUpDownClient::SendHelloTypePacket(CMemFile *data)
 		tagModMiscOptions.WriteTagToFile(data);
 	}
 
-#ifdef __GIT__
+#if (defined __GIT__ || defined AMULE_DLP)
 	wxString mod_name(MOD_VERSION_LONG);
 	CTagString tagModName(ET_MOD_VERSION, mod_name);
 	tagModName.WriteTagToFile(data);
@@ -2753,7 +2790,12 @@ bool CUpDownClient::CheckHandshakeFinished() const
 	return true;
 }
 
-#ifdef __DEBUG__
+#if defined (__DEBUG__) || defined (AMULE_DLP)
+/*
+ * This function is essential for dlp to produce ban log.
+ * So I decide to retain it when dlp is enabled.
+ * by Persmule.
+ */
 wxString CUpDownClient::GetClientFullInfo()
 {
 	if (m_clientVerString.IsEmpty()) {

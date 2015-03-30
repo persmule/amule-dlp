@@ -360,6 +360,8 @@ set (AMULE_EXPERIMENTAL_OPTIONS
 
 option (ENABLE_ALL_EXPERIMENTAL "turn on every switch in AMULE_EXPERIMENTAL_OPTIONS at once" OFF)
 
+option(AMULE_DLP "Enable DLP support" ON)
+
 foreach (experimental_option IN LISTS AMULE_EXPERIMENTAL_OPTIONS)
 	# ENABLE_ALL_EXPERIMENTAL wins over an individual switch: option() leaves
 	# an unset switch defined as OFF, so an explicit -DENABLE_X=NO is

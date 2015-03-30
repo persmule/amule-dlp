@@ -339,4 +339,11 @@ int CamuleDaemonApp::ShowAlert(wxString msg, wxString title, int flags)
 	return 0; // That's neither yes nor no, ok, cancel
 }
 
+#ifdef AMULE_DLP
+void CamuleDaemonApp::AddDLPMessageLine(const wxString &msg)
+{
+  //Dynamic Leech Protect - persmule
+  DlpAddLogLine(msg);
+}
+#endif
 // File_checked_for_headers

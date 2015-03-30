@@ -171,3 +171,8 @@ repository and can be edited either by opening a pull request — see the
 or through [Weblate](https://hosted.weblate.org/projects/amule/), a translation
 tool that stays in sync with git — see the
 [Weblate guide](https://amule-org.github.io/docs/developer/translations/weblate).
+
+amule-dlp
+=========
+
+Dynamic Leech Protection(DLP) is a part of eMule Xtreme Mod at first. This project aim to make DLP available for aMule. Bill Lee did most development before 2012, while I migrate them to GitHub.

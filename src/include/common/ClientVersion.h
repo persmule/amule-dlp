@@ -59,6 +59,8 @@
 
 #ifdef __GIT__
 #define MOD_VERSION_LONG "aMule GIT"
+#elif defined AMULE_DLP
+#define	MOD_VERSION_LONG ("aMule-dlp " VERSION)
 #else
 #define MOD_VERSION_LONG ("aMule " VERSION)
 #endif

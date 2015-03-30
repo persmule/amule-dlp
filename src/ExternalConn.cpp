@@ -72,6 +72,9 @@
 #include "kademlia/kademlia/UDPFirewallTester.h"
 #include "Statistics.h"
 
+#ifdef AMULE_DLP
+#include "DLP.h"
+#endif
 //-------------------- File_Encoder --------------------
 
 // Encode 'obtained parts' info to be sent to remote gui
@@ -3490,6 +3493,15 @@ CECPacket *CECServerSocket::ProcessRequest2(const CECPacket *request)
 			response->AddTag(CECTag(EC_TAG_STRING, wxTRANSLATE("Already shutting down.")));
 		}
 		break;
+//Dynamic Leech Protect - Bill Lee
+#ifdef AMULE_DLP
+	case EC_OP_ANTILEECH_RELOAD:
+		if( theDLP->ReloadAntiLeech() )
+			response = new CECPacket(EC_OP_FAILED);
+		else
+			response = new CECPacket(EC_OP_NOOP);
+		break;
+#endif
 	case EC_OP_ADD_LINK: {
 		// Aggregate the per-link results into a single response: every iteration used to
 		// overwrite the previous one, so a batch of N-1 successes followed by one failure

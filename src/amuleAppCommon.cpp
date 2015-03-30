@@ -120,6 +120,11 @@ CamuleAppCommon::CamuleAppCommon()
 		m_configFile = "amule.conf";
 		m_logFile = "logfile";
 
+#ifdef AMULE_DLP
+		//Dynamic Leech Protect - persmule
+		m_dlplogFile = wxT("antileech.log");
+#endif
+
 		if (IsDaemon()) {
 			m_appName = "aMuleD";
 		} else {
@@ -922,6 +927,22 @@ bool CamuleAppCommon::InitCommon(int argc, wxChar **argv)
 		SetFatalAbortRedirectFd(theLogger.CrashFd());
 	}
 
+#ifdef AMULE_DLP
+	// Open the dlp log file - Dynamic Leech Protect - persmule
+	if (!IsRemoteGui()){
+	  CPath dlplogfileName = CPath(thePrefs::GetConfigDir() + m_dlplogFile);
+	  if (dlplogfileName.FileExists()) {
+	    CPath::BackupFile(dlplogfileName, wxT(".bak"));
+	  }
+
+	  if (!dlpLogger.OpenLogfile(dlplogfileName.GetRaw())) {
+	    // use std err as last resolt to indicate problem
+	    fputs("ERROR: unable to open dlp log file\n", stderr);
+	    // failure to open log is serious problem
+	    return false;
+	  }
+	}
+#endif
 	CPreferences::BuildItemList(thePrefs::GetConfigDir());
 	CPreferences::LoadAllItems(wxConfigBase::Get());
 

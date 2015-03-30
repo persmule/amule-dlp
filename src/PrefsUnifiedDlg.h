@@ -256,6 +256,10 @@ private:
 	// TransferToWindow.
 	void UpdateGeoIPControlsEnabled();
 
+#ifdef AMULE_DLP
+	void OnButtonReloadAntiLeech(wxCommandEvent &event); /* Dynamic Leech Protect - Bill Lee */
+#endif
+
 private:
 	// Set in the ctor / cleared in dtor so the IP2Country download
 	// callback can find an open dialog without a global pointer chain.

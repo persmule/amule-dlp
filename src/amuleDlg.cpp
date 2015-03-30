@@ -424,6 +424,9 @@ CamuleDlg::CamuleDlg(wxWindow *pParent, const wxString &title, wxPoint where, wx
 	m_logServerInfo = CaptureLogPage(logs_notebook, ID_SERVERINFO);
 	m_logED2KInfo = CaptureLogPage(logs_notebook, ID_ED2KINFO);
 	m_logKadInfo = CaptureLogPage(logs_notebook, ID_KADINFO);
+#ifdef AMULE_DLP
+	m_logDLPInfo = CaptureLogPage(logs_notebook, ID_DLPINFO);
+#endif
 
 	for (uint32 i = 0; i < networks_notebook->GetPageCount(); ++i) {
 		m_networkpages[i].page = networks_notebook->GetPage(i);
@@ -1120,6 +1123,23 @@ void CamuleDlg::AddServerMessageLine(wxString &message)
 		}
 	}
 }
+
+#ifdef AMULE_DLP
+void CamuleDlg::AddDLPMessageLine(const wxString& msg) /* modified by Bill Lee */
+{
+	CMuleLogCtrl *cv = CastByID( ID_DLPINFO, m_serverwnd, CMuleLogCtrl);
+	if(cv) {
+		if (msg.Length() > 500) {
+			cv->AppendText(msg.Left(500) + wxT("\n"));
+		} else {
+			cv->AppendText(msg + wxT("\n"));
+		}
+		cv->ShowPosition(cv->GetLastPosition()-1);
+	}
+	//Dynamic Leech Protect - persmule
+	DlpAddLogLine(msg);
+}
+#endif
 
 void CamuleDlg::ShowConnectionState()
 {
@@ -2257,7 +2277,11 @@ void CamuleDlg::DoNetworkRearrange()
 	// Detach the network-conditional tabs by identity (never by index -- the always-on tabs
 	// "aMule Log" and, in amulegui, "aMuleGUI Log" must be left in place), then re-add the ones
 	// whose network is enabled.
-	for (const PageType *p : { &m_logServerInfo, &m_logED2KInfo, &m_logKadInfo }) {
+	for (const PageType *p : { &m_logServerInfo, &m_logED2KInfo, &m_logKadInfo
+#ifdef AMULE_DLP
+				   , &m_logDLPInfo
+#endif
+	}) {
 		const int idx = logs_notebook->FindPage(p->page);
 		if (idx != wxNOT_FOUND) {
 			logs_notebook->RemovePage(idx);
@@ -2276,6 +2300,12 @@ void CamuleDlg::DoNetworkRearrange()
 	if (thePrefs::GetNetworkKademlia()) {
 		logs_notebook->AddPage(m_logKadInfo.page, m_logKadInfo.name);
 	}
+
+#ifdef AMULE_DLP
+	if (thePrefs::GetDLPCheckMask()) {
+		logs_notebook->AddPage(m_logDLPInfo.page, m_logDLPInfo.name);
+	}
+#endif
 
 	// Set the main window. With both networks active, use a notebook to select between them;
 	// with only one, show that window directly instead of a one-tab notebook.

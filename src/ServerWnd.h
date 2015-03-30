@@ -67,6 +67,10 @@ private:
 #ifdef CLIENT_GUI
 	void OnBnClickedResetGuiLog(wxCommandEvent &evt);
 #endif
+//Bill Lee
+#ifdef AMULE_DLP
+	void OnBnClickedResetDLPLog(wxCommandEvent& evt);
+#endif
 
 	// Copy handlers for the ED2K Info / Kad Info notebook tabs (#814). Routed through
 	// wxEvtHandler bindings rather than the static event table so both list-control IDs share

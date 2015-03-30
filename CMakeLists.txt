@@ -126,6 +126,10 @@ if (wx_NEEDED)
 	include (cmake/wx.cmake)
 endif()
 
+if(AMULE_DLP)
+	add_compile_definitions(AMULE_DLP)
+endif()
+
 #
 # GITDATE is consumed by config.h.cm (#define GITDATE "...") and
 # version.rc.in (Windows version resource), and ends up in the binary's
@@ -680,7 +684,10 @@ message (STATUS "
 
 	**** aMule Statistics ****
 	Should C aMule Statistics (CAS) be built?			${BUILD_CAS}
-	Should aMule GUI Statistics (wxCas) be built?			${BUILD_WXCAS}"
+	Should aMule GUI Statistics (wxCas) be built?			${BUILD_WXCAS}
+
+	**** DLP ****
+	Should DLP support be built?					${AMULE_DLP}"
 )
 
 message ("

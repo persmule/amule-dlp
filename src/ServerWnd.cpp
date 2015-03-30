@@ -59,6 +59,10 @@ wxBEGIN_EVENT_TABLE(CServerWnd, wxPanel)
 #endif
 	EVT_SPLITTER_SASH_POS_CHANGING(ID_SRV_SPLITTER, CServerWnd::OnSashPositionChanging)
 	EVT_SPLITTER_SASH_POS_CHANGED(ID_SRV_SPLITTER, CServerWnd::OnSashPositionChanged)
+//Bill Lee
+#ifdef AMULE_DLP
+	EVT_BUTTON(ID_BTN_RESET_DLP, CServerWnd::OnBnClickedResetDLPLog)
+#endif
 wxEND_EVENT_TABLE()
 
 // Anonymous enum so the "Copy" context-menu item has a stable ID scoped to this translation unit;
@@ -234,6 +238,14 @@ void CServerWnd::OnBnClickedResetGuiLog(wxCommandEvent &WXUNUSED(evt))
 	// Local-only clear of the "aMuleGUI Log" tab. Unlike the "aMule Log" reset,
 	// there is nothing to reset on the daemon -- this log is generated here.
 	theApp->amuledlg->ResetLog(ID_GUILOGVIEW);
+}
+#endif
+
+#ifdef AMULE_DLP
+void CServerWnd::OnBnClickedResetDLPLog(wxCommandEvent& WXUNUSED(evt))
+{
+	wxTextCtrl* cv= CastByID( ID_DLPINFO, this, wxTextCtrl );
+	cv->Clear();
 }
 #endif
 

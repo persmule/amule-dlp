@@ -52,6 +52,11 @@
 
 #include "UserEvents.h"
 
+#ifdef AMULE_DLP
+#include "DLPPref.h"
+#include "antiLeech.h"
+#endif
+
 #ifndef AMULE_DAEMON
 #include <wx/translation.h> // Needed for wxTranslations
 #include <wx/valgen.h>
@@ -391,6 +396,19 @@ protected:
 	wxWindow *m_widget;
 };
 
+/* Dynamic Leecher Protection */
+#ifdef AMULE_DLP
+bool CPreferences::s_DLPCheckModString;
+bool CPreferences::s_DLPCheckUsername;
+bool CPreferences::s_DLPCheckUserHash;
+bool CPreferences::s_DLPCheckHelloTag;
+bool CPreferences::s_DLPCheckInfoTag;
+//bool CPreferences::s_DLPCheckEasyMule;
+bool CPreferences::s_DLPCheckVeryCDMod;
+//bool CPreferences::s_DLPCheckminiMule; //Added by Bill Lee
+bool CPreferences::s_DLPCheckGhostMod;
+unsigned int CPreferences::s_DLPCheckMask;
+#endif
 /** Cfg class for wxStrings. */
 class Cfg_Str : public Cfg_Tmpl<wxString>
 {
@@ -959,6 +977,11 @@ CPreferences::CPreferences()
 	s_userhash[5] = 14;
 	s_userhash[14] = 111;
 
+	// Dynamic Leecher Protection
+#ifdef AMULE_DLP
+	CalcDLPCheckMask();
+#endif
+
 #ifndef CLIENT_GUI
 	LoadPreferences();
 	// Not ReloadSharedFolders(): expanding recursive roots walks their whole trees before
@@ -1082,6 +1105,20 @@ void CPreferences::BuildItemList(const wxString &appdir)
 	/** Files */
 	NewCfgItem(IDC_TEMPFILES, (new Cfg_Path("/eMule/TempDir", s_tempdir, appdir + "Temp")));
 	NewCfgItem(IDC_ENDGAME, (new Cfg_Bool("/eMule/Endgame", s_Endgame, true)));
+/**
+ * Dynamic Leecher Protection
+ **/
+#ifdef AMULE_DLP
+	NewCfgItem(IDC_CHECKMODSTRING, 		(new Cfg_Bool( wxT("/DLP/CheckModString"), s_DLPCheckModString, true )));
+	NewCfgItem(IDC_CHECKUSERNAME, 		(new Cfg_Bool( wxT("/DLP/CheckUsername"), s_DLPCheckUsername, true )));
+	NewCfgItem(IDC_CHECKUSERHASH, 		(new Cfg_Bool( wxT("/DLP/CheckUserHash"), s_DLPCheckUserHash, true )));
+	NewCfgItem(IDC_CHECKHELLOTAG, 		(new Cfg_Bool( wxT("/DLP/CheckHelloTag"), s_DLPCheckHelloTag, true )));
+	NewCfgItem(IDC_CHECKINFOTAG, 		(new Cfg_Bool( wxT("/DLP/CheckInfoTag"), s_DLPCheckInfoTag, true )));
+	//NewCfgItem(IDC_CHECKEASYMULE, 	(new Cfg_Bool( wxT("/DLP/CheckEasyMule"), s_DLPCheckEasyMule, true ))); //Modified by Bill Lee
+	NewCfgItem(IDC_CHECKVERYCDMOD, 		(new Cfg_Bool( wxT("/DLP/CheckVeryCDMod"), s_DLPCheckVeryCDMod, false )));
+	//NewCfgItem(IDC_CHECKMINIMULE,		(new Cfg_Bool( wxT("/DLP/CheckminiMule"), s_DLPCheckminiMule, true))); //Added by Bill Lee
+	NewCfgItem(IDC_CHECKGHOSTMOD, 		(new Cfg_Bool( wxT("/DLP/CheckGhostMod"), s_DLPCheckGhostMod, true ))); //Added by Bill Lee.
+#endif
 
 #if defined(__WXMAC__) || defined(__WINDOWS__)
 	wxString incpath = wxStandardPaths::Get().GetDocumentsDir();
@@ -1711,6 +1748,11 @@ void CPreferences::Save()
 
 	SavePreferences();
 
+	// Dynamic Leecher Protection
+	#ifdef AMULE_DLP
+	CalcDLPCheckMask();
+	#endif
+
 	SaveSharedFolders();
 
 	// GUI-local only, see SavePathMappings' declaration -- a no-op body on a non-CLIENT_GUI
@@ -1749,6 +1791,21 @@ void CPreferences::SaveSharedFolders()
 	writeList(s_configDir + "shareddir.dat", shareddir_list);
 #endif
 }
+#ifdef AMULE_DLP
+void CPreferences::CalcDLPCheckMask()
+{
+	s_DLPCheckMask = 0;
+	if (s_DLPCheckModString) s_DLPCheckMask |= PF_MODSTRING;
+	if (s_DLPCheckUsername) s_DLPCheckMask |= PF_USERNAME;
+	if (s_DLPCheckUserHash) s_DLPCheckMask |= PF_USERHASH;
+	if (s_DLPCheckHelloTag) s_DLPCheckMask |= PF_HELLOTAG;
+	if (s_DLPCheckInfoTag) s_DLPCheckMask |= PF_INFOTAG;
+	if (s_DLPCheckGhostMod) s_DLPCheckMask |= PF_GHOSTMOD;
+	//if (s_DLPCheckEasyMule) s_DLPCheckMask |= PF_EASYMULE;
+	if (s_DLPCheckVeryCDMod) s_DLPCheckMask |= PF_VERYCDEMULE;
+	//if (s_DLPCheckminiMule) s_DLPCheckMask |= PF_MINIMULE; //Added by Bill Lee
+}
+#endif
 
 CPreferences::~CPreferences()
 {

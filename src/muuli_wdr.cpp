@@ -192,7 +192,7 @@ wxSizer *muleDlg( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -214,7 +214,7 @@ wxSizer *serverListDlg( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -262,15 +262,15 @@ wxSizer *searchDlg( wxWindow *parent, bool call_fit, bool set_sizer )
 
     wxStaticText *item14 = new wxStaticText( item2, -1, _("File Type"), wxDefaultPosition, wxDefaultSize, 0 );
     item13->Add( item14, wxSizerFlags().CenterVertical().Border(wxALL, 5) );
-    wxString strs15[] = 
+    wxString strs15[] =
     {
-        _("Any"), 
-        _("Archives"), 
-        _("Audio"), 
-        _("Disc images"), 
-        _("Pictures"), 
-        _("Programs"), 
-        _("Texts"), 
+        _("Any"),
+        _("Archives"),
+        _("Audio"),
+        _("Disc images"),
+        _("Pictures"),
+        _("Programs"),
+        _("Texts"),
         _("Videos")
     };
     wxChoice *item15 = new wxChoice( item2, IDC_TypeSearch, wxDefaultPosition, wxDefaultSize, 8, strs15, 0 );
@@ -292,11 +292,11 @@ wxSizer *searchDlg( wxWindow *parent, bool call_fit, bool set_sizer )
 
     wxSpinCtrl *item24 = new wxSpinCtrl( item2, IDC_SPINSEARCHMIN, "0", wxDefaultPosition, wxDefaultSize, 0, 0, 4096, 0 );
     item23->Add( item24, wxSizerFlags().Expand().CenterVertical().Border(wxALL, 5) );
-    wxString strs25[] = 
+    wxString strs25[] =
     {
-        _("Bytes"), 
-        _("KiB"), 
-        _("MiB"), 
+        _("Bytes"),
+        _("KiB"),
+        _("MiB"),
         _("GiB")
     };
     wxChoice *item25 = new wxChoice( item2, IDC_SEARCHMINSIZE, wxDefaultPosition, wxDefaultSize, 4, strs25, 0 );
@@ -311,11 +311,11 @@ wxSizer *searchDlg( wxWindow *parent, bool call_fit, bool set_sizer )
 
     wxSpinCtrl *item29 = new wxSpinCtrl( item2, IDC_SPINSEARCHMAX, "0", wxDefaultPosition, wxDefaultSize, 0, 0, 4096, 0 );
     item28->Add( item29, wxSizerFlags().Expand().CenterVertical().Border(wxALL, 5) );
-    wxString strs30[] = 
+    wxString strs30[] =
     {
-        _("Bytes"), 
-        _("KiB"), 
-        _("MiB"), 
+        _("Bytes"),
+        _("KiB"),
+        _("MiB"),
         _("GiB")
     };
     wxChoice *item30 = new wxChoice( item2, IDC_SEARCHMAXSIZE, wxDefaultPosition, wxDefaultSize, 4, strs30, 0 );
@@ -431,7 +431,7 @@ wxSizer *searchDlg( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -465,7 +465,7 @@ wxSizer *transferTopPane( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -535,7 +535,7 @@ wxSizer *transferBottomPane( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -558,7 +558,7 @@ wxSizer *messagePage( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -873,13 +873,13 @@ wxSizer *commentDlg( wxWindow *parent, bool call_fit, bool set_sizer )
     wxStaticBox *item8 = new wxStaticBox( parent, -1, _("File Quality") );
     wxStaticBoxSizer *item7 = new wxStaticBoxSizer( item8, wxVERTICAL );
 
-    wxString strs9[] = 
+    wxString strs9[] =
     {
-        _("Not rated"), 
-        _("Invalid / Corrupt / Fake"), 
-        _("Poor"), 
-        _("Fair"), 
-        _("Good"), 
+        _("Not rated"),
+        _("Invalid / Corrupt / Fake"),
+        _("Poor"),
+        _("Fair"),
+        _("Good"),
         _("Excellent")
     };
     wxChoice *item9 = new wxChoice( item8, IDC_RATELIST, wxDefaultPosition, wxDefaultSize, 6, strs9, 0 );
@@ -898,7 +898,7 @@ wxSizer *commentDlg( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -934,7 +934,7 @@ wxSizer *commentLstDlg( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -962,7 +962,7 @@ wxSizer *downloadDlg( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -1014,7 +1014,7 @@ wxSizer *addFriendDlg( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -1037,7 +1037,7 @@ wxSizer *sharedfilesDlg( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -1164,7 +1164,7 @@ item29->SetName("otherScope");
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -1497,7 +1497,7 @@ wxSizer *PreferencesGeneralTab( wxWindow *parent, bool call_fit, bool set_sizer 
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -1672,7 +1672,7 @@ wxSizer *PreferencesConnectionTab( wxWindow *parent, bool call_fit, bool set_siz
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -1729,9 +1729,54 @@ wxSizer *PreferencesServerTab( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
+
+#ifdef AMULE_DLP
+wxSizer *PreferencesDLPTab( wxWindow *parent, bool call_fit, bool set_sizer )
+{
+	wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
+
+	wxButton* btnReload = new wxButton( parent, IDC_RELOADANTILEECH, _("Reload antiLeech"), wxDefaultPosition, wxDefaultSize, 0 ); //Bill Lee
+
+	wxStaticBox *item2 = new wxStaticBox( parent, -1, _("Dynamic Leecher Protection Options") );
+	wxStaticBoxSizer *item1 = new wxStaticBoxSizer( item2, wxVERTICAL );
+
+	wxCheckBox *item4 = new wxCheckBox( parent, IDC_CHECKMODSTRING, _("Check bad modstring"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item4, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	wxCheckBox *item5 = new wxCheckBox( parent, IDC_CHECKUSERNAME, _("Check bad username"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item5, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	wxCheckBox *item6 = new wxCheckBox( parent, IDC_CHECKUSERHASH, _("Check bad userhash"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item6, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	wxCheckBox *item7 = new wxCheckBox( parent, IDC_CHECKHELLOTAG, _("Check bad hello tag"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item7, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	wxCheckBox *item8 = new wxCheckBox( parent, IDC_CHECKINFOTAG, _("Check bad info tag"), wxDefaultPosition, wxDefaultSize, 0 );
+	item1->Add( item8, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	wxCheckBox *item9 = new wxCheckBox( parent, IDC_CHECKGHOSTMOD, _("Check ghost mod"), wxDefaultPosition, wxDefaultSize, 0);
+	item1->Add( item9, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	wxCheckBox *item10 = new wxCheckBox( parent, IDC_CHECKVERYCDMOD, _("Ban eMule VeryCD mod(Please consider carefully whether to use)"), wxDefaultPosition, wxDefaultSize, 0 ); //Modified by Bill Lee
+	item1->Add( item10, 0, wxALIGN_CENTER_VERTICAL, 5 );
+
+	item0->Add( btnReload, 0, wxGROW|wxALL, 5); //Bill Lee
+	item0->Add( item1, 0, wxGROW|wxALL, 5 );
+
+	if (set_sizer)
+	{
+	parent->SetSizer( item0 );
+	if (call_fit)
+	    item0->SetSizeHints( parent );
+	}
+
+	return item0;
+}
+#endif
 
 wxSizer *PreferencesFilesTab( wxWindow *parent, bool call_fit, bool set_sizer )
 {
@@ -1962,7 +2007,7 @@ wxSizer *PreferencesDirectoriesTab( wxWindow *parent, bool call_fit, bool set_si
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -2067,22 +2112,22 @@ wxSizer *PreferencesStatisticsTab( wxWindow *parent, bool call_fit, bool set_siz
 
     wxStaticText *item17 = new wxStaticText( item2, -1, _("Colors: "), wxDefaultPosition, wxDefaultSize, 0 );
     item16->Add( item17, wxSizerFlags().CenterVertical().Border(wxTOP, 5) );
-    wxString strs18[] = 
+    wxString strs18[] =
     {
-        _("Background"), 
-        _("Grid"), 
-        _("Download current"), 
-        _("Download running average"), 
-        _("Download session average"), 
-        _("Upload current"), 
-        _("Upload running average"), 
-        _("Upload session average"), 
-        _("Active connections"), 
-        _("Active downloads"), 
-        _("Active uploads"), 
-        _("Systray Icon Speed Bar"), 
-        _("Kad-nodes current"), 
-        _("Kad-nodes running"), 
+        _("Background"),
+        _("Grid"),
+        _("Download current"),
+        _("Download running average"),
+        _("Download session average"),
+        _("Upload current"),
+        _("Upload running average"),
+        _("Upload session average"),
+        _("Active connections"),
+        _("Active downloads"),
+        _("Active uploads"),
+        _("Systray Icon Speed Bar"),
+        _("Kad-nodes current"),
+        _("Kad-nodes running"),
         _("Kad-nodes session")
     };
     wxChoice *item18 = new wxChoice( item2, IDC_COLORSELECTOR, wxDefaultPosition, wxDefaultSize, 15, strs18, 0 );
@@ -2114,7 +2159,7 @@ wxSizer *PreferencesStatisticsTab( wxWindow *parent, bool call_fit, bool set_siz
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -2187,7 +2232,7 @@ wxSizer *PreferencesGuiTweaksTab( wxWindow *parent, bool call_fit, bool set_size
 
     wxStaticText *item2 = new wxStaticText( parent, -1, _("Skin to use: "), wxDefaultPosition, wxDefaultSize, 0 );
     item1->Add( item2, wxSizerFlags().CenterVertical().Right() );
-    wxString strs3[] = 
+    wxString strs3[] =
     {
         _("- default -")
     };
@@ -2247,7 +2292,7 @@ wxSizer *PreferencesGuiTweaksTab( wxWindow *parent, bool call_fit, bool set_size
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -2448,7 +2493,7 @@ wxSizer *PreferencesRemoteControlsTab( wxWindow *parent, bool call_fit, bool set
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -2490,7 +2535,7 @@ wxSizer *preferencesDlgTop( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -2528,12 +2573,12 @@ wxSizer *CategoriesEditWindow( wxWindow *parent, bool call_fit, bool set_sizer )
 
     wxStaticText *item14 = new wxStaticText( item2, -1, LabelWithColon( _("Change priority for new assigned files") ), wxDefaultPosition, wxDefaultSize, 0 );
     item13->Add( item14, wxSizerFlags().CenterVertical().Border(wxLEFT|wxRIGHT, 5) );
-    wxString strs15[] = 
+    wxString strs15[] =
     {
-        _("Don't change"), 
-        _("Low"), 
-        _("Normal"), 
-        _("High"), 
+        _("Don't change"),
+        _("Low"),
+        _("Normal"),
+        _("High"),
         _("Auto")
     };
     wxChoice *item15 = new wxChoice( item2, IDC_PRIOCOMBO, wxDefaultPosition, wxDefaultSize, 5, strs15, 0 );
@@ -2574,7 +2619,7 @@ wxSizer *CategoriesEditWindow( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -2598,7 +2643,7 @@ wxSizer *transferDlg( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -2617,7 +2662,7 @@ wxSizer *ServerInfoLog( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -2722,9 +2767,31 @@ wxSizer *serverListDlgUp( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
+
+#ifdef AMULE_DLP
+wxSizer *DLPInfoLog( wxWindow *parent, bool call_fit, bool set_sizer )
+{
+    wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
+
+    CMuleLogCtrl *item5 = new CMuleLogCtrl( parent, ID_DLPINFO, wxDefaultPosition, wxSize(200, 100) );
+    item0->Add( item5, wxSizerFlags(1).Expand().Border(wxALL, 5) );
+
+    wxButton *item6 = new wxButton( parent, ID_BTN_RESET_DLP, _("Reset"), wxDefaultPosition, wxDefaultSize, 0 );
+    item6->SetToolTip( _("Click this button to reset the log.") );
+    item0->Add( item6, wxSizerFlags().Right().Border(wxRIGHT|wxBOTTOM, 5) );
+    if (set_sizer)
+    {
+        parent->SetSizer( item0 );
+        if (call_fit)
+            item0->SetSizeHints( parent );
+    }
+
+    return item0;
+}
+#endif
 
 wxSizer *serverListDlgDown( wxWindow *parent, bool call_fit, bool set_sizer )
 {
@@ -2753,6 +2820,12 @@ wxSizer *serverListDlgDown( wxWindow *parent, bool call_fit, bool set_sizer )
     Kad_Info( item7, FALSE );
     item3->AddPage( item7, _("Kad Info") );
 
+#ifdef AMULE_DLP
+    wxPanel *item8 = new wxPanel( item3, -1);
+    DLPInfoLog( item8, FALSE);
+    item3->AddPage( item8, _("DLP Info"));
+#endif
+
     item0->Add( item2, wxSizerFlags(1).Expand().CenterVertical() );
     if (set_sizer)
     {
@@ -2760,7 +2833,7 @@ wxSizer *serverListDlgDown( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -2866,7 +2939,7 @@ item9->SetName("kadScope");
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -2882,7 +2955,7 @@ wxSizer *ED2K_Info( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -2909,10 +2982,10 @@ wxSizer *PreferencesSecurityTab( wxWindow *parent, bool call_fit, bool set_sizer
     item6->SetToolTip( _("This option makes aMule only accept obfuscated connections. You will have less sources, but all your traffic will be obfuscated") );
     item2->Add( item6, wxSizerFlags().Expand().CenterVertical().Border(wxLEFT, 25) );
     item0->Add( item2, wxSizerFlags().Expand().CenterVertical().Border(wxLEFT|wxRIGHT|wxTOP, 0) );
-    wxString strs7[] = 
+    wxString strs7[] =
     {
-        _("Everybody"), 
-        _("Friends"), 
+        _("Everybody"),
+        _("Friends"),
         _("No one")
     };
     wxRadioBox *item7 = new wxRadioBox( parent, IDC_SEESHARES, _("Who can see my shared files:"), wxDefaultPosition, wxDefaultSize, 3, strs7, 1, wxRA_SPECIFY_COLS );
@@ -2976,7 +3049,7 @@ wxSizer *PreferencesSecurityTab( wxWindow *parent, bool call_fit, bool set_sizer
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -3016,7 +3089,7 @@ wxSizer *PreferencesOnlineSigTab( wxWindow *parent, bool call_fit, bool set_size
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -3191,7 +3264,7 @@ wxSizer *PreferencesFilteringTab( wxWindow *parent, bool call_fit, bool set_size
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -3250,7 +3323,7 @@ wxSizer *PreferencesProxyTab( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -3302,7 +3375,7 @@ wxSizer *CoreConnect( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -3327,7 +3400,7 @@ wxSizer *PreferencesDebug( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -3374,7 +3447,7 @@ wxSizer *convertDlg( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -3390,7 +3463,7 @@ wxSizer *Kad_Info( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -3419,7 +3492,7 @@ item4->SetName("kadWnd");
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -3438,7 +3511,7 @@ wxSizer *PreferencesEventsTab( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -3532,7 +3605,7 @@ wxSizer *sharedfilesBottomDlg( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -3593,7 +3666,7 @@ wxSizer *sharedfilesTopDlg( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -3617,7 +3690,7 @@ wxSizer *messagePageFriends( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -3664,7 +3737,7 @@ wxSizer *messagePageMessages( wxWindow *parent, bool call_fit, bool set_sizer )
         if (call_fit)
             item0->SetSizeHints( parent );
     }
-    
+
     return item0;
 }
 
@@ -3753,7 +3826,7 @@ wxBitmap clientImages( size_t index )
     }
     if (index == 15)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,140,128,115,240,240,240,240,240,240,240,240,240,240,240,240,142,125,108,176,159,142,240,
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
@@ -3794,7 +3867,7 @@ wxBitmap clientImages( size_t index )
     }
     if (index == 16)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
@@ -3835,7 +3908,7 @@ wxBitmap clientImages( size_t index )
     }
     if (index == 17)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
@@ -3947,7 +4020,7 @@ wxBitmap amuleSpecial( size_t index )
     }
     if (index == 5)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,100,41,9,240,240,240,240,240,240,240,240,240,240,
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
@@ -3988,7 +4061,7 @@ wxBitmap amuleSpecial( size_t index )
     }
     if (index == 10)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
@@ -4029,7 +4102,7 @@ wxBitmap amuleSpecial( size_t index )
     }
     if (index == 11)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,53,136,37,53,136,37,51,
             130,36,51,130,36,47,116,33,47,116,33,38,92,28,38,92,28,240,240,240,240,240,240,240,240,
@@ -4070,7 +4143,7 @@ wxBitmap amuleSpecial( size_t index )
     }
     if (index == 12)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
@@ -4111,7 +4184,7 @@ wxBitmap amuleSpecial( size_t index )
     }
     if (index == 13)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,45,45,82,69,69,132,240,
             240,240,240,240,240,85,85,137,106,106,145,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
@@ -4152,7 +4225,7 @@ wxBitmap amuleSpecial( size_t index )
     }
     if (index == 14)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,100,119,170,130,147,188,133,148,186,106,
             124,167,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
@@ -4193,7 +4266,7 @@ wxBitmap amuleSpecial( size_t index )
     }
     if (index == 15)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             128,128,128,240,240,240,128,128,128,240,240,240,128,128,128,240,240,240,128,128,128,240,240,240,128,
             128,128,240,240,240,128,128,128,240,240,240,128,128,128,240,240,240,128,128,128,240,240,240,240,240,
@@ -4234,7 +4307,7 @@ wxBitmap amuleSpecial( size_t index )
     }
     if (index == 16)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,27,
             78,179,26,93,203,25,77,181,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
@@ -4275,7 +4348,7 @@ wxBitmap amuleSpecial( size_t index )
     }
     if (index == 17)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,91,155,232,91,154,232,92,154,232,91,155,233,91,155,232,91,155,232,240,
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
@@ -4316,7 +4389,7 @@ wxBitmap amuleSpecial( size_t index )
     }
     if (index == 19)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,128,128,128,128,
             128,128,128,128,128,128,128,128,128,128,128,128,128,128,240,240,240,240,240,240,240,240,240,240,240,
@@ -4357,7 +4430,7 @@ wxBitmap amuleSpecial( size_t index )
     }
     if (index == 21)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
@@ -4398,7 +4471,7 @@ wxBitmap amuleSpecial( size_t index )
     }
     if (index == 22)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
@@ -4439,7 +4512,7 @@ wxBitmap amuleSpecial( size_t index )
     }
     if (index == 23)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             240,240,240,240,240,100,157,253,189,217,255,193,218,255,172,208,255,139,187,255,109,169,255,240,240,
@@ -4480,7 +4553,7 @@ wxBitmap amuleSpecial( size_t index )
     }
     if (index == 24)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,160,89,
@@ -4527,7 +4600,7 @@ wxBitmap amuleSpecial( size_t index )
     // page in a debug build (see PR #725 review).
     if (index == 25)
     {
-        static const unsigned char data[] = 
+        static const unsigned char data[] =
         {
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,
             240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,240,

@@ -128,6 +128,10 @@
 // Core GeoIP resolver -- headless, now compiled into the daemon too (#439/#440),
 // so its header must be visible outside the GUI-only include block below.
 #include "IP2Country.h"
+//Dynamic Leecher Protection - Bill Lee
+#ifdef AMULE_DLP
+#include "DLP.h"
+#endif
 
 #ifndef AMULE_DAEMON
 #ifdef __WXMAC__
@@ -919,6 +923,11 @@ bool CamuleApp::OnInit()
 	ipfilter = new CIPFilter();
 #ifdef AMULE_SHOW_SPLASH
 	const wxLongLong filterDoneAt = wxGetUTCTimeMillis();
+#endif
+
+//DLP initialization - Bill Lee
+#ifdef AMULE_DLP
+	theDLP = new DLP();
 #endif
 
 	// Creates all needed listening sockets
@@ -3511,3 +3520,7 @@ wxDEFINE_EVENT(wxEVT_CORE_FINISHED_HTTP_DOWNLOAD, wxEvent);
 wxDEFINE_EVENT(wxEVT_CORE_SOURCE_DNS_DONE, wxEvent);
 wxDEFINE_EVENT(wxEVT_CORE_UDP_DNS_DONE, wxEvent);
 wxDEFINE_EVENT(wxEVT_CORE_SERVER_DNS_DONE, wxEvent); // File_checked_for_headers
+//Dynamic Leech Protect - Bill Lee
+#ifdef AMULE_DLP
+DLP* theDLP;
+#endif

@@ -140,6 +140,9 @@ public:
 	// tab; in the monolithic build it is the same tab as AddLogLine().
 	void AddGuiLogLine(const wxString &line);
 	void AddServerMessageLine(wxString &message);
+#ifdef AMULE_DLP
+	void AddDLPMessageLine(const wxString& msg); /* Modified by Bill Lee */
+#endif
 	void ResetLog(int id);
 
 	// Bracket a burst of AddLogLine() calls so the log view is repainted and scrolled once for
@@ -387,6 +390,9 @@ private:
 	PageType m_logServerInfo;
 	PageType m_logED2KInfo;
 	PageType m_logKadInfo;
+#ifdef AMULE_DLP
+	PageType m_logDLPInfo;
+#endif
 	PageType m_networkpages[2];
 
 	// Finds the notebook page hosting the control ctrlId and captures its window and tab label.
