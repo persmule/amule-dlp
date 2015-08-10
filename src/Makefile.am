@@ -477,6 +477,9 @@ $(srcdir)/Parser.cpp: Parser.y
 if GENERATE_FLEX_HEADER
 $(srcdir)/Scanner.cpp: Scanner.l Parser.cpp
 		$(LEX) --header-file=$(srcdir)/Scanner.h -o $@ $(srcdir)/Scanner.l
+
+$(srcdir)/Scanner.h: $(srcdir)/Scanner.cpp
+
 else
 $(srcdir)/Scanner.cpp: Scanner.l Parser.cpp
 		$(LEX) -o $@ $(srcdir)/Scanner.l; \
