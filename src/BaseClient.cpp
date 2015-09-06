@@ -2339,7 +2339,12 @@ bool CUpDownClient::CheckHandshakeFinished() const
 }
 
 
-#ifdef __DEBUG__
+#if defined (__DEBUG__) || defined (AMULE_DLP)
+/* 
+ * This function is essential for dlp to produce ban log.
+ * So I decide to retain it when dlp is enabled.
+ * by Persmule.
+ */
 wxString CUpDownClient::GetClientFullInfo()
 {
 	if (m_clientVerString.IsEmpty()) {

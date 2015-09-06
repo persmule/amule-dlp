@@ -408,7 +408,13 @@ public:
 	bool		GetSentCancelTransfer() const	{ return m_fSentCancelTransfer; }
 	void		SetSentCancelTransfer(bool bVal)	{ m_fSentCancelTransfer = bVal; }
 
-	DEBUG_ONLY( wxString	GetClientFullInfo(); )
+#if defined (__DEBUG__) || defined (AMULE_DLP)
+	/* 
+	 * This function is essential for dlp to produce ban log.
+	 * So I decide to retain it when dlp is enabled.
+	 */
+	wxString	GetClientFullInfo();
+#endif
 	wxString	GetClientShortInfo();
 
 	const wxString& GetClientOSInfo() const		{ return m_sClientOSInfo; }
