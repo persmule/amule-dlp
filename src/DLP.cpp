@@ -32,10 +32,10 @@ void DLP::CheckHelloTag(CUpDownClient* c, UINT tagn){
 	PRE_CHECK(PF_HELLOTAG){
 		const wxChar* dlp_result = antiLeech->DLPCheckHelloTag(tagn);
 		if(dlp_result != NULL) {
-			wxString ret;
-			ret.Printf(_("[HelloTag %s] %s"), dlp_result, c->GetClientFullInfo().c_str());
+			DEBUG_ONLY(wxString ret);
+			DEBUG_ONLY(ret.Printf(_("[HelloTag %s] %s"), dlp_result, c->GetClientFullInfo().c_str()));
 			c->Ban();
-			theApp->AddDLPMessageLine(ret);
+			DEBUG_ONLY(theApp->AddDLPMessageLine(ret));
 		}
 	}
 }
@@ -44,10 +44,10 @@ void DLP::CheckInfoTag(CUpDownClient* c, UINT tagn){
 	PRE_CHECK(PF_INFOTAG){
 		const wxChar* dlp_result = antiLeech->DLPCheckInfoTag(tagn);
 		if(dlp_result != NULL) {
-			wxString ret;
-			ret.Printf(_("[InfoTag %s] %s"), dlp_result, c->GetClientFullInfo().c_str());
+			DEBUG_ONLY(wxString ret);
+			DEBUG_ONLY(ret.Printf(_("[InfoTag %s] %s"), dlp_result, c->GetClientFullInfo().c_str()));
 			c->Ban();
-			theApp->AddDLPMessageLine(ret);
+			DEBUG_ONLY(theApp->AddDLPMessageLine(ret));
 		}
 	}
 }
@@ -100,10 +100,10 @@ bool DLP::DLPCheck(CUpDownClient* c){
 	
 	if (tmp != NULL) {
 		ret = tmp;
-		wxString wxInfo;
-		wxInfo.Printf(wxT("[%s] %s"), ret.c_str(), c->GetClientFullInfo().c_str());
+		DEBUG_ONLY(wxString wxInfo);
+		DEBUG_ONLY(wxInfo.Printf(wxT("[%s] %s"), ret.c_str(), c->GetClientFullInfo().c_str()));
 		c->Ban();
-		theApp->AddDLPMessageLine(wxInfo);
+		DEBUG_ONLY(theApp->AddDLPMessageLine(wxInfo));
 		return true;
 	}
 
