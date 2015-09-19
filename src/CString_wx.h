@@ -9,12 +9,6 @@
 //#include <wx/wx.h>
 #include <wx/string.h>
 
-#if (wxMAJOR_VERSION <= 2) && (wxMINOR_VERSION <= 8)
-#define CSTRING_MAXLEN wxSTRING_MAXLEN
-#else
-#define CSTRING_MAXLEN wxString::npos
-#endif
-
 class CString : public wxString{
 	public:
 		CString(){}
@@ -58,7 +52,11 @@ class CString : public wxString{
 		int ReverseFind(const CString& str)const{	return rfind(str);	}
 		CString Right(size_t len)const{	return wxString::Right(len);	}
 		CString Left(size_t len)const{	return wxString::Left(len);	}
-		CString Mid(size_t first, size_t count = CSTRING_MAXLEN)const{
+#if wxCHECK_VERSION(2, 9, 0)
+		CString Mid(size_t first, size_t count = wxString::npos)const{
+#else
+		CString Mid(size_t first, size_t count = wxSTRING_MAXLEN)const{
+#endif
 			return wxString::Mid(first, count);
 		}
 };
