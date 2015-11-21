@@ -1,3 +1,9 @@
+amule (2.3.1+git20151120.0023527bc2-1) UNRELEASED; urgency=medium
+
+  * New upsteam GIT snapshot
+
+ -- Sandro Tosi <morph@debian.org>  Sat, 21 Nov 2015 21:49:33 +0000
+
 amule (2.3.1+git1a369e47-3) unstable; urgency=medium
 
   * [c82d03e] remove absolute path from dpkg-divert calls; thanks to Guillem
