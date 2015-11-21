@@ -47,8 +47,10 @@ CWebSocket::CWebSocket(CWebServerBase *parent)
 
 	m_pParent = parent;
 
+#ifndef ASIO_SOCKETS
 	SetEventHandler(*parent, ID_WEBCLIENTSOCKET_EVENT);
 	SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_OUTPUT_FLAG | wxSOCKET_LOST_FLAG);
+#endif
 	Notify(true);
 
 }
@@ -195,6 +197,9 @@ void CWebSocket::OnRequestReceived(char* pHeader, char* pData, uint32 dwDataLen)
 	//
 	int sessid = 0;
 	char *current_cookie = strstr(pHeader, "Cookie: ");
+	if ( current_cookie == NULL ) {
+		current_cookie = strstr(pHeader, "cookie: ");
+	}	
 	if ( current_cookie ) {
 		current_cookie = strstr(current_cookie, "amuleweb_session_id");
 		if ( current_cookie ) {

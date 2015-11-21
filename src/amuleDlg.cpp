@@ -1,4 +1,3 @@
-
 //
 // This file is part of the aMule Project.
 //
@@ -244,7 +243,7 @@ m_clientSkinNames(CLIENT_SKIN_SIZE)
 
 #ifdef ENABLE_IP2COUNTRY
 	m_GeoIPavailable = true;
-	m_IP2Country = new CIP2Country(theApp->ConfigDir);
+	m_IP2Country = new CIP2Country(thePrefs::GetConfigDir());
 #else
 	m_GeoIPavailable = false;
 #endif
@@ -1242,6 +1241,7 @@ bool CamuleDlg::Check_and_Init_Skin()
 
 	wxFFileInputStream in(m_skinFileName.GetFullPath());
 	wxZipInputStream zip(in);
+	wxZipEntry *entry;
 
 	while ((entry = zip.GetNextEntry()) != NULL) {
 		wxZipEntry*& current = cat[entry->GetInternalName()];
@@ -1263,7 +1263,7 @@ void CamuleDlg::Add_Skin_Icon(
 		wxFFileInputStream in(m_skinFileName.GetFullPath());
 		wxZipInputStream zip(in);
 
-		it = cat.find(wxZipEntry::GetInternalName(iconName + wxT(".png")));
+		ZipCatalog::iterator it = cat.find(wxZipEntry::GetInternalName(iconName + wxT(".png")));
 		if ( it != cat.end() ) {
 			zip.OpenEntry(*it->second);
 			if ( !new_image.LoadFile(zip,wxBITMAP_TYPE_PNG) ) {

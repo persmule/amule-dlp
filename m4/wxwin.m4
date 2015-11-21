@@ -3,7 +3,7 @@ dnl Author:          wxWidgets development team,
 dnl                  Francesco Montorsi,
 dnl                  Bob McCown (Mac-testing)
 dnl Creation date:   24/11/2001
-dnl RCS-ID:          $Id: wxwin.m4 10680 2011-11-20 18:08:59Z gonosztopi $
+dnl RCS-ID:          $Id$
 dnl ---------------------------------------------------------------------------
 
 dnl ===========================================================================

@@ -3,7 +3,7 @@
 // Purpose:     Generic list control
 // Author:      Robert Roebling
 // Created:     01/02/97
-// RCS-ID:      $Id: listctrl.h 10680 2011-11-20 18:08:59Z gonosztopi $
+// RCS-ID:      $Id$
 // Copyright:   Copyright (c) 1998-2011 Robert Roebling and Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

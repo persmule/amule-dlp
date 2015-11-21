@@ -41,6 +41,9 @@
 #include <common/MD5Sum.h>
 #include <common/Format.h>		// Needed for CFormat
 
+#include <protocol/ed2k/Constants.h>	// Needed for PARTSIZE
+#include "Constants.h"			// Needed for PR_*
+
 //-------------------------------------------------------------------
 
 #include "WebSocket.h"		// Needed for StopSockets()
@@ -211,10 +214,12 @@ void CParsedUrl::ConvertParams(std::map<std::string, std::string> &dst)
 	}
 }
 
+#ifndef ASIO_SOCKETS
 BEGIN_EVENT_TABLE(CWebServerBase, wxEvtHandler)
 	EVT_SOCKET(ID_WEBLISTENSOCKET_EVENT, CWebServerBase::OnWebSocketServerEvent)
 	EVT_SOCKET(ID_WEBCLIENTSOCKET_EVENT, CWebServerBase::OnWebSocketEvent)
 END_EVENT_TABLE()
+#endif
 
 CWebServerBase::CWebServerBase(CamulewebApp *webApp, const wxString& templateDir) :
 	m_ServersInfo(webApp), m_SharedFileInfo(webApp), m_DownloadFileInfo(webApp, &m_ImageLib),
@@ -277,9 +282,11 @@ void CWebServerBase::StartServer()
 	addr.AnyAddress();
 	addr.Service(webInterface->m_WebserverPort);
 
-	m_webserver_socket = new CWebLibSocketServer(addr, wxSOCKET_REUSEADDR, this);
+	m_webserver_socket = new CWebLibSocketServer(addr, MULE_SOCKET_REUSEADDR, this);
+#ifndef ASIO_SOCKETS
 	m_webserver_socket->SetEventHandler(*this, ID_WEBLISTENSOCKET_EVENT);
 	m_webserver_socket->SetNotify(wxSOCKET_CONNECTION_FLAG);
+#endif
 	m_webserver_socket->Notify(true);
 	if (!m_webserver_socket->IsOk()) {
 		delete m_webserver_socket;
@@ -301,10 +308,12 @@ void CWebServerBase::StopServer()
 #endif
 }
 
+#ifndef ASIO_SOCKETS
 void CWebServerBase::OnWebSocketServerEvent(wxSocketEvent& WXUNUSED(event))
 {
 	m_webserver_socket->OnAccept();
 }
+#endif
 
 CWebLibSocketServer::CWebLibSocketServer(const class amuleIPV4Address& adr, int flags, CWebServerBase * webServerBase)
 	:	CLibSocketServer(adr, flags), 
@@ -324,6 +333,7 @@ void CWebLibSocketServer::OnAccept()
     }
 }
 
+#ifndef ASIO_SOCKETS
 void CWebServerBase::OnWebSocketEvent(wxSocketEvent& event)
 {
 	CWebSocket *socket = dynamic_cast<CWebSocket *>(event.GetSocket());
@@ -344,8 +354,8 @@ void CWebServerBase::OnWebSocketEvent(wxSocketEvent& event)
         wxFAIL;
         break;
     }
-
 }
+#endif
 
 void CScriptWebServer::ProcessImgFileReq(ThreadData Data)
 {
@@ -1914,6 +1924,13 @@ void CScriptWebServer::ProcessURL(ThreadData Data)
 				|| req_file.EndsWith(wxT(".xsd"))
 				|| req_file.EndsWith(wxT(".xsl"))) {
 		session->m_vars["content_type"] = "text/xml";
+		httpOut = ProcessHtmlRequest(unicode2char(req_file), httpOutLen);
+	} else if (req_file.EndsWith(wxT(".appcache"))
+		   || req_file.EndsWith(wxT(".manifest"))) {
+		session->m_vars["content_type"] = "text/cache-manifest";
+		httpOut = ProcessHtmlRequest(unicode2char(req_file), httpOutLen);
+	} else if (req_file.EndsWith(wxT(".json"))) {
+		session->m_vars["content_type"] = "application/json";
 		httpOut = ProcessHtmlRequest(unicode2char(req_file), httpOutLen);
 	} else {
 		httpOut = GetErrorPage("aMuleweb doesn't handle the requested file type ", httpOutLen);

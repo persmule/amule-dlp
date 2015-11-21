@@ -72,6 +72,7 @@ libmulesocket_a_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) $(BOOST_CPPFLAGS) -
 libmuleappcommon_a_SOURCES = \
 	CFile.cpp \
 	ClientCredits.cpp \
+	DataToText.cpp \
 	ED2KLink.cpp \
 	Friend.cpp \
 	GapList.cpp \
@@ -94,6 +95,7 @@ libmuleappcommon_a_CPPFLAGS = $(AM_CPPFLAGS) $(WXBASE_CPPFLAGS) -I$(srcdir)/libs
 
 libmuleappcore_a_SOURCES = \
 	AsyncDNS.cpp \
+	CanceledFileList.cpp \
 	DeadSourceList.cpp \
 	FileArea.cpp \
 	FileAutoClose.cpp \
@@ -108,6 +110,7 @@ libmuleappcore_a_SOURCES = \
 	ThreadScheduler.cpp \
 	UPnPBase.cpp \
 	kademlia/kademlia/Entry.cpp \
+	kademlia/kademlia/Indexed.cpp \
 	kademlia/kademlia/SearchManager.cpp \
 	kademlia/routing/RoutingBin.cpp \
 	kademlia/utils/UInt128.cpp
@@ -137,7 +140,6 @@ libmuleappgui_a_CPPFLAGS = $(AM_CPPFLAGS) $(WX_CPPFLAGS) -I$(srcdir)/libs -I$(sr
 core_sources = \
 	amule.cpp \
 	BaseClient.cpp \
-	CanceledFileList.cpp \
 	ClientList.cpp \
 	ClientCreditsList.cpp \
 	ClientTCPSocket.cpp \
@@ -167,7 +169,6 @@ core_sources = \
 	UploadBandwidthThrottler.cpp \
 	UploadClient.cpp \
 	UploadQueue.cpp \
-	kademlia/kademlia/Indexed.cpp \
 	kademlia/kademlia/Kademlia.cpp \
 	kademlia/kademlia/Prefs.cpp \
 	kademlia/kademlia/Search.cpp \
@@ -212,7 +213,6 @@ gui_sources = \
 common_sources = \
 	amuleAppCommon.cpp \
 	ClientRef.cpp \
-	DataToText.cpp \
 	ECSpecialMuleTags.cpp \
 	KnownFile.cpp \
 	GetTickCount.cpp \
@@ -246,7 +246,7 @@ endif
 #
 # Flags
 #
-core_flags = $(LIBUPNP_CPPFLAGS) $(LIBUPNP_CFLAGS)
+core_flags = $(BOOST_CPPFLAGS) $(LIBUPNP_CPPFLAGS) $(LIBUPNP_CFLAGS)
 gui_flags = $(WX_CPPFLAGS) $(GEOIP_CPPFLAGS)
 common_flags = -I$(srcdir)/libs -Ilibs -I$(srcdir)/include $(CRYPTOPP_CPPFLAGS)
 
@@ -307,6 +307,7 @@ endif
 
 amulecmd_SOURCES = \
 	TextClient.cpp \
+	DataToText.cpp \
 	ExternalConnector.cpp \
 	LoggerConsole.cpp \
 	OtherFunctions.cpp \

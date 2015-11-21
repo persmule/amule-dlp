@@ -281,9 +281,6 @@ void CPartFile::CreatePartFile()
 
 	m_CorruptionBlackBox->SetPartFileInfo(GetFileName().GetPrintable(), m_partmetfilename.RemoveAllExt().GetPrintable());
 
-	wxString strPartName = m_partmetfilename.RemoveExt().GetRaw();
-	m_taglist.push_back(CTagString(FT_PARTFILENAME, strPartName ));
-
 	m_gaplist.Init(GetFileSize(), true);	// Init empty
 
 	m_PartPath = m_fullname.RemoveExt();
@@ -485,6 +482,7 @@ uint8 CPartFile::LoadPartFile(const CPath& in_directory, const CPath& filename, 
 					// old tags: as long as they are not needed, take the chance to purge them
 					case FT_PERMISSIONS:
 					case FT_KADLASTPUBLISHKEY:
+					case FT_PARTFILENAME:
 						break;
 					case FT_DL_ACTIVE_TIME:
 						if (newtag.IsInt()) {
@@ -1149,8 +1147,6 @@ void CPartFile::PartFileHashFinished(CKnownFile* result)
 			// Very nice feature, if a file is completed but .part.met don't believe it,
 			// update it.
 
-			uint64 partStart = i * PARTSIZE;
-			uint64 partEnd   = partStart + GetPartSize(i) - 1;
 			if (!( i < result->GetHashCount() && (result->GetPartHash(i) == GetPartHash(i)))){
 				if (IsComplete(i)) {
 					CMD4Hash wronghash;
@@ -1178,6 +1174,8 @@ void CPartFile::PartFileHashFinished(CKnownFile* result)
 						% GetFileName() );
 
 					FillGap(i);
+					uint64 partStart = i * PARTSIZE;
+					uint64 partEnd   = partStart + GetPartSize(i) - 1;
 					RemoveBlockFromList(partStart, partEnd);
 				}
 			}

@@ -400,13 +400,13 @@ bool CamuleApp::OnInit()
 	glob_prefs = new CPreferences();
 
 	CPath outDir;
-	if (CheckMuleDirectory(wxT("temp"), thePrefs::GetTempDir(), ConfigDir + wxT("Temp"), outDir)) {
+	if (CheckMuleDirectory(wxT("temp"), thePrefs::GetTempDir(), thePrefs::GetConfigDir() + wxT("Temp"), outDir)) {
 		thePrefs::SetTempDir(outDir);
 	} else {
 		return false;
 	}
 
-	if (CheckMuleDirectory(wxT("incoming"), thePrefs::GetIncomingDir(), ConfigDir + wxT("Incoming"), outDir)) {
+	if (CheckMuleDirectory(wxT("incoming"), thePrefs::GetIncomingDir(), thePrefs::GetConfigDir() + wxT("Incoming"), outDir)) {
 		thePrefs::SetIncomingDir(outDir);
 	} else {
 		return false;
@@ -423,9 +423,22 @@ bool CamuleApp::OnInit()
 	// Build the filenames for the two OS files
 	SetOSFiles(thePrefs::GetOSDir().GetRaw());
 
+	// Check if we have the old style locale config
+	bool old_localedef = false;
+	wxString langId = thePrefs::GetLanguageID();
+	if (!langId.IsEmpty() && (langId.GetChar(0) >= '0' && langId.GetChar(0) <= '9')) {
+		old_localedef = true;
+		thePrefs::SetLanguageID(wxLang2Str(wxLANGUAGE_DEFAULT));
+		glob_prefs->Save();
+	}
+
 #ifdef ENABLE_NLS
 	// Load localization settings
 	Localize_mule();
+
+	if (old_localedef) {
+		ShowAlert(_("Your locale has been changed to System Default due to a configuration change. Sorry."), _("Info"), wxCENTRE | wxOK | wxICON_ERROR);
+	}
 #endif
 
 	// Configure EC for amuled when invoked with ec-config
@@ -453,7 +466,7 @@ bool CamuleApp::OnInit()
 #endif
 
 	// Display notification on new version or first run
-	wxTextFile vfile( ConfigDir + wxT("lastversion") );
+	wxTextFile vfile( thePrefs::GetConfigDir() + wxT("lastversion") );
 	wxString newMule(wxT( VERSION ));
 
 	if ( !wxFileExists( vfile.GetName() ) ) {
@@ -487,14 +500,6 @@ bool CamuleApp::OnInit()
 		vfile.Close();
 	}
 
-	// Check if we have the old style locale config
-	wxString langId = thePrefs::GetLanguageID();
-	if (!langId.IsEmpty() && (langId.GetChar(0) >= '0' && langId.GetChar(0) <= '9')) {
-		wxString info(_("Your locale has been changed to System Default due to a configuration change. Sorry."));
-		thePrefs::SetLanguageID(wxLang2Str(wxLANGUAGE_DEFAULT));
-		ShowAlert(info, _("Info"), wxCENTRE | wxOK | wxICON_ERROR);
-	}
-
 	m_statistics = new CStatistics();
 
 	clientlist	= new CClientList();
@@ -524,7 +529,7 @@ bool CamuleApp::OnInit()
 		// We use the thread base because I don't want a dialog to pop up.
 		CHTTPDownloadThread* version_check =
 			new CHTTPDownloadThread(wxT("http://amule.sourceforge.net/lastversion"),
-				theApp->ConfigDir + wxT("last_version_check"), theApp->ConfigDir + wxT("last_version"), HTTP_VersionCheck, false, false);
+				thePrefs::GetConfigDir() + wxT("last_version_check"), thePrefs::GetConfigDir() + wxT("last_version"), HTTP_VersionCheck, false, false);
 		version_check->Create();
 		version_check->Run();
 	}
@@ -607,7 +612,7 @@ bool CamuleApp::OnInit()
 
 	// Run webserver?
 	if (thePrefs::GetWSIsEnabled()) {
-		wxString aMuleConfigFile = ConfigDir + m_configFile;
+		wxString aMuleConfigFile = thePrefs::GetConfigDir() + m_configFile;
 		wxString amulewebPath = thePrefs::GetWSPath();
 
 #if defined(__WXMAC__) && !defined(AMULE_DAEMON)
@@ -1004,7 +1009,7 @@ void CamuleApp::OnFatalException()
 		<< wxT("circumstances of this crash. The forum is located here:\n")
 		<< wxT("    http://forum.amule.org/index.php?board=67.0\n")
 		<< wxT("If possible, please try to generate a real backtrace of this crash:\n")
-		<< wxT("    http://wiki.amule.org/index.php/Backtraces\n\n")
+		<< wxT("    http://wiki.amule.org/wiki/Backtraces\n\n")
 		<< wxT("----------------------------=| BACKTRACE FOLLOWS: |=----------------------------\n")
 		<< wxT("Current version is: ") << FullMuleVersion
 		<< wxT("\nRunning on: ") << OSDescription
@@ -1420,7 +1425,7 @@ void CamuleApp::ShutDown()
 
 	theStats::Save();
 
-	CPath configFileName = CPath(ConfigDir + m_configFile);
+	CPath configFileName = CPath(thePrefs::GetConfigDir() + m_configFile);
 	CPath::BackupFile(configFileName, wxT(".bak"));
 
 	if (clientlist) {
@@ -1472,7 +1477,7 @@ void CamuleApp::SetPublicIP(const uint32 dwIP)
 wxString CamuleApp::GetLog(bool reset)
 {
 	wxFile logfile;
-	logfile.Open(ConfigDir + wxT("logfile"));
+	logfile.Open(thePrefs::GetConfigDir() + wxT("logfile"));
 	if ( !logfile.IsOpened() ) {
 		return _("ERROR: can't open logfile");
 	}
@@ -1495,7 +1500,7 @@ wxString CamuleApp::GetLog(bool reset)
 	delete [] tmp_buffer;
 	if ( reset ) {
 		theLogger.CloseLogfile();
-		if (theLogger.OpenLogfile(ConfigDir + wxT("logfile"))) {
+		if (theLogger.OpenLogfile(thePrefs::GetConfigDir() + wxT("logfile"))) {
 			AddLogLineN(_("Log has been reset"));
 		}
 		ECServerHandler->ResetAllLogs();
@@ -1549,7 +1554,7 @@ void CamuleApp::OnFinishedHTTPDownload(CMuleInternalEvent& event)
 		case HTTP_NodesDat:
 			if (event.GetExtraLong() == HTTP_Success) {
 
-				wxString file = ConfigDir + wxT("nodes.dat");
+				wxString file = thePrefs::GetConfigDir() + wxT("nodes.dat");
 				if (wxFileExists(file)) {
 					wxRemoveFile(file);
 				}
@@ -1582,7 +1587,7 @@ void CamuleApp::OnFinishedHTTPDownload(CMuleInternalEvent& event)
 void CamuleApp::CheckNewVersion(uint32 result)
 {
 	if (result == HTTP_Success) {
-		wxString filename = ConfigDir + wxT("last_version_check");
+		wxString filename = thePrefs::GetConfigDir() + wxT("last_version_check");
 		wxTextFile file;
 
 		if (!file.Open(filename)) {
@@ -1996,9 +2001,9 @@ void CamuleApp::BootstrapKad(uint32 ip, uint16 port)
 
 void CamuleApp::UpdateNotesDat(const wxString& url)
 {
-	wxString strTempFilename(theApp->ConfigDir + wxT("nodes.dat.download"));
+	wxString strTempFilename(thePrefs::GetConfigDir() + wxT("nodes.dat.download"));
 
-	CHTTPDownloadThread *downloader = new CHTTPDownloadThread(url, strTempFilename, theApp->ConfigDir + wxT("nodes.dat"), HTTP_NodesDat, true, false);
+	CHTTPDownloadThread *downloader = new CHTTPDownloadThread(url, strTempFilename, thePrefs::GetConfigDir() + wxT("nodes.dat"), HTTP_NodesDat, true, false);
 	downloader->Create();
 	downloader->Run();
 }
