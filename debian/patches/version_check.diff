@@ -1,7 +1,7 @@
 Disable NewVersionCheck by Default (Closes: #554623)
 --- a/src/Preferences.cpp
 +++ b/src/Preferences.cpp
-@@ -1213,7 +1213,7 @@ void CPreferences::BuildItemList( const
+@@ -1210,7 +1210,7 @@ void CPreferences::BuildItemList( const
  	/**
  	 * Version check
  	 **/

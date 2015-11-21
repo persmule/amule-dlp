@@ -1,7 +1,7 @@
 --- a/configure.in
 +++ b/configure.in
-@@ -110,7 +110,7 @@ MULE_IF_ENABLED([cas], [
- 	# Check for gd
+@@ -106,7 +106,7 @@ AC_ARG_WITH(
+ MULE_IF_ENABLED([cas], [
  	MULE_CHECK_GDLIB([2.0.0], [
  		CAS_DEFS="-D__GD__"
 -		MULE_PREPEND([GDLIB_LIBS], [-lgd])
@@ -9,14 +9,3 @@
  	], [CAS_DEFS=])
  	AS_IF([test -z "$CAS_DEFS"],
  		[MULE_WARNING(
---- a/configure
-+++ b/configure
-@@ -7355,7 +7355,7 @@ fi
- 	if test -n "$GDLIB_VERSION"; then :
- 
- 		CAS_DEFS="-D__GD__"
--		GDLIB_LIBS="-lgd $GDLIB_LIBS"
-+		GDLIB_LIBS="-lgd"
- 
- else
-   CAS_DEFS=
