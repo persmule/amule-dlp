@@ -2,21 +2,39 @@ Version 2.4.0 - The river knows.
 ----------
 201?-??-??
 
+	tgragnato:
+		* Fixed ASIO compilation with libcxx
+
 	Dan64:
-		* Read AICH root hashes binary eMuleCollection files
+		* Read AICH root hashes from binary eMuleCollection files
 
 	gnazio:
 		* Fixed configure of libpng when sh != bash
 
 	GonoszTopi:
 		* Allow any kind of file links in collections
+		* Make UPnP log go to the appropriate category (#1681)
+		* Use the C++ compiler to check for features we're about to use
+		  in C++ source files (#1572)
+		* Adapt configure to handle subversion repository clones in
+		  mercurial and git
+		* Fix bfd detection for systems missing -liberty
+		* Add support for 'canceled.met' to the fileview tool
+		* Implemented the missing 'show shared' command in amulecmd
+		* Fix check for a valid locale config entry being done *after*
+		  the locale has been set
 
 	iz0bbz:
 		* Fix WinSock library version detection with MinGW-w64
 		* Fix compilation with MinGW-w64
 
+	kam:
+		* WebServer serves .json, .manifest and .appacache files
+
 	Mr Hyde:
-		* Fix  "Disable computer's timed standby mode" for MacOS 10.9 Mavericks
+		* Fix "Disable computer's timed standby mode" for MacOS 10.9 Mavericks
+		* Compilation fix on Linux Slackware 64bit and MacOS 10.9.4
+		* Fix configure on Mac
 
 	Stu Redman:
 		* Display hashing progress in progress bars
@@ -33,6 +51,9 @@ Version 2.4.0 - The river knows.
 		* New download links for server list and nodes.dat (with gav616 and xosevp)
 		* Projects for Visual Studio 2013 (which is now the preferred Win32 compiler)
 		* Fixed build with wx 3.0 (including STL build)
+
+	circulosmeos:
+		* amuleweb cookies read behind a "lowercase" proxy (http/2 compliant)
 
 --------------------------------------------------------------------------------
 

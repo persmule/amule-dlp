@@ -118,7 +118,7 @@ static unsigned char dh768_p[] = {
 #endif
 #define SOCKET_ERROR (-1)
 
-CEncryptedStreamSocket::CEncryptedStreamSocket(wxSocketFlags flags, const CProxyData *proxyData) : CSocketClientProxy(flags, proxyData)
+CEncryptedStreamSocket::CEncryptedStreamSocket(muleSocketFlags flags, const CProxyData *proxyData) : CSocketClientProxy(flags, proxyData)
 {
 	m_StreamCryptState = thePrefs::IsClientCryptLayerSupported() ? ECS_UNKNOWN : ECS_NONE;
 	m_NegotiatingState = ONS_NONE;
@@ -142,7 +142,7 @@ CEncryptedStreamSocket::~CEncryptedStreamSocket()
 void CEncryptedStreamSocket::SetConnectionEncryption(bool bEnabled, const uint8_t* pTargetClientHash, bool bServerConnection)
 {
 	if (m_StreamCryptState != ECS_UNKNOWN && m_StreamCryptState != ECS_NONE) {
-		if (!m_StreamCryptState == ECS_NONE || bEnabled) {
+		if (bEnabled) {
 			wxFAIL;
 		}
 		return;
