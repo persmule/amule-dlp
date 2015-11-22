@@ -4,3 +4,4 @@ cas_configfile.c_good_default_paths.diff
 use_xdg-open_as_preview_default.diff
 fallocate.diff
 version_check.diff
+define_MULE_EVT_LOGLINE.patch
