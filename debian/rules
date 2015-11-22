@@ -41,6 +41,9 @@ CPPFLAGS_DEF = `dpkg-buildflags --get CPPFLAGS`
 
 ###
 
+configure:
+	./autogen.sh
+
 $(objdir)/config.status: configure
 	dh_testdir
 
