@@ -4,6 +4,8 @@ Priority: optional
 Maintainer: Debian aMule Team <pkg-amule-devel@lists.alioth.debian.org>
 Uploaders: Adrian Yanes <devel@ayanes.com>, Sandro Tosi <morph@debian.org>, Giuseppe Iuculano <iuculano@debian.org>
 Build-Depends:
+ autoconf,
+ automake,
  autotools-dev,
  autopoint,
  debhelper (>= 7),
