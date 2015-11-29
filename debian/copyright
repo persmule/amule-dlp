@@ -102,7 +102,7 @@ systems in /usr/share/common-licenses/GPL-2.
 
 The Debian packaging is:
 
-    Copyright (C) 2010-2011 Sandro Tosi <morph@debian.org>
+    Copyright (C) 2010-2015 Sandro Tosi <morph@debian.org>
     Copyright (C) 2009-2011 Giuseppe Iuculano <iuculano@debian.org>
 
 and is licensed under the same terms as upstream code.
