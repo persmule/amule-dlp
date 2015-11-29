@@ -9,7 +9,7 @@ confflags = --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/s
 	    --enable-amule-daemon --enable-amulecmd --enable-ed2k --enable-webserver	\
 	    --enable-amule-gui --enable-cas --enable-wxcas --enable-alc --enable-alcc	\
 	    --enable-plasmamule --disable-embedded-crypto --enable-geoip --enable-upnp	\
-	    --with-denoise-level=0
+	    --with-denoise-level=0 --with-boost
 
 DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
@@ -38,6 +38,8 @@ CXXFLAGS = `dpkg-buildflags --get CXXFLAGS`
 
 LDFLAGS_DEF += `dpkg-buildflags --get LDFLAGS`
 CPPFLAGS_DEF = `dpkg-buildflags --get CPPFLAGS`
+
+CPPFLAGS_DEF += -DASIO_SOCKETS=1
 
 ###
 

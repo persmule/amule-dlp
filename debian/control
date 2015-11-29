@@ -10,6 +10,8 @@ Build-Depends:
  autopoint,
  debhelper (>= 7),
 ##
+ libboost-dev,
+ libboost-system-dev,
  libcrypto++-dev,
  libgd2-dev,
  libgeoip-dev,
