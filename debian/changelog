@@ -1,8 +1,17 @@
-amule (2.4.0~git20151120.0023527bc2-1) UNRELEASED; urgency=medium
+amule (2.4.0~git20151120.0023527bc2-1) unstable; urgency=medium
 
-  * New upsteam GIT snapshot
+  * [0071397] New upsteam GIT snapshot
+  * [570b5d8] refresh patches
+  * [373f008] update b-d to WX 3.0; Closes: #751241, #799347
+  * [581d857] run autogen.sh before building
+  * [34b4f84] define MULE_EVT_LOGLINE in src/LoggerConsole.cpp; Closes: #765144
+  * [32cdf61] add autoconf/automake to b-d
+  * [95c3e86] Use Boost.Asio networking instead of WX networking
+  * [2af1ef8] the next version will be 2.4.0, so adjust snapshot versioning
+  * [dcce8e4] bump Standards-Version to 3.9.6 (no changes needed)
+  * [a5569fc] bump packaging copyright years
 
- -- Sandro Tosi <morph@debian.org>  Sat, 21 Nov 2015 21:49:33 +0000
+ -- Sandro Tosi <morph@debian.org>  Sun, 29 Nov 2015 12:34:25 +0000
 
 amule (2.3.1+git1a369e47-3) unstable; urgency=medium
 
