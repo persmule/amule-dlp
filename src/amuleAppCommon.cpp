@@ -446,7 +446,7 @@ bool CamuleAppCommon::InitCommon(int argc, wxChar ** argv)
 
 	// Open the dlp log file - Dynamic Leech Protect - persmule
 	if (!IsRemoteGui()){
-	  CPath dlplogfileName = CPath(ConfigDir + m_dlplogFile);
+	  CPath dlplogfileName = CPath(thePrefs::GetConfigDir() + m_dlplogFile);
 	  if (dlplogfileName.FileExists()) {
 	    CPath::BackupFile(dlplogfileName, wxT(".bak"));
 	  }

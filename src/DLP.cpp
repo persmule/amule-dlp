@@ -135,7 +135,7 @@ int DLP::ReloadAntiLeech(){
 #endif
 	wxString localName = wxDynamicLibrary::CanonicalizeName(wxT("antiLeech"));
 	wxString systemwideFile(JoinPaths(dataDir, localName));
-	wxString userFile(theApp->ConfigDir + localName);
+	wxString userFile(thePrefs::GetConfigDir() + localName);
 	wxString fallbackFile(wxT("antiLeech"));
 	//Try to load lib;
 	AddLogLineN(  _("Trying to load antiLeech..."));
