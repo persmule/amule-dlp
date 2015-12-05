@@ -3259,7 +3259,7 @@ msgstr "让 aMule 在退出前进行询问。"
 
 #: src/muuli_wdr.cpp:1484
 msgid "Hide application window when close button is pressed"
-msgstr ""
+msgstr "按下关闭按钮时隐藏应用程序窗口"
 
 #: src/muuli_wdr.cpp:1487
 msgid "Enable Tray Icon"
@@ -4859,7 +4859,7 @@ msgstr "更改语言"
 
 #: src/Preferences.cpp:788
 msgid "There are no translations installed for aMule"
-msgstr ""
+msgstr "aMule的翻译文件未被安装"
 
 #: src/Preferences.cpp:788
 #, fuzzy
@@ -5141,11 +5141,11 @@ msgstr "成功加载 antiLeech! 版本： %d"
 
 #: src/PrefsUnifiedDlg.cpp:1101
 msgid "Reload antiLeech from remote GUI has not been implemented."
-msgstr ""
+msgstr "尚未实现从远程图形控制台重新加载antiLeech"
 
 #: src/PrefsUnifiedDlg.cpp:1102
 msgid "Sorry, it has not been implemented yet!"
-msgstr ""
+msgstr "抱歉，此功能尚未实现！"
 
 #: src/PrefsUnifiedDlg.cpp:1147 src/PrefsUnifiedDlg.cpp:1166
 #, c-format
@@ -7055,7 +7055,7 @@ msgstr "无法打开 %s"
 
 #: src/utils/aLinkCreator/src/ed2khash.cpp:147
 msgid "Out of memory while calculating ed2k hash!"
-msgstr ""
+msgstr "当计算ed2k散列值时内存耗尽！"
 
 #: src/utils/wxCas/src/linuxmon.cpp:77
 #, c-format
