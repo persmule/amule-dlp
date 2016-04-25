@@ -25,6 +25,7 @@ Dynamic Leech Protection(DLP) is a part of eMule Xtreme Mod at first. This proje
 
  Configuration:
 ----------------
+
   - Go to the "Preferences" tab
 
   - Enter a nickname or leave as the default value.
@@ -100,8 +101,9 @@ Dynamic Leech Protection(DLP) is a part of eMule Xtreme Mod at first. This proje
     Don't forget to connect to a server, or you probably won't download too much.
 
 
- Basic aMule Tips
+Basic aMule Tips
 ------------------
+
   * NEVER run aMule as root.
   * If you are behind a firewall or router, be sure that the ports have been
     opened. The default ports are 4662 (TCP). 4665 (UDP) and 4672 (UDP). If
@@ -128,8 +130,9 @@ Dynamic Leech Protection(DLP) is a part of eMule Xtreme Mod at first. This proje
     problem.
 
 
- Obtaining your first server list
+Obtaining your first server list
 ----------------------------------
+
   Use one of the following links in the "Update server.met from URL" box in
   the Server tab. They are apparently updated every 20 minutes.
 
@@ -143,28 +146,32 @@ Dynamic Leech Protection(DLP) is a part of eMule Xtreme Mod at first. This proje
   * Should maurice be down for some reasons, use this server.met instead:
       http://www.srv1000.com/azz/server.met
 
+  
   If these are non-functional, simply google for 'server.met'.
 
 
- Tranfers icons
+Tranfers icons
 ----------------
+
   To find descriptions of the various icons found inside aMule, take a look at
   http://wiki.amule.org/index.php/Getting_Started#Icons_and_What_They_Signify
 
 
- License
+License
 ---------
+
   aMule -- like eMule -- is released under the GNU General Public License.
   See the "COPYING" file for details.
 
 
- Developers
+Developers
 ------------
   See AUTHORS
 
 
- FAQ:
+FAQ:
 ------
+
   -- How do I know whether my ID is high or low? --
 
   Look at the arrows at the bottom right corner, wrapping a world icon, next to
@@ -235,8 +242,9 @@ Dynamic Leech Protection(DLP) is a part of eMule Xtreme Mod at first. This proje
       http://www.emule-project.net/home/perl/help.cgi
 
 
- Want to help?
+Want to help?
 ---------------
+
   aMule is a free software project and requires the cooperation of its users
   to improve the quality of the software. We welcome all contributions to the
   project in the form of new features, bug fixes, feature requests, etc.
@@ -253,8 +261,9 @@ Dynamic Leech Protection(DLP) is a part of eMule Xtreme Mod at first. This proje
   a note about how you fixed the problem.
 
 
- IRC, Links and Contact
+IRC, Links and Contact
 -------------
+
   IRC: Channel #aMule on FREENODE IRC Network (irc.freenode.net)
 
   aMule homepage
@@ -277,7 +286,7 @@ Dynamic Leech Protection(DLP) is a part of eMule Xtreme Mod at first. This proje
   Contact (administrative issues only!)
       admin@amule.org
 
- Legal Notice
+Legal Notice
 --------------
 
   aMule is an interface to the ed2k network. As such, the aMule developers have
