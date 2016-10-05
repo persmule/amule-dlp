@@ -1,0 +1,1 @@
+L10n .mo files cannot be loaded if amule-dlp is built to install to a prefix path other than /usr, due to a bug from upstream.
