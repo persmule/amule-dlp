@@ -1,4 +1,0 @@
-
-If amuled is launched with -f, it cannot die a normal death, you must kill it twice. Now I am using raf's daemon(1) to support it.
-
-Complete l10n translation.
