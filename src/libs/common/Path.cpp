@@ -252,7 +252,7 @@ CPath::CPath(const wxString &filename)
 	}
 
 	wxCharBuffer fn = filename2char(filename);
-	if (fn.data()) {
+	if (fn.data() && fn.length()) {
 		// Valid in the current locale, so it came from a system call or a
 		// correctly configured system.
 		m_filesystem = DeepCopy(filename);
