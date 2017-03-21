@@ -510,34 +510,36 @@ dnl ----------------------------------------------------
 AC_DEFUN([MULE_CHECK_BFD],
 [AC_REQUIRE([MULE_CHECK_NLS])dnl
 
-	AC_MSG_CHECKING([for bfd])
-	result=no
-	for bfd_ldadd in "" "${LIBINTL}" "-ldl" "-ldl ${LIBINTL}"; do
-		MULE_BACKUP([LIBS])
-		MULE_BACKUP([LDFLAGS])
-		MULE_PREPEND([LIBS], [-lbfd  ${bfd_ldadd} ${ZLIB_LIBS}])
-		MULE_APPEND([LDFLAGS], [${ZLIB_LDFLAGS}])
-		AC_LINK_IFELSE([
+	MULE_ARG_ENABLE([bfd], [no], [enable bfd support for proper backtraces])
+	MULE_IF_ENABLED([bfd], [
+		AC_MSG_CHECKING([for bfd])
+		result=no
+		for bfd_ldadd in "" "${LIBINTL}" "-ldl" "-ldl ${LIBINTL}"; do
+		    MULE_BACKUP([LIBS])
+		    MULE_BACKUP([LDFLAGS])
+		    MULE_PREPEND([LIBS], [-lbfd  ${bfd_ldadd} ${ZLIB_LIBS}])
+		    MULE_APPEND([LDFLAGS], [${ZLIB_LDFLAGS}])
+		    AC_LINK_IFELSE([
 			AC_LANG_PROGRAM([[
-				#include <ansidecl.h>
-				#include <bfd.h>
+					#include <ansidecl.h>
+					#include <bfd.h>
 			]], [[
-				const char *dummy = bfd_errmsg(bfd_get_error());
+			    const char *dummy = bfd_errmsg(bfd_get_error());
 			]])
-		], [
-			result=yes
-			BFD_CPPFLAGS="-DHAVE_BFD"
-			BFD_LIBS="-lbfd  ${bfd_ldadd}"
-			MULE_RESTORE([LIBS])
-			MULE_RESTORE([LDFLAGS])
-			break
+			], [
+			   result=yes
+			   BFD_CPPFLAGS="-DHAVE_BFD"
+			   BFD_LIBS="-lbfd  ${bfd_ldadd}"
+			   MULE_RESTORE([LIBS])
+			   MULE_RESTORE([LDFLAGS])
+			   break
 		])
 		MULE_RESTORE([LIBS])
 		MULE_RESTORE([LDFLAGS])
-	done
+		done
 
-	AC_MSG_RESULT([$result])
-
+		AC_MSG_RESULT([$result])
+	])
 	AS_IF([test $result = no],
 		[MULE_WARNING([bfd.h not found or unusable, please install binutils development package if you are a developer or want to help testing aMule])])
 
