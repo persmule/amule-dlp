@@ -639,8 +639,8 @@ AC_DEFUN([MULE_CHECK_EXECINFO],
 			#include <execinfo.h>
 		]], [[
 			void *bt[1];
-			int n = backtrace(&bt, 1);
-			const char **bt_syms = backtrace_symbols(bt, n);
+			int n = backtrace((void **)&bt, 1);
+			char **bt_syms = backtrace_symbols(bt, n);
 		]])
 	], [
 		AH_TEMPLATE([HAVE_EXECINFO], [Define to 1 if you have the <execinfo.h> header which declares backtrace()])
