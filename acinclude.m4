@@ -522,7 +522,7 @@ AC_DEFUN([MULE_CHECK_BFD],
 				#include <ansidecl.h>
 				#include <bfd.h>
 			]], [[
-				char *dummy = bfd_errmsg(bfd_get_error());
+				const char *dummy = bfd_errmsg(bfd_get_error());
 			]])
 		], [
 			result=yes
