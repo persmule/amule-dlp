@@ -9,14 +9,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: http://forum.amule.org/index.php?board=40.0\n"
-"POT-Creation-Date: 2016-11-21 15:20+0100\n"
+"POT-Creation-Date: 2016-10-05 14:49+0800\n"
 "PO-Revision-Date: 2011-04-26 01:08+0200\n"
 "Last-Translator: Jure Repinc <jlp@holodeck1.com>\n"
 "Language-Team: Slovenian <lugos-slo@lugos.si>\n"
+"Language: sl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: sl\n"
 "X-Generator: Lokalize 1.2\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n"
 "%100==4 ? 3 : 0);\n"
@@ -37,11 +37,11 @@ msgstr "Podatki"
 msgid "The specified userhash is not valid!"
 msgstr "Navedena koda uporabnika ni veljavna."
 
-#: src/amuleAppCommon.cpp:129
+#: src/amuleAppCommon.cpp:130
 msgid "Failed to open ED2KLinks file."
 msgstr "Ni bilo mogoče odpreti datoteke ED2KLinks."
 
-#: src/amuleAppCommon.cpp:202
+#: src/amuleAppCommon.cpp:203
 msgid ""
 "WARNING: You can't add yourself as a source for an eD2k link while having a "
 "lowid."
@@ -49,37 +49,37 @@ msgstr ""
 "OPOZORILO: če imete nizek ID, sebe ne morete dodati kot vira za povezavo "
 "eD2k."
 
-#: src/amule.cpp:230
+#: src/amule.cpp:235
 msgid "Now, exiting main app..."
 msgstr "Sedaj, zapuščanje glavnega programa ..."
 
-#: src/amule.cpp:249
+#: src/amule.cpp:254
 #, c-format
 msgid "Terminating amuleweb instance with pid '%ld' ... "
 msgstr "Končanje izvoda amuleweb s PID »%ld« ... "
 
-#: src/amule.cpp:252
+#: src/amule.cpp:257
 #, c-format
 msgid "Killing amuleweb instance with pid '%ld' ... "
 msgstr "Ubijanje izvoda amuleweb s PID »%ld« ... "
 
-#: src/amule.cpp:254 src/ClientRef.cpp:194 src/ServerListCtrl.cpp:95
+#: src/amule.cpp:259 src/ClientRef.cpp:194 src/ServerListCtrl.cpp:95
 msgid "Failed"
 msgstr "Neuspeh"
 
-#: src/amule.cpp:260
+#: src/amule.cpp:265
 msgid "aMule OnExit: Terminating core."
 msgstr "aMule OnExit: Končevanje jedra."
 
-#: src/amule.cpp:333
+#: src/amule.cpp:338
 msgid "aMule shutdown completed."
 msgstr "Zaustavitev aMule zaključena."
 
-#: src/amule.cpp:337
+#: src/amule.cpp:342
 msgid "Memory debug results for aMule exit:"
 msgstr "Rezultati razhroščevanja pomnilnika za izhod iz aMule:"
 
-#: src/amule.cpp:443
+#: src/amule.cpp:448
 msgid ""
 "Your locale has been changed to System Default due to a configuration "
 "change. Sorry."
@@ -87,13 +87,13 @@ msgstr ""
 "Vaše področne nastavitve so bile spremenjene na sistemsko privzete zaradi "
 "spremembe v nastavitvah. Oprostite."
 
-#: src/amule.cpp:443 src/amule.cpp:1058 src/CatDialog.cpp:141
+#: src/amule.cpp:448 src/amule.cpp:1068 src/CatDialog.cpp:141
 #: src/CatDialog.cpp:151 src/CatDialog.cpp:163 src/ServerList.cpp:346
 #: src/ServerListCtrl.cpp:149
 msgid "Info"
 msgstr "Podatki"
 
-#: src/amule.cpp:449
+#: src/amule.cpp:454
 msgid ""
 "\n"
 "EC configuration"
@@ -101,16 +101,16 @@ msgstr ""
 "\n"
 "Nastavitev zunanje povezave"
 
-#: src/amule.cpp:452
+#: src/amule.cpp:457
 msgid "Password set and external connections enabled."
 msgstr "Geslo je bilo nastavljeno in zunanje povezave omogočene."
 
-#: src/amule.cpp:463 src/KadDlg.cpp:183 src/KadDlg.cpp:189
-#: src/PrefsUnifiedDlg.cpp:750 src/SharedFilesCtrl.cpp:318
+#: src/amule.cpp:468 src/KadDlg.cpp:183 src/KadDlg.cpp:189
+#: src/PrefsUnifiedDlg.cpp:760 src/SharedFilesCtrl.cpp:318
 msgid "WARNING"
 msgstr "OPOZORILO"
 
-#: src/amule.cpp:589
+#: src/amule.cpp:599
 msgid ""
 "You don't have any server in the server list.\n"
 "Do you want aMule to download a new list now?"
@@ -118,16 +118,16 @@ msgstr ""
 "Na seznamu strežnikov nimate nobenega strežnika.\n"
 "Ali želite, da aMule zdaj pridobi nov seznam?"
 
-#: src/amule.cpp:590
+#: src/amule.cpp:600
 msgid "Server list download"
 msgstr "Prejemanje seznama strežnikov"
 
-#: src/amule.cpp:659
+#: src/amule.cpp:669
 #, c-format
 msgid "web server running on pid %d"
 msgstr "spletni strežnik teče s PID %d"
 
-#: src/amule.cpp:663
+#: src/amule.cpp:673
 msgid ""
 "You requested to run web server on startup, but the amuleweb binary cannot "
 "be run. Please install the package containing aMule web server, or compile "
@@ -135,26 +135,26 @@ msgid ""
 msgstr ""
 "Zahtevali ste zagon spletnega strežnika ob zagonu programa, a programa "
 "amuleweb ni moč zagnati. Namestite paket, ki vsebuje spletni strežnik aMule, "
-"ali pa prevedite aMule z možnostjo »--enable-webserver« in ga znova namestite "
-"z »make install«."
+"ali pa prevedite aMule z možnostjo »--enable-webserver« in ga znova "
+"namestite z »make install«."
 
-#: src/amule.cpp:664 src/amule.cpp:778 src/amule.cpp:1069
+#: src/amule.cpp:674 src/amule.cpp:788 src/amule.cpp:1079
 #: src/amule-remote-gui.cpp:308 src/amule-remote-gui.cpp:330
 #: src/amule-remote-gui.cpp:332 src/amule-remote-gui.cpp:644
 msgid "ERROR"
 msgstr "NAPAKA"
 
-#: src/amule.cpp:746
+#: src/amule.cpp:756
 #, c-format
 msgid "Could not bind ports to the specified address: %s"
 msgstr "Vrat ni bilo moč povezati z navedenim naslovom: %s"
 
-#: src/amule.cpp:770
+#: src/amule.cpp:780
 #, c-format
 msgid "Port %u is not available. You will be LOWID\n"
 msgstr "Vrata %u niso razpoložljiva. Imeli boste nizek ID\n"
 
-#: src/amule.cpp:776
+#: src/amule.cpp:786
 #, c-format
 msgid ""
 "Port %u is not available!\n"
@@ -169,15 +169,15 @@ msgstr ""
 "\n"
 "Preverite omrežje in se prepričajte, da so vrata odprta za izhod in vhod."
 
-#: src/amule.cpp:855
+#: src/amule.cpp:865
 msgid "Failed to create OnlineSig File"
 msgstr "Ni bilo mogoče ustvariti datoteke spletnega podpisa"
 
-#: src/amule.cpp:863
+#: src/amule.cpp:873
 msgid "Failed to create aMule OnlineSig File"
 msgstr "Ni bilo mogoče ustvariti aMule datoteke spletnega podpisa"
 
-#: src/amule.cpp:1035
+#: src/amule.cpp:1045
 msgid ""
 "The selected locale seems not to be installed on your box. (Note: I'll try "
 "to set it anyway)"
@@ -185,40 +185,40 @@ msgstr ""
 "Kot kaže izbrana področna nastavitev ni nameščena na vašem računalniku. "
 "(Opomba: vseeno se jo bo poskusilo nastaviti)"
 
-#: src/amule.cpp:1044
+#: src/amule.cpp:1054
 #, c-format
 msgid "This is the first time you run aMule %s"
 msgstr "To je vaš prvi zagon aMule %s"
 
-#: src/amule.cpp:1046
+#: src/amule.cpp:1056
 msgid "This version is a testing version, updated daily, and\n"
 msgstr "To je testna različica, posodobljena dnevno in\n"
 
-#: src/amule.cpp:1047
+#: src/amule.cpp:1057
 msgid "we give no warranty it won't break anything, burn your house,\n"
 msgstr ""
 "ne dajemo zagotovila, da ne bo ničesar poškodovala, zažgala vaše hiše\n"
 
-#: src/amule.cpp:1048
+#: src/amule.cpp:1058
 msgid "or kill your dog. But it *should* be safe to use anyway.\n"
 msgstr "ali ubila vašega psa. Vendar bi vseeno morala biti varna za uporabo.\n"
 
-#: src/amule.cpp:1053
+#: src/amule.cpp:1063
 msgid "More information, support and new releases can found at our homepage,\n"
 msgstr ""
 "Več informacij, podporo in nove različice, lahko najdete na naši domači "
 "strani,\n"
 
-#: src/amule.cpp:1054
+#: src/amule.cpp:1064
 msgid "at www.aMule.org, or in our IRC channel #aMule at irc.freenode.net.\n"
 msgstr ""
 "na www.aMule.org, ali na kanalu IRC #aMule, na strežniku irc.freenode.net.\n"
 
-#: src/amule.cpp:1056
+#: src/amule.cpp:1066
 msgid "Feel free to report any bugs to http://forum.amule.org"
 msgstr "Morebitne hrošče lahko sporočite na http://forum.amule.org"
 
-#: src/amule.cpp:1069
+#: src/amule.cpp:1079
 msgid ""
 "The folder for Online Signature files you specified is INVALID!\n"
 " OnlineSignature will be DISABLED until you fix it on preferences."
@@ -226,134 +226,134 @@ msgstr ""
 "Navedena mapa za datoteke za spletni podpis je NEVELJAVNA.\n"
 "Spletni podpis bo ONEMOGOČEN, dokler težave ne odpravite v nastavitvah."
 
-#: src/amule.cpp:1125
+#: src/amule.cpp:1135
 msgid "Server hostname notified"
 msgstr "Gostitelj strežnika obveščen"
 
-#: src/amule.cpp:1351
+#: src/amule.cpp:1361
 #, c-format
 msgid "Disk space preallocation for file '%s' failed: %s"
 msgstr "Vnaprejšnja dodelitev prostora na disku za datoteko »%s« ni uspela: %s"
 
-#: src/amule.cpp:1486
+#: src/amule.cpp:1496
 msgid "ERROR: can't open logfile"
 msgstr "NAPAKA: ni mogoče odpreti dnevniške datoteke"
 
-#: src/amule.cpp:1490
+#: src/amule.cpp:1500
 msgid "WARNING: logfile is empty. Something is wrong."
 msgstr "OPOZORILO: dnevniška datoteka je prazna. Nekaj je narobe."
 
-#: src/amule.cpp:1508
+#: src/amule.cpp:1518
 msgid "Log has been reset"
 msgstr "Dnevnik je bil ponastavljen"
 
-#: src/amule.cpp:1534
+#: src/amule.cpp:1544
 #, c-format
 msgid "ServerMessage: %s"
 msgstr "Sporočilo strežnika: %s"
 
-#: src/amule.cpp:1576 src/IP2Country.cpp:152 src/IPFilter.cpp:510
+#: src/amule.cpp:1586 src/IP2Country.cpp:152 src/IPFilter.cpp:510
 #: src/ServerList.cpp:860
 #, c-format
 msgid "Skipped download of %s, because requested file is not newer."
 msgstr "Prejemanje %s je bilo preskočeno, ker zahtevana datoteka ni novejša."
 
-#: src/amule.cpp:1578
+#: src/amule.cpp:1588
 msgid "Failed to download the nodes list."
 msgstr "Ni bilo mogoče prenesti seznama vozlišč."
 
-#: src/amule.cpp:1598
+#: src/amule.cpp:1608
 msgid "Failed to open the downloaded version check file"
 msgstr "Ni bilo mogoče odpreti prejete datoteke za preverjanje različice"
 
-#: src/amule.cpp:1601 src/amule.cpp:1611 src/amule.cpp:1617
+#: src/amule.cpp:1611 src/amule.cpp:1621 src/amule.cpp:1627
 msgid "Corrupted version check file"
 msgstr "Datoteka za preverjanje različice je pokvarjena"
 
-#: src/amule.cpp:1627
+#: src/amule.cpp:1637
 msgid "You are using an outdated version of aMule!"
 msgstr "Uporabljate zastarelo različico aMule."
 
-#: src/amule.cpp:1629
+#: src/amule.cpp:1639
 #, c-format
 msgid "Your aMule version is %i.%i.%i and the latest version is %li.%li.%li"
 msgstr ""
 "Različica vaše aMule je %i.%i.%i, najnovejša različica pa je %li.%li.%li"
 
-#: src/amule.cpp:1630
+#: src/amule.cpp:1640
 msgid "The latest version can always be found at http://www.amule.org"
 msgstr "Najnovejšo različico lahko vedno najdete na http://www.amule.org"
 
-#: src/amule.cpp:1632
+#: src/amule.cpp:1642
 #, c-format
 msgid "WARNING: Your aMuled version is outdated: %i.%i.%i < %li.%li.%li"
 msgstr "OPOZORILO: vaša različica aMule je zastarela: %i.%i.%i < %li.%li.%li"
 
-#: src/amule.cpp:1636
+#: src/amule.cpp:1646
 msgid "Your copy of aMule is up to date."
 msgstr "Uporabljate najnovejšo različico aMule."
 
-#: src/amule.cpp:1643
+#: src/amule.cpp:1653
 msgid "Failed to download the version check file"
 msgstr "Ni bilo mogoče prenesti datoteke za preverjanje različice"
 
-#: src/amule.cpp:1813 src/amule-remote-gui.cpp:530
+#: src/amule.cpp:1823 src/amule-remote-gui.cpp:530
 #, c-format
 msgid "Users: %s | Files: %s"
 msgstr "Uporabniki: %s | Datoteke: %s"
 
-#: src/amule.cpp:1814 src/amule-remote-gui.cpp:531
+#: src/amule.cpp:1824 src/amule-remote-gui.cpp:531
 #, c-format
 msgid "Users: E: %s K: %s | Files: E: %s K: %s"
 msgstr "Uporabniki: E: %s K: %s | Datoteke: E: %s K: %s"
 
-#: src/amule.cpp:1823 src/amule-remote-gui.cpp:540
+#: src/amule.cpp:1833 src/amule-remote-gui.cpp:540
 msgid "No networks selected"
 msgstr "Izbranega ni nobenega omrežja"
 
-#: src/amule.cpp:1888 src/TextClient.cpp:710
+#: src/amule.cpp:1898 src/TextClient.cpp:717
 msgid "with LowID"
 msgstr "z nizkim ID-jem"
 
-#: src/amule.cpp:1888 src/TextClient.cpp:710
+#: src/amule.cpp:1898 src/TextClient.cpp:717
 msgid "with HighID"
 msgstr "z visokim ID-jem"
 
-#: src/amule.cpp:1890
+#: src/amule.cpp:1900
 #, c-format
 msgid "Connected to %s %s"
 msgstr "Povezan z %s %s"
 
-#: src/amule.cpp:1894
+#: src/amule.cpp:1904
 #, c-format
 msgid "Connecting to %s"
 msgstr "Povezovanje z %s"
 
-#: src/amule.cpp:1896
+#: src/amule.cpp:1906
 msgid "Disconnected from eD2k"
 msgstr "Povezava z eD2k prekinjena"
 
-#: src/amule.cpp:1904
+#: src/amule.cpp:1914
 msgid "Kad started."
 msgstr "Kad zagnan."
 
-#: src/amule.cpp:1906
+#: src/amule.cpp:1916
 msgid "Kad stopped."
 msgstr "Kad ustavljen."
 
-#: src/amule.cpp:1914
+#: src/amule.cpp:1924
 msgid "Connected to Kad (ok)"
 msgstr "Povezan s Kad (v redu)"
 
-#: src/amule.cpp:1916
+#: src/amule.cpp:1926
 msgid "Connected to Kad (firewalled)"
 msgstr "Povezan s Kad (za požarnim zidom)"
 
-#: src/amule.cpp:1919
+#: src/amule.cpp:1929
 msgid "Disconnected from Kad"
 msgstr "Povezava s Kad prekinjena"
 
-#: src/amule.cpp:1988
+#: src/amule.cpp:1998
 msgid ""
 "Kad network cannot be used if UDP port is disabled on preferences, not "
 "starting."
@@ -361,7 +361,7 @@ msgstr ""
 "Omrežja Kad ni mogoče uporabljati, če so vrata UDP onemogočena v "
 "nastavitvah. Kad ni zagnan."
 
-#: src/amule.cpp:1991
+#: src/amule.cpp:2001
 msgid "Kad network disabled on preferences, not connecting."
 msgstr "Omrežje Kad je onemogočeno v nastavitvah. Ni povezave."
 
@@ -436,22 +436,27 @@ msgid "Snapshot:"
 msgstr "Posnetek:"
 
 #: src/amuleDlg.cpp:501
-msgid ""
-"'All-Platform' p2p client based on eMule \n"
-"\n"
+#, fuzzy
+msgid "'All-Platform' p2p client based on eMule, \n"
 msgstr ""
 "Odjemalec P2P, ki temelji na eMule in je za vse platforme\n"
 "\n"
 
 #: src/amuleDlg.cpp:502
+msgid ""
+"with Dynamic Leecher Protection. \n"
+"\n"
+msgstr ""
+
+#: src/amuleDlg.cpp:503
 msgid "Website: http://www.amule.org \n"
 msgstr "Spletna stran: http://www.amule.org \n"
 
-#: src/amuleDlg.cpp:503
+#: src/amuleDlg.cpp:504
 msgid "Forum: http://forum.amule.org \n"
 msgstr "Forum: http://forum.amule.org \n"
 
-#: src/amuleDlg.cpp:504
+#: src/amuleDlg.cpp:505
 msgid ""
 "FAQ: http://wiki.amule.org \n"
 "\n"
@@ -459,11 +464,11 @@ msgstr ""
 "PZS: http://wiki.amule.org \n"
 "\n"
 
-#: src/amuleDlg.cpp:505
+#: src/amuleDlg.cpp:506
 msgid "Contact: admin@amule.org (administrative issues) \n"
 msgstr "Stik: admin@amule.org (administrativne zadeve) \n"
 
-#: src/amuleDlg.cpp:506
+#: src/amuleDlg.cpp:507
 msgid ""
 "Copyright (c) 2003-2011 aMule Team \n"
 "\n"
@@ -471,236 +476,271 @@ msgstr ""
 "Avtorske pravice © 2003–2011 ekipa aMule\n"
 "\n"
 
-#: src/amuleDlg.cpp:507
+#: src/amuleDlg.cpp:508
 msgid "Part of aMule is based on \n"
 msgstr "Del aMule temelji na\n"
 
-#: src/amuleDlg.cpp:508
+#: src/amuleDlg.cpp:509
 msgid "Kademlia: Peer-to-peer routing based on the XOR metric.\n"
 msgstr "Kademlia: usmerjanje med enakovrednimi, ki temelji na metriki XOR.\n"
 
-#: src/amuleDlg.cpp:509
+#: src/amuleDlg.cpp:510
 msgid " Copyright (c) 2002-2011 Petar Maymounkov ( petar@post.harvard.edu )\n"
 msgstr ""
 " Avtorske pravice 2002–2011 Petar Maymounkov ( petar@post.harvard.edu )\n"
 
-#: src/amuleDlg.cpp:510
+#: src/amuleDlg.cpp:511
 msgid "http://kademlia.scs.cs.nyu.edu\n"
 msgstr "http://kademlia.scs.cs.nyu.edu\n"
 
-#: src/amuleDlg.cpp:513 src/KadDlg.cpp:193 src/PartFile.cpp:918
-#: src/PartFile.cpp:926 src/PrefsUnifiedDlg.cpp:632
-#: src/PrefsUnifiedDlg.cpp:737 src/PrefsUnifiedDlg.cpp:857
+#: src/amuleDlg.cpp:512
+msgid ""
+"\n"
+"Dynamic Leech Protection\n"
+msgstr ""
+
+#: src/amuleDlg.cpp:513
+msgid " Homepage: https://github.com/persmule/amule-dlp \n"
+msgstr ""
+
+#: src/amuleDlg.cpp:514
+#, fuzzy
+msgid " Copyright (C) 2002-2007 Xtreme-Mod \n"
+msgstr ""
+"Avtorske pravice © 2003–2011 ekipa aMule\n"
+"\n"
+
+#: src/amuleDlg.cpp:515
+#, fuzzy
+msgid " Copyright (C) 2009 greensea \n"
+msgstr ""
+"Avtorske pravice © 2003–2011 ekipa aMule\n"
+"\n"
+
+#: src/amuleDlg.cpp:516
+#, fuzzy
+msgid " Copyright (C) 2009-2011 Bill Lee \n"
+msgstr ""
+"Avtorske pravice © 2003–2011 ekipa aMule\n"
+"\n"
+
+#: src/amuleDlg.cpp:517
+#, fuzzy
+msgid " Copyright (C) 2014 Persmule \n"
+msgstr ""
+"Avtorske pravice © 2003–2011 ekipa aMule\n"
+"\n"
+
+#: src/amuleDlg.cpp:520 src/KadDlg.cpp:193 src/PartFile.cpp:918
+#: src/PartFile.cpp:926 src/PrefsUnifiedDlg.cpp:642 src/PrefsUnifiedDlg.cpp:747
+#: src/PrefsUnifiedDlg.cpp:860 src/PrefsUnifiedDlg.cpp:1097
+#: src/PrefsUnifiedDlg.cpp:1099
 msgid "Message"
 msgstr "Sporočilo"
 
-#: src/amuleDlg.cpp:550
+#: src/amuleDlg.cpp:557
 msgid "aMule dialog destroyed"
 msgstr "Pogovorno okno aMule je bilo uničeno"
 
-#: src/amuleDlg.cpp:574 src/DataToText.cpp:58 src/IPFilter.cpp:544
+#: src/amuleDlg.cpp:581 src/DataToText.cpp:58 src/IPFilter.cpp:544
 msgid "Connecting"
 msgstr "Povezovanje"
 
-#: src/amuleDlg.cpp:705
+#: src/amuleDlg.cpp:728
 msgid "eD2k: Connecting"
 msgstr "eD2k: povezovanje"
 
-#: src/amuleDlg.cpp:709
+#: src/amuleDlg.cpp:732
 msgid "eD2k: Disconnected"
 msgstr "eD2k: povezava prekinjena"
 
-#: src/amuleDlg.cpp:715
+#: src/amuleDlg.cpp:738
 msgid "Kad: Firewalled"
 msgstr "Kad: za požarnim zidom"
 
-#: src/amuleDlg.cpp:719
+#: src/amuleDlg.cpp:742
 msgid "Kad: Connected"
 msgstr "Kad: povezan"
 
-#: src/amuleDlg.cpp:724
+#: src/amuleDlg.cpp:747
 msgid "Kad: Connecting"
 msgstr "Kad: povezovanje"
 
-#: src/amuleDlg.cpp:728
+#: src/amuleDlg.cpp:751
 msgid "Kad: Off"
 msgstr "Kad: izklopljen"
 
-#: src/amuleDlg.cpp:774 src/DownloadListCtrl.cpp:415
+#: src/amuleDlg.cpp:797 src/DownloadListCtrl.cpp:415
 #: src/DownloadListCtrl.cpp:652 src/FriendListCtrl.cpp:174
 #: src/muuli_wdr.cpp:803 src/muuli_wdr.cpp:863 src/muuli_wdr.cpp:937
-#: src/muuli_wdr.cpp:1003 src/muuli_wdr.cpp:2329 src/muuli_wdr.cpp:2431
-#: src/muuli_wdr.cpp:3147 src/ServerListCtrl.cpp:154
-#: src/ServerListCtrl.cpp:528 src/ServerListCtrl.cpp:547
-#: src/TransferWnd.cpp:375 src/utils/wxCas/src/wxcasprefs.cpp:285
+#: src/muuli_wdr.cpp:1003 src/muuli_wdr.cpp:2374 src/muuli_wdr.cpp:2476
+#: src/muuli_wdr.cpp:3232 src/ServerListCtrl.cpp:154 src/ServerListCtrl.cpp:528
+#: src/ServerListCtrl.cpp:547 src/TransferWnd.cpp:375
+#: src/utils/wxCas/src/wxcasprefs.cpp:285
 msgid "Cancel"
 msgstr "Prekliči"
 
-#: src/amuleDlg.cpp:775
+#: src/amuleDlg.cpp:798
 msgid "Stop the current connection attempts"
 msgstr "Ustavi trenutne poskuse povezovanja"
 
-#: src/amuleDlg.cpp:780 src/MuleTrayIcon.cpp:496 src/muuli_wdr.cpp:2572
+#: src/amuleDlg.cpp:803 src/MuleTrayIcon.cpp:496 src/muuli_wdr.cpp:2617
 msgid "Disconnect"
 msgstr "Prekini povezave"
 
-#: src/amuleDlg.cpp:781
+#: src/amuleDlg.cpp:804
 msgid "Disconnect from the currently connected networks"
 msgstr "Prekini povezavo s trenutno povezanimi omrežji"
 
-#: src/amuleDlg.cpp:786 src/MuleTrayIcon.cpp:499 src/muuli_wdr.cpp:2755
-#: src/muuli_wdr.cpp:3143 src/muuli_wdr.cpp:3530
+#: src/amuleDlg.cpp:809 src/MuleTrayIcon.cpp:499 src/muuli_wdr.cpp:2840
+#: src/muuli_wdr.cpp:3228 src/muuli_wdr.cpp:3615
 msgid "Connect"
 msgstr "Poveži se"
 
-#: src/amuleDlg.cpp:787
+#: src/amuleDlg.cpp:810
 msgid "Connect to the currently enabled networks"
 msgstr "Poveži se s trenutno omogočenimi omrežji"
 
-#: src/amuleDlg.cpp:846
+#: src/amuleDlg.cpp:869
 #, c-format
 msgid "Up: %.1f(%.1f) | Down: %.1f(%.1f)"
 msgstr "Gor: %.1f (%.1f) | Dol: %.1f (%.1f)"
 
-#: src/amuleDlg.cpp:848
+#: src/amuleDlg.cpp:871
 #, c-format
 msgid "Up: %.1f | Down: %.1f"
 msgstr "Gor: %.1f | Dol: %.1f"
 
-#: src/amuleDlg.cpp:874
+#: src/amuleDlg.cpp:897
 #, c-format
 msgid "aMule (%s | Connected)"
 msgstr "aMule (%s | Povezan)"
 
-#: src/amuleDlg.cpp:876
+#: src/amuleDlg.cpp:899
 #, c-format
 msgid "aMule (%s | Disconnected)"
 msgstr "aMule (%s | Ni povezave)"
 
-#: src/amuleDlg.cpp:913
+#: src/amuleDlg.cpp:936
 #, c-format
 msgid "Do you really want to exit %s?"
 msgstr "Ali res želite zapustiti %s?"
 
-#: src/amuleDlg.cpp:914
+#: src/amuleDlg.cpp:937
 msgid "Exit confirmation"
 msgstr "Potrditev izhoda"
 
-#: src/amuleDlg.cpp:1174
+#: src/amuleDlg.cpp:1197
 msgid "Launch Command: "
 msgstr "Zaženi ukaz: "
 
-#: src/amuleDlg.cpp:1210 src/muuli_wdr.cpp:2092 src/Preferences.cpp:842
+#: src/amuleDlg.cpp:1233 src/muuli_wdr.cpp:2137 src/Preferences.cpp:860
 msgid "- default -"
 msgstr "– privzeto –"
 
-#: src/amuleDlg.cpp:1233
+#: src/amuleDlg.cpp:1256
 #, c-format
 msgid "Skin directory '%s' does not exist"
 msgstr "Mapa za preobleke »%s« ne obstaja"
 
-#: src/amuleDlg.cpp:1238
+#: src/amuleDlg.cpp:1261
 #, c-format
 msgid "WARNING: Unable to open skin file '%s' for read"
 msgstr "OPOZORILO: datoteke s preobleko »%s« ni moč odpreti za branje"
 
-#: src/amuleDlg.cpp:1337 src/amuleDlg.cpp:1473 src/muuli_wdr.cpp:1673
-#: src/muuli_wdr.cpp:3532
+#: src/amuleDlg.cpp:1360 src/amuleDlg.cpp:1498 src/muuli_wdr.cpp:1673
+#: src/muuli_wdr.cpp:3617
 msgid "Networks"
 msgstr "Omrežja"
 
-#: src/amuleDlg.cpp:1337 src/muuli_wdr.cpp:3532
+#: src/amuleDlg.cpp:1360 src/muuli_wdr.cpp:3617
 msgid "Networks Window"
 msgstr "Okno z omrežji"
 
-#: src/amuleDlg.cpp:1338 src/muuli_wdr.cpp:3533
+#: src/amuleDlg.cpp:1361 src/muuli_wdr.cpp:3618
 msgid "Searches"
 msgstr "Iskanja"
 
-#: src/amuleDlg.cpp:1338 src/muuli_wdr.cpp:3533
+#: src/amuleDlg.cpp:1361 src/muuli_wdr.cpp:3618
 msgid "Searches Window"
 msgstr "Okno z iskanji"
 
-#: src/amuleDlg.cpp:1339 src/DownloadListCtrl.cpp:643 src/muuli_wdr.cpp:426
-#: src/muuli_wdr.cpp:1788 src/muuli_wdr.cpp:3534 src/Statistics.cpp:757
+#: src/amuleDlg.cpp:1362 src/DownloadListCtrl.cpp:643 src/muuli_wdr.cpp:426
+#: src/muuli_wdr.cpp:1833 src/muuli_wdr.cpp:3619 src/Statistics.cpp:757
 msgid "Downloads"
 msgstr "Prejemanja"
 
-#: src/amuleDlg.cpp:1339 src/muuli_wdr.cpp:3534
+#: src/amuleDlg.cpp:1362 src/muuli_wdr.cpp:3619
 msgid "Downloads Window"
 msgstr "Okno s prejemanji"
 
-#: src/amuleDlg.cpp:1340 src/muuli_wdr.cpp:3412
+#: src/amuleDlg.cpp:1363 src/muuli_wdr.cpp:3497
 msgid "Shared files"
 msgstr "Deljene datoteke"
 
-#: src/amuleDlg.cpp:1340 src/muuli_wdr.cpp:3536
+#: src/amuleDlg.cpp:1363 src/muuli_wdr.cpp:3621
 msgid "Shared Files Window"
 msgstr "Okno z deljenimi datotekami"
 
-#: src/amuleDlg.cpp:1341 src/muuli_wdr.cpp:2971 src/muuli_wdr.cpp:3485
-#: src/muuli_wdr.cpp:3537
+#: src/amuleDlg.cpp:1364 src/muuli_wdr.cpp:3056 src/muuli_wdr.cpp:3570
+#: src/muuli_wdr.cpp:3622
 msgid "Messages"
 msgstr "Sporočila"
 
-#: src/amuleDlg.cpp:1341 src/muuli_wdr.cpp:3537
+#: src/amuleDlg.cpp:1364 src/muuli_wdr.cpp:3622
 msgid "Messages Window"
 msgstr "Okno s sporočili"
 
-#: src/amuleDlg.cpp:1342 src/muuli_wdr.cpp:3538 src/PrefsUnifiedDlg.cpp:183
+#: src/amuleDlg.cpp:1365 src/muuli_wdr.cpp:3623 src/PrefsUnifiedDlg.cpp:193
 #: src/Statistics.cpp:727 src/Statistics.cpp:1024
 msgid "Statistics"
 msgstr "Statistika"
 
-#: src/amuleDlg.cpp:1342 src/muuli_wdr.cpp:3538
+#: src/amuleDlg.cpp:1365 src/muuli_wdr.cpp:3623
 msgid "Statistics Graph Window"
 msgstr "Okno s statističnimi grafi"
 
-#: src/amuleDlg.cpp:1344 src/muuli_wdr.cpp:3540 src/PrefsUnifiedDlg.cpp:198
+#: src/amuleDlg.cpp:1367 src/muuli_wdr.cpp:3625 src/PrefsUnifiedDlg.cpp:211
 #: src/utils/wxCas/src/wxcasprefs.cpp:41
 msgid "Preferences"
 msgstr "Nastavitve"
 
-#: src/amuleDlg.cpp:1344 src/muuli_wdr.cpp:3540
+#: src/amuleDlg.cpp:1367 src/muuli_wdr.cpp:3625
 msgid "Preferences Settings Window"
 msgstr "Okno z nastavitvami"
 
-#: src/amuleDlg.cpp:1346 src/muuli_wdr.cpp:3541
+#: src/amuleDlg.cpp:1369 src/muuli_wdr.cpp:3626
 msgid "Import"
 msgstr "Uvoz"
 
-#: src/amuleDlg.cpp:1346 src/muuli_wdr.cpp:3541
+#: src/amuleDlg.cpp:1369 src/muuli_wdr.cpp:3626
 msgid "The partfile importer tool"
 msgstr "Orodje za uvažanje delnih datotek"
 
-#: src/amuleDlg.cpp:1348 src/muuli_wdr.cpp:3542
+#: src/amuleDlg.cpp:1371 src/muuli_wdr.cpp:3627
 #: src/utils/aLinkCreator/src/alcframe.cpp:271
 msgid "About"
 msgstr "O programu"
 
-#: src/amuleDlg.cpp:1348 src/muuli_wdr.cpp:3542
+#: src/amuleDlg.cpp:1371 src/muuli_wdr.cpp:3627
 msgid "About/Help"
 msgstr "O programu/pomoč"
 
-#: src/amuleDlg.cpp:1477
+#: src/amuleDlg.cpp:1502
 msgid "eD2k network"
 msgstr "Omrežje eD2k"
 
-#: src/amuleDlg.cpp:1481
+#: src/amuleDlg.cpp:1506
 msgid "Kad network"
 msgstr "Omrežje Kad"
 
-#: src/amuleDlg.cpp:1481
+#: src/amuleDlg.cpp:1506
 msgid "No network"
 msgstr "Brez omrežja"
 
 #: src/amule-gui.cpp:211
 msgid "aMule remote control"
 msgstr "Oddaljeni nadzor aMule"
-
-#: src/amule-gui.cpp:213 src/utils/wxCas/src/wxcasframe.cpp:111
-msgid "aMule"
-msgstr "aMule"
 
 #: src/amule-gui.cpp:295
 msgid "Fatal Error: Failed to create Core Timer"
@@ -756,14 +796,14 @@ msgstr "Vse"
 msgid "Can't create directory '%s' for category '%s', keeping directory '%s'."
 msgstr "Ni moč ustvariti mape »%s« za kategorijo »%s«, obdržana bo mapa »%s«."
 
-#: src/amule-remote-gui.cpp:1355 src/BaseClient.cpp:1774
-#: src/BaseClient.cpp:2313 src/BaseClient.cpp:2329 src/BaseClient.cpp:2624
+#: src/amule-remote-gui.cpp:1355 src/BaseClient.cpp:1811
+#: src/BaseClient.cpp:2355 src/BaseClient.cpp:2371 src/BaseClient.cpp:2666
 #: src/ClientDetailDialog.cpp:80 src/ClientDetailDialog.cpp:81
 #: src/ClientDetailDialog.cpp:114 src/ClientDetailDialog.cpp:115
 #: src/ClientDetailDialog.cpp:125 src/DataToText.cpp:51 src/DataToText.cpp:67
 #: src/DataToText.cpp:77 src/DataToText.cpp:113 src/DataToText.cpp:134
 #: src/DownloadListCtrl.cpp:1081 src/DownloadListCtrl.cpp:1094
-#: src/DownloadListCtrl.cpp:1105 src/ExternalConn.cpp:447
+#: src/DownloadListCtrl.cpp:1105 src/ExternalConn.cpp:450
 #: src/FileDetailDialog.cpp:127 src/GenericClientListCtrl.cpp:1050
 #: src/GenericClientListCtrl.cpp:1061 src/GenericClientListCtrl.cpp:1071
 #: src/HTTPDownload.cpp:83 src/KnownFile.cpp:916 src/KnownFile.cpp:922
@@ -772,44 +812,44 @@ msgstr "Ni moč ustvariti mape »%s« za kategorijo »%s«, obdržana bo mapa »
 msgid "Unknown"
 msgstr "Neznano"
 
-#: src/BaseClient.cpp:1365
+#: src/BaseClient.cpp:1402
 #, c-format
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Ni bilo mogoče dobiti deljenih datotek od uporabnika »%s«"
 
-#: src/BaseClient.cpp:1577
+#: src/BaseClient.cpp:1614
 msgid "Searching buddy for lowid connection"
 msgstr "Iskanje kolega za povezavo z nizkim ID-jem"
 
-#: src/BaseClient.cpp:1791
+#: src/BaseClient.cpp:1828
 #, c-format
 msgid " (Fake eMule version %#x)"
 msgstr " (lažna različica eMule %#x)"
 
-#: src/BaseClient.cpp:1802
+#: src/BaseClient.cpp:1839
 msgid " (Fake eMule)"
 msgstr " (lažni eMule)"
 
-#: src/BaseClient.cpp:1804
+#: src/BaseClient.cpp:1841
 msgid "xMule (Fake eMule)"
 msgstr "xMule (lažni eMule)"
 
-#: src/BaseClient.cpp:1843
+#: src/BaseClient.cpp:1880
 #, c-format
 msgid "1.x (based on eMule v0.%u)"
 msgstr "1.x (temelji na eMule v0.%u)"
 
-#: src/BaseClient.cpp:2016
+#: src/BaseClient.cpp:2053
 #, c-format
 msgid "NickName: %s ID: %u"
 msgstr "Vzdevek: %s ID: %u"
 
-#: src/BaseClient.cpp:2018
+#: src/BaseClient.cpp:2055
 #, c-format
 msgid "Requested: %s\n"
 msgstr "Zahtevano: %s\n"
 
-#: src/BaseClient.cpp:2020
+#: src/BaseClient.cpp:2057
 #, c-format
 msgid "Filestats for this session: Accepted %d of %d request, %s transferred\n"
 msgid_plural ""
@@ -823,7 +863,7 @@ msgstr[2] ""
 msgstr[3] ""
 "Statistika datotek v tej seji: Sprejetih %d od %d zahtev, %s prenesenih\n"
 
-#: src/BaseClient.cpp:2023
+#: src/BaseClient.cpp:2060
 #, c-format
 msgid "Filestats for all sessions: Accepted %d of %d request, %s transferred\n"
 msgid_plural ""
@@ -837,21 +877,21 @@ msgstr[2] ""
 msgstr[3] ""
 "Statistika datotek vseh sej: Sprejetih %d od %d zahtev, %s prenesenih\n"
 
-#: src/BaseClient.cpp:2026
+#: src/BaseClient.cpp:2063
 msgid "Requested unknown file"
 msgstr "Zahtevana neznana datoteka"
 
-#: src/BaseClient.cpp:2702
+#: src/BaseClient.cpp:2744
 #, c-format
 msgid "Message filtered from '%s' (IP:%s)"
 msgstr "Filtrirano sporočilo od »%s« (IP: %s)"
 
-#: src/BaseClient.cpp:2809
+#: src/BaseClient.cpp:2851
 #, c-format
 msgid "New message from '%s' (IP:%s)"
 msgstr "Novo sporočilo od »%s« (IP: %s)"
 
-#: src/BaseClient.cpp:2901
+#: src/BaseClient.cpp:2943
 #, c-format
 msgid ""
 "User %s (%u) requested sharedfiles-list for not existing directory '%s' -> "
@@ -949,15 +989,15 @@ msgstr ""
 msgid "Chat"
 msgstr "Klepet"
 
-#: src/ChatWnd.cpp:101 src/MuleNotebook.cpp:186
+#: src/ChatWnd.cpp:101 src/MuleNotebook.cpp:169
 msgid "Close tab"
 msgstr "Zapri zavihek"
 
-#: src/ChatWnd.cpp:102 src/MuleNotebook.cpp:187
+#: src/ChatWnd.cpp:102 src/MuleNotebook.cpp:170
 msgid "Close all tabs"
 msgstr "Zapri vse zavihke"
 
-#: src/ChatWnd.cpp:103 src/MuleNotebook.cpp:188
+#: src/ChatWnd.cpp:103 src/MuleNotebook.cpp:171
 msgid "Close other tabs"
 msgstr "Zapri druge zavihke"
 
@@ -991,12 +1031,12 @@ msgstr "Datoteka »cryptkey.dat« ne obstaja. Ustvarjanje."
 msgid "Client Details"
 msgstr "Podrobnosti o odjemalcu"
 
-#: src/ClientDetailDialog.cpp:100 src/ServerWnd.cpp:170 src/ServerWnd.cpp:180
+#: src/ClientDetailDialog.cpp:100 src/ServerWnd.cpp:176 src/ServerWnd.cpp:186
 #: src/utils/wxCas/src/onlinesig.cpp:260
 msgid "LowID"
 msgstr "Nizek ID"
 
-#: src/ClientDetailDialog.cpp:100 src/ServerWnd.cpp:183
+#: src/ClientDetailDialog.cpp:100 src/ServerWnd.cpp:189
 #: src/utils/wxCas/src/onlinesig.cpp:258
 msgid "HighID"
 msgstr "Visok ID"
@@ -1017,12 +1057,12 @@ msgstr "Ni podprto"
 msgid "Disabled"
 msgstr "Onemogočeno"
 
-#: src/ClientDetailDialog.cpp:131 src/ServerWnd.cpp:164 src/ServerWnd.cpp:213
-#: src/TextClient.cpp:720
+#: src/ClientDetailDialog.cpp:131 src/ServerWnd.cpp:170 src/ServerWnd.cpp:219
+#: src/TextClient.cpp:727
 msgid "Connected"
 msgstr "Povezan"
 
-#: src/ClientDetailDialog.cpp:133 src/ServerWnd.cpp:213
+#: src/ClientDetailDialog.cpp:133 src/ServerWnd.cpp:219
 msgid "Disconnected"
 msgstr "Ni povezave"
 
@@ -1081,7 +1121,8 @@ msgstr ""
 msgid ""
 "User %s (%u) requested your sharedfiles-list for directory '%s' -> denied"
 msgstr ""
-"Uporabnik %s (%u) je zahteval seznam deljenih datotek za mapo »%s« → zavrnjeno"
+"Uporabnik %s (%u) je zahteval seznam deljenih datotek za mapo »%s« → "
+"zavrnjeno"
 
 #: src/ClientTCPSocket.cpp:948
 #, c-format
@@ -1172,19 +1213,19 @@ msgstr "Samod. [Vi]"
 msgid "Very low"
 msgstr "Zelo nizka"
 
-#: src/DataToText.cpp:41 src/DownloadListCtrl.cpp:646 src/muuli_wdr.cpp:2393
+#: src/DataToText.cpp:41 src/DownloadListCtrl.cpp:646 src/muuli_wdr.cpp:2438
 #: src/ServerListCtrl.cpp:236 src/ServerListCtrl.cpp:399
 #: src/SharedFilesCtrl.cpp:138
 msgid "Low"
 msgstr "Nizka"
 
-#: src/DataToText.cpp:42 src/DownloadListCtrl.cpp:647 src/muuli_wdr.cpp:2394
+#: src/DataToText.cpp:42 src/DownloadListCtrl.cpp:647 src/muuli_wdr.cpp:2439
 #: src/ServerListCtrl.cpp:237 src/ServerListCtrl.cpp:400
 #: src/SharedFilesCtrl.cpp:139
 msgid "Normal"
 msgstr "Normalna"
 
-#: src/DataToText.cpp:43 src/DownloadListCtrl.cpp:648 src/muuli_wdr.cpp:2395
+#: src/DataToText.cpp:43 src/DownloadListCtrl.cpp:648 src/muuli_wdr.cpp:2440
 #: src/ServerListCtrl.cpp:238 src/ServerListCtrl.cpp:401
 #: src/SharedFilesCtrl.cpp:140
 msgid "High"
@@ -1276,8 +1317,8 @@ msgstr "Krajevni strežnik"
 msgid "Remote Server"
 msgstr "Oddaljni strežnik"
 
-#: src/DataToText.cpp:127 src/muuli_wdr.cpp:198 src/muuli_wdr.cpp:3287
-#: src/SearchDlg.cpp:109 src/TextClient.cpp:717
+#: src/DataToText.cpp:127 src/muuli_wdr.cpp:198 src/muuli_wdr.cpp:3372
+#: src/SearchDlg.cpp:109 src/TextClient.cpp:724
 msgid "Kad"
 msgstr "Kad"
 
@@ -1347,7 +1388,7 @@ msgstr "Del"
 msgid "Size"
 msgstr "Velikost"
 
-#: src/DownloadListCtrl.cpp:161 src/muuli_wdr.cpp:3362
+#: src/DownloadListCtrl.cpp:161 src/muuli_wdr.cpp:3447
 msgid "Transferred"
 msgstr "Preneseno"
 
@@ -1370,8 +1411,7 @@ msgstr "Viri"
 msgid "Priority"
 msgstr "Prednost"
 
-#: src/DownloadListCtrl.cpp:167 src/PartFile.cpp:3766
-#: src/SearchListCtrl.cpp:92
+#: src/DownloadListCtrl.cpp:167 src/PartFile.cpp:3766 src/SearchListCtrl.cpp:92
 msgid "Status"
 msgstr "Stanje"
 
@@ -1404,7 +1444,7 @@ msgstr ""
 "Odziv od: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp:649 src/muuli_wdr.cpp:2396
+#: src/DownloadListCtrl.cpp:649 src/muuli_wdr.cpp:2441
 #: src/SharedFilesCtrl.cpp:143
 msgid "Auto"
 msgstr "Samod."
@@ -1555,11 +1595,11 @@ msgstr[1] "Najdena %u delna datoteka"
 msgstr[2] "Najdeni %u delni datoteki"
 msgstr[3] "Najdene %u delne datoteke"
 
-#: src/DownloadQueue.cpp:244 src/DownloadQueue.cpp:1470
+#: src/DownloadQueue.cpp:244 src/DownloadQueue.cpp:1479
 msgid "Filesystem for Temp directory cannot handle large files."
 msgstr "Datotečni sistem z začasno mapo ne more shranjevati velikih datotek."
 
-#: src/DownloadQueue.cpp:247 src/DownloadQueue.cpp:1473
+#: src/DownloadQueue.cpp:247 src/DownloadQueue.cpp:1482
 msgid "Filesystem for Incoming directory cannot handle large files."
 msgstr ""
 "Datotečni sistem z mapo prejetih datotek ne more shranjevati velikih datotek."
@@ -1584,59 +1624,59 @@ msgstr "Datoteko »%s« že imate."
 msgid "You are already trying to download the file %s"
 msgstr "Datoteko %s že poskušate prejemati"
 
-#: src/DownloadQueue.cpp:1404
+#: src/DownloadQueue.cpp:1413
 #, c-format
 msgid "Cannot convert magnet link to eD2k: %s"
 msgstr "Povezave magnet ni moč pretvoriti v eD2k: %s"
 
-#: src/DownloadQueue.cpp:1412
+#: src/DownloadQueue.cpp:1421
 #, c-format
 msgid "Unknown protocol of link: %s"
 msgstr "Neznan protokol povezave: %s"
 
-#: src/DownloadQueue.cpp:1433
+#: src/DownloadQueue.cpp:1442
 #, c-format
 msgid "Invalid eD2k link! ERROR: %s"
 msgstr "Neveljavna povezava eD2k. NAPAKA: %s"
 
-#: src/ExternalConn.cpp:261
+#: src/ExternalConn.cpp:264
 msgid "Client sent packet after authentication failed."
 msgstr "Po neuspelem overjanju je odjemalec poslal paket."
 
-#: src/ExternalConn.cpp:279
+#: src/ExternalConn.cpp:282
 msgid "External connection closed."
 msgstr "Zunanja povezava se je zaprla."
 
-#: src/ExternalConn.cpp:320
+#: src/ExternalConn.cpp:323
 msgid "External connections disabled due to empty password!"
 msgstr "Zunanje povezave onemogočene zaradi praznega gesla."
 
-#: src/ExternalConn.cpp:345
+#: src/ExternalConn.cpp:348
 msgid "External connections disabled in config file"
 msgstr "Zunanje povezave onemogočene v nastavitveni datoteki"
 
-#: src/ExternalConn.cpp:414
+#: src/ExternalConn.cpp:417
 msgid "New external connection accepted"
 msgstr "Nova zunanja povezava sprejeta"
 
-#: src/ExternalConn.cpp:417
+#: src/ExternalConn.cpp:420
 msgid "ERROR: couldn't accept a new external connection"
 msgstr "NAPAKA: nove zunanje povezave ni bilo moč sprejeti"
 
-#: src/ExternalConn.cpp:435
+#: src/ExternalConn.cpp:438
 msgid "External connection refused due to empty password in preferences!"
 msgstr "Zunanja povezava zavrnjena zaradi praznega gesla v nastavitvah."
 
-#: src/ExternalConn.cpp:446
+#: src/ExternalConn.cpp:449
 #, c-format
 msgid "Connecting client: %s %s"
 msgstr "Povezovanje z odjemalcem: %s %s"
 
-#: src/ExternalConn.cpp:448
+#: src/ExternalConn.cpp:451
 msgid "Unknown version"
 msgstr "Neznana različica"
 
-#: src/ExternalConn.cpp:458
+#: src/ExternalConn.cpp:461
 msgid ""
 "Incorrect EC version ID, there might be binary incompatibility. Use core and "
 "remote from same snapshot."
@@ -1644,7 +1684,7 @@ msgstr ""
 "Napačen ID različice za zunanje povezave; lahko pride do binarne "
 "nezdružljivosti. Uporabite jedro in oddaljen odjemalec iz istega posnetka."
 
-#: src/ExternalConn.cpp:463
+#: src/ExternalConn.cpp:466
 msgid ""
 "You cannot connect to a release version from an arbitrary development "
 "snapshot! *sigh* possible crash prevented"
@@ -1652,162 +1692,162 @@ msgstr ""
 "Ne morete se povezati s stabilno različico iz poljubne razvojne različice. "
 "Preprečeno morebitno sesutje."
 
-#: src/ExternalConn.cpp:487
+#: src/ExternalConn.cpp:490
 msgid "Invalid protocol version."
 msgstr "Neveljavna različica protokola."
 
-#: src/ExternalConn.cpp:492
+#: src/ExternalConn.cpp:495
 msgid "Missing protocol version tag."
 msgstr "Manjka oznaka različice protokola."
 
-#: src/ExternalConn.cpp:499
+#: src/ExternalConn.cpp:502
 msgid "Authentication failed: invalid hash specified as EC password."
 msgstr ""
 "Overjanje ni uspelo: kot geslo za zunanje povezave je bila podana napačna "
 "koda."
 
-#: src/ExternalConn.cpp:516
+#: src/ExternalConn.cpp:519
 msgid "Authentication failed: wrong password."
 msgstr "Overjanje ni uspelo: napačno geslo."
 
-#: src/ExternalConn.cpp:518
+#: src/ExternalConn.cpp:521
 msgid "Authentication failed: missing password."
 msgstr "Overjanje ni uspelo: manjkajoče geslo."
 
-#: src/ExternalConn.cpp:528
+#: src/ExternalConn.cpp:531
 msgid "Invalid request, please authenticate first."
 msgstr "Neveljavna zahteva, najprej se morate overiti."
 
-#: src/ExternalConn.cpp:533
+#: src/ExternalConn.cpp:536
 msgid "Access granted."
 msgstr "Dostop dovoljen."
 
-#: src/ExternalConn.cpp:541
+#: src/ExternalConn.cpp:544
 #, c-format
 msgid "Sent error message \"%s\" to client."
 msgstr "Odjemalcu je bilo poslano sporočilo o napaki »%s«."
 
-#: src/ExternalConn.cpp:544
+#: src/ExternalConn.cpp:547
 #, c-format
 msgid "Unauthorized access attempt from %s. Connection closed."
 msgstr "Nepooblaščen poskus dostopa od %s. Povezava prekinjena."
 
-#: src/ExternalConn.cpp:810
+#: src/ExternalConn.cpp:813
 #, c-format
 msgid "Remote PartFile command failed: FileHash not found: %s"
 msgstr ""
 "Ukaz za oddaljeno delno datoteko ni uspel: Ni bilo mogoče najti kode "
 "datoteke: %s"
 
-#: src/ExternalConn.cpp:812
+#: src/ExternalConn.cpp:815
 #, c-format
 msgid "FileHash not found: %s"
 msgstr "Kode datoteke ni mogoče najti: %s"
 
-#: src/ExternalConn.cpp:859 src/ExternalConn.cpp:941 src/ExternalConn.cpp:1012
+#: src/ExternalConn.cpp:862 src/ExternalConn.cpp:944 src/ExternalConn.cpp:1015
 msgid "OOPS! OpCode processing error!"
 msgstr "UPS. Napaka pri obdelavi OpCode."
 
-#: src/ExternalConn.cpp:887
+#: src/ExternalConn.cpp:890
 msgid "Server not added"
 msgstr "Strežnik ni bil dodan"
 
-#: src/ExternalConn.cpp:905
+#: src/ExternalConn.cpp:908
 #, c-format
 msgid "server not found: %s"
 msgstr "strežnika ni mogoče najti: %s"
 
-#: src/ExternalConn.cpp:921
+#: src/ExternalConn.cpp:924
 msgid "need to define server to be removed"
 msgstr "morate navesti strežnik za odstranitev"
 
-#: src/ExternalConn.cpp:935
+#: src/ExternalConn.cpp:938
 msgid "eD2k is disabled in preferences."
 msgstr "eD2k je onemogočen v nastavitvah."
 
-#: src/ExternalConn.cpp:1113
+#: src/ExternalConn.cpp:1116
 msgid "Search in progress. Refetch results in a moment!"
 msgstr "Iskanje poteka. Ponovno poglejte za rezultati čez nekaj trenutkov."
 
-#: src/ExternalConn.cpp:1119
+#: src/ExternalConn.cpp:1122
 msgid "WebSearch from remote interface makes no sense."
 msgstr "Spletno iskanje iz oddaljenega vmesnika nima smisla."
 
-#: src/ExternalConn.cpp:1317
+#: src/ExternalConn.cpp:1320
 msgid "No points for graph."
 msgstr "Ni točk za graf."
 
-#: src/ExternalConn.cpp:1326
+#: src/ExternalConn.cpp:1329
 msgid "Your client is not configured for this detail level."
 msgstr "Vaš odjemalec ni nastavljen za to stopnjo podrobnosti."
 
-#: src/ExternalConn.cpp:1353
+#: src/ExternalConn.cpp:1356
 msgid "External Connection: shutdown requested"
 msgstr "Zunanja povezava: zahtevana zaustavitev"
 
-#: src/ExternalConn.cpp:1365
+#: src/ExternalConn.cpp:1368
 msgid "Already shutting down."
 msgstr "Ustavljanje že poteka."
 
-#: src/ExternalConn.cpp:1377
+#: src/ExternalConn.cpp:1380
 #, c-format
 msgid "ExternalConn: adding link '%s'."
 msgstr "Zunanja povezava: dodajanje povezave »%s«."
 
-#: src/ExternalConn.cpp:1383
+#: src/ExternalConn.cpp:1386
 msgid "Invalid link or already on list."
 msgstr "Neveljavna povezava oz. je že na seznamu."
 
-#: src/ExternalConn.cpp:1450
+#: src/ExternalConn.cpp:1462
 msgid "File not found."
 msgstr "Datoteke ni mogoče najti."
 
-#: src/ExternalConn.cpp:1455
+#: src/ExternalConn.cpp:1467
 msgid "Invalid file name."
 msgstr "Neveljavno ime datoteke."
 
-#: src/ExternalConn.cpp:1463
+#: src/ExternalConn.cpp:1475
 msgid "Unable to rename file."
 msgstr "Ni mogoče preimenovati datoteke."
 
-#: src/ExternalConn.cpp:1761 src/ExternalConn.cpp:1788
+#: src/ExternalConn.cpp:1773 src/ExternalConn.cpp:1800
 msgid "Kad is disabled in preferences."
 msgstr "Kad je onemogočen v nastavitvah."
 
-#: src/ExternalConn.cpp:1800
+#: src/ExternalConn.cpp:1812
 msgid "Already connected to eD2k."
 msgstr "Povezava z eD2k že obstaja."
 
-#: src/ExternalConn.cpp:1803
+#: src/ExternalConn.cpp:1815
 msgid "Connecting to eD2k..."
 msgstr "Povezovanje z eD2k ..."
 
-#: src/ExternalConn.cpp:1811
+#: src/ExternalConn.cpp:1823
 msgid "Already connected to Kad."
 msgstr "Povezava s Kad že obstaja."
 
-#: src/ExternalConn.cpp:1814
+#: src/ExternalConn.cpp:1826
 msgid "Connecting to Kad..."
 msgstr "Povezovanje s Kad ..."
 
-#: src/ExternalConn.cpp:1821
+#: src/ExternalConn.cpp:1833
 msgid "All networks are disabled."
 msgstr "Vsa omrežja so onemogočena."
 
-#: src/ExternalConn.cpp:1829
+#: src/ExternalConn.cpp:1841
 msgid "Disconnected from eD2k."
 msgstr "Povezava z eD2k prekinjena."
 
-#: src/ExternalConn.cpp:1833
+#: src/ExternalConn.cpp:1845
 msgid "Disconnected from Kad."
 msgstr "Povezava s Kad prekinjena."
 
-#: src/ExternalConn.cpp:1842
+#: src/ExternalConn.cpp:1854
 #, c-format
 msgid "External Connection: invalid opcode received: %#x"
 msgstr "Zunanja povezava: prejeta je bila neveljavna operacijska koda: %#x"
 
-#: src/ExternalConn.cpp:1845
+#: src/ExternalConn.cpp:1857
 msgid "Invalid opcode (wrong protocol version?)"
 msgstr "Neveljavna operacijska koda (napačna različica protokola?)"
 
@@ -2032,7 +2072,8 @@ msgstr "%.2f kB/s"
 #: src/FriendList.cpp:123
 msgid "Failed to open friend list file 'emfriends.met' for reading!"
 msgstr ""
-"Datoteke s seznamom prijateljev »emfriends.met« ni bilo moč odpreti za branje."
+"Datoteke s seznamom prijateljev »emfriends.met« ni bilo moč odpreti za "
+"branje."
 
 #: src/FriendList.cpp:149
 msgid "Failed to open friend list file 'emfriends.met' for writing!"
@@ -2044,7 +2085,7 @@ msgstr ""
 msgid "CRITICAL - no client on StartChatSession"
 msgstr "KRITIČNO – ni odjemalca za StartChatSession"
 
-#: src/FriendListCtrl.cpp:122 src/muuli_wdr.cpp:2833 src/muuli_wdr.cpp:3458
+#: src/FriendListCtrl.cpp:122 src/muuli_wdr.cpp:2918 src/muuli_wdr.cpp:3543
 msgid "Friends"
 msgstr "Prijatelji"
 
@@ -2326,6 +2367,11 @@ msgstr "Ali želite nadaljevati?"
 msgid "Kademlia: search keyword too short"
 msgstr "Kademlia: iskalni niz je prekratek"
 
+#: src/kademlia/kademlia/SearchManager.cpp:130
+#, fuzzy, c-format
+msgid "Keyword for search: %s"
+msgstr "Ključna beseda za iskanje: %s"
+
 #: src/kademlia/kademlia/SearchManager.cpp:138
 msgid "Kademlia: Search keyword is already on search list: "
 msgstr "Kademlia: iskalna ključna beseda je že na iskalnem seznamu: "
@@ -2390,7 +2436,7 @@ msgstr "Delilno razmerje"
 msgid "Uploaded"
 msgstr "Poslano"
 
-#: src/KnownFile.cpp:1548 src/muuli_wdr.cpp:3340
+#: src/KnownFile.cpp:1548 src/muuli_wdr.cpp:3425
 msgid "Requested"
 msgstr "Zahtevano"
 
@@ -2505,16 +2551,16 @@ msgstr "Vtičnica za poslušanje: v redu."
 msgid "ERROR: Could not listen to TCP port."
 msgstr "NAPAKA: ni moč poslušati na vratih TCP."
 
-#: src/Logger.cpp:321 src/Logger.cpp:345
+#: src/Logger.cpp:323 src/Logger.cpp:347
 msgid "ERROR: "
 msgstr "NAPAKA: "
 
-#: src/Logger.cpp:321 src/Logger.cpp:345
+#: src/Logger.cpp:323 src/Logger.cpp:347
 msgid "WARNING: "
 msgstr "OPOZORILO: "
 
-#: src/MuleNotebook.cpp:185 src/muuli_wdr.cpp:901 src/muuli_wdr.cpp:1430
-#: src/muuli_wdr.cpp:3235 src/muuli_wdr.cpp:3505
+#: src/MuleNotebook.cpp:168 src/muuli_wdr.cpp:901 src/muuli_wdr.cpp:1430
+#: src/muuli_wdr.cpp:3320 src/muuli_wdr.cpp:3590
 msgid "Close"
 msgstr "Zapri"
 
@@ -2542,7 +2588,7 @@ msgstr "Izberi vse"
 
 #: src/MuleTrayIcon.cpp:82 src/MuleTrayIcon.cpp:464 src/MuleTrayIcon.cpp:485
 #: src/muuli_wdr.cpp:1576 src/muuli_wdr.cpp:1585 src/muuli_wdr.cpp:1594
-#: src/muuli_wdr.cpp:1941 src/muuli_wdr.cpp:1950 src/OtherFunctions.cpp:97
+#: src/muuli_wdr.cpp:1986 src/muuli_wdr.cpp:1995 src/OtherFunctions.cpp:97
 #: src/StatisticsDlg.cpp:101 src/StatisticsDlg.cpp:103
 msgid "kB/s"
 msgstr "kB/s"
@@ -2605,8 +2651,8 @@ msgstr "Izbran ni noben vzdevek."
 msgid "ClientID: "
 msgstr "Odjemalčev ID: "
 
-#: src/MuleTrayIcon.cpp:342 src/MuleTrayIcon.cpp:356 src/TextClient.cpp:715
-#: src/TextClient.cpp:728
+#: src/MuleTrayIcon.cpp:342 src/MuleTrayIcon.cpp:356 src/TextClient.cpp:722
+#: src/TextClient.cpp:735
 msgid "Not connected"
 msgstr "Ni povezave"
 
@@ -2618,7 +2664,7 @@ msgstr "Ime strežnika: "
 msgid "ServerIP: "
 msgstr "IP strežnika: "
 
-#: src/MuleTrayIcon.cpp:357 src/ServerWnd.cpp:188
+#: src/MuleTrayIcon.cpp:357 src/ServerWnd.cpp:194
 #: src/utils/wxCas/src/onlinesig.cpp:263
 msgid "Not Connected"
 msgstr "Ni povezave"
@@ -2860,7 +2906,7 @@ msgstr "Bajtov"
 msgid "KB"
 msgstr "KiB"
 
-#: src/muuli_wdr.cpp:272 src/muuli_wdr.cpp:295 src/muuli_wdr.cpp:1826
+#: src/muuli_wdr.cpp:272 src/muuli_wdr.cpp:295 src/muuli_wdr.cpp:1871
 #: src/OtherFunctions.cpp:68
 msgid "MB"
 msgstr "MiB"
@@ -2929,7 +2975,7 @@ msgstr "Počisti zaključena prejemanja"
 msgid "File sources:"
 msgstr "Viri datoteke:"
 
-#: src/muuli_wdr.cpp:520 src/muuli_wdr.cpp:1216 src/PrefsUnifiedDlg.cpp:176
+#: src/muuli_wdr.cpp:520 src/muuli_wdr.cpp:1216 src/PrefsUnifiedDlg.cpp:186
 msgid "General"
 msgstr "Splošno"
 
@@ -2950,7 +2996,7 @@ msgstr "Polno Ime:"
 #: src/muuli_wdr.cpp:1347 src/muuli_wdr.cpp:1354 src/muuli_wdr.cpp:1363
 #: src/muuli_wdr.cpp:1370 src/muuli_wdr.cpp:1379 src/muuli_wdr.cpp:1397
 #: src/muuli_wdr.cpp:1406 src/muuli_wdr.cpp:1413 src/muuli_wdr.cpp:1422
-#: src/muuli_wdr.cpp:3343 src/muuli_wdr.cpp:3354 src/muuli_wdr.cpp:3365
+#: src/muuli_wdr.cpp:3428 src/muuli_wdr.cpp:3439 src/muuli_wdr.cpp:3450
 msgid "N/A"
 msgstr "Ni na voljo"
 
@@ -3128,7 +3174,7 @@ msgstr "Uporabniško ime:"
 msgid "Userhash :"
 msgstr "Koda uporabnika:"
 
-#: src/muuli_wdr.cpp:999 src/muuli_wdr.cpp:2565
+#: src/muuli_wdr.cpp:999 src/muuli_wdr.cpp:2610
 #: src/utils/aLinkCreator/src/alcframe.cpp:145
 msgid "Add"
 msgstr "Dodaj"
@@ -3137,15 +3183,15 @@ msgstr "Dodaj"
 msgid "Download-Speed"
 msgstr "Hitrost prejemanja"
 
-#: src/muuli_wdr.cpp:1064 src/muuli_wdr.cpp:1113 src/muuli_wdr.cpp:2677
+#: src/muuli_wdr.cpp:1064 src/muuli_wdr.cpp:1113 src/muuli_wdr.cpp:2762
 msgid "Current"
 msgstr "Trenutno"
 
-#: src/muuli_wdr.cpp:1075 src/muuli_wdr.cpp:1124 src/muuli_wdr.cpp:2688
+#: src/muuli_wdr.cpp:1075 src/muuli_wdr.cpp:1124 src/muuli_wdr.cpp:2773
 msgid "Running average"
 msgstr "Trenutno povprečje"
 
-#: src/muuli_wdr.cpp:1086 src/muuli_wdr.cpp:1135 src/muuli_wdr.cpp:2699
+#: src/muuli_wdr.cpp:1086 src/muuli_wdr.cpp:1135 src/muuli_wdr.cpp:2784
 msgid "Session average"
 msgstr "Povprečje seje"
 
@@ -3157,7 +3203,7 @@ msgstr "Hitrost pošiljanja"
 msgid "Connections"
 msgstr "Povezave"
 
-#: src/muuli_wdr.cpp:1162 src/muuli_wdr.cpp:1972
+#: src/muuli_wdr.cpp:1162 src/muuli_wdr.cpp:2017
 msgid "Active downloads"
 msgstr "Aktivna prejemanja"
 
@@ -3165,7 +3211,7 @@ msgstr "Aktivna prejemanja"
 msgid "Active connections (1:1)"
 msgstr "Aktivne povezave (1:1)"
 
-#: src/muuli_wdr.cpp:1184 src/muuli_wdr.cpp:1973
+#: src/muuli_wdr.cpp:1184 src/muuli_wdr.cpp:2018
 msgid "Active uploads"
 msgstr "Aktivna pošiljanja"
 
@@ -3189,7 +3235,7 @@ msgstr "Program odjemalca:"
 msgid "Client version:"
 msgstr "Različica odjemalca:"
 
-#: src/muuli_wdr.cpp:1265 src/ServerWnd.cpp:249
+#: src/muuli_wdr.cpp:1265 src/ServerWnd.cpp:255
 msgid "IP address:"
 msgstr "Naslov IP:"
 
@@ -3360,11 +3406,10 @@ msgstr ""
 "Sem vnesite ime brskalnika. Za uporabo privzetega sistemskega brskalnika "
 "pustite prazno."
 
-#: src/muuli_wdr.cpp:1520 src/muuli_wdr.cpp:1540 src/muuli_wdr.cpp:1865
-#: src/muuli_wdr.cpp:1876 src/muuli_wdr.cpp:2951
+#: src/muuli_wdr.cpp:1520 src/muuli_wdr.cpp:1540 src/muuli_wdr.cpp:1910
+#: src/muuli_wdr.cpp:1921 src/muuli_wdr.cpp:3036
 #: src/utils/aLinkCreator/src/alcframe.cpp:142
-#: src/utils/wxCas/src/wxcasprefs.cpp:56
-#: src/utils/wxCas/src/wxcasprefs.cpp:133
+#: src/utils/wxCas/src/wxcasprefs.cpp:56 src/utils/wxCas/src/wxcasprefs.cpp:133
 msgid "Browse"
 msgstr "Brskanje"
 
@@ -3452,7 +3497,7 @@ msgstr "Največ istočasnih povezav:"
 msgid "Kademlia"
 msgstr "Kademlia"
 
-#: src/muuli_wdr.cpp:1680 src/muuli_wdr.cpp:3282
+#: src/muuli_wdr.cpp:1680 src/muuli_wdr.cpp:3367
 msgid "ED2K"
 msgstr "eD2k"
 
@@ -3508,47 +3553,84 @@ msgstr "Samodejna povezava samo s strežniki na statičnem seznamu"
 msgid "Set manually added servers to High Priority"
 msgstr "Nastavi ročno dodane strežnike na visoko prednost"
 
-#: src/muuli_wdr.cpp:1776
+#: src/muuli_wdr.cpp:1777
+#, fuzzy
+msgid "Reload antiLeech"
+msgstr "Ponovno naloži naveden objekt."
+
+#: src/muuli_wdr.cpp:1779
+msgid "Dynamic Leecher Protection Options"
+msgstr ""
+
+#: src/muuli_wdr.cpp:1782
+msgid "Check bad modstring"
+msgstr ""
+
+#: src/muuli_wdr.cpp:1785
+msgid "Check bad username"
+msgstr ""
+
+#: src/muuli_wdr.cpp:1788
+msgid "Check bad userhash"
+msgstr ""
+
+#: src/muuli_wdr.cpp:1791
+msgid "Check bad hello tag"
+msgstr ""
+
+#: src/muuli_wdr.cpp:1794
+msgid "Check bad info tag"
+msgstr ""
+
+#: src/muuli_wdr.cpp:1797
+msgid "Check ghost mod"
+msgstr ""
+
+#: src/muuli_wdr.cpp:1800
+msgid "Ban eMule VeryCD mod(Please consider carefully whether to use)"
+msgstr ""
+
+#: src/muuli_wdr.cpp:1821
 msgid "Intelligent Corruption Handling (I.C.H.)"
 msgstr "Inteligentno rokovanje s poškodbami (I.R.P.)"
 
-#: src/muuli_wdr.cpp:1779
+#: src/muuli_wdr.cpp:1824
 msgid "Enable"
 msgstr "Omogoči"
 
-#: src/muuli_wdr.cpp:1783
+#: src/muuli_wdr.cpp:1828
 msgid "Advanced I.C.H. trusts every hash (not recommended)"
 msgstr "Napredni I.R.P. zaupa vsaki kodi (ni priporočeno)"
 
-#: src/muuli_wdr.cpp:1791
+#: src/muuli_wdr.cpp:1836
 msgid "Add files to download in pause mode"
 msgstr "Na novo dodani prenosi naj bodo prekinjeni"
 
-#: src/muuli_wdr.cpp:1794
+#: src/muuli_wdr.cpp:1839
 msgid "Add files to download with auto priority"
 msgstr "Na novo dodani prenosi naj imajo samodejno prednost"
 
-#: src/muuli_wdr.cpp:1797
+#: src/muuli_wdr.cpp:1842
 msgid "Try to download first and last chunks first"
 msgstr "Najprej poskusi prenesti prvi in zadnji del"
 
-#: src/muuli_wdr.cpp:1801
+#: src/muuli_wdr.cpp:1846
 msgid "Start next paused file when a file completes"
 msgstr "Po zaključku datoteke začni naslednjo prekinjeno"
 
-#: src/muuli_wdr.cpp:1805
+#: src/muuli_wdr.cpp:1850
 msgid "From the same category"
 msgstr "Iz iste kategorije"
 
-#: src/muuli_wdr.cpp:1808
+#: src/muuli_wdr.cpp:1853
 msgid "In alphabetic order"
 msgstr "Po abecednem vrstnem redu"
 
-#: src/muuli_wdr.cpp:1811
+#: src/muuli_wdr.cpp:1856
 msgid "Preallocate disk space for new files"
 msgstr "Novim datotekam vnaprej dodeli prostor na disku"
 
-#: src/muuli_wdr.cpp:1812
+#: src/muuli_wdr.cpp:1857
 msgid ""
 "For new files preallocates disk space for the whole file, thus reduces "
 "fragmentation"
@@ -3556,250 +3638,250 @@ msgstr ""
 "Za nove datoteke v naprej dodeli prostor na disku v velikosti celotne "
 "datoteke, kar zmanjša razdrobljenost."
 
-#: src/muuli_wdr.cpp:1818
+#: src/muuli_wdr.cpp:1863
 msgid "Stop downloads when free disk space reaches "
 msgstr "Ustavi prejemanja, ko prostor na disku doseže "
 
-#: src/muuli_wdr.cpp:1819
+#: src/muuli_wdr.cpp:1864
 msgid "Select this if you want aMule to check your disk space"
 msgstr "Izberite, če želite, da aMule preverja prostor na disku"
 
-#: src/muuli_wdr.cpp:1823
+#: src/muuli_wdr.cpp:1868
 msgid "Enter here the min disk space desired."
 msgstr "Sem vnesite min. želen prostor na disku."
 
-#: src/muuli_wdr.cpp:1831
+#: src/muuli_wdr.cpp:1876
 msgid "Save 10 sources on rare files (< 20 sources)"
 msgstr "Shrani 10 virov pri redkih datotekah (< 20 virov)"
 
-#: src/muuli_wdr.cpp:1837 src/Statistics.cpp:736
+#: src/muuli_wdr.cpp:1882 src/Statistics.cpp:736
 msgid "Uploads"
 msgstr "Pošiljanja"
 
-#: src/muuli_wdr.cpp:1840
+#: src/muuli_wdr.cpp:1885
 msgid "Add new shared files with auto priority"
 msgstr "Nove deljene datoteke naj imajo samodejno prednost"
 
-#: src/muuli_wdr.cpp:1859
+#: src/muuli_wdr.cpp:1904
 msgid "Destination folder for downloads"
 msgstr "Ciljna mapa za prejeto"
 
-#: src/muuli_wdr.cpp:1870
+#: src/muuli_wdr.cpp:1915
 msgid "Folder for temporary download files"
 msgstr "Mapa za začasne datoteke prejemanj"
 
-#: src/muuli_wdr.cpp:1881
+#: src/muuli_wdr.cpp:1926
 msgid "Shared folders"
 msgstr "Deljene mape"
 
-#: src/muuli_wdr.cpp:1884
+#: src/muuli_wdr.cpp:1929
 msgid "(Right click on folder icon for recursive share)"
 msgstr "(desni klik na ikono mape izbere tudi podmape)"
 
-#: src/muuli_wdr.cpp:1891
+#: src/muuli_wdr.cpp:1936
 msgid "Share hidden files"
 msgstr "Deli skrite datoteke"
 
-#: src/muuli_wdr.cpp:1911
+#: src/muuli_wdr.cpp:1956
 msgid "Graphs"
 msgstr "Grafi"
 
-#: src/muuli_wdr.cpp:1914 src/muuli_wdr.cpp:1992
+#: src/muuli_wdr.cpp:1959 src/muuli_wdr.cpp:2037
 msgid "Update delay : 5 secs"
 msgstr "Zamik posodabljanja: 5 sek."
 
-#: src/muuli_wdr.cpp:1920
+#: src/muuli_wdr.cpp:1965
 msgid "Time for average graph: 100 mins"
 msgstr "Čas za graf povprečja: 100 min."
 
-#: src/muuli_wdr.cpp:1926
+#: src/muuli_wdr.cpp:1971
 msgid "Connections Graph Scale: 100 "
 msgstr "Merilo za graf povezav: 100 "
 
-#: src/muuli_wdr.cpp:1935
+#: src/muuli_wdr.cpp:1980
 msgid "Download graph scale:"
 msgstr "Merilo za graf prejemanj:"
 
-#: src/muuli_wdr.cpp:1944
+#: src/muuli_wdr.cpp:1989
 msgid "Upload graph scale:"
 msgstr "Merilo za graf pošiljanj:"
 
-#: src/muuli_wdr.cpp:1958
+#: src/muuli_wdr.cpp:2003
 msgid "Colours: "
 msgstr "Barve: "
 
-#: src/muuli_wdr.cpp:1963
+#: src/muuli_wdr.cpp:2008
 msgid "Background"
 msgstr "Ozadje"
 
-#: src/muuli_wdr.cpp:1964
+#: src/muuli_wdr.cpp:2009
 msgid "Grid"
 msgstr "Mreža"
 
-#: src/muuli_wdr.cpp:1965
+#: src/muuli_wdr.cpp:2010
 msgid "Download current"
 msgstr "Trenutno prejemanje"
 
-#: src/muuli_wdr.cpp:1966
+#: src/muuli_wdr.cpp:2011
 msgid "Download running average"
 msgstr "Povprečje prejemanja"
 
-#: src/muuli_wdr.cpp:1967
+#: src/muuli_wdr.cpp:2012
 msgid "Download session average"
 msgstr "Povprečje seje za prejemanje"
 
-#: src/muuli_wdr.cpp:1968
+#: src/muuli_wdr.cpp:2013
 msgid "Upload current"
 msgstr "Trenutno pošiljanje"
 
-#: src/muuli_wdr.cpp:1969
+#: src/muuli_wdr.cpp:2014
 msgid "Upload running average"
 msgstr "Povprečje pošiljanja"
 
-#: src/muuli_wdr.cpp:1970
+#: src/muuli_wdr.cpp:2015
 msgid "Upload session average"
 msgstr "Povprečje seje za pošiljanje"
 
-#: src/muuli_wdr.cpp:1971
+#: src/muuli_wdr.cpp:2016
 msgid "Active connections"
 msgstr "Aktivne povezave"
 
-#: src/muuli_wdr.cpp:1974
+#: src/muuli_wdr.cpp:2019
 msgid "Systray Icon Speedbar"
 msgstr "Prikaz hitrosti v sistemski vrstici"
 
-#: src/muuli_wdr.cpp:1975
+#: src/muuli_wdr.cpp:2020
 msgid "Kad-nodes current"
 msgstr "Trenutna vozlišča Kad"
 
-#: src/muuli_wdr.cpp:1976
+#: src/muuli_wdr.cpp:2021
 msgid "Kad-nodes running"
 msgstr "Vozlišča Kad v teku"
 
-#: src/muuli_wdr.cpp:1977
+#: src/muuli_wdr.cpp:2022
 msgid "Kad-nodes session"
 msgstr "Vozlišča Kad te seje"
 
-#: src/muuli_wdr.cpp:1982 src/muuli_wdr.cpp:2417
+#: src/muuli_wdr.cpp:2027 src/muuli_wdr.cpp:2462
 msgid "Select"
 msgstr "Izberi"
 
-#: src/muuli_wdr.cpp:1989
+#: src/muuli_wdr.cpp:2034
 msgid "Tree"
 msgstr "Drevo"
 
-#: src/muuli_wdr.cpp:2000
+#: src/muuli_wdr.cpp:2045
 msgid "Number of Client Versions shown (0=unlimited)"
 msgstr "Število prikazanih različic odjemalcev (0=neomejeno)"
 
-#: src/muuli_wdr.cpp:2028
+#: src/muuli_wdr.cpp:2073
 msgid "!!! WARNING !!!"
 msgstr "!!! OPOZORILO !!!"
 
-#: src/muuli_wdr.cpp:2042
+#: src/muuli_wdr.cpp:2087
 msgid "Max new connections / 5 secs"
 msgstr "Maks. novih povezav / 5 sek."
 
-#: src/muuli_wdr.cpp:2048
+#: src/muuli_wdr.cpp:2093
 msgid "File Buffer Size: 240000 bytes"
 msgstr "Datotečni medpomnilnik: 240000 bajtov"
 
-#: src/muuli_wdr.cpp:2054
+#: src/muuli_wdr.cpp:2099
 msgid "Upload Queue Size: 5000 clients"
 msgstr "Velikost vrste za pošiljanje: 5000 odjemalcev"
 
-#: src/muuli_wdr.cpp:2060
+#: src/muuli_wdr.cpp:2105
 msgid "Server connection refresh interval: Disable"
 msgstr "Čas med osvežitvama povezave na strežnik: onemogoči"
 
-#: src/muuli_wdr.cpp:2066
+#: src/muuli_wdr.cpp:2111
 msgid "Disable computer's timed standby mode"
 msgstr "Onemogoči prehod računalnika v pripravljenost"
 
-#: src/muuli_wdr.cpp:2087
+#: src/muuli_wdr.cpp:2132
 msgid "Skin to use: "
 msgstr "Uporabljena preobleka: "
 
-#: src/muuli_wdr.cpp:2099
+#: src/muuli_wdr.cpp:2144
 msgid "Show \"Fast eD2k Links Handler\" in every window."
 msgstr "Prikaži hitri rokovalnik s povezavami eD2k v vsakem oknu."
 
-#: src/muuli_wdr.cpp:2103
+#: src/muuli_wdr.cpp:2148
 msgid "Show extended info on categories tabs"
 msgstr "Prikaži razširjene podatke na zavihkih kategorij"
 
-#: src/muuli_wdr.cpp:2107
+#: src/muuli_wdr.cpp:2152
 #, fuzzy
 msgid "Show application version on title"
 msgstr "Prikaži hitrosti prenosa v naslovu"
 
-#: src/muuli_wdr.cpp:2110
+#: src/muuli_wdr.cpp:2155
 msgid "Show transfer rates on title"
 msgstr "Prikaži hitrosti prenosa v naslovu"
 
-#: src/muuli_wdr.cpp:2113
+#: src/muuli_wdr.cpp:2158
 msgid "Before application name"
 msgstr "Pred imenom programa"
 
-#: src/muuli_wdr.cpp:2116
+#: src/muuli_wdr.cpp:2161
 msgid "After application name"
 msgstr "Za imenom programa"
 
-#: src/muuli_wdr.cpp:2120
+#: src/muuli_wdr.cpp:2165
 msgid "Show overhead bandwidth"
 msgstr "Prikaži presežek prenosov"
 
-#: src/muuli_wdr.cpp:2124
+#: src/muuli_wdr.cpp:2169
 msgid "Vertical toolbar orientation"
 msgstr "Usmeri orodjarno navpično"
 
-#: src/muuli_wdr.cpp:2127
+#: src/muuli_wdr.cpp:2172
 msgid "Show country flags for clients"
 msgstr "Prikaži zastave držav za odjemalce"
 
-#: src/muuli_wdr.cpp:2130
+#: src/muuli_wdr.cpp:2175
 msgid "Download Queue Files"
 msgstr "Datoteke v vrsti prejemanj"
 
-#: src/muuli_wdr.cpp:2133
+#: src/muuli_wdr.cpp:2178
 msgid "Show progress percentage"
 msgstr "Prikaži odstotek napredka"
 
-#: src/muuli_wdr.cpp:2140
+#: src/muuli_wdr.cpp:2185
 msgid "Show progress bar"
 msgstr "Prikaži črto napredka"
 
-#: src/muuli_wdr.cpp:2144
+#: src/muuli_wdr.cpp:2189
 msgid "Flat"
 msgstr "Plosko"
 
-#: src/muuli_wdr.cpp:2150
+#: src/muuli_wdr.cpp:2195
 msgid "Round"
 msgstr "Zaokroženo"
 
-#: src/muuli_wdr.cpp:2155
+#: src/muuli_wdr.cpp:2200
 msgid "Auto-sort files (high CPU)"
 msgstr "Samodejno razvrščaj datoteke"
 
-#: src/muuli_wdr.cpp:2157
+#: src/muuli_wdr.cpp:2202
 msgid "aMule will sort the columns in your download list automatically"
 msgstr ""
 "aMule bo samodejno razvrstil datoteke na vašem seznamu pprejemanj, kar "
 "potrebuje precej procesorske moči."
 
-#: src/muuli_wdr.cpp:2176
+#: src/muuli_wdr.cpp:2221
 msgid "External Connection Parameters"
 msgstr "Parametri za zunanje povezave"
 
-#: src/muuli_wdr.cpp:2179
+#: src/muuli_wdr.cpp:2224
 msgid "Accept external connections"
 msgstr "Sprejmi zunanje povezave"
 
-#: src/muuli_wdr.cpp:2186
+#: src/muuli_wdr.cpp:2231
 msgid "IP of the listening interface:"
 msgstr "IP vmesnika, ki posluša:"
 
-#: src/muuli_wdr.cpp:2190
+#: src/muuli_wdr.cpp:2235
 msgid ""
 "Enter here a valid ip in the a.b.c.d format for the listening EC interface. "
 "An empty field or 0.0.0.0 will mean any interface."
@@ -3807,115 +3889,115 @@ msgstr ""
 "Sem vnesite veljaven IP v formatu a.b.c.d za poslušalen vmesnik. Prazno "
 "polje ali 0.0.0.0 pomeni poljuben vmesnik."
 
-#: src/muuli_wdr.cpp:2198 src/muuli_wdr.cpp:2259
+#: src/muuli_wdr.cpp:2243 src/muuli_wdr.cpp:2304
 msgid "TCP port:"
 msgstr "Vrata TCP:"
 
-#: src/muuli_wdr.cpp:2206
+#: src/muuli_wdr.cpp:2251
 msgid "Enable UPnP port forwarding on the EC port"
 msgstr "Vklopi posredovanje vrat UPnP za vrata zunanjih povezav"
 
-#: src/muuli_wdr.cpp:2211 src/muuli_wdr.cpp:3127
+#: src/muuli_wdr.cpp:2256 src/muuli_wdr.cpp:3212
 #: src/utils/wxCas/src/wxcasprefs.cpp:201
 msgid "Password"
 msgstr "Geslo"
 
-#: src/muuli_wdr.cpp:2221
+#: src/muuli_wdr.cpp:2266
 msgid "Web server parameters"
 msgstr "Parametri spletnega strežnika"
 
-#: src/muuli_wdr.cpp:2224
+#: src/muuli_wdr.cpp:2269
 msgid "Run webserver on startup"
 msgstr "Spletni strežnik zaženi ob zagonu"
 
-#: src/muuli_wdr.cpp:2230
+#: src/muuli_wdr.cpp:2275
 msgid "Web template"
 msgstr "Spletna predloga"
 
-#: src/muuli_wdr.cpp:2237
+#: src/muuli_wdr.cpp:2282
 msgid "Full rights password"
 msgstr "Geslo za vse pravice"
 
-#: src/muuli_wdr.cpp:2243
+#: src/muuli_wdr.cpp:2288
 msgid "Enable Low rights User"
 msgstr "Omogoči uporabnika z nizkimi pravicami"
 
-#: src/muuli_wdr.cpp:2249
+#: src/muuli_wdr.cpp:2294
 msgid "Low rights password"
 msgstr "Geslo za nizke pravice"
 
-#: src/muuli_wdr.cpp:2267
+#: src/muuli_wdr.cpp:2312
 msgid "Enable UPnP port forwarding of the web server port"
 msgstr "Vklopi posredovanje vrat UPnP za vrata spletnega strežnika"
 
-#: src/muuli_wdr.cpp:2272
+#: src/muuli_wdr.cpp:2317
 msgid "Web server UPnP TCP port (Optional)"
 msgstr "Vrata TCP za UPnP za spletni strežnik (neobvezno)"
 
-#: src/muuli_wdr.cpp:2282
+#: src/muuli_wdr.cpp:2327
 msgid "Page Refresh Time (in secs)"
 msgstr "Čas med osvežitvami strani (v sek.)"
 
-#: src/muuli_wdr.cpp:2290
+#: src/muuli_wdr.cpp:2335
 msgid "Enable Gzip compression"
 msgstr "Omogoči stiskanje gzip"
 
-#: src/muuli_wdr.cpp:2324 src/muuli_wdr.cpp:2427 src/ServerWnd.cpp:218
-#: src/ServerWnd.cpp:223
+#: src/muuli_wdr.cpp:2369 src/muuli_wdr.cpp:2472 src/ServerWnd.cpp:224
+#: src/ServerWnd.cpp:229
 msgid "OK"
 msgstr "V redu"
 
-#: src/muuli_wdr.cpp:2326
+#: src/muuli_wdr.cpp:2371
 msgid "Click here to apply any changes made to the preferences."
 msgstr "Kliknite tukaj za uveljavitev sprememb v nastavitvah."
 
-#: src/muuli_wdr.cpp:2330
+#: src/muuli_wdr.cpp:2375
 msgid "Reset any changes made to the preferences."
 msgstr "Razveljavi vse spremembe v nastavitvah."
 
-#: src/muuli_wdr.cpp:2354
+#: src/muuli_wdr.cpp:2399
 msgid "Title :"
 msgstr "Naslov:"
 
-#: src/muuli_wdr.cpp:2364
+#: src/muuli_wdr.cpp:2409
 msgid "Comment :"
 msgstr "Komentar:"
 
-#: src/muuli_wdr.cpp:2374
+#: src/muuli_wdr.cpp:2419
 msgid "Incoming Dir :"
 msgstr "Mapa za prejeto:"
 
-#: src/muuli_wdr.cpp:2387
+#: src/muuli_wdr.cpp:2432
 msgid "Change priority for new assigned files :"
 msgstr "Spremeni prednost novo dodeljenim datotekam:"
 
-#: src/muuli_wdr.cpp:2392
+#: src/muuli_wdr.cpp:2437
 msgid "Don't change"
 msgstr "Ne spremeni"
 
-#: src/muuli_wdr.cpp:2406
+#: src/muuli_wdr.cpp:2451
 msgid "Select color for this Category (currently selected) :"
 msgstr "Izberite barvo za to kategorijo (trenutno izbrano):"
 
-#: src/muuli_wdr.cpp:2480 src/muuli_wdr.cpp:2505
+#: src/muuli_wdr.cpp:2525 src/muuli_wdr.cpp:2550 src/muuli_wdr.cpp:2655
 #: src/utils/wxCas/src/wxcasframe.cpp:133
 #: src/utils/wxCas/src/wxcasframe.cpp:137
 msgid "Reset"
 msgstr "Ponastavi"
 
-#: src/muuli_wdr.cpp:2481 src/muuli_wdr.cpp:2506
+#: src/muuli_wdr.cpp:2526 src/muuli_wdr.cpp:2551 src/muuli_wdr.cpp:2656
 msgid "Click this button to reset the log."
 msgstr "Kliknite ta gumb, da ponastavite dnevnik."
 
-#: src/muuli_wdr.cpp:2528
+#: src/muuli_wdr.cpp:2573
 msgid "Click on this button to update the servers list from URL ..."
 msgstr "Kliknite ta gumb za posodobitev seznama strežnikov iz URL-ja."
 
-#: src/muuli_wdr.cpp:2532
+#: src/muuli_wdr.cpp:2577
 msgid "Server list"
 msgstr "Seznam strežnikov"
 
-#: src/muuli_wdr.cpp:2537
+#: src/muuli_wdr.cpp:2582
 msgid ""
 "Enter the url to a server.met file here and press the button to the left to "
 "update the list of known servers."
@@ -3923,55 +4005,64 @@ msgstr ""
 "Vnesite URL do datoteke server.met in kliknite gumb na levi, da posodobite "
 "seznam strežnikov."
 
-#: src/muuli_wdr.cpp:2544
+#: src/muuli_wdr.cpp:2589
 msgid "Add server manually: Name"
 msgstr "Ročno dodaj strežnik: ime"
 
-#: src/muuli_wdr.cpp:2548
+#: src/muuli_wdr.cpp:2593
 msgid "Enter the name of the new server here"
 msgstr "Sem vnesite ime novega strežnika"
 
-#: src/muuli_wdr.cpp:2551 src/ServerWnd.cpp:168
+#: src/muuli_wdr.cpp:2596 src/ServerWnd.cpp:174
 msgid "IP:Port"
 msgstr "IP:Vrata"
 
-#: src/muuli_wdr.cpp:2555
+#: src/muuli_wdr.cpp:2600
 msgid "Enter the IP of the server here, using the x.x.x.x format."
 msgstr "Sem vnesite IP strežnika v formatu x.x.x.x."
 
-#: src/muuli_wdr.cpp:2562
+#: src/muuli_wdr.cpp:2607
 msgid "Enter the port of the server here."
 msgstr "Sem vnesite vrata strežnika."
 
-#: src/muuli_wdr.cpp:2566
+#: src/muuli_wdr.cpp:2611
 msgid "Add manually a server (fill fields to the left before) ..."
 msgstr "Ročno dodaj strežnik (najprej izpolnite vsa polja) ..."
 
-#: src/muuli_wdr.cpp:2604
+#: src/muuli_wdr.cpp:2642
+msgid "Display DLP log"
+msgstr ""
+
+#: src/muuli_wdr.cpp:2645 src/muuli_wdr.cpp:2701
+#, fuzzy
+msgid "DLP Info"
+msgstr "Podatki o eD2k"
+
+#: src/muuli_wdr.cpp:2685
 msgid "aMule Log"
 msgstr "aMule dnevnik"
 
-#: src/muuli_wdr.cpp:2608
+#: src/muuli_wdr.cpp:2689
 msgid "Server Info"
 msgstr "Podatki o strežniku"
 
-#: src/muuli_wdr.cpp:2612
+#: src/muuli_wdr.cpp:2693
 msgid "ED2K Info"
 msgstr "Podatki o eD2k"
 
-#: src/muuli_wdr.cpp:2616
+#: src/muuli_wdr.cpp:2697
 msgid "Kad Info"
 msgstr "Podatki o Kad"
 
-#: src/muuli_wdr.cpp:2645
+#: src/muuli_wdr.cpp:2730
 msgid "Click on this button to update the nodes list from URL ..."
 msgstr "Kliknite ta gumb za posodobitev seznama vozlišč iz URL-ja."
 
-#: src/muuli_wdr.cpp:2649
+#: src/muuli_wdr.cpp:2734
 msgid "Nodes (0)"
 msgstr "Vozlišča (0)"
 
-#: src/muuli_wdr.cpp:2654
+#: src/muuli_wdr.cpp:2739
 msgid ""
 "Enter the url to a nodes.dat file here and press the button to the left to "
 "update the list of known nodes."
@@ -3979,41 +4070,41 @@ msgstr ""
 "Vnesite URL do datoteke nodes.dat in pritisnite gumb na levi za posodobitev "
 "seznama vozlišč."
 
-#: src/muuli_wdr.cpp:2659
+#: src/muuli_wdr.cpp:2744
 msgid "Nodes stats"
 msgstr "Statistika vozlišč"
 
-#: src/muuli_wdr.cpp:2710
+#: src/muuli_wdr.cpp:2795
 msgid "Bootstrap"
 msgstr "Začetno nalaganje"
 
-#: src/muuli_wdr.cpp:2713
+#: src/muuli_wdr.cpp:2798
 msgid "New node"
 msgstr "Novo vozlišče"
 
-#: src/muuli_wdr.cpp:2718
+#: src/muuli_wdr.cpp:2803
 msgid "IP:"
 msgstr "IP:"
 
-#: src/muuli_wdr.cpp:2747
+#: src/muuli_wdr.cpp:2832
 msgid "Port:"
 msgstr "Vrata:"
 
-#: src/muuli_wdr.cpp:2763
+#: src/muuli_wdr.cpp:2848
 msgid "Bootstrap from known clients"
 msgstr ""
 "Naloži od znanih \n"
 "odjemalcev"
 
-#: src/muuli_wdr.cpp:2768
+#: src/muuli_wdr.cpp:2853
 msgid "Disconnect Kad"
 msgstr "Prekini povezavo s Kad"
 
-#: src/muuli_wdr.cpp:2806
+#: src/muuli_wdr.cpp:2891
 msgid "Use Secure User Identification"
 msgstr "Uporabi varno identifikacijo uporabnikov"
 
-#: src/muuli_wdr.cpp:2808
+#: src/muuli_wdr.cpp:2893
 msgid ""
 "It is recommended to enable this option. You will not receive credits if SUI "
 "is not enabled."
@@ -4021,15 +4112,15 @@ msgstr ""
 "Priporočamo, da omogočite to možnost. Če to ni omogočeno, ne boste prejeli "
 "točk za zasluge."
 
-#: src/muuli_wdr.cpp:2811
+#: src/muuli_wdr.cpp:2896
 msgid "Protocol Obfuscation"
 msgstr "Maskiranje protokola"
 
-#: src/muuli_wdr.cpp:2814
+#: src/muuli_wdr.cpp:2899
 msgid "Support Protocol Obfuscation"
 msgstr "Omogoči maskiranje protokola"
 
-#: src/muuli_wdr.cpp:2816
+#: src/muuli_wdr.cpp:2901
 msgid ""
 "This option enabled Protocol Obfuscation, and makes aMule accept obfuscated "
 "connections from other clients."
@@ -4037,11 +4128,11 @@ msgstr ""
 "Ob vklopu te možnosti, bo aMule sprejemal maskirane povezave od drugih "
 "odjemalcev."
 
-#: src/muuli_wdr.cpp:2819
+#: src/muuli_wdr.cpp:2904
 msgid "Use obfuscation for outgoing connections"
 msgstr "Uporabi maskiranje za izhodne povezave"
 
-#: src/muuli_wdr.cpp:2821
+#: src/muuli_wdr.cpp:2906
 msgid ""
 "This option makes aMule use Protocol Obfuscation when connecting other "
 "clients/servers."
@@ -4049,11 +4140,11 @@ msgstr ""
 "Ob vklopu te možnosti, bo aMule uporabil maskiranje pri povezavi z drugimi "
 "odjemalci in s strežniki."
 
-#: src/muuli_wdr.cpp:2824
+#: src/muuli_wdr.cpp:2909
 msgid "Accept only obfuscated connections"
 msgstr "Dovoli samo maskirane povezave"
 
-#: src/muuli_wdr.cpp:2825
+#: src/muuli_wdr.cpp:2910
 msgid ""
 "This option makes aMule only accept obfuscated connections. You will have "
 "less sources, but all your traffic will be obfuscated"
@@ -4061,81 +4152,81 @@ msgstr ""
 "Ob vklopu te možnosti, bo aMule sprejemal samo maskirane povezave. Imeli "
 "boste manj virov, vendar bodo vse povezave maskirane."
 
-#: src/muuli_wdr.cpp:2832
+#: src/muuli_wdr.cpp:2917
 msgid "Everybody"
 msgstr "Vsi"
 
-#: src/muuli_wdr.cpp:2834
+#: src/muuli_wdr.cpp:2919
 msgid "No one"
 msgstr "Nihče"
 
-#: src/muuli_wdr.cpp:2836
+#: src/muuli_wdr.cpp:2921
 msgid "Who can see my shared files:"
 msgstr "Kdo lahko vidi moje deljene datoteke:"
 
-#: src/muuli_wdr.cpp:2837
+#: src/muuli_wdr.cpp:2922
 msgid "Select who can request to view a list of your shared files."
 msgstr "Izberite, kdo lahko zahteva vaš seznam deljenih datotek."
 
-#: src/muuli_wdr.cpp:2840
+#: src/muuli_wdr.cpp:2925
 msgid "IP-Filtering"
 msgstr "Filtriranje IP-jev"
 
-#: src/muuli_wdr.cpp:2847
+#: src/muuli_wdr.cpp:2932
 msgid "Filter clients"
 msgstr "Filtriraj odjemalce"
 
-#: src/muuli_wdr.cpp:2849
+#: src/muuli_wdr.cpp:2934
 msgid ""
 "Enable filtering of the client IPs defined in the file ~/.aMule/ipfilter.dat."
 msgstr ""
 "Omogoči filtriranje odjemalčevih IP-jev, določenih v datoteki ~/.aMule/"
 "ipfilter.dat."
 
-#: src/muuli_wdr.cpp:2852
+#: src/muuli_wdr.cpp:2937
 msgid "Filter servers"
 msgstr "Filtriraj strežnike"
 
-#: src/muuli_wdr.cpp:2854
+#: src/muuli_wdr.cpp:2939
 msgid ""
 "Enable filtering of the server IPs defined in the file ~/.aMule/ipfilter.dat."
 msgstr ""
 "Omogoči filtriranje strežnikovih IP-jev, določenih v datoteki ~/.aMule/"
 "ipfilter.dat."
 
-#: src/muuli_wdr.cpp:2861
+#: src/muuli_wdr.cpp:2946
 msgid "Reload List"
 msgstr "Znova naloži seznam"
 
-#: src/muuli_wdr.cpp:2862
+#: src/muuli_wdr.cpp:2947
 msgid "Reload the list of IPs to filter from the file ~/.aMule/ipfilter.dat"
 msgstr "Ponovno naloži seznam IP-jev za filtriranje iz ~/.aMule/ipfilter.dat."
 
-#: src/muuli_wdr.cpp:2870
+#: src/muuli_wdr.cpp:2955
 msgid "URL:"
 msgstr "URL:"
 
-#: src/muuli_wdr.cpp:2876
+#: src/muuli_wdr.cpp:2961
 msgid "Update now"
 msgstr "Posodobi zdaj"
 
-#: src/muuli_wdr.cpp:2881
+#: src/muuli_wdr.cpp:2966
 msgid "Auto-update ipfilter at startup"
 msgstr "Samodejno posodobi filter IP-jev ob zagonu"
 
-#: src/muuli_wdr.cpp:2886
+#: src/muuli_wdr.cpp:2971
 msgid "Filtering Level:"
 msgstr "Stopnja filtriranja:"
 
-#: src/muuli_wdr.cpp:2896
+#: src/muuli_wdr.cpp:2981
 msgid "Always filter LAN IPs"
 msgstr "Vedno filtriraj IP-je krajevnega omrežja"
 
-#: src/muuli_wdr.cpp:2900
+#: src/muuli_wdr.cpp:2985
 msgid "Paranoid handling of non-matching IPs"
 msgstr "Paranoično rokovanje z ne-ujemajočimi IP-ji"
 
-#: src/muuli_wdr.cpp:2902
+#: src/muuli_wdr.cpp:2987
 msgid ""
 "Rejects packet if the client ip is different from the ip where the packet is "
 "received from. Use with caution."
@@ -4143,11 +4234,11 @@ msgstr ""
 "Zavrne paket, če se odjemalčev IP razlikuje od IP-ja kjer paket izvira. "
 "Bodite pazljivi pri uporabi te možnosti."
 
-#: src/muuli_wdr.cpp:2905
+#: src/muuli_wdr.cpp:2990
 msgid "Use system-wide ipfilter.dat if available"
 msgstr "Uporabi sistemsko ipfilter.dat, če je na voljo"
 
-#: src/muuli_wdr.cpp:2906
+#: src/muuli_wdr.cpp:2991
 msgid ""
 "If there's no local ipfilter.dat found, allow usage of a systemwide ipfilter "
 "file."
@@ -4155,11 +4246,11 @@ msgstr ""
 "Če krajevne datoteke ipfilter.dat ni moč najti, omogoči uporabo sistemske "
 "datoteke."
 
-#: src/muuli_wdr.cpp:2925
+#: src/muuli_wdr.cpp:3010
 msgid "Enable Online-Signature"
 msgstr "Omogoči spletni podpis"
 
-#: src/muuli_wdr.cpp:2927
+#: src/muuli_wdr.cpp:3012
 msgid ""
 "Enables the writing of the OS file, which can be used by external apps to "
 "create signatures and the like."
@@ -4167,220 +4258,220 @@ msgstr ""
 "Omogoči pisanje v datoteko spletnega podpisa, katero lahko uporabljajo "
 "zunanji programi za izdelavo podpisov in podobnih stvari."
 
-#: src/muuli_wdr.cpp:2932
+#: src/muuli_wdr.cpp:3017
 msgid "Update Frequency (Secs):"
 msgstr "Pogostost posodobitev (sek.):"
 
-#: src/muuli_wdr.cpp:2936
+#: src/muuli_wdr.cpp:3021
 msgid "Change the frequency (in seconds) of Online Signature updates."
 msgstr "Spremeni pogostost (v sekundah) posodobitev spletnega podpisa."
 
-#: src/muuli_wdr.cpp:2945
+#: src/muuli_wdr.cpp:3030
 msgid "Save online signature file in: "
 msgstr "Spletni podpis shrani v datoteko: "
 
-#: src/muuli_wdr.cpp:2952
+#: src/muuli_wdr.cpp:3037
 msgid ""
 "Click here to select the directory containing the the Online Signature files."
 msgstr ""
 "Kliknite tukaj, da nastavite mapo, ki vsebuje datoteke za spletni podpis."
 
-#: src/muuli_wdr.cpp:2974
+#: src/muuli_wdr.cpp:3059
 msgid "Filter incoming messages (except current chat):"
 msgstr "Filtriraj prihajajoča sporočila (razen v trenutnem pogovoru):"
 
-#: src/muuli_wdr.cpp:2977
+#: src/muuli_wdr.cpp:3062
 msgid "Filter all messages"
 msgstr "Filtriraj vsa sporočila"
 
-#: src/muuli_wdr.cpp:2980
+#: src/muuli_wdr.cpp:3065
 msgid "Filter messages from people not on your friend list"
 msgstr "Filtriraj sporočila vseh, ki niso na seznamu prijateljev"
 
-#: src/muuli_wdr.cpp:2983
+#: src/muuli_wdr.cpp:3068
 msgid "Filter messages from unknown clients"
 msgstr "Filtriraj sporočila neznanih uporabnikov"
 
-#: src/muuli_wdr.cpp:2986
+#: src/muuli_wdr.cpp:3071
 msgid "Filter messages containing (use ',' as separator):"
 msgstr "Filtriraj sporočila, ki vsebujejo (uporabi »,« kot ločilnik):"
 
-#: src/muuli_wdr.cpp:2990 src/muuli_wdr.cpp:3005
+#: src/muuli_wdr.cpp:3075 src/muuli_wdr.cpp:3090
 msgid "add here the words amule should filter and block messages including it"
 msgstr ""
 "Sem dodajte besede, ki naj jih aMule filtrira, vključno s sporočili v "
 "katerih se nahajajo."
 
-#: src/muuli_wdr.cpp:2993
+#: src/muuli_wdr.cpp:3078
 msgid "Show received messages in the log"
 msgstr "Prejeta sporočila prikaži v dnevniku"
 
-#: src/muuli_wdr.cpp:2998
+#: src/muuli_wdr.cpp:3083
 msgid "Comments"
 msgstr "Komentarji"
 
-#: src/muuli_wdr.cpp:3001
+#: src/muuli_wdr.cpp:3086
 msgid "Filter comments containing (use ',' as separator):"
 msgstr "Filtriraj komentarje, ki vsebujejo (uporabi »,« kot ločilnik):"
 
-#: src/muuli_wdr.cpp:3024
+#: src/muuli_wdr.cpp:3109
 msgid "Automatic server connect without proxy"
 msgstr "Samodejna povezava s strežnikom brez posrednika"
 
-#: src/muuli_wdr.cpp:3030
+#: src/muuli_wdr.cpp:3115
 msgid "Enable authentication"
 msgstr "Omogoči overjanje"
 
-#: src/muuli_wdr.cpp:3031
+#: src/muuli_wdr.cpp:3116
 msgid "Enable/disable username/password authentication"
 msgstr "Omogoči/onemogoči overjanje z uporabniškim imenom/geslom"
 
-#: src/muuli_wdr.cpp:3036
+#: src/muuli_wdr.cpp:3121
 msgid "Username: "
 msgstr "Uporabniško ime: "
 
-#: src/muuli_wdr.cpp:3040
+#: src/muuli_wdr.cpp:3125
 msgid "The username to use to connect to the proxy"
 msgstr "Uporabniško ime za povezavo s posrednikom"
 
-#: src/muuli_wdr.cpp:3043
+#: src/muuli_wdr.cpp:3128
 msgid "Password:"
 msgstr "Geslo:"
 
-#: src/muuli_wdr.cpp:3047
+#: src/muuli_wdr.cpp:3132
 msgid "The password to use to connect to the proxy"
 msgstr "Geslo za povezavo s posrednikom"
 
-#: src/muuli_wdr.cpp:3050
+#: src/muuli_wdr.cpp:3135
 msgid "Enable Proxy"
 msgstr "Omogoči posrednika"
 
-#: src/muuli_wdr.cpp:3051
+#: src/muuli_wdr.cpp:3136
 msgid "Enable/disable proxy support"
 msgstr "Omogoči/onemogoči podporo za posrednika"
 
-#: src/muuli_wdr.cpp:3056
+#: src/muuli_wdr.cpp:3141
 msgid "Proxy type:"
 msgstr "Vrsta posrednika:"
 
-#: src/muuli_wdr.cpp:3069
+#: src/muuli_wdr.cpp:3154
 msgid "Proxy host:"
 msgstr "Gostitelj posrednika:"
 
-#: src/muuli_wdr.cpp:3073
+#: src/muuli_wdr.cpp:3158
 msgid "The proxy host name"
 msgstr "Ime gostitelja posredniškega strežnika"
 
-#: src/muuli_wdr.cpp:3076
+#: src/muuli_wdr.cpp:3161
 msgid "Proxy port:"
 msgstr "Vrata posrednika:"
 
-#: src/muuli_wdr.cpp:3080
+#: src/muuli_wdr.cpp:3165
 msgid "The proxy port"
 msgstr "Vrata posredniškega strežnika"
 
-#: src/muuli_wdr.cpp:3101
+#: src/muuli_wdr.cpp:3186
 msgid "Connect to:"
 msgstr "Poveži se z:"
 
-#: src/muuli_wdr.cpp:3115
+#: src/muuli_wdr.cpp:3200
 msgid "Login to remote amule"
 msgstr "Prijavi se pri oddaljenem aMule"
 
-#: src/muuli_wdr.cpp:3120
+#: src/muuli_wdr.cpp:3205
 msgid "User name"
 msgstr "Uporabniško ime"
 
-#: src/muuli_wdr.cpp:3137
+#: src/muuli_wdr.cpp:3222
 msgid "Remember those settings"
 msgstr "Zapomni si te nastavitve"
 
-#: src/muuli_wdr.cpp:3166
+#: src/muuli_wdr.cpp:3251
 msgid "Enable Verbose Debug-Logging."
 msgstr "Omogoči zgovorno beleženje za razhroščevanje."
 
-#: src/muuli_wdr.cpp:3169
+#: src/muuli_wdr.cpp:3254
 #, fuzzy
 msgid "Only to Logfile"
 msgstr "&Odpri datoteko"
 
-#: src/muuli_wdr.cpp:3172
+#: src/muuli_wdr.cpp:3257
 msgid "Message Categories:"
 msgstr "Kategorije sporočil:"
 
-#: src/muuli_wdr.cpp:3198 src/PartFileConvertDlg.cpp:153
+#: src/muuli_wdr.cpp:3283 src/PartFileConvertDlg.cpp:153
 msgid "Waiting..."
 msgstr "Čakanje ..."
 
-#: src/muuli_wdr.cpp:3225
+#: src/muuli_wdr.cpp:3310
 msgid "Add imports"
 msgstr "Dodaj uvoze"
 
-#: src/muuli_wdr.cpp:3229
+#: src/muuli_wdr.cpp:3314
 msgid "Retry selected"
 msgstr "Ponovno poskusi izbrane"
 
-#: src/muuli_wdr.cpp:3232
+#: src/muuli_wdr.cpp:3317
 msgid "Remove selected"
 msgstr "Odstrani izbrane"
 
-#: src/muuli_wdr.cpp:3304
+#: src/muuli_wdr.cpp:3389
 msgid "Event Types"
 msgstr "Vrste dogodkov"
 
-#: src/muuli_wdr.cpp:3324
+#: src/muuli_wdr.cpp:3409
 msgid "Statistics and queued clients for selected file(s) : Session / All time"
 msgstr "Statistika in odjemalci v vrsti za izbrane datoteke: seja / ves čas"
 
-#: src/muuli_wdr.cpp:3351
+#: src/muuli_wdr.cpp:3436
 msgid "Active Uploads"
 msgstr "Aktivna pošiljanja"
 
-#: src/muuli_wdr.cpp:3371
+#: src/muuli_wdr.cpp:3456
 msgid "Percent of total files"
 msgstr "Odstotek vseh datotek"
 
-#: src/muuli_wdr.cpp:3418
+#: src/muuli_wdr.cpp:3503
 msgid "All files"
 msgstr "Vse datoteke"
 
-#: src/muuli_wdr.cpp:3419
+#: src/muuli_wdr.cpp:3504
 msgid "Selected files"
 msgstr "Izbrane datoteke"
 
-#: src/muuli_wdr.cpp:3420
+#: src/muuli_wdr.cpp:3505
 msgid "Active uploads only"
 msgstr "Samo aktivna pošiljanja"
 
-#: src/muuli_wdr.cpp:3422
+#: src/muuli_wdr.cpp:3507
 msgid "Show Clients for"
 msgstr "Prikaži odjemalce za"
 
-#: src/muuli_wdr.cpp:3425
+#: src/muuli_wdr.cpp:3510
 msgid "Reload:"
 msgstr "Znova naloži"
 
-#: src/muuli_wdr.cpp:3430
+#: src/muuli_wdr.cpp:3515
 msgid "Reload your shared files"
 msgstr "Ponovno naloži deljene datoteke"
 
-#: src/muuli_wdr.cpp:3500
+#: src/muuli_wdr.cpp:3585
 msgid "Send"
 msgstr "Pošlji"
 
-#: src/muuli_wdr.cpp:3501
+#: src/muuli_wdr.cpp:3586
 msgid "Sends the specified message."
 msgstr "Pošlje navedeno sporočilo."
 
-#: src/muuli_wdr.cpp:3506
+#: src/muuli_wdr.cpp:3591
 msgid "Close this chat-session."
 msgstr "Zapri to pogovorno sejo."
 
-#: src/muuli_wdr.cpp:3530
+#: src/muuli_wdr.cpp:3615
 msgid "Connect to any server and/or Kad"
 msgstr "Poveži se s poljubnim strežnikom in/ali s Kad"
 
-#: src/muuli_wdr.cpp:3536 src/SharedFilesCtrl.cpp:135 src/Statistics.cpp:815
+#: src/muuli_wdr.cpp:3621 src/SharedFilesCtrl.cpp:135 src/Statistics.cpp:815
 msgid "Shared Files"
 msgstr "Deljene datoteke"
 
@@ -4732,11 +4823,11 @@ msgstr ""
 #: src/PartFile.cpp:2305 src/PartFile.cpp:2310
 #, c-format
 msgid ""
-"EOF while hashing downloaded part %u with length %u (max %u) of partfile '%"
-"s' with length %u: %s"
+"EOF while hashing downloaded part %u with length %u (max %u) of partfile "
+"'%s' with length %u: %s"
 msgstr ""
-"Konec datoteke med ustvarjanjem kode prejetega dela %u z dolžino %u (maks. %"
-"u) delne datoteke »%s« z dolžino %u: %s"
+"Konec datoteke med ustvarjanjem kode prejetega dela %u z dolžino %u (maks. "
+"%u) delne datoteke »%s« z dolžino %u: %s"
 
 #: src/PartFile.cpp:2971
 #, c-format
@@ -4771,247 +4862,251 @@ msgstr "Prejeto"
 msgid "ERROR: Failed to open partfile '%s'"
 msgstr "NAPAKA: delne datoteke »%s« ni bilo moč odpreti"
 
-#: src/Preferences.cpp:628
+#: src/Preferences.cpp:646
 msgid "System default"
 msgstr "Sistemsko privzet"
 
-#: src/Preferences.cpp:629
+#: src/Preferences.cpp:647
 msgid "Albanian"
 msgstr "Albansko"
 
-#: src/Preferences.cpp:630
+#: src/Preferences.cpp:648
 msgid "Arabic"
 msgstr "Arabsko"
 
-#: src/Preferences.cpp:631
+#: src/Preferences.cpp:649
 msgid "Asturian"
 msgstr "Asturijsko"
 
-#: src/Preferences.cpp:632
+#: src/Preferences.cpp:650
 msgid "Basque"
 msgstr "Baskovsko"
 
-#: src/Preferences.cpp:633
+#: src/Preferences.cpp:651
 msgid "Bulgarian"
 msgstr "Bolgarsko"
 
-#: src/Preferences.cpp:634
+#: src/Preferences.cpp:652
 msgid "Catalan"
 msgstr "Katalonsko"
 
-#: src/Preferences.cpp:635
+#: src/Preferences.cpp:653
 msgid "Chinese (Simplified)"
 msgstr "Kitajsko (poenostavljeno)"
 
-#: src/Preferences.cpp:636
+#: src/Preferences.cpp:654
 msgid "Chinese (Traditional)"
 msgstr "Kitajsko (tradicionalno)"
 
-#: src/Preferences.cpp:637
+#: src/Preferences.cpp:655
 msgid "Croatian"
 msgstr "Hrvaško"
 
-#: src/Preferences.cpp:638
+#: src/Preferences.cpp:656
 msgid "Czech"
 msgstr "Češko"
 
-#: src/Preferences.cpp:639
+#: src/Preferences.cpp:657
 msgid "Danish"
 msgstr "Dansko"
 
-#: src/Preferences.cpp:640
+#: src/Preferences.cpp:658
 msgid "Dutch"
 msgstr "Nizozemsko"
 
-#: src/Preferences.cpp:641
+#: src/Preferences.cpp:659
 msgid "English (U.K.)"
 msgstr "Angleško (Z.K.)"
 
-#: src/Preferences.cpp:642
+#: src/Preferences.cpp:660
 msgid "Estonian"
 msgstr "Estonsko"
 
-#: src/Preferences.cpp:643
+#: src/Preferences.cpp:661
 msgid "Finnish"
 msgstr "Finsko"
 
-#: src/Preferences.cpp:644
+#: src/Preferences.cpp:662
 msgid "French"
 msgstr "Francosko"
 
-#: src/Preferences.cpp:645
+#: src/Preferences.cpp:663
 msgid "Galician"
 msgstr "Galicijsko"
 
-#: src/Preferences.cpp:646
+#: src/Preferences.cpp:664
 msgid "German"
 msgstr "Nemško"
 
-#: src/Preferences.cpp:647
+#: src/Preferences.cpp:665
 msgid "Greek"
 msgstr "Grško"
 
-#: src/Preferences.cpp:648
+#: src/Preferences.cpp:666
 msgid "Hebrew"
 msgstr "Hebrejsko"
 
-#: src/Preferences.cpp:649
+#: src/Preferences.cpp:667
 msgid "Hungarian"
 msgstr "Madžarsko"
 
-#: src/Preferences.cpp:650
+#: src/Preferences.cpp:668
 msgid "Italian"
 msgstr "Italijansko"
 
-#: src/Preferences.cpp:651
+#: src/Preferences.cpp:669
 msgid "Italian (Swiss)"
 msgstr "Italijansko (Švica)"
 
-#: src/Preferences.cpp:652
+#: src/Preferences.cpp:670
 msgid "Japanese"
 msgstr "Japonsko"
 
-#: src/Preferences.cpp:653
+#: src/Preferences.cpp:671
 msgid "Korean"
 msgstr "Korejsko"
 
-#: src/Preferences.cpp:654
+#: src/Preferences.cpp:672
 msgid "Lithuanian"
 msgstr "Litvansko"
 
-#: src/Preferences.cpp:655
+#: src/Preferences.cpp:673
 msgid "Norwegian (Nynorsk)"
 msgstr "Norveško (Nynorsk)"
 
-#: src/Preferences.cpp:656
+#: src/Preferences.cpp:674
 msgid "Polish"
 msgstr "Poljsko"
 
-#: src/Preferences.cpp:657
+#: src/Preferences.cpp:675
 msgid "Portuguese"
 msgstr "Portugalsko"
 
-#: src/Preferences.cpp:658
+#: src/Preferences.cpp:676
 msgid "Portuguese (Brazilian)"
 msgstr "Portugalsko (brazilsko)"
 
-#: src/Preferences.cpp:659
+#: src/Preferences.cpp:677
 msgid "Romanian"
 msgstr "Romunsko"
 
-#: src/Preferences.cpp:660
+#: src/Preferences.cpp:678
 msgid "Russian"
 msgstr "Rusko"
 
-#: src/Preferences.cpp:661
+#: src/Preferences.cpp:679
 msgid "Slovenian"
 msgstr "Slovensko"
 
-#: src/Preferences.cpp:662
+#: src/Preferences.cpp:680
 msgid "Spanish"
 msgstr "Špansko"
 
-#: src/Preferences.cpp:663
+#: src/Preferences.cpp:681
 msgid "Swedish"
 msgstr "Švedsko"
 
-#: src/Preferences.cpp:664
+#: src/Preferences.cpp:682
 msgid "Turkish"
 msgstr "Turško"
 
-#: src/Preferences.cpp:665
+#: src/Preferences.cpp:683
 msgid "Ukrainian"
 msgstr "Ukrajinsko"
 
-#: src/Preferences.cpp:728
+#: src/Preferences.cpp:746
 msgid "Change Language"
 msgstr "Spremeni jezik"
 
-#: src/Preferences.cpp:771
+#: src/Preferences.cpp:789
 msgid "There are no translations installed for aMule"
 msgstr ""
 
-#: src/Preferences.cpp:771
+#: src/Preferences.cpp:789
 #, fuzzy
 msgid "No languages available"
 msgstr "Ni na voljo"
 
-#: src/Preferences.cpp:902
+#: src/Preferences.cpp:920
 msgid "no options available"
 msgstr "na voljo ni nobene možnosti"
 
-#: src/Preferences.cpp:1586
+#: src/Preferences.cpp:1643
 msgid "Invalid category found, skipping"
 msgstr "Najdena neveljavna kategorija, preskočena"
 
-#: src/Preferences.cpp:1768
+#: src/Preferences.cpp:1825
 msgid ""
 "TCP port can't be higher than 65532 due to server UDP socket being TCP+3"
 msgstr "Vrata TCP ne smejo biti večja od 65532, ker so vrata UDP TCP+3"
 
-#: src/Preferences.cpp:1769
+#: src/Preferences.cpp:1826
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Uporabljena bodo privzeta vrata (%d)"
 
-#: src/Preferences.cpp:1792
+#: src/Preferences.cpp:1849
 #, c-format
 msgid "Dropping non-existing shared directory: %s"
 msgstr "Opuščanje neobstoječe deljene mape: %s"
 
-#: src/PrefsUnifiedDlg.cpp:177 src/Statistics.cpp:776
+#: src/PrefsUnifiedDlg.cpp:187 src/Statistics.cpp:776
 msgid "Connection"
 msgstr "Povezava"
 
-#: src/PrefsUnifiedDlg.cpp:178 src/SearchListCtrl.cpp:93
+#: src/PrefsUnifiedDlg.cpp:188 src/SearchListCtrl.cpp:93
 msgid "Directories"
 msgstr "Mape"
 
-#: src/PrefsUnifiedDlg.cpp:179 src/Statistics.cpp:802
+#: src/PrefsUnifiedDlg.cpp:189 src/Statistics.cpp:802
 msgid "Servers"
 msgstr "Strežniki"
 
-#: src/PrefsUnifiedDlg.cpp:180 src/ServerListCtrl.cpp:93
+#: src/PrefsUnifiedDlg.cpp:190 src/ServerListCtrl.cpp:93
 msgid "Files"
 msgstr "Datoteke"
 
-#: src/PrefsUnifiedDlg.cpp:181
+#: src/PrefsUnifiedDlg.cpp:191
 msgid "Security"
 msgstr "Varnost"
 
-#: src/PrefsUnifiedDlg.cpp:182
+#: src/PrefsUnifiedDlg.cpp:192
 msgid "Interface"
 msgstr "Vmesnik"
 
-#: src/PrefsUnifiedDlg.cpp:184
+#: src/PrefsUnifiedDlg.cpp:194
 msgid "Proxy"
 msgstr "Posrednik"
 
-#: src/PrefsUnifiedDlg.cpp:185
+#: src/PrefsUnifiedDlg.cpp:195
 msgid "Filters"
 msgstr "Filtri"
 
-#: src/PrefsUnifiedDlg.cpp:186
+#: src/PrefsUnifiedDlg.cpp:196
 msgid "Remote Controls"
 msgstr "Oddaljeno upravljanje"
 
-#: src/PrefsUnifiedDlg.cpp:187
+#: src/PrefsUnifiedDlg.cpp:197
 msgid "Online Signature"
 msgstr "Spletni podpis"
 
-#: src/PrefsUnifiedDlg.cpp:188
+#: src/PrefsUnifiedDlg.cpp:198
 msgid "Advanced"
 msgstr "Napredno"
 
-#: src/PrefsUnifiedDlg.cpp:189
+#: src/PrefsUnifiedDlg.cpp:199
 msgid "Events"
 msgstr "Dogodki"
 
-#: src/PrefsUnifiedDlg.cpp:191
+#: src/PrefsUnifiedDlg.cpp:201
+msgid "DLP"
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp:204
 msgid "Debugging"
 msgstr "Razhroščevanje"
 
-#: src/PrefsUnifiedDlg.cpp:249
+#: src/PrefsUnifiedDlg.cpp:262
 msgid ""
 "The following variables will be substituted:\n"
 "    %PARTFILE - full path to the file\n"
@@ -5021,7 +5116,7 @@ msgstr ""
 "    %PARTFILE – polna pot do datoteke\n"
 "    %PARTNAME – samo ime datoteke"
 
-#: src/PrefsUnifiedDlg.cpp:290
+#: src/PrefsUnifiedDlg.cpp:303
 msgid ""
 "Do not change these setting unless you know\n"
 "what you are doing, otherwise you can easily\n"
@@ -5037,30 +5132,30 @@ msgstr ""
 "aMule bo deloval dobro tudi brez\n"
 "spreminjanja teh nastavitev."
 
-#: src/PrefsUnifiedDlg.cpp:351
+#: src/PrefsUnifiedDlg.cpp:364
 #, c-format
 msgid "Failed to connect Cfg to widget with the ID %d and key %s"
 msgstr "Nastavitve ni bilo moč povezati z gradnikom z ID-jem %d in ključem %s"
 
-#: src/PrefsUnifiedDlg.cpp:400
+#: src/PrefsUnifiedDlg.cpp:413
 #, c-format
 msgid "Failed to transfer data from Cfg to Widget with the ID %d and key %s"
 msgstr ""
 "Podatkov iz nastavitev ni bilo moč prenesti v gradnik z ID-jem %d in ključem "
 "%s."
 
-#: src/PrefsUnifiedDlg.cpp:417
+#: src/PrefsUnifiedDlg.cpp:430
 msgid "The type of proxy you are connecting to"
 msgstr "Vrsta posrednika s katerim se hočete povezati"
 
-#: src/PrefsUnifiedDlg.cpp:538
+#: src/PrefsUnifiedDlg.cpp:548
 #, c-format
 msgid "Failed to transfer data from Widget to Cfg with the ID %d and key %s"
 msgstr ""
 "Podatkov iz gradnika ni bilo moč prenesti v nastavitve z ID-jem %d in "
 "ključem %s."
 
-#: src/PrefsUnifiedDlg.cpp:593
+#: src/PrefsUnifiedDlg.cpp:603
 msgid ""
 "aMule must be restarted to enable these changes:\n"
 "\n"
@@ -5068,32 +5163,32 @@ msgstr ""
 "Potreben je ponoven zagon aMule za uveljavitev teh sprememb:\n"
 "\n"
 
-#: src/PrefsUnifiedDlg.cpp:600
+#: src/PrefsUnifiedDlg.cpp:610
 msgid "- TCP port changed.\n"
 msgstr "• Vrata TCP so spremenjena.\n"
 
-#: src/PrefsUnifiedDlg.cpp:605
+#: src/PrefsUnifiedDlg.cpp:615
 msgid "- UDP port changed.\n"
 msgstr "• Vrata UDP so spremenjena.\n"
 
-#: src/PrefsUnifiedDlg.cpp:610
+#: src/PrefsUnifiedDlg.cpp:620
 msgid "- External connect port changed.\n"
 msgstr "• Vrata za zunanje povezave so spremenjena.\n"
 
-#: src/PrefsUnifiedDlg.cpp:614
+#: src/PrefsUnifiedDlg.cpp:624
 msgid "- External connect acceptance changed.\n"
 msgstr "• Sprejemljivost zunanjih povezav je spremenjena.\n"
 
-#: src/PrefsUnifiedDlg.cpp:618
+#: src/PrefsUnifiedDlg.cpp:628
 msgid "- External connect interface changed.\n"
 msgstr "• Vmesnik za zunanje povezave je spremenjen.\n"
 
-#: src/PrefsUnifiedDlg.cpp:622
+#: src/PrefsUnifiedDlg.cpp:632
 #, fuzzy
 msgid "- Protocol obfuscation support changed.\n"
 msgstr "Maskiranje protokola"
 
-#: src/PrefsUnifiedDlg.cpp:631
+#: src/PrefsUnifiedDlg.cpp:641
 msgid ""
 "Your Auto-update server list is empty.\n"
 "'Auto-update server list at startup' will be disabled."
@@ -5101,7 +5196,7 @@ msgstr ""
 "Seznam za samodejno posodobitev strežnikov je prazen.\n"
 "Možnost »Ob zagonu samodejno posodobi seznam strežnikov« bo onemogočena."
 
-#: src/PrefsUnifiedDlg.cpp:638
+#: src/PrefsUnifiedDlg.cpp:648
 msgid ""
 "You have enabled external connections but have not specified a password.\n"
 "External connections cannot be enabled unless a valid password is specified."
@@ -5110,19 +5205,19 @@ msgstr ""
 "Zunanje povezave ne morejo biti omogočene, dokler ne navedete veljavnega "
 "gesla."
 
-#: src/PrefsUnifiedDlg.cpp:650
+#: src/PrefsUnifiedDlg.cpp:660
 msgid "- Language changed.\n"
 msgstr "• Jezik je spremenjen.\n"
 
-#: src/PrefsUnifiedDlg.cpp:655
+#: src/PrefsUnifiedDlg.cpp:665
 msgid "- Temp folder changed.\n"
 msgstr "• Mapa za začasne datoteke spremenjena.\n"
 
-#: src/PrefsUnifiedDlg.cpp:660
+#: src/PrefsUnifiedDlg.cpp:670
 msgid "- ED2K network enabled.\n"
 msgstr "• Omrežje eD2k je omogočeno.\n"
 
-#: src/PrefsUnifiedDlg.cpp:732
+#: src/PrefsUnifiedDlg.cpp:742
 msgid ""
 "Both eD2k and Kad network are disabled.\n"
 "You won't be able to connect until you enable at least one of them."
@@ -5130,7 +5225,7 @@ msgstr ""
 "Omrežji eD2k in Kad sta onemogočeni.\n"
 "Ne boste se mogli povezati, dokler ne omogočite vsaj enega izmed njih."
 
-#: src/PrefsUnifiedDlg.cpp:736
+#: src/PrefsUnifiedDlg.cpp:746
 msgid ""
 "Kad will not start if your UDP port is disabled.\n"
 "Enable UDP port or disable Kad."
@@ -5138,7 +5233,7 @@ msgstr ""
 "Kad se ne bo zagnal, če so vrata UDP onemogočena.\n"
 "Omogočite vrata UDP ali pa onemogočite Kad."
 
-#: src/PrefsUnifiedDlg.cpp:749
+#: src/PrefsUnifiedDlg.cpp:759
 msgid ""
 "\n"
 "You MUST restart aMule now.\n"
@@ -5148,7 +5243,7 @@ msgstr ""
 "aMule morate NUJNO ponovno zagnati.\n"
 "Če tega ne storite zdaj, se ne pritožujte, če se zgodi kaj slabega.\n"
 
-#: src/PrefsUnifiedDlg.cpp:856
+#: src/PrefsUnifiedDlg.cpp:859
 msgid ""
 "Your Auto-update servers list is in blank.\n"
 "Please fill in at least one URL to point to a valid server.met file.\n"
@@ -5158,41 +5253,41 @@ msgstr ""
 "Vnesite vsaj en URL do veljavne datoteke server.met.\n"
 "Kliknite na gumb »Seznam«, zraven potrditvenega polja, za vnos URL-ja."
 
-#: src/PrefsUnifiedDlg.cpp:996
+#: src/PrefsUnifiedDlg.cpp:998
 msgid "Temporary files"
 msgstr "Začasne datoteke"
 
-#: src/PrefsUnifiedDlg.cpp:1001
+#: src/PrefsUnifiedDlg.cpp:1003
 msgid "Incoming files"
 msgstr "Prejete datoteke"
 
-#: src/PrefsUnifiedDlg.cpp:1006
+#: src/PrefsUnifiedDlg.cpp:1008
 msgid "Online Signatures"
 msgstr "Spletni podpisi"
 
-#: src/PrefsUnifiedDlg.cpp:1019
+#: src/PrefsUnifiedDlg.cpp:1021
 #, c-format
 msgid "Choose a folder for %s"
 msgstr "Izberite mapo za %s"
 
-#: src/PrefsUnifiedDlg.cpp:1039
+#: src/PrefsUnifiedDlg.cpp:1041
 msgid "Browse for videoplayer"
 msgstr "Prebrskajte za video predvajalnik"
 
-#: src/PrefsUnifiedDlg.cpp:1043
+#: src/PrefsUnifiedDlg.cpp:1045
 msgid "Select browser"
 msgstr "Izberite brskalnik"
 
-#: src/PrefsUnifiedDlg.cpp:1049
+#: src/PrefsUnifiedDlg.cpp:1051
 #, c-format
 msgid "Executable%s"
 msgstr "Izvedljiva datoteka %s"
 
-#: src/PrefsUnifiedDlg.cpp:1070
+#: src/PrefsUnifiedDlg.cpp:1072
 msgid "Edit server list"
 msgstr "Uredi seznam strežnikov"
 
-#: src/PrefsUnifiedDlg.cpp:1071
+#: src/PrefsUnifiedDlg.cpp:1073
 msgid ""
 "Add here URL's to download server.met files.\n"
 "Only one url on each line."
@@ -5200,7 +5295,23 @@ msgstr ""
 "Sem dodajte URL-je do datotek server.met.\n"
 "Po en URL v vsako vrstico."
 
-#: src/PrefsUnifiedDlg.cpp:1130 src/PrefsUnifiedDlg.cpp:1149
+#: src/PrefsUnifiedDlg.cpp:1097
+msgid "Cannot load antiLeech!"
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp:1099
+msgid "Succeed loading antiLeech!"
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp:1101
+msgid "Reload antiLeech from remote GUI has not been implemented."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp:1102
+msgid "Sorry, it has not been implemented yet!"
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp:1147 src/PrefsUnifiedDlg.cpp:1166
 #, c-format
 msgid "Update delay: %d second"
 msgid_plural "Update delay: %d seconds"
@@ -5209,7 +5320,7 @@ msgstr[1] "Osveži vsakih: %d sekundo"
 msgstr[2] "Osveži vsakih: %d sekundi"
 msgstr[3] "Osveži vsakih: %d sekunde"
 
-#: src/PrefsUnifiedDlg.cpp:1137
+#: src/PrefsUnifiedDlg.cpp:1154
 #, c-format
 msgid "Time for average graph: %d minute"
 msgid_plural "Time for average graph: %d minutes"
@@ -5218,12 +5329,12 @@ msgstr[1] "Čas za graf trenutnega povprečja: %i minuta"
 msgstr[2] "Čas za graf trenutnega povprečja: %i minuti"
 msgstr[3] "Čas za graf trenutnega povprečja: %i minute"
 
-#: src/PrefsUnifiedDlg.cpp:1143
+#: src/PrefsUnifiedDlg.cpp:1160
 #, c-format
 msgid "Connections Graph Scale: %d"
 msgstr "Merilo za graf povezav: %d"
 
-#: src/PrefsUnifiedDlg.cpp:1155
+#: src/PrefsUnifiedDlg.cpp:1172
 #, c-format
 msgid "File Buffer Size: %d byte"
 msgid_plural "File Buffer Size: %d bytes"
@@ -5232,7 +5343,7 @@ msgstr[1] "Datotečni medpomnilnik: %d bajt"
 msgstr[2] "Datotečni medpomnilnik: %d bajta"
 msgstr[3] "Datotečni medpomnilnik: %d bajti"
 
-#: src/PrefsUnifiedDlg.cpp:1161
+#: src/PrefsUnifiedDlg.cpp:1178
 #, c-format
 msgid "Upload Queue Size: %d client"
 msgid_plural "Upload Queue Size: %d clients"
@@ -5241,7 +5352,7 @@ msgstr[1] "Velikost vrste za pošiljanje: %d odjemalec"
 msgstr[2] "Velikost vrste za pošiljanje: %d odjemalca"
 msgstr[3] "Velikost vrste za pošiljanje: %d odjemalci"
 
-#: src/PrefsUnifiedDlg.cpp:1168
+#: src/PrefsUnifiedDlg.cpp:1185
 #, c-format
 msgid "Server connection refresh interval: %d minute"
 msgid_plural "Server connection refresh interval: %d minutes"
@@ -5250,36 +5361,36 @@ msgstr[1] "Čas med osvežitvama povezave na strežnik: %d minuta"
 msgstr[2] "Čas med osvežitvama povezave na strežnik: %d minuti"
 msgstr[3] "Čas med osvežitvama povezave na strežnik: %d minute"
 
-#: src/PrefsUnifiedDlg.cpp:1170
+#: src/PrefsUnifiedDlg.cpp:1187
 msgid "Server connection refresh interval: Disabled"
 msgstr "Čas med osvežitvama povezave na strežnik: onemogočeno"
 
-#: src/PrefsUnifiedDlg.cpp:1215
+#: src/PrefsUnifiedDlg.cpp:1232
 msgid "disabled"
 msgstr "onemogočeno"
 
-#: src/PrefsUnifiedDlg.cpp:1238
+#: src/PrefsUnifiedDlg.cpp:1255
 #, c-format
 msgid "Execute command on '%s' event"
 msgstr "Izvrši ukaz ob dogodku »%s«"
 
-#: src/PrefsUnifiedDlg.cpp:1241
+#: src/PrefsUnifiedDlg.cpp:1258
 msgid "Enable command execution on core"
 msgstr "Omogoči izvrševanje ukazov na jedru"
 
-#: src/PrefsUnifiedDlg.cpp:1249
+#: src/PrefsUnifiedDlg.cpp:1266
 msgid "Core command:"
 msgstr "Ukaz jedra:"
 
-#: src/PrefsUnifiedDlg.cpp:1258
+#: src/PrefsUnifiedDlg.cpp:1275
 msgid "Enable command execution on GUI"
 msgstr "Omogoči izvrševanje ukazov v vmesniku"
 
-#: src/PrefsUnifiedDlg.cpp:1266
+#: src/PrefsUnifiedDlg.cpp:1283
 msgid "GUI command:"
 msgstr "Ukaz vmesnika:"
 
-#: src/PrefsUnifiedDlg.cpp:1275
+#: src/PrefsUnifiedDlg.cpp:1292
 msgid "The following variables will be replaced:"
 msgstr "Sledeče spremenljivke bodo nadomeščene:"
 
@@ -5297,20 +5408,15 @@ msgstr "Opozorilo iskanja"
 msgid "Main"
 msgstr "Glavna"
 
-#: src/SearchList.cpp:311
+#: src/SearchList.cpp:292
 msgid "Kad search can't be done if Kad is not running"
 msgstr "Iskanje preko Kad ni mogoče, če Kad ne teče"
 
-#: src/SearchList.cpp:313
+#: src/SearchList.cpp:294
 msgid "eD2k search can't be done if eD2k is not connected"
 msgstr "Iskanje preko eD2k ni mogoče, če eD2k ni povezan"
 
-#: src/SearchList.cpp:334
-#, fuzzy
-msgid "No keyword for Kad search - aborting"
-msgstr "Ključna beseda za iskanje: %s"
-
-#: src/SearchList.cpp:371
+#: src/SearchList.cpp:343
 msgid "Unexpected error while attempting Kad search: "
 msgstr "Nepričakovana napaka med iskanjem Kad: "
 
@@ -5460,8 +5566,8 @@ msgstr "Ni bilo mogoče odpreti server.met."
 #, c-format
 msgid "Server.met file corrupt, found invalid versiontag: 0x%x, size %i"
 msgstr ""
-"Datoteka server.met je pokvarjena, napačna oznaka različice: 0x%x, velikost %"
-"i"
+"Datoteka server.met je pokvarjena, napačna oznaka različice: 0x%x, velikost "
+"%i"
 
 #: src/ServerList.cpp:174
 #, c-format
@@ -5541,9 +5647,9 @@ msgid ""
 "No server list address entry in 'addresses.dat' found. Please paste a valid "
 "server list address into this file in order to auto-update your server list"
 msgstr ""
-"V »addresses.dat« ni bil najden noben vnos za seznam strežnikov. Za samodejno "
-"posodobitev seznama strežnikov morate v to datoteko vnesti veljaven naslov "
-"seznama strežnikov."
+"V »addresses.dat« ni bil najden noben vnos za seznam strežnikov. Za "
+"samodejno posodobitev seznama strežnikov morate v to datoteko vnesti "
+"veljaven naslov seznama strežnikov."
 
 #: src/ServerList.cpp:887
 #, c-format
@@ -5629,8 +5735,8 @@ msgstr "Ali res želite izbrisati statičen strežnik %s?"
 msgid "Servers (%i)"
 msgstr "Strežniki (%i)"
 
-#: src/ServerListCtrl.cpp:397 src/ServerSocket.cpp:271
-#: src/ServerSocket.cpp:286 src/ServerWnd.cpp:179
+#: src/ServerListCtrl.cpp:397 src/ServerSocket.cpp:271 src/ServerSocket.cpp:286
+#: src/ServerWnd.cpp:185
 msgid "Server"
 msgstr "Strežnik"
 
@@ -5768,115 +5874,115 @@ msgstr "Povezovanje z %s (%s – %s:%i) %s"
 msgid "Could not solve dns for server %s: Unable to connect!"
 msgstr "Ni mogoče razrešiti DNS za strežnik: %s: Povezava ni mogoča."
 
-#: src/ServerWnd.cpp:103
+#: src/ServerWnd.cpp:104
 msgid "Server not added: No IP or hostname specified."
 msgstr "Strežnik ni bil dodan: IP ali ime gostitelja nista navedena."
 
-#: src/ServerWnd.cpp:108
+#: src/ServerWnd.cpp:109
 msgid "Server not added: Invalid server-port specified."
 msgstr "Strežnik ni bil dodan: navedena so neveljavna vrata strežnika."
 
-#: src/ServerWnd.cpp:161
+#: src/ServerWnd.cpp:167
 msgid "eD2k Status:"
 msgstr "Stanje eD2k:"
 
-#: src/ServerWnd.cpp:172
+#: src/ServerWnd.cpp:178
 msgid "ID"
 msgstr "ID"
 
-#: src/ServerWnd.cpp:204
+#: src/ServerWnd.cpp:210
 msgid "Kademlia Status:"
 msgstr "Stanje Kademlia:"
 
-#: src/ServerWnd.cpp:207
+#: src/ServerWnd.cpp:213
 msgid "Running in LAN mode"
 msgstr "Teče v načinu krajevnega omrežja"
 
-#: src/ServerWnd.cpp:207
+#: src/ServerWnd.cpp:213
 msgid "Running"
 msgstr "Teče"
 
-#: src/ServerWnd.cpp:210
+#: src/ServerWnd.cpp:216
 #, fuzzy
 msgid "Kademlia client ID:"
 msgstr "Stanje Kademlia:"
 
-#: src/ServerWnd.cpp:212
+#: src/ServerWnd.cpp:218
 msgid "Status:"
 msgstr "Stanje:"
 
-#: src/ServerWnd.cpp:215
+#: src/ServerWnd.cpp:221
 msgid "Connection State:"
 msgstr "Stanje povezave:"
 
-#: src/ServerWnd.cpp:217
+#: src/ServerWnd.cpp:223
 #, c-format
 msgid "Firewalled - open TCP port %d in your router or firewall"
 msgstr ""
-"Za požarnim zidom – v požarnem zidu ali na usmerjevalniku odprite vrata TCP %"
-"d"
+"Za požarnim zidom – v požarnem zidu ali na usmerjevalniku odprite vrata TCP "
+"%d"
 
-#: src/ServerWnd.cpp:219
+#: src/ServerWnd.cpp:225
 msgid "UDP Connection State:"
 msgstr "Stanje povezave UDP:"
 
-#: src/ServerWnd.cpp:222
+#: src/ServerWnd.cpp:228
 #, c-format
 msgid "Firewalled - open UDP port %d in your router or firewall"
 msgstr ""
-"Za požarnim zidom – v požarnem zidu ali na usmerjevalniku odprite vrata UDP %"
-"d"
+"Za požarnim zidom – v požarnem zidu ali na usmerjevalniku odprite vrata UDP "
+"%d"
 
-#: src/ServerWnd.cpp:226
+#: src/ServerWnd.cpp:232
 msgid "Firewalled state: "
 msgstr "Stanje za požarnim zidom: "
 
-#: src/ServerWnd.cpp:232
+#: src/ServerWnd.cpp:238
 msgid "No buddy required - TCP port open"
 msgstr "Potreben ni noben kolega – vrata TCP odprta"
 
-#: src/ServerWnd.cpp:234
+#: src/ServerWnd.cpp:240
 msgid "No buddy required - UDP port open"
 msgstr "Potreben ni noben kolega – vrata UDP odprta"
 
-#: src/ServerWnd.cpp:236
+#: src/ServerWnd.cpp:242
 msgid "No buddy"
 msgstr "Brez kolegov"
 
-#: src/ServerWnd.cpp:240
+#: src/ServerWnd.cpp:246
 msgid "Connecting to buddy"
 msgstr "Povezovanje s kolegom"
 
-#: src/ServerWnd.cpp:243
+#: src/ServerWnd.cpp:249
 #, c-format
 msgid "Connected to buddy at %s"
 msgstr "Povezan s kolegom na %s"
 
-#: src/ServerWnd.cpp:253
+#: src/ServerWnd.cpp:259
 msgid "Indexed sources:"
 msgstr "Indeksirani viri:"
 
-#: src/ServerWnd.cpp:255
+#: src/ServerWnd.cpp:261
 msgid "Indexed keywords:"
 msgstr "Indeksirane ključne besede:"
 
-#: src/ServerWnd.cpp:257
+#: src/ServerWnd.cpp:263
 msgid "Indexed notes:"
 msgstr "Indeksirane opombe:"
 
-#: src/ServerWnd.cpp:259
+#: src/ServerWnd.cpp:265
 msgid "Indexed load:"
 msgstr "Indeksirana obremenitev:"
 
-#: src/ServerWnd.cpp:262
+#: src/ServerWnd.cpp:268
 msgid "Average Users:"
 msgstr "Povprečno uporabnikov:"
 
-#: src/ServerWnd.cpp:265
+#: src/ServerWnd.cpp:271
 msgid "Average Files:"
 msgstr "Povprečno datotek:"
 
-#: src/ServerWnd.cpp:270 src/TextClient.cpp:731
+#: src/ServerWnd.cpp:276 src/TextClient.cpp:738
 msgid "Not running"
 msgstr "Ne teče"
 
@@ -6039,7 +6145,7 @@ msgstr "Potrebujete visok ID, da ustvarite povezavo z virom"
 msgid "Shared Files (%i)"
 msgstr "Deljene datoteke (%i)"
 
-#: src/SharedFilesCtrl.cpp:600 src/TextClient.cpp:829
+#: src/SharedFilesCtrl.cpp:600 src/TextClient.cpp:836
 msgid "[PartFile]"
 msgstr "[Delna datoteka]"
 
@@ -6297,15 +6403,15 @@ msgstr "Nikoli"
 msgid "Command '%s' with pid '%d' has finished with status code '%d'."
 msgstr "Ukaz »%s« s PID-jem »%d« se je končal s statusno kodo »%d«."
 
-#: src/TextClient.cpp:131
+#: src/TextClient.cpp:132
 msgid "Execute <str> and exit."
 msgstr "Izvrši <str> in končaj."
 
-#: src/TextClient.cpp:206
+#: src/TextClient.cpp:207
 msgid "Invalid IP format. Use xxx.xxx.xxx.xxx:xxxx\n"
 msgstr "Neveljaven format IP. Uporabite xxx.xxx.xxx.xxx:xxxx\n"
 
-#: src/TextClient.cpp:320
+#: src/TextClient.cpp:327
 msgid ""
 "This command requires an argument. Valid arguments: 'all', filename, or a "
 "number.\n"
@@ -6313,105 +6419,105 @@ msgstr ""
 "Ta ukaz potrebuje argument. Veljavni argumenti: »all«, ime datoteke ali "
 "število.\n"
 
-#: src/TextClient.cpp:356
+#: src/TextClient.cpp:363
 msgid "Processing by hash: "
 msgstr "Obdelovanje po kodi: "
 
-#: src/TextClient.cpp:370
+#: src/TextClient.cpp:377
 msgid "Processing by filename: "
 msgstr "Obdelovanje po imenu datoteke: "
 
-#: src/TextClient.cpp:392
+#: src/TextClient.cpp:399
 msgid "This command requires an argument. Valid arguments: a file hash.\n"
 msgstr "Ta ukaz potrebuje argument. Veljaven argument: koda datoteke.\n"
 
-#: src/TextClient.cpp:418
+#: src/TextClient.cpp:425
 msgid "Not a valid number\n"
 msgstr "Ni veljavno število\n"
 
-#: src/TextClient.cpp:422
+#: src/TextClient.cpp:429
 msgid "Not a valid hash (length should be exactly 32 chars)\n"
 msgstr "Ni veljavna koda (dolžina mora biti točno 32 znakov)\n"
 
 #. TRANSLATORS:
 #. 'help search' is a command to the program, do not translate it.
-#: src/TextClient.cpp:535
+#: src/TextClient.cpp:542
 #, fuzzy
 msgid ""
 "No search type defined.\n"
 "Type 'help search' to get more help.\n"
 msgstr "Napišite »%s« za dodatno pomoč.\n"
 
-#: src/TextClient.cpp:554
+#: src/TextClient.cpp:561
 #, fuzzy, c-format
 msgid "Download File: %lu %s\n"
 msgstr "Prenosi dol (%i)"
 
-#: src/TextClient.cpp:646 src/webserver/src/WebServer.cpp:409
+#: src/TextClient.cpp:653 src/webserver/src/WebServer.cpp:409
 msgid "Request failed with an unknown error."
 msgstr "Zahteva spodletela z neznano napako."
 
-#: src/TextClient.cpp:650
+#: src/TextClient.cpp:657
 msgid "Operation was successful."
 msgstr "Operacija je bila uspešna."
 
-#: src/TextClient.cpp:656
+#: src/TextClient.cpp:663
 #, c-format
 msgid "Request failed with the following error: %s"
 msgstr "Zahteva ni uspela zaradi napake: %s"
 
-#: src/TextClient.cpp:670
+#: src/TextClient.cpp:677
 #, c-format
 msgid "IP filtering for clients is %s.\n"
 msgstr "Filtriranje IP za odjemalce je %s.\n"
 
-#: src/TextClient.cpp:671 src/TextClient.cpp:677
+#: src/TextClient.cpp:678 src/TextClient.cpp:684
 msgid "OFF"
 msgstr "IZKLOPLJENO"
 
-#: src/TextClient.cpp:671 src/TextClient.cpp:677
+#: src/TextClient.cpp:678 src/TextClient.cpp:684
 msgid "ON"
 msgstr "VKLOPLJENO"
 
-#: src/TextClient.cpp:676
+#: src/TextClient.cpp:683
 #, c-format
 msgid "IP filtering for servers is %s.\n"
 msgstr "Filtriranje IP za strežnike je %s.\n"
 
-#: src/TextClient.cpp:681
+#: src/TextClient.cpp:688
 #, c-format
 msgid "Current IPFilter Level is %d.\n"
 msgstr "Trenutna stopnja IP filtriranja je %d.\n"
 
-#: src/TextClient.cpp:688
+#: src/TextClient.cpp:695
 #, c-format
 msgid "Bandwidth limits: Up: %u kB/s, Down: %u kB/s.\n"
 msgstr "Omejitve povezave: Gor: %u kB/s, Dol: %u kB/s.\n"
 
-#: src/TextClient.cpp:702
+#: src/TextClient.cpp:709
 msgid "eD2k"
 msgstr "eD2k"
 
-#: src/TextClient.cpp:707
+#: src/TextClient.cpp:714
 #, c-format
 msgid "Connected to %s %s %s"
 msgstr "Povezan z %s %s %s"
 
-#: src/TextClient.cpp:713
+#: src/TextClient.cpp:720
 msgid "Now connecting"
 msgstr "Povezovanje"
 
-#: src/TextClient.cpp:722 src/utils/wxCas/src/wxcasframe.cpp:1051
+#: src/TextClient.cpp:729 src/utils/wxCas/src/wxcasframe.cpp:1051
 #: src/utils/wxCas/src/wxcasframe.cpp:1073
 msgid "firewalled"
 msgstr "za požarnim zidom"
 
-#: src/TextClient.cpp:724 src/utils/wxCas/src/wxcasframe.cpp:1049
+#: src/TextClient.cpp:731 src/utils/wxCas/src/wxcasframe.cpp:1049
 #: src/utils/wxCas/src/wxcasframe.cpp:1071
 msgid "ok"
 msgstr "v redu"
 
-#: src/TextClient.cpp:737
+#: src/TextClient.cpp:744
 #, c-format
 msgid ""
 "\n"
@@ -6420,7 +6526,7 @@ msgstr ""
 "\n"
 "Prejemanje:\t%s"
 
-#: src/TextClient.cpp:740
+#: src/TextClient.cpp:747
 #, c-format
 msgid ""
 "\n"
@@ -6429,7 +6535,7 @@ msgstr ""
 "\n"
 "Pošiljanje:\t%s"
 
-#: src/TextClient.cpp:743
+#: src/TextClient.cpp:750
 #, c-format
 msgid ""
 "\n"
@@ -6438,7 +6544,7 @@ msgstr ""
 "\n"
 "Odjemalci v vrsti:\t%d\n"
 
-#: src/TextClient.cpp:746
+#: src/TextClient.cpp:753
 #, c-format
 msgid ""
 "\n"
@@ -6447,38 +6553,38 @@ msgstr ""
 "\n"
 "Skupno virov:\t%d\n"
 
-#: src/TextClient.cpp:855
+#: src/TextClient.cpp:862
 #, c-format
 msgid "Number of search results: %i\n"
 msgstr "Število rezultatov iskanja: %i\n"
 
-#: src/TextClient.cpp:869
+#: src/TextClient.cpp:876
 #, c-format
 msgid "Search progress: %u %% \n"
 msgstr "Napredek iskanja: %u %% \n"
 
-#: src/TextClient.cpp:871
+#: src/TextClient.cpp:878
 msgid "Search progress not available"
 msgstr "Napredek iskanja ni na voljo"
 
-#: src/TextClient.cpp:876
+#: src/TextClient.cpp:883
 #, c-format
 msgid "Received an unknown reply from the server, OpCode = %#x."
 msgstr "Prejet neznan odgovor od strežnika, OpCode = %#x."
 
-#: src/TextClient.cpp:889
+#: src/TextClient.cpp:896
 msgid "Show short status information."
 msgstr "Prikaži kratke podatke o stanju."
 
-#: src/TextClient.cpp:890
+#: src/TextClient.cpp:897
 msgid "Show connection status, current up/download speeds, etc.\n"
 msgstr "Prikaži stanje povezave, trenutne hitrosti prenosa gor/dol, itd.\n"
 
-#: src/TextClient.cpp:892
+#: src/TextClient.cpp:899
 msgid "Show full statistics tree."
 msgstr "Prikaži celotno statistično drevo."
 
-#: src/TextClient.cpp:893
+#: src/TextClient.cpp:900
 msgid ""
 "Optionally, a number in the range 0-255 can be passed as an argument to "
 "this\n"
@@ -6497,11 +6603,11 @@ msgstr ""
 "Primer: »statistics 5« bo prikazalo 5 najpogostejših različic vsakega tipa "
 "odjemalca.\n"
 
-#: src/TextClient.cpp:895
+#: src/TextClient.cpp:902
 msgid "Shut down aMule."
 msgstr "Zaustavi aMule"
 
-#: src/TextClient.cpp:896
+#: src/TextClient.cpp:903
 msgid ""
 "Shut down the remote running core (amule/amuled).\n"
 "This will also shut down the text client, since it is unusable without a\n"
@@ -6511,35 +6617,40 @@ msgstr ""
 "To bo zaustavilo tudi besedilnega odjemalca, ker brez tekočega jedra ni "
 "uporaben.\n"
 
-#: src/TextClient.cpp:898
+#: src/TextClient.cpp:905
 msgid "Reload the given object."
 msgstr "Ponovno naloži naveden objekt."
 
-#: src/TextClient.cpp:899
+#: src/TextClient.cpp:906
 msgid "Reload shared files list."
 msgstr "Ponovno naloži seznam deljenih datotek."
 
-#: src/TextClient.cpp:901
+#: src/TextClient.cpp:908
 msgid "Reload IP filtering table."
 msgstr "Ponovno naloži seznam za filtriranje IP-jev."
 
-#: src/TextClient.cpp:902
+#: src/TextClient.cpp:909
 msgid "Reload current IP filtering table."
 msgstr "Ponovno naloži trenutni seznam za filtriranje current IP-jev."
 
-#: src/TextClient.cpp:903
+#: src/TextClient.cpp:910
 msgid "Update IP filtering table from URL."
 msgstr "Posodobi seznam za filtriranje IP-jev iz URL-ja."
 
-#: src/TextClient.cpp:904
+#: src/TextClient.cpp:911
 msgid "If URL is omitted the URL from the preferences is used."
 msgstr "Če je URL izpuščen, se uporabi URL iz nastavitev."
 
-#: src/TextClient.cpp:906
+#: src/TextClient.cpp:914
+#, fuzzy
+msgid "Reloads antiLeech."
+msgstr "Ponovno naloži naveden objekt."
+
+#: src/TextClient.cpp:916
 msgid "Connect to the network."
 msgstr "Poveži se z omrežjem."
 
-#: src/TextClient.cpp:907
+#: src/TextClient.cpp:917
 msgid ""
 "This will connect to all networks that are enabled in Preferences.\n"
 "You may also optionally specify a server address in IP:Port form, to connect "
@@ -6553,35 +6664,35 @@ msgstr ""
 "za povezavo samo s tem strežnikom. IP mora biti s pikami ločen\n"
 "decimalen naslov IPv4 ali razrešljivo ime DNS."
 
-#: src/TextClient.cpp:908
+#: src/TextClient.cpp:918
 msgid "Connect to eD2k only."
 msgstr "Poveži se samo z eD2k."
 
-#: src/TextClient.cpp:909
+#: src/TextClient.cpp:919
 msgid "Connect to Kad only."
 msgstr "Poveži se samo s Kad."
 
-#: src/TextClient.cpp:911
+#: src/TextClient.cpp:921
 msgid "Disconnect from the network."
 msgstr "Prekini povezavo z omrežjem."
 
-#: src/TextClient.cpp:912
+#: src/TextClient.cpp:922
 msgid "This will disconnect from all networks that are currently connected.\n"
 msgstr "To bo prekinilo povezavo z vsemi omrežji, s katerimi ste povezani.\n"
 
-#: src/TextClient.cpp:913
+#: src/TextClient.cpp:923
 msgid "Disconnect from eD2k only."
 msgstr "Prekini samo povezavo z eD2k."
 
-#: src/TextClient.cpp:914
+#: src/TextClient.cpp:924
 msgid "Disconnect from Kad only."
 msgstr "Prekini samo povezavo s Kad."
 
-#: src/TextClient.cpp:916
+#: src/TextClient.cpp:926
 msgid "Add an eD2k or magnet link to core."
 msgstr "Dodaj povezavo magnet ali povezavo ed2k v jedro."
 
-#: src/TextClient.cpp:917
+#: src/TextClient.cpp:927
 msgid ""
 "The eD2k link to be added can be:\n"
 "*) a file link (ed2k://|file|...), it will be added to the download queue,\n"
@@ -6600,110 +6711,110 @@ msgstr ""
 "\n"
 "Povezava magnet mora vsebovati kodo eD2k in dolžino datoteke.\n"
 
-#: src/TextClient.cpp:919
+#: src/TextClient.cpp:929
 msgid "Set a preference value."
 msgstr "Nastavi vrednost nastavitve."
 
-#: src/TextClient.cpp:922
+#: src/TextClient.cpp:932
 msgid "Set IP filtering preferences."
 msgstr "Nastavi filtriranje IP-jev."
 
-#: src/TextClient.cpp:923
+#: src/TextClient.cpp:933
 msgid "Turn IP filtering on for both clients and servers."
 msgstr "Vključi filtriranje IP-jev za odjemalce in strežnike."
 
-#: src/TextClient.cpp:924
+#: src/TextClient.cpp:934
 msgid "Turn IP filtering off for both clients and servers."
 msgstr "Izključi filtriranje IP-jev za odjemalce in strežnike."
 
-#: src/TextClient.cpp:925
+#: src/TextClient.cpp:935
 msgid "Enable/Disable IP filtering for clients."
 msgstr "Omogoči/onemogoči filtriranje IP-jev za odjemalce."
 
-#: src/TextClient.cpp:926
+#: src/TextClient.cpp:936
 msgid "Turn IP filtering on for clients."
 msgstr "Vključi filtriranje IP-jev za odjemalce."
 
-#: src/TextClient.cpp:927
+#: src/TextClient.cpp:937
 msgid "Turn IP filtering off for clients."
 msgstr "Izključi filtriranje IP-jev za odjemalce."
 
-#: src/TextClient.cpp:928
+#: src/TextClient.cpp:938
 msgid "Enable/Disable IP filtering for servers."
 msgstr "Omogoči/onemogoči filtriranje IP-jev za strežnike."
 
-#: src/TextClient.cpp:929
+#: src/TextClient.cpp:939
 msgid "Turn IP filtering on for servers."
 msgstr "Vključi filtriranje IP-jev za strežnike."
 
-#: src/TextClient.cpp:930
+#: src/TextClient.cpp:940
 msgid "Turn IP filtering off for servers."
 msgstr "Izključi filtriranje IP-jev za strežnike."
 
-#: src/TextClient.cpp:931
+#: src/TextClient.cpp:941
 msgid "Select IP filtering level."
 msgstr "Izberite stopnjo filtriranja IP-jev."
 
-#: src/TextClient.cpp:932
+#: src/TextClient.cpp:942
 msgid ""
 "Valid filtering levels are in the range 0-255, and it's default (initial)\n"
 "value is 127.\n"
 msgstr "Veljavne stopnje filtriranja so od 0-255, privzeta stopnja je 127.\n"
 
-#: src/TextClient.cpp:934
+#: src/TextClient.cpp:944
 msgid "Set bandwidth limits."
 msgstr "Nastavi omejitve povezave."
 
-#: src/TextClient.cpp:935
+#: src/TextClient.cpp:945
 msgid "The value given to these commands has to be in kilobytes/sec.\n"
 msgstr "Vrednost podana tem ukazom mora biti v kilobajtih/sek.\n"
 
-#: src/TextClient.cpp:936
+#: src/TextClient.cpp:946
 msgid "Set upload bandwidth limit."
 msgstr "Nastavi omejitev pošiljanja."
 
-#: src/TextClient.cpp:937 src/TextClient.cpp:939
+#: src/TextClient.cpp:947 src/TextClient.cpp:949
 #, fuzzy
 msgid "The given value must be in kilobytes/sec.\n"
 msgstr "Vrednost podana tem ukazom mora biti v kilobajtih/sek.\n"
 
-#: src/TextClient.cpp:938
+#: src/TextClient.cpp:948
 msgid "Set download bandwidth limit."
 msgstr "Nastavi omejitev prejemanja."
 
-#: src/TextClient.cpp:941
+#: src/TextClient.cpp:951
 msgid "Get and display a preference value."
 msgstr "Dobi in prikaži vrednost nastavitve."
 
-#: src/TextClient.cpp:944
+#: src/TextClient.cpp:954
 msgid "Get IP filtering preferences."
 msgstr "Dobi nastavitve filtriranja IP-jev."
 
-#: src/TextClient.cpp:945
+#: src/TextClient.cpp:955
 msgid "Get IP filtering state for both clients and servers."
 msgstr "Dobi stanje filtriranja IP-jev za odjemalce in strežnike."
 
-#: src/TextClient.cpp:946
+#: src/TextClient.cpp:956
 msgid "Get IP filtering state for clients only."
 msgstr "Dobi stanje filtriranja IP-jev samo za odjemalce."
 
-#: src/TextClient.cpp:947
+#: src/TextClient.cpp:957
 msgid "Get IP filtering state for servers only."
 msgstr "Dobi stanje filtriranja IP-jev samo za strežnike."
 
-#: src/TextClient.cpp:948
+#: src/TextClient.cpp:958
 msgid "Get IP filtering level."
 msgstr "Dobi stopnjo filtriranja IP-jev."
 
-#: src/TextClient.cpp:950
+#: src/TextClient.cpp:960
 msgid "Get bandwidth limits."
 msgstr "Dobi omejitve prenosa."
 
-#: src/TextClient.cpp:952
+#: src/TextClient.cpp:962
 msgid "Execute a search."
 msgstr "Izvrši iskanje."
 
-#: src/TextClient.cpp:953
+#: src/TextClient.cpp:963
 msgid ""
 "A search type has to be specified by giving the type:\n"
 "    GLOBAL\n"
@@ -6717,39 +6828,39 @@ msgstr ""
 "    KAD (kad)\n"
 "Primer: »search kad datoteka« bo izvršilo Kad iskanje za »datoteka«.\n"
 
-#: src/TextClient.cpp:954
+#: src/TextClient.cpp:964
 msgid "Execute a global search."
 msgstr "Izvrši globalno iskanje."
 
-#: src/TextClient.cpp:955
+#: src/TextClient.cpp:965
 msgid "Execute a local search"
 msgstr "Izvrši krajevno iskanje."
 
-#: src/TextClient.cpp:956
+#: src/TextClient.cpp:966
 msgid "Execute a kad search"
 msgstr "Izvrši iskanje kad."
 
-#: src/TextClient.cpp:958
+#: src/TextClient.cpp:968
 msgid "Show the results of the last search."
 msgstr "Prikaže rezultate zadnjega iskanja."
 
-#: src/TextClient.cpp:959
+#: src/TextClient.cpp:969
 msgid "Return the results of the previous search.\n"
 msgstr "Vrne rezultate prejšnjega iskanja.\n"
 
-#: src/TextClient.cpp:961
+#: src/TextClient.cpp:971
 msgid "Show the progress of a search."
 msgstr "Prikaže napredek iskanja."
 
-#: src/TextClient.cpp:962
+#: src/TextClient.cpp:972
 msgid "Show the progress of a search.\n"
 msgstr "Prikaže napredek iskanja.\n"
 
-#: src/TextClient.cpp:964
+#: src/TextClient.cpp:974
 msgid "Start downloading a file"
 msgstr "Začni prejemati datoteko"
 
-#: src/TextClient.cpp:965
+#: src/TextClient.cpp:975
 msgid ""
 "The number of a file from the last search has to be given.\n"
 "Example: 'download 12' will start to download the file with the number 12 of "
@@ -6759,83 +6870,83 @@ msgstr ""
 "Primer: ukaz »download 12« bo dodal na seznam prejemanj datoteko št. 12 iz "
 "zadnjega iskanja.\n"
 
-#: src/TextClient.cpp:972
+#: src/TextClient.cpp:982
 msgid "Pause download."
 msgstr "Prekini prejemanje."
 
-#: src/TextClient.cpp:975
+#: src/TextClient.cpp:985
 msgid "Resume download."
 msgstr "Nadaljuj prejemanje."
 
-#: src/TextClient.cpp:978
+#: src/TextClient.cpp:988
 msgid "Cancel download."
 msgstr "Prekliči prejemanje."
 
-#: src/TextClient.cpp:981
+#: src/TextClient.cpp:991
 msgid "Set download priority."
 msgstr "Nastavi prednost prejemanja."
 
-#: src/TextClient.cpp:982
+#: src/TextClient.cpp:992
 msgid "Set priority of a download to Low, Normal, High or Auto.\n"
 msgstr ""
 "Nastavi prednost prejemanja na nizko, normalno, visoko ali samodejno.\n"
 
-#: src/TextClient.cpp:983
+#: src/TextClient.cpp:993
 msgid "Set priority to low."
 msgstr "Nastavi prioriteto na nizko."
 
-#: src/TextClient.cpp:984
+#: src/TextClient.cpp:994
 msgid "Set priority to normal."
 msgstr "Nastavi prioriteto na normalno."
 
-#: src/TextClient.cpp:985
+#: src/TextClient.cpp:995
 msgid "Set priority to high."
 msgstr "Nastavi prioriteto na visoko."
 
-#: src/TextClient.cpp:986
+#: src/TextClient.cpp:996
 msgid "Set priority to auto."
 msgstr "Nastavi prioriteto na samodejno."
 
-#: src/TextClient.cpp:988
+#: src/TextClient.cpp:998
 msgid "Show queues/lists."
 msgstr "Prikaži čakalne vrste/sezname."
 
-#: src/TextClient.cpp:989
+#: src/TextClient.cpp:999
 msgid "Show upload/download queue, server list or shared files list.\n"
 msgstr ""
 "Prikaži čakalno vrsto prenosov, seznam strežnikov ali deljenih datotek.\n"
 
-#: src/TextClient.cpp:990
+#: src/TextClient.cpp:1000
 msgid "Show upload queue."
 msgstr "Prikaži čakalno vrsto pošiljanj."
 
-#: src/TextClient.cpp:991
+#: src/TextClient.cpp:1001
 msgid "Show download queue."
 msgstr "Prikaži čakalno vrsto prejemanj."
 
-#: src/TextClient.cpp:992
+#: src/TextClient.cpp:1002
 msgid "Show log."
 msgstr "Prikaži dnevnik."
 
-#: src/TextClient.cpp:993
+#: src/TextClient.cpp:1003
 msgid "Show servers list."
 msgstr "Prikaži seznam strežnikov."
 
-#: src/TextClient.cpp:994
+#: src/TextClient.cpp:1004
 #, fuzzy
 msgid "Show shared files list."
 msgstr "Ponovno naloži seznam deljenih datotek."
 
-#: src/TextClient.cpp:996
+#: src/TextClient.cpp:1006
 msgid "Reset log."
 msgstr "Ponastavi dnevnik."
 
-#: src/TextClient.cpp:1003
+#: src/TextClient.cpp:1013
 #, c-format
 msgid "Deprecated command, use '%s' instead."
 msgstr "Opuščen ukaz, namesto njega uporabite »%s«."
 
-#: src/TextClient.cpp:1004
+#: src/TextClient.cpp:1014
 #, c-format
 msgid ""
 "This is a deprecated command, and may be removed in the future.\n"
@@ -6856,7 +6967,8 @@ msgstr "Pretvarjanje starih kod NIRP v »%s« v 64b v »%s«."
 #: src/ThreadTasks.cpp:455
 #, c-format
 msgid "WARNING: The filename '%s' is invalid and has been renamed to '%s'."
-msgstr "OPOZORILO: ime datoteke »%s« ni veljavno in je bilo spremenjeno v »%s«."
+msgstr ""
+"OPOZORILO: ime datoteke »%s« ni veljavno in je bilo spremenjeno v »%s«."
 
 #: src/ThreadTasks.cpp:467
 #, c-format
@@ -6914,12 +7026,12 @@ msgstr ""
 msgid "Hashset requested for unknown file: %s"
 msgstr "Zahtevan je bil nabor kod za neznano datoteko: %s"
 
-#: src/UploadQueue.cpp:596
+#: src/UploadQueue.cpp:601
 #, c-format
 msgid "Resuming uploads of file: %s"
 msgstr "Nadaljevanje ppošiljanja za datoteko: %s"
 
-#: src/UploadQueue.cpp:613
+#: src/UploadQueue.cpp:618
 #, c-format
 msgid "Suspending upload of file: %s"
 msgstr "Ustavljanje pošiljanja za datoteko: %s"
@@ -7230,6 +7342,10 @@ msgstr "%.2f TiB"
 #: src/utils/wxCas/src/wxcas.cpp:74
 msgid "wxCas, aMule Online Statistics"
 msgstr "wxCas, spletna statistika aMule"
+
+#: src/utils/wxCas/src/wxcasframe.cpp:111
+msgid "aMule"
+msgstr "aMule"
 
 #: src/utils/wxCas/src/wxcasframe.cpp:115
 msgid "Maximum DL rate since wxCas is running"

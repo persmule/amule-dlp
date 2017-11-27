@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: http://forum.amule.org/index.php?board=40.0\n"
-"POT-Creation-Date: 2016-11-21 15:20+0100\n"
+"POT-Creation-Date: 2016-10-05 14:49+0800\n"
 "PO-Revision-Date: 2011-04-21 12:10+1000\n"
 "Last-Translator: YiQi <u4781098@anu.edu.au>\n"
 "Language-Team: Chinese Simplified <kde-i18n-doc@kde.org>\n"
@@ -20,7 +20,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: zh_CN\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Lokalize 1.0\n"
 
@@ -40,59 +39,59 @@ msgstr "信息"
 msgid "The specified userhash is not valid!"
 msgstr "该用户编码无效！"
 
-#: src/amuleAppCommon.cpp:129
+#: src/amuleAppCommon.cpp:130
 msgid "Failed to open ED2KLinks file."
 msgstr "打开 ED2K 链接文件失败。"
 
-#: src/amuleAppCommon.cpp:202
+#: src/amuleAppCommon.cpp:203
 msgid ""
 "WARNING: You can't add yourself as a source for an eD2k link while having a "
 "lowid."
 msgstr "警告：在低 ID 的情况下，你不能添加自己作为 ed2k 链接的源。"
 
-#: src/amule.cpp:230
+#: src/amule.cpp:235
 msgid "Now, exiting main app..."
 msgstr "现在，正在退出主程序..."
 
-#: src/amule.cpp:249
+#: src/amule.cpp:254
 #, fuzzy, c-format
 msgid "Terminating amuleweb instance with pid '%ld' ... "
 msgstr "杀死 pid 为 '%ld' 的 amuleweb 进程..."
 
-#: src/amule.cpp:252
+#: src/amule.cpp:257
 #, fuzzy, c-format
 msgid "Killing amuleweb instance with pid '%ld' ... "
 msgstr "杀死 pid 为 '%ld' 的 amuleweb 进程..."
 
-#: src/amule.cpp:254 src/ClientRef.cpp:194 src/ServerListCtrl.cpp:95
+#: src/amule.cpp:259 src/ClientRef.cpp:194 src/ServerListCtrl.cpp:95
 msgid "Failed"
 msgstr "失败"
 
-#: src/amule.cpp:260
+#: src/amule.cpp:265
 msgid "aMule OnExit: Terminating core."
 msgstr "aMule 正在退出：中止内核。"
 
-#: src/amule.cpp:333
+#: src/amule.cpp:338
 msgid "aMule shutdown completed."
 msgstr "aMule 已经关闭。"
 
-#: src/amule.cpp:337
+#: src/amule.cpp:342
 msgid "Memory debug results for aMule exit:"
 msgstr "aMule 退出的内存 Debug 结果："
 
-#: src/amule.cpp:443
+#: src/amule.cpp:448
 msgid ""
 "Your locale has been changed to System Default due to a configuration "
 "change. Sorry."
 msgstr "对不起，由于配置变动，您的地区设置已经变为系统默认值。"
 
-#: src/amule.cpp:443 src/amule.cpp:1058 src/CatDialog.cpp:141
+#: src/amule.cpp:448 src/amule.cpp:1068 src/CatDialog.cpp:141
 #: src/CatDialog.cpp:151 src/CatDialog.cpp:163 src/ServerList.cpp:346
 #: src/ServerListCtrl.cpp:149
 msgid "Info"
 msgstr "信息"
 
-#: src/amule.cpp:449
+#: src/amule.cpp:454
 msgid ""
 "\n"
 "EC configuration"
@@ -100,16 +99,16 @@ msgstr ""
 "\n"
 "EC 配置"
 
-#: src/amule.cpp:452
+#: src/amule.cpp:457
 msgid "Password set and external connections enabled."
 msgstr "密码已设置，启用远程连接。"
 
-#: src/amule.cpp:463 src/KadDlg.cpp:183 src/KadDlg.cpp:189
-#: src/PrefsUnifiedDlg.cpp:750 src/SharedFilesCtrl.cpp:318
+#: src/amule.cpp:468 src/KadDlg.cpp:183 src/KadDlg.cpp:189
+#: src/PrefsUnifiedDlg.cpp:760 src/SharedFilesCtrl.cpp:318
 msgid "WARNING"
 msgstr "警告"
 
-#: src/amule.cpp:589
+#: src/amule.cpp:599
 msgid ""
 "You don't have any server in the server list.\n"
 "Do you want aMule to download a new list now?"
@@ -117,16 +116,16 @@ msgstr ""
 "在服务器列表中没有任何服务器。\n"
 "需要 aMule 现在就下载一个新的列表吗？"
 
-#: src/amule.cpp:590
+#: src/amule.cpp:600
 msgid "Server list download"
 msgstr "服务器列表已下载"
 
-#: src/amule.cpp:659
+#: src/amule.cpp:669
 #, c-format
 msgid "web server running on pid %d"
 msgstr "Web 服务器正在运行，进程编号为 %d"
 
-#: src/amule.cpp:663
+#: src/amule.cpp:673
 msgid ""
 "You requested to run web server on startup, but the amuleweb binary cannot "
 "be run. Please install the package containing aMule web server, or compile "
@@ -136,23 +135,23 @@ msgstr ""
 "务器的 aMule 版本，或者使用 --enable-webserver 选项编译 aMule，然后运行 make "
 "install 进行安装"
 
-#: src/amule.cpp:664 src/amule.cpp:778 src/amule.cpp:1069
+#: src/amule.cpp:674 src/amule.cpp:788 src/amule.cpp:1079
 #: src/amule-remote-gui.cpp:308 src/amule-remote-gui.cpp:330
 #: src/amule-remote-gui.cpp:332 src/amule-remote-gui.cpp:644
 msgid "ERROR"
 msgstr "错误"
 
-#: src/amule.cpp:746
+#: src/amule.cpp:756
 #, c-format
 msgid "Could not bind ports to the specified address: %s"
 msgstr "无法绑定端口到指定的地址：%s"
 
-#: src/amule.cpp:770
+#: src/amule.cpp:780
 #, c-format
 msgid "Port %u is not available. You will be LOWID\n"
 msgstr "端口 %u 已被占用，你会成为低 ID。\n"
 
-#: src/amule.cpp:776
+#: src/amule.cpp:786
 #, c-format
 msgid ""
 "Port %u is not available!\n"
@@ -167,15 +166,15 @@ msgstr ""
 "\n"
 "请检测网络设置以确保端口可用于输入输出。"
 
-#: src/amule.cpp:855
+#: src/amule.cpp:865
 msgid "Failed to create OnlineSig File"
 msgstr "创建在线统计文件失败"
 
-#: src/amule.cpp:863
+#: src/amule.cpp:873
 msgid "Failed to create aMule OnlineSig File"
 msgstr "创建 aMule 在线统计文件失败"
 
-#: src/amule.cpp:1035
+#: src/amule.cpp:1045
 msgid ""
 "The selected locale seems not to be installed on your box. (Note: I'll try "
 "to set it anyway)"
@@ -183,36 +182,36 @@ msgstr ""
 "您所选择的地区设置在您的计算机上似乎没有安装。(注意：我还是会尝试您所选择的地"
 "区设置。)"
 
-#: src/amule.cpp:1044
+#: src/amule.cpp:1054
 #, c-format
 msgid "This is the first time you run aMule %s"
 msgstr "这是您第一次运行 aMule %s"
 
-#: src/amule.cpp:1046
+#: src/amule.cpp:1056
 msgid "This version is a testing version, updated daily, and\n"
 msgstr "此版本是测试版，更新频繁， \n"
 
-#: src/amule.cpp:1047
+#: src/amule.cpp:1057
 msgid "we give no warranty it won't break anything, burn your house,\n"
 msgstr "我们无法承诺它不会损坏任何东西，烧毁您的房子，\n"
 
-#: src/amule.cpp:1048
+#: src/amule.cpp:1058
 msgid "or kill your dog. But it *should* be safe to use anyway.\n"
 msgstr "或杀死你的狗，但 * 一般来讲 * 它应该是安全的。\n"
 
-#: src/amule.cpp:1053
+#: src/amule.cpp:1063
 msgid "More information, support and new releases can found at our homepage,\n"
 msgstr "如要获取使用信息、用户支持以及下载最新版本，请访问我们的首页\n"
 
-#: src/amule.cpp:1054
+#: src/amule.cpp:1064
 msgid "at www.aMule.org, or in our IRC channel #aMule at irc.freenode.net.\n"
 msgstr "www.aMule.org，或进入我们在 irc.freenode.net 的 IRC 频道 #aMule。\n"
 
-#: src/amule.cpp:1056
+#: src/amule.cpp:1066
 msgid "Feel free to report any bugs to http://forum.amule.org"
 msgstr "欢迎您到 http://forum.amule.org 去提交错误报告"
 
-#: src/amule.cpp:1069
+#: src/amule.cpp:1079
 msgid ""
 "The folder for Online Signature files you specified is INVALID!\n"
 " OnlineSignature will be DISABLED until you fix it on preferences."
@@ -220,139 +219,139 @@ msgstr ""
 "您为在线统计文件所选择的文件夹无效！\n"
 "在您更正设置之前在线统计将被禁用。"
 
-#: src/amule.cpp:1125
+#: src/amule.cpp:1135
 msgid "Server hostname notified"
 msgstr "获取服务器名称"
 
-#: src/amule.cpp:1351
+#: src/amule.cpp:1361
 #, c-format
 msgid "Disk space preallocation for file '%s' failed: %s"
 msgstr "为文件 '%s' 预分配磁盘空间失败：%s"
 
-#: src/amule.cpp:1486
+#: src/amule.cpp:1496
 msgid "ERROR: can't open logfile"
 msgstr "错误：无法打开日志文件"
 
-#: src/amule.cpp:1490
+#: src/amule.cpp:1500
 msgid "WARNING: logfile is empty. Something is wrong."
 msgstr "警告：日志文件为空。肯定有什么地方出错了。"
 
-#: src/amule.cpp:1508
+#: src/amule.cpp:1518
 msgid "Log has been reset"
 msgstr "记录文件已被重置"
 
-#: src/amule.cpp:1534
+#: src/amule.cpp:1544
 #, c-format
 msgid "ServerMessage: %s"
 msgstr "服务器消息：%s"
 
-#: src/amule.cpp:1576 src/IP2Country.cpp:152 src/IPFilter.cpp:510
+#: src/amule.cpp:1586 src/IP2Country.cpp:152 src/IPFilter.cpp:510
 #: src/ServerList.cpp:860
 #, c-format
 msgid "Skipped download of %s, because requested file is not newer."
 msgstr "跳过下载%s，因为请求的文件不是最新的。"
 
-#: src/amule.cpp:1578
+#: src/amule.cpp:1588
 msgid "Failed to download the nodes list."
 msgstr "下载节点列表失败。"
 
-#: src/amule.cpp:1598
+#: src/amule.cpp:1608
 msgid "Failed to open the downloaded version check file"
 msgstr "打开已下载的版本检查文件失败"
 
-#: src/amule.cpp:1601 src/amule.cpp:1611 src/amule.cpp:1617
+#: src/amule.cpp:1611 src/amule.cpp:1621 src/amule.cpp:1627
 msgid "Corrupted version check file"
 msgstr "损坏的版本检查文件"
 
-#: src/amule.cpp:1627
+#: src/amule.cpp:1637
 msgid "You are using an outdated version of aMule!"
 msgstr "您使用的是老版本的aMule！"
 
-#: src/amule.cpp:1629
+#: src/amule.cpp:1639
 #, c-format
 msgid "Your aMule version is %i.%i.%i and the latest version is %li.%li.%li"
 msgstr "您的 aMule 版本是 %i.%i.%i，最新版本是 %li.%li.%li"
 
-#: src/amule.cpp:1630
+#: src/amule.cpp:1640
 msgid "The latest version can always be found at http://www.amule.org"
 msgstr "最新版本可从这里下载：http://www.amule.org"
 
-#: src/amule.cpp:1632
+#: src/amule.cpp:1642
 #, c-format
 msgid "WARNING: Your aMuled version is outdated: %i.%i.%i < %li.%li.%li"
 msgstr "警告：您的 aMuled 版本太旧：%i.%i.%i < %li.%li.%li"
 
-#: src/amule.cpp:1636
+#: src/amule.cpp:1646
 msgid "Your copy of aMule is up to date."
 msgstr "您的aMule是最新版本。"
 
-#: src/amule.cpp:1643
+#: src/amule.cpp:1653
 msgid "Failed to download the version check file"
 msgstr "下载版本检查文件失败"
 
-#: src/amule.cpp:1813 src/amule-remote-gui.cpp:530
+#: src/amule.cpp:1823 src/amule-remote-gui.cpp:530
 #, c-format
 msgid "Users: %s | Files: %s"
 msgstr "用户：%s | 文件：%s"
 
-#: src/amule.cpp:1814 src/amule-remote-gui.cpp:531
+#: src/amule.cpp:1824 src/amule-remote-gui.cpp:531
 #, c-format
 msgid "Users: E: %s K: %s | Files: E: %s K: %s"
 msgstr "用户：E：%s K：%s | 文件：E：%s K：%s"
 
-#: src/amule.cpp:1823 src/amule-remote-gui.cpp:540
+#: src/amule.cpp:1833 src/amule-remote-gui.cpp:540
 msgid "No networks selected"
 msgstr "没有选择网络"
 
-#: src/amule.cpp:1888 src/TextClient.cpp:710
+#: src/amule.cpp:1898 src/TextClient.cpp:717
 msgid "with LowID"
 msgstr "有低 ID"
 
-#: src/amule.cpp:1888 src/TextClient.cpp:710
+#: src/amule.cpp:1898 src/TextClient.cpp:717
 msgid "with HighID"
 msgstr "有高 ID"
 
-#: src/amule.cpp:1890
+#: src/amule.cpp:1900
 #, c-format
 msgid "Connected to %s %s"
 msgstr "已连接到 %s %s"
 
-#: src/amule.cpp:1894
+#: src/amule.cpp:1904
 #, c-format
 msgid "Connecting to %s"
 msgstr "正在连接到 %s"
 
-#: src/amule.cpp:1896
+#: src/amule.cpp:1906
 msgid "Disconnected from eD2k"
 msgstr "已从 eD2k 断开"
 
-#: src/amule.cpp:1904
+#: src/amule.cpp:1914
 msgid "Kad started."
 msgstr "Kad 已启动。"
 
-#: src/amule.cpp:1906
+#: src/amule.cpp:1916
 msgid "Kad stopped."
 msgstr "Kad 已停止。"
 
-#: src/amule.cpp:1914
+#: src/amule.cpp:1924
 msgid "Connected to Kad (ok)"
 msgstr "已连接至 Kad (ok）"
 
-#: src/amule.cpp:1916
+#: src/amule.cpp:1926
 msgid "Connected to Kad (firewalled)"
 msgstr "已连接至 Kad 网络 (有防火墙)"
 
-#: src/amule.cpp:1919
+#: src/amule.cpp:1929
 msgid "Disconnected from Kad"
 msgstr "已断开 Kad 连接"
 
-#: src/amule.cpp:1988
+#: src/amule.cpp:1998
 msgid ""
 "Kad network cannot be used if UDP port is disabled on preferences, not "
 "starting."
 msgstr "如果在设置中禁用了 UDP 端口，Kad 网络将不能使用，没有启动。"
 
-#: src/amule.cpp:1991
+#: src/amule.cpp:2001
 msgid "Kad network disabled on preferences, not connecting."
 msgstr "Kad 网络在设置中被禁用了，没有连接。"
 
@@ -424,271 +423,306 @@ msgid "Snapshot:"
 msgstr "快照："
 
 #: src/amuleDlg.cpp:501
-msgid ""
-"'All-Platform' p2p client based on eMule \n"
-"\n"
+#, fuzzy
+msgid "'All-Platform' p2p client based on eMule, \n"
 msgstr "基于 eMule 的“全平台” P2P客户端\n"
 
 #: src/amuleDlg.cpp:502
+#, fuzzy
+msgid ""
+"with Dynamic Leecher Protection. \n"
+"\n"
+msgstr ""
+"\n"
+"动态吸血保护\n"
+
+#: src/amuleDlg.cpp:503
 msgid "Website: http://www.amule.org \n"
 msgstr "网站：http://www.amule.org \n"
 
-#: src/amuleDlg.cpp:503
+#: src/amuleDlg.cpp:504
 msgid "Forum: http://forum.amule.org \n"
 msgstr "论坛：http://forum.amule.org \n"
 
-#: src/amuleDlg.cpp:504
+#: src/amuleDlg.cpp:505
 msgid ""
 "FAQ: http://wiki.amule.org \n"
 "\n"
 msgstr "FAQ: http://wiki.amule.org \n"
 
-#: src/amuleDlg.cpp:505
+#: src/amuleDlg.cpp:506
 msgid "Contact: admin@amule.org (administrative issues) \n"
 msgstr "联系邮件：admin@amule.org (管理问题) \n"
 
-#: src/amuleDlg.cpp:506
+#: src/amuleDlg.cpp:507
 msgid ""
 "Copyright (c) 2003-2011 aMule Team \n"
 "\n"
 msgstr "版权所有 (C) 2003-2008 aMule 团队 \n"
 
-#: src/amuleDlg.cpp:507
+#: src/amuleDlg.cpp:508
 msgid "Part of aMule is based on \n"
 msgstr "aMule 的一部分是基于 \n"
 
-#: src/amuleDlg.cpp:508
+#: src/amuleDlg.cpp:509
 msgid "Kademlia: Peer-to-peer routing based on the XOR metric.\n"
 msgstr "Kademlia：基于异或算法的点对点路由。\n"
 
-#: src/amuleDlg.cpp:509
+#: src/amuleDlg.cpp:510
 msgid " Copyright (c) 2002-2011 Petar Maymounkov ( petar@post.harvard.edu )\n"
 msgstr "版权所有 (c) 2002-2008 Petar Maymounkov ( petar@post.harvard.edu )\n"
 
-#: src/amuleDlg.cpp:510
+#: src/amuleDlg.cpp:511
 msgid "http://kademlia.scs.cs.nyu.edu\n"
 msgstr "http://kademlia.scs.cs.nyu.edu\n"
 
-msgid "\nDynamic Leech Protection\n"
-msgstr "\n动态吸血保护\n"
+#: src/amuleDlg.cpp:512
+msgid ""
+"\n"
+"Dynamic Leech Protection\n"
+msgstr ""
+"\n"
+"动态吸血保护\n"
 
-msgid " Homepage: http://amule-dlp.googlecode.com \n"
+#: src/amuleDlg.cpp:513
+#, fuzzy
+msgid " Homepage: https://github.com/persmule/amule-dlp \n"
 msgstr " 主页：http://amule-dlp.googlecode.com \n"
 
-#: src/amuleDlg.cpp:513 src/KadDlg.cpp:192 src/PartFile.cpp:920
-#: src/PartFile.cpp:928 src/PrefsUnifiedDlg.cpp:624
-#: src/PrefsUnifiedDlg.cpp:729 src/PrefsUnifiedDlg.cpp:842
+#: src/amuleDlg.cpp:514
+#, fuzzy
+msgid " Copyright (C) 2002-2007 Xtreme-Mod \n"
+msgstr ""
+" 版权所有 (C) 2003-2008 aMule 团队 \n"
+"\n"
 
+#: src/amuleDlg.cpp:515
+#, fuzzy
+msgid " Copyright (C) 2009 greensea \n"
+msgstr ""
+" 版权所有 (C) 2003-2008 aMule 团队 \n"
+"\n"
+
+#: src/amuleDlg.cpp:516
+#, fuzzy
+msgid " Copyright (C) 2009-2011 Bill Lee \n"
+msgstr "版权所有 (C) 2003-2008 aMule 团队 \n"
+
+#: src/amuleDlg.cpp:517
+#, fuzzy
+msgid " Copyright (C) 2014 Persmule \n"
+msgstr " 版权所有 (C) 2002 Petar Maymounkov\n"
+
+#: src/amuleDlg.cpp:520 src/KadDlg.cpp:193 src/PartFile.cpp:918
+#: src/PartFile.cpp:926 src/PrefsUnifiedDlg.cpp:642 src/PrefsUnifiedDlg.cpp:747
+#: src/PrefsUnifiedDlg.cpp:860 src/PrefsUnifiedDlg.cpp:1097
+#: src/PrefsUnifiedDlg.cpp:1099
 msgid "Message"
 msgstr "消息"
 
-#: src/amuleDlg.cpp:550
+#: src/amuleDlg.cpp:557
 msgid "aMule dialog destroyed"
 msgstr "aMule 对话损坏"
 
-#: src/amuleDlg.cpp:574 src/DataToText.cpp:58 src/IPFilter.cpp:544
+#: src/amuleDlg.cpp:581 src/DataToText.cpp:58 src/IPFilter.cpp:544
 msgid "Connecting"
 msgstr "正在连接"
 
-#: src/amuleDlg.cpp:705
+#: src/amuleDlg.cpp:728
 msgid "eD2k: Connecting"
 msgstr "eD2k：正在连接"
 
-#: src/amuleDlg.cpp:709
+#: src/amuleDlg.cpp:732
 msgid "eD2k: Disconnected"
 msgstr "eD2k：连接已断开"
 
-#: src/amuleDlg.cpp:715
+#: src/amuleDlg.cpp:738
 msgid "Kad: Firewalled"
 msgstr "Kad：有防火墙"
 
-#: src/amuleDlg.cpp:719
+#: src/amuleDlg.cpp:742
 msgid "Kad: Connected"
 msgstr "Kad：已连接"
 
-#: src/amuleDlg.cpp:724
+#: src/amuleDlg.cpp:747
 msgid "Kad: Connecting"
 msgstr "Kad：正在连接"
 
-#: src/amuleDlg.cpp:728
+#: src/amuleDlg.cpp:751
 msgid "Kad: Off"
 msgstr "Kad：关闭"
 
-#: src/amuleDlg.cpp:774 src/DownloadListCtrl.cpp:415
+#: src/amuleDlg.cpp:797 src/DownloadListCtrl.cpp:415
 #: src/DownloadListCtrl.cpp:652 src/FriendListCtrl.cpp:174
 #: src/muuli_wdr.cpp:803 src/muuli_wdr.cpp:863 src/muuli_wdr.cpp:937
-#: src/muuli_wdr.cpp:1003 src/muuli_wdr.cpp:2329 src/muuli_wdr.cpp:2431
-#: src/muuli_wdr.cpp:3147 src/ServerListCtrl.cpp:154
-#: src/ServerListCtrl.cpp:528 src/ServerListCtrl.cpp:547
-#: src/TransferWnd.cpp:375 src/utils/wxCas/src/wxcasprefs.cpp:285
+#: src/muuli_wdr.cpp:1003 src/muuli_wdr.cpp:2374 src/muuli_wdr.cpp:2476
+#: src/muuli_wdr.cpp:3232 src/ServerListCtrl.cpp:154 src/ServerListCtrl.cpp:528
+#: src/ServerListCtrl.cpp:547 src/TransferWnd.cpp:375
+#: src/utils/wxCas/src/wxcasprefs.cpp:285
 msgid "Cancel"
 msgstr "取消"
 
-#: src/amuleDlg.cpp:775
+#: src/amuleDlg.cpp:798
 msgid "Stop the current connection attempts"
 msgstr "终止本次连接尝试"
 
-#: src/amuleDlg.cpp:780 src/MuleTrayIcon.cpp:496 src/muuli_wdr.cpp:2572
+#: src/amuleDlg.cpp:803 src/MuleTrayIcon.cpp:496 src/muuli_wdr.cpp:2617
 msgid "Disconnect"
 msgstr "断开连接"
 
-#: src/amuleDlg.cpp:781
+#: src/amuleDlg.cpp:804
 msgid "Disconnect from the currently connected networks"
 msgstr "从当前已连接的网络断开"
 
-#: src/amuleDlg.cpp:786 src/MuleTrayIcon.cpp:499 src/muuli_wdr.cpp:2755
-#: src/muuli_wdr.cpp:3143 src/muuli_wdr.cpp:3530
+#: src/amuleDlg.cpp:809 src/MuleTrayIcon.cpp:499 src/muuli_wdr.cpp:2840
+#: src/muuli_wdr.cpp:3228 src/muuli_wdr.cpp:3615
 msgid "Connect"
 msgstr "连接"
 
-#: src/amuleDlg.cpp:787
+#: src/amuleDlg.cpp:810
 msgid "Connect to the currently enabled networks"
 msgstr "连接至当前已启用的网络"
 
-#: src/amuleDlg.cpp:846
+#: src/amuleDlg.cpp:869
 #, c-format
 msgid "Up: %.1f(%.1f) | Down: %.1f(%.1f)"
 msgstr "上传：%.1f（%.1f） | 下载：%.1f（%.1f）"
 
-#: src/amuleDlg.cpp:848
+#: src/amuleDlg.cpp:871
 #, c-format
 msgid "Up: %.1f | Down: %.1f"
 msgstr "上传：%.1f | 下载：%.1f"
 
-#: src/amuleDlg.cpp:874
+#: src/amuleDlg.cpp:897
 #, c-format
 msgid "aMule (%s | Connected)"
 msgstr "aMule（%s | 已连接）"
 
-#: src/amuleDlg.cpp:876
+#: src/amuleDlg.cpp:899
 #, c-format
 msgid "aMule (%s | Disconnected)"
 msgstr "aMule（%s | 已断开）"
 
-#: src/amuleDlg.cpp:913
+#: src/amuleDlg.cpp:936
 #, c-format
 msgid "Do you really want to exit %s?"
 msgstr "您确定要关闭%s吗？"
 
-#: src/amuleDlg.cpp:914
+#: src/amuleDlg.cpp:937
 msgid "Exit confirmation"
 msgstr "退出确认"
 
-#: src/amuleDlg.cpp:1174
+#: src/amuleDlg.cpp:1197
 msgid "Launch Command: "
 msgstr "运行命令："
 
-#: src/amuleDlg.cpp:1210 src/muuli_wdr.cpp:2092 src/Preferences.cpp:842
+#: src/amuleDlg.cpp:1233 src/muuli_wdr.cpp:2137 src/Preferences.cpp:860
 msgid "- default -"
 msgstr "- 默认 -"
 
-#: src/amuleDlg.cpp:1233
+#: src/amuleDlg.cpp:1256
 #, c-format
 msgid "Skin directory '%s' does not exist"
 msgstr "皮肤目录 %s 不存在"
 
-#: src/amuleDlg.cpp:1238
+#: src/amuleDlg.cpp:1261
 #, c-format
 msgid "WARNING: Unable to open skin file '%s' for read"
 msgstr "警告：无法打开皮肤文件 %s 进行读取"
 
-#: src/amuleDlg.cpp:1337 src/amuleDlg.cpp:1473 src/muuli_wdr.cpp:1673
-#: src/muuli_wdr.cpp:3532
+#: src/amuleDlg.cpp:1360 src/amuleDlg.cpp:1498 src/muuli_wdr.cpp:1673
+#: src/muuli_wdr.cpp:3617
 msgid "Networks"
 msgstr "网络"
 
-#: src/amuleDlg.cpp:1337 src/muuli_wdr.cpp:3532
+#: src/amuleDlg.cpp:1360 src/muuli_wdr.cpp:3617
 msgid "Networks Window"
 msgstr "网络窗口"
 
-#: src/amuleDlg.cpp:1338 src/muuli_wdr.cpp:3533
+#: src/amuleDlg.cpp:1361 src/muuli_wdr.cpp:3618
 msgid "Searches"
 msgstr "搜索"
 
-#: src/amuleDlg.cpp:1338 src/muuli_wdr.cpp:3533
+#: src/amuleDlg.cpp:1361 src/muuli_wdr.cpp:3618
 msgid "Searches Window"
 msgstr "搜索窗口"
 
-#: src/amuleDlg.cpp:1339 src/DownloadListCtrl.cpp:643 src/muuli_wdr.cpp:426
-#: src/muuli_wdr.cpp:1788 src/muuli_wdr.cpp:3534 src/Statistics.cpp:757
+#: src/amuleDlg.cpp:1362 src/DownloadListCtrl.cpp:643 src/muuli_wdr.cpp:426
+#: src/muuli_wdr.cpp:1833 src/muuli_wdr.cpp:3619 src/Statistics.cpp:757
 msgid "Downloads"
 msgstr "下载"
 
-#: src/amuleDlg.cpp:1339 src/muuli_wdr.cpp:3534
+#: src/amuleDlg.cpp:1362 src/muuli_wdr.cpp:3619
 msgid "Downloads Window"
 msgstr "下载窗口"
 
-#: src/amuleDlg.cpp:1340 src/muuli_wdr.cpp:3412
+#: src/amuleDlg.cpp:1363 src/muuli_wdr.cpp:3497
 msgid "Shared files"
 msgstr "共享文件"
 
-#: src/amuleDlg.cpp:1340 src/muuli_wdr.cpp:3536
+#: src/amuleDlg.cpp:1363 src/muuli_wdr.cpp:3621
 msgid "Shared Files Window"
 msgstr "共享文件窗口"
 
-#: src/amuleDlg.cpp:1341 src/muuli_wdr.cpp:2971 src/muuli_wdr.cpp:3485
-#: src/muuli_wdr.cpp:3537
+#: src/amuleDlg.cpp:1364 src/muuli_wdr.cpp:3056 src/muuli_wdr.cpp:3570
+#: src/muuli_wdr.cpp:3622
 msgid "Messages"
 msgstr "消息"
 
-#: src/amuleDlg.cpp:1341 src/muuli_wdr.cpp:3537
+#: src/amuleDlg.cpp:1364 src/muuli_wdr.cpp:3622
 msgid "Messages Window"
 msgstr "消息窗口"
 
-#: src/amuleDlg.cpp:1342 src/muuli_wdr.cpp:3538 src/PrefsUnifiedDlg.cpp:183
+#: src/amuleDlg.cpp:1365 src/muuli_wdr.cpp:3623 src/PrefsUnifiedDlg.cpp:193
 #: src/Statistics.cpp:727 src/Statistics.cpp:1024
 msgid "Statistics"
 msgstr "统计"
 
-#: src/amuleDlg.cpp:1342 src/muuli_wdr.cpp:3538
+#: src/amuleDlg.cpp:1365 src/muuli_wdr.cpp:3623
 msgid "Statistics Graph Window"
 msgstr "统计图窗口"
 
-#: src/amuleDlg.cpp:1344 src/muuli_wdr.cpp:3540 src/PrefsUnifiedDlg.cpp:198
+#: src/amuleDlg.cpp:1367 src/muuli_wdr.cpp:3625 src/PrefsUnifiedDlg.cpp:211
 #: src/utils/wxCas/src/wxcasprefs.cpp:41
 msgid "Preferences"
 msgstr "设置"
 
-#: src/amuleDlg.cpp:1344 src/muuli_wdr.cpp:3540
+#: src/amuleDlg.cpp:1367 src/muuli_wdr.cpp:3625
 msgid "Preferences Settings Window"
 msgstr "设置窗口"
 
-#: src/amuleDlg.cpp:1346 src/muuli_wdr.cpp:3541
+#: src/amuleDlg.cpp:1369 src/muuli_wdr.cpp:3626
 msgid "Import"
 msgstr "导入"
 
-#: src/amuleDlg.cpp:1346 src/muuli_wdr.cpp:3541
+#: src/amuleDlg.cpp:1369 src/muuli_wdr.cpp:3626
 msgid "The partfile importer tool"
 msgstr "part 文件导入工具"
 
-#: src/amuleDlg.cpp:1348 src/muuli_wdr.cpp:3542
+#: src/amuleDlg.cpp:1371 src/muuli_wdr.cpp:3627
 #: src/utils/aLinkCreator/src/alcframe.cpp:271
 msgid "About"
 msgstr "关于"
 
-#: src/amuleDlg.cpp:1348 src/muuli_wdr.cpp:3542
+#: src/amuleDlg.cpp:1371 src/muuli_wdr.cpp:3627
 msgid "About/Help"
 msgstr "关于/帮助"
 
-#: src/amuleDlg.cpp:1477
+#: src/amuleDlg.cpp:1502
 msgid "eD2k network"
 msgstr "eD2k 网络"
 
-#: src/amuleDlg.cpp:1481
+#: src/amuleDlg.cpp:1506
 msgid "Kad network"
 msgstr "Kad 网络"
 
-#: src/amuleDlg.cpp:1481
+#: src/amuleDlg.cpp:1506
 msgid "No network"
 msgstr "无网络"
 
 #: src/amule-gui.cpp:211
 msgid "aMule remote control"
 msgstr "aMule 远程控制"
-
-#: src/amule-gui.cpp:213 src/utils/wxCas/src/wxcasframe.cpp:111
-msgid "aMule"
-msgstr "aMule"
 
 #: src/amule-gui.cpp:295
 msgid "Fatal Error: Failed to create Core Timer"
@@ -744,14 +778,14 @@ msgstr "全部"
 msgid "Can't create directory '%s' for category '%s', keeping directory '%s'."
 msgstr "不能为分类 '%2$s' 创建目录 '%1$s'，保持目录 '%3$s'。"
 
-#: src/amule-remote-gui.cpp:1355 src/BaseClient.cpp:1774
-#: src/BaseClient.cpp:2313 src/BaseClient.cpp:2329 src/BaseClient.cpp:2624
+#: src/amule-remote-gui.cpp:1355 src/BaseClient.cpp:1811
+#: src/BaseClient.cpp:2355 src/BaseClient.cpp:2371 src/BaseClient.cpp:2666
 #: src/ClientDetailDialog.cpp:80 src/ClientDetailDialog.cpp:81
 #: src/ClientDetailDialog.cpp:114 src/ClientDetailDialog.cpp:115
 #: src/ClientDetailDialog.cpp:125 src/DataToText.cpp:51 src/DataToText.cpp:67
 #: src/DataToText.cpp:77 src/DataToText.cpp:113 src/DataToText.cpp:134
 #: src/DownloadListCtrl.cpp:1081 src/DownloadListCtrl.cpp:1094
-#: src/DownloadListCtrl.cpp:1105 src/ExternalConn.cpp:447
+#: src/DownloadListCtrl.cpp:1105 src/ExternalConn.cpp:450
 #: src/FileDetailDialog.cpp:127 src/GenericClientListCtrl.cpp:1050
 #: src/GenericClientListCtrl.cpp:1061 src/GenericClientListCtrl.cpp:1071
 #: src/HTTPDownload.cpp:83 src/KnownFile.cpp:916 src/KnownFile.cpp:922
@@ -760,44 +794,44 @@ msgstr "不能为分类 '%2$s' 创建目录 '%1$s'，保持目录 '%3$s'。"
 msgid "Unknown"
 msgstr "未知"
 
-#: src/BaseClient.cpp:1365
+#: src/BaseClient.cpp:1402
 #, c-format
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "无法获取用户 %s 的共享文件"
 
-#: src/BaseClient.cpp:1577
+#: src/BaseClient.cpp:1614
 msgid "Searching buddy for lowid connection"
 msgstr "正在搜索用户用于低 ID 连接"
 
-#: src/BaseClient.cpp:1791
+#: src/BaseClient.cpp:1828
 #, c-format
 msgid " (Fake eMule version %#x)"
 msgstr " (假冒 eMule 版本 %#x)"
 
-#: src/BaseClient.cpp:1802
+#: src/BaseClient.cpp:1839
 msgid " (Fake eMule)"
 msgstr " (假冒 eMule)"
 
-#: src/BaseClient.cpp:1804
+#: src/BaseClient.cpp:1841
 msgid "xMule (Fake eMule)"
 msgstr "xMule (假冒 eMule)"
 
-#: src/BaseClient.cpp:1843
+#: src/BaseClient.cpp:1880
 #, c-format
 msgid "1.x (based on eMule v0.%u)"
 msgstr "1.x (基于 eMule v0.%u)"
 
-#: src/BaseClient.cpp:2016
+#: src/BaseClient.cpp:2053
 #, c-format
 msgid "NickName: %s ID: %u"
 msgstr "昵称：%s ID：%u"
 
-#: src/BaseClient.cpp:2018
+#: src/BaseClient.cpp:2055
 #, c-format
 msgid "Requested: %s\n"
 msgstr "已请求： %s\n"
 
-#: src/BaseClient.cpp:2020
+#: src/BaseClient.cpp:2057
 #, c-format
 msgid "Filestats for this session: Accepted %d of %d request, %s transferred\n"
 msgid_plural ""
@@ -805,7 +839,7 @@ msgid_plural ""
 msgstr[0] "本次运行文件统计：接受了 %d 个请求（总请求数 %d），已传送 %s\n"
 msgstr[1] "本次运行文件统计：接受了 %d 个请求（总请求数 %d），已传送 %s\n"
 
-#: src/BaseClient.cpp:2023
+#: src/BaseClient.cpp:2060
 #, c-format
 msgid "Filestats for all sessions: Accepted %d of %d request, %s transferred\n"
 msgid_plural ""
@@ -813,21 +847,21 @@ msgid_plural ""
 msgstr[0] "历史运行文件统计：接受了 %d 个请求（总请求数 %d），已传送 %s\n"
 msgstr[1] "历史运行文件统计：接受了 %d 个请求（总请求数 %d），已传送 %s\n"
 
-#: src/BaseClient.cpp:2026
+#: src/BaseClient.cpp:2063
 msgid "Requested unknown file"
 msgstr "请求了未知文件"
 
-#: src/BaseClient.cpp:2702
+#: src/BaseClient.cpp:2744
 #, c-format
 msgid "Message filtered from '%s' (IP:%s)"
 msgstr "来自 %s（IP：%s）的消息被过滤掉了"
 
-#: src/BaseClient.cpp:2809
+#: src/BaseClient.cpp:2851
 #, c-format
 msgid "New message from '%s' (IP:%s)"
 msgstr "新消息来自于 %s（IP：%s）"
 
-#: src/BaseClient.cpp:2901
+#: src/BaseClient.cpp:2943
 #, fuzzy, c-format
 msgid ""
 "User %s (%u) requested sharedfiles-list for not existing directory '%s' -> "
@@ -918,15 +952,15 @@ msgstr ""
 msgid "Chat"
 msgstr "聊天"
 
-#: src/ChatWnd.cpp:101 src/MuleNotebook.cpp:186
+#: src/ChatWnd.cpp:101 src/MuleNotebook.cpp:169
 msgid "Close tab"
 msgstr "关闭分页"
 
-#: src/ChatWnd.cpp:102 src/MuleNotebook.cpp:187
+#: src/ChatWnd.cpp:102 src/MuleNotebook.cpp:170
 msgid "Close all tabs"
 msgstr "关闭所有分页"
 
-#: src/ChatWnd.cpp:103 src/MuleNotebook.cpp:188
+#: src/ChatWnd.cpp:103 src/MuleNotebook.cpp:171
 msgid "Close other tabs"
 msgstr "关闭其它分页"
 
@@ -956,12 +990,12 @@ msgstr "文件 'crytkey.dat' 未找到，正在创建。"
 msgid "Client Details"
 msgstr "客户端详细信息"
 
-#: src/ClientDetailDialog.cpp:100 src/ServerWnd.cpp:170 src/ServerWnd.cpp:180
+#: src/ClientDetailDialog.cpp:100 src/ServerWnd.cpp:176 src/ServerWnd.cpp:186
 #: src/utils/wxCas/src/onlinesig.cpp:260
 msgid "LowID"
 msgstr "低 ID"
 
-#: src/ClientDetailDialog.cpp:100 src/ServerWnd.cpp:183
+#: src/ClientDetailDialog.cpp:100 src/ServerWnd.cpp:189
 #: src/utils/wxCas/src/onlinesig.cpp:258
 msgid "HighID"
 msgstr "高 ID"
@@ -982,12 +1016,12 @@ msgstr "不支持"
 msgid "Disabled"
 msgstr "已禁用"
 
-#: src/ClientDetailDialog.cpp:131 src/ServerWnd.cpp:164 src/ServerWnd.cpp:213
-#: src/TextClient.cpp:720
+#: src/ClientDetailDialog.cpp:131 src/ServerWnd.cpp:170 src/ServerWnd.cpp:219
+#: src/TextClient.cpp:727
 msgid "Connected"
 msgstr "已连接"
 
-#: src/ClientDetailDialog.cpp:133 src/ServerWnd.cpp:213
+#: src/ClientDetailDialog.cpp:133 src/ServerWnd.cpp:219
 msgid "Disconnected"
 msgstr "断开连接"
 
@@ -1132,19 +1166,19 @@ msgstr "自动 [高]"
 msgid "Very low"
 msgstr "极低"
 
-#: src/DataToText.cpp:41 src/DownloadListCtrl.cpp:646 src/muuli_wdr.cpp:2393
+#: src/DataToText.cpp:41 src/DownloadListCtrl.cpp:646 src/muuli_wdr.cpp:2438
 #: src/ServerListCtrl.cpp:236 src/ServerListCtrl.cpp:399
 #: src/SharedFilesCtrl.cpp:138
 msgid "Low"
 msgstr "低"
 
-#: src/DataToText.cpp:42 src/DownloadListCtrl.cpp:647 src/muuli_wdr.cpp:2394
+#: src/DataToText.cpp:42 src/DownloadListCtrl.cpp:647 src/muuli_wdr.cpp:2439
 #: src/ServerListCtrl.cpp:237 src/ServerListCtrl.cpp:400
 #: src/SharedFilesCtrl.cpp:139
 msgid "Normal"
 msgstr "普通"
 
-#: src/DataToText.cpp:43 src/DownloadListCtrl.cpp:648 src/muuli_wdr.cpp:2395
+#: src/DataToText.cpp:43 src/DownloadListCtrl.cpp:648 src/muuli_wdr.cpp:2440
 #: src/ServerListCtrl.cpp:238 src/ServerListCtrl.cpp:401
 #: src/SharedFilesCtrl.cpp:140
 msgid "High"
@@ -1236,8 +1270,8 @@ msgstr "本地服务器"
 msgid "Remote Server"
 msgstr "远程服务器"
 
-#: src/DataToText.cpp:127 src/muuli_wdr.cpp:198 src/muuli_wdr.cpp:3287
-#: src/SearchDlg.cpp:109 src/TextClient.cpp:717
+#: src/DataToText.cpp:127 src/muuli_wdr.cpp:198 src/muuli_wdr.cpp:3372
+#: src/SearchDlg.cpp:109 src/TextClient.cpp:724
 msgid "Kad"
 msgstr "Kad"
 
@@ -1307,7 +1341,7 @@ msgstr "块"
 msgid "Size"
 msgstr "大小"
 
-#: src/DownloadListCtrl.cpp:161 src/muuli_wdr.cpp:3362
+#: src/DownloadListCtrl.cpp:161 src/muuli_wdr.cpp:3447
 msgid "Transferred"
 msgstr "已传输"
 
@@ -1330,8 +1364,7 @@ msgstr "源"
 msgid "Priority"
 msgstr "优先级"
 
-#: src/DownloadListCtrl.cpp:167 src/PartFile.cpp:3766
-#: src/SearchListCtrl.cpp:92
+#: src/DownloadListCtrl.cpp:167 src/PartFile.cpp:3766 src/SearchListCtrl.cpp:92
 msgid "Status"
 msgstr "状态"
 
@@ -1362,7 +1395,7 @@ msgid ""
 "\n"
 msgstr "反馈来自：%s(%s)\n"
 
-#: src/DownloadListCtrl.cpp:649 src/muuli_wdr.cpp:2396
+#: src/DownloadListCtrl.cpp:649 src/muuli_wdr.cpp:2441
 #: src/SharedFilesCtrl.cpp:143
 msgid "Auto"
 msgstr "自动"
@@ -1511,11 +1544,11 @@ msgid_plural "Found %u part files"
 msgstr[0] "发现 %u 个 part 文件"
 msgstr[1] "发现 %u 个 part 文件"
 
-#: src/DownloadQueue.cpp:244 src/DownloadQueue.cpp:1470
+#: src/DownloadQueue.cpp:244 src/DownloadQueue.cpp:1479
 msgid "Filesystem for Temp directory cannot handle large files."
 msgstr "存放零时文件分区的文件系统不支持大文件。"
 
-#: src/DownloadQueue.cpp:247 src/DownloadQueue.cpp:1473
+#: src/DownloadQueue.cpp:247 src/DownloadQueue.cpp:1482
 msgid "Filesystem for Incoming directory cannot handle large files."
 msgstr "存放下载文件分区的文件系统不支持大文件。"
 
@@ -1539,223 +1572,223 @@ msgstr "您已下载了文件 '%s'"
 msgid "You are already trying to download the file %s"
 msgstr "您已经尝试下载文件 %s"
 
-#: src/DownloadQueue.cpp:1404
+#: src/DownloadQueue.cpp:1413
 #, c-format
 msgid "Cannot convert magnet link to eD2k: %s"
 msgstr "无法转换 magnet 链接为 eD2k：%s"
 
-#: src/DownloadQueue.cpp:1412
+#: src/DownloadQueue.cpp:1421
 #, c-format
 msgid "Unknown protocol of link: %s"
 msgstr "未知链接协议：%s"
 
-#: src/DownloadQueue.cpp:1433
+#: src/DownloadQueue.cpp:1442
 #, c-format
 msgid "Invalid eD2k link! ERROR: %s"
 msgstr "非法 eD2k 链接！错误：%s"
 
-#: src/ExternalConn.cpp:261
+#: src/ExternalConn.cpp:264
 msgid "Client sent packet after authentication failed."
 msgstr "客户端在验证失败后发送包。"
 
-#: src/ExternalConn.cpp:279
+#: src/ExternalConn.cpp:282
 msgid "External connection closed."
 msgstr "已关闭远程连接。"
 
-#: src/ExternalConn.cpp:320
+#: src/ExternalConn.cpp:323
 msgid "External connections disabled due to empty password!"
 msgstr "密码未设置，远程连接已被禁止"
 
-#: src/ExternalConn.cpp:345
+#: src/ExternalConn.cpp:348
 msgid "External connections disabled in config file"
 msgstr "配置文件中已禁止远程连接"
 
-#: src/ExternalConn.cpp:414
+#: src/ExternalConn.cpp:417
 msgid "New external connection accepted"
 msgstr "新的远程连接已被接受"
 
-#: src/ExternalConn.cpp:417
+#: src/ExternalConn.cpp:420
 msgid "ERROR: couldn't accept a new external connection"
 msgstr "错误：不能接受新的远程连接"
 
-#: src/ExternalConn.cpp:435
+#: src/ExternalConn.cpp:438
 msgid "External connection refused due to empty password in preferences!"
 msgstr "由于未设置密码，远程连接已被拒绝！"
 
-#: src/ExternalConn.cpp:446
+#: src/ExternalConn.cpp:449
 #, c-format
 msgid "Connecting client: %s %s"
 msgstr "正在连接用户：%s %s"
 
-#: src/ExternalConn.cpp:448
+#: src/ExternalConn.cpp:451
 msgid "Unknown version"
 msgstr "未知版本"
 
-#: src/ExternalConn.cpp:458
+#: src/ExternalConn.cpp:461
 msgid ""
 "Incorrect EC version ID, there might be binary incompatibility. Use core and "
 "remote from same snapshot."
 msgstr "错误的远程连接版本号，可能会不兼容，请使用相同版本的核心和远程程序。"
 
-#: src/ExternalConn.cpp:463
+#: src/ExternalConn.cpp:466
 #, fuzzy
 msgid ""
 "You cannot connect to a release version from an arbitrary development "
 "snapshot! *sigh* possible crash prevented"
 msgstr "你不能连接至任意 CVS 版本的发布！目的是为了不让程序崩溃。"
 
-#: src/ExternalConn.cpp:487
+#: src/ExternalConn.cpp:490
 msgid "Invalid protocol version."
 msgstr "非法协议版本。"
 
-#: src/ExternalConn.cpp:492
+#: src/ExternalConn.cpp:495
 msgid "Missing protocol version tag."
 msgstr "缺失协议版本标签。"
 
-#: src/ExternalConn.cpp:499
+#: src/ExternalConn.cpp:502
 msgid "Authentication failed: invalid hash specified as EC password."
 msgstr "验证失败：非法的校验作为EC密码"
 
-#: src/ExternalConn.cpp:516
+#: src/ExternalConn.cpp:519
 msgid "Authentication failed: wrong password."
 msgstr "验证失败：密码错误。"
 
-#: src/ExternalConn.cpp:518
+#: src/ExternalConn.cpp:521
 msgid "Authentication failed: missing password."
 msgstr "验证失败：没有密码"
 
-#: src/ExternalConn.cpp:528
+#: src/ExternalConn.cpp:531
 msgid "Invalid request, please authenticate first."
 msgstr "无效请求，请先验证。"
 
-#: src/ExternalConn.cpp:533
+#: src/ExternalConn.cpp:536
 msgid "Access granted."
 msgstr "登录成功"
 
-#: src/ExternalConn.cpp:541
+#: src/ExternalConn.cpp:544
 #, c-format
 msgid "Sent error message \"%s\" to client."
 msgstr "发送错误消息喔 \"%s\"到客户端。"
 
-#: src/ExternalConn.cpp:544
+#: src/ExternalConn.cpp:547
 #, c-format
 msgid "Unauthorized access attempt from %s. Connection closed."
 msgstr "来自%s的非法登录尝试，已关闭连接。"
 
-#: src/ExternalConn.cpp:810
+#: src/ExternalConn.cpp:813
 #, c-format
 msgid "Remote PartFile command failed: FileHash not found: %s"
 msgstr "远程 Part 文件命令失败：文件校验码不存在：%s"
 
-#: src/ExternalConn.cpp:812
+#: src/ExternalConn.cpp:815
 #, c-format
 msgid "FileHash not found: %s"
 msgstr "文件校验码不存在：%s"
 
-#: src/ExternalConn.cpp:859 src/ExternalConn.cpp:941 src/ExternalConn.cpp:1012
+#: src/ExternalConn.cpp:862 src/ExternalConn.cpp:944 src/ExternalConn.cpp:1015
 msgid "OOPS! OpCode processing error!"
 msgstr "OpCode 处理错误！"
 
-#: src/ExternalConn.cpp:887
+#: src/ExternalConn.cpp:890
 msgid "Server not added"
 msgstr "服务器没有被添加"
 
-#: src/ExternalConn.cpp:905
+#: src/ExternalConn.cpp:908
 #, c-format
 msgid "server not found: %s"
 msgstr "找不到服务器：%s"
 
-#: src/ExternalConn.cpp:921
+#: src/ExternalConn.cpp:924
 msgid "need to define server to be removed"
 msgstr "必须定义需删除的服务器"
 
-#: src/ExternalConn.cpp:935
+#: src/ExternalConn.cpp:938
 msgid "eD2k is disabled in preferences."
 msgstr "eD2k 被设为禁用"
 
-#: src/ExternalConn.cpp:1113
+#: src/ExternalConn.cpp:1116
 msgid "Search in progress. Refetch results in a moment!"
 msgstr "正在搜索，请稍等然后重新获取结果！"
 
-#: src/ExternalConn.cpp:1119
+#: src/ExternalConn.cpp:1122
 msgid "WebSearch from remote interface makes no sense."
 msgstr "远程界面使用网络搜索没有意义。"
 
-#: src/ExternalConn.cpp:1317
+#: src/ExternalConn.cpp:1320
 msgid "No points for graph."
 msgstr "此图没有节点"
 
-#: src/ExternalConn.cpp:1326
+#: src/ExternalConn.cpp:1329
 msgid "Your client is not configured for this detail level."
 msgstr "您的客户端没有为详细级别进行配置。"
 
-#: src/ExternalConn.cpp:1353
+#: src/ExternalConn.cpp:1356
 msgid "External Connection: shutdown requested"
 msgstr "远程连接：已请求关闭"
 
-#: src/ExternalConn.cpp:1365
+#: src/ExternalConn.cpp:1368
 msgid "Already shutting down."
 msgstr "已经在关闭。"
 
-#: src/ExternalConn.cpp:1377
+#: src/ExternalConn.cpp:1380
 #, c-format
 msgid "ExternalConn: adding link '%s'."
 msgstr "远程连接：正在添加链接 '%s'。"
 
-#: src/ExternalConn.cpp:1383
+#: src/ExternalConn.cpp:1386
 msgid "Invalid link or already on list."
 msgstr "非法链接或已经存在列表中。"
 
-#: src/ExternalConn.cpp:1450
+#: src/ExternalConn.cpp:1462
 msgid "File not found."
 msgstr "文件未找到。"
 
-#: src/ExternalConn.cpp:1455
+#: src/ExternalConn.cpp:1467
 msgid "Invalid file name."
 msgstr "非法文件名。"
 
-#: src/ExternalConn.cpp:1463
+#: src/ExternalConn.cpp:1475
 msgid "Unable to rename file."
 msgstr "无法重命名文件。"
 
-#: src/ExternalConn.cpp:1761 src/ExternalConn.cpp:1788
+#: src/ExternalConn.cpp:1773 src/ExternalConn.cpp:1800
 msgid "Kad is disabled in preferences."
 msgstr "Kad 被设为禁用"
 
-#: src/ExternalConn.cpp:1800
+#: src/ExternalConn.cpp:1812
 msgid "Already connected to eD2k."
 msgstr "已经连接至 eD2k。"
 
-#: src/ExternalConn.cpp:1803
+#: src/ExternalConn.cpp:1815
 msgid "Connecting to eD2k..."
 msgstr "正在连接至 eD2k..."
 
-#: src/ExternalConn.cpp:1811
+#: src/ExternalConn.cpp:1823
 msgid "Already connected to Kad."
 msgstr "已连接至 Kad。"
 
-#: src/ExternalConn.cpp:1814
+#: src/ExternalConn.cpp:1826
 msgid "Connecting to Kad..."
 msgstr "正在连接至 Kad..."
 
-#: src/ExternalConn.cpp:1821
+#: src/ExternalConn.cpp:1833
 msgid "All networks are disabled."
 msgstr "全部网络都被禁用了。"
 
-#: src/ExternalConn.cpp:1829
+#: src/ExternalConn.cpp:1841
 msgid "Disconnected from eD2k."
 msgstr "已从 eD2k 断开连接。"
 
-#: src/ExternalConn.cpp:1833
+#: src/ExternalConn.cpp:1845
 msgid "Disconnected from Kad."
 msgstr "已从 Kad 断开连接。"
 
-#: src/ExternalConn.cpp:1842
+#: src/ExternalConn.cpp:1854
 #, c-format
 msgid "External Connection: invalid opcode received: %#x"
 msgstr "远程连接：非法 opcode：%#x"
 
-#: src/ExternalConn.cpp:1845
+#: src/ExternalConn.cpp:1857
 msgid "Invalid opcode (wrong protocol version?)"
 msgstr "非法的 opcode（错误的协议版本？)"
 
@@ -1986,7 +2019,7 @@ msgstr "写好友列表文件emfriends.met失败！"
 msgid "CRITICAL - no client on StartChatSession"
 msgstr "严重错误 - 开始聊天进程没有客户端"
 
-#: src/FriendListCtrl.cpp:122 src/muuli_wdr.cpp:2833 src/muuli_wdr.cpp:3458
+#: src/FriendListCtrl.cpp:122 src/muuli_wdr.cpp:2918 src/muuli_wdr.cpp:3543
 msgid "Friends"
 msgstr "好友"
 
@@ -2257,6 +2290,11 @@ msgstr "继续？"
 msgid "Kademlia: search keyword too short"
 msgstr "Kad：搜索关键词太短"
 
+#: src/kademlia/kademlia/SearchManager.cpp:130
+#, fuzzy, c-format
+msgid "Keyword for search: %s"
+msgstr "搜索关键词：%s"
+
 #: src/kademlia/kademlia/SearchManager.cpp:138
 msgid "Kademlia: Search keyword is already on search list: "
 msgstr "Kad：搜索关键词已经在搜索列表中："
@@ -2311,7 +2349,7 @@ msgstr "共享率"
 msgid "Uploaded"
 msgstr "已上传"
 
-#: src/KnownFile.cpp:1548 src/muuli_wdr.cpp:3340
+#: src/KnownFile.cpp:1548 src/muuli_wdr.cpp:3425
 msgid "Requested"
 msgstr "已请求"
 
@@ -2421,16 +2459,16 @@ msgstr "监听Socket: Ok."
 msgid "ERROR: Could not listen to TCP port."
 msgstr "错误：无法监听 TCP 端口。"
 
-#: src/Logger.cpp:321 src/Logger.cpp:345
+#: src/Logger.cpp:323 src/Logger.cpp:347
 msgid "ERROR: "
 msgstr "错误："
 
-#: src/Logger.cpp:321 src/Logger.cpp:345
+#: src/Logger.cpp:323 src/Logger.cpp:347
 msgid "WARNING: "
 msgstr "警告："
 
-#: src/MuleNotebook.cpp:185 src/muuli_wdr.cpp:901 src/muuli_wdr.cpp:1430
-#: src/muuli_wdr.cpp:3235 src/muuli_wdr.cpp:3505
+#: src/MuleNotebook.cpp:168 src/muuli_wdr.cpp:901 src/muuli_wdr.cpp:1430
+#: src/muuli_wdr.cpp:3320 src/muuli_wdr.cpp:3590
 msgid "Close"
 msgstr "关闭"
 
@@ -2458,7 +2496,7 @@ msgstr "选择全部"
 
 #: src/MuleTrayIcon.cpp:82 src/MuleTrayIcon.cpp:464 src/MuleTrayIcon.cpp:485
 #: src/muuli_wdr.cpp:1576 src/muuli_wdr.cpp:1585 src/muuli_wdr.cpp:1594
-#: src/muuli_wdr.cpp:1941 src/muuli_wdr.cpp:1950 src/OtherFunctions.cpp:97
+#: src/muuli_wdr.cpp:1986 src/muuli_wdr.cpp:1995 src/OtherFunctions.cpp:97
 #: src/StatisticsDlg.cpp:101 src/StatisticsDlg.cpp:103
 msgid "kB/s"
 msgstr "kB/s"
@@ -2521,8 +2559,8 @@ msgstr "未选择昵称"
 msgid "ClientID: "
 msgstr "客户端 ID："
 
-#: src/MuleTrayIcon.cpp:342 src/MuleTrayIcon.cpp:356 src/TextClient.cpp:715
-#: src/TextClient.cpp:728
+#: src/MuleTrayIcon.cpp:342 src/MuleTrayIcon.cpp:356 src/TextClient.cpp:722
+#: src/TextClient.cpp:735
 msgid "Not connected"
 msgstr "未连接"
 
@@ -2534,7 +2572,7 @@ msgstr "服务器名称："
 msgid "ServerIP: "
 msgstr "服务器 IP："
 
-#: src/MuleTrayIcon.cpp:357 src/ServerWnd.cpp:188
+#: src/MuleTrayIcon.cpp:357 src/ServerWnd.cpp:194
 #: src/utils/wxCas/src/onlinesig.cpp:263
 msgid "Not Connected"
 msgstr "未连接"
@@ -2767,7 +2805,7 @@ msgstr "字节"
 msgid "KB"
 msgstr "KB"
 
-#: src/muuli_wdr.cpp:272 src/muuli_wdr.cpp:295 src/muuli_wdr.cpp:1826
+#: src/muuli_wdr.cpp:272 src/muuli_wdr.cpp:295 src/muuli_wdr.cpp:1871
 #: src/OtherFunctions.cpp:68
 msgid "MB"
 msgstr "MB"
@@ -2836,7 +2874,7 @@ msgstr "清除已完成的下载"
 msgid "File sources:"
 msgstr "文件资源："
 
-#: src/muuli_wdr.cpp:520 src/muuli_wdr.cpp:1216 src/PrefsUnifiedDlg.cpp:176
+#: src/muuli_wdr.cpp:520 src/muuli_wdr.cpp:1216 src/PrefsUnifiedDlg.cpp:186
 msgid "General"
 msgstr "常规"
 
@@ -2857,7 +2895,7 @@ msgstr "全名："
 #: src/muuli_wdr.cpp:1347 src/muuli_wdr.cpp:1354 src/muuli_wdr.cpp:1363
 #: src/muuli_wdr.cpp:1370 src/muuli_wdr.cpp:1379 src/muuli_wdr.cpp:1397
 #: src/muuli_wdr.cpp:1406 src/muuli_wdr.cpp:1413 src/muuli_wdr.cpp:1422
-#: src/muuli_wdr.cpp:3343 src/muuli_wdr.cpp:3354 src/muuli_wdr.cpp:3365
+#: src/muuli_wdr.cpp:3428 src/muuli_wdr.cpp:3439 src/muuli_wdr.cpp:3450
 msgid "N/A"
 msgstr "N/A"
 
@@ -3033,7 +3071,7 @@ msgstr "用户名："
 msgid "Userhash :"
 msgstr "用户编码："
 
-#: src/muuli_wdr.cpp:999 src/muuli_wdr.cpp:2565
+#: src/muuli_wdr.cpp:999 src/muuli_wdr.cpp:2610
 #: src/utils/aLinkCreator/src/alcframe.cpp:145
 msgid "Add"
 msgstr "添加"
@@ -3042,15 +3080,15 @@ msgstr "添加"
 msgid "Download-Speed"
 msgstr "下载速度"
 
-#: src/muuli_wdr.cpp:1064 src/muuli_wdr.cpp:1113 src/muuli_wdr.cpp:2677
+#: src/muuli_wdr.cpp:1064 src/muuli_wdr.cpp:1113 src/muuli_wdr.cpp:2762
 msgid "Current"
 msgstr "当前"
 
-#: src/muuli_wdr.cpp:1075 src/muuli_wdr.cpp:1124 src/muuli_wdr.cpp:2688
+#: src/muuli_wdr.cpp:1075 src/muuli_wdr.cpp:1124 src/muuli_wdr.cpp:2773
 msgid "Running average"
 msgstr "动态平均值"
 
-#: src/muuli_wdr.cpp:1086 src/muuli_wdr.cpp:1135 src/muuli_wdr.cpp:2699
+#: src/muuli_wdr.cpp:1086 src/muuli_wdr.cpp:1135 src/muuli_wdr.cpp:2784
 msgid "Session average"
 msgstr "本次运行平均值"
 
@@ -3062,7 +3100,7 @@ msgstr "上传速度"
 msgid "Connections"
 msgstr "连接"
 
-#: src/muuli_wdr.cpp:1162 src/muuli_wdr.cpp:1972
+#: src/muuli_wdr.cpp:1162 src/muuli_wdr.cpp:2017
 msgid "Active downloads"
 msgstr "活跃下载"
 
@@ -3070,7 +3108,7 @@ msgstr "活跃下载"
 msgid "Active connections (1:1)"
 msgstr "活跃连接(1：1)"
 
-#: src/muuli_wdr.cpp:1184 src/muuli_wdr.cpp:1973
+#: src/muuli_wdr.cpp:1184 src/muuli_wdr.cpp:2018
 msgid "Active uploads"
 msgstr "活跃上传"
 
@@ -3094,7 +3132,7 @@ msgstr "客户端软件："
 msgid "Client version:"
 msgstr "客户端软件版本："
 
-#: src/muuli_wdr.cpp:1265 src/ServerWnd.cpp:249
+#: src/muuli_wdr.cpp:1265 src/ServerWnd.cpp:255
 msgid "IP address:"
 msgstr "IP 地址："
 
@@ -3260,11 +3298,10 @@ msgid ""
 "default browser."
 msgstr "在此处输入您的浏览器名称，如要使用系统默认浏览器则请留空。"
 
-#: src/muuli_wdr.cpp:1520 src/muuli_wdr.cpp:1540 src/muuli_wdr.cpp:1865
-#: src/muuli_wdr.cpp:1876 src/muuli_wdr.cpp:2951
+#: src/muuli_wdr.cpp:1520 src/muuli_wdr.cpp:1540 src/muuli_wdr.cpp:1910
+#: src/muuli_wdr.cpp:1921 src/muuli_wdr.cpp:3036
 #: src/utils/aLinkCreator/src/alcframe.cpp:142
-#: src/utils/wxCas/src/wxcasprefs.cpp:56
-#: src/utils/wxCas/src/wxcasprefs.cpp:133
+#: src/utils/wxCas/src/wxcasprefs.cpp:56 src/utils/wxCas/src/wxcasprefs.cpp:133
 msgid "Browse"
 msgstr "浏览"
 
@@ -3350,7 +3387,7 @@ msgstr "最大同时连接："
 msgid "Kademlia"
 msgstr "Kademlia"
 
-#: src/muuli_wdr.cpp:1680 src/muuli_wdr.cpp:3282
+#: src/muuli_wdr.cpp:1680 src/muuli_wdr.cpp:3367
 msgid "ED2K"
 msgstr "ED2K"
 
@@ -3406,294 +3443,330 @@ msgstr "只自动连接到静态服务器列表里的服务器"
 msgid "Set manually added servers to High Priority"
 msgstr "设置用户输入的服务器为高优先级"
 
-#: src/muuli_wdr.cpp:1776
+#: src/muuli_wdr.cpp:1777
+msgid "Reload antiLeech"
+msgstr "重新装载 antiLeech"
+
+#: src/muuli_wdr.cpp:1779
+msgid "Dynamic Leecher Protection Options"
+msgstr "动态反吸血保护选项"
+
+#: src/muuli_wdr.cpp:1782
+msgid "Check bad modstring"
+msgstr "根据 Mod 名字检测吸血驴"
+
+#: src/muuli_wdr.cpp:1785
+msgid "Check bad username"
+msgstr "根据用户名字检测吸血驴"
+
+#: src/muuli_wdr.cpp:1788
+msgid "Check bad userhash"
+msgstr "检测错误的用户哈希值"
+
+#: src/muuli_wdr.cpp:1791
+msgid "Check bad hello tag"
+msgstr "根据握手标签(HelloTag)检测吸血驴"
+
+#: src/muuli_wdr.cpp:1794
+msgid "Check bad info tag"
+msgstr "根据 InfoTag 检测吸血驴"
+
+#: src/muuli_wdr.cpp:1797
+msgid "Check ghost mod"
+msgstr "检测幽灵客户端(Ghost Mod)"
+
+#: src/muuli_wdr.cpp:1800
+msgid "Ban eMule VeryCD mod(Please consider carefully whether to use)"
+msgstr "屏蔽 VeryCD eMule（请慎重考虑是否使用）"
+
+#: src/muuli_wdr.cpp:1821
 msgid "Intelligent Corruption Handling (I.C.H.)"
 msgstr "智能损坏数据处理(I.C.H.)"
 
-#: src/muuli_wdr.cpp:1779
+#: src/muuli_wdr.cpp:1824
 msgid "Enable"
 msgstr "启用"
 
-#: src/muuli_wdr.cpp:1783
+#: src/muuli_wdr.cpp:1828
 msgid "Advanced I.C.H. trusts every hash (not recommended)"
 msgstr "高级 I.C.H.，信任全部校验值（不推荐）"
 
-#: src/muuli_wdr.cpp:1791
+#: src/muuli_wdr.cpp:1836
 msgid "Add files to download in pause mode"
 msgstr "添加新下载文件时设为暂停状态"
 
-#: src/muuli_wdr.cpp:1794
+#: src/muuli_wdr.cpp:1839
 msgid "Add files to download with auto priority"
 msgstr "添加新下载文件时设定优先级为自动"
 
-#: src/muuli_wdr.cpp:1797
+#: src/muuli_wdr.cpp:1842
 msgid "Try to download first and last chunks first"
 msgstr "尝试先下载文件的第一段和最后一段"
 
-#: src/muuli_wdr.cpp:1801
+#: src/muuli_wdr.cpp:1846
 msgid "Start next paused file when a file completes"
 msgstr "当一个文件完成时开始下一个暂停的文件"
 
-#: src/muuli_wdr.cpp:1805
+#: src/muuli_wdr.cpp:1850
 msgid "From the same category"
 msgstr "来自同一分类"
 
-#: src/muuli_wdr.cpp:1808
+#: src/muuli_wdr.cpp:1853
 msgid "In alphabetic order"
 msgstr "依照字母顺序"
 
-#: src/muuli_wdr.cpp:1811
+#: src/muuli_wdr.cpp:1856
 msgid "Preallocate disk space for new files"
 msgstr "为新文件预分配磁盘空间"
 
-#: src/muuli_wdr.cpp:1812
+#: src/muuli_wdr.cpp:1857
 msgid ""
 "For new files preallocates disk space for the whole file, thus reduces "
 "fragmentation"
 msgstr "为新文件分配全部所需的磁盘空间，这样可以减少碎片"
 
-#: src/muuli_wdr.cpp:1818
+#: src/muuli_wdr.cpp:1863
 msgid "Stop downloads when free disk space reaches "
 msgstr "停止下载当可用磁盘空间只有"
 
-#: src/muuli_wdr.cpp:1819
+#: src/muuli_wdr.cpp:1864
 msgid "Select this if you want aMule to check your disk space"
 msgstr "要求检查磁盘空间"
 
-#: src/muuli_wdr.cpp:1823
+#: src/muuli_wdr.cpp:1868
 msgid "Enter here the min disk space desired."
 msgstr "请输入最低硬盘空间。"
 
-#: src/muuli_wdr.cpp:1831
+#: src/muuli_wdr.cpp:1876
 msgid "Save 10 sources on rare files (< 20 sources)"
 msgstr "保存稀有文件（少于20个源）的10个源"
 
-#: src/muuli_wdr.cpp:1837 src/Statistics.cpp:736
+#: src/muuli_wdr.cpp:1882 src/Statistics.cpp:736
 msgid "Uploads"
 msgstr "上传"
 
-#: src/muuli_wdr.cpp:1840
+#: src/muuli_wdr.cpp:1885
 msgid "Add new shared files with auto priority"
 msgstr "添加新共享文件时设优先级为自动"
 
-#: src/muuli_wdr.cpp:1859
+#: src/muuli_wdr.cpp:1904
 msgid "Destination folder for downloads"
 msgstr "存放下载文件的文件夹"
 
-#: src/muuli_wdr.cpp:1870
+#: src/muuli_wdr.cpp:1915
 msgid "Folder for temporary download files"
 msgstr "存放临时下载文件的文件夹"
 
-#: src/muuli_wdr.cpp:1881
+#: src/muuli_wdr.cpp:1926
 msgid "Shared folders"
 msgstr "共享的文件夹"
 
-#: src/muuli_wdr.cpp:1884
+#: src/muuli_wdr.cpp:1929
 msgid "(Right click on folder icon for recursive share)"
 msgstr "(鼠标右键单击文件夹图标来递归共享)"
 
-#: src/muuli_wdr.cpp:1891
+#: src/muuli_wdr.cpp:1936
 msgid "Share hidden files"
 msgstr "共享隐藏文件"
 
-#: src/muuli_wdr.cpp:1911
+#: src/muuli_wdr.cpp:1956
 msgid "Graphs"
 msgstr "图表"
 
-#: src/muuli_wdr.cpp:1914 src/muuli_wdr.cpp:1992
+#: src/muuli_wdr.cpp:1959 src/muuli_wdr.cpp:2037
 msgid "Update delay : 5 secs"
 msgstr "刷新延迟：5 秒"
 
-#: src/muuli_wdr.cpp:1920
+#: src/muuli_wdr.cpp:1965
 msgid "Time for average graph: 100 mins"
 msgstr "平均值图表显示时间：100 分钟"
 
-#: src/muuli_wdr.cpp:1926
+#: src/muuli_wdr.cpp:1971
 msgid "Connections Graph Scale: 100 "
 msgstr "连接图表尺寸：100"
 
-#: src/muuli_wdr.cpp:1935
+#: src/muuli_wdr.cpp:1980
 msgid "Download graph scale:"
 msgstr "下载图表尺寸："
 
-#: src/muuli_wdr.cpp:1944
+#: src/muuli_wdr.cpp:1989
 msgid "Upload graph scale:"
 msgstr "上传图表尺寸："
 
-#: src/muuli_wdr.cpp:1958
+#: src/muuli_wdr.cpp:2003
 msgid "Colours: "
 msgstr "颜色："
 
-#: src/muuli_wdr.cpp:1963
+#: src/muuli_wdr.cpp:2008
 msgid "Background"
 msgstr "背景"
 
-#: src/muuli_wdr.cpp:1964
+#: src/muuli_wdr.cpp:2009
 msgid "Grid"
 msgstr "网格"
 
-#: src/muuli_wdr.cpp:1965
+#: src/muuli_wdr.cpp:2010
 msgid "Download current"
 msgstr "目前下载"
 
-#: src/muuli_wdr.cpp:1966
+#: src/muuli_wdr.cpp:2011
 msgid "Download running average"
 msgstr "动态平均下载"
 
-#: src/muuli_wdr.cpp:1967
+#: src/muuli_wdr.cpp:2012
 msgid "Download session average"
 msgstr "本次运行平均下载"
 
-#: src/muuli_wdr.cpp:1968
+#: src/muuli_wdr.cpp:2013
 msgid "Upload current"
 msgstr "目前上传"
 
-#: src/muuli_wdr.cpp:1969
+#: src/muuli_wdr.cpp:2014
 msgid "Upload running average"
 msgstr "动态平均上传"
 
-#: src/muuli_wdr.cpp:1970
+#: src/muuli_wdr.cpp:2015
 msgid "Upload session average"
 msgstr "本次运行平均上传"
 
-#: src/muuli_wdr.cpp:1971
+#: src/muuli_wdr.cpp:2016
 msgid "Active connections"
 msgstr "活跃连接"
 
-#: src/muuli_wdr.cpp:1974
+#: src/muuli_wdr.cpp:2019
 msgid "Systray Icon Speedbar"
 msgstr "系统状态栏图标速度显示"
 
-#: src/muuli_wdr.cpp:1975
+#: src/muuli_wdr.cpp:2020
 msgid "Kad-nodes current"
 msgstr "当前 Kad 节点"
 
-#: src/muuli_wdr.cpp:1976
+#: src/muuli_wdr.cpp:2021
 msgid "Kad-nodes running"
 msgstr "运行的 Kad 节点"
 
-#: src/muuli_wdr.cpp:1977
+#: src/muuli_wdr.cpp:2022
 msgid "Kad-nodes session"
 msgstr "本次运行的 Kad 节点"
 
-#: src/muuli_wdr.cpp:1982 src/muuli_wdr.cpp:2417
+#: src/muuli_wdr.cpp:2027 src/muuli_wdr.cpp:2462
 msgid "Select"
 msgstr "选择"
 
-#: src/muuli_wdr.cpp:1989
+#: src/muuli_wdr.cpp:2034
 msgid "Tree"
 msgstr "树"
 
-#: src/muuli_wdr.cpp:2000
+#: src/muuli_wdr.cpp:2045
 msgid "Number of Client Versions shown (0=unlimited)"
 msgstr "显示用户软件版本的数量(0代表不限制)"
 
-#: src/muuli_wdr.cpp:2028
+#: src/muuli_wdr.cpp:2073
 msgid "!!! WARNING !!!"
 msgstr "！！！警告！！！"
 
-#: src/muuli_wdr.cpp:2042
+#: src/muuli_wdr.cpp:2087
 msgid "Max new connections / 5 secs"
 msgstr "5 秒内最大新连接数"
 
-#: src/muuli_wdr.cpp:2048
+#: src/muuli_wdr.cpp:2093
 msgid "File Buffer Size: 240000 bytes"
 msgstr "文件缓冲：24000 字节"
 
-#: src/muuli_wdr.cpp:2054
+#: src/muuli_wdr.cpp:2099
 msgid "Upload Queue Size: 5000 clients"
 msgstr "上传队列长度：5000 用户"
 
-#: src/muuli_wdr.cpp:2060
+#: src/muuli_wdr.cpp:2105
 msgid "Server connection refresh interval: Disable"
 msgstr "服务器连接刷新周期：禁用"
 
-#: src/muuli_wdr.cpp:2066
+#: src/muuli_wdr.cpp:2111
 msgid "Disable computer's timed standby mode"
 msgstr "停用电脑自动进入待命模式功能"
 
-#: src/muuli_wdr.cpp:2087
+#: src/muuli_wdr.cpp:2132
 msgid "Skin to use: "
 msgstr "要使用的皮肤："
 
-#: src/muuli_wdr.cpp:2099
+#: src/muuli_wdr.cpp:2144
 msgid "Show \"Fast eD2k Links Handler\" in every window."
 msgstr "在全部窗口都显示“快捷 eD2k 链接处理栏”。"
 
-#: src/muuli_wdr.cpp:2103
+#: src/muuli_wdr.cpp:2148
 msgid "Show extended info on categories tabs"
 msgstr "在分类页中显示附加信息"
 
-#: src/muuli_wdr.cpp:2107
+#: src/muuli_wdr.cpp:2152
 #, fuzzy
 msgid "Show application version on title"
 msgstr "标题栏显示传送速度"
 
-#: src/muuli_wdr.cpp:2110
+#: src/muuli_wdr.cpp:2155
 msgid "Show transfer rates on title"
 msgstr "标题栏显示传送速度"
 
-#: src/muuli_wdr.cpp:2113
+#: src/muuli_wdr.cpp:2158
 msgid "Before application name"
 msgstr "程序名称之前"
 
-#: src/muuli_wdr.cpp:2116
+#: src/muuli_wdr.cpp:2161
 msgid "After application name"
 msgstr "程序名称之后"
 
-#: src/muuli_wdr.cpp:2120
+#: src/muuli_wdr.cpp:2165
 msgid "Show overhead bandwidth"
 msgstr "显示额外开销的带宽"
 
-#: src/muuli_wdr.cpp:2124
+#: src/muuli_wdr.cpp:2169
 msgid "Vertical toolbar orientation"
 msgstr "垂直显示工具栏"
 
-#: src/muuli_wdr.cpp:2127
+#: src/muuli_wdr.cpp:2172
 msgid "Show country flags for clients"
 msgstr "显示客户端的国旗"
 
-#: src/muuli_wdr.cpp:2130
+#: src/muuli_wdr.cpp:2175
 msgid "Download Queue Files"
 msgstr "下载队列文件"
 
-#: src/muuli_wdr.cpp:2133
+#: src/muuli_wdr.cpp:2178
 msgid "Show progress percentage"
 msgstr "显示进度百分比"
 
-#: src/muuli_wdr.cpp:2140
+#: src/muuli_wdr.cpp:2185
 msgid "Show progress bar"
 msgstr "显示进度条"
 
-#: src/muuli_wdr.cpp:2144
+#: src/muuli_wdr.cpp:2189
 msgid "Flat"
 msgstr "扁平"
 
-#: src/muuli_wdr.cpp:2150
+#: src/muuli_wdr.cpp:2195
 msgid "Round"
 msgstr "圆润"
 
-#: src/muuli_wdr.cpp:2155
+#: src/muuli_wdr.cpp:2200
 msgid "Auto-sort files (high CPU)"
 msgstr "自动排序文件(高 CPU 占用)"
 
-#: src/muuli_wdr.cpp:2157
+#: src/muuli_wdr.cpp:2202
 msgid "aMule will sort the columns in your download list automatically"
 msgstr "aMule 会自动将下载列表按列排序"
 
-#: src/muuli_wdr.cpp:2176
+#: src/muuli_wdr.cpp:2221
 msgid "External Connection Parameters"
 msgstr "远程连接参数"
 
-#: src/muuli_wdr.cpp:2179
+#: src/muuli_wdr.cpp:2224
 msgid "Accept external connections"
 msgstr "接受远程连接"
 
-#: src/muuli_wdr.cpp:2186
+#: src/muuli_wdr.cpp:2231
 msgid "IP of the listening interface:"
 msgstr "监听接口的 IP："
 
-#: src/muuli_wdr.cpp:2190
+#: src/muuli_wdr.cpp:2235
 msgid ""
 "Enter here a valid ip in the a.b.c.d format for the listening EC interface. "
 "An empty field or 0.0.0.0 will mean any interface."
@@ -3701,245 +3774,250 @@ msgstr ""
 "在此输入正确的 IP(格式：a.b.c.d)用于监听远程连接接口。空着不填或者 0.0.0.0 表"
 "示任何接口。"
 
-#: src/muuli_wdr.cpp:2198 src/muuli_wdr.cpp:2259
+#: src/muuli_wdr.cpp:2243 src/muuli_wdr.cpp:2304
 msgid "TCP port:"
 msgstr "TCP 端口："
 
-#: src/muuli_wdr.cpp:2206
+#: src/muuli_wdr.cpp:2251
 msgid "Enable UPnP port forwarding on the EC port"
 msgstr "为远程连接端口启用 UPnP"
 
-#: src/muuli_wdr.cpp:2211 src/muuli_wdr.cpp:3127
+#: src/muuli_wdr.cpp:2256 src/muuli_wdr.cpp:3212
 #: src/utils/wxCas/src/wxcasprefs.cpp:201
 msgid "Password"
 msgstr "密码"
 
-#: src/muuli_wdr.cpp:2221
+#: src/muuli_wdr.cpp:2266
 msgid "Web server parameters"
 msgstr "Web 服务参数"
 
-#: src/muuli_wdr.cpp:2224
+#: src/muuli_wdr.cpp:2269
 msgid "Run webserver on startup"
 msgstr "启动时运行 Web 服务"
 
-#: src/muuli_wdr.cpp:2230
+#: src/muuli_wdr.cpp:2275
 msgid "Web template"
 msgstr "Web 模板"
 
-#: src/muuli_wdr.cpp:2237
+#: src/muuli_wdr.cpp:2282
 msgid "Full rights password"
 msgstr "最高权限密码"
 
-#: src/muuli_wdr.cpp:2243
+#: src/muuli_wdr.cpp:2288
 msgid "Enable Low rights User"
 msgstr "启用低权限用户"
 
-#: src/muuli_wdr.cpp:2249
+#: src/muuli_wdr.cpp:2294
 msgid "Low rights password"
 msgstr "低权限密码"
 
-#: src/muuli_wdr.cpp:2267
+#: src/muuli_wdr.cpp:2312
 msgid "Enable UPnP port forwarding of the web server port"
 msgstr "为 Web 服务端口启用 UPn P端口转发"
 
-#: src/muuli_wdr.cpp:2272
+#: src/muuli_wdr.cpp:2317
 msgid "Web server UPnP TCP port (Optional)"
 msgstr "Web 服务器 UPnP 的 TCP 端口(可选)"
 
-#: src/muuli_wdr.cpp:2282
+#: src/muuli_wdr.cpp:2327
 msgid "Page Refresh Time (in secs)"
 msgstr "页面刷新周期(秒)"
 
-#: src/muuli_wdr.cpp:2290
+#: src/muuli_wdr.cpp:2335
 msgid "Enable Gzip compression"
 msgstr "启用 Gzip 压缩"
 
-#: src/muuli_wdr.cpp:2324 src/muuli_wdr.cpp:2427 src/ServerWnd.cpp:218
-#: src/ServerWnd.cpp:223
+#: src/muuli_wdr.cpp:2369 src/muuli_wdr.cpp:2472 src/ServerWnd.cpp:224
+#: src/ServerWnd.cpp:229
 msgid "OK"
 msgstr "确定"
 
-#: src/muuli_wdr.cpp:2326
+#: src/muuli_wdr.cpp:2371
 msgid "Click here to apply any changes made to the preferences."
 msgstr "点击这里立即使用新的设置。"
 
-#: src/muuli_wdr.cpp:2330
+#: src/muuli_wdr.cpp:2375
 msgid "Reset any changes made to the preferences."
 msgstr "取消所有设置改动。"
 
-#: src/muuli_wdr.cpp:2354
+#: src/muuli_wdr.cpp:2399
 msgid "Title :"
 msgstr "标题："
 
-#: src/muuli_wdr.cpp:2364
+#: src/muuli_wdr.cpp:2409
 msgid "Comment :"
 msgstr "注释："
 
-#: src/muuli_wdr.cpp:2374
+#: src/muuli_wdr.cpp:2419
 msgid "Incoming Dir :"
 msgstr "下载文件目录："
 
-#: src/muuli_wdr.cpp:2387
+#: src/muuli_wdr.cpp:2432
 msgid "Change priority for new assigned files :"
 msgstr "设置新加入的文件优先级为 :"
 
-#: src/muuli_wdr.cpp:2392
+#: src/muuli_wdr.cpp:2437
 #, fuzzy
 msgid "Don't change"
 msgstr "不要改变"
 
-#: src/muuli_wdr.cpp:2406
+#: src/muuli_wdr.cpp:2451
 msgid "Select color for this Category (currently selected) :"
 msgstr "选择该类别颜色 (当前选择) :"
 
-#: src/muuli_wdr.cpp:2480 src/muuli_wdr.cpp:2505
+#: src/muuli_wdr.cpp:2525 src/muuli_wdr.cpp:2550 src/muuli_wdr.cpp:2655
 #: src/utils/wxCas/src/wxcasframe.cpp:133
 #: src/utils/wxCas/src/wxcasframe.cpp:137
 msgid "Reset"
 msgstr "重置"
 
-#: src/muuli_wdr.cpp:2481 src/muuli_wdr.cpp:2506
+#: src/muuli_wdr.cpp:2526 src/muuli_wdr.cpp:2551 src/muuli_wdr.cpp:2656
 msgid "Click this button to reset the log."
 msgstr "按此按钮清空日志."
 
-#: src/muuli_wdr.cpp:2528
+#: src/muuli_wdr.cpp:2573
 msgid "Click on this button to update the servers list from URL ..."
 msgstr "按此按钮从该网址更新服务器列表 ..."
 
-#: src/muuli_wdr.cpp:2532
+#: src/muuli_wdr.cpp:2577
 msgid "Server list"
 msgstr "服务器列表"
 
-#: src/muuli_wdr.cpp:2537
+#: src/muuli_wdr.cpp:2582
 msgid ""
 "Enter the url to a server.met file here and press the button to the left to "
 "update the list of known servers."
 msgstr "输入 server.met 文件的地址，然后按此按钮更新服务器列表。"
 
-#: src/muuli_wdr.cpp:2544
+#: src/muuli_wdr.cpp:2589
 msgid "Add server manually: Name"
 msgstr "手动添加服务器：名称"
 
-#: src/muuli_wdr.cpp:2548
+#: src/muuli_wdr.cpp:2593
 msgid "Enter the name of the new server here"
 msgstr "在此输入新服务器的名称"
 
-#: src/muuli_wdr.cpp:2551 src/ServerWnd.cpp:168
+#: src/muuli_wdr.cpp:2596 src/ServerWnd.cpp:174
 msgid "IP:Port"
 msgstr "IP地址:端口"
 
-#: src/muuli_wdr.cpp:2555
+#: src/muuli_wdr.cpp:2600
 msgid "Enter the IP of the server here, using the x.x.x.x format."
 msgstr "输入新服务器的 IP 地址（x.x.x.x格式）。"
 
-#: src/muuli_wdr.cpp:2562
+#: src/muuli_wdr.cpp:2607
 msgid "Enter the port of the server here."
 msgstr "在此请输入服务器端口。"
 
-#: src/muuli_wdr.cpp:2566
+#: src/muuli_wdr.cpp:2611
 msgid "Add manually a server (fill fields to the left before) ..."
 msgstr "添加新服务器（先填写左侧的内容） ..."
 
-#: src/muuli_wdr.cpp:2604
-msgid "aMule Log"
-msgstr "aMule 日志"
+#: src/muuli_wdr.cpp:2642
+msgid "Display DLP log"
+msgstr ""
 
-#: src/muuli_wdr.cpp:2608
-msgid "Server Info"
-msgstr "服务器信息"
-
-#: src/muuli_wdr.cpp:2612
-msgid "ED2K Info"
-msgstr "ED2K 信息"
-
-#: src/muuli_wdr.cpp:2616
-msgid "Kad Info"
-msgstr "Kad 信息"
-
-#: src/muuli_wdr.cpp:2645
-msgid "Click on this button to update the nodes list from URL ..."
-msgstr "按此更新节点列表自网址..."
-
+#: src/muuli_wdr.cpp:2645 src/muuli_wdr.cpp:2701
 msgid "DLP Info"
 msgstr "动态反吸血信息"
 
-#: src/muuli_wdr.cpp:2649
+#: src/muuli_wdr.cpp:2685
+msgid "aMule Log"
+msgstr "aMule 日志"
+
+#: src/muuli_wdr.cpp:2689
+msgid "Server Info"
+msgstr "服务器信息"
+
+#: src/muuli_wdr.cpp:2693
+msgid "ED2K Info"
+msgstr "ED2K 信息"
+
+#: src/muuli_wdr.cpp:2697
+msgid "Kad Info"
+msgstr "Kad 信息"
+
+#: src/muuli_wdr.cpp:2730
+msgid "Click on this button to update the nodes list from URL ..."
+msgstr "按此更新节点列表自网址..."
+
+#: src/muuli_wdr.cpp:2734
 msgid "Nodes (0)"
 msgstr "节点（0）"
 
-#: src/muuli_wdr.cpp:2654
+#: src/muuli_wdr.cpp:2739
 msgid ""
 "Enter the url to a nodes.dat file here and press the button to the left to "
 "update the list of known nodes."
 msgstr "输入 nodes.dat 文件的地址并按左边的按钮以更新已知节点列表"
 
-#: src/muuli_wdr.cpp:2659
+#: src/muuli_wdr.cpp:2744
 msgid "Nodes stats"
 msgstr "节点状态"
 
-#: src/muuli_wdr.cpp:2710
+#: src/muuli_wdr.cpp:2795
 msgid "Bootstrap"
 msgstr "启动"
 
-#: src/muuli_wdr.cpp:2713
+#: src/muuli_wdr.cpp:2798
 msgid "New node"
 msgstr "新节点"
 
-#: src/muuli_wdr.cpp:2718
+#: src/muuli_wdr.cpp:2803
 msgid "IP:"
 msgstr "IP："
 
-#: src/muuli_wdr.cpp:2747
+#: src/muuli_wdr.cpp:2832
 msgid "Port:"
 msgstr "端口："
 
-#: src/muuli_wdr.cpp:2763
+#: src/muuli_wdr.cpp:2848
 msgid "Bootstrap from known clients"
 msgstr "从已知用户启动"
 
-#: src/muuli_wdr.cpp:2768
+#: src/muuli_wdr.cpp:2853
 msgid "Disconnect Kad"
 msgstr "断开 Kad"
 
-#: src/muuli_wdr.cpp:2806
+#: src/muuli_wdr.cpp:2891
 msgid "Use Secure User Identification"
 msgstr "使用安全用户认证"
 
-#: src/muuli_wdr.cpp:2808
+#: src/muuli_wdr.cpp:2893
 msgid ""
 "It is recommended to enable this option. You will not receive credits if SUI "
 "is not enabled."
 msgstr "建议使用此选项，如果安全用户认证没有启用，将不会接收信用证明。"
 
-#: src/muuli_wdr.cpp:2811
+#: src/muuli_wdr.cpp:2896
 msgid "Protocol Obfuscation"
 msgstr "迷惑协议"
 
-#: src/muuli_wdr.cpp:2814
+#: src/muuli_wdr.cpp:2899
 msgid "Support Protocol Obfuscation"
 msgstr "支持迷惑协议"
 
-#: src/muuli_wdr.cpp:2816
+#: src/muuli_wdr.cpp:2901
 msgid ""
 "This option enabled Protocol Obfuscation, and makes aMule accept obfuscated "
 "connections from other clients."
 msgstr "此选项启用了迷惑协议，可让aMule接受其他用户用迷糊协议的连接"
 
-#: src/muuli_wdr.cpp:2819
+#: src/muuli_wdr.cpp:2904
 msgid "Use obfuscation for outgoing connections"
 msgstr "为传出连接使用迷惑协议"
 
-#: src/muuli_wdr.cpp:2821
+#: src/muuli_wdr.cpp:2906
 msgid ""
 "This option makes aMule use Protocol Obfuscation when connecting other "
 "clients/servers."
 msgstr "此选项使aMule在连接其他用户或服务器时使用迷惑协议。"
 
-#: src/muuli_wdr.cpp:2824
+#: src/muuli_wdr.cpp:2909
 msgid "Accept only obfuscated connections"
 msgstr "只接受迷惑协议连接"
 
-#: src/muuli_wdr.cpp:2825
+#: src/muuli_wdr.cpp:2910
 msgid ""
 "This option makes aMule only accept obfuscated connections. You will have "
 "less sources, but all your traffic will be obfuscated"
@@ -3947,318 +4025,318 @@ msgstr ""
 "此选项让aMule只接受迷惑协议连接，源相对来说会更少，但全部数据包都将进行迷惑处"
 "理"
 
-#: src/muuli_wdr.cpp:2832
+#: src/muuli_wdr.cpp:2917
 msgid "Everybody"
 msgstr "任何人"
 
-#: src/muuli_wdr.cpp:2834
+#: src/muuli_wdr.cpp:2919
 msgid "No one"
 msgstr "没人"
 
-#: src/muuli_wdr.cpp:2836
+#: src/muuli_wdr.cpp:2921
 msgid "Who can see my shared files:"
 msgstr "谁可查看我的共享文件："
 
-#: src/muuli_wdr.cpp:2837
+#: src/muuli_wdr.cpp:2922
 msgid "Select who can request to view a list of your shared files."
 msgstr "选择可以浏览共享文件列表的用户。"
 
-#: src/muuli_wdr.cpp:2840
+#: src/muuli_wdr.cpp:2925
 msgid "IP-Filtering"
 msgstr "IP 过滤"
 
-#: src/muuli_wdr.cpp:2847
+#: src/muuli_wdr.cpp:2932
 msgid "Filter clients"
 msgstr "过滤用户"
 
-#: src/muuli_wdr.cpp:2849
+#: src/muuli_wdr.cpp:2934
 msgid ""
 "Enable filtering of the client IPs defined in the file ~/.aMule/ipfilter.dat."
 msgstr "过滤在文件~/.aMule/ipfilter.dat中定义的用户IP"
 
-#: src/muuli_wdr.cpp:2852
+#: src/muuli_wdr.cpp:2937
 msgid "Filter servers"
 msgstr "过滤服务器"
 
-#: src/muuli_wdr.cpp:2854
+#: src/muuli_wdr.cpp:2939
 msgid ""
 "Enable filtering of the server IPs defined in the file ~/.aMule/ipfilter.dat."
 msgstr "过滤在文件~/.aMule/ipfilter.dat中定义的服务器IP"
 
-#: src/muuli_wdr.cpp:2861
+#: src/muuli_wdr.cpp:2946
 msgid "Reload List"
 msgstr "刷新列表"
 
-#: src/muuli_wdr.cpp:2862
+#: src/muuli_wdr.cpp:2947
 msgid "Reload the list of IPs to filter from the file ~/.aMule/ipfilter.dat"
 msgstr "更新IP 地址过滤列表 ~/.aMule/ipfilter.dat"
 
-#: src/muuli_wdr.cpp:2870
+#: src/muuli_wdr.cpp:2955
 msgid "URL:"
 msgstr "地址："
 
-#: src/muuli_wdr.cpp:2876
+#: src/muuli_wdr.cpp:2961
 msgid "Update now"
 msgstr "立即更新"
 
-#: src/muuli_wdr.cpp:2881
+#: src/muuli_wdr.cpp:2966
 msgid "Auto-update ipfilter at startup"
 msgstr "启动后自动更新IP 地址过滤列表"
 
-#: src/muuli_wdr.cpp:2886
+#: src/muuli_wdr.cpp:2971
 msgid "Filtering Level:"
 msgstr "过滤级别："
 
-#: src/muuli_wdr.cpp:2896
+#: src/muuli_wdr.cpp:2981
 msgid "Always filter LAN IPs"
 msgstr "永远过滤局域网 IP 地址"
 
-#: src/muuli_wdr.cpp:2900
+#: src/muuli_wdr.cpp:2985
 msgid "Paranoid handling of non-matching IPs"
 msgstr "处理不匹配的 IP"
 
-#: src/muuli_wdr.cpp:2902
+#: src/muuli_wdr.cpp:2987
 msgid ""
 "Rejects packet if the client ip is different from the ip where the packet is "
 "received from. Use with caution."
 msgstr "拒绝用户IP不同于接收包中的IP的数据包，请谨慎使用。"
 
-#: src/muuli_wdr.cpp:2905
+#: src/muuli_wdr.cpp:2990
 msgid "Use system-wide ipfilter.dat if available"
 msgstr "在可用的情况下使用系统级的 ipfilter.dat"
 
-#: src/muuli_wdr.cpp:2906
+#: src/muuli_wdr.cpp:2991
 msgid ""
 "If there's no local ipfilter.dat found, allow usage of a systemwide ipfilter "
 "file."
 msgstr "如果没有找到本地 ipfilter.dat 文件，则允许使用系统级的IP过滤文件。"
 
-#: src/muuli_wdr.cpp:2925
+#: src/muuli_wdr.cpp:3010
 msgid "Enable Online-Signature"
 msgstr "启用在线统计"
 
-#: src/muuli_wdr.cpp:2927
+#: src/muuli_wdr.cpp:3012
 msgid ""
 "Enables the writing of the OS file, which can be used by external apps to "
 "create signatures and the like."
 msgstr "输出该文件以用于在线统计等等。"
 
-#: src/muuli_wdr.cpp:2932
+#: src/muuli_wdr.cpp:3017
 msgid "Update Frequency (Secs):"
 msgstr "更新频率（秒）："
 
-#: src/muuli_wdr.cpp:2936
+#: src/muuli_wdr.cpp:3021
 msgid "Change the frequency (in seconds) of Online Signature updates."
 msgstr "更改在线统计文件的更新频率（秒）。"
 
-#: src/muuli_wdr.cpp:2945
+#: src/muuli_wdr.cpp:3030
 msgid "Save online signature file in: "
 msgstr "保存在线统计文件在："
 
-#: src/muuli_wdr.cpp:2952
+#: src/muuli_wdr.cpp:3037
 msgid ""
 "Click here to select the directory containing the the Online Signature files."
 msgstr "点击选择包含在线统计文件的目录。"
 
-#: src/muuli_wdr.cpp:2974
+#: src/muuli_wdr.cpp:3059
 msgid "Filter incoming messages (except current chat):"
 msgstr "过滤收到的消息（不包括当前对话）："
 
-#: src/muuli_wdr.cpp:2977
+#: src/muuli_wdr.cpp:3062
 msgid "Filter all messages"
 msgstr "过滤所有消息"
 
-#: src/muuli_wdr.cpp:2980
+#: src/muuli_wdr.cpp:3065
 msgid "Filter messages from people not on your friend list"
 msgstr "过滤来自好友列表外的消息"
 
-#: src/muuli_wdr.cpp:2983
+#: src/muuli_wdr.cpp:3068
 msgid "Filter messages from unknown clients"
 msgstr "过滤来自未知用户的消息"
 
-#: src/muuli_wdr.cpp:2986
+#: src/muuli_wdr.cpp:3071
 msgid "Filter messages containing (use ',' as separator):"
 msgstr "过滤包含以下内容的消息（用半角逗号分隔）："
 
-#: src/muuli_wdr.cpp:2990 src/muuli_wdr.cpp:3005
+#: src/muuli_wdr.cpp:3075 src/muuli_wdr.cpp:3090
 msgid "add here the words amule should filter and block messages including it"
 msgstr "输入需过滤的词组"
 
-#: src/muuli_wdr.cpp:2993
+#: src/muuli_wdr.cpp:3078
 msgid "Show received messages in the log"
 msgstr "在日志中显示接收的消息"
 
-#: src/muuli_wdr.cpp:2998
+#: src/muuli_wdr.cpp:3083
 msgid "Comments"
 msgstr "备注"
 
-#: src/muuli_wdr.cpp:3001
+#: src/muuli_wdr.cpp:3086
 msgid "Filter comments containing (use ',' as separator):"
 msgstr "过滤包含以下内容的备注（使用‘,’作为分隔符）："
 
-#: src/muuli_wdr.cpp:3024
+#: src/muuli_wdr.cpp:3109
 msgid "Automatic server connect without proxy"
 msgstr "自动连接服务器时忽略代理设置"
 
-#: src/muuli_wdr.cpp:3030
+#: src/muuli_wdr.cpp:3115
 msgid "Enable authentication"
 msgstr "启用验证："
 
-#: src/muuli_wdr.cpp:3031
+#: src/muuli_wdr.cpp:3116
 msgid "Enable/disable username/password authentication"
 msgstr "启用/禁用用户名/密码验证"
 
-#: src/muuli_wdr.cpp:3036
+#: src/muuli_wdr.cpp:3121
 msgid "Username: "
 msgstr "用户名："
 
-#: src/muuli_wdr.cpp:3040
+#: src/muuli_wdr.cpp:3125
 msgid "The username to use to connect to the proxy"
 msgstr "连接代理服务器的用户名"
 
-#: src/muuli_wdr.cpp:3043
+#: src/muuli_wdr.cpp:3128
 msgid "Password:"
 msgstr "密码："
 
-#: src/muuli_wdr.cpp:3047
+#: src/muuli_wdr.cpp:3132
 msgid "The password to use to connect to the proxy"
 msgstr "连接代理服务器的密码"
 
-#: src/muuli_wdr.cpp:3050
+#: src/muuli_wdr.cpp:3135
 msgid "Enable Proxy"
 msgstr "启用代理"
 
-#: src/muuli_wdr.cpp:3051
+#: src/muuli_wdr.cpp:3136
 msgid "Enable/disable proxy support"
 msgstr "启用/禁用代理支持"
 
-#: src/muuli_wdr.cpp:3056
+#: src/muuli_wdr.cpp:3141
 msgid "Proxy type:"
 msgstr "代理类型："
 
-#: src/muuli_wdr.cpp:3069
+#: src/muuli_wdr.cpp:3154
 msgid "Proxy host:"
 msgstr "代理服务器："
 
-#: src/muuli_wdr.cpp:3073
+#: src/muuli_wdr.cpp:3158
 msgid "The proxy host name"
 msgstr "代理服务器名称"
 
-#: src/muuli_wdr.cpp:3076
+#: src/muuli_wdr.cpp:3161
 msgid "Proxy port:"
 msgstr "代理端口："
 
-#: src/muuli_wdr.cpp:3080
+#: src/muuli_wdr.cpp:3165
 msgid "The proxy port"
 msgstr "代理端口"
 
-#: src/muuli_wdr.cpp:3101
+#: src/muuli_wdr.cpp:3186
 msgid "Connect to:"
 msgstr "连接到："
 
-#: src/muuli_wdr.cpp:3115
+#: src/muuli_wdr.cpp:3200
 msgid "Login to remote amule"
 msgstr "登录远程 amule"
 
-#: src/muuli_wdr.cpp:3120
+#: src/muuli_wdr.cpp:3205
 msgid "User name"
 msgstr "用户名"
 
-#: src/muuli_wdr.cpp:3137
+#: src/muuli_wdr.cpp:3222
 msgid "Remember those settings"
 msgstr "记住这些设置"
 
-#: src/muuli_wdr.cpp:3166
+#: src/muuli_wdr.cpp:3251
 msgid "Enable Verbose Debug-Logging."
 msgstr "启用详细调试日志。"
 
-#: src/muuli_wdr.cpp:3169
+#: src/muuli_wdr.cpp:3254
 #, fuzzy
 msgid "Only to Logfile"
 msgstr "打开文件 (&O)"
 
-#: src/muuli_wdr.cpp:3172
+#: src/muuli_wdr.cpp:3257
 msgid "Message Categories:"
 msgstr "消息分类："
 
-#: src/muuli_wdr.cpp:3198 src/PartFileConvertDlg.cpp:153
+#: src/muuli_wdr.cpp:3283 src/PartFileConvertDlg.cpp:153
 msgid "Waiting..."
 msgstr "等待中..."
 
-#: src/muuli_wdr.cpp:3225
+#: src/muuli_wdr.cpp:3310
 msgid "Add imports"
 msgstr "添加导入文件"
 
-#: src/muuli_wdr.cpp:3229
+#: src/muuli_wdr.cpp:3314
 msgid "Retry selected"
 msgstr "重试所选"
 
-#: src/muuli_wdr.cpp:3232
+#: src/muuli_wdr.cpp:3317
 msgid "Remove selected"
 msgstr "删除所选"
 
-#: src/muuli_wdr.cpp:3304
+#: src/muuli_wdr.cpp:3389
 msgid "Event Types"
 msgstr "事件类型"
 
-#: src/muuli_wdr.cpp:3324
+#: src/muuli_wdr.cpp:3409
 msgid "Statistics and queued clients for selected file(s) : Session / All time"
 msgstr "所选文件的统计和队列用户：会话/全部时间"
 
-#: src/muuli_wdr.cpp:3351
+#: src/muuli_wdr.cpp:3436
 msgid "Active Uploads"
 msgstr "活跃上传："
 
-#: src/muuli_wdr.cpp:3371
+#: src/muuli_wdr.cpp:3456
 #, fuzzy
 msgid "Percent of total files"
 msgstr "全部文件的百分比"
 
-#: src/muuli_wdr.cpp:3418
+#: src/muuli_wdr.cpp:3503
 #, fuzzy
 msgid "All files"
 msgstr "所有共享文件"
 
-#: src/muuli_wdr.cpp:3419
+#: src/muuli_wdr.cpp:3504
 #, fuzzy
 msgid "Selected files"
 msgstr "选择显示过滤"
 
-#: src/muuli_wdr.cpp:3420
+#: src/muuli_wdr.cpp:3505
 #, fuzzy
 msgid "Active uploads only"
 msgstr "活跃上传"
 
-#: src/muuli_wdr.cpp:3422
+#: src/muuli_wdr.cpp:3507
 #, fuzzy
 msgid "Show Clients for"
 msgstr "显示用户"
 
-#: src/muuli_wdr.cpp:3425
+#: src/muuli_wdr.cpp:3510
 msgid "Reload:"
 msgstr "重新载入："
 
-#: src/muuli_wdr.cpp:3430
+#: src/muuli_wdr.cpp:3515
 msgid "Reload your shared files"
 msgstr "刷新共享文件"
 
-#: src/muuli_wdr.cpp:3500
+#: src/muuli_wdr.cpp:3585
 msgid "Send"
 msgstr "发送"
 
-#: src/muuli_wdr.cpp:3501
+#: src/muuli_wdr.cpp:3586
 msgid "Sends the specified message."
 msgstr "发送指定消息。"
 
-#: src/muuli_wdr.cpp:3506
+#: src/muuli_wdr.cpp:3591
 msgid "Close this chat-session."
 msgstr "结束本次聊天。"
 
-#: src/muuli_wdr.cpp:3530
+#: src/muuli_wdr.cpp:3615
 msgid "Connect to any server and/or Kad"
 msgstr "连接至任何服务器和/或 Kad"
 
-#: src/muuli_wdr.cpp:3536 src/SharedFilesCtrl.cpp:135 src/Statistics.cpp:815
+#: src/muuli_wdr.cpp:3621 src/SharedFilesCtrl.cpp:135 src/Statistics.cpp:815
 msgid "Shared Files"
 msgstr "共享文件"
 
@@ -4587,8 +4665,8 @@ msgstr ""
 #: src/PartFile.cpp:2305 src/PartFile.cpp:2310
 #, c-format
 msgid ""
-"EOF while hashing downloaded part %u with length %u (max %u) of partfile '%"
-"s' with length %u: %s"
+"EOF while hashing downloaded part %u with length %u (max %u) of partfile "
+"'%s' with length %u: %s"
 msgstr "文件结束 当下载  %u 长度 %u (最大 %u) partfile '%s'长度 %u: %s"
 
 #: src/PartFile.cpp:2971
@@ -4624,247 +4702,251 @@ msgstr "已下载"
 msgid "ERROR: Failed to open partfile '%s'"
 msgstr "错误：打开part文件'%s'失败"
 
-#: src/Preferences.cpp:628
+#: src/Preferences.cpp:646
 msgid "System default"
 msgstr "系统默认"
 
-#: src/Preferences.cpp:629
+#: src/Preferences.cpp:647
 msgid "Albanian"
 msgstr "阿尔巴尼亚语"
 
-#: src/Preferences.cpp:630
+#: src/Preferences.cpp:648
 msgid "Arabic"
 msgstr "阿拉伯语"
 
-#: src/Preferences.cpp:631
+#: src/Preferences.cpp:649
 msgid "Asturian"
 msgstr "澳大利亚"
 
-#: src/Preferences.cpp:632
+#: src/Preferences.cpp:650
 msgid "Basque"
 msgstr "巴斯克语"
 
-#: src/Preferences.cpp:633
+#: src/Preferences.cpp:651
 msgid "Bulgarian"
 msgstr "保加利亚语"
 
-#: src/Preferences.cpp:634
+#: src/Preferences.cpp:652
 msgid "Catalan"
 msgstr "加泰罗尼亚语"
 
-#: src/Preferences.cpp:635
+#: src/Preferences.cpp:653
 msgid "Chinese (Simplified)"
 msgstr "简体中文"
 
-#: src/Preferences.cpp:636
+#: src/Preferences.cpp:654
 msgid "Chinese (Traditional)"
 msgstr "繁体中文"
 
-#: src/Preferences.cpp:637
+#: src/Preferences.cpp:655
 msgid "Croatian"
 msgstr "克罗的亚语"
 
-#: src/Preferences.cpp:638
+#: src/Preferences.cpp:656
 msgid "Czech"
 msgstr "捷克语"
 
-#: src/Preferences.cpp:639
+#: src/Preferences.cpp:657
 msgid "Danish"
 msgstr "丹麦语"
 
-#: src/Preferences.cpp:640
+#: src/Preferences.cpp:658
 msgid "Dutch"
 msgstr "荷兰语"
 
-#: src/Preferences.cpp:641
+#: src/Preferences.cpp:659
 msgid "English (U.K.)"
 msgstr "英语（英国）"
 
-#: src/Preferences.cpp:642
+#: src/Preferences.cpp:660
 msgid "Estonian"
 msgstr "爱斯托尼亚语"
 
-#: src/Preferences.cpp:643
+#: src/Preferences.cpp:661
 msgid "Finnish"
 msgstr "芬兰语"
 
-#: src/Preferences.cpp:644
+#: src/Preferences.cpp:662
 msgid "French"
 msgstr "法语"
 
-#: src/Preferences.cpp:645
+#: src/Preferences.cpp:663
 msgid "Galician"
 msgstr "加利西亚语"
 
-#: src/Preferences.cpp:646
+#: src/Preferences.cpp:664
 msgid "German"
 msgstr "德语"
 
-#: src/Preferences.cpp:647
+#: src/Preferences.cpp:665
 msgid "Greek"
 msgstr "希腊语"
 
-#: src/Preferences.cpp:648
+#: src/Preferences.cpp:666
 msgid "Hebrew"
 msgstr "希伯来语"
 
-#: src/Preferences.cpp:649
+#: src/Preferences.cpp:667
 msgid "Hungarian"
 msgstr "匈牙利语"
 
-#: src/Preferences.cpp:650
+#: src/Preferences.cpp:668
 msgid "Italian"
 msgstr "意大利语"
 
-#: src/Preferences.cpp:651
+#: src/Preferences.cpp:669
 msgid "Italian (Swiss)"
 msgstr "意大利语（瑞士）"
 
-#: src/Preferences.cpp:652
+#: src/Preferences.cpp:670
 msgid "Japanese"
 msgstr "日语"
 
-#: src/Preferences.cpp:653
+#: src/Preferences.cpp:671
 msgid "Korean"
 msgstr "韩语"
 
-#: src/Preferences.cpp:654
+#: src/Preferences.cpp:672
 msgid "Lithuanian"
 msgstr "立陶宛语"
 
-#: src/Preferences.cpp:655
+#: src/Preferences.cpp:673
 msgid "Norwegian (Nynorsk)"
 msgstr "新挪威语"
 
-#: src/Preferences.cpp:656
+#: src/Preferences.cpp:674
 msgid "Polish"
 msgstr "芬兰语"
 
-#: src/Preferences.cpp:657
+#: src/Preferences.cpp:675
 msgid "Portuguese"
 msgstr "葡萄牙语"
 
-#: src/Preferences.cpp:658
+#: src/Preferences.cpp:676
 msgid "Portuguese (Brazilian)"
 msgstr "葡萄牙语（巴西）"
 
-#: src/Preferences.cpp:659
+#: src/Preferences.cpp:677
 msgid "Romanian"
 msgstr "罗马尼亚语"
 
-#: src/Preferences.cpp:660
+#: src/Preferences.cpp:678
 msgid "Russian"
 msgstr "俄语"
 
-#: src/Preferences.cpp:661
+#: src/Preferences.cpp:679
 msgid "Slovenian"
 msgstr "斯洛文尼亚语"
 
-#: src/Preferences.cpp:662
+#: src/Preferences.cpp:680
 msgid "Spanish"
 msgstr "西班牙语"
 
-#: src/Preferences.cpp:663
+#: src/Preferences.cpp:681
 msgid "Swedish"
 msgstr "瑞典语"
 
-#: src/Preferences.cpp:664
+#: src/Preferences.cpp:682
 msgid "Turkish"
 msgstr "土耳其语"
 
-#: src/Preferences.cpp:665
+#: src/Preferences.cpp:683
 msgid "Ukrainian"
 msgstr "乌克兰"
 
-#: src/Preferences.cpp:728
+#: src/Preferences.cpp:746
 msgid "Change Language"
 msgstr "更改语言"
 
-#: src/Preferences.cpp:771
+#: src/Preferences.cpp:789
 msgid "There are no translations installed for aMule"
 msgstr "aMule的翻译文件未被安装"
 
-#: src/Preferences.cpp:771
+#: src/Preferences.cpp:789
 #, fuzzy
 msgid "No languages available"
 msgstr "不可用"
 
-#: src/Preferences.cpp:902
+#: src/Preferences.cpp:920
 msgid "no options available"
 msgstr "无选项可用"
 
-#: src/Preferences.cpp:1586
+#: src/Preferences.cpp:1643
 msgid "Invalid category found, skipping"
 msgstr "发现无效的分类，跳过"
 
-#: src/Preferences.cpp:1768
+#: src/Preferences.cpp:1825
 msgid ""
 "TCP port can't be higher than 65532 due to server UDP socket being TCP+3"
 msgstr "TCP端口不可高于65532，因为服务器UDP端口值为TCP端口值+3"
 
-#: src/Preferences.cpp:1769
+#: src/Preferences.cpp:1826
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "缺省端口将被使用（%d）"
 
-#: src/Preferences.cpp:1792
+#: src/Preferences.cpp:1849
 #, c-format
 msgid "Dropping non-existing shared directory: %s"
 msgstr "丢弃不存在共享目录：%s"
 
-#: src/PrefsUnifiedDlg.cpp:177 src/Statistics.cpp:776
+#: src/PrefsUnifiedDlg.cpp:187 src/Statistics.cpp:776
 msgid "Connection"
 msgstr "连接"
 
-#: src/PrefsUnifiedDlg.cpp:178 src/SearchListCtrl.cpp:93
+#: src/PrefsUnifiedDlg.cpp:188 src/SearchListCtrl.cpp:93
 msgid "Directories"
 msgstr "目录"
 
-#: src/PrefsUnifiedDlg.cpp:179 src/Statistics.cpp:802
+#: src/PrefsUnifiedDlg.cpp:189 src/Statistics.cpp:802
 msgid "Servers"
 msgstr "服务器"
 
-#: src/PrefsUnifiedDlg.cpp:180 src/ServerListCtrl.cpp:93
+#: src/PrefsUnifiedDlg.cpp:190 src/ServerListCtrl.cpp:93
 msgid "Files"
 msgstr "文件"
 
-#: src/PrefsUnifiedDlg.cpp:181
+#: src/PrefsUnifiedDlg.cpp:191
 msgid "Security"
 msgstr "安全"
 
-#: src/PrefsUnifiedDlg.cpp:182
+#: src/PrefsUnifiedDlg.cpp:192
 msgid "Interface"
 msgstr "界面"
 
-#: src/PrefsUnifiedDlg.cpp:184
+#: src/PrefsUnifiedDlg.cpp:194
 msgid "Proxy"
 msgstr "代理"
 
-#: src/PrefsUnifiedDlg.cpp:185
+#: src/PrefsUnifiedDlg.cpp:195
 msgid "Filters"
 msgstr "过滤"
 
-#: src/PrefsUnifiedDlg.cpp:186
+#: src/PrefsUnifiedDlg.cpp:196
 msgid "Remote Controls"
 msgstr "远程控制"
 
-#: src/PrefsUnifiedDlg.cpp:187
+#: src/PrefsUnifiedDlg.cpp:197
 msgid "Online Signature"
 msgstr "在线统计"
 
-#: src/PrefsUnifiedDlg.cpp:188
+#: src/PrefsUnifiedDlg.cpp:198
 msgid "Advanced"
 msgstr "高级"
 
-#: src/PrefsUnifiedDlg.cpp:189
+#: src/PrefsUnifiedDlg.cpp:199
 msgid "Events"
 msgstr "事件"
 
-#: src/PrefsUnifiedDlg.cpp:191
+#: src/PrefsUnifiedDlg.cpp:201
+msgid "DLP"
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp:204
 msgid "Debugging"
 msgstr "调试"
 
-#: src/PrefsUnifiedDlg.cpp:249
+#: src/PrefsUnifiedDlg.cpp:262
 msgid ""
 "The following variables will be substituted:\n"
 "    %PARTFILE - full path to the file\n"
@@ -4873,7 +4955,7 @@ msgstr ""
 "以下变量将被被替换：    %PARTFILE - 文件的完整路径\n"
 "    %PARTNAME - 只有文件名"
 
-#: src/PrefsUnifiedDlg.cpp:290
+#: src/PrefsUnifiedDlg.cpp:303
 msgid ""
 "Do not change these setting unless you know\n"
 "what you are doing, otherwise you can easily\n"
@@ -4889,60 +4971,60 @@ msgstr ""
 "即使不改动这些设置，aMule\n"
 "也完全可以正常运行。"
 
-#: src/PrefsUnifiedDlg.cpp:351
+#: src/PrefsUnifiedDlg.cpp:364
 #, c-format
 msgid "Failed to connect Cfg to widget with the ID %d and key %s"
 msgstr "使用ID %d和密匙%s连接Cfg到小插件失败"
 
-#: src/PrefsUnifiedDlg.cpp:400
+#: src/PrefsUnifiedDlg.cpp:413
 #, c-format
 msgid "Failed to transfer data from Cfg to Widget with the ID %d and key %s"
 msgstr "通过ID %d和密匙%s把数据从Cfg转移到小插件失败"
 
-#: src/PrefsUnifiedDlg.cpp:417
+#: src/PrefsUnifiedDlg.cpp:430
 msgid "The type of proxy you are connecting to"
 msgstr "正在连接的代理服务器类型"
 
-#: src/PrefsUnifiedDlg.cpp:538
+#: src/PrefsUnifiedDlg.cpp:548
 #, c-format
 msgid "Failed to transfer data from Widget to Cfg with the ID %d and key %s"
 msgstr "通过ID %d和密匙%s把数据从小插件转移到Cfg失败"
 
-#: src/PrefsUnifiedDlg.cpp:593
+#: src/PrefsUnifiedDlg.cpp:603
 msgid ""
 "aMule must be restarted to enable these changes:\n"
 "\n"
 msgstr "重启aMule后设置才能生效：\n"
 
-#: src/PrefsUnifiedDlg.cpp:600
+#: src/PrefsUnifiedDlg.cpp:610
 msgid "- TCP port changed.\n"
 msgstr "- TCP端口已更改。\n"
 
-#: src/PrefsUnifiedDlg.cpp:605
+#: src/PrefsUnifiedDlg.cpp:615
 msgid "- UDP port changed.\n"
 msgstr "- UDP端口已更改。\n"
 
-#: src/PrefsUnifiedDlg.cpp:610
+#: src/PrefsUnifiedDlg.cpp:620
 #, fuzzy
 msgid "- External connect port changed.\n"
 msgstr "已关闭远程连接。"
 
-#: src/PrefsUnifiedDlg.cpp:614
+#: src/PrefsUnifiedDlg.cpp:624
 #, fuzzy
 msgid "- External connect acceptance changed.\n"
 msgstr "新的远程连接已被接受"
 
-#: src/PrefsUnifiedDlg.cpp:618
+#: src/PrefsUnifiedDlg.cpp:628
 #, fuzzy
 msgid "- External connect interface changed.\n"
 msgstr "已关闭远程连接。"
 
-#: src/PrefsUnifiedDlg.cpp:622
+#: src/PrefsUnifiedDlg.cpp:632
 #, fuzzy
 msgid "- Protocol obfuscation support changed.\n"
 msgstr "迷惑协议"
 
-#: src/PrefsUnifiedDlg.cpp:631
+#: src/PrefsUnifiedDlg.cpp:641
 msgid ""
 "Your Auto-update server list is empty.\n"
 "'Auto-update server list at startup' will be disabled."
@@ -4950,7 +5032,7 @@ msgstr ""
 "您的自动更新服务器列表是可空的，\n"
 "启动时自动更新服务器列表功能将被禁用。"
 
-#: src/PrefsUnifiedDlg.cpp:638
+#: src/PrefsUnifiedDlg.cpp:648
 msgid ""
 "You have enabled external connections but have not specified a password.\n"
 "External connections cannot be enabled unless a valid password is specified."
@@ -4958,19 +5040,19 @@ msgstr ""
 "您已经启用了远程连接但还没有设置密码。\n"
 "远程连接在没有有效密码的情况下不能使用。"
 
-#: src/PrefsUnifiedDlg.cpp:650
+#: src/PrefsUnifiedDlg.cpp:660
 msgid "- Language changed.\n"
 msgstr "- 语言已更改。\n"
 
-#: src/PrefsUnifiedDlg.cpp:655
+#: src/PrefsUnifiedDlg.cpp:665
 msgid "- Temp folder changed.\n"
 msgstr "- 临时文件目录已更改。\n"
 
-#: src/PrefsUnifiedDlg.cpp:660
+#: src/PrefsUnifiedDlg.cpp:670
 msgid "- ED2K network enabled.\n"
 msgstr "-ED2K网络已启用。\n"
 
-#: src/PrefsUnifiedDlg.cpp:732
+#: src/PrefsUnifiedDlg.cpp:742
 msgid ""
 "Both eD2k and Kad network are disabled.\n"
 "You won't be able to connect until you enable at least one of them."
@@ -4978,7 +5060,7 @@ msgstr ""
 "eD2k和Kad网络都已被禁用，\n"
 "你至少要启用其中的一项才能连接。"
 
-#: src/PrefsUnifiedDlg.cpp:736
+#: src/PrefsUnifiedDlg.cpp:746
 msgid ""
 "Kad will not start if your UDP port is disabled.\n"
 "Enable UDP port or disable Kad."
@@ -4986,7 +5068,7 @@ msgstr ""
 "如果你的 UDP 端口被禁用，Kad 将不能启动。\n"
 "启动 UDP 端口或禁用 Kad。"
 
-#: src/PrefsUnifiedDlg.cpp:749
+#: src/PrefsUnifiedDlg.cpp:759
 msgid ""
 "\n"
 "You MUST restart aMule now.\n"
@@ -4996,7 +5078,7 @@ msgstr ""
 "你必须现在重启aMule，\n"
 "如果现在不重启的话，出现任何问题可别怪别人。\n"
 
-#: src/PrefsUnifiedDlg.cpp:856
+#: src/PrefsUnifiedDlg.cpp:859
 msgid ""
 "Your Auto-update servers list is in blank.\n"
 "Please fill in at least one URL to point to a valid server.met file.\n"
@@ -5006,41 +5088,41 @@ msgstr ""
 "请输入至少一个指向有效 server.met 的网址，\n"
 "点击这个勾选框旁边的\"列表\"按钮然后输入网址。"
 
-#: src/PrefsUnifiedDlg.cpp:996
+#: src/PrefsUnifiedDlg.cpp:998
 msgid "Temporary files"
 msgstr "临时文件"
 
-#: src/PrefsUnifiedDlg.cpp:1001
+#: src/PrefsUnifiedDlg.cpp:1003
 msgid "Incoming files"
 msgstr "传入文件"
 
-#: src/PrefsUnifiedDlg.cpp:1006
+#: src/PrefsUnifiedDlg.cpp:1008
 msgid "Online Signatures"
 msgstr "在线统计"
 
-#: src/PrefsUnifiedDlg.cpp:1019
+#: src/PrefsUnifiedDlg.cpp:1021
 #, c-format
 msgid "Choose a folder for %s"
 msgstr "为%s选择文件夹"
 
-#: src/PrefsUnifiedDlg.cpp:1039
+#: src/PrefsUnifiedDlg.cpp:1041
 msgid "Browse for videoplayer"
 msgstr "浏览寻找视频播放器"
 
-#: src/PrefsUnifiedDlg.cpp:1043
+#: src/PrefsUnifiedDlg.cpp:1045
 msgid "Select browser"
 msgstr "选择浏览器"
 
-#: src/PrefsUnifiedDlg.cpp:1049
+#: src/PrefsUnifiedDlg.cpp:1051
 #, c-format
 msgid "Executable%s"
 msgstr "可执行%s"
 
-#: src/PrefsUnifiedDlg.cpp:1070
+#: src/PrefsUnifiedDlg.cpp:1072
 msgid "Edit server list"
 msgstr "编辑服务器列表"
 
-#: src/PrefsUnifiedDlg.cpp:1071
+#: src/PrefsUnifiedDlg.cpp:1073
 msgid ""
 "Add here URL's to download server.met files.\n"
 "Only one url on each line."
@@ -5073,69 +5155,69 @@ msgid_plural "Update delay: %d seconds"
 msgstr[0] "刷新时间：%d秒"
 msgstr[1] "刷新时间：%d秒"
 
-#: src/PrefsUnifiedDlg.cpp:1137
+#: src/PrefsUnifiedDlg.cpp:1154
 #, c-format
 msgid "Time for average graph: %d minute"
 msgid_plural "Time for average graph: %d minutes"
 msgstr[0] "平均值图表显示时间：%d分钟"
 msgstr[1] "平均值图表显示时间：%d分钟"
 
-#: src/PrefsUnifiedDlg.cpp:1143
+#: src/PrefsUnifiedDlg.cpp:1160
 #, c-format
 msgid "Connections Graph Scale: %d"
 msgstr "网络连接图表缩放：%d"
 
-#: src/PrefsUnifiedDlg.cpp:1155
+#: src/PrefsUnifiedDlg.cpp:1172
 #, c-format
 msgid "File Buffer Size: %d byte"
 msgid_plural "File Buffer Size: %d bytes"
 msgstr[0] "文件缓冲区大小：%d字节"
 msgstr[1] "文件缓冲区大小：%d字节"
 
-#: src/PrefsUnifiedDlg.cpp:1161
+#: src/PrefsUnifiedDlg.cpp:1178
 #, c-format
 msgid "Upload Queue Size: %d client"
 msgid_plural "Upload Queue Size: %d clients"
 msgstr[0] "上传队列长度：%d个用户"
 msgstr[1] "上传队列长度：%d个用户"
 
-#: src/PrefsUnifiedDlg.cpp:1168
+#: src/PrefsUnifiedDlg.cpp:1185
 #, c-format
 msgid "Server connection refresh interval: %d minute"
 msgid_plural "Server connection refresh interval: %d minutes"
 msgstr[0] "服务器连接刷新周期：%d分钟"
 msgstr[1] "服务器连接刷新周期：%d分钟"
 
-#: src/PrefsUnifiedDlg.cpp:1170
+#: src/PrefsUnifiedDlg.cpp:1187
 msgid "Server connection refresh interval: Disabled"
 msgstr "服务器连接刷新周期：已禁用"
 
-#: src/PrefsUnifiedDlg.cpp:1215
+#: src/PrefsUnifiedDlg.cpp:1232
 msgid "disabled"
 msgstr "禁用"
 
-#: src/PrefsUnifiedDlg.cpp:1238
+#: src/PrefsUnifiedDlg.cpp:1255
 #, fuzzy, c-format
 msgid "Execute command on '%s' event"
 msgstr "发生 '%s' 事件时执行命令"
 
-#: src/PrefsUnifiedDlg.cpp:1241
+#: src/PrefsUnifiedDlg.cpp:1258
 msgid "Enable command execution on core"
 msgstr "在核心启用执行命令"
 
-#: src/PrefsUnifiedDlg.cpp:1249
+#: src/PrefsUnifiedDlg.cpp:1266
 msgid "Core command:"
 msgstr "核心命令："
 
-#: src/PrefsUnifiedDlg.cpp:1258
+#: src/PrefsUnifiedDlg.cpp:1275
 msgid "Enable command execution on GUI"
 msgstr "在图形界面端启用执行命令"
 
-#: src/PrefsUnifiedDlg.cpp:1266
+#: src/PrefsUnifiedDlg.cpp:1283
 msgid "GUI command:"
 msgstr "图形界面命令："
 
-#: src/PrefsUnifiedDlg.cpp:1275
+#: src/PrefsUnifiedDlg.cpp:1292
 msgid "The following variables will be replaced:"
 msgstr "以下变量将被替换："
 
@@ -5151,20 +5233,15 @@ msgstr "搜索警告"
 msgid "Main"
 msgstr "主要"
 
-#: src/SearchList.cpp:311
+#: src/SearchList.cpp:292
 msgid "Kad search can't be done if Kad is not running"
 msgstr "Kad搜索不能使用，因为Kad没有连接"
 
-#: src/SearchList.cpp:313
+#: src/SearchList.cpp:294
 msgid "eD2k search can't be done if eD2k is not connected"
 msgstr "eD2k未连接时eD2k搜索无法进行"
 
-#: src/SearchList.cpp:334
-#, fuzzy
-msgid "No keyword for Kad search - aborting"
-msgstr "搜索关键词：%s"
-
-#: src/SearchList.cpp:371
+#: src/SearchList.cpp:343
 msgid "Unexpected error while attempting Kad search: "
 msgstr "尝试Kad搜索时出现不可预料的错误："
 
@@ -5458,8 +5535,8 @@ msgstr "您确定要删除静态服务器 %s ?"
 msgid "Servers (%i)"
 msgstr "服务器（%i）"
 
-#: src/ServerListCtrl.cpp:397 src/ServerSocket.cpp:271
-#: src/ServerSocket.cpp:286 src/ServerWnd.cpp:179
+#: src/ServerListCtrl.cpp:397 src/ServerSocket.cpp:271 src/ServerSocket.cpp:286
+#: src/ServerWnd.cpp:185
 msgid "Server"
 msgstr "服务器"
 
@@ -5595,112 +5672,112 @@ msgstr "正在连接至 %s (%s - %s:%i) %s"
 msgid "Could not solve dns for server %s: Unable to connect!"
 msgstr "无法查找服务器%s的DNS记录： 无法连接！"
 
-#: src/ServerWnd.cpp:103
+#: src/ServerWnd.cpp:104
 msgid "Server not added: No IP or hostname specified."
 msgstr "没有添加服务器： 没有 IP 地址或主机名"
 
-#: src/ServerWnd.cpp:108
+#: src/ServerWnd.cpp:109
 msgid "Server not added: Invalid server-port specified."
 msgstr "没有添加服务器： 服务器端口无效"
 
-#: src/ServerWnd.cpp:161
+#: src/ServerWnd.cpp:167
 msgid "eD2k Status:"
 msgstr "eD2k状态："
 
-#: src/ServerWnd.cpp:172
+#: src/ServerWnd.cpp:178
 msgid "ID"
 msgstr "ID"
 
-#: src/ServerWnd.cpp:204
+#: src/ServerWnd.cpp:210
 msgid "Kademlia Status:"
 msgstr "Kad 状态："
 
-#: src/ServerWnd.cpp:207
+#: src/ServerWnd.cpp:213
 #, fuzzy
 msgid "Running in LAN mode"
 msgstr "运行于 %s"
 
-#: src/ServerWnd.cpp:207
+#: src/ServerWnd.cpp:213
 msgid "Running"
 msgstr "正在运行"
 
-#: src/ServerWnd.cpp:210
+#: src/ServerWnd.cpp:216
 #, fuzzy
 msgid "Kademlia client ID:"
 msgstr "Kad 状态："
 
-#: src/ServerWnd.cpp:212
+#: src/ServerWnd.cpp:218
 msgid "Status:"
 msgstr "状态："
 
-#: src/ServerWnd.cpp:215
+#: src/ServerWnd.cpp:221
 msgid "Connection State:"
 msgstr "连接状态："
 
-#: src/ServerWnd.cpp:217
+#: src/ServerWnd.cpp:223
 #, c-format
 msgid "Firewalled - open TCP port %d in your router or firewall"
 msgstr "被防火墙阻挡-请在你的路由器或者防火墙中打开TCP端口%d"
 
-#: src/ServerWnd.cpp:219
+#: src/ServerWnd.cpp:225
 msgid "UDP Connection State:"
 msgstr "UDP连接状态："
 
-#: src/ServerWnd.cpp:222
+#: src/ServerWnd.cpp:228
 #, c-format
 msgid "Firewalled - open UDP port %d in your router or firewall"
 msgstr "被防火墙阻挡-请在你的路由器或者防火墙中打开UDP端口%d"
 
-#: src/ServerWnd.cpp:226
+#: src/ServerWnd.cpp:232
 msgid "Firewalled state: "
 msgstr "防火墙状态："
 
-#: src/ServerWnd.cpp:232
+#: src/ServerWnd.cpp:238
 msgid "No buddy required - TCP port open"
 msgstr "没有请求 - TCP 端口打开"
 
-#: src/ServerWnd.cpp:234
+#: src/ServerWnd.cpp:240
 msgid "No buddy required - UDP port open"
 msgstr "没有请求 - UDP 端口打开"
 
-#: src/ServerWnd.cpp:236
+#: src/ServerWnd.cpp:242
 msgid "No buddy"
 msgstr "没有好友"
 
-#: src/ServerWnd.cpp:240
+#: src/ServerWnd.cpp:246
 msgid "Connecting to buddy"
 msgstr "已连接至好友"
 
-#: src/ServerWnd.cpp:243
+#: src/ServerWnd.cpp:249
 #, c-format
 msgid "Connected to buddy at %s"
 msgstr "连接到好友于%s"
 
-#: src/ServerWnd.cpp:253
+#: src/ServerWnd.cpp:259
 msgid "Indexed sources:"
 msgstr "索引源:"
 
-#: src/ServerWnd.cpp:255
+#: src/ServerWnd.cpp:261
 msgid "Indexed keywords:"
 msgstr "索引关键词："
 
-#: src/ServerWnd.cpp:257
+#: src/ServerWnd.cpp:263
 msgid "Indexed notes:"
 msgstr "索引批注:"
 
-#: src/ServerWnd.cpp:259
+#: src/ServerWnd.cpp:265
 msgid "Indexed load:"
 msgstr "索引载入："
 
-#: src/ServerWnd.cpp:262
+#: src/ServerWnd.cpp:268
 msgid "Average Users:"
 msgstr "平均用户："
 
-#: src/ServerWnd.cpp:265
+#: src/ServerWnd.cpp:271
 msgid "Average Files:"
 msgstr "平均文件："
 
-#: src/ServerWnd.cpp:270 src/TextClient.cpp:731
+#: src/ServerWnd.cpp:276 src/TextClient.cpp:738
 msgid "Not running"
 msgstr "没有运行"
 
@@ -5859,7 +5936,7 @@ msgstr "你需要高ID来产生源链接"
 msgid "Shared Files (%i)"
 msgstr "共享文件 (%i)"
 
-#: src/SharedFilesCtrl.cpp:600 src/TextClient.cpp:829
+#: src/SharedFilesCtrl.cpp:600 src/TextClient.cpp:836
 msgid "[PartFile]"
 msgstr "[part 文件]"
 
@@ -6118,119 +6195,119 @@ msgstr "从来没有"
 msgid "Command '%s' with pid '%d' has finished with status code '%d'."
 msgstr "命令 '%s' 已启动进程 %d，返回值为 %d。"
 
-#: src/TextClient.cpp:131
+#: src/TextClient.cpp:132
 msgid "Execute <str> and exit."
 msgstr "执行 <str> 然后退出。"
 
-#: src/TextClient.cpp:206
+#: src/TextClient.cpp:207
 msgid "Invalid IP format. Use xxx.xxx.xxx.xxx:xxxx\n"
 msgstr "无效 IP 地址格式，请使用 xxx.xxx.xxx.xxx:xxxx\n"
 
-#: src/TextClient.cpp:320
+#: src/TextClient.cpp:327
 msgid ""
 "This command requires an argument. Valid arguments: 'all', filename, or a "
 "number.\n"
 msgstr "此命令需要一个参数，合法参数为 'all'、文件名或一个数字。\n"
 
-#: src/TextClient.cpp:356
+#: src/TextClient.cpp:363
 msgid "Processing by hash: "
 msgstr "正在用此校验码处理："
 
-#: src/TextClient.cpp:370
+#: src/TextClient.cpp:377
 msgid "Processing by filename: "
 msgstr "正在用此文件名处理："
 
-#: src/TextClient.cpp:392
+#: src/TextClient.cpp:399
 msgid "This command requires an argument. Valid arguments: a file hash.\n"
 msgstr "此命令需要一个参数，合法参数为文件校验码。\n"
 
-#: src/TextClient.cpp:418
+#: src/TextClient.cpp:425
 msgid "Not a valid number\n"
 msgstr "非有效数字\n"
 
-#: src/TextClient.cpp:422
+#: src/TextClient.cpp:429
 msgid "Not a valid hash (length should be exactly 32 chars)\n"
 msgstr "无效的校验值（长度必须为32个字符）\n"
 
 #. TRANSLATORS:
 #. 'help search' is a command to the program, do not translate it.
-#: src/TextClient.cpp:535
+#: src/TextClient.cpp:542
 #, fuzzy
 msgid ""
 "No search type defined.\n"
 "Type 'help search' to get more help.\n"
 msgstr "输入 '%s' 显示更多帮助信息。\n"
 
-#: src/TextClient.cpp:554
+#: src/TextClient.cpp:561
 #, fuzzy, c-format
 msgid "Download File: %lu %s\n"
 msgstr "下载大小：%i"
 
-#: src/TextClient.cpp:646 src/webserver/src/WebServer.cpp:409
+#: src/TextClient.cpp:653 src/webserver/src/WebServer.cpp:409
 msgid "Request failed with an unknown error."
 msgstr "请求失败，错误未知。"
 
-#: src/TextClient.cpp:650
+#: src/TextClient.cpp:657
 msgid "Operation was successful."
 msgstr "操作成功。"
 
-#: src/TextClient.cpp:656
+#: src/TextClient.cpp:663
 #, c-format
 msgid "Request failed with the following error: %s"
 msgstr "请求失败，错误为：%s"
 
-#: src/TextClient.cpp:670
+#: src/TextClient.cpp:677
 #, c-format
 msgid "IP filtering for clients is %s.\n"
 msgstr "用户的IP过滤器是：%s。\n"
 
-#: src/TextClient.cpp:671 src/TextClient.cpp:677
+#: src/TextClient.cpp:678 src/TextClient.cpp:684
 msgid "OFF"
 msgstr "关"
 
-#: src/TextClient.cpp:671 src/TextClient.cpp:677
+#: src/TextClient.cpp:678 src/TextClient.cpp:684
 msgid "ON"
 msgstr "开"
 
-#: src/TextClient.cpp:676
+#: src/TextClient.cpp:683
 #, c-format
 msgid "IP filtering for servers is %s.\n"
 msgstr "服务器的IP过滤器是%s。\n"
 
-#: src/TextClient.cpp:681
+#: src/TextClient.cpp:688
 #, c-format
 msgid "Current IPFilter Level is %d.\n"
 msgstr "当前IP过滤级别时 %d.\n"
 
-#: src/TextClient.cpp:688
+#: src/TextClient.cpp:695
 #, c-format
 msgid "Bandwidth limits: Up: %u kB/s, Down: %u kB/s.\n"
 msgstr "带宽限制：上传：%u kB/s，下载：%u kB/s。\n"
 
-#: src/TextClient.cpp:702
+#: src/TextClient.cpp:709
 msgid "eD2k"
 msgstr "eD2k"
 
-#: src/TextClient.cpp:707
+#: src/TextClient.cpp:714
 #, c-format
 msgid "Connected to %s %s %s"
 msgstr "已连接到 %s %s %s"
 
-#: src/TextClient.cpp:713
+#: src/TextClient.cpp:720
 msgid "Now connecting"
 msgstr "正在连接"
 
-#: src/TextClient.cpp:722 src/utils/wxCas/src/wxcasframe.cpp:1051
+#: src/TextClient.cpp:729 src/utils/wxCas/src/wxcasframe.cpp:1051
 #: src/utils/wxCas/src/wxcasframe.cpp:1073
 msgid "firewalled"
 msgstr "被防火墙阻挡"
 
-#: src/TextClient.cpp:724 src/utils/wxCas/src/wxcasframe.cpp:1049
+#: src/TextClient.cpp:731 src/utils/wxCas/src/wxcasframe.cpp:1049
 #: src/utils/wxCas/src/wxcasframe.cpp:1071
 msgid "ok"
 msgstr "确定"
 
-#: src/TextClient.cpp:737
+#: src/TextClient.cpp:744
 #, c-format
 msgid ""
 "\n"
@@ -6239,7 +6316,7 @@ msgstr ""
 "\n"
 "下载：\t%s"
 
-#: src/TextClient.cpp:740
+#: src/TextClient.cpp:747
 #, c-format
 msgid ""
 "\n"
@@ -6248,7 +6325,7 @@ msgstr ""
 "\n"
 "上传：\t%s"
 
-#: src/TextClient.cpp:743
+#: src/TextClient.cpp:750
 #, c-format
 msgid ""
 "\n"
@@ -6257,7 +6334,7 @@ msgstr ""
 "\n"
 "队列长度：\t%d\n"
 
-#: src/TextClient.cpp:746
+#: src/TextClient.cpp:753
 #, c-format
 msgid ""
 "\n"
@@ -6266,39 +6343,39 @@ msgstr ""
 "\n"
 "源总数：\t%d\n"
 
-#: src/TextClient.cpp:855
+#: src/TextClient.cpp:862
 #, c-format
 msgid "Number of search results: %i\n"
 msgstr "搜索结果数量：%i\n"
 
-#: src/TextClient.cpp:869
+#: src/TextClient.cpp:876
 #, c-format
 msgid "Search progress: %u %% \n"
 msgstr "搜索进度: %u %% \n"
 
-#: src/TextClient.cpp:871
+#: src/TextClient.cpp:878
 #, fuzzy
 msgid "Search progress not available"
 msgstr "显示进度百分比"
 
-#: src/TextClient.cpp:876
+#: src/TextClient.cpp:883
 #, c-format
 msgid "Received an unknown reply from the server, OpCode = %#x."
 msgstr "从服务器收到未知的回复，操作码是 %#x."
 
-#: src/TextClient.cpp:889
+#: src/TextClient.cpp:896
 msgid "Show short status information."
 msgstr "显示简短的状态信息。"
 
-#: src/TextClient.cpp:890
+#: src/TextClient.cpp:897
 msgid "Show connection status, current up/download speeds, etc.\n"
 msgstr "显示连接状态，当前上传下载速度等等。\n"
 
-#: src/TextClient.cpp:892
+#: src/TextClient.cpp:899
 msgid "Show full statistics tree."
 msgstr "显示全部统计树。"
 
-#: src/TextClient.cpp:893
+#: src/TextClient.cpp:900
 msgid ""
 "Optionally, a number in the range 0-255 can be passed as an argument to "
 "this\n"
@@ -6314,11 +6391,11 @@ msgstr ""
 "\n"
 "示例： 'statistics 5' 将显示每个用户软件的5个版本。\n"
 
-#: src/TextClient.cpp:895
+#: src/TextClient.cpp:902
 msgid "Shut down aMule."
 msgstr "关闭aMule。"
 
-#: src/TextClient.cpp:896
+#: src/TextClient.cpp:903
 msgid ""
 "Shut down the remote running core (amule/amuled).\n"
 "This will also shut down the text client, since it is unusable without a\n"
@@ -6327,35 +6404,40 @@ msgstr ""
 "关闭远程运行的服务程序（amule/amuled）,\n"
 "当远程服务程序不可用时，文本客户端也将关闭。\n"
 
-#: src/TextClient.cpp:898
+#: src/TextClient.cpp:905
 msgid "Reload the given object."
 msgstr "重新载入所给的对象。"
 
-#: src/TextClient.cpp:899
+#: src/TextClient.cpp:906
 msgid "Reload shared files list."
 msgstr "重新载入共享文件列表。"
 
-#: src/TextClient.cpp:901
+#: src/TextClient.cpp:908
 msgid "Reload IP filtering table."
 msgstr "重新载入IP过滤表。"
 
-#: src/TextClient.cpp:902
+#: src/TextClient.cpp:909
 msgid "Reload current IP filtering table."
 msgstr "重新载入当前IP过滤表。"
 
-#: src/TextClient.cpp:903
+#: src/TextClient.cpp:910
 msgid "Update IP filtering table from URL."
 msgstr "从URL更新IP过滤表。"
 
-#: src/TextClient.cpp:904
+#: src/TextClient.cpp:911
 msgid "If URL is omitted the URL from the preferences is used."
 msgstr "如果URL省略了则将使用设置的URL。"
 
-#: src/TextClient.cpp:906
+#: src/TextClient.cpp:914
+#, fuzzy
+msgid "Reloads antiLeech."
+msgstr "重新装载 antiLeech"
+
+#: src/TextClient.cpp:916
 msgid "Connect to the network."
 msgstr "连接至网络。"
 
-#: src/TextClient.cpp:907
+#: src/TextClient.cpp:917
 msgid ""
 "This will connect to all networks that are enabled in Preferences.\n"
 "You may also optionally specify a server address in IP:Port form, to connect "
@@ -6368,35 +6450,35 @@ msgstr ""
 "此IP必须是用点分隔的十进制IPv4地址，\n"
 "或者是可以解析的DNS名称。"
 
-#: src/TextClient.cpp:908
+#: src/TextClient.cpp:918
 msgid "Connect to eD2k only."
 msgstr "只连接eD2k。"
 
-#: src/TextClient.cpp:909
+#: src/TextClient.cpp:919
 msgid "Connect to Kad only."
 msgstr "只连接Kad。"
 
-#: src/TextClient.cpp:911
+#: src/TextClient.cpp:921
 msgid "Disconnect from the network."
 msgstr "断开网络。"
 
-#: src/TextClient.cpp:912
+#: src/TextClient.cpp:922
 msgid "This will disconnect from all networks that are currently connected.\n"
 msgstr "这将断开当前已连接的全部网络。\n"
 
-#: src/TextClient.cpp:913
+#: src/TextClient.cpp:923
 msgid "Disconnect from eD2k only."
 msgstr "只断开eD2k。"
 
-#: src/TextClient.cpp:914
+#: src/TextClient.cpp:924
 msgid "Disconnect from Kad only."
 msgstr "只断开 Kad 连接。"
 
-#: src/TextClient.cpp:916
+#: src/TextClient.cpp:926
 msgid "Add an eD2k or magnet link to core."
 msgstr "添加一个eD2k或magnet链接到核心。"
 
-#: src/TextClient.cpp:917
+#: src/TextClient.cpp:927
 msgid ""
 "The eD2k link to be added can be:\n"
 "*) a file link (ed2k://|file|...), it will be added to the download queue,\n"
@@ -6415,51 +6497,51 @@ msgstr ""
 "magnet链接必须包含eD2k校验码和文件大小。\n"
 "\n"
 
-#: src/TextClient.cpp:919
+#: src/TextClient.cpp:929
 msgid "Set a preference value."
 msgstr "设置一个参数值。"
 
-#: src/TextClient.cpp:922
+#: src/TextClient.cpp:932
 msgid "Set IP filtering preferences."
 msgstr "设置IP过滤参数。"
 
-#: src/TextClient.cpp:923
+#: src/TextClient.cpp:933
 msgid "Turn IP filtering on for both clients and servers."
 msgstr "开启用户和服务器的 IP 过滤。"
 
-#: src/TextClient.cpp:924
+#: src/TextClient.cpp:934
 msgid "Turn IP filtering off for both clients and servers."
 msgstr "关闭用户和服务器的 IP 过滤。"
 
-#: src/TextClient.cpp:925
+#: src/TextClient.cpp:935
 msgid "Enable/Disable IP filtering for clients."
 msgstr "启动/禁用用户 IP 过滤。"
 
-#: src/TextClient.cpp:926
+#: src/TextClient.cpp:936
 msgid "Turn IP filtering on for clients."
 msgstr "开启用户 IP 过滤。"
 
-#: src/TextClient.cpp:927
+#: src/TextClient.cpp:937
 msgid "Turn IP filtering off for clients."
 msgstr "关闭用户 IP 过滤。"
 
-#: src/TextClient.cpp:928
+#: src/TextClient.cpp:938
 msgid "Enable/Disable IP filtering for servers."
 msgstr "启用/禁用服务器 IP 过滤。"
 
-#: src/TextClient.cpp:929
+#: src/TextClient.cpp:939
 msgid "Turn IP filtering on for servers."
 msgstr "开启服务器 IP 过滤。"
 
-#: src/TextClient.cpp:930
+#: src/TextClient.cpp:940
 msgid "Turn IP filtering off for servers."
 msgstr "关闭服务器 IP 过滤。"
 
-#: src/TextClient.cpp:931
+#: src/TextClient.cpp:941
 msgid "Select IP filtering level."
 msgstr "选择 IP 过滤级别。"
 
-#: src/TextClient.cpp:932
+#: src/TextClient.cpp:942
 msgid ""
 "Valid filtering levels are in the range 0-255, and it's default (initial)\n"
 "value is 127.\n"
@@ -6467,60 +6549,60 @@ msgstr ""
 "正确的 IP 过滤级别是在0-255之间，\n"
 "默认（初始）值是127。\n"
 
-#: src/TextClient.cpp:934
+#: src/TextClient.cpp:944
 msgid "Set bandwidth limits."
 msgstr "设置带宽限制。"
 
-#: src/TextClient.cpp:935
+#: src/TextClient.cpp:945
 msgid "The value given to these commands has to be in kilobytes/sec.\n"
 msgstr "给此命令的值必须使用kB/s。\n"
 
-#: src/TextClient.cpp:936
+#: src/TextClient.cpp:946
 msgid "Set upload bandwidth limit."
 msgstr "设置上传带宽限制。"
 
-#: src/TextClient.cpp:937 src/TextClient.cpp:939
+#: src/TextClient.cpp:947 src/TextClient.cpp:949
 #, fuzzy
 msgid "The given value must be in kilobytes/sec.\n"
 msgstr "给此命令的值必须使用kB/s。\n"
 
-#: src/TextClient.cpp:938
+#: src/TextClient.cpp:948
 msgid "Set download bandwidth limit."
 msgstr "设置下载带宽限制。"
 
-#: src/TextClient.cpp:941
+#: src/TextClient.cpp:951
 msgid "Get and display a preference value."
 msgstr "获取并显示设置值。"
 
-#: src/TextClient.cpp:944
+#: src/TextClient.cpp:954
 msgid "Get IP filtering preferences."
 msgstr "获取 IP 过滤器设置。"
 
-#: src/TextClient.cpp:945
+#: src/TextClient.cpp:955
 msgid "Get IP filtering state for both clients and servers."
 msgstr "获取用户和服务器的 IP 过滤器状态。"
 
-#: src/TextClient.cpp:946
+#: src/TextClient.cpp:956
 msgid "Get IP filtering state for clients only."
 msgstr "只获取用户的 IP 过滤器状态。"
 
-#: src/TextClient.cpp:947
+#: src/TextClient.cpp:957
 msgid "Get IP filtering state for servers only."
 msgstr "只获取服务器的 IP 过滤器状态。"
 
-#: src/TextClient.cpp:948
+#: src/TextClient.cpp:958
 msgid "Get IP filtering level."
 msgstr "获取 IP 过滤级别。"
 
-#: src/TextClient.cpp:950
+#: src/TextClient.cpp:960
 msgid "Get bandwidth limits."
 msgstr "获取带宽限制。"
 
-#: src/TextClient.cpp:952
+#: src/TextClient.cpp:962
 msgid "Execute a search."
 msgstr "执行搜索"
 
-#: src/TextClient.cpp:953
+#: src/TextClient.cpp:963
 msgid ""
 "A search type has to be specified by giving the type:\n"
 "    GLOBAL\n"
@@ -6534,39 +6616,39 @@ msgstr ""
 "    KAD\n"
 "示例： 'search kad 文件' 将对 \"文件\"执行 Kad 搜索。\n"
 
-#: src/TextClient.cpp:954
+#: src/TextClient.cpp:964
 msgid "Execute a global search."
 msgstr "执行全面搜索。"
 
-#: src/TextClient.cpp:955
+#: src/TextClient.cpp:965
 msgid "Execute a local search"
 msgstr "执行本地搜索"
 
-#: src/TextClient.cpp:956
+#: src/TextClient.cpp:966
 msgid "Execute a kad search"
 msgstr "执行 Kad 搜索"
 
-#: src/TextClient.cpp:958
+#: src/TextClient.cpp:968
 msgid "Show the results of the last search."
 msgstr "显示上次搜索的结果。"
 
-#: src/TextClient.cpp:959
+#: src/TextClient.cpp:969
 msgid "Return the results of the previous search.\n"
 msgstr "返回以前搜索的结果。\n"
 
-#: src/TextClient.cpp:961
+#: src/TextClient.cpp:971
 msgid "Show the progress of a search."
 msgstr "显示搜索进度。"
 
-#: src/TextClient.cpp:962
+#: src/TextClient.cpp:972
 msgid "Show the progress of a search.\n"
 msgstr "显示搜索进度。\n"
 
-#: src/TextClient.cpp:964
+#: src/TextClient.cpp:974
 msgid "Start downloading a file"
 msgstr "开始下载文件"
 
-#: src/TextClient.cpp:965
+#: src/TextClient.cpp:975
 msgid ""
 "The number of a file from the last search has to be given.\n"
 "Example: 'download 12' will start to download the file with the number 12 of "
@@ -6575,81 +6657,81 @@ msgstr ""
 "必须指定上次搜索的文件数量。\n"
 "示例：'download 12' 将开始下载上次搜索结果中的12个文件。\n"
 
-#: src/TextClient.cpp:972
+#: src/TextClient.cpp:982
 msgid "Pause download."
 msgstr "停止下载。"
 
-#: src/TextClient.cpp:975
+#: src/TextClient.cpp:985
 msgid "Resume download."
 msgstr "继续下载。"
 
-#: src/TextClient.cpp:978
+#: src/TextClient.cpp:988
 msgid "Cancel download."
 msgstr "取消下载。"
 
-#: src/TextClient.cpp:981
+#: src/TextClient.cpp:991
 msgid "Set download priority."
 msgstr "设置下载优先级。"
 
-#: src/TextClient.cpp:982
+#: src/TextClient.cpp:992
 msgid "Set priority of a download to Low, Normal, High or Auto.\n"
 msgstr "设置下载的优先级为低、正常、高或自动。\n"
 
-#: src/TextClient.cpp:983
+#: src/TextClient.cpp:993
 msgid "Set priority to low."
 msgstr "设为低优先级。"
 
-#: src/TextClient.cpp:984
+#: src/TextClient.cpp:994
 msgid "Set priority to normal."
 msgstr "设为正常优先级。"
 
-#: src/TextClient.cpp:985
+#: src/TextClient.cpp:995
 msgid "Set priority to high."
 msgstr "设为高优先级。"
 
-#: src/TextClient.cpp:986
+#: src/TextClient.cpp:996
 msgid "Set priority to auto."
 msgstr "设为自动优先级。"
 
-#: src/TextClient.cpp:988
+#: src/TextClient.cpp:998
 msgid "Show queues/lists."
 msgstr "显示队列/列表。"
 
-#: src/TextClient.cpp:989
+#: src/TextClient.cpp:999
 msgid "Show upload/download queue, server list or shared files list.\n"
 msgstr "显示上传/下载队列，服务器列表或共享文件列表。\n"
 
-#: src/TextClient.cpp:990
+#: src/TextClient.cpp:1000
 msgid "Show upload queue."
 msgstr "显示上传队列。"
 
-#: src/TextClient.cpp:991
+#: src/TextClient.cpp:1001
 msgid "Show download queue."
 msgstr "显示下载队列。"
 
-#: src/TextClient.cpp:992
+#: src/TextClient.cpp:1002
 msgid "Show log."
 msgstr "显示日志。"
 
-#: src/TextClient.cpp:993
+#: src/TextClient.cpp:1003
 msgid "Show servers list."
 msgstr "显示服务器列表。"
 
-#: src/TextClient.cpp:994
+#: src/TextClient.cpp:1004
 #, fuzzy
 msgid "Show shared files list."
 msgstr "重新载入共享文件列表。"
 
-#: src/TextClient.cpp:996
+#: src/TextClient.cpp:1006
 msgid "Reset log."
 msgstr "重设日志。"
 
-#: src/TextClient.cpp:1003
+#: src/TextClient.cpp:1013
 #, c-format
 msgid "Deprecated command, use '%s' instead."
 msgstr "废弃的命令，请使用%s代替。"
 
-#: src/TextClient.cpp:1004
+#: src/TextClient.cpp:1014
 #, c-format
 msgid ""
 "This is a deprecated command, and may be removed in the future.\n"
@@ -6722,12 +6804,12 @@ msgstr "打开文件(%s)失败，从共享文件列表删除。"
 msgid "Hashset requested for unknown file: %s"
 msgstr "请求未知文件校检码：%s"
 
-#: src/UploadQueue.cpp:596
+#: src/UploadQueue.cpp:601
 #, c-format
 msgid "Resuming uploads of file: %s"
 msgstr "继续上传此文件：%s"
 
-#: src/UploadQueue.cpp:613
+#: src/UploadQueue.cpp:618
 #, c-format
 msgid "Suspending upload of file: %s"
 msgstr "暂停上传此文件：%s"
@@ -7034,6 +7116,10 @@ msgstr "%.2f TB"
 #: src/utils/wxCas/src/wxcas.cpp:74
 msgid "wxCas, aMule Online Statistics"
 msgstr "wxCas，aMule在线统计"
+
+#: src/utils/wxCas/src/wxcasframe.cpp:111
+msgid "aMule"
+msgstr "aMule"
 
 #: src/utils/wxCas/src/wxcasframe.cpp:115
 msgid "Maximum DL rate since wxCas is running"
@@ -7712,47 +7798,20 @@ msgstr "正在处理请求 [已重定向]："
 #~ "\n"
 #~ "此外，浏览器设定已经被重设为系统默认值。如有必要，请重新配置浏览器选项。\n"
 
-msgid "Dynamic Leecher Protection Options"
-msgstr "动态反吸血保护选项"
-
-msgid "Reload antiLeech"
-msgstr "重新装载 antiLeech"
-
-msgid "Check bad modstring"
-msgstr "根据 Mod 名字检测吸血驴"
-
-msgid "Check bad username"
-msgstr "根据用户名字检测吸血驴"
-
-msgid "Check bad userhash"
-msgstr "检测错误的用户哈希值"
-
-msgid "Check bad hello tag"
-msgstr "根据握手标签(HelloTag)检测吸血驴"
-
-msgid "Check bad info tag"
-msgstr "根据 InfoTag 检测吸血驴"
-
-msgid "Check ghost mod"
-msgstr "检测幽灵客户端(Ghost Mod)"
-
 #~ msgid "Ban VeryCD easyMule2"
 #~ msgstr "屏蔽 VeryCD easyMule2"
-
-msgid "Ban eMule VeryCD mod(Please consider carefully whether to use)"
-msgstr "屏蔽 VeryCD eMule（请慎重考虑是否使用）"
 
 #~ msgid "Ban VeryCD miniMule"
 #~ msgstr "屏蔽 VeryCD miniMule"
 
-msgid "Trying to load antiLeech..."
-msgstr "尝试加载 antiLeech..."
+#~ msgid "Trying to load antiLeech..."
+#~ msgstr "尝试加载 antiLeech..."
 
-msgid "No antiLeech available!"
-msgstr "未找到 antiLeech!"
+#~ msgid "No antiLeech available!"
+#~ msgstr "未找到 antiLeech!"
 
-msgid "Succeed loading antiLeech! Version: %d"
-msgstr "成功加载 antiLeech! 版本： %d"
+#~ msgid "Succeed loading antiLeech! Version: %d"
+#~ msgstr "成功加载 antiLeech! 版本： %d"
 
 #~ msgid "Fetching status..."
 #~ msgstr "正在获取状态..."
@@ -8008,18 +8067,8 @@ msgstr "成功加载 antiLeech! 版本： %d"
 #~ msgid " Contact: admin@amule.org (administrative issues) \n"
 #~ msgstr " 联系邮件：admin@amule.org (管理问题) \n"
 
-#~ msgid ""
-#~ " Copyright (C) 2003-2008 aMule Team \n"
-#~ "\n"
-#~ msgstr ""
-#~ " 版权所有 (C) 2003-2008 aMule 团队 \n"
-#~ "\n"
-
 #~ msgid " Part of aMule is based on \n"
 #~ msgstr " aMule的一部分是基于 \n"
-
-#~ msgid " Copyright (C) 2002 Petar Maymounkov\n"
-#~ msgstr " 版权所有 (C) 2002 Petar Maymounkov\n"
 
 #~ msgid " http://kademlia.scs.cs.nyu.edu\n"
 #~ msgstr " http://kademlia.scs.cs.nyu.edu\n"
