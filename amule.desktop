@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=aMule
-Exec=amule %u
+Exec=amule
 Icon=amule
 Terminal=false
 Type=Application

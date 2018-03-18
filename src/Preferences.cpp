@@ -1248,7 +1248,7 @@ void CPreferences::BuildItemList( const wxString& appdir )
 	/**
 	 * Version check
 	 **/
-	 NewCfgItem(IDC_NEWVERSION,	(new Cfg_Bool( wxT("/eMule/NewVersionCheck"), s_NewVersionCheck, false )));
+	 NewCfgItem(IDC_NEWVERSION,	(new Cfg_Bool( wxT("/eMule/NewVersionCheck"), s_NewVersionCheck, true )));
 
 	 /**
 	  * Obfuscation

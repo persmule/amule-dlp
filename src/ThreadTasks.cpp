@@ -531,15 +531,6 @@ void CCompletionTask::OnExit()
 #include <stdlib.h>
 #include <errno.h>
 
-// #562992
-#if defined(__hppa__)
-#undef HAVE_FALLOCATE
-#endif
-
-#if defined(__hppa__)
-#undef HAVE_SYS_FALLOCATE
-#endif
-
 CAllocateFileTask::CAllocateFileTask(CPartFile *file, bool pause)
 	// GetPrintable is used to improve the readability of the log.
 	: CThreadTask(wxT("Allocating"), file->GetFullName().RemoveExt().GetPrintable(), ETP_High),
