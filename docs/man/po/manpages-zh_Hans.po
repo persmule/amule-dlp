@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2026-06-10 16:45+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2026-09-28 14:04+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: none\n"
 "Language: zh_Hans\n"
@@ -41,7 +41,7 @@ msgstr ""
 #: amule.1.in:1
 #, no-wrap
 msgid "aMule"
-msgstr ""
+msgstr "aMule"
 
 #. type: SH
 #: amule.1.in:4 amulecmd.1.in:5 amuled.1.in:4 amulegui.1.in:4 amuleweb.1.in:4
@@ -50,12 +50,12 @@ msgstr ""
 #: ../../src/utils/cas/docs/cas.1.in:4 ../../src/utils/wxCas/docs/wxcas.1.in:3
 #, no-wrap
 msgid "NAME"
-msgstr ""
+msgstr "名称"
 
 #. type: Plain text
 #: amule.1.in:6
 msgid "amule - the all-platform eMule p2p client"
-msgstr ""
+msgstr "amule - 跨平台的 eMule P2P 客户端"
 
 #. type: SH
 #: amule.1.in:6 amulecmd.1.in:7 amuled.1.in:6 amulegui.1.in:6 amuleweb.1.in:6
@@ -64,7 +64,7 @@ msgstr ""
 #: ../../src/utils/cas/docs/cas.1.in:6 ../../src/utils/wxCas/docs/wxcas.1.in:5
 #, no-wrap
 msgid "SYNOPSIS"
-msgstr ""
+msgstr "简介"
 
 #. type: Plain text
 #: amule.1.in:10 amulegui.1.in:10
@@ -117,12 +117,12 @@ msgstr ""
 #. type: Plain text
 #: amule.1.in:35 amuled.1.in:43 amulegui.1.in:36
 msgid "Prints log messages to stdout."
-msgstr ""
+msgstr "将日志信息显示在标准输出。"
 
 #. type: Plain text
 #: amule.1.in:38 amuled.1.in:46 amulegui.1.in:39
 msgid "Resets config to default values."
-msgstr ""
+msgstr "将配置重置至默认值。"
 
 #. type: Plain text
 #: amule.1.in:42
@@ -148,7 +148,7 @@ msgstr ""
 #. type: Plain text
 #: amule.1.in:53 amuled.1.in:61 amulegui.1.in:54
 msgid "Does not disable stdin."
-msgstr ""
+msgstr "不禁用标准输入。"
 
 #. type: TP
 #: amule.1.in:53 amulegui.1.in:54
@@ -184,7 +184,7 @@ msgstr ""
 #. type: Plain text
 #: amule.1.in:65 amuled.1.in:73 ed2k.1.in:43
 msgid "Adds an eD2k-link to the core."
-msgstr ""
+msgstr "将 eD2k 链接加到核心。"
 
 #. type: Plain text
 #: amule.1.in:67 amulecmd.1.in:79 amuled.1.in:75 ed2k.1.in:45
