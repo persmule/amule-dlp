@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2026-09-28 15:29+0100\n"
-"PO-Revision-Date: 2026-09-28 14:56+0000\n"
+"PO-Revision-Date: 2026-09-28 17:33+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: none\n"
 "Language: ca\n"
@@ -78,10 +78,8 @@ msgstr "[B<-w> I<E<lt>pathE<gt>>]"
 
 #. type: Plain text
 #: amule.1.in amuled.1.in amulegui.1.in
-#, fuzzy
-#| msgid "[B<-t> I<E<lt>numE<gt>>] [I<eD2k-link>]"
 msgid "[B<-t> I<E<lt>numE<gt>>] [I<eD2k-link>|I<collection-file>]"
-msgstr "[B<-t> I<E<lt>numE<gt>>] [I<eD2k-link>]"
+msgstr "[B<-t> I<E<lt>numE<gt>>] [I<eD2k-link>|I<collection-file>]"
 
 #. type: SH
 #: amule.1.in amulecmd.1.in amuled.1.in amulegui.1.in amuleweb.1.in ed2k.1.in
@@ -134,14 +132,12 @@ msgstr "Habilita o inhabilita l'inici de l'aMule en iniciar la sessió i surt.  
 #. type: Plain text
 #: amule.1.in amuled.1.in amulegui.1.in
 msgid "Enable or disable aMule as the current user's default handler for ed2k:// and magnet: links, then exit.  I<E<lt>valueE<gt>> is B<on> or B<off> for both kinds of link, or B<ed2k:on>, B<ed2k:off>, B<magnet:on> or B<magnet:off> for one of them.  The OS-specific store is selected automatically: Windows registry, macOS LaunchServices, Linux XDG I<mimeapps.list>."
-msgstr ""
+msgstr "Habilita o inhabilita l'aMule com a gestor predeterminat de l'usuari actual per als enllaços ed2k:// i magnet: i surt.  I<E<lt>valueE<gt>> és B<on> o B<off> per als dos tipus d'enllaç, o B<ed2k:on>, B<ed2k:off>, B<magnet:on> o B<magnet:off> per a només un d'ells.  El magatzem específic del sistema operatiu se selecciona automàticament: registre de Windows, LaunchServices de macOS, I<mimeapps.list> XDG de Linux."
 
 #. type: Plain text
 #: amule.1.in amuled.1.in amulegui.1.in
-#, fuzzy
-#| msgid "Enable or disable starting aMule on user login, then exit.  The OS-specific store is selected automatically: Windows registry Run key, macOS LaunchAgent, Linux XDG I<.desktop> autostart entry."
 msgid "Enable or disable aMule as the current user's handler for I<.emulecollection> files, then exit.  The OS-specific store is selected automatically: Windows registry, macOS LaunchServices, Linux XDG I<mimeapps.list>."
-msgstr "Habilita o inhabilita l'inici de l'aMule en iniciar la sessió i surt.  El magatzem específic del sistema operatiu se selecciona automàticament: clau Run del registre de Windows, LaunchAgent de macOS, entrada d'inici automàtic XDG I<.desktop> de Linux."
+msgstr "Habilita o inhabilita l'aMule com a gestor dels fitxers I<.emulecollection> de l'usuari actual i surt.  El magatzem específic del sistema operatiu se selecciona automàticament: registre de Windows, LaunchServices de macOS, I<mimeapps.list> XDG de Linux."
 
 #. type: TP
 #: amule.1.in amuled.1.in
@@ -189,17 +185,14 @@ msgstr "Mostra una breu descripció d'ús."
 
 #. type: TP
 #: amule.1.in amuled.1.in amulegui.1.in
-#, fuzzy, no-wrap
-#| msgid "B<[ eD2k-link ]>"
+#, no-wrap
 msgid "B<[ eD2k-link | collection-file ]>"
-msgstr "B<[ eD2k-link ]>"
+msgstr "B<[ eD2k-link | collection-file ]>"
 
 #. type: Plain text
 #: amule.1.in amuled.1.in
-#, fuzzy
-#| msgid "Adds an eD2k-link or a magnet-link to the core."
 msgid "Adds an eD2k-link, or every link in an eMule collection file, to the core."
-msgstr "Afegeix un enllaç eD2k o un enllaç magnet al nucli."
+msgstr "Afegeix un enllaç eD2k, o tots els enllaços d'un fitxer de col·lecció d'eMule, al nucli."
 
 #. type: Plain text
 #: amule.1.in amulecmd.1.in amuled.1.in amulegui.1.in ed2k.1.in
@@ -229,7 +222,7 @@ msgstr "un enllaç magnet."
 #. type: Plain text
 #: amule.1.in amuled.1.in amulegui.1.in
 msgid "Alternatively the argument can be the path to an .emulecollection file, or a file:// URL naming one, in which case every link it contains is added to the download queue.  This is what lets a file manager open a collection with aMule."
-msgstr ""
+msgstr "Alternativament, l'argument pot ser la ruta a un fitxer .emulecollection, o un URL file:// que n'indiqui un, i en aquest cas tots els enllaços que contingui s'afegeixen a la cua de baixades.  Això és el que permet que un gestor de fitxers obri una col·lecció amb l'aMule."
 
 #. type: SH
 #: amule.1.in amulecmd.1.in amulegui.1.in amuleweb.1.in
@@ -461,7 +454,7 @@ msgstr "Crea un fitxer de configuració basat en I<E<lt>pathE<gt>>, que ha d'apu
 #. type: Plain text
 #: amulecmd.1.in amuleweb.1.in
 msgid "Do not encrypt the External Connection link.  Encryption is negotiated automatically whenever the remote aMule supports it, and is on by default for every destination, local or remote.  Turning it off leaves everything after the login readable, and modifiable, by anyone able to observe the connection."
-msgstr ""
+msgstr "No xifris l'enllaç de connexió externa.  El xifratge es negocia automàticament sempre que l'aMule remot l'admet, i està activat per defecte per a totes les destinacions, locals o remotes.  Si es desactiva, tot el que ve després de l'inici de sessió pot ser llegit, i modificat, per qualsevol que pugui observar la connexió."
 
 #. type: Plain text
 #: amulecmd.1.in amuleweb.1.in
@@ -471,7 +464,7 @@ msgstr "Força la compressió ZLIB a l'enllaç de connexió externa independentm
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Separate the fields of the list commands with spaces, as earlier versions did, instead of tabs.  Client names and file names may contain spaces, so the default tab separator is what lets a script split a row back into its fields; use this only for scripts written against the older output."
-msgstr ""
+msgstr "Separa els camps de les ordres de llista amb espais, com feien les versions anteriors, en lloc de tabulacions.  Els noms de client i de fitxer poden contenir espais, de manera que el separador de tabulació predeterminat és el que permet que un script torni a dividir una fila en els seus camps; feu-ho servir només per a scripts escrits per a la sortida antiga."
 
 #. type: SH
 #: amulecmd.1.in
@@ -532,7 +525,7 @@ msgstr "Comença a baixar un fitxer."
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Give the I<E<lt>numberE<gt>> of a file as listed by B<results>, optionally followed by a search I<E<lt>idE<gt>> (as printed by B<search>). Without an id, the number refers to the last B<results> output, or to the most recently started search if nothing was listed yet.  Example: 'download 12' downloads file 12 of the last results; 'download 12 3' downloads file 12 of search 3."
-msgstr ""
+msgstr "Indiqueu el I<E<lt>numberE<gt>> d'un fitxer tal com el llista B<results>, seguit opcionalment d'un I<E<lt>idE<gt>> de cerca (tal com l'escriu B<search>). Sense id, el número fa referència a l'última sortida de B<results>, o a la cerca iniciada més recentment si encara no s'ha llistat res.  Exemple: 'download 12' baixa el fitxer 12 dels últims resultats; 'download 12 3' baixa el fitxer 12 de la cerca 3."
 
 #. type: Plain text
 #: amulecmd.1.in
@@ -602,7 +595,7 @@ msgstr "Prioritat normal."
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Shows the progress of an on-going search. Optionally takes a search I<E<lt>idE<gt>> (as printed by B<search>); with no id, shows the most recently started search."
-msgstr ""
+msgstr "Mostra el progrés d'una cerca en curs. Opcionalment accepta un I<E<lt>idE<gt>> de cerca (tal com l'escriu B<search>); sense id, mostra la cerca iniciada més recentment."
 
 #. type: Plain text
 #: amulecmd.1.in
@@ -632,7 +625,7 @@ msgstr "Reinicia el registre."
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Shows you the results of a search. Optionally takes a search I<E<lt>idE<gt>> (as printed by B<search>); with no id, shows the most recently started search.  Several searches can be kept on the daemon at once and addressed by id."
-msgstr ""
+msgstr "Mostra els resultats d'una cerca. Opcionalment accepta un I<E<lt>idE<gt>> de cerca (tal com l'escriu B<search>); sense id, mostra la cerca iniciada més recentment.  El dimoni pot mantenir diverses cerques alhora, a les quals es fa referència per id."
 
 #. type: Plain text
 #: amulecmd.1.in
@@ -641,10 +634,8 @@ msgstr "Reprèn la baixada especificada per I<E<lt>hashE<gt>> o I<E<lt>numberE<g
 
 #. type: Plain text
 #: amulecmd.1.in
-#, fuzzy
-#| msgid "Makes a search for the given I<E<lt>keywordE<gt>>. A search type and a keyword to search is mandatory to do this.  Example: 'search kad amule' performs a kad search for 'amule'."
 msgid "Makes a search for the given I<E<lt>keywordE<gt>>. A search type and a keyword to search is mandatory to do this.  Example: 'search kad amule' performs a kad search for 'amule'.  Prints a search id; pass it to B<results> or B<progress> to address this search. Several searches can run at once, each with its own id."
-msgstr "Fa una cerca de la I<E<lt>keywordE<gt>> indicada. Per fer-ho, cal indicar un tipus de cerca i una paraula clau.  Exemple: 'search kad amule' fa una cerca kad de 'amule'."
+msgstr "Fa una cerca de la I<E<lt>keywordE<gt>> indicada. Per fer-ho, cal indicar un tipus de cerca i una paraula clau.  Exemple: 'search kad amule' fa una cerca kad de 'amule'.  Escriu un id de cerca; passeu-lo a B<results> o B<progress> per referir-vos a aquesta cerca. Es poden executar diverses cerques alhora, cadascuna amb el seu propi id."
 
 #. type: Plain text
 #: amulecmd.1.in
@@ -949,45 +940,40 @@ msgstr "Habilita o inhabilita l'inici d'amulegui en iniciar la sessió i surt.  
 #. type: Plain text
 #: amulegui.1.in
 msgid "Sends an eD2k-link, or every link in an eMule collection file, to the connected core."
-msgstr ""
+msgstr "Envia un enllaç eD2k, o tots els enllaços d'un fitxer de col·lecció d'eMule, al nucli connectat."
 
 #. type: TP
 #: amulegui.1.in
-#, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
+#, no-wrap
 msgid "I<~/.aMule/remote.conf>"
-msgstr "~/.aMule/remote.conf"
+msgstr "I<~/.aMule/remote.conf>"
 
 #. type: Plain text
 #: amulegui.1.in
 msgid "Settings, including the core to connect to."
-msgstr ""
+msgstr "Configuració, inclòs el nucli al qual es connecta."
 
 #. type: TP
 #: amulegui.1.in
-#, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
+#, no-wrap
 msgid "I<~/.aMule/remotelogfile>"
-msgstr "~/.aMule/remote.conf"
+msgstr "I<~/.aMule/remotelogfile>"
 
 #. type: Plain text
 #: amulegui.1.in
-#, fuzzy
-#| msgid "Show log."
 msgid "The log."
-msgstr "Mostra el registre."
+msgstr "El registre."
 
 #. type: TP
 #: amulegui.1.in
-#, fuzzy, no-wrap
-#| msgid "~/.aMule/ED2KLinks"
+#, no-wrap
 msgid "I<~/.aMule/ED2KLinks>"
-msgstr "~/.aMule/ED2KLinks"
+msgstr "I<~/.aMule/ED2KLinks>"
 
 #. type: Plain text
 #: amulegui.1.in
 msgid "Links passed on the command line, waiting to be sent to the core."
-msgstr ""
+msgstr "Enllaços passats a la línia d'ordres, en espera de ser enviats al nucli."
 
 #. type: Plain text
 #: amulegui.1.in
@@ -1044,7 +1030,7 @@ msgstr "[B<--amule-config-file>=I<E<lt>pathE<gt>>]"
 #. type: Plain text
 #: amuleweb.1.in
 msgid "B<DEPRECATED:> amuleweb is deprecated and may be removed in aMule 3.2 or later.  It is not being removed yet; consider migrating to amuleapi, the REST/SSE API."
-msgstr ""
+msgstr "B<OBSOLET:> amuleweb està obsolet i es podria eliminar a l'aMule 3.2 o posterior.  Encara no s'elimina; considereu migrar a amuleapi, l'API REST/SSE."
 
 #. type: Plain text
 #: amuleweb.1.in
