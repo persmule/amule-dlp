@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-26 17:32+0100\n"
-"PO-Revision-Date: 2026-09-26 19:31+0000\n"
+"PO-Revision-Date: 2026-09-27 21:55+0000\n"
 "Last-Translator: raffe <raffe@localhost.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -278,7 +278,7 @@ msgstr "Nu, avslutar huvudapplikationen..."
 #: src/amule.cpp
 #, c-format
 msgid "Terminating amuleweb instance with pid '%d' ... "
-msgstr "Avslutar  amuleweb-instansen med pid '%d' ... "
+msgstr "Avslutar amuleweb-instansen med pid '%d' ... "
 
 #: src/amule.cpp
 #, c-format
@@ -2638,7 +2638,7 @@ msgstr "Förhandsvisning av fil"
 #: src/FileLaunch.cpp
 #, c-format
 msgid "ERROR: Failed to execute external media-player! Command: '%s'"
-msgstr "FEL: Kunde inte starta externa mediaspelaren! Kommado: '%s'"
+msgstr "FEL: Kunde inte starta den externa mediaspelaren! Kommando: '%s'"
 
 #: src/FileLaunch.cpp
 #, c-format
@@ -4083,7 +4083,7 @@ msgstr "Senast sedd komplett"
 
 #: src/muuli_wdr.cpp
 msgid "Found Sources"
-msgstr "Hittade Källor"
+msgstr "Hittade källor"
 
 #: src/muuli_wdr.cpp
 msgid "Transferring Sources"
@@ -4091,7 +4091,7 @@ msgstr "Källor som överför"
 
 #: src/muuli_wdr.cpp
 msgid "Filepart-Count"
-msgstr "Filepart-antal"
+msgstr "Antal delar"
 
 #: src/muuli_wdr.cpp
 msgid "Available"
@@ -4103,7 +4103,7 @@ msgstr "Datahastighet"
 
 #: src/muuli_wdr.cpp
 msgid "Download Active Time"
-msgstr "Hämta Aktiv Tid"
+msgstr "Aktiv nedladdningstid"
 
 #: src/muuli_wdr.cpp
 msgid "Completed Size"
@@ -4115,7 +4115,7 @@ msgstr "Intelligent korruptionshantering"
 
 #: src/muuli_wdr.cpp
 msgid "Lost to corruption"
-msgstr "Förlorat till korruption"
+msgstr "Förlorat på grund av korruption"
 
 #: src/muuli_wdr.cpp
 msgid "Gained by compression"
@@ -4123,7 +4123,7 @@ msgstr "Vunnits genom komprimering"
 
 #: src/muuli_wdr.cpp
 msgid "Packages saved by I.C.H."
-msgstr "Paket sparad av I.C.H."
+msgstr "Paket sparade av I.C.H."
 
 #: src/muuli_wdr.cpp
 msgid "Sharing"
@@ -4347,7 +4347,7 @@ msgstr "Överföringar till klienten"
 
 #: src/muuli_wdr.cpp
 msgid "Current request"
-msgstr "Aktuella begäran"
+msgstr "Aktuell begäran"
 
 #: src/muuli_wdr.cpp
 msgid "Average upload rate"
@@ -4355,7 +4355,7 @@ msgstr "Genomsnittlig uppladdningshastighet"
 
 #: src/muuli_wdr.cpp
 msgid "Average download rate"
-msgstr "Genomsnittliga nedladdningshastighet"
+msgstr "Genomsnittlig nedladdningshastighet"
 
 #: src/muuli_wdr.cpp
 msgid "Uploaded (session)"

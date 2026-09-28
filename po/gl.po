@@ -25,7 +25,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-26 17:32+0100\n"
-"PO-Revision-Date: 2026-09-26 19:21+0000\n"
+"PO-Revision-Date: 2026-09-27 21:54+0000\n"
 "Last-Translator: Pablo <parodper@gmail.com>\n"
 "Language-Team: http://forum.amule.org/index.php?topic=13883\n"
 "Language: gl\n"
@@ -4018,7 +4018,7 @@ msgstr "Dispoñibilidade"
 
 #: src/muuli_wdr.cpp
 msgid "Filter"
-msgstr "Filtrado"
+msgstr "Filtro"
 
 #: src/muuli_wdr.cpp
 msgid "Invert Result"
@@ -4121,7 +4121,7 @@ msgstr "Fontes atopadas"
 
 #: src/muuli_wdr.cpp
 msgid "Transferring Sources"
-msgstr "Enviando fontes"
+msgstr "Fontes en transferencia"
 
 #: src/muuli_wdr.cpp
 msgid "Filepart-Count"
@@ -4141,7 +4141,7 @@ msgstr "Tempo coa descarga activa"
 
 #: src/muuli_wdr.cpp
 msgid "Completed Size"
-msgstr "Tamaño total"
+msgstr "Tamaño completado"
 
 #: src/muuli_wdr.cpp
 msgid "Intelligent Corruption Handling"
@@ -4248,7 +4248,7 @@ msgid ""
 "For a film you can say its length, its story, language ...\n"
 "and if it's a fake, you can tell that to other users of aMule."
 msgstr ""
-"Para unha película vostede pode dicir que é largo, a súa historia, o idioma ...\n"
+"Para unha película vostede pode dicir a súa duración, a súa historia, o idioma ...\n"
 "e se é un ficheiro falso, pode advertir ós outros usuarios do aMule."
 
 #: src/muuli_wdr.cpp
@@ -4382,7 +4382,7 @@ msgstr "Transferencias ao cliente"
 
 #: src/muuli_wdr.cpp
 msgid "Current request"
-msgstr "Peticións actuais"
+msgstr "Petición actual"
 
 #: src/muuli_wdr.cpp
 msgid "Average upload rate"
@@ -8723,7 +8723,7 @@ msgstr "Interrompendo o envío do ficheiro: %s"
 #: src/UserEvents.cpp
 #, c-format
 msgid "Failed to execute command '%s' on '%s' event."
-msgstr "Non se puido executar a orde `%s» no evento `%s»."
+msgstr "Non se puido executar a orde «%s» no evento «%s»."
 
 #: src/UserEvents.h
 msgid "Download completed"

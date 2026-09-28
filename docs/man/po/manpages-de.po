@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: manpages-de\n"
 "POT-Creation-Date: 2026-09-26 12:38+0100\n"
-"PO-Revision-Date: 2026-09-26 19:34+0000\n"
+"PO-Revision-Date: 2026-09-27 21:55+0000\n"
 "Last-Translator: Balla Marcell <marcell.balla@gmx.at>\n"
 "Language-Team: German <kde-i18n-de@kde.org>\n"
 "Language: de\n"
@@ -863,7 +863,7 @@ msgstr "Zeigt die Statistiken an."
 #. type: Plain text
 #: amulecmd.1.in
 msgid "The optional I<E<lt>numberE<gt>> in the range of 0-255 can be passed as argument to this command, which tells how many entries of the client version subtree should be shown. Passing 0, or omitting it means 'unlimited'."
-msgstr "Die optionale I<E<lt>NummerE<gt>> im Bereich von 0-255 kann als Argument diesem Befehel übergeben werden. Sie gibt an, wie viele Einträge der Clientversionsliste angezeigt werden sollen. Der Wert 0, oder keine Angabe bedeutet 'unbegrenzt'."
+msgstr "Die optionale I<E<lt>NummerE<gt>> im Bereich von 0-255 kann als Argument diesem Befehl übergeben werden. Sie gibt an, wie viele Einträge der Clientversionsliste angezeigt werden sollen. Der Wert 0, oder keine Angabe bedeutet 'unbegrenzt'."
 
 # type: Plain text
 #. type: Plain text

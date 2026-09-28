@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-26 17:32+0100\n"
-"PO-Revision-Date: 2026-09-26 19:27+0000\n"
+"PO-Revision-Date: 2026-09-27 21:54+0000\n"
 "Last-Translator: Hallvor Brunstad <Hallvor_1976@yahoo.com>\n"
 "Language-Team: <i18n-nn@lister.ping.uio.no>\n"
 "Language: nn\n"
@@ -4370,7 +4370,7 @@ msgstr "Overføringar til klient"
 
 #: src/muuli_wdr.cpp
 msgid "Current request"
-msgstr "Novérande etterspurnader"
+msgstr "Noverande etterspurnad"
 
 #: src/muuli_wdr.cpp
 msgid "Average upload rate"
@@ -5206,7 +5206,7 @@ msgstr "Ikkje endre"
 
 #: src/muuli_wdr.cpp
 msgid "Select color for this Category (currently selected)"
-msgstr "Vel farge for denne kategprien (no valt)"
+msgstr "Vel farge for denne kategorien (no valt)"
 
 #: src/muuli_wdr.cpp
 msgid "Click this button to reset the log."
@@ -8715,7 +8715,7 @@ msgstr "Mellombels stogge opplastingar av fila: %s"
 #: src/UserEvents.cpp
 #, c-format
 msgid "Failed to execute command '%s' on '%s' event."
-msgstr "Greidde ikkje å utføre kommendoen '%s'·på·`%s hending."
+msgstr "Greidde ikkje å utføre kommandoen '%s' ved hendinga '%s'."
 
 #: src/UserEvents.h
 msgid "Download completed"

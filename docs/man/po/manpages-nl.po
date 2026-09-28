@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2026-07-30 17:31+0200\n"
-"PO-Revision-Date: 2026-09-26 19:35+0000\n"
+"PO-Revision-Date: 2026-09-28 02:53+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: none\n"
 "Language: nl\n"
@@ -510,7 +510,7 @@ msgstr "Start downloaden van een bestand."
 #. type: Plain text
 #: amulecmd.1.in
 msgid "The I<E<lt>numberE<gt>> of a file from the last search has to be given.  Example: 'download 12' will start to download the file with the number 12 of the previous search."
-msgstr "Het I<E<lt>nummerE<gt>> van een bestand in de laatste zoekopdracht moet gegeven worden.  Voorbeeld: 'download 12' zal het beatand met nummer 12 uit de vorige zoekopdracht beginnen te downloaden."
+msgstr "Het I<E<lt>nummerE<gt>> van een bestand in de laatste zoekopdracht moet gegeven worden.  Voorbeeld: 'download 12' zal het bestand met nummer 12 uit de vorige zoekopdracht beginnen te downloaden."
 
 #. type: Plain text
 #: amulecmd.1.in

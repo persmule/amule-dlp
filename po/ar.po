@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-26 17:32+0100\n"
-"PO-Revision-Date: 2026-09-26 19:06+0000\n"
+"PO-Revision-Date: 2026-09-27 21:01+0000\n"
 "Last-Translator: saleh alhathal <hathalsal@hotmail.com>\n"
 "Language-Team: \n"
 "Language: ar\n"
@@ -38,24 +38,28 @@ msgid ""
 "'All-Platform' p2p client based on eMule \n"
 "\n"
 msgstr ""
+"عميل 'متعدد المنصات' لتبادل الملفات (P2P) مبني على eMule \n"
+"\n"
 
 #: src/AboutDialog.cpp
 msgid ""
 "Copyright (c) 2003-2026 aMule Team \n"
 "\n"
 msgstr ""
+"جميع الحقوق محفوظة (c) 2003-2026 فريق aMule. \n"
+"\n"
 
 #: src/AboutDialog.cpp
 msgid "Part of aMule is based on \n"
-msgstr ""
+msgstr "جزء من aMule مبني على \n"
 
 #: src/AboutDialog.cpp
 msgid "Kademlia: Peer-to-peer routing based on the XOR metric.\n"
-msgstr ""
+msgstr "Kademlia: توجيه من نظير إلى نظير يعتمد على مقياس XOR.\n"
 
 #: src/AboutDialog.cpp
 msgid " Copyright (c) 2002-2011 Petar Maymounkov ( petar@maymounkov.org )\n"
-msgstr ""
+msgstr " جميع الحقوق محفوظة (c) 2002-2011 Petar Maymounkov (petar@maymounkov.org)\n"
 
 #: src/AboutDialog.cpp
 msgid "Website:"
@@ -199,7 +203,7 @@ msgstr "فشل فتح ملف ED2KLinks."
 
 #: src/amuleAppCommon.cpp
 msgid "WARNING: You can't add yourself as a source for an eD2k link while having a lowid."
-msgstr ""
+msgstr "تحذير: لا يمكنك إضافة نفسك كمصدر لرابط eD2k إذا كان لديك lowid."
 
 #: src/amuleAppCommon.cpp
 #, c-format
@@ -210,6 +214,11 @@ msgid ""
 "\n"
 "That is not a running copy of aMule, so there is nothing to bring to the front. Close the other program, or delete the lock file while aMule is not running."
 msgstr ""
+"هناك برنامج آخر يستحوذ على ملف القفل الخاص بـ aMule:\n"
+"\n"
+"%s\n"
+"\n"
+"هذه ليست نسخة نشطة من aMule، لذلك لا يوجد ما يمكن جلبه إلى المقدمة. أغلق البرنامج الآخر، أو احذف ملف القفل عندما لا يكون aMule قيد التشغيل."
 
 #: src/amuleAppCommon.cpp
 #, c-format
@@ -218,37 +227,40 @@ msgid ""
 "\n"
 "It has no window to bring to the front. Connect to it with amuleGUI, or stop the daemon before starting aMule."
 msgstr ""
+"برنامج الخادم لـ aMule (amuled) قيد التشغيل بالفعل كعملية رقم %d ويستخدم هذه الإعدادات.\n"
+"\n"
+"ليس لديه واجهة لعرضها في المقدمة. اتصل به باستخدام amuleGUI، أو أوقف برنامج الخادم قبل تشغيل aMule."
 
 #: src/amuleAppCommon.cpp
 msgid "aMule cannot start"
-msgstr ""
+msgstr "لا يمكن تشغيل aMule"
 
 #: src/amuleAppCommon.cpp
 #, c-format
 msgid "Restricted permissions on %s to owner-only."
-msgstr ""
+msgstr "تم تقييد الصلاحيات على %s للمالك فقط."
 
 #: src/amuleAppCommon.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Collection file not found: %s"
-msgstr "إتصال بي : %s"
+msgstr "لم يتم العثور على ملف المجموعة: %s"
 
 #: src/amuleAppCommon.cpp
 #, c-format
 msgid "Invalid or empty collection file: %s"
-msgstr ""
+msgstr "ملف مجموعة غير صالح أو فارغ: %s"
 
 #: src/amuleAppCommon.cpp
 #, c-format
 msgid "No usable links in collection: %s"
-msgstr ""
+msgstr "لا توجد روابط صالحة للاستخدام في المجموعة: %s"
 
 #: src/amuleAppCommon.cpp
 #, c-format
 msgid "Skipped %u unusable link in collection: %s"
 msgid_plural "Skipped %u unusable links in collection: %s"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "تم تخطي %u رابط غير صالح للاستخدام في المجموعة: %s"
+msgstr[1] "تم تخطي %u روابط غير صالحة للاستخدام في المجموعة: %s"
 
 #: src/amuleAppCommon.cpp src/DownloadQueue.cpp
 #, c-format
@@ -258,7 +270,7 @@ msgstr "تعذّر تحويل رابط magnet إلى eD2k: %s"
 #: src/amuleAppCommon.cpp
 #, c-format
 msgid "Invalid eD2k link \"%s\" - ERROR: %s"
-msgstr ""
+msgstr "رابط eD2k غير صالح \"%s\" - خطأ: %s"
 
 #: src/amule.cpp
 msgid "Now, exiting main app..."
@@ -303,7 +315,7 @@ msgstr "نتائج تصحيح الذاكرة عند خروج aMule:"
 #: src/amule.cpp
 #, c-format
 msgid "Binding aMule's peer-to-peer and HTTP traffic to interface: %s"
-msgstr ""
+msgstr "ربط حركة مرور aMule لتبادل الملفات (P2P) وHTTP بالواجهة: %s"
 
 #: src/amule.cpp
 #, c-format
@@ -350,53 +362,47 @@ msgid "WARNING"
 msgstr "تحذير"
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Loading known files"
-msgstr "طلب ملف مشاركة من '%s'"
+msgstr "جاري تحميل الملفات المعروفة"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Loading known files (%u of %u)"
-msgstr "طلب ملف مشاركة من '%s'"
+msgstr "جاري تحميل الملفات المعروفة (%u من %u)"
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Loading credits"
-msgstr "وجد %i ملف مشاركة معرف"
+msgstr "جاري تحميل النقاط"
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Loading IP filter"
-msgstr "طلب ملف مشاركة من '%s'"
+msgstr "جاري تحميل مرشح عناوين IP"
 
 #: src/amule.cpp
 msgid "Initializing network"
-msgstr ""
+msgstr "جاري تهيئة الشبكة"
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Loading temp files"
-msgstr "طلب ملف مشاركة من '%s'"
+msgstr "جاري تحميل الملفات المؤقتة"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Loading temp files (%u of %u)"
-msgstr "طلب ملف مشاركة من '%s'"
+msgstr "جاري تحميل الملفات المؤقتة (%u من %u)"
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Loading shared files"
-msgstr "وجد %i ملف مشاركة معرف"
+msgstr "جاري تحميل الملفات المشتركة"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Loading shared files (%u)"
-msgstr "وجد %i ملف مشاركة معرف"
+msgstr "جاري تحميل الملفات المشتركة (%u)"
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Starting up"
-msgstr "ابدء"
+msgstr "جاري التشغيل"
 
 #: src/amule.cpp
 msgid "Network bootstrap"
@@ -435,7 +441,7 @@ msgstr "خطأ"
 #: src/amule.cpp
 #, c-format
 msgid "Could not write the amuleapi EC token to %s; amuleapi will fall back to its configured password."
-msgstr ""
+msgstr "تعذر كتابة رمز EC الخاص بـ amuleapi في %s؛ سيستخدم amuleapi كلمة المرور المُعدّة بدلاً من ذلك."
 
 #: src/amule.cpp
 #, c-format
@@ -449,7 +455,7 @@ msgstr "طلبت تشغيل amuleapi عند بدء التشغيل، لكن ال�
 #: src/amule.cpp
 #, c-format
 msgid "External connection: could not bind to '%s', listening on 127.0.0.1 only."
-msgstr ""
+msgstr "الاتصال الخارجي: تعذر الربط ب %s، الاستماع على 127.0.0.1 فقط."
 
 #: src/amule.cpp
 #, c-format
@@ -495,7 +501,7 @@ msgstr "هذه هي المرة الأولى التي تشغّل فيها aMule %
 
 #: src/amule.cpp
 msgid "This version is a testing version, updated daily, and\n"
-msgstr ""
+msgstr "هذه النسخة تجريبية، يتم تحديثها يوميًا، و\n"
 
 #: src/amule.cpp
 msgid "we give no warranty it won't break anything, burn your house,\n"
@@ -503,7 +509,7 @@ msgstr "ﻻ نضمن انه خالي من اﻻخطاء, قد يتسبب باع�
 
 #: src/amule.cpp
 msgid "or kill your dog. But it *should* be safe to use anyway.\n"
-msgstr ""
+msgstr "أو يقتل كلبك. ولكن *يُفترض* أن يكون استخدامه آمنًا على أي حال.\n"
 
 #: src/amule.cpp
 msgid "More information, support and new releases can found at our homepage,\n"
@@ -511,7 +517,7 @@ msgstr "يمكن العثور على مزيد من المعلومات والدع
 
 #: src/amule.cpp
 msgid "at https://amule-org.github.io, or in our IRC channel #aMule at irc.libera.chat.\n"
-msgstr ""
+msgstr "على https://amule-org.github.io، أو في قناة IRC الخاصة بنا #aMule على irc.libera.chat.\n"
 
 #: src/amule.cpp
 msgid "Feel free to report any bugs to https://github.com/amule-org/amule/issues"
@@ -532,7 +538,7 @@ msgstr "تم إشعار اسم مضيف الخادم"
 #: src/amule.cpp
 #, c-format
 msgid "Media metadata: probed file is no longer known, result discarded (%s)"
-msgstr ""
+msgstr "معلومات الوسائط: الملف المفحوص لم يعد معروفًا، تم تجاهل النتيجة (%s)"
 
 #: src/amule.cpp
 #, c-format
@@ -704,7 +710,7 @@ msgstr "خطأ فادح: فشل إنشاء المؤقت"
 
 #: src/amuleDlg.cpp
 msgid "Error! Unable to load Preferences"
-msgstr ""
+msgstr "خطأ! تعذر تحميل الإعدادات"
 
 #: src/amuleDlg.cpp src/muuli_wdr.cpp
 msgid "Networks"
@@ -746,7 +752,7 @@ msgstr "التنقل"
 #: src/amuleDlg.cpp
 #, c-format
 msgid "Free space: %s"
-msgstr ""
+msgstr "المساحة المتبقية: %s"
 
 #: src/amuleDlg.cpp
 msgid "New version available"
@@ -801,7 +807,7 @@ msgstr "Kad: متوقف"
 
 #: src/amuleDlg.cpp
 msgid "Core"
-msgstr ""
+msgstr "النواة"
 
 #: src/amuleDlg.cpp src/ClientHistoryListCtrl.cpp src/ClientsListCtrl.cpp
 #: src/ServerListCtrl.cpp src/SharedFilePeersListCtrl.cpp
@@ -811,20 +817,19 @@ msgstr "نسخة"
 
 #: src/amuleDlg.cpp
 msgid "The core and aMuleGUI are different versions."
-msgstr ""
+msgstr "النواة و aMuleGUI هما نسختان مختلفتان."
 
 #: src/amuleDlg.cpp
 msgid "The core and aMuleGUI are the same version."
-msgstr ""
+msgstr "النواة و aMuleGUI هما نفس الاصدار."
 
 #: src/amuleDlg.cpp src/ServerListCtrl.cpp
 msgid "Address"
 msgstr "العنوان"
 
 #: src/amuleDlg.cpp
-#, fuzzy
 msgid "Encryption"
-msgstr "وصف"
+msgstr "التشفير"
 
 #: src/amuleDlg.cpp
 #, fuzzy
@@ -903,9 +908,8 @@ msgid "Shared Files Window"
 msgstr "نافذة ملفات المشاركة"
 
 #: src/amuleDlg.cpp
-#, fuzzy
 msgid "Clients Window"
-msgstr "عميل"
+msgstr "نافذة العملاء"
 
 #: src/amuleDlg.cpp
 msgid "Messages Window"
@@ -1050,7 +1054,7 @@ msgstr "تمت إعادة الاتصال بالنواة البعيدة."
 
 #: src/amule-remote-gui.cpp
 msgid "The remote core was restarted; reloading."
-msgstr ""
+msgstr "أُعيد تشغيل النواة البعيدة؛ جاري إعادة التحميل."
 
 #: src/amule-remote-gui.cpp
 #, c-format
@@ -1088,12 +1092,12 @@ msgstr "رابط غير صالح أو موجود بالفعل في القائم�
 
 #: src/amule-remote-gui.cpp
 msgid "The daemon refused the request."
-msgstr ""
+msgstr "رفض برنامج الخادم (daemon) الطلب."
 
 #: src/amule-remote-gui.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not delete the category: %s"
-msgstr "قمت بمحاولت تحميل الملف مسبقا %s"
+msgstr "لا يمكن حذف الفئة: %s"
 
 #: src/amule-remote-gui.cpp
 #, c-format
@@ -4062,7 +4066,7 @@ msgstr "عام"
 
 #: src/muuli_wdr.cpp
 msgid "Full Name"
-msgstr "اﻻسم كامل"
+msgstr "الاسم الكامل"
 
 #: src/muuli_wdr.cpp
 #, fuzzy
@@ -4087,15 +4091,15 @@ msgstr "حالة جزء الملف"
 
 #: src/muuli_wdr.cpp
 msgid "Last seen complete"
-msgstr "اخر مرة تم اكتمال"
+msgstr "آخر مرة شوهد مكتملاً"
 
 #: src/muuli_wdr.cpp
 msgid "Found Sources"
-msgstr "ايجاد المصدر"
+msgstr "المصادر التي تم العثور عليها"
 
 #: src/muuli_wdr.cpp
 msgid "Transferring Sources"
-msgstr "نقل المصدر"
+msgstr "المصادر قيد النقل"
 
 #: src/muuli_wdr.cpp
 msgid "Filepart-Count"
@@ -4107,7 +4111,7 @@ msgstr "متوفر"
 
 #: src/muuli_wdr.cpp
 msgid "Datarate"
-msgstr "نسبة المصادر"
+msgstr "معدل البيانات"
 
 #: src/muuli_wdr.cpp
 #, fuzzy
@@ -4116,7 +4120,7 @@ msgstr "سرعة-التحميل"
 
 #: src/muuli_wdr.cpp
 msgid "Completed Size"
-msgstr "حجم المكمل"
+msgstr "الحجم المكتمل"
 
 #: src/muuli_wdr.cpp
 msgid "Intelligent Corruption Handling"
@@ -4128,7 +4132,7 @@ msgstr "فقد بسبب فساد"
 
 #: src/muuli_wdr.cpp
 msgid "Gained by compression"
-msgstr "أكتسب بواسطة الضغط"
+msgstr "المكتسب بالضغط"
 
 #: src/muuli_wdr.cpp
 msgid "Packages saved by I.C.H."
@@ -5191,11 +5195,11 @@ msgstr "إعادة ضبط أي تغييرات تم إجراؤها على الإ�
 
 #: src/muuli_wdr.cpp
 msgid "Incoming Dir"
-msgstr "مجلد القادم"
+msgstr "مجلد الملفات الواردة"
 
 #: src/muuli_wdr.cpp
 msgid "Change priority for new assigned files"
-msgstr "تغير الأولوية للملفات الحديثة"
+msgstr "تغيير الأولوية للملفات المعيّنة حديثًا"
 
 #: src/muuli_wdr.cpp
 msgid "Don't change"

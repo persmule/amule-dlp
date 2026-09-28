@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-26 17:32+0100\n"
-"PO-Revision-Date: 2026-09-26 19:23+0000\n"
+"PO-Revision-Date: 2026-09-27 21:54+0000\n"
 "Last-Translator: Sebastiano Pistore <sebastiano.pistore.info@aol.com>\n"
 "Language-Team: https://github.com/amule-org/amule <forum@aMule.org>\n"
 "Language: hr\n"
@@ -4088,7 +4088,7 @@ msgstr "Izvori koji transferuju"
 
 #: src/muuli_wdr.cpp
 msgid "Filepart-Count"
-msgstr "Broj pocetog fajla"
+msgstr "Broj dijelova fajla"
 
 #: src/muuli_wdr.cpp
 msgid "Available"
@@ -4096,7 +4096,7 @@ msgstr "Dostupnost"
 
 #: src/muuli_wdr.cpp
 msgid "Datarate"
-msgstr "Podatak rate"
+msgstr "Brzina prijenosa"
 
 #: src/muuli_wdr.cpp
 #, fuzzy
@@ -4105,7 +4105,7 @@ msgstr "Brzina downloada"
 
 #: src/muuli_wdr.cpp
 msgid "Completed Size"
-msgstr "Zavrsna velicina"
+msgstr "Zavrsena velicina"
 
 #: src/muuli_wdr.cpp
 msgid "Intelligent Corruption Handling"
@@ -5191,7 +5191,7 @@ msgstr "Prijemni direktorij"
 
 #: src/muuli_wdr.cpp
 msgid "Change priority for new assigned files"
-msgstr "Promijeni prioritet za nove fajlove"
+msgstr "Promijeni prioritet za novododijeljene fajlove"
 
 #: src/muuli_wdr.cpp
 #, fuzzy

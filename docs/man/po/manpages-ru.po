@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: manpages-ru\n"
 "POT-Creation-Date: 2026-09-26 12:38+0100\n"
-"PO-Revision-Date: 2026-09-26 19:34+0000\n"
+"PO-Revision-Date: 2026-09-27 21:55+0000\n"
 "Last-Translator: Sebastiano Pistore <SebastianoPistore.info@protonmail.ch>\n"
 "Language-Team: Russian <LL@li.org>\n"
 "Language: ru\n"
@@ -527,7 +527,7 @@ msgstr "Начать скачивание файла."
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Give the I<E<lt>numberE<gt>> of a file as listed by B<results>, optionally followed by a search I<E<lt>idE<gt>> (as printed by B<search>). Without an id, the number refers to the last B<results> output, or to the most recently started search if nothing was listed yet.  Example: 'download 12' downloads file 12 of the last results; 'download 12 3' downloads file 12 of search 3."
-msgstr ""
+msgstr "Укажите I<E<lt>номерE<gt>> файла, как он выведен командой B<results>, при необходимости с I<E<lt>idE<gt>> поиска (как он выводится командой B<search>). Без идентификатора номер относится к последнему выводу B<results> или к последнему начатому поиску, если вывод ещё не производился. Пример: 'download 12' загружает файл 12 из последних результатов; 'download 12 3' загружает файл 12 из поиска 3."
 
 #. type: Plain text
 #: amulecmd.1.in

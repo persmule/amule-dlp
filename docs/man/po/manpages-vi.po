@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2026-07-17 16:56+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2026-09-28 02:53+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: none\n"
 "Language: vi\n"
@@ -41,7 +41,7 @@ msgstr ""
 #: amule.1.in:1
 #, no-wrap
 msgid "aMule"
-msgstr ""
+msgstr "aMule"
 
 #. type: SH
 #: amule.1.in:4 amulecmd.1.in:5 amuled.1.in:4 amulegui.1.in:4 amuleweb.1.in:4
@@ -400,12 +400,12 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in:46 amuleweb.1.in:67
 msgid "Do not print any output to stdout."
-msgstr ""
+msgstr "Không in bất kỳ đầu ra nào ra stdout."
 
 #. type: Plain text
 #: amulecmd.1.in:50 amuleweb.1.in:71
 msgid "Be verbose - show also debug messages."
-msgstr ""
+msgstr "Chi tiết - hiển thị cả thông báo gỡ lỗi."
 
 #. type: TP
 #: amulecmd.1.in:50 amuleweb.1.in:71
@@ -484,7 +484,7 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in:93
 msgid "Connect to the network."
-msgstr ""
+msgstr "Kết nối đến mạng."
 
 #. type: Plain text
 #: amulecmd.1.in:95
@@ -519,7 +519,7 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in:112
 msgid "Get and display a preference value."
-msgstr ""
+msgstr "Lấy và hiển thị giá trị tùy chọn."
 
 #. type: Plain text
 #: amulecmd.1.in:114 amulecmd.1.in:149 amulecmd.1.in:202 amulecmd.1.in:212
@@ -529,7 +529,7 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in:117
 msgid "Get bandwidth limits."
-msgstr ""
+msgstr "Lấy giới hạn băng thông."
 
 #. type: Plain text
 #: amulecmd.1.in:119
@@ -594,7 +594,7 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in:152
 msgid "Reload shared files list."
-msgstr ""
+msgstr "Tải lại danh sách tệp chia sẻ."
 
 #. type: Plain text
 #: amulecmd.1.in:154
@@ -684,7 +684,7 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in:205
 msgid "Set bandwidth limits."
-msgstr ""
+msgstr "Đặt giới hạn băng thông."
 
 #. type: Plain text
 #: amulecmd.1.in:207
@@ -699,27 +699,27 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in:215
 msgid "Show download queue."
-msgstr ""
+msgstr "Hiển thị hàng đợi tải xuống."
 
 #. type: Plain text
 #: amulecmd.1.in:217
 msgid "Show log."
-msgstr ""
+msgstr "Hiển thị nhật ký."
 
 #. type: Plain text
 #: amulecmd.1.in:219
 msgid "Show servers list."
-msgstr ""
+msgstr "Hiển thị danh sách máy chủ."
 
 #. type: Plain text
 #: amulecmd.1.in:221
 msgid "Show shared files list."
-msgstr ""
+msgstr "Hiển thị danh sách tệp chia sẻ."
 
 #. type: Plain text
 #: amulecmd.1.in:223
 msgid "Show upload queue."
-msgstr ""
+msgstr "Hiển thị hàng đợi tải lên."
 
 #. type: Plain text
 #: amulecmd.1.in:227
@@ -1076,7 +1076,7 @@ msgstr ""
 #. type: Plain text
 #: amuleweb.1.in:118
 msgid "Disable PHP interpreter (deprecated)"
-msgstr ""
+msgstr "Tắt trình thông dịch PHP (không dùng nữa)"
 
 #. type: Plain text
 #: amuleweb.1.in:121
@@ -1144,7 +1144,7 @@ msgstr ""
 #: ed2k.1.in:1
 #, no-wrap
 msgid "ED2K"
-msgstr ""
+msgstr "ED2K"
 
 #. type: TH
 #: ed2k.1.in:1

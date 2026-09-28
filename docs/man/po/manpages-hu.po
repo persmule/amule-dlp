@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: po 4a\n"
 "POT-Creation-Date: 2026-09-26 12:38+0100\n"
-"PO-Revision-Date: 2026-09-26 19:34+0000\n"
+"PO-Revision-Date: 2026-09-27 21:55+0000\n"
 "Last-Translator: Dévai Tamás <gonosztopi@amule.org>\n"
 "Language-Team: none\n"
 "Language: hu\n"
@@ -761,12 +761,12 @@ msgstr "A statisztika fa megjelenítése."
 #. type: Plain text
 #: amulecmd.1.in
 msgid "The optional I<E<lt>numberE<gt>> in the range of 0-255 can be passed as argument to this command, which tells how many entries of the client version subtree should be shown. Passing 0, or omitting it means 'unlimited'."
-msgstr "Lehetséges megadni egy számot a 0-255 tartományban, amely megadja az ügyfél-verziók al-fák maximális nagyságát. Nulla megadása vagy a szám teljes elhagyása nem korlátoz."
+msgstr "A parancsnak argumentumként átadható egy opcionális, 0 és 255 közötti I<E<lt>számE<gt>>, amely azt adja meg, hogy az ügyfélverzió-részfából hány bejegyzés jelenjen meg. 0 megadása vagy elhagyása esetén nincs korlátozás."
 
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Example: 'statistics 5' will show only the top 5 versions for each client type."
-msgstr "Példa: a \\(Bqstatistics 5' parancs csak az 5 leggyakoribb ügyfél változatot mutatja minden ügyfél típusra."
+msgstr "Példa: a 'statistics 5' parancs csak az 5 leggyakoribb ügyfélváltozatot mutatja minden ügyféltípusra."
 
 #. type: Plain text
 #: amulecmd.1.in

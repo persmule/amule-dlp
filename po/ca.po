@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-26 17:32+0100\n"
-"PO-Revision-Date: 2026-09-26 19:08+0000\n"
+"PO-Revision-Date: 2026-09-27 21:01+0000\n"
 "Last-Translator: minterior <minterior@gmail.com>\n"
 "Language-Team: Català\n"
 "Language: ca\n"
@@ -317,9 +317,9 @@ msgid "Memory debug results for aMule exit:"
 msgstr "Resultat de la depuració de la memòria a la sortida de l'aMule:"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Binding aMule's peer-to-peer and HTTP traffic to interface: %s"
-msgstr "S'està vinculant tot el trànsit de xarxa a la interfície: %s"
+msgstr "S'està vinculant el trànsit d'igual a igual i HTTP de l'aMule a la interfície: %s"
 
 #: src/amule.cpp
 #, c-format
@@ -3519,9 +3519,9 @@ msgid "External Connection: Handshake failed."
 msgstr "Connexió externa: Conformitat de connexió denegada."
 
 #: src/LibSocketAsio.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "WARNING: network interface '%s' is gone - traffic is no longer bound to it and may leave via the default route."
-msgstr "AVÍS: no s'ha pogut vincular a la interfície de xarxa «%s»; el trànsit pot sortir per la ruta predeterminada."
+msgstr "AVÍS: la interfície de xarxa «%s» ha desaparegut; el trànsit ja no hi està vinculat i pot sortir per la ruta predeterminada."
 
 #: src/LibSocketAsio.cpp
 #, c-format
@@ -4567,9 +4567,8 @@ msgid "Bind to network interface (empty for any):"
 msgstr "Vincula a la interfície de xarxa (buit per a qualsevol):"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Advanced users only: pin aMule's peer-to-peer traffic, and its HTTP updates where the platform allows, to one network interface, chosen from the list or typed in by name (e.g. tun0, eth0, en0) or index. Unlike binding to an IP, this stops traffic leaking out via the default route - useful with a VPN. On Linux before kernel 5.7 it needs the CAP_NET_RAW capability."
-msgstr "Només per a usuaris avançats: fixa tot el trànsit de l'aMule a una sola interfície de xarxa, triada de la llista o escrita pel seu nom (per exemple, tun0, eth0, en0) o índex. A diferència de vincular-se a una IP, això evita que el trànsit s'escapi per la ruta predeterminada; útil amb una VPN. No requereix privilegis elevats."
+msgstr "Només per a usuaris avançats: fixa el trànsit d'igual a igual de l'aMule, i les seves actualitzacions HTTP quan la plataforma ho permet, a una sola interfície de xarxa, triada de la llista o escrita pel seu nom (per exemple, tun0, eth0, en0) o índex. A diferència de vincular-se a una IP, això evita que el trànsit s'escapi per la ruta predeterminada; útil amb una VPN. En Linux anterior al nucli 5.7 requereix la capacitat CAP_NET_RAW."
 
 #: src/muuli_wdr.cpp
 msgid "Max sources per downloading file:"
@@ -6431,7 +6430,7 @@ msgstr "No s'ha pogut eliminar el registre del gestor d'URL."
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "macOS does not let an application stop being the default handler. To stop aMule opening these, make another application the default."
-msgstr ""
+msgstr "El macOS no permet que una aplicació deixi de ser el gestor predeterminat. Perquè l'aMule deixi d'obrir aquests enllaços, feu que una altra aplicació sigui la predeterminada."
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "The web server and aMule API require external connections to be enabled."
@@ -8438,6 +8437,9 @@ msgid ""
 "Without an id, the number refers to the last 'results' output, or to the most recently started search if nothing was listed yet.\n"
 "Example: 'download 12' downloads file 12 of the last results; 'download 12 3' downloads file 12 of search 3.\n"
 msgstr ""
+"Indiqueu el número d'un fitxer tal com apareix a «results», seguit opcionalment d'un identificador de cerca.\n"
+"Sense identificador, el número fa referència a l'última sortida de «results», o a la cerca iniciada més recentment si encara no s'ha llistat res.\n"
+"Exemple: «download 12» baixa el fitxer 12 dels últims resultats; «download 12 3» baixa el fitxer 12 de la cerca 3.\n"
 
 #: src/TextClient.cpp
 msgid "Pause download."
@@ -8558,42 +8560,42 @@ msgstr "Verificació de dades locals (%s): S'HAN TROBAT ERRORS! %s Blocs fallits
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: file %s was removed before it could be checked."
-msgstr ""
+msgstr "Verificació de dades locals: el fitxer %s s'ha eliminat abans que es pogués comprovar."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s is still downloading, so it was not checked."
-msgstr ""
+msgstr "Verificació de dades locals: %s encara s'està baixant, per tant no s'ha comprovat."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: could not read %s, so it was not checked."
-msgstr ""
+msgstr "Verificació de dades locals: no s'ha pogut llegir %s, per tant no s'ha comprovat."
 
 #: src/ThreadTasks.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Verify Local Data: ERRORS FOUND! %s Size on disk: %u bytes, expected: %u bytes."
-msgstr "Verificació de dades locals (%s): S'HAN TROBAT ERRORS! %s Blocs fallits: MD4: %s. %s %s"
+msgstr "Verificació de dades locals: S'HAN TROBAT ERRORS! %s Mida al disc: %u bytes, s'esperaven: %u bytes."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s is larger than aMule supports, so it was not checked."
-msgstr ""
+msgstr "Verificació de dades locals: %s és més gran del que admet l'aMule, per tant no s'ha comprovat."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s is empty, so there is nothing to check."
-msgstr ""
+msgstr "Verificació de dades locals: %s és buit, per tant no hi ha res a comprovar."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s was removed or changed during the check, which did not finish."
-msgstr ""
+msgstr "Verificació de dades locals: %s s'ha eliminat o modificat durant la comprovació, que no s'ha completat."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: could not read %s, so the check did not finish: %s"
-msgstr ""
+msgstr "Verificació de dades locals: no s'ha pogut llegir %s, per tant la comprovació no s'ha completat: %s"
 
 #: src/ThreadTasks.cpp
 #, c-format
