@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-26 17:32+0100\n"
-"PO-Revision-Date: 2026-09-26 19:28+0000\n"
+"PO-Revision-Date: 2026-09-27 21:54+0000\n"
 "Last-Translator: Marcelo Jimenez <mroberto@users.sourceforge.com>\n"
 "Language-Team: Português (Brasileiro) <pt@li.org>\n"
 "Language: pt_BR\n"
@@ -319,9 +319,9 @@ msgid "Memory debug results for aMule exit:"
 msgstr "Resultados da depuração da memória para a saída do aMule:"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Binding aMule's peer-to-peer and HTTP traffic to interface: %s"
-msgstr "Conectando todo o tráfego de rede à interface: %s"
+msgstr "Conectando o tráfego p2p e HTTP do aMule à interface: %s"
 
 #: src/amule.cpp
 #, c-format
@@ -3522,9 +3522,9 @@ msgid "External Connection: Handshake failed."
 msgstr "Conexão Externa: Handshake falhou."
 
 #: src/LibSocketAsio.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "WARNING: network interface '%s' is gone - traffic is no longer bound to it and may leave via the default route."
-msgstr "AVISO: não foi possível conectar-se à interface de rede '%s' - o tráfego pode sair pela rota padrão."
+msgstr "AVISO: a interface de rede '%s' foi perdida - o tráfego não está mais ligado a ela e pode sair pela rota padrão."
 
 #: src/LibSocketAsio.cpp
 #, c-format
@@ -4570,9 +4570,8 @@ msgid "Bind to network interface (empty for any):"
 msgstr "Conectar a uma interface de rede (vazio equivale a todas):"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Advanced users only: pin aMule's peer-to-peer traffic, and its HTTP updates where the platform allows, to one network interface, chosen from the list or typed in by name (e.g. tun0, eth0, en0) or index. Unlike binding to an IP, this stops traffic leaking out via the default route - useful with a VPN. On Linux before kernel 5.7 it needs the CAP_NET_RAW capability."
-msgstr "Apenas para usuários avançados: concentra todo tráfedo do aMule em uma interface de rede, escolhida da lista ou digitada por nome (e.g. tun0, eth0, en0) ou indice. Diferentemente da ligação por IP, isto impede que o tráfego vaze pela rota default - útil com uma VPN. Requer elevação de privilégios."
+msgstr "Apenas para usuários avançados: concentra todo tráfedo do aMule em uma interface de rede, escolhida da lista ou digitada por nome (e.g. tun0, eth0, en0) ou indice. Diferentemente da ligação por IP, isto impede que o tráfego vaze pela rota default - útil com uma VPN. No Linux com kernel antes de 5.7 requer capacidade de CAP_NET_RAW."
 
 #: src/muuli_wdr.cpp
 msgid "Max sources per downloading file:"
@@ -6434,7 +6433,7 @@ msgstr "Não foi possível remover o registro de manipulação de URL."
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "macOS does not let an application stop being the default handler. To stop aMule opening these, make another application the default."
-msgstr ""
+msgstr "O macOS não deixa uma aplicação parar de ser um manipulador padrão. Para fazer o aMule parar de abrí-los, faça outra aplicação ser o padrão."
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "The web server and aMule API require external connections to be enabled."
@@ -8441,6 +8440,9 @@ msgid ""
 "Without an id, the number refers to the last 'results' output, or to the most recently started search if nothing was listed yet.\n"
 "Example: 'download 12' downloads file 12 of the last results; 'download 12 3' downloads file 12 of search 3.\n"
 msgstr ""
+"Dê o número de um arquivo como listado por 'resultados', opcionalmente seguido por um id de busca\n"
+"Sem um id, o número se refere a última saída 'resultados', ou à busca mais recentemente iniciada, caso nada tenha sido listado ainda.\n"
+"Exemplo: 'download 12' baixa o arquivo 12 dos últimos resultados; 'download 12 3' baixa o arquivo 12 da busca 3.\n"
 
 #: src/TextClient.cpp
 msgid "Pause download."
@@ -8561,42 +8563,42 @@ msgstr "Verificar Dados Locais (%s): ERROS ENCONTRADOS! %s Blocos falhos: MD4: %
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: file %s was removed before it could be checked."
-msgstr ""
+msgstr "Verfifique os dados locais: o arquivo %s foi removido antes de poder ser checado."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s is still downloading, so it was not checked."
-msgstr ""
+msgstr "Verifique os dados locais: %s ainda está sendo baixado, portanto não foi checado."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: could not read %s, so it was not checked."
-msgstr ""
+msgstr "Verifique os dados locais: não foi possível ler %s, portanto não foi checado."
 
 #: src/ThreadTasks.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Verify Local Data: ERRORS FOUND! %s Size on disk: %u bytes, expected: %u bytes."
-msgstr "Verificar Dados Locais (%s): ERROS ENCONTRADOS! %s Blocos falhos: MD4: %s. %s %s"
+msgstr "Verifique dados locais: ERROS ENCONTRADOS! %s Tamanho no disco: %u bytes, esperado: %u bytes."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s is larger than aMule supports, so it was not checked."
-msgstr ""
+msgstr "Verifique dados locais: %s é maior do que o aMule suporta, portanto não foi checado."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s is empty, so there is nothing to check."
-msgstr ""
+msgstr "Verifique dados locais: %s é vazio, então não há nada para checar."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s was removed or changed during the check, which did not finish."
-msgstr ""
+msgstr "Verifique dados locais: %s foi removido ou mudado durante o cheque, o qual não terminou."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: could not read %s, so the check did not finish: %s"
-msgstr ""
+msgstr "Verifique dados locais: não foi possível ler %s, portanto o cheque não terminou: %s"
 
 #: src/ThreadTasks.cpp
 #, c-format
@@ -9399,7 +9401,7 @@ msgid ""
 "aMule appears to be running from $INSTDIR.\n"
 "Please close aMule (and aMuleD / aMuleGUI) and try again."
 msgstr ""
-"aMule parece estar rodando de $INSTDIR.\n"
+"O aMule parece estar rodando de $INSTDIR.\n"
 "Por favor, feche o aMule (e o aMuleD / aMuleGUI) e tente novamente."
 
 #: packaging/windows/installer_strings.c
@@ -9407,7 +9409,7 @@ msgid ""
 "aMule daemon (amuled.exe) appears to be running from $INSTDIR.\n"
 "Please stop it and try again."
 msgstr ""
-"O daemon aMule (amuled.exe) parece estar rodando de $INSTDIR.\n"
+"O daemon do aMule (amuled.exe) parece estar rodando de $INSTDIR.\n"
 "Por favor, pare-o e tente novamente."
 
 #: packaging/windows/installer_strings.c

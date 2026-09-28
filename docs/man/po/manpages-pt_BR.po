@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aMule man pages\n"
 "POT-Creation-Date: 2026-09-26 12:38+0100\n"
-"PO-Revision-Date: 2026-09-26 19:34+0000\n"
+"PO-Revision-Date: 2026-09-27 21:55+0000\n"
 "Last-Translator: \n"
 "Language-Team: Marcelo Roberto Jimenez <mroberto@users.sourceforge.net>\n"
 "Language: pt_BR\n"
@@ -133,14 +133,12 @@ msgstr "Habilita ou desabilita iniciar o aMule quando o usuário fizer login, en
 #. type: Plain text
 #: amule.1.in amuled.1.in amulegui.1.in
 msgid "Enable or disable aMule as the current user's default handler for ed2k:// and magnet: links, then exit.  I<E<lt>valueE<gt>> is B<on> or B<off> for both kinds of link, or B<ed2k:on>, B<ed2k:off>, B<magnet:on> or B<magnet:off> for one of them.  The OS-specific store is selected automatically: Windows registry, macOS LaunchServices, Linux XDG I<mimeapps.list>."
-msgstr ""
+msgstr "Habilitar ou desabilitar o aMule como o manipulador padrão do usuário atual para links ed2k:// e magnet, e então sair,  I<E<lt>valorE<gt>> é B<on> ou B<off> para ambos os tipos de link, ou B<ed2k:on>, B<ed2k:off>, B<magnet:on> or B<magnet:off> para um deles,  O armazenamento específico do sistema operacional é selecionado automaticamente: registro do Windows, macOS LaunchServices, Linux XDG I<mimeapps.list>."
 
 #. type: Plain text
 #: amule.1.in amuled.1.in amulegui.1.in
-#, fuzzy
-#| msgid "Enable or disable starting aMule on user login, then exit.  The OS-specific store is selected automatically: Windows registry Run key, macOS LaunchAgent, Linux XDG I<.desktop> autostart entry."
 msgid "Enable or disable aMule as the current user's handler for I<.emulecollection> files, then exit.  The OS-specific store is selected automatically: Windows registry, macOS LaunchServices, Linux XDG I<mimeapps.list>."
-msgstr "Habilita ou desabilita iniciar o aMule quando o usuário fizer login, então sair. O armazenamento específico do Sistema Operacional é selecionado automaticamente: chave Run do Registry do Windows, LaunchAgent do MacOS, XDG I<.desktop> autostart entry no Linux."
+msgstr "Habilita ou desabilita o aMule como o manipulador padrão para arquivos I<.emulecollection>, e então sai.  O armazenamento específico do sistema operacional é selecionado automaticamente: registro do Windows, macOS LaunchServices, Linux XDG I<mimeapps.list>."
 
 #. type: TP
 #: amule.1.in amuled.1.in
@@ -528,7 +526,7 @@ msgstr "Começar a baixar um arquivo."
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Give the I<E<lt>numberE<gt>> of a file as listed by B<results>, optionally followed by a search I<E<lt>idE<gt>> (as printed by B<search>). Without an id, the number refers to the last B<results> output, or to the most recently started search if nothing was listed yet.  Example: 'download 12' downloads file 12 of the last results; 'download 12 3' downloads file 12 of search 3."
-msgstr ""
+msgstr "Dê o I<E<lt>numeroE<gt>> de um arquivo como listado em B<resultados>, opcionalmente seguido por um I<E<lt>idE<gt>> de busca (tal como impresso por B<busca>). Sem um id, o número se refere à última saída B<resultados>, ou à busca iniciada mais recentemente se nada foi listado ainda.  Exemplo: 'download 12' baixa o arquivo 12 do último resultado; 'download 12 3' baixa o arquivo 12 da busca 3."
 
 #. type: Plain text
 #: amulecmd.1.in
@@ -942,48 +940,41 @@ msgstr "Habilita ou desabilita iniciar o amulegui quando o usuário fizer login 
 
 #. type: Plain text
 #: amulegui.1.in
-#, fuzzy
-#| msgid "Adds an eD2k-link, or every link in an eMule collection file, to the core."
 msgid "Sends an eD2k-link, or every link in an eMule collection file, to the connected core."
-msgstr "Adiciona um link eD2k ou todos os links em um arquivo de coleção eMule ao núcleo."
+msgstr "Envia um link eD2k ou todos os links em um arquivo de coleção eMule ao núcleo conectado."
 
 #. type: TP
 #: amulegui.1.in
-#, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
+#, no-wrap
 msgid "I<~/.aMule/remote.conf>"
-msgstr "~/.aMule/remote.conf"
+msgstr "I<~/.aMule/remote.conf>"
 
 #. type: Plain text
 #: amulegui.1.in
 msgid "Settings, including the core to connect to."
-msgstr ""
+msgstr "Configurações, incluindo do núcleo a se conectar."
 
 #. type: TP
 #: amulegui.1.in
-#, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
+#, no-wrap
 msgid "I<~/.aMule/remotelogfile>"
-msgstr "~/.aMule/remote.conf"
+msgstr "I<~/.aMule/remotelogfile>"
 
 #. type: Plain text
 #: amulegui.1.in
-#, fuzzy
-#| msgid "Show log."
 msgid "The log."
-msgstr "Mostrar o log."
+msgstr "O log."
 
 #. type: TP
 #: amulegui.1.in
-#, fuzzy, no-wrap
-#| msgid "~/.aMule/ED2KLinks"
+#, no-wrap
 msgid "I<~/.aMule/ED2KLinks>"
-msgstr "~/.aMule/ED2KLinks"
+msgstr "I<~/.aMule/ED2KLinks>"
 
 #. type: Plain text
 #: amulegui.1.in
 msgid "Links passed on the command line, waiting to be sent to the core."
-msgstr ""
+msgstr "Links passados na linha de comando, esperando para serem enviados ao núcleo."
 
 #. type: Plain text
 #: amulegui.1.in

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-26 17:32+0100\n"
-"PO-Revision-Date: 2026-09-26 19:12+0000\n"
+"PO-Revision-Date: 2026-09-27 21:02+0000\n"
 "Last-Translator: Dimitris <dgalanak@yahoo.com>\n"
 "Language-Team: Greek\n"
 "Language: el\n"
@@ -4134,7 +4134,7 @@ msgstr "Έξυπνη διαχείριση φθοράς (Ε.Δ.Φ.):"
 
 #: src/muuli_wdr.cpp
 msgid "Lost to corruption"
-msgstr "Χάθηκε λόγο φθοράς"
+msgstr "Χάθηκε λόγω φθοράς"
 
 #: src/muuli_wdr.cpp
 msgid "Gained by compression"
@@ -4233,7 +4233,7 @@ msgid ""
 "For a film you can say its length, its story, language ...\n"
 "and if it's a fake, you can tell that to other users of aMule."
 msgstr ""
-"Για ταινίες μπορείτε να πείτε το μέγεθος, το σενάριο, τη γλωσσα ...\n"
+"Για ταινίες μπορείτε να πείτε τη διάρκεια, το σενάριο, τη γλώσσα ...\n"
 "και αν είναι ψεύτικη, μπορείτε να το πείτε στους άλλους χρήστες του aMule."
 
 #: src/muuli_wdr.cpp
@@ -4298,7 +4298,7 @@ msgstr "Πρόσθετες πληροφορίες"
 
 #: src/muuli_wdr.cpp
 msgid "Userhash"
-msgstr "Τεμάχιο χρήστη"
+msgstr "Κατακερματισμός χρήστη"
 
 #: src/muuli_wdr.cpp src/utils/aLinkCreator/src/alcframe.cpp
 msgid "Add"

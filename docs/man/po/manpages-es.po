@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "POT-Creation-Date: 2026-09-26 12:38+0100\n"
-"PO-Revision-Date: 2026-09-26 19:34+0000\n"
+"PO-Revision-Date: 2026-09-27 21:55+0000\n"
 "Last-Translator: Mad-Soft <mad.soft@gmail.com>\n"
 "Language-Team: Spanish <es_ES@li.org>\n"
 "Language: es\n"
@@ -944,48 +944,41 @@ msgstr "Activa o desactiva el arranque automático de amulegui al iniciar sesió
 
 #. type: Plain text
 #: amulegui.1.in
-#, fuzzy
-#| msgid "Adds an eD2k-link, or every link in an eMule collection file, to the core."
 msgid "Sends an eD2k-link, or every link in an eMule collection file, to the connected core."
-msgstr "Añade un enlace eD2k, o todos los enlaces en un archivo de colección de eMule, al núcleo."
+msgstr "Añade un enlace eD2k, o todos los enlaces en un archivo de colección de eMule, al núcleo conectado."
 
 #. type: TP
 #: amulegui.1.in
-#, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
+#, no-wrap
 msgid "I<~/.aMule/remote.conf>"
-msgstr "~/.aMule/remote.conf"
+msgstr "I<~/.aMule/remote.conf>"
 
 #. type: Plain text
 #: amulegui.1.in
 msgid "Settings, including the core to connect to."
-msgstr ""
+msgstr "Ajustes, incluyendo el núcleo al que conectar."
 
 #. type: TP
 #: amulegui.1.in
-#, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
+#, no-wrap
 msgid "I<~/.aMule/remotelogfile>"
-msgstr "~/.aMule/remote.conf"
+msgstr "I<~/.aMule/remotelogfile>"
 
 #. type: Plain text
 #: amulegui.1.in
-#, fuzzy
-#| msgid "Show log."
 msgid "The log."
-msgstr "Mostrar el registro."
+msgstr "El registro."
 
 #. type: TP
 #: amulegui.1.in
-#, fuzzy, no-wrap
-#| msgid "~/.aMule/ED2KLinks"
+#, no-wrap
 msgid "I<~/.aMule/ED2KLinks>"
-msgstr "~/.aMule/ED2KLinks"
+msgstr "I<~/.aMule/ED2KLinks>"
 
 #. type: Plain text
 #: amulegui.1.in
 msgid "Links passed on the command line, waiting to be sent to the core."
-msgstr ""
+msgstr "Enlaces pasados en la línea de comandos, pendientes de enviar al núcleo."
 
 #. type: Plain text
 #: amulegui.1.in

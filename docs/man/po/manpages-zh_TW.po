@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: aMule Manual zh_TW\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-26 12:38+0100\n"
-"PO-Revision-Date: 2026-09-26 19:34+0000\n"
+"PO-Revision-Date: 2026-09-27 21:55+0000\n"
 "Last-Translator: Wayne Su <mstarmstar@gmail.com>\n"
 "Language-Team: \n"
 "Language: zh_TW\n"
@@ -766,7 +766,7 @@ msgstr "顯示統計資訊。"
 #. type: Plain text
 #: amulecmd.1.in
 msgid "The optional I<E<lt>numberE<gt>> in the range of 0-255 can be passed as argument to this command, which tells how many entries of the client version subtree should be shown. Passing 0, or omitting it means 'unlimited'."
-msgstr "I<E<lt>編號E<gt>> 是這個指令的參數之一，用來指定要顯示多少個客戶端程式的版本附加版本；須為 0-255 的數字，輸入 0 或略過不輸入則表示「不限」。"
+msgstr "I<E<lt>數字E<gt>> 是這個指令的選用參數，用來指定客戶端版本子樹要顯示多少個項目；須為 0-255 的數字，輸入 0 或略過不輸入則表示「不限」。"
 
 #. type: Plain text
 #: amulecmd.1.in

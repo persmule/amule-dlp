@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-26 17:32+0100\n"
-"PO-Revision-Date: 2026-09-26 19:31+0000\n"
+"PO-Revision-Date: 2026-09-27 21:55+0000\n"
 "Last-Translator: Fation <dj_barthezz@linuxmail.org lushnja_corps@hotmail.Language-Team:\n"
 "Language: sq\n"
 "MIME-Version: 1.0\n"
@@ -2648,7 +2648,7 @@ msgstr "Parashikimi i failit"
 #: src/FileLaunch.cpp
 #, c-format
 msgid "ERROR: Failed to execute external media-player! Command: '%s'"
-msgstr "GABIM: Deshtoi te luaj media-player te jashtem! Komanda: '%s'"
+msgstr "GABIM: Dështoi ekzekutimi i luajtësit të jashtëm të medias! Komanda: '%s'"
 
 #: src/FileLaunch.cpp
 #, c-format
@@ -4377,11 +4377,11 @@ msgstr "Shpejtesia mesatare e shkarkimeve"
 
 #: src/muuli_wdr.cpp
 msgid "Uploaded (session)"
-msgstr "Te ngarkuara (sesione)"
+msgstr "Të ngarkuara (sesioni)"
 
 #: src/muuli_wdr.cpp
 msgid "Downloaded (session)"
-msgstr "Te shkarkuara (sesione)"
+msgstr "Të shkarkuara (sesioni)"
 
 #: src/muuli_wdr.cpp
 msgid "Uploaded (total)"
@@ -8705,7 +8705,7 @@ msgstr "Duke pezulluar ngarkimin e failit: %s"
 #: src/UserEvents.cpp
 #, c-format
 msgid "Failed to execute command '%s' on '%s' event."
-msgstr "Deshtoi te ekzekutoje komanden '%s' ne '%s' ngjarjet."
+msgstr "Dështoi ekzekutimi i komandës '%s' në ngjarjen '%s'."
 
 #: src/UserEvents.h
 msgid "Download completed"

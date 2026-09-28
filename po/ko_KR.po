@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-26 17:32+0100\n"
-"PO-Revision-Date: 2026-09-26 19:25+0000\n"
+"PO-Revision-Date: 2026-09-27 21:54+0000\n"
 "Last-Translator: Hyunju Kang <rexington@gmail.com>\n"
 "Language-Team: Korean <hoenny@daum.net>\n"
 "Language: ko_KR\n"
@@ -4097,7 +4097,7 @@ msgstr "부분파일 상태"
 
 #: src/muuli_wdr.cpp
 msgid "Last seen complete"
-msgstr "마지막 부분이 완료"
+msgstr "최종 완료"
 
 #: src/muuli_wdr.cpp
 msgid "Found Sources"
@@ -4105,11 +4105,11 @@ msgstr "찾은 자료"
 
 #: src/muuli_wdr.cpp
 msgid "Transferring Sources"
-msgstr "전송된 자료"
+msgstr "전송 중인 자료"
 
 #: src/muuli_wdr.cpp
 msgid "Filepart-Count"
-msgstr "부분파일 카운트"
+msgstr "부분 개수"
 
 #: src/muuli_wdr.cpp
 msgid "Available"
@@ -4141,7 +4141,7 @@ msgstr "압축으로 얻음"
 
 #: src/muuli_wdr.cpp
 msgid "Packages saved by I.C.H."
-msgstr "I.C.H에의해 저장된 패키지"
+msgstr "I.C.H.에 의해 저장된 패키지"
 
 #: src/muuli_wdr.cpp
 msgid "Sharing"
@@ -5194,7 +5194,7 @@ msgstr "내려받는 폴더"
 
 #: src/muuli_wdr.cpp
 msgid "Change priority for new assigned files"
-msgstr "새롭게 할당된 파일의 우선권를 바꿉니다."
+msgstr "새로 할당된 파일의 우선순위 변경"
 
 #: src/muuli_wdr.cpp
 msgid "Don't change"
@@ -5202,7 +5202,7 @@ msgstr "변경 안 함"
 
 #: src/muuli_wdr.cpp
 msgid "Select color for this Category (currently selected)"
-msgstr "이 분류의 색을 선택 (일반적으로 선택된)"
+msgstr "이 분류의 색 선택 (현재 선택됨)"
 
 #: src/muuli_wdr.cpp
 msgid "Click this button to reset the log."
@@ -8702,7 +8702,7 @@ msgstr "파일의 올려주기를 정지합니다: %s"
 #: src/UserEvents.cpp
 #, c-format
 msgid "Failed to execute command '%s' on '%s' event."
-msgstr "'%s' 명령을 실행하는데 실패했습니다. ('%s' 사건에대해)"
+msgstr "'%s' 명령을 '%s' 이벤트에서 실행하지 못했습니다."
 
 #: src/UserEvents.h
 msgid "Download completed"

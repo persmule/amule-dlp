@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-26 17:32+0100\n"
-"PO-Revision-Date: 2026-09-26 19:33+0000\n"
+"PO-Revision-Date: 2026-09-27 21:55+0000\n"
 "Last-Translator: Mike Akiba <mike2718@gmail.com>\n"
 "Language-Team: Chinese Simplified <kde-i18n-doc@kde.org>\n"
 "Language: zh_CN\n"
@@ -316,9 +316,9 @@ msgid "Memory debug results for aMule exit:"
 msgstr "对 aMule 退出的内存 Debug 结果："
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Binding aMule's peer-to-peer and HTTP traffic to interface: %s"
-msgstr "将所有网络流量绑定到接口：%s"
+msgstr "绑定 aMule 的 P2P 和 HTTP 流量到接口：%s"
 
 #: src/amule.cpp
 #, c-format
@@ -3518,9 +3518,9 @@ msgid "External Connection: Handshake failed."
 msgstr "远程连接：握手失败。"
 
 #: src/LibSocketAsio.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "WARNING: network interface '%s' is gone - traffic is no longer bound to it and may leave via the default route."
-msgstr "警告：无法绑定到网络接口“%s” − 流量可能经默认路由离开。"
+msgstr "警告：网络接口 '%s' 不存在—— 流量不再绑定到该接口，可能通过默认路由离开。"
 
 #: src/LibSocketAsio.cpp
 #, c-format
@@ -4566,9 +4566,8 @@ msgid "Bind to network interface (empty for any):"
 msgstr "绑定网络接口（留空绑定全部）："
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Advanced users only: pin aMule's peer-to-peer traffic, and its HTTP updates where the platform allows, to one network interface, chosen from the list or typed in by name (e.g. tun0, eth0, en0) or index. Unlike binding to an IP, this stops traffic leaking out via the default route - useful with a VPN. On Linux before kernel 5.7 it needs the CAP_NET_RAW capability."
-msgstr "仅限高级用户：将 aMule 的所有流量绑定到一个网络接口，可以从列表中选择，也可以按名称（例如 tun0、eth0、en0）输入或索引。与绑定到 IP 地址不同，这可以防止流量通过默认路由泄漏—— 在 VPN 环境下有用。无需管理员权限。"
+msgstr "仅限高级用户：将 aMule 的 P2P 流量以及平台允许的 aMule HTTP 更新绑定到一个网络接口。可以从列表中选择这个接口，也可以按名称（例如 tun0、eth0、en0）或索引输入。与绑定到一个 IP 地址不同，这可以防止流量通过默认路由泄漏—— 在 VPN 环境下有用。在 5.7 版内核之前的 Linux 系统上需要 CAP_NET_RAW 能力。"
 
 #: src/muuli_wdr.cpp
 msgid "Max sources per downloading file:"
@@ -6430,7 +6429,7 @@ msgstr "无法移除URL处理程序的注册。"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "macOS does not let an application stop being the default handler. To stop aMule opening these, make another application the default."
-msgstr ""
+msgstr "macOS 不让程序停止成为默认链接处理方。要阻止 aMule 打开这些链接，让另一个程序成为默认处理方。"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "The web server and aMule API require external connections to be enabled."
@@ -8436,6 +8435,9 @@ msgid ""
 "Without an id, the number refers to the last 'results' output, or to the most recently started search if nothing was listed yet.\n"
 "Example: 'download 12' downloads file 12 of the last results; 'download 12 3' downloads file 12 of search 3.\n"
 msgstr ""
+"明确“结果”列出的文件编号，可以在后面加上搜索 id。\n"
+"没有 id，该数字指向上一个“结果”输出，或者如果还没有列出任何内容则指向最近启动的搜索。\n"
+"比如：'download 12' 下载上一个结果的第 12 个文件； 'download 12 3' 下载搜索 3 的第 12 个文件。\n"
 
 #: src/TextClient.cpp
 msgid "Pause download."
@@ -8554,42 +8556,42 @@ msgstr "验证本地数据（%s）：发现错误！%s 个失败的文件块：M
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: file %s was removed before it could be checked."
-msgstr ""
+msgstr "验证本地数据： %s 文件在其可被检查前被删除。"
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s is still downloading, so it was not checked."
-msgstr ""
+msgstr "验证本地数据：仍在下载 %s，因此未检查它。"
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: could not read %s, so it was not checked."
-msgstr ""
+msgstr "验证本地数据：无法读取 %s，因此未检查它。"
 
 #: src/ThreadTasks.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Verify Local Data: ERRORS FOUND! %s Size on disk: %u bytes, expected: %u bytes."
-msgstr "验证本地数据（%s）：发现错误！%s 个失败的文件块：MD4: %s。%s %s"
+msgstr "验证本地数据：发现错误！%s 磁盘上大小：%u 字节，预期大小：%u 字节。"
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s is larger than aMule supports, so it was not checked."
-msgstr ""
+msgstr "验证本地数据：%s 大小超过 aMule 支持的大小，因此未检查它。"
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s is empty, so there is nothing to check."
-msgstr ""
+msgstr "验证本地数据：%s 为空，因此没什么可检查的。"
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s was removed or changed during the check, which did not finish."
-msgstr ""
+msgstr "验证本地数据：%s 在检查期间被删除或更改，检查未完成。"
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: could not read %s, so the check did not finish: %s"
-msgstr ""
+msgstr "验证本地数据：无法读取 %s，因此检查未完成：%s"
 
 #: src/ThreadTasks.cpp
 #, c-format
@@ -9400,7 +9402,7 @@ msgid ""
 "aMule daemon (amuled.exe) appears to be running from $INSTDIR.\n"
 "Please stop it and try again."
 msgstr ""
-"aMule守护进程（amuled.exe）似乎正从 $INSTDIR目录运行。\n"
+"aMule守护进程（amuled.exe）似乎正从 $INSTDIR 目录运行。\n"
 "请停止它并重试。"
 
 #: packaging/windows/installer_strings.c

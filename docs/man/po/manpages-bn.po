@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2026-06-10 16:45+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2026-09-27 22:45+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: none\n"
 "Language: bn\n"
@@ -41,7 +41,7 @@ msgstr ""
 #: amule.1.in:1
 #, no-wrap
 msgid "aMule"
-msgstr ""
+msgstr "aMule"
 
 #. type: SH
 #: amule.1.in:4 amulecmd.1.in:5 amuled.1.in:4 amulegui.1.in:4 amuleweb.1.in:4
@@ -400,12 +400,12 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in:46 amuleweb.1.in:63
 msgid "Do not print any output to stdout."
-msgstr ""
+msgstr "stdout এ কোনো আউটপুট প্রিন্ট করবেন না।"
 
 #. type: Plain text
 #: amulecmd.1.in:50 amuleweb.1.in:67
 msgid "Be verbose - show also debug messages."
-msgstr ""
+msgstr "বিস্তারিত হন - ডিবাগ বার্তাও দেখান।"
 
 #. type: TP
 #: amulecmd.1.in:50 amuleweb.1.in:67
@@ -484,7 +484,7 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in:93
 msgid "Connect to the network."
-msgstr ""
+msgstr "নেটওয়ার্কে সংযোগ করুন।"
 
 #. type: Plain text
 #: amulecmd.1.in:95
@@ -519,7 +519,7 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in:112
 msgid "Get and display a preference value."
-msgstr ""
+msgstr "একটি পছন্দের মান পান এবং প্রদর্শন করুন।"
 
 #. type: Plain text
 #: amulecmd.1.in:114 amulecmd.1.in:148 amulecmd.1.in:197 amulecmd.1.in:207
@@ -529,7 +529,7 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in:117
 msgid "Get bandwidth limits."
-msgstr ""
+msgstr "ব্যান্ডউইথ সীমা পান।"
 
 #. type: Plain text
 #: amulecmd.1.in:119
@@ -594,7 +594,7 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in:151
 msgid "Reload shared files list."
-msgstr ""
+msgstr "শেয়ার করা ফাইলের তালিকা পুনরায় লোড করুন।"
 
 #. type: Plain text
 #: amulecmd.1.in:153
@@ -684,7 +684,7 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in:200
 msgid "Set bandwidth limits."
-msgstr ""
+msgstr "ব্যান্ডউইথ সীমা নির্ধারণ করুন।"
 
 #. type: Plain text
 #: amulecmd.1.in:202
@@ -699,27 +699,27 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in:210
 msgid "Show download queue."
-msgstr ""
+msgstr "ডাউনলোড সারি দেখান।"
 
 #. type: Plain text
 #: amulecmd.1.in:212
 msgid "Show log."
-msgstr ""
+msgstr "লগ দেখান।"
 
 #. type: Plain text
 #: amulecmd.1.in:214
 msgid "Show servers list."
-msgstr ""
+msgstr "সার্ভার তালিকা দেখান।"
 
 #. type: Plain text
 #: amulecmd.1.in:216
 msgid "Show shared files list."
-msgstr ""
+msgstr "শেয়ার করা ফাইলের তালিকা দেখান।"
 
 #. type: Plain text
 #: amulecmd.1.in:218
 msgid "Show upload queue."
-msgstr ""
+msgstr "আপলোড সারি দেখান।"
 
 #. type: Plain text
 #: amulecmd.1.in:222
@@ -1071,7 +1071,7 @@ msgstr ""
 #. type: Plain text
 #: amuleweb.1.in:114
 msgid "Disable PHP interpreter (deprecated)"
-msgstr ""
+msgstr "PHP ইন্টারপ্রেটার নিষ্ক্রিয় করুন (অপ্রচলিত)"
 
 #. type: Plain text
 #: amuleweb.1.in:117
@@ -1139,7 +1139,7 @@ msgstr ""
 #: ed2k.1.in:1
 #, no-wrap
 msgid "ED2K"
-msgstr ""
+msgstr "ED2K"
 
 #. type: TH
 #: ed2k.1.in:1

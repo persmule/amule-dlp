@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2026-09-26 12:38+0100\n"
-"PO-Revision-Date: 2026-09-26 19:34+0000\n"
+"PO-Revision-Date: 2026-09-27 21:55+0000\n"
 "Last-Translator: Sebastiano Pistore <SebastianoPistore.info@protonmail.ch>\n"
 "Language-Team: Romanian <kde-i18n-doc@kde.org>\n"
 "Language: ro\n"
@@ -761,7 +761,7 @@ msgstr "Arată arborele statisticilor."
 #. type: Plain text
 #: amulecmd.1.in
 msgid "The optional I<E<lt>numberE<gt>> in the range of 0-255 can be passed as argument to this command, which tells how many entries of the client version subtree should be shown. Passing 0, or omitting it means 'unlimited'."
-msgstr "Numărul facultativ I<E<lt>numberE<gt>> în domeniul 0-255 poate fi trecut ca argument la această comandă, care spune cât de multe intrări de subdiviziuni a versiunii clientului vor fi afișate. Trecând 0, sau lăsând gol va însemna 'nelimitat'."
+msgstr "Numărul facultativ I<E<lt>numberE<gt>> din intervalul 0-255 poate fi transmis ca argument acestei comenzi și indică câte intrări din subarborele versiunilor de client vor fi afișate. Transmiterea valorii 0 sau omiterea ei înseamnă 'nelimitat'."
 
 #. type: Plain text
 #: amulecmd.1.in

@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-26 17:32+0100\n"
-"PO-Revision-Date: 2026-09-26 19:11+0000\n"
+"PO-Revision-Date: 2026-09-27 21:02+0000\n"
 "Last-Translator: Werner Mahr <werner@vollstreckernet.de>\n"
 "Language-Team: German <>\n"
 "Language: de\n"
@@ -25,9 +25,8 @@ msgstr ""
 "X-Generator: Lokalize 26.04.0\n"
 
 #: src/AboutDialog.cpp
-#, fuzzy
 msgid "About aMule"
-msgstr "Zeige aMule"
+msgstr "Über aMule"
 
 #: src/AboutDialog.cpp
 msgid "aMule remote control "
@@ -75,7 +74,7 @@ msgstr "Forum:"
 
 #: src/AboutDialog.cpp
 msgid "Documentation:"
-msgstr ""
+msgstr "Dokumentation:"
 
 #: src/AboutDialog.cpp
 msgid "Issues:"
@@ -2656,7 +2655,7 @@ msgstr "Dateivorschau"
 #: src/FileLaunch.cpp
 #, c-format
 msgid "ERROR: Failed to execute external media-player! Command: '%s'"
-msgstr "FEHLER: Konnte externen Mediaplayer nicht starten!Befehl: '%s'"
+msgstr "FEHLER: Konnte externen Mediaplayer nicht starten! Befehl: '%s'"
 
 #: src/FileLaunch.cpp
 #, c-format
@@ -8738,7 +8737,7 @@ msgstr "Aussetzen des Hochladens der Datei '%s'."
 #: src/UserEvents.cpp
 #, c-format
 msgid "Failed to execute command '%s' on '%s' event."
-msgstr "Befehlsausführung fehlgeschlagen: Befehl '%s' aufgrund Ereignis '%s'."
+msgstr "Konnte Befehl '%s' bei Ereignis '%s' nicht ausführen."
 
 #: src/UserEvents.h
 msgid "Download completed"
@@ -9472,16 +9471,16 @@ msgid ""
 "aMule appears to be running from $INSTDIR.\n"
 "Please close aMule (and aMuleD / aMuleGUI) and try again."
 msgstr ""
-"aMule scheint von $INSTDIR zu laufen.\n"
-"Bitte aMule (und aMuleD / aMulgeGUI) schließen und erneut versuchen."
+"aMule scheint aus $INSTDIR ausgeführt zu werden.\n"
+"Bitte aMule (und aMuleD / aMuleGUI) schließen und erneut versuchen."
 
 #: packaging/windows/installer_strings.c
 msgid ""
 "aMule daemon (amuled.exe) appears to be running from $INSTDIR.\n"
 "Please stop it and try again."
 msgstr ""
-"Der aMule Service (amuled.exe) scheint von $INSTDIR zu laufen.\n"
-"Bitte stoppen und erneut versuchen."
+"Der aMule-Daemon (amuled.exe) scheint aus $INSTDIR ausgeführt zu werden.\n"
+"Bitte beenden und erneut versuchen."
 
 #: packaging/windows/installer_strings.c
 msgid "Removing previous aMule installation at $0..."

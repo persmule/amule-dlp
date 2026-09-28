@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-26 17:32+0100\n"
-"PO-Revision-Date: 2026-09-26 19:28+0000\n"
+"PO-Revision-Date: 2026-09-27 21:54+0000\n"
 "Last-Translator: Michał Trzebiatowski <hippie_1968@hotmail.com>\n"
 "Language-Team: translationproject.org/team/pl.html <translation-team-pl@lists.sourceforge.net>\n"
 "Language: pl\n"
@@ -280,7 +280,7 @@ msgstr "Zakańczam instancję amuleweb z pid `%d' ... "
 #: src/amule.cpp
 #, c-format
 msgid "Killing amuleweb instance with pid '%d' ... "
-msgstr "Zabiłam instancję amuleweb z pid `%d' ... "
+msgstr "Zabijam instancję amuleweb z pid '%d' ... "
 
 #: src/amule.cpp src/ClientRef.cpp src/SearchDlg.cpp src/ServerListCtrl.cpp
 msgid "Failed"
@@ -4132,7 +4132,7 @@ msgstr "Znaleziono źródeł"
 
 #: src/muuli_wdr.cpp
 msgid "Transferring Sources"
-msgstr "Przesyłam ze źródeł"
+msgstr "Źródła przesyłające"
 
 #: src/muuli_wdr.cpp
 msgid "Filepart-Count"
@@ -4152,7 +4152,7 @@ msgstr "Aktywny czas pobierania"
 
 #: src/muuli_wdr.cpp
 msgid "Completed Size"
-msgstr "Zakończono"
+msgstr "Rozmiar ukończonej części"
 
 #: src/muuli_wdr.cpp
 msgid "Intelligent Corruption Handling"
@@ -4372,7 +4372,7 @@ msgstr "ID użytkownika"
 
 #: src/muuli_wdr.cpp
 msgid "Server IP"
-msgstr "IP Serwera"
+msgstr "IP serwera"
 
 #: src/muuli_wdr.cpp
 msgid "Server name"
@@ -4393,7 +4393,7 @@ msgstr "Transfery do klientów"
 
 #: src/muuli_wdr.cpp
 msgid "Current request"
-msgstr "Aktualnie żądań"
+msgstr "Bieżące żądanie"
 
 #: src/muuli_wdr.cpp
 msgid "Average upload rate"
@@ -4413,11 +4413,11 @@ msgstr "Pobrane (sesja)"
 
 #: src/muuli_wdr.cpp
 msgid "Uploaded (total)"
-msgstr "Wysłanych (razem)"
+msgstr "Wysłane (razem)"
 
 #: src/muuli_wdr.cpp
 msgid "Downloaded (total)"
-msgstr "Pobranych (razem)"
+msgstr "Pobrane (razem)"
 
 #: src/muuli_wdr.cpp
 msgid "Scores"
