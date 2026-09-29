@@ -29,6 +29,7 @@
 
 #include <csignal>
 #include <cstring>
+#include <set> // Needed for std::set (OnVerifyLocalDataFinished)
 #include <wx/process.h>
 #include <wx/sstream.h>
 #include "config.h" // Needed for HAVE_GETRLIMIT, HAVE_SETRLIMIT,
@@ -2102,13 +2103,13 @@ void CamuleApp::OnCoreTimer(CTimerEvent &WXUNUSED(evt))
 		msPrevKnownMet = msCur;
 	}
 
-	// Coalesced flush of media-probe tag updates: OnMediaProbeFinished bumps
-	// m_mediaTagsDirtiedMs on every probe instead of saving inline; save once here when
-	// probing has been idle for 30 s. Resets the periodic timer above so known.met is not
-	// rewritten twice in quick succession.
-	if (m_mediaTagsDirtiedMs && msCur - m_mediaTagsDirtiedMs >= 30000) {
+	// Coalesced flush of media-probe tag and Verify Local Data updates: OnMediaProbeFinished
+	// and OnVerifyLocalDataFinished bump m_knownMetDirtiedMs instead of saving inline; save
+	// once here when they have been idle for 30 s. Resets the periodic timer above so
+	// known.met is not rewritten twice in quick succession.
+	if (m_knownMetDirtiedMs && msCur - m_knownMetDirtiedMs >= 30000) {
 		knownfiles->Save();
-		m_mediaTagsDirtiedMs = 0;
+		m_knownMetDirtiedMs = 0;
 		msPrevKnownMet = msCur;
 	}
 
@@ -2401,7 +2402,7 @@ void CamuleApp::OnMediaProbeFinished(CMediaProbeEvent &evt)
 			if (sharedFile) {
 				sharedFile->AddTagUnique(CTagInt32(FT_MEDIA_PROBE_FAILED, 1));
 			}
-			m_mediaTagsDirtiedMs = theStats::GetUptimeMillis();
+			m_knownMetDirtiedMs = theStats::GetUptimeMillis();
 		}
 		return;
 	}
@@ -2490,7 +2491,59 @@ void CamuleApp::OnMediaProbeFinished(CMediaProbeEvent &evt)
 	// could re-enter Save mid-write. Bump the last-change stamp on every probe; OnCoreTimer
 	// flushes a single Save once probing has been idle for 30 s. The 30-min periodic save
 	// is the backstop.
-	m_mediaTagsDirtiedMs = theStats::GetUptimeMillis();
+	m_knownMetDirtiedMs = theStats::GetUptimeMillis();
+}
+
+void CamuleApp::OnVerifyLocalDataFinished(CVerifyLocalDataEvent &evt)
+{
+	// Recorded only on the record that is still the file that was read. Unlike media tags it is
+	// not copied to other records of the hash: the same content can be intact at one path and
+	// damaged at another.
+	const CMD4Hash &hash = evt.GetHash();
+	auto isCheckedCopy = [&evt, &hash](const CKnownFile *f) {
+		return f && !f->IsPartFile() && f->GetFileHash() == hash &&
+		       f->GetFilePath().JoinPaths(f->GetFileName()) == evt.GetFullPath() &&
+		       (uint32)f->GetLastChangeDatetime() == evt.GetFileDate() &&
+		       f->GetFileSize() == evt.GetFileSize();
+	};
+	CKnownFile *checked = sharedfiles ? sharedfiles->GetFileByID(hash) : nullptr;
+	if (!isCheckedCopy(checked)) {
+		checked = knownfiles->FindKnownFileByID(hash);
+		if (!isCheckedCopy(checked)) {
+			AddDebugLogLineN(logVerifyLocalData,
+				CFormat("Verified file changed or is no longer known, result discarded: %s") %
+					evt.GetFullPath());
+			return;
+		}
+	}
+	checked->SetVerifyResult(evt.GetResult());
+	// Redraw the row: the task's last progress update has already gone out before this.
+	Notify_SharedFilesUpdateItem(checked);
+	m_knownMetDirtiedMs = theStats::GetUptimeMillis();
+
+	// Name other copies in the shared folders. Names only: known.met stores no directory.
+	if (evt.GetResult().IsCorrupt()) {
+		std::set<wxString> reported;
+		for (const CKnownFileList::OtherCopy &copy : knownfiles->FindOtherCopies(hash, checked)) {
+			if (copy.fullPath.IsOk() && copy.fullPath == evt.GetFullPath()) {
+				continue;
+			}
+			const bool onDisk = copy.fullPath.IsOk() &&
+					    CPath::GetModificationTime(copy.fullPath) == copy.date &&
+					    copy.fullPath.GetFileSize() == (sint64)copy.size;
+			if (!onDisk && !copy.seenByScan) {
+				continue;
+			}
+			if (!reported.insert(copy.fileName.GetRaw()).second) {
+				continue;
+			}
+			AddLogLineN(
+				CFormat(_("Verify Local Data: another file named '%s' in your shared "
+					  "folders has the same content as '%s' and may be an intact copy "
+					  "of it.")) %
+				copy.fileName % evt.GetFullPath());
+		}
+	}
 }
 
 void CamuleApp::OnFinishedCompletion(CCompletionEvent &evt)

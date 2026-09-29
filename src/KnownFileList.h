@@ -28,8 +28,10 @@
 
 #include <functional>
 #include <unordered_set>
+#include <vector>
 
 #include "SharedFileList.h" // CKnownFileMap
+#include <common/Path.h>    // Needed for CPath
 
 class CKnownFile;
 class CPath;
@@ -68,6 +70,19 @@ public:
 	// Called by the share scan for each file it actually shares, so the record backed by a file
 	// we just saw wins the hash.
 	bool PromoteToCanonical(CKnownFile *file);
+
+	struct OtherCopy
+	{
+		CPath fileName;
+		CPath fullPath; // empty unless the record got a directory this session
+		time_t date;
+		uint64 size;
+		bool seenByScan; // a pinned duplicate: the share scan matched it on disk
+	};
+	// The other records of `hash` seen in a shared folder this session. Records with neither a
+	// directory nor a pin are left out: the duplicate list also keeps past names and dates of the
+	// same file.
+	std::vector<OtherCopy> FindOtherCopies(const CMD4Hash &hash, const CKnownFile *except) const;
 
 	// Returns true iff `file` is still one of this list's records, canonical or duplicate. It
 	// answers "does this record still exist", not "is it canonical": PromoteToCanonical demotes

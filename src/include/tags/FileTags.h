@@ -89,6 +89,12 @@
 // A media refresh (issue #1079) ignores it and clears it on success, so the marker is a default,
 // never a life sentence.
 #define FT_MEDIA_PROBE_FAILED 0x57 // <uint32> aMule-internal, see above
+// Last Verify Local Data result, aMule-internal like FT_MEDIA_PROBE_FAILED. The date is written
+// after every completed check, the lists only on failure. Not 0x24 (FT_CORRUPTEDPARTS): that
+// means "part re-opened as a gap" in a .part.met.
+#define FT_VERIFY_DATE 0x58        // <uint32>
+#define FT_VERIFY_CORRUPTMD4 0x59  // <string> "p,p,p" corrupt parts
+#define FT_VERIFY_CORRUPTAICH 0x5A // <string> "p:b.b;p:b" corrupt AICH blocks per part
 #define FT_FILERATING 0xF7         // <uint8>
 
 // Kad search + some unused tags to mirror the ed2k ones.
