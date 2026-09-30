@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-30 19:39+0800\n"
-"PO-Revision-Date: 2026-09-30 11:31+0000\n"
+"PO-Revision-Date: 2026-09-30 14:50+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -212,11 +212,16 @@ msgid ""
 "\n"
 "The file is deleted and no longer shared. This cannot be undone."
 msgstr ""
+"Удалить «%s» с диска?\n"
+"\n"
+"Файл: %s\n"
+"\n"
+"Файл будет удалён и больше не публикуется. Это действие необратимо."
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "... and %i more"
-msgstr ""
+msgstr "… и ещё %i"
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -226,26 +231,29 @@ msgid ""
 "%s\n"
 "The files are deleted and no longer shared. This cannot be undone."
 msgstr ""
+"Удалить выбранные файлы (%i шт.) с диска?\n"
+"\n"
+"%s\n"
+"Файлы будут удалены и больше не публикуются. Это действие необратимо."
 
 #: src/GuiEvents.cpp
-#, fuzzy
 msgid "Delete from disk"
-msgstr "Получить из Kad"
+msgstr "Удалить с диска"
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Skipped deleting '%s': the selected file has changed."
-msgstr ""
+msgstr "Удаление «%s» пропущено: выбранный файл был изменён."
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Deleted '%s' from disk."
-msgstr ""
+msgstr "«%s» удалён с диска."
 
 #: src/GuiEvents.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not delete '%s' from disk."
-msgstr "Не удалось удалить категорию: %s"
+msgstr "Не удалось удалить «%s» с диска."
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -258,6 +266,13 @@ msgid ""
 "Yes: stop sharing and remove the list entries. A later share scan may share the files again.\n"
 "No: keep the files shared and listed."
 msgstr ""
+"Не удалось удалить эти файлы с диска:\n"
+"\n"
+"%s\n"
+"Всё равно убрать их из публикации и списка завершённых передач?\n"
+"\n"
+"Да: прекратить публикацию и удалить записи из списка. При следующем сканировании общих папок файлы могут снова стать общими.\n"
+"Нет: оставить файлы опубликованными и в списке."
 
 #: src/amuleAppCommon.cpp
 msgid "Failed to open ED2KLinks file."
@@ -2001,9 +2016,8 @@ msgid "C&lear completed"
 msgstr "Очистить &завершённые"
 
 #: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-#, fuzzy
 msgid "Delete file from &disk"
-msgstr "Удаление файла: %s"
+msgstr "Удалить файл с &диска"
 
 #: src/DownloadListCtrl.cpp
 msgid "Swap every A4AF to this file now"
