@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-30 14:22+0800\n"
-"PO-Revision-Date: 2026-09-29 10:00+0000\n"
+"PO-Revision-Date: 2026-09-30 11:26+0000\n"
 "Last-Translator: Diego Heras <ngosang@hotmail.es>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/amule/amule-application/es/>\n"
 "Language: es\n"
@@ -607,7 +607,7 @@ msgstr "Metadatos del arhivo multimedia: el archivo analizado ya no es conocido,
 #: src/amule.cpp
 #, c-format
 msgid "Verify Local Data: another file named '%s' in your shared folders has the same content as '%s' and may be an intact copy of it."
-msgstr ""
+msgstr "Verificar datos locales: otro archivo denominado '%s' en sus directorios compartidos tiene el mismo contenido que '%s' y podría ser una copia intacta de este."
 
 #: src/amule.cpp
 #, c-format
@@ -4874,9 +4874,8 @@ msgid "Exclude files and folders matching:"
 msgstr "Excluir archivos y carpetas coincidentes:"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Files and folders whose name matches are not shared. A matching folder inside a share that includes its subfolders is skipped with everything in it; a folder you share yourself is always shared. Matching is case-insensitive. As wildcards: patterns separated by '|', e.g. .DS_Store|Thumbs.db|*.tmp, where '*' matches any run of characters and '?' a single one. Tick the box below to write one regular expression instead."
-msgstr "Los archivos cuyos nombres coincidan no se compartirán. La coincidencia no distingue entre mayúsculas y minúsculas. Como comodines: patrones separados por '|', p. ej., .DS_Store|Thumbs.db|*.tmp, donde '*' coincide con cualquier serie de caracteres y '?' con uno solo. Marque la casilla inferior si prefiere escribir una expresión regular."
+msgstr "Los archivos y directorios cuyos nombres coincidan no se compartirán. Si un directorio que coincide se encuentra dentro de un recurso compartido que incluye sus subdirectorios, se omitirá junto con todo su contenido; un directorio compartido directamente por usted siempre se compartirá. La coincidencia no distingue entre mayúsculas y minúsculas. Como comodines: patrones separados por '|', p. ej., .DS_Store|Thumbs.db|*.tmp, donde '*' coincide con cualquier serie de caracteres y '?' con uno solo. Marque la casilla inferior si prefiere escribir una expresión regular."
 
 #: src/muuli_wdr.cpp
 msgid "Patterns are regular expressions"

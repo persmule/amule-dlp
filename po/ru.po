@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-30 14:22+0800\n"
-"PO-Revision-Date: 2026-09-29 10:09+0000\n"
+"PO-Revision-Date: 2026-09-30 11:31+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -607,7 +607,7 @@ msgstr "Метаданные медиафайла: проверяемый фай
 #: src/amule.cpp
 #, c-format
 msgid "Verify Local Data: another file named '%s' in your shared folders has the same content as '%s' and may be an intact copy of it."
-msgstr ""
+msgstr "Проверка локальных данных: в ваших общих папках есть файл «%s» с тем же содержимым, что и «%s» — возможно, это его целая копия."
 
 #: src/amule.cpp
 #, c-format

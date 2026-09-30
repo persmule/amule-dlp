@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-30 14:22+0800\n"
-"PO-Revision-Date: 2026-09-29 10:06+0000\n"
+"PO-Revision-Date: 2026-09-30 11:29+0000\n"
 "Last-Translator: Marcel Pol <marcel@timelord.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
@@ -372,9 +372,9 @@ msgid "Memory debug results for aMule exit:"
 msgstr "Geheugen debug resultaten voor het afsluiten van aMule:"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Binding aMule's peer-to-peer and HTTP traffic to interface: %s"
-msgstr "Al het netwerkverkeer wordt gebonden aan interface: %s"
+msgstr "Peer-to-peer- en HTTP-verkeer van aMule wordt gebonden aan interface: %s"
 
 #: src/amule.cpp
 #, c-format
@@ -602,7 +602,7 @@ msgstr "Media-metadata: gepeild bestand is niet meer bekend, resultaat verwijder
 #: src/amule.cpp
 #, c-format
 msgid "Verify Local Data: another file named '%s' in your shared folders has the same content as '%s' and may be an intact copy of it."
-msgstr ""
+msgstr "Lokale gegevens verifiëren: een ander bestand genaamd '%s' in uw gedeelde mappen heeft dezefde inhoud as '%s' en zou een intacte kopie kunnen zijn."
 
 #: src/amule.cpp
 #, c-format
@@ -3276,7 +3276,7 @@ msgstr "Kad-gebruiker"
 #: src/KnownFile.cpp
 #, c-format
 msgid "Verify Local Data: %s is still downloading, so it was not checked."
-msgstr ""
+msgstr "Lokale gegevens verifiëren: %s wordt nog gedownload en is niet gecontroleerd."
 
 #: src/KnownFile.cpp
 #, c-format
@@ -3590,9 +3590,9 @@ msgid "External Connection: Handshake failed."
 msgstr "Externe verbinding: handshake mislukt."
 
 #: src/LibSocketAsio.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "WARNING: network interface '%s' is gone - traffic is no longer bound to it and may leave via the default route."
-msgstr "WAARSCHUWING: kon niet binden aan netwerkinterface '%s' - verkeer kan via de standaardroute verlopen."
+msgstr "WAARSCHUWING: netwerkinterface '%s' is verdwenen - verkeer is er niet meer aan gebonden en kan via de standaardroute verlopen."
 
 #: src/LibSocketAsio.cpp
 #, c-format
@@ -4639,9 +4639,8 @@ msgid "Bind to network interface (empty for any):"
 msgstr "Bind aan netwerkinterface (laat leeg voor elk):"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Advanced users only: pin aMule's peer-to-peer traffic, and its HTTP updates where the platform allows, to one network interface, chosen from the list or typed in by name (e.g. tun0, eth0, en0) or index. Unlike binding to an IP, this stops traffic leaking out via the default route - useful with a VPN. On Linux before kernel 5.7 it needs the CAP_NET_RAW capability."
-msgstr "Alleen voor gevorderde gebruikers: bind al het verkeer van aMule aan één netwerkinterface, gekozen uit de lijst of ingevoerd op naam (bijv. tun0, eth0, en0) of index. In tegenstelling tot binden aan een IP-adres voorkomt dit dat verkeer via de standaardroute weglekt - nuttig bij een VPN. Vereist geen verhoogde rechten."
+msgstr "Alleen voor gevorderde gebruikers: bind al het peer-to-peer verkeer van aMule, en de HTTP-updates waar het platform dat toestaat, aan één netwerkinterface, gekozen uit de lijst of ingevoerd op naam (bijv. tun0, eth0, en0) of index. In tegenstelling tot binden aan een IP-adres voorkomt dit dat verkeer via de standaardroute weglekt - nuttig bij een VPN. Op Linux voor kernel versie 5.7 vereist dit de CAP_NET_RAW capaciteit."
 
 #: src/muuli_wdr.cpp
 msgid "Max sources per downloading file:"
@@ -6503,7 +6502,7 @@ msgstr "Kon de registratie van de URL-afhandelaar niet verwijderen."
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "macOS does not let an application stop being the default handler. To stop aMule opening these, make another application the default."
-msgstr ""
+msgstr "macOS staat niet toe dat een app niet langer de standaard behandelaar is. Om te voorkomen dat aMule deze opent maakt u een andere app de standaard."
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "The web server and aMule API require external connections to be enabled."
@@ -8511,6 +8510,9 @@ msgid ""
 "Without an id, the number refers to the last 'results' output, or to the most recently started search if nothing was listed yet.\n"
 "Example: 'download 12' downloads file 12 of the last results; 'download 12 3' downloads file 12 of search 3.\n"
 msgstr ""
+"Geeft het nummer van het bestand zoals het op de 'resultaten'-lijst staat, optioneel gevolgd door een zoek-id\n"
+"Zonder een id reflecteert het nummer naar de laatste 'resultaten'-uitvoer of naarde meest recent gestartte zoekopdracht als nog niets op een lijst is gezet.\n"
+"Voorbeeld: 'download 12' download bestand 12 vanuit de laatste resultaten; 'download 12 3' download bestand 12 van zoekopdracht 3.\n"
 
 #: src/TextClient.cpp
 msgid "Pause download."
@@ -8631,37 +8633,37 @@ msgstr "Lokale gegevens verifiëren (%s): FOUTEN GEVONDEN! %s Mislukte blokken: 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: file %s was removed before it could be checked."
-msgstr ""
+msgstr "Lokale gegevens verifiëren: bestand %s is verwijderd voordat het gecontroleerd kon worden."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: could not read %s, so it was not checked."
-msgstr ""
+msgstr "Lokale gegevens verifiëren: kon %s niet lezen, dus het is niet gecontroleerd."
 
 #: src/ThreadTasks.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Verify Local Data: ERRORS FOUND! %s Size on disk: %u bytes, expected: %u bytes."
-msgstr "Lokale gegevens verifiëren (%s): FOUTEN GEVONDEN! %s Mislukte blokken: MD4: %s. %s %s"
+msgstr "Lokale gegevens verifiëren: FOUTEN GEVONDEN! %s Grootte op schijf: %u bytes, verwacht: %u bytes."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s is larger than aMule supports, so it was not checked."
-msgstr ""
+msgstr "Lokale gegevens verifiëren: %s is groter dan aMule ondersteunt dus het is niet gecontroleerd."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s is empty, so there is nothing to check."
-msgstr ""
+msgstr "Lokale gegevens verifiëren: %s is leeg dus er is niets om te controleren."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s was removed or changed during the check, which did not finish."
-msgstr ""
+msgstr "Lokale gegevens verifiëren: %s is verwijderd of veranderd tijdens de controle, die niet is afgerond."
 
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: could not read %s, so the check did not finish: %s"
-msgstr ""
+msgstr "Lokale gegevens verifiëren: kon %s niet lezen dus de controle is niet afgerond: %s"
 
 #: src/ThreadTasks.cpp
 #, c-format

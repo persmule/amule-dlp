@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "POT-Creation-Date: 2026-09-26 12:38+0100\n"
-"PO-Revision-Date: 2026-09-29 10:13+0000\n"
+"PO-Revision-Date: 2026-09-30 11:33+0000\n"
 "Last-Translator: Mad-Soft <mad.soft@gmail.com>\n"
 "Language-Team: Spanish <es_ES@li.org>\n"
 "Language: es\n"
@@ -135,14 +135,12 @@ msgstr "Activa o desactiva el arranque automático de aMule al iniciar sesión e
 #. type: Plain text
 #: amule.1.in amuled.1.in amulegui.1.in
 msgid "Enable or disable aMule as the current user's default handler for ed2k:// and magnet: links, then exit.  I<E<lt>valueE<gt>> is B<on> or B<off> for both kinds of link, or B<ed2k:on>, B<ed2k:off>, B<magnet:on> or B<magnet:off> for one of them.  The OS-specific store is selected automatically: Windows registry, macOS LaunchServices, Linux XDG I<mimeapps.list>."
-msgstr ""
+msgstr "Activa o desactiva aMule como el gestor predeterminado del usuario actual para enlaces ed2k:// y magnet:, y después sale. I<E<lt>valorE<gt>> es B<on> u B<off> para ambos tipos de enlace, o B<ed2k:on>, B<ed2k:off>, B<magnet:on> o B<magnet:off> para uno de ellos. El almacén específico del sistema operativo se selecciona automáticamente: registro de Windows, LaunchServices de macOS, I<mimeapps.list> de Linux XDG."
 
 #. type: Plain text
 #: amule.1.in amuled.1.in amulegui.1.in
-#, fuzzy
-#| msgid "Enable or disable starting aMule on user login, then exit.  The OS-specific store is selected automatically: Windows registry Run key, macOS LaunchAgent, Linux XDG I<.desktop> autostart entry."
 msgid "Enable or disable aMule as the current user's handler for I<.emulecollection> files, then exit.  The OS-specific store is selected automatically: Windows registry, macOS LaunchServices, Linux XDG I<mimeapps.list>."
-msgstr "Activa o desactiva el arranque automático de aMule al iniciar sesión el usuario, y luego termina. Se seleccionará automáticamente el almacenamiento específico de cada SO: clave del registro en Windows, LaunchAgent en macOS, entrada en Linux XDG I<.desktop> autostart."
+msgstr "Activa o desactiva aMule como el gestor del usuario actual para archivos I<.emulecollection>, y después sale. El almacén específico del sistema operativo se selecciona automáticamente: registro de Windows, LaunchServices de macOS, I<mimeapps.list> de Linux XDG."
 
 #. type: TP
 #: amule.1.in amuled.1.in
@@ -530,7 +528,7 @@ msgstr "Comenzar a descargar un archivo."
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Give the I<E<lt>numberE<gt>> of a file as listed by B<results>, optionally followed by a search I<E<lt>idE<gt>> (as printed by B<search>). Without an id, the number refers to the last B<results> output, or to the most recently started search if nothing was listed yet.  Example: 'download 12' downloads file 12 of the last results; 'download 12 3' downloads file 12 of search 3."
-msgstr ""
+msgstr "Indique el I<E<lt>númeroE<gt>> de un archivo tal como lo lista B<results>, seguido opcionalmente del I<E<lt>idE<gt>> de una búsqueda (tal como lo muestra B<search>). Sin un identificador, el número hace referencia a la última salida de B<results>, o a la búsqueda iniciada más recientemente si aún no se ha listado nada. Ejemplo: 'download 12' descarga el archivo 12 de los últimos resultados; 'download 12 3' descarga el archivo 12 de la búsqueda 3."
 
 #. type: Plain text
 #: amulecmd.1.in
