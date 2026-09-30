@@ -1,6 +1,7 @@
 src/AboutDialog.cpp
 src/AddFriend.cpp
 src/AppImageIntegration.cpp
+src/GuiEvents.cpp
 src/amuleAppCommon.cpp
 src/amule.cpp
 src/amuled.cpp

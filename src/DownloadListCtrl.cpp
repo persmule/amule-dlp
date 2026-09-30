@@ -173,6 +173,8 @@ wxBEGIN_EVENT_TABLE(CDownloadListCtrl, CMuleVirtualDataViewCtrl)
 
 	EVT_MENU(MP_CLEARCOMPLETED, CDownloadListCtrl::OnClearCompleted)
 
+	EVT_MENU(MP_DELETEFROMDISK, CDownloadListCtrl::OnDeleteFromDisk)
+
 	EVT_MENU(MP_GETMAGNETLINK, CDownloadListCtrl::OnGetLink)
 	EVT_MENU(MP_GETED2KLINK, CDownloadListCtrl::OnGetLink)
 	EVT_MENU(MP_RAZORSTATS, CDownloadListCtrl::OnRazorStatsCheck)
@@ -462,6 +464,10 @@ void CDownloadListCtrl::OnItemRightClicked(wxDataViewEvent &event)
 	m_menu->Append(MP_PAUSE, _("&Pause"));
 	m_menu->Append(MP_RESUME, _("&Resume"));
 	m_menu->Append(MP_CLEARCOMPLETED, _("C&lear completed"));
+#ifndef CLIENT_GUI
+	// Monolithic only: EC has no delete-from-disk opcode yet.
+	m_menu->Append(MP_DELETEFROMDISK, _("Delete file from &disk"));
+#endif
 	m_menu->AppendSeparator();
 	wxMenu *extendedmenu = new wxMenu();
 	extendedmenu->Append(MP_SWAP_A4AF_TO_THIS, _("Swap every A4AF to this file now"));
@@ -526,6 +532,9 @@ void CDownloadListCtrl::OnItemRightClicked(wxDataViewEvent &event)
 	m_menu->Enable(MP_STOP, canStop);
 	m_menu->Enable(MP_RESUME, fileResumable);
 	m_menu->Enable(MP_CLEARCOMPLETED, CastByID(ID_BTNCLRCOMPL, GetParent(), wxButton)->IsEnabled());
+#ifndef CLIENT_GUI
+	m_menu->Enable(MP_DELETEFROMDISK, file->IsCompleted());
+#endif
 
 	wxString view;
 	if (file->IsPartFile()) {
@@ -593,6 +602,22 @@ void CDownloadListCtrl::OnCancelFile(wxCommandEvent &WXUNUSED(event))
 			CoreNotify_PartFile_Delete(reinterpret_cast<CPartFile *>(data));
 		}
 	}
+}
+
+void CDownloadListCtrl::OnDeleteFromDisk(wxCommandEvent &WXUNUSED(event))
+{
+#ifndef CLIENT_GUI
+	// Finished rows only: an in-progress part file is cancelled with Cancel, which also
+	// removes its bytes. A completed row has no Cancel, so deleting from disk goes here.
+	std::vector<CKnownFile *> files;
+	for (wxUIntPtr data : GetSelectedItemData()) {
+		CPartFile *file = reinterpret_cast<CPartFile *>(data);
+		if (file->IsCompleted()) {
+			files.push_back(file);
+		}
+	}
+	MuleNotify::CompletedFiles_DeleteFromDisk(files, this);
+#endif
 }
 
 void CDownloadListCtrl::OnSetPriority(wxCommandEvent &event)

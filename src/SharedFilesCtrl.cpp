@@ -128,6 +128,7 @@ wxBEGIN_EVENT_TABLE(CSharedFilesCtrl, CMuleVirtualDataViewCtrl)
 	EVT_MENU(MP_REFRESHMEDIAMETA, CSharedFilesCtrl::OnRefreshMediaMetadata)
 	EVT_MENU(MP_WS, CSharedFilesCtrl::OnGetFeedback)
 	EVT_MENU(MP_VERIFY, CSharedFilesCtrl::OnVerifyLocalData)
+	EVT_MENU(MP_DELETEFROMDISK, CSharedFilesCtrl::OnDeleteFromDisk)
 	EVT_MENU(MP_BARLEGEND, CSharedFilesCtrl::OnShowBarLegend)
 wxEND_EVENT_TABLE()
 
@@ -258,6 +259,10 @@ void CSharedFilesCtrl::OnItemRightClicked(wxDataViewEvent &event)
 
 		m_menu->AppendSeparator();
 		m_menu->Append(MP_RENAME, _("Rename"));
+#ifndef CLIENT_GUI
+		// amulegui has no EC opcode that deletes bytes on the daemon yet (issue #1520).
+		m_menu->Append(MP_DELETEFROMDISK, _("Delete file from &disk"));
+#endif
 		m_menu->AppendSeparator();
 
 		m_menu->Append(MP_VERIFY, _("Verify Local Data"));
@@ -343,6 +348,12 @@ void CSharedFilesCtrl::OnItemRightClicked(wxDataViewEvent &event)
 		// binaries: amulegui files a shared partfile into its shared list as the very
 		// CPartFile the download queue holds (amule-remote-gui.cpp).
 		m_menu->Enable(MP_VERIFY, !file->IsPartFile());
+#ifndef CLIENT_GUI
+		// Completed rows only: an in-progress partfile is cancelled from the transfer
+		// list, where Cancel also removes its partial bytes; deleting one from here
+		// would break that flow.
+		m_menu->Enable(MP_DELETEFROMDISK, !file->IsPartFile());
+#endif
 		// Same two conditions the scheduler applies, asked through the shared predicate
 		// rather than a second copy of the rule: an in-progress download has no complete
 		// file for ffprobe to read, and a file that is not audio or video has nothing to
@@ -474,6 +485,23 @@ void CSharedFilesCtrl::OnVerifyLocalData(wxCommandEvent &WXUNUSED(event))
 			theApp->sharedfiles->VerifyLocalData(file);
 		}
 	}
+}
+
+void CSharedFilesCtrl::OnDeleteFromDisk(wxCommandEvent &WXUNUSED(event))
+{
+#ifndef CLIENT_GUI
+	// Filter the selection again rather than trusting the menu's enabled state: the entry is
+	// built from the right-clicked row, while this acts on the whole selection, so a mixed
+	// selection can reach here with partfiles in it (same reason as OnVerifyLocalData).
+	std::vector<CKnownFile *> files;
+	for (wxUIntPtr data : GetSelectedItemData()) {
+		CKnownFile *file = reinterpret_cast<CKnownFile *>(data);
+		if (!file->IsPartFile()) {
+			files.push_back(file);
+		}
+	}
+	MuleNotify::CompletedFiles_DeleteFromDisk(files, this);
+#endif
 }
 
 CSharedFilesCtrl::MediaRefreshSelection CSharedFilesCtrl::PartitionForMediaRefresh() const

@@ -29,6 +29,8 @@
 
 #include <wx/event.h>
 
+#include <vector>
+
 #include "Types.h"
 #include "ChatSessionStore.h" // CChatTarget: hash locally, legacy projection in amulegui
 #include "Constants.h"
@@ -36,6 +38,7 @@
 #include "PartFileConvert.h"
 
 class CKnownFile;
+class wxWindow;
 class CUpDownClient;
 class CSearchFile;
 class CPartFile;
@@ -202,6 +205,12 @@ void PartFile_PrioAuto(CPartFile *file, bool val);
 void PartFile_PrioSet(CPartFile *file, uint8 newDownPriority, bool bSave);
 void PartFile_Delete(CPartFile *file);
 void PartFile_SetCat(CPartFile *file, uint32 val);
+
+// Monolithic GUI only: EC has no delete-from-disk opcode yet.
+// Keeps values rather than file pointers across confirmation dialogs.
+#if !defined(CLIENT_GUI) && !defined(AMULE_DAEMON)
+void CompletedFiles_DeleteFromDisk(const std::vector<CKnownFile *> &files, wxWindow *parent);
+#endif
 
 void KnownFile_Up_Prio_Set(CKnownFile *file, uint8 val);
 void KnownFile_Up_Prio_Auto(CKnownFile *file);

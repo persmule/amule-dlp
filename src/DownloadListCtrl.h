@@ -193,6 +193,7 @@ private:
 	void OnSetCategory(wxCommandEvent &event);
 	void OnSetStatus(wxCommandEvent &event);
 	void OnClearCompleted(wxCommandEvent &event);
+	void OnDeleteFromDisk(wxCommandEvent &event);
 	void OnGetLink(wxCommandEvent &event);
 	void OnGetFeedback(wxCommandEvent &event);
 	void OnViewFileInfo(wxCommandEvent &event);

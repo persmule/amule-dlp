@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aMule GIT\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
-"POT-Creation-Date: 2026-09-28 22:29+0200\n"
+"POT-Creation-Date: 2026-09-30 14:22+0800\n"
 "PO-Revision-Date: 2026-09-29 10:14+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: none\n"
@@ -192,6 +192,62 @@ msgstr "এখন পুনরায় চালু করুন"
 #: src/AppImageIntegration.cpp
 msgid "Later"
 msgstr "পরে"
+
+#: src/GuiEvents.cpp
+#, c-format
+msgid ""
+"Are you sure you want to delete '%s' from disk?\n"
+"\n"
+"File: %s\n"
+"\n"
+"The file is deleted and no longer shared. This cannot be undone."
+msgstr ""
+
+#: src/GuiEvents.cpp
+#, c-format
+msgid "... and %i more"
+msgstr ""
+
+#: src/GuiEvents.cpp
+#, c-format
+msgid ""
+"Are you sure you want to delete the selected %i files from disk?\n"
+"\n"
+"%s\n"
+"The files are deleted and no longer shared. This cannot be undone."
+msgstr ""
+
+#: src/GuiEvents.cpp
+#, fuzzy
+msgid "Delete from disk"
+msgstr "Kad থেকে সংগ্রহ করুন"
+
+#: src/GuiEvents.cpp
+#, c-format
+msgid "Skipped deleting '%s': the selected file has changed."
+msgstr ""
+
+#: src/GuiEvents.cpp
+#, c-format
+msgid "Deleted '%s' from disk."
+msgstr ""
+
+#: src/GuiEvents.cpp
+#, fuzzy, c-format
+msgid "Could not delete '%s' from disk."
+msgstr "Kad থেকে সংগ্রহ করুন"
+
+#: src/GuiEvents.cpp
+#, c-format
+msgid ""
+"Could not delete these files from disk:\n"
+"\n"
+"%s\n"
+"Remove them from shares and the completed transfer list anyway?\n"
+"\n"
+"Yes: stop sharing and remove the list entries. A later share scan may share the files again.\n"
+"No: keep the files shared and listed."
+msgstr ""
 
 #: src/amuleAppCommon.cpp
 msgid "Failed to open ED2KLinks file."
@@ -1906,6 +1962,11 @@ msgstr "&পুনরায় শুরু"
 #: src/DownloadListCtrl.cpp
 msgid "C&lear completed"
 msgstr "&সম্পন্ন মুছুন"
+
+#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
+#, fuzzy
+msgid "Delete file from &disk"
+msgstr "ফাইল মুছে ফেলা হচ্ছে: %s"
 
 #: src/DownloadListCtrl.cpp
 msgid "Swap every A4AF to this file now"

@@ -265,6 +265,11 @@ private:
 
 	void OnVerifyLocalData(wxCommandEvent &WXUNUSED(evt));
 
+	/// Deletes the selected complete files from disk and stops sharing them (issue #1520).
+	/// Monolithic only: the menu entry is not built in amulegui, where EC has no
+	/// delete-bytes opcode yet.
+	void OnDeleteFromDisk(wxCommandEvent &WXUNUSED(evt));
+
 	/// Opens the file-details dialog for the selected shared file. Reuses the download list's
 	/// CFileDetailDialog, whose sections follow each file's state.
 	void OnViewFileDetails(wxCommandEvent &event);
