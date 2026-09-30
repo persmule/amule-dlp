@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-30 14:22+0800\n"
-"PO-Revision-Date: 2026-09-29 10:12+0000\n"
+"PO-Revision-Date: 2026-09-30 11:32+0000\n"
 "Last-Translator: Mike Akiba <mike2718@gmail.com>\n"
 "Language-Team: Chinese Simplified <kde-i18n-doc@kde.org>\n"
 "Language: zh_CN\n"
@@ -603,7 +603,7 @@ msgstr "媒体元数据：探测的文件不再已知，结果被丢弃（%s）"
 #: src/amule.cpp
 #, c-format
 msgid "Verify Local Data: another file named '%s' in your shared folders has the same content as '%s' and may be an intact copy of it."
-msgstr ""
+msgstr "验证本地数据：共享文件夹中另一名为 '%s' 的文件和 '%s' 内容一样，可能是它的完整副本。"
 
 #: src/amule.cpp
 #, c-format
