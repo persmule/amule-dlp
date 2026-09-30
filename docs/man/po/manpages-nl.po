@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2026-09-28 15:29+0100\n"
-"PO-Revision-Date: 2026-09-30 11:34+0000\n"
+"PO-Revision-Date: 2026-09-30 14:54+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: none\n"
 "Language: nl\n"
@@ -127,19 +127,17 @@ msgstr "Herstelt configuratiebestand naar standaardwaarden."
 #. type: Plain text
 #: amule.1.in
 msgid "Enable or disable starting aMule on user login, then exit.  The OS-specific store is selected automatically: Windows registry Run key, macOS LaunchAgent, Linux XDG I<.desktop> autostart entry."
-msgstr "Schakel het starten van aMule bij het aanmelden van de gebruiker in of uit, sluit dan af.  De OS-specifieke appstore wordt automatisch geselecteerd: Windows registry Run sleutel, macOS LaunchAgent, Linux XDG I<.desktop> autostart item."
+msgstr "Schakel het starten van aMule bij het aanmelden van de gebruiker in of uit, sluit dan af.  De OS-specifieke opslagruimte wordt automatisch geselecteerd: Windows registry Run sleutel, macOS LaunchAgent, Linux XDG I<.desktop> autostart item."
 
 #. type: Plain text
 #: amule.1.in amuled.1.in amulegui.1.in
 msgid "Enable or disable aMule as the current user's default handler for ed2k:// and magnet: links, then exit.  I<E<lt>valueE<gt>> is B<on> or B<off> for both kinds of link, or B<ed2k:on>, B<ed2k:off>, B<magnet:on> or B<magnet:off> for one of them.  The OS-specific store is selected automatically: Windows registry, macOS LaunchServices, Linux XDG I<mimeapps.list>."
-msgstr ""
+msgstr "Schakel aMule in of uit als de standaard behandelaar van ed2:// en magnet:-koppelingen voor de huidige gebruiker, sluit dan af.  I<E<lt>waardeE<gt>> is B<aan> of B<uit> voor beide soorten koppelingen, of B<ed2k:aan>, B<ed2k:uit>, B<magnet:on> of B<magnet:uit> voor een enkele soort.  De OS-specifieke opslagruimte wordt automatisch geselecteerd: Windows registry, macOS LaunchService, Linux XDG I<mimeapps.list>."
 
 #. type: Plain text
 #: amule.1.in amuled.1.in amulegui.1.in
-#, fuzzy
-#| msgid "Enable or disable starting aMule on user login, then exit.  The OS-specific store is selected automatically: Windows registry Run key, macOS LaunchAgent, Linux XDG I<.desktop> autostart entry."
 msgid "Enable or disable aMule as the current user's handler for I<.emulecollection> files, then exit.  The OS-specific store is selected automatically: Windows registry, macOS LaunchServices, Linux XDG I<mimeapps.list>."
-msgstr "Schakel het starten van aMule bij het aanmelden van de gebruiker in of uit, sluit dan af.  De OS-specifieke appstore wordt automatisch geselecteerd: Windows registry Run sleutel, macOS LaunchAgent, Linux XDG I<.desktop> autostart item."
+msgstr "Schakel aMule in of uit als de standaard behandelaar van I<.emulecollection>-bestanden, sluit dan af.  De OS-specifieke opslagruimte wordt automatisch geselecteerd: Windows registry, macOS LaunchServices, Linux XDG I<mimeapps.list>."
 
 #. type: TP
 #: amule.1.in amuled.1.in
@@ -466,7 +464,7 @@ msgstr "Forceer ZLIB-compressie naar de Externe Verbinding-koppeling onafhankeli
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Separate the fields of the list commands with spaces, as earlier versions did, instead of tabs.  Client names and file names may contain spaces, so the default tab separator is what lets a script split a row back into its fields; use this only for scripts written against the older output."
-msgstr ""
+msgstr "Splits de velden van de lijst commando's met spaties in plaats van tabs, zoals eerdere versies dat deden.  Client-namen en bestandsnamen mogen spaties bevatten dus de standaard tab-separator is hetgeen wat een script een rij terug kan verdelen in velden; gebruik dit alleen voor scripts die geschreven zijn voor oudere uitvoer."
 
 #. type: SH
 #: amulecmd.1.in
@@ -527,7 +525,7 @@ msgstr "Start downloaden van een bestand."
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Give the I<E<lt>numberE<gt>> of a file as listed by B<results>, optionally followed by a search I<E<lt>idE<gt>> (as printed by B<search>). Without an id, the number refers to the last B<results> output, or to the most recently started search if nothing was listed yet.  Example: 'download 12' downloads file 12 of the last results; 'download 12 3' downloads file 12 of search 3."
-msgstr ""
+msgstr "Geef het I<E<lt>nummerE<gt>> van een bestand zoals het op de B<resultaten>lijst staat, optioneel gevolgd door een zoek-I<E<lt>idE<gt>> (zoals geprint door B<zoekopdracht>). Zonder een id refereert het nummer naar de laatste B<resultaten>-uitvoer of naar de meest recent gestarte zoekopdracht als er nog niets op de lijst gezet is.  Voorbeeld: 'download 12' download bestand 12 van de laatste resultaten; 'download 12 3' download bestand 12 van zoekopdracht 3."
 
 #. type: Plain text
 #: amulecmd.1.in
@@ -893,7 +891,7 @@ msgstr "Stel EV in (Externe Verbindingen)."
 #. type: Plain text
 #: amuled.1.in
 msgid "Enable or disable starting amuled on user login, then exit.  The OS-specific store is selected automatically: Windows registry Run key, macOS LaunchAgent, Linux XDG I<.desktop> autostart entry."
-msgstr "Schakel het opstarten van amuled bij aanmelden in of uit, sluit dan af.  De OS-specifieke opslag wordt automatisch geselecteerd: Windows registry Run-sleutel, macOS LaunchAgent, Linux XDG I<.desktop> autostart entry."
+msgstr "Schakel het opstarten van amuled bij aanmelden in of uit, sluit dan af.  De OS-specifieke opslagruimte wordt automatisch geselecteerd: Windows registry Run-sleutel, macOS LaunchAgent, Linux XDG I<.desktop> autostart entry."
 
 #. type: TP
 #: amuled.1.in
@@ -937,52 +935,45 @@ msgstr "Verbindingsdialoogvenster overslaan."
 #. type: Plain text
 #: amulegui.1.in
 msgid "Enable or disable starting amulegui on user login, then exit.  The OS-specific store is selected automatically: Windows registry Run key, macOS LaunchAgent, Linux XDG I<.desktop> autostart entry."
-msgstr "Schakel het opstarten van amulegui bij aanmelden in of uit, sluit dan af.  De OS-specifieke opslag wordt automatisch geselecteerd: Windows registry Run-sleutel, macOS LaunchAgent, Linux XDG I<.desktop> autostart entry."
+msgstr "Schakel het opstarten van amulegui bij aanmelden in of uit, sluit dan af.  De OS-specifieke opslagruimte wordt automatisch geselecteerd: Windows registry Run-sleutel, macOS LaunchAgent, Linux XDG I<.desktop> autostart entry."
 
 #. type: Plain text
 #: amulegui.1.in
-#, fuzzy
-#| msgid "Adds an eD2k-link, or every link in an eMule collection file, to the core."
 msgid "Sends an eD2k-link, or every link in an eMule collection file, to the connected core."
-msgstr "Voegt een eD2k-koppeling, of elke koppeling in een eMule collectiebestand, toe aan de kern."
+msgstr "Stuurt een eD2k-koppeling, of elke koppeling in een eMule collectiebestand, naar de verbonden kern."
 
 #. type: TP
 #: amulegui.1.in
-#, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
+#, no-wrap
 msgid "I<~/.aMule/remote.conf>"
-msgstr "~/.aMule/remote.conf"
+msgstr "I<~/.aMule/remote.conf>"
 
 #. type: Plain text
 #: amulegui.1.in
 msgid "Settings, including the core to connect to."
-msgstr ""
+msgstr "Instellingen, inclusief de kern waarmee verbonden wordt."
 
 #. type: TP
 #: amulegui.1.in
-#, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
+#, no-wrap
 msgid "I<~/.aMule/remotelogfile>"
-msgstr "~/.aMule/remote.conf"
+msgstr "I<~/.aMule/remotelogfile>"
 
 #. type: Plain text
 #: amulegui.1.in
-#, fuzzy
-#| msgid "Show log."
 msgid "The log."
-msgstr "Toon logboek."
+msgstr "Het logboek."
 
 #. type: TP
 #: amulegui.1.in
-#, fuzzy, no-wrap
-#| msgid "~/.aMule/ED2KLinks"
+#, no-wrap
 msgid "I<~/.aMule/ED2KLinks>"
-msgstr "~/.aMule/ED2KLinks"
+msgstr "I<~/.aMule/ED2KLinks>"
 
 #. type: Plain text
 #: amulegui.1.in
 msgid "Links passed on the command line, waiting to be sent to the core."
-msgstr ""
+msgstr "Koppelingen doorgegeven aan de commandoregel, die afwachten om verstuurd te worden naar de kern."
 
 #. type: Plain text
 #: amulegui.1.in

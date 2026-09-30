@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-30 19:39+0800\n"
-"PO-Revision-Date: 2026-09-30 11:32+0000\n"
+"PO-Revision-Date: 2026-09-30 14:52+0000\n"
 "Last-Translator: Mike Akiba <mike2718@gmail.com>\n"
 "Language-Team: Chinese Simplified <kde-i18n-doc@kde.org>\n"
 "Language: zh_CN\n"
@@ -209,6 +209,11 @@ msgid ""
 "\n"
 "The file is deleted and no longer shared. This cannot be undone."
 msgstr ""
+"你确定要将“%s”从磁盘中删除吗？\n"
+"\n"
+"文件：%s\n"
+"\n"
+"此文件将被删除，永久无法共享。该操作不可撤回。"
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -225,9 +230,8 @@ msgid ""
 msgstr ""
 
 #: src/GuiEvents.cpp
-#, fuzzy
 msgid "Delete from disk"
-msgstr "从 Kad 获取"
+msgstr "从磁盘中删除"
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -237,12 +241,12 @@ msgstr ""
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Deleted '%s' from disk."
-msgstr ""
+msgstr "已从磁盘上删除“%s”。"
 
 #: src/GuiEvents.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not delete '%s' from disk."
-msgstr "无法删除分类：%s"
+msgstr "无法删除磁盘上的“%s”。"
 
 #: src/GuiEvents.cpp
 #, c-format

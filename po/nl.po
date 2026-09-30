@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-09-30 19:39+0800\n"
-"PO-Revision-Date: 2026-09-30 11:29+0000\n"
+"PO-Revision-Date: 2026-09-30 14:48+0000\n"
 "Last-Translator: Marcel Pol <marcel@timelord.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
@@ -208,11 +208,16 @@ msgid ""
 "\n"
 "The file is deleted and no longer shared. This cannot be undone."
 msgstr ""
+"Weet u zeker dat u '%s' wilt verwijderen van de schijf?\n"
+"\n"
+"Bestand: %s\n"
+"\n"
+"Het bestand is verwijderd en wordt niet langer gedeeld. Dit kan niet ongedaan worden."
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "... and %i more"
-msgstr ""
+msgstr "... en nog %i"
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -222,26 +227,29 @@ msgid ""
 "%s\n"
 "The files are deleted and no longer shared. This cannot be undone."
 msgstr ""
+"Weet u zeker dat u de geselecteerde %i bestanden van de schijf wilt verwijderen?\n"
+"\n"
+"%s\n"
+"De bestanden zijn verwijderd en worden niet langer gedeeld. Dit kan niet ongedaan worden."
 
 #: src/GuiEvents.cpp
-#, fuzzy
 msgid "Delete from disk"
-msgstr "Ophalen van Kad"
+msgstr "Verwijderen van schijf"
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Skipped deleting '%s': the selected file has changed."
-msgstr ""
+msgstr "Verwijderen van '%s' overgeslagen: het geselecteerde bestand is veranderd."
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Deleted '%s' from disk."
-msgstr ""
+msgstr "'%s' verwijderd van schijf."
 
 #: src/GuiEvents.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not delete '%s' from disk."
-msgstr "Kon de categorie niet verwijderen: %s"
+msgstr "'%s' kon niet verwijderd worden van schijf."
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -254,6 +262,13 @@ msgid ""
 "Yes: stop sharing and remove the list entries. A later share scan may share the files again.\n"
 "No: keep the files shared and listed."
 msgstr ""
+"Deze bestanden konden niet verwijderd worden van schijf:\n"
+"\n"
+"%s\n"
+"Wilt u ze alsnog verwijderen vanuit de gedeelde locaties en voltooide-overdrachtlijst?\n"
+"\n"
+"Ja: stop met delen en verwijder de lijstitems. Een deellocatiescan op een later moment kan de bestanden opnieuw delen.\n"
+"Nee: houd de bestanden gedeeld en op de lijst."
 
 #: src/amuleAppCommon.cpp
 msgid "Failed to open ED2KLinks file."
@@ -1978,9 +1993,8 @@ msgid "C&lear completed"
 msgstr "Verwijder comp&lete"
 
 #: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-#, fuzzy
 msgid "Delete file from &disk"
-msgstr "Verwijderen van bestand: %s"
+msgstr "Verwijder bestand van &schijf"
 
 #: src/DownloadListCtrl.cpp
 msgid "Swap every A4AF to this file now"
