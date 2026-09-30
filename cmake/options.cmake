@@ -304,21 +304,18 @@ option (ENABLE_NATT_SERVER_COORDINATION "enable experimental server-coordinated 
 # Standalone / portable / AppImage builds and Windows/macOS want ON.
 option (ENABLE_VERSION_CHECK "compile in the in-app new-version check (startup notification + About 'Check for updates'); OFF for OS-package builds" ON)
 
-# Master switch for the Kademlia protocol 0x0a catch-up: the advertised
-# KADEMLIA_VERSION bump from 0x08 to 0x0a and the AICH hashes that 0x09 added
-# to keyword storage.
+# Compile-time default for the Kad protocol 0x0a runtime preference.
 #
-# OFF by default, and OFF means inert: every site that would put a different
-# byte on the wire, or a different byte in the on-disk keyword index, is
-# compiled out, so a default build advertises 0x08 and emits exactly what
-# upstream emits. CKadAICHHashList and its unit test are compiled either way --
-# the class is self-contained, so gating the file would only cost test
-# coverage.
+# The AICH keyword-storage features 0x09 introduced are now controlled at runtime
+# by the KadProtocol10 preference (Preferences, EC, amuleapi). This compile-time
+# switch sets only the default value of that preference: ON means a fresh config
+# starts with KadProtocol10 enabled, OFF means it starts disabled for maximum
+# backward compatibility with older Kad peers.
 #
-# The switch is a plain compile definition rather than a config.h entry because
-# it has to be visible inside src/include/protocol/kad2/Constants.h, which is
-# pulled in by headers that never see config.h.
-option (ENABLE_KAD_PROTOCOL_10 "advertise Kademlia protocol 0x0a and enable the AICH hashes on keyword storage that Kad 0x09 introduced" OFF)
+# The compile definition is consumed by Preferences.cpp when constructing the
+# default preference. The AICH codec and trust-selection helper remain independent
+# of this build option.
+option (ENABLE_KAD_PROTOCOL_10 "set the compile-time default for the Kad protocol 0x0a runtime preference (AICH hashes on keyword storage)" OFF)
 
 # Master switch for the local Kad node-protection heuristics: the adaptive
 # request-timeout estimate (CFastKad) and the Kad identity protections

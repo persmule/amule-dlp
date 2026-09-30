@@ -752,6 +752,19 @@ public:
 	static bool GetNetworkED2K() { return s_ConnectToED2K; }
 	static void SetNetworkED2K(bool val) { s_ConnectToED2K = val; }
 
+	// Kad protocol version 0x0a (AICH keyword storage). When enabled, aMule advertises
+	// Kad version 0x0a and processes AICH hashes in keyword publish/search. When disabled,
+	// aMule stays at 0x08 for maximum backward compatibility with older Kad peers.
+	static bool GetKadProtocol10() { return s_KadProtocol10; }
+	static void SetKadProtocol10(bool val) { s_KadProtocol10 = val; }
+
+	// When enabled, reject AICH publish tags from nodes advertising Kad version < 0x09.
+	// Default off: this can reject legitimate publishers whose routing-table version is
+	// stale. SelectCandidate() requires >= 2 reported publishers of the hash when KadProtocol10 is on;
+	// this applies regardless of this setting.
+	static bool GetKadStrictAichPublishers() { return s_KadStrictAichPublishers; }
+	static void SetKadStrictAichPublishers(bool val) { s_KadStrictAichPublishers = val; }
+
 	// Statistics
 	static unsigned GetMaxClientVersions() { return s_maxClientVersions; }
 
@@ -1120,6 +1133,8 @@ protected:
 	// Kad
 	static bool s_ConnectToKad;
 	static bool s_ConnectToED2K;
+	static bool s_KadProtocol10;
+	static bool s_KadStrictAichPublishers;
 
 	// Statistics
 	static unsigned s_maxClientVersions; // 0 = unlimited

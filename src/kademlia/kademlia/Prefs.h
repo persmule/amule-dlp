@@ -129,6 +129,10 @@ public:
 	static uint8_t GetMyConnectOptions(bool encryption = true, bool callback = true);
 	static uint32_t GetUDPVerifyKey(uint32_t targetIP);
 
+	// The Kad protocol version this node advertises in hello packets and eD2k capability tags.
+	// Returns 0x0a when KadProtocol10 is enabled (AICH keyword storage), 0x08 otherwise.
+	static uint8_t GetAdvertisedKadVersion() noexcept;
+
 	// Statistics
 	void StatsIncUDPFirewalledNodes(bool firewalled) noexcept
 	{

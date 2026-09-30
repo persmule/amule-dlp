@@ -1232,28 +1232,26 @@ void CSearch::ProcessResultNotes(const CUInt128 &answer, TagPtrList *info)
 void CSearch::ProcessResultKeyword(
 	const CUInt128 &answer, TagPtrList *info, uint32_t fromIP, uint16_t fromPort)
 {
-#ifdef ENABLE_KAD_PROTOCOL_10
-	// Find the contact that answered, so version-gated result tags can be checked against the
-	// version it advertised. A tag a peer cannot possibly have generated is a tag it is
-	// relaying on someone else's behalf, and the whole point of the publisher-side filtering is
-	// that we do not take those at face value.
 	uint8_t fromKadVersion = 0;
-	for (ContactMap::const_iterator it = m_tried.begin(); it != m_tried.end(); ++it) {
-		const CContact *tmpContact = it->second;
-		if ((tmpContact->GetIPAddress() == fromIP) && (tmpContact->GetUDPPort() == fromPort)) {
-			fromKadVersion = tmpContact->GetVersion();
-			break;
+	if (thePrefs::GetKadProtocol10()) {
+		// Find the contact that answered, so version-gated result tags can be checked against
+		// the version it advertised. A tag a peer cannot possibly have generated is a tag it is
+		// relaying on someone else's behalf, and the whole point of the publisher-side filtering
+		// is that we do not take those at face value.
+		for (ContactMap::const_iterator it = m_tried.begin(); it != m_tried.end(); ++it) {
+			const CContact *tmpContact = it->second;
+			if ((tmpContact->GetIPAddress() == fromIP) &&
+				(tmpContact->GetUDPPort() == fromPort)) {
+				fromKadVersion = tmpContact->GetVersion();
+				break;
+			}
+		}
+		if (fromKadVersion == 0) {
+			AddDebugLogLineN(logKadSearch,
+				"Unable to find the answering contact in ProcessResultKeyword - " +
+					KadIPPortToString(fromIP, fromPort));
 		}
 	}
-	if (fromKadVersion == 0) {
-		AddDebugLogLineN(logKadSearch,
-			"Unable to find the answering contact in ProcessResultKeyword - " +
-				KadIPPortToString(fromIP, fromPort));
-	}
-#else
-	(void)fromIP;
-	(void)fromPort;
-#endif
 
 	// Process a keyword that we received.
 	// Set of data we can use for a keyword result.
@@ -1269,9 +1267,7 @@ void CSearch::ProcessResultKeyword(
 	uint32_t bitrate = 0;
 	uint32_t availability = 0;
 	uint32_t publishInfo = 0;
-#ifdef ENABLE_KAD_PROTOCOL_10
 	std::vector<CKadAICHHashList::SResultHash> aichHashes;
-#endif
 	// Flag that is set if we want this keyword
 	bool bFileName = false;
 	bool bFileSize = false;
@@ -1326,13 +1322,10 @@ void CSearch::ProcessResultKeyword(
 					"trustvalue") %
 					differentNames % publishersKnown % ((double)trustValue / 100.0));
 #endif
-#ifdef ENABLE_KAD_PROTOCOL_10
-		} else if (tag->GetName() == TAG_KADAICHHASHRESULT) {
+		} else if (thePrefs::GetKadProtocol10() && tag->GetName() == TAG_KADAICHHASHRESULT) {
 			// AICH hashes on keyword storage arrived with Kad protocol version 0x09, so
 			// a sender below that cannot have produced this tag itself and it is
-			// filtered rather than trusted. Gated with the rest: with the switch off we
-			// never publish an AICH hash, so acting on one a peer reports would be
-			// behaviour upstream does not have.
+			// filtered rather than trusted.
 			if (CKadAICHHashList::PeerSupportsAICHKeywordStorage(fromKadVersion) &&
 				tag->IsBsob()) {
 				if (!CKadAICHHashList::DecodeResultTag(
@@ -1349,7 +1342,6 @@ void CSearch::ProcessResultKeyword(
 						"which is not aware of it, filtering") %
 						fromKadVersion % KadIPPortToString(fromIP, fromPort));
 			}
-#endif
 		}
 	}
 
@@ -1390,24 +1382,23 @@ void CSearch::ProcessResultKeyword(
 	if (availability) {
 		taglist.push_back(new CTagVarInt(TAG_SOURCES, availability));
 	}
-#ifdef ENABLE_KAD_PROTOCOL_10
-	// Carry a trusted AICH root hash into the search result, under the same tag name
-	// (FT_AICH_HASH) that an ed2k result and the part-file metadata use, so CPartFile takes it
-	// as its master hash when a download starts. SelectTrusted() answers nullptr far more often
-	// than not: see its declaration for why refusing is the right default here.
-	const uint32_t publishersKnown = (publishInfo & 0x00FF0000) >> 16;
-	const CKadAICHHashList::SResultHash *bestAICHHash =
-		CKadAICHHashList::SelectTrusted(aichHashes, publishersKnown);
-	if (bestAICHHash != nullptr) {
-		CAICHHash hash;
-		memcpy(hash.GetRawHash(), bestAICHHash->m_hash.data(), CAICHHash::GetHashSize());
-		taglist.push_back(new CTagString(TAG_AICHHASH, hash.GetString()));
+	if (thePrefs::GetKadProtocol10()) {
+		// Carry only a candidate root. The responder controls both reported counts;
+		// CPartFile registers one consensus vote attributed to this responder.
+		const uint32_t publishersKnown = (publishInfo & 0x00FF0000) >> 16;
+		const CKadAICHHashList::SResultHash *candidateAICHHash =
+			CKadAICHHashList::SelectCandidate(aichHashes, publishersKnown);
+		if (candidateAICHHash != nullptr) {
+			CAICHHash hash;
+			memcpy(hash.GetRawHash(), candidateAICHHash->m_hash.data(), CAICHHash::GetHashSize());
+			taglist.push_back(new CTagString(TAG_AICHHASH, hash.GetString()));
+		}
 	}
-#endif
 
 	m_answers++;
+	// Kad IPs use the opposite byte order to peer IPs used by AICH consensus.
 	theApp->searchlist->KademliaSearchKeyword(
-		m_searchID, &answer, name, size, type, publishInfo, taglist);
+		m_searchID, &answer, name, size, type, publishInfo, taglist, wxUINT32_SWAP_ALWAYS(fromIP));
 
 	deleteTagPtrListEntries(&taglist);
 }
@@ -1596,21 +1587,18 @@ void CSearch::PreparePacketForTags(CMemFile *bio, CKnownFile *file, uint8_t targ
 			taglist.push_back(new CTagVarInt(TAG_FILESIZE, file->GetFileSize()));
 			taglist.push_back(new CTagVarInt(TAG_SOURCES, file->m_nCompleteSourcesCount));
 
-#ifdef ENABLE_KAD_PROTOCOL_10
-			// AICH root hash, added to keyword storage by Kad protocol version 0x09. A
-			// node at 0x08 has no handling for this tag, so it is omitted for it: the
-			// entry it stores simply carries no AICH hash and stays usable for search
-			// and routing.
-			if (CKadAICHHashList::PeerSupportsAICHKeywordStorage(targetKadVersion) &&
+			if (thePrefs::GetKadProtocol10() &&
+				CKadAICHHashList::PeerSupportsAICHKeywordStorage(targetKadVersion) &&
 				file->HasProperAICHHashSet()) {
+				// AICH root hash, added to keyword storage by Kad protocol version 0x09. A
+				// node at 0x08 has no handling for this tag, so it is omitted for it: the
+				// entry it stores simply carries no AICH hash and stays usable for search
+				// and routing.
 				const CAICHHash &aichHash = file->GetAICHHashset()->GetMasterHash();
 				taglist.push_back(new CTagBsob(TAG_KADAICHHASHPUB,
 					aichHash.GetRawHash(),
 					(uint8_t)CAICHHash::GetHashSize()));
 			}
-#else
-			(void)targetKadVersion;
-#endif
 
 			// eD2K file type (Audio, Video, ...)
 			// NOTE: Archives and disc images are published with file type "Pro"

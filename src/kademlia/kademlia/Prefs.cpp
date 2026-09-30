@@ -39,11 +39,13 @@ there client on the eMule forum..
 #include "Prefs.h"
 
 #include <common/MD5Sum.h>
+#include <protocol/kad2/Constants.h>
 
 #include "Indexed.h"
 #include "UDPFirewallTester.h"
 #include "../routing/RoutingZone.h"
 #include "../../amule.h"
+#include "../../Preferences.h"
 #include "../../CFile.h"
 #include "../../ServerList.h"
 #include "../../Logger.h"
@@ -236,6 +238,11 @@ uint32_t CPrefs::GetUDPVerifyKey(uint32_t targetIP)
 			  PeekUInt32(md5.GetRawHash() + 8) ^ PeekUInt32(md5.GetRawHash() + 12)) %
 		       0xFFFFFFFE +
 	       1;
+}
+
+uint8_t CPrefs::GetAdvertisedKadVersion() noexcept
+{
+	return thePrefs::GetKadProtocol10() ? KADEMLIA_VERSION_PROTOCOL10 : KADEMLIA_VERSION_DEFAULT;
 }
 
 float CPrefs::StatsGetFirewalledRatio(bool udp) const noexcept

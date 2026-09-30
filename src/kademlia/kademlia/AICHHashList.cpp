@@ -181,18 +181,12 @@ bool CKadAICHHashList::PeerSupportsAICHKeywordStorage(uint8_t peerKadVersion)
 	return peerKadVersion >= KADEMLIA_VERSION9_50a;
 }
 
-const CKadAICHHashList::SResultHash *CKadAICHHashList::SelectTrusted(
+const CKadAICHHashList::SResultHash *CKadAICHHashList::SelectCandidate(
 	const std::vector<SResultHash> &hashes, uint32_t publishersKnown)
 {
-	// Two rules, both eMule 0.70b's at SearchList.cpp:795-805, and both refusals rather than
-	// choices.
-	//
-	// Competing hashes for one file id mean at least one publisher is lying. Taking the most
-	// popular looks like the obvious answer and is the wrong one: popularity here is a count a
-	// peer reports about itself, so whoever is lying also controls the number that would decide
-	// the vote. Upstream ignores AICH for such a result entirely, and the destination being
-	// SetMasterHash(hash, AICH_VERIFIED) is why -- there is no "probably right" state to put a
-	// contested hash into.
+	// This filters implausible candidates, not malicious storage nodes. The same
+	// responder supplies every hash and count, so none of these checks establishes
+	// trust. Reject competing hashes instead of choosing the largest claimed count.
 	if (hashes.size() != 1) {
 		return nullptr;
 	}
@@ -214,6 +208,14 @@ const CKadAICHHashList::SResultHash *CKadAICHHashList::SelectTrusted(
 	if (publishersKnown / popularity > 3) {
 		return nullptr;
 	}
+
+	// Require two publishers of this hash, not merely two publishers of the file:
+	// other publishers may have supplied no AICH hash at all. Both counts are reported
+	// by the responding storage node, so this heuristic cannot authenticate its claims.
+	if (publishersKnown < 2 || popularity < 2) {
+		return nullptr;
+	}
+
 	return &hashes[0];
 }
 

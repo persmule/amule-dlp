@@ -1243,7 +1243,7 @@ void CUpDownClient::SendHelloTypePacket(CMemFile *data)
 	tagMisOptions.WriteTagToFile(data);
 
 	// eMule Misc. Options #2
-	const uint32 uKadVersion = KADEMLIA_VERSION;
+	const uint32 uKadVersion = Kademlia::CPrefs::GetAdvertisedKadVersion();
 	const uint32 uSupportLargeFiles = 1;
 	const uint32 uExtMultiPacket = 1;
 	const uint32 uReserved = 0; // mod bit

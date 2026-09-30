@@ -1206,6 +1206,8 @@ struct PreferencesSnapshot
 	struct KadPrefs
 	{
 		std::string update_url;
+		bool protocol10_enabled = false;
+		bool strict_aich_publishers = false;
 	} kad;
 
 	// [geoip] (EC group: IP2COUNTRY). The daemon only emits this category on a

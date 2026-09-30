@@ -1793,7 +1793,8 @@ void CSearchList::KademliaSearchKeyword(uint32_t searchID,
 	uint64_t size,
 	const wxString &type,
 	uint32_t kadPublishInfo,
-	const TagPtrList &taglist)
+	const TagPtrList &taglist,
+	uint32_t kadAICHResponderIP)
 {
 	EUtf8Str eStrEncode = utf8strRaw;
 
@@ -1836,7 +1837,8 @@ void CSearchList::KademliaSearchKeyword(uint32_t searchID,
 
 	temp.Seek(0, wxFromStart);
 
-	CSearchFile *tempFile = new CSearchFile(temp, (eStrEncode == utf8strRaw), searchID, 0, 0, "", true);
+	CSearchFile *tempFile = new CSearchFile(
+		temp, (eStrEncode == utf8strRaw), searchID, 0, 0, "", true, kadAICHResponderIP);
 	tempFile->SetKadPublishInfo(kadPublishInfo);
 
 	AddToList(tempFile);

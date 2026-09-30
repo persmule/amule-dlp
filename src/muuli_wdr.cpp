@@ -1606,6 +1606,39 @@ wxSizer *PreferencesConnectionTab( wxWindow *parent, bool call_fit, bool set_siz
 
     item33->Add( item38, wxSizerFlags().Expand().Border(wxLEFT|wxRIGHT, 5) );
     item0->Add( item33, wxSizerFlags().Expand().CenterVertical().Border(wxALL, 0) );
+
+    wxStaticBox *kadProtoBox = new wxStaticBox( parent, -1, _("Kad protocol version") );
+    wxStaticBoxSizer *kadProtoSizer = new wxStaticBoxSizer( kadProtoBox, wxVERTICAL );
+
+    wxCheckBox *kadProtoChk = new wxCheckBox( kadProtoBox, IDC_KADPROTOCOL10,
+        _("Advertise Kad protocol 0x0a (AICH keyword storage)"), wxDefaultPosition, wxDefaultSize, 0 );
+    kadProtoChk->SetValue( FALSE );
+    kadProtoChk->SetToolTip(
+        _("When enabled, aMule advertises Kad protocol version 0x0a and processes AICH hashes "
+          "in keyword publish/search results.\n\n"
+          "WARNING: Enabling this may cause search results to be dropped by older Kad clients "
+          "(pre-0.49b) that cannot parse the AICH result tags. Most current clients support it, "
+          "but if you experience missing search results, try disabling this option.\n\n"
+          "Disabling this option discards stored AICH keyword-index data on the next save; "
+          "re-enabling it requires collecting that data again.\n\n"
+          "Hashes learned from Kad search results remain untrusted until download sources "
+          "corroborate them. Reported publisher counts alone never authorize AICH recovery.") );
+    kadProtoSizer->Add( kadProtoChk, wxSizerFlags().CenterVertical().Border(wxLEFT|wxRIGHT|wxBOTTOM, 5) );
+
+    wxCheckBox *strictAichChk = new wxCheckBox( kadProtoBox, IDC_KADSTRICTAICHPUBLISHERS,
+        _("Reject AICH publish tags from legacy Kad peers (< 0x09)"), wxDefaultPosition, wxDefaultSize, 0 );
+    strictAichChk->SetValue( FALSE );
+    strictAichChk->SetToolTip(
+        _("When enabled, AICH keyword publish tags from nodes advertising a Kad version below "
+          "0x09 are rejected because these versions do not support AICH keyword storage. "
+          "Advertised versions are not proof that a publisher is trustworthy.\n\n"
+          "WARNING: This may reject legitimate publishers whose routing-table version is stale, "
+          "reducing AICH hash coverage. Nodes with unknown version are still accepted. "
+          "Hashes learned from Kad search results require download-source corroboration "
+          "regardless of this setting.") );
+    kadProtoSizer->Add( strictAichChk, wxSizerFlags().CenterVertical().Border(wxLEFT|wxRIGHT|wxBOTTOM, 5) );
+
+    item0->Add( kadProtoSizer, wxSizerFlags().Expand().CenterVertical().Border(wxTOP, 5) );
     if (set_sizer)
     {
         parent->SetSizer( item0 );

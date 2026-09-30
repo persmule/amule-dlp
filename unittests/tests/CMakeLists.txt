@@ -742,6 +742,7 @@ add_executable (KadEntryTagListTest
 	# As for CValueMapTest: the no-op DoECLogLine / theLogger definitions, which
 	# Entry.cpp's AddDebugLogLine* calls resolve against in a Debug build.
 	${CMAKE_SOURCE_DIR}/src/LoggerConsole.cpp
+	KadPrefsStub.cpp
 )
 
 add_test (NAME KadEntryTagListTest
@@ -1957,3 +1958,36 @@ if (UNIX AND NOT APPLE)
 	)
 	target_link_libraries (AutostartManagerTest muleunit mulecommon)
 endif()
+
+# Exercise production consensus with explicit, fail-fast application stubs.
+add_executable (AICHSearchResultTest
+	AICHSearchResultTest.cpp
+	AICHSearchResultStubs.cpp
+	${CMAKE_SOURCE_DIR}/src/AbstractFile.cpp
+	${CMAKE_SOURCE_DIR}/src/SearchFile.cpp
+	${CMAKE_SOURCE_DIR}/src/MemFile.cpp
+	${CMAKE_SOURCE_DIR}/src/LoggerConsole.cpp
+	${CMAKE_SOURCE_DIR}/src/Tag.cpp
+	${CMAKE_SOURCE_DIR}/src/kademlia/utils/UInt128.cpp
+	${CMAKE_SOURCE_DIR}/src/CFile.cpp
+	${CMAKE_SOURCE_DIR}/src/SafeFile.cpp
+	${CMAKE_SOURCE_DIR}/src/SHA.cpp
+	${CMAKE_SOURCE_DIR}/src/OtherFunctions.cpp
+	${CMAKE_SOURCE_DIR}/src/SHAHashSet.cpp
+	${CMAKE_SOURCE_DIR}/src/kademlia/kademlia/AICHHashList.cpp
+)
+target_compile_definitions (AICHSearchResultTest PRIVATE AMULE_DAEMON)
+# muleunit exports MULEUNIT; undo it here to exercise ownerless consensus with
+# real logging expressions (including in Debug builds).
+if (MSVC)
+	target_compile_options (AICHSearchResultTest PRIVATE /UMULEUNIT)
+else()
+	target_compile_options (AICHSearchResultTest PRIVATE -UMULEUNIT)
+endif()
+target_include_directories (AICHSearchResultTest PRIVATE
+	${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/include
+	${CMAKE_SOURCE_DIR}/src/libs ${CMAKE_BINARY_DIR}/src/libs
+	${CMAKE_BINARY_DIR}/src/libs/ec/cpp
+)
+target_link_libraries (AICHSearchResultTest muleunit mulecommon wxWidgets::BASE CRYPTOPP::CRYPTOPP)
+add_test (NAME AICHSearchResultTest COMMAND AICHSearchResultTest)

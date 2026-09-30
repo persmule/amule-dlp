@@ -2377,7 +2377,7 @@ Returns every preference category amuled carries over EC. The `general` and `con
     "server_keepalive_timeout_minutes": 0, "kad_max_concurrent_source_search_count": 50,
     "kad_source_reask_minutes": 30, "source_reask_minutes": 15
   },
-  "kad": { "update_url": "http://upd.emule-security.org/nodes.dat" },
+  "kad": { "update_url": "http://upd.emule-security.org/nodes.dat", "protocol10_enabled": false, "strict_aich_publishers": false },
   "geoip": {
     "supported": true, "enabled": true, "source": "dbip",
     "custom_update_url": "", "maxmind_license": "", "auto_update_enabled": true,

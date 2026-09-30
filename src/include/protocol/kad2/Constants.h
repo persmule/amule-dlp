@@ -44,16 +44,13 @@
 // Our own advertised version. 0x0a alongside the AICH keyword-storage support 0x09 introduced; 0x0a
 // adds no further wire element of its own and is the level eMule/eMuleAI advertise.
 //
-// Gated on ENABLE_KAD_PROTOCOL_10 (configure-time, OFF by default) because this byte goes out in
-// every Kad2 hello: without the switch we keep advertising 0x08, which is what a build without the
-// 0x09 features can honestly claim.
+// The compile-time default is 0x08 for maximum backward compatibility. At runtime, the preference
+// KadProtocol10 (set in Preferences, exposed over EC and amuleapi) can raise the advertised version
+// to 0x0a and enable the AICH keyword-storage features 0x09 introduced.
 //
 // Note for a future bump: CT_EMULE_MISCOPTIONS2 has to change once the Kad version reaches 0x0F,
 // the eD2k capability field reserving only four bits for it.
-#ifdef ENABLE_KAD_PROTOCOL_10
-#define KADEMLIA_VERSION 0x0a
-#else
-#define KADEMLIA_VERSION 0x08 /* 0.49b */
-#endif
+#define KADEMLIA_VERSION_DEFAULT 0x08 /* 0.49b */
+#define KADEMLIA_VERSION_PROTOCOL10 0x0a
 
 #endif // KAD2CONSTANTS_H

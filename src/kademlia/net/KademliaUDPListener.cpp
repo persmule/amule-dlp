@@ -51,6 +51,7 @@ there client on the eMule forum..
 #include "../routing/RoutingZone.h"
 #include "../kademlia/Indexed.h"
 #include "../kademlia/Defines.h"
+#include "../kademlia/AICHHashList.h"
 #include "../kademlia/UDPFirewallTester.h"
 #include "../utils/KadUDPKey.h"
 #include "../utils/KadClientSearcher.h"
@@ -126,7 +127,7 @@ void CKademliaUDPListener::SendMyDetails(uint8_t opcode,
 
 	if (kadVersion > 1) {
 		packetdata.WriteUInt16(thePrefs::GetPort());
-		packetdata.WriteUInt8(KADEMLIA_VERSION);
+		packetdata.WriteUInt8(CKademlia::GetPrefs()->GetAdvertisedKadVersion());
 		uint8_t tagCount = 0;
 		if (!CKademlia::GetPrefs()->GetUseExternKadPort()) {
 			tagCount++;
@@ -508,7 +509,7 @@ void CKademliaUDPListener::Process2BootstrapRequest(uint32_t ip, uint16_t port, 
 
 	packetdata.WriteUInt128(CKademlia::GetPrefs()->GetKadID());
 	packetdata.WriteUInt16(thePrefs::GetPort());
-	packetdata.WriteUInt8(KADEMLIA_VERSION);
+	packetdata.WriteUInt8(CKademlia::GetPrefs()->GetAdvertisedKadVersion());
 
 	packetdata.WriteUInt16(numContacts);
 	CContact *contact;
@@ -1216,32 +1217,62 @@ void CKademliaUDPListener::Process2PublishKeyRequest(const uint8_t *packetData,
 								   CFormat("  Size=%u") % entry->m_uSize;)
 						}
 						delete tag; // tag is no longer stored, but membervar is used
-#ifdef ENABLE_KAD_PROTOCOL_10
-					} else if (!tag->GetName().Cmp(TAG_KADAICHHASHPUB)) {
-						// AICH root hash of the published file (Kad
-						// protocol version 0x09). Kept as a member rather
-						// than a tag: MergeIPsAndFilenames() attaches it to
-						// this publisher and maintains the popularity
-						// counts of the stored entry.
+					} else if (thePrefs::GetKadProtocol10() &&
+						   !tag->GetName().Cmp(TAG_KADAICHHASHPUB)) {
+						// With the feature off, preserve the legacy AddTag() path
+						// below. AICH root hash of the published file (Kad protocol
+						// version 0x09). Kept as a member rather than a tag:
+						// MergeIPsAndFilenames() attaches it to this publisher and
+						// maintains the popularity counts of the stored entry.
 						//
-						// Gated: upstream has no branch for this tag, so it
-						// falls through to AddTag() and is relayed verbatim
-						// in later search answers. Consuming it here
-						// removes it from that answer.
+						// The optional version filter rejects known legacy
+						// publishers, but advertised versions are not authentication.
+						// Unknown peers remain accepted. Search-result roots stay
+						// untrusted until download sources corroborate them, with
+						// either filter setting.
 						if (tag->IsBsob() &&
 							tag->GetBsobSize() == KAD_AICH_HASH_SIZE) {
-							if (entry->GetAICHHashCount() == 0) {
-								CKadAICHHash hash;
-								memcpy(hash.data(),
-									tag->GetBsob(),
-									hash.size());
-								entry->SetPublishedAICHHash(hash);
-							} else {
-								AddDebugLogLineN(logClientKadUDP,
-									"Multiple TAG_KADAICHHASHPUB tags "
-									"received for a single file "
-									"from " +
-										KadIPToString(ip));
+							bool acceptTag = true;
+							if (thePrefs::GetKadStrictAichPublishers()) {
+								uint8_t publisherVersion = 0;
+								CContact *publisher =
+									CKademlia::GetRoutingZone()
+										->GetContact(ip, port, false);
+								if (publisher != nullptr) {
+									publisherVersion =
+										publisher->GetVersion();
+								}
+								if (publisherVersion != 0 &&
+									!CKadAICHHashList::
+										PeerSupportsAICHKeywordStorage(
+											publisherVersion)) {
+									acceptTag = false;
+									AddDebugLogLineN(logClientKadUDP,
+										CFormat("TAG_KADAICHHASHPUB "
+											"received from node "
+											"advertising Kad "
+											"version %u (< "
+											"0x09), rejecting. "
+											"%s") %
+											publisherVersion %
+											KadIPToString(ip));
+								}
+							}
+							if (acceptTag) {
+								if (entry->GetAICHHashCount() == 0) {
+									CKadAICHHash hash;
+									memcpy(hash.data(),
+										tag->GetBsob(),
+										hash.size());
+									entry->SetPublishedAICHHash(hash);
+								} else {
+									AddDebugLogLineN(logClientKadUDP,
+										"Multiple TAG_KADAICHHASHPUB "
+										"tags "
+										"received for a single file "
+										"from " +
+											KadIPToString(ip));
+								}
 							}
 						} else {
 							AddDebugLogLineN(logClientKadUDP,
@@ -1249,7 +1280,6 @@ void CKademliaUDPListener::Process2PublishKeyRequest(const uint8_t *packetData,
 									KadIPToString(ip));
 						}
 						delete tag; // tag is no longer stored, but membervar is used
-#endif
 					} else {
 						// TODO: Filter tags
 						entry->AddTag(tag, ip);

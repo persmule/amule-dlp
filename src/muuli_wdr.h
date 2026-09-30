@@ -419,6 +419,8 @@ wxSizer *PreferencesStatisticsTab(wxWindow *parent, bool call_fit = TRUE, bool s
 // at 10424) and any future wxDesigner regeneration.
 #define IDC_KADMAXSEARCHES 10430
 #define IDC_KADREASKTIME 10431
+#define IDC_KADPROTOCOL10 10434
+#define IDC_KADSTRICTAICHPUBLISHERS 10435
 #define IDC_SOURCEREASKTIME 10432
 #define IDC_TWEAKS_RESET 10433
 wxSizer *PreferencesaMuleTweaksTab(wxWindow *parent, bool call_fit = TRUE, bool set_sizer = TRUE);

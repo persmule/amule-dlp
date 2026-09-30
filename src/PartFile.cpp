@@ -222,6 +222,10 @@ CPartFile::CPartFile(CSearchFile *searchresult)
 	SetFileName(searchresult->GetFileName());
 	SetFileSize(searchresult->GetFileSize());
 
+	if (searchresult->ApplyKadAICHVotes(*m_pAICHHashSet)) {
+		MarkECChanged();
+	}
+
 	for (unsigned int i = 0; i < searchresult->m_taglist.size(); ++i) {
 		const CTag &pTag = searchresult->m_taglist[i];
 
@@ -299,28 +303,14 @@ CPartFile::CPartFile(CSearchFile *searchresult)
 			}
 		}
 
-		if (pTag.GetNameID() == FT_AICH_HASH && pTag.IsStr()) {
-			// The AICH root hash a search result carried, from an ed2k server or from Kad. Set
-			// as the master hash rather than stored as a tag: the tag copies above all end at
-			// m_taglist, and nothing reads an AICH hash back out of there. This is the whole
-			// point of carrying the hash on a result -- a download that starts already knowing
-			// its root hash never has to collect one from a pool of peers before it can recover
-			// a corrupt part.
-			//
-			// AICH_TRUSTED, not AICH_VERIFIED, and the difference matters. Nothing vouches for
-			// a search result: it is whatever the server or the Kad node chose to answer.
-			// AICH_VERIFIED is terminal -- UntrustedHashReceived() refuses to correct it -- so
-			// one wrong hash would break this download's recovery for good, persist to
-			// part.met, reload as verified on every later start, and go back out in our own
-			// ed2k and magnet links. AICH_TRUSTED is used for recovery exactly the same way
-			// and stays correctable by peer consensus, which is the whole difference between a
-			// hash we were told and a hash we can stand behind.
+		if (!searchresult->IsKademlia() && pTag.GetNameID() == FT_AICH_HASH && pTag.IsStr()) {
+			// Preserve the existing server-result trust policy.
 			CAICHHash hash;
 			if (hash.DecodeBase32(pTag.GetStr()) == CAICHHash::GetHashSize()) {
-				m_pAICHHashSet->SetMasterHash(hash, AICH_TRUSTED);
+				m_pAICHHashSet->SearchResultHashReceived(hash, false, 0);
 				MarkECChanged();
 				AddDebugLogLineN(logPartFile,
-					"CPartFile::CPartFile(CSearchFile*): took master AICH hash "
+					"CPartFile::CPartFile(CSearchFile*): processed AICH candidate "
 					"from the search result");
 				bTagAdded = true;
 			} else {

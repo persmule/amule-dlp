@@ -1017,12 +1017,16 @@ void CAICHHashSet::UntrustedHashReceived(const CAICHHash &Hash, uint32 dwFromIP)
 	if (thePrefs::IsTrustingEveryHash() ||
 		(nMostTrustedIPs >= MINUNIQUEIPS_TOTRUST &&
 			(100 * nMostTrustedIPs) / nSigningIPsTotal >= MINPERCENTAGE_TOTRUST)) {
-		AddDebugLogLineN(logSHAHashSet,
-			CFormat("AICH Hash received (%sadded), We have now %u hash(es) from %u unique IP(s). "
-				"We trust the Hash %s from %u client(s) (%u%%). File: %s") %
-				(bAdded ? "" : "not ") % m_aUntrustedHashs.size() % nSigningIPsTotal %
-				m_aUntrustedHashs[nMostTrustedPos].m_Hash.GetString() % nMostTrustedIPs %
-				((100 * nMostTrustedIPs) / nSigningIPsTotal) % m_pOwner->GetFileName());
+		if (m_pOwner) {
+			AddDebugLogLineN(logSHAHashSet,
+				CFormat("AICH Hash received (%sadded), We have now %u hash(es) from %u "
+					"unique IP(s). "
+					"We trust the Hash %s from %u client(s) (%u%%). File: %s") %
+					(bAdded ? "" : "not ") % m_aUntrustedHashs.size() % nSigningIPsTotal %
+					m_aUntrustedHashs[nMostTrustedPos].m_Hash.GetString() %
+					nMostTrustedIPs % ((100 * nMostTrustedIPs) / nSigningIPsTotal) %
+					m_pOwner->GetFileName());
+		}
 
 		SetStatus(AICH_TRUSTED);
 		if (!HasValidMasterHash() || GetMasterHash() != m_aUntrustedHashs[nMostTrustedPos].m_Hash) {
@@ -1030,12 +1034,17 @@ void CAICHHashSet::UntrustedHashReceived(const CAICHHash &Hash, uint32 dwFromIP)
 			FreeHashSet();
 		}
 	} else {
-		AddDebugLogLineN(logSHAHashSet,
-			CFormat("AICH Hash received (%sadded), We have now %u hash(es) from %u unique IP(s). "
-				"Best Hash %s from %u clients (%u%%) - but we don't trust it yet. File: %s") %
-				(bAdded ? "" : "not ") % m_aUntrustedHashs.size() % nSigningIPsTotal %
-				m_aUntrustedHashs[nMostTrustedPos].m_Hash.GetString() % nMostTrustedIPs %
-				((100 * nMostTrustedIPs) / nSigningIPsTotal) % m_pOwner->GetFileName());
+		if (m_pOwner) {
+			AddDebugLogLineN(logSHAHashSet,
+				CFormat("AICH Hash received (%sadded), We have now %u hash(es) from %u "
+					"unique IP(s). "
+					"Best Hash %s from %u clients (%u%%) - but we don't trust it yet. "
+					"File: %s") %
+					(bAdded ? "" : "not ") % m_aUntrustedHashs.size() % nSigningIPsTotal %
+					m_aUntrustedHashs[nMostTrustedPos].m_Hash.GetString() %
+					nMostTrustedIPs % ((100 * nMostTrustedIPs) / nSigningIPsTotal) %
+					m_pOwner->GetFileName());
+		}
 
 		SetStatus(AICH_UNTRUSTED);
 		if (!HasValidMasterHash() || GetMasterHash() != m_aUntrustedHashs[nMostTrustedPos].m_Hash) {

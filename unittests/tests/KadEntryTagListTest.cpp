@@ -23,9 +23,11 @@
 //
 
 #include <muleunit/test.h>
+#include <algorithm>
 #include <kademlia/kademlia/Entry.h>
 #include <kademlia/kademlia/AICHHashList.h>
 #include <MemFile.h>
+#include <Preferences.h>
 #include <Tag.h>
 #include <tags/FileTags.h>
 
@@ -43,8 +45,8 @@ using Kademlia::CKeyEntry;
 // catches a miscount in either direction, which asserting on the tag total alone does not.
 //
 // The expected tag total is deliberately never hardcoded: WriteTagListWithPublishInfo() writes one
-// tag of its own without ENABLE_KAD_PROTOCOL_10 and up to two with it, and these tests are meant
-// to hold in both configurations.
+// tag without the KadProtocol10 preference and up to two with it, and these tests are meant to
+// hold in both configurations.
 
 static const uint32_t SENTINEL = 0xA1C4DEADu;
 
@@ -68,6 +70,11 @@ public:
 		publisher.m_aichHashIdx = CKadAICHHashList::INVALID_INDEX;
 		m_publishingIPs->push_back(publisher);
 		AdjustGlobalPublishTracking(ip, true, wxT("test publisher"));
+	}
+
+	void SetTestPublisherHash(const Kademlia::CKadAICHHash &hash)
+	{
+		m_publishingIPs->back().m_aichHashIdx = m_aichHashes.AddReference(hash);
 	}
 
 	// GetTrustValue() only recalculates when its last result is older than ten minutes, and the
@@ -207,4 +214,89 @@ TEST(KadEntryTagList, TheBoundaryIsDescribedExactly)
 	ASSERT_EQUALS(0xFFu, (uint32_t)tags.size());
 
 	deleteTagPtrListEntries(&tags);
+}
+
+TEST(KadEntryTagList, RuntimeToggleControlsResultTagsAndIndexFormat)
+{
+	struct RestorePreference
+	{
+		bool previous = thePrefs::GetKadProtocol10();
+		~RestorePreference() { thePrefs::SetKadProtocol10(previous); }
+	} restore;
+
+	CTestKeyEntry entry;
+	entry.AddTestPublisher(0x0A000001);
+	entry.SetFileName(wxT("test.iso"));
+	entry.m_uSize = 4096;
+	Kademlia::CKadAICHHash hash = {};
+	hash[0] = 0xAB;
+	entry.SetTestPublisherHash(hash);
+
+	for (bool enabled : { false, true, false }) {
+		thePrefs::SetKadProtocol10(enabled);
+		CMemFile answer;
+		WriteAnswerWithSentinel(entry, answer);
+		TagPtrList tags;
+		ReadBackAndCheckAlignment(answer, &tags);
+		unsigned aichTags = 0;
+		for (const CTag *tag : tags) {
+			if (tag->GetName() == TAG_KADAICHHASHRESULT) {
+				++aichTags;
+				std::vector<CKadAICHHashList::SResultHash> decoded;
+				ASSERT_TRUE(tag->IsBsob());
+				ASSERT_TRUE(CKadAICHHashList::DecodeResultTag(
+					tag->GetBsob(), tag->GetBsobSize(), decoded));
+				ASSERT_EQUALS(1u, (unsigned)decoded.size());
+				ASSERT_TRUE(decoded[0].m_hash == hash);
+			}
+		}
+		deleteTagPtrListEntries(&tags);
+		ASSERT_EQUALS(enabled ? 1u : 0u, aichTags);
+
+		CMemFile index;
+		// The writer follows the saved format even if the preference changes.
+		thePrefs::SetKadProtocol10(!enabled);
+		entry.WritePublishTrackingDataToFile(&index, enabled);
+		index.WriteUInt32(SENTINEL);
+		index.Seek(0);
+		// Reading also follows the saved format with the preference still toggled.
+		CTestKeyEntry loaded;
+		loaded.ReadPublishTrackingDataFromFile(&index, enabled);
+		ASSERT_EQUALS(SENTINEL, index.ReadUInt32());
+		ASSERT_EQUALS(index.GetLength(), index.GetPosition());
+		ASSERT_EQUALS(enabled ? 1u : 0u, (unsigned)loaded.GetAICHHashCount());
+	}
+}
+
+TEST(KadEntryTagList, DisabledProtocolPreservesLegacyPublishTags)
+{
+	struct RestorePreference
+	{
+		bool previous = thePrefs::GetKadProtocol10();
+		~RestorePreference() { thePrefs::SetKadProtocol10(previous); }
+	} restore;
+	thePrefs::SetKadProtocol10(false);
+	CTestKeyEntry entry;
+	entry.AddTestPublisher(0x0A000001);
+	Kademlia::CKadAICHHash hash = {};
+	hash[0] = 0xAB;
+	// The disabled UDP handler leaves this tag on the ordinary AddTag path.
+	entry.AddTag(new CTagBsob(TAG_KADAICHHASHPUB, hash.data(), hash.size()), 0);
+	CMemFile answer;
+	WriteAnswerWithSentinel(entry, answer);
+	TagPtrList tags;
+	ReadBackAndCheckAlignment(answer, &tags);
+	unsigned publishTags = 0;
+	for (const CTag *tag : tags) {
+		ASSERT_FALSE(tag->GetName() == TAG_KADAICHHASHRESULT);
+		if (tag->GetName() == TAG_KADAICHHASHPUB) {
+			++publishTags;
+			ASSERT_TRUE(tag->IsBsob());
+			ASSERT_EQUALS((unsigned)hash.size(), (unsigned)tag->GetBsobSize());
+			ASSERT_TRUE(std::equal(hash.begin(), hash.end(), tag->GetBsob()));
+		}
+	}
+	deleteTagPtrListEntries(&tags);
+	ASSERT_EQUALS(1u, publishTags);
+	ASSERT_EQUALS(0u, (unsigned)entry.GetAICHHashCount());
 }

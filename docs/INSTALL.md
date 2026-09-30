@@ -161,7 +161,7 @@ work; with the switch off, that code is left out of the build.
 | `ENABLE_UTP`                      | IPv4 uTP in `amule` and `amuled`: datagram framing, inbound streams, and dialing a peer that advertises uTP |
 | `ENABLE_IPV6`                     | native IPv6 TCP admission. The IPv6 identity work is not complete |
 | `ENABLE_NATT_SERVER_COORDINATION` | the server-coordinated NAT-T wire codecs. No login advertisement or network traffic yet |
-| `ENABLE_KAD_PROTOCOL_10`          | advertise Kademlia protocol `0x0a`, with the AICH hashes on keyword storage that `0x09` added |
+| `ENABLE_KAD_PROTOCOL_10`          | sets the compile-time default for the Kad protocol `0x0a` runtime preference (AICH hashes on keyword storage). Can be toggled at runtime via Preferences, EC and amuleapi |
 | `ENABLE_KAD_NODE_PROTECTION`      | local Kad node-protection heuristics: adaptive request timeouts and Kad identity checks. No wire-protocol change |
 | `ENABLE_ALL_EXPERIMENTAL`         | all of the switches above |
 

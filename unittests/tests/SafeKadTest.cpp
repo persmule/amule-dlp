@@ -49,7 +49,7 @@ DECLARE_SIMPLE(SafeKad)
 TEST(SafeKad, FirstSightingOfANodeIsAccepted)
 {
 	CSafeKad safe;
-	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION, true, true, T0));
+	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION_DEFAULT, true, true, T0));
 	ASSERT_EQUALS(1u, (unsigned)safe.GetTrackedNodeCount());
 	ASSERT_FALSE(safe.IsProblematic(IP_A, PORT_A, T0));
 	ASSERT_FALSE(safe.IsBanned(IP_A, T0));
@@ -59,7 +59,8 @@ TEST(SafeKad, SameIdentityIsAcceptedRepeatedly)
 {
 	CSafeKad safe;
 	for (unsigned i = 0; i < 20; ++i) {
-		ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION, true, true, T0 + i));
+		ASSERT_FALSE(
+			safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION_DEFAULT, true, true, T0 + i));
 	}
 	ASSERT_EQUALS(1u, (unsigned)safe.GetTrackedNodeCount());
 }
@@ -74,7 +75,7 @@ TEST(SafeKad, RapidIdentityRotationIsRejectedAndMarkedProblematic)
 	ASSERT_FALSE(safe.TrackNode(IP_A, PORT_A, Id(2), true, soon));
 
 	// The contact must be rejected...
-	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(2), KADEMLIA_VERSION, true, false, soon));
+	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(2), KADEMLIA_VERSION_DEFAULT, true, false, soon));
 	// ...and the address must be on the problematic list.
 	ASSERT_TRUE(safe.IsProblematic(IP_A, PORT_A, soon));
 }
@@ -87,7 +88,7 @@ TEST(SafeKad, IdentityChangeAfterTheIntervalIsAccepted)
 	const time_t later = T0 + CSafeKad::MIN_ID_CHANGE_INTERVAL + 1;
 	ASSERT_TRUE(safe.TrackNode(IP_A, PORT_A, Id(2), true, later));
 	ASSERT_FALSE(safe.IsProblematic(IP_A, PORT_A, later));
-	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(2), KADEMLIA_VERSION, true, false, later));
+	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(2), KADEMLIA_VERSION_DEFAULT, true, false, later));
 }
 
 TEST(SafeKad, RepeatedRotationEscalatesToABan)
@@ -104,7 +105,7 @@ TEST(SafeKad, RepeatedRotationEscalatesToABan)
 	ASSERT_TRUE(safe.IsBanned(IP_A, T0 + 20));
 	// A banned address stops being tracked; there is nothing left to weigh.
 	ASSERT_EQUALS(0u, (unsigned)safe.GetTrackedNodeCount());
-	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(3), KADEMLIA_VERSION, true, false, T0 + 20));
+	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(3), KADEMLIA_VERSION_DEFAULT, true, false, T0 + 20));
 }
 
 TEST(SafeKad, AnUnverifiedClaimCannotOverwriteAVerifiedIdentity)
@@ -115,9 +116,9 @@ TEST(SafeKad, AnUnverifiedClaimCannotOverwriteAVerifiedIdentity)
 	// Long past the interval, so the rate limit is not what rejects this.
 	const time_t later = T0 + CSafeKad::MIN_ID_CHANGE_INTERVAL * 2;
 	ASSERT_FALSE(safe.TrackNode(IP_A, PORT_A, Id(9), false, later));
-	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(9), KADEMLIA_VERSION, false, false, later));
+	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(9), KADEMLIA_VERSION_DEFAULT, false, false, later));
 	// The verified identity is still the one we hold.
-	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION, true, false, later));
+	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION_DEFAULT, true, false, later));
 }
 
 TEST(SafeKad, PreVersion8NodesGetNoUnverifiedIdentityChangeAtAll)
@@ -143,20 +144,20 @@ TEST(SafeKad, PreVersion8NodesGetNoUnverifiedIdentityChangeAtAll)
 TEST(SafeKad, OneNodePerAddressIsEnforcedWhenAsked)
 {
 	CSafeKad safe;
-	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION, true, true, T0));
+	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION_DEFAULT, true, true, T0));
 
 	// A second Kad port on the same address.
-	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_B, Id(2), KADEMLIA_VERSION, true, true, T0));
+	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_B, Id(2), KADEMLIA_VERSION_DEFAULT, true, true, T0));
 	// The first port keeps working.
-	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION, true, true, T0));
+	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION_DEFAULT, true, true, T0));
 	// A different address is unaffected.
-	ASSERT_FALSE(safe.IsBadNode(IP_B, PORT_B, Id(3), KADEMLIA_VERSION, true, true, T0));
+	ASSERT_FALSE(safe.IsBadNode(IP_B, PORT_B, Id(3), KADEMLIA_VERSION_DEFAULT, true, true, T0));
 
 	// With the check off (the search-response path, where the contact is
 	// already in our routing table), the second port is allowed.
 	CSafeKad relaxed;
-	ASSERT_FALSE(relaxed.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION, true, false, T0));
-	ASSERT_FALSE(relaxed.IsBadNode(IP_A, PORT_B, Id(2), KADEMLIA_VERSION, true, false, T0));
+	ASSERT_FALSE(relaxed.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION_DEFAULT, true, false, T0));
+	ASSERT_FALSE(relaxed.IsBadNode(IP_A, PORT_B, Id(2), KADEMLIA_VERSION_DEFAULT, true, false, T0));
 }
 
 TEST(SafeKad, ProblematicEntriesExpireAfterTheirHorizon)
@@ -182,7 +183,7 @@ TEST(SafeKad, BansLapseAfterFourHours)
 	ASSERT_FALSE(safe.IsBanned(IP_A, T0 + CSafeKad::MAX_BAN_TIME + 1));
 	ASSERT_EQUALS(0u, (unsigned)safe.GetBannedAddressCount());
 	ASSERT_FALSE(safe.IsBadNode(
-		IP_A, PORT_A, Id(1), KADEMLIA_VERSION, true, true, T0 + CSafeKad::MAX_BAN_TIME + 1));
+		IP_A, PORT_A, Id(1), KADEMLIA_VERSION_DEFAULT, true, true, T0 + CSafeKad::MAX_BAN_TIME + 1));
 }
 
 TEST(SafeKad, ABannedAddressIsProblematicByConstruction)
@@ -256,7 +257,8 @@ TEST(SafeKad, EvictionAtCapacityDropsTheLeastRecentlyReferencedEntry)
 
 	// The refreshed address survived: it still remembers its identity, so a
 	// rotation inside the one-hour interval is refused.
-	ASSERT_TRUE(safe.IsBadNode(0x50000005, PORT_A, Id(0xBEEF), KADEMLIA_VERSION, true, false, T0 + 1));
+	ASSERT_TRUE(safe.IsBadNode(
+		0x50000005, PORT_A, Id(0xBEEF), KADEMLIA_VERSION_DEFAULT, true, false, T0 + 1));
 
 	// The least recently referenced address is the one that went: a new identity for it is
 	// accepted as a first sighting rather than rejected as a rotation, which is only possible
@@ -379,19 +381,19 @@ TEST(SafeKad, AnUnverifiedIdentityChangeAgainstAVerifiedEntryIsRefusedNotEscalat
 	ASSERT_TRUE(safe.TrackNode(IP_A, PORT_A, Id(1), true, T0));
 
 	// Refused, and nothing recorded against the address.
-	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(2), KADEMLIA_VERSION, false, false, T0 + 10));
+	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(2), KADEMLIA_VERSION_DEFAULT, false, false, T0 + 10));
 	ASSERT_FALSE(safe.IsProblematic(IP_A, PORT_A, T0 + 10));
 	ASSERT_FALSE(safe.IsBanned(IP_A, T0 + 10));
 
 	// Retrying earns no more than the first attempt did. Free for the sender, and that is the
 	// accepted cost: an unverified claim can waste our time, but it must not be able to spend
 	// somebody else's reputation.
-	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(3), KADEMLIA_VERSION, false, false, T0 + 20));
+	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(3), KADEMLIA_VERSION_DEFAULT, false, false, T0 + 20));
 	ASSERT_FALSE(safe.IsBanned(IP_A, T0 + 20));
 
 	// The entry survives intact, and the identity we verified still works.
 	ASSERT_EQUALS(1u, (unsigned)safe.GetTrackedNodeCount());
-	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION, true, false, T0 + 30));
+	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION_DEFAULT, true, false, T0 + 30));
 }
 
 // The same refusal for a pre-0x08 node, where it is the version rather than the verification state
@@ -420,20 +422,20 @@ TEST(SafeKad, AnUnverifiedPreVersion8IdentityChangeIsRefusedNotEscalated)
 TEST(SafeKad, OneRejectedRotationEscalatesExactlyOneStep)
 {
 	CSafeKad safe;
-	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION, true, false, T0));
+	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION_DEFAULT, true, false, T0));
 
 	// Verified, so this goes through TrackNode's rate limit rather than the
 	// outright refusal.
-	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(2), KADEMLIA_VERSION, true, false, T0 + 10));
+	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(2), KADEMLIA_VERSION_DEFAULT, true, false, T0 + 10));
 	ASSERT_TRUE(safe.IsProblematic(IP_A, PORT_A, T0 + 10));
 	ASSERT_FALSE(safe.IsBanned(IP_A, T0 + 10));
 	ASSERT_EQUALS(1u, (unsigned)safe.GetProblematicNodeCount());
 
 	CSafeKad other;
-	ASSERT_FALSE(other.IsBadNode(IP_B, PORT_A, Id(1), KADEMLIA_VERSION, true, false, T0));
+	ASSERT_FALSE(other.IsBadNode(IP_B, PORT_A, Id(1), KADEMLIA_VERSION_DEFAULT, true, false, T0));
 	// Unverified, so this takes the outright refusal -- which refuses without
 	// escalating, and so leaves no problematic entry at all.
-	ASSERT_TRUE(other.IsBadNode(IP_B, PORT_A, Id(2), KADEMLIA_VERSION, false, false, T0 + 10));
+	ASSERT_TRUE(other.IsBadNode(IP_B, PORT_A, Id(2), KADEMLIA_VERSION_DEFAULT, false, false, T0 + 10));
 	ASSERT_FALSE(other.IsProblematic(IP_B, PORT_A, T0 + 10));
 	ASSERT_FALSE(other.IsBanned(IP_B, T0 + 10));
 	ASSERT_EQUALS(0u, (unsigned)other.GetProblematicNodeCount());
@@ -453,19 +455,19 @@ TEST(SafeKad, FabricatedUnverifiedMentionsCannotBanAnHonestNode)
 
 	// An honest node we have just learned about, exactly as a response
 	// listing it would: unverified, and stamped now.
-	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION, false, false, T0));
+	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION_DEFAULT, false, false, T0));
 
 	// A hostile peer names the same address twice with identities it made
 	// up, well inside the rotation window.
-	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(2), KADEMLIA_VERSION, false, false, T0 + 5));
-	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(3), KADEMLIA_VERSION, false, false, T0 + 10));
+	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(2), KADEMLIA_VERSION_DEFAULT, false, false, T0 + 5));
+	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(3), KADEMLIA_VERSION_DEFAULT, false, false, T0 + 10));
 
 	// Neither mention counted for anything.
 	ASSERT_FALSE(safe.IsBanned(IP_A, T0 + 10));
 	ASSERT_FALSE(safe.IsProblematic(IP_A, PORT_A, T0 + 10));
 
 	// And the honest node is still usable under the identity we hold.
-	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION, false, false, T0 + 15));
+	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION_DEFAULT, false, false, T0 + 15));
 }
 
 // The other half: a peer that has proved which port it listens on and then cycles identities faster
@@ -474,13 +476,13 @@ TEST(SafeKad, FabricatedUnverifiedMentionsCannotBanAnHonestNode)
 TEST(SafeKad, AVerifiedRotationStillEscalatesToABan)
 {
 	CSafeKad safe;
-	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION, true, false, T0));
+	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION_DEFAULT, true, false, T0));
 
-	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(2), KADEMLIA_VERSION, true, false, T0 + 10));
+	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(2), KADEMLIA_VERSION_DEFAULT, true, false, T0 + 10));
 	ASSERT_TRUE(safe.IsProblematic(IP_A, PORT_A, T0 + 10));
 	ASSERT_FALSE(safe.IsBanned(IP_A, T0 + 10));
 
-	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(3), KADEMLIA_VERSION, true, false, T0 + 20));
+	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(3), KADEMLIA_VERSION_DEFAULT, true, false, T0 + 20));
 	ASSERT_TRUE(safe.IsBanned(IP_A, T0 + 20));
 }
 
@@ -567,9 +569,9 @@ TEST(SafeKad, ARefusedChangePastTheIntervalIsNotEscalated)
 	const time_t later = T0 + CSafeKad::MIN_ID_CHANGE_INTERVAL * 2;
 	ASSERT_TRUE(safe.TrackNode(IP_A, PORT_A, Id(1), true, later - 1));
 
-	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(9), KADEMLIA_VERSION, false, false, later));
+	ASSERT_TRUE(safe.IsBadNode(IP_A, PORT_A, Id(9), KADEMLIA_VERSION_DEFAULT, false, false, later));
 	ASSERT_FALSE(safe.IsProblematic(IP_A, PORT_A, later));
 	ASSERT_FALSE(safe.IsBanned(IP_A, later));
 	// The verified identity we hold is untouched and still usable.
-	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION, true, false, later));
+	ASSERT_FALSE(safe.IsBadNode(IP_A, PORT_A, Id(1), KADEMLIA_VERSION_DEFAULT, true, false, later));
 }

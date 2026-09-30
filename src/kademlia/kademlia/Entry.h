@@ -133,7 +133,8 @@ public:
 	void MergeIPsAndFilenames(CKeyEntry *fromEntry);
 	void CleanUpTrackedPublishers();
 	double GetTrustValue();
-	void WritePublishTrackingDataToFile(CFileDataIO *data);
+	// Use the same format snapshot as the keyword-index header for every entry.
+	void WritePublishTrackingDataToFile(CFileDataIO *data, bool includesAICH);
 	// `includesAICH` reflects the on-disk keyword-index version: files written before the AICH-
 	// carrying version 4 have no hash block and no per-publisher hash index.
 	void ReadPublishTrackingDataFromFile(CFileDataIO *data, bool includesAICH);

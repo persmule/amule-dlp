@@ -155,6 +155,7 @@ if (BUILD_MONOLITHIC OR BUILD_DAEMON OR BUILD_REMOTEGUI)
 		GuiEvents.cpp
 		HTTPDownload.cpp
 		InstanceLock.cpp
+		AbstractFile.cpp
 		KnownFile.cpp
 		Logger.cpp
 		MediaProbe.cpp

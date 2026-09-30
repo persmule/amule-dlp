@@ -382,6 +382,7 @@ public:
 	 * @param type The filetype of the result (TODO: Not used?)
 	 * @param kadPublishInfo The kademlia publish information of the result.
 	 * @param taglist List of additional tags associated with the search result.
+	 * @param kadAICHResponderIP Actual responder in peer IP byte order.
 	 */
 	void KademliaSearchKeyword(uint32_t searchID,
 		const Kademlia::CUInt128 *fileID,
@@ -389,7 +390,8 @@ public:
 		uint64_t size,
 		const wxString &type,
 		uint32_t kadPublishInfo,
-		const TagPtrList &taglist);
+		const TagPtrList &taglist,
+		uint32_t kadAICHResponderIP);
 
 	/** Update a certain search result in all lists */
 	void UpdateSearchFileByHash(const CMD4Hash &hash);

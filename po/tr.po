@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
-"POT-Creation-Date: 2026-09-30 14:22+0800\n"
+"POT-Creation-Date: 2026-09-30 19:39+0800\n"
 "PO-Revision-Date: 2026-09-30 11:32+0000\n"
 "Last-Translator: \n"
 "Language-Team: Turkish <li@li.org>\n"
@@ -4661,6 +4661,37 @@ msgstr "Başlangıçta otomatik bağlan"
 #: src/muuli_wdr.cpp
 msgid "Reconnect on loss"
 msgstr "Bağlantı koptuğunda yeniden bağlan"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Kad protocol version"
+msgstr "Geçersiz protokol sürümü."
+
+#: src/muuli_wdr.cpp
+msgid "Advertise Kad protocol 0x0a (AICH keyword storage)"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid ""
+"When enabled, aMule advertises Kad protocol version 0x0a and processes AICH hashes in keyword publish/search results.\n"
+"\n"
+"WARNING: Enabling this may cause search results to be dropped by older Kad clients (pre-0.49b) that cannot parse the AICH result tags. Most current clients support it, but if you experience missing search results, try disabling this option.\n"
+"\n"
+"Disabling this option discards stored AICH keyword-index data on the next save; re-enabling it requires collecting that data again.\n"
+"\n"
+"Hashes learned from Kad search results remain untrusted until download sources corroborate them. Reported publisher counts alone never authorize AICH recovery."
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Reject AICH publish tags from legacy Kad peers (< 0x09)"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid ""
+"When enabled, AICH keyword publish tags from nodes advertising a Kad version below 0x09 are rejected because these versions do not support AICH keyword storage. Advertised versions are not proof that a publisher is trustworthy.\n"
+"\n"
+"WARNING: This may reject legitimate publishers whose routing-table version is stale, reducing AICH hash coverage. Nodes with unknown version are still accepted. Hashes learned from Kad search results require download-source corroboration regardless of this setting."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Remove dead server after"

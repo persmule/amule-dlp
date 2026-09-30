@@ -125,13 +125,11 @@ public:
 	// announced count are ignored.
 	static bool DecodeResultTag(const uint8_t *data, size_t length, std::vector<SResultHash> &out);
 
-	// The hash to trust out of a result's set, or nullptr for "none of them". Both of eMule
-	// 0.70b's rules are refusals: more than one distinct hash means at least one publisher is
-	// lying and AICH is ignored for the result, and a lone hash still has to come from at least
-	// a third of the publishers known for the file. @p publishersKnown is the middle byte of
-	// TAG_PUBLISHINFO. The destination is SetMasterHash(..., AICH_VERIFIED), which has no room
-	// for a hash that is merely ahead on a count the publisher itself supplies.
-	static const SResultHash *SelectTrusted(
+	// Select a single plausible candidate using the reported publisher ratio and a
+	// minimum of two reported publishers of the hash. publishersKnown is the middle
+	// byte of TAG_PUBLISHINFO. These unauthenticated counts never establish trust;
+	// CPartFile keeps the candidate untrusted until download-source corroboration.
+	static const SResultHash *SelectCandidate(
 		const std::vector<SResultHash> &hashes, uint32_t publishersKnown);
 
 	// Whether a peer advertising `peerKadVersion` handles AICH hashes on keyword storage. Both

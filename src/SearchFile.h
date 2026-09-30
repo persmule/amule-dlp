@@ -26,6 +26,8 @@
 #ifndef SEARCHFILE_H
 #define SEARCHFILE_H
 
+#include "KadAICHVotes.h"
+
 #include "KnownFile.h" // Needed for CAbstractFile
 
 class CMemFile;
@@ -66,6 +68,7 @@ public:
 	 * @param serverPort The port of the server that sent this result.
 	 * @param directory If from a client's shared files, the directory this file is in.
 	 * @param kademlia Whether this came from a kad search.
+	 * @param kadAICHResponderIP Actual responder in peer IP byte order; zero if unknown.
 	 */
 	CSearchFile(const CMemFile &data,
 		bool optUTF8,
@@ -73,7 +76,8 @@ public:
 		uint32_t serverIP = 0,
 		uint16_t serverPort = 0,
 		const wxString &directory = "",
-		bool kademlia = false);
+		bool kademlia = false,
+		uint32_t kadAICHResponderIP = 0);
 
 	/** Frees all children owned by this file. */
 	virtual ~CSearchFile();
@@ -195,8 +199,12 @@ public:
 		return ((GetClientID() && GetClientPort()) ? 1 : 0) + m_clients.size();
 	}
 
+	// Replay group-wide evidence even when this is a selected filename variant.
+	bool ApplyKadAICHVotes(CAICHHashSet &hashes) const;
+
 	void SetKadPublishInfo(uint32_t val) noexcept { m_kadPublishInfo = val; }
 	uint32_t GetKadPublishInfo() const noexcept { return m_kadPublishInfo; }
+	const std::map<uint32_t, CAICHHash> &GetKadAICHVotes() const noexcept { return m_kadAICHVotes.Get(); }
 
 	const wxString &GetDirectory() const noexcept { return m_directory; }
 
@@ -249,6 +257,11 @@ private:
 	//! Kademlia publish information.
 	uint32_t m_kadPublishInfo;
 
+	// Per-responder AICH evidence, copied and merged with the result. Not persisted:
+	// restored searches have no live responder and must not contribute a vote.
+	CKadAICHVotes m_kadAICHVotes;
+
+	friend class CSearchFileTestFixture;
 	friend class CPartFile;
 	friend class CSearchListRem;
 	// Needs to assign m_searchID directly after LoadFromFile() reconstructs a result tree from

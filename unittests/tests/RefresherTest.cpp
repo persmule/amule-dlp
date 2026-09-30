@@ -2707,9 +2707,9 @@ TEST(Refresher, PrefsSchemaIsWellFormed)
 			++emitted;
 	}
 
-	// The documented payload is 126 fields. A row added or dropped without
+	// The documented payload is 128 fields. A row added or dropped without
 	// updating docs/api/REFERENCE.md should trip this.
-	ASSERT_EQUALS(static_cast<std::size_t>(126), emitted);
+	ASSERT_EQUALS(static_cast<std::size_t>(128), emitted);
 }
 
 // The schema's irregularities are enumerated rather than merely counted: each is deliberate and

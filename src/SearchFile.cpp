@@ -43,7 +43,8 @@ CSearchFile::CSearchFile(const CMemFile &data,
 	uint32_t serverIP,
 	uint16_t serverPort,
 	const wxString &directory,
-	bool kademlia)
+	bool kademlia,
+	uint32_t kadAICHResponderIP)
 : m_parent(NULL)
 , m_showChildren(false)
 , m_searchID(searchID)
@@ -106,6 +107,13 @@ CSearchFile::CSearchFile(const CMemFile &data,
 		}
 	}
 
+	if (kademlia && kadAICHResponderIP != 0) {
+		CAICHHash root;
+		if (root.DecodeBase32(GetStrTagValue(FT_AICH_HASH)) == CAICHHash::GetHashSize()) {
+			m_kadAICHVotes.Add(kadAICHResponderIP, root);
+		}
+	}
+
 	if (!GetFileName().IsOk()) {
 		throw CInvalidPacket("No filename in search result");
 	}
@@ -129,6 +137,7 @@ CSearchFile::CSearchFile(const CSearchFile &other) // NOLINT(bugprone-copy-const
 , m_clientServerIP(other.m_clientServerIP)
 , m_clientServerPort(other.m_clientServerPort)
 , m_kadPublishInfo(other.m_kadPublishInfo)
+, m_kadAICHVotes(other.m_kadAICHVotes)
 {
 	for (size_t i = 0; i < other.m_children.size(); ++i) {
 		m_children.push_back(new CSearchFile(*other.m_children.at(i)));
@@ -330,8 +339,21 @@ void CSearchFile::AddClient(const ClientStruct &client)
 	m_clients.push_back(client);
 }
 
+bool CSearchFile::ApplyKadAICHVotes(CAICHHashSet &hashes) const
+{
+	const CSearchFile *evidence = GetParent() ? GetParent() : this;
+	if (!evidence->IsKademlia()) {
+		return false;
+	}
+	for (const auto &vote : evidence->GetKadAICHVotes()) {
+		hashes.UntrustedHashReceived(vote.second, vote.first);
+	}
+	return !evidence->GetKadAICHVotes().empty();
+}
+
 void CSearchFile::MergeResults(const CSearchFile &other)
 {
+	m_kadAICHVotes.Merge(other.m_kadAICHVotes);
 	// Sources
 	if (m_kademlia) {
 		m_sourceCount = std::max(m_sourceCount, other.m_sourceCount);
@@ -415,6 +437,7 @@ void CSearchFile::AddChild(CSearchFile *file)
 		}
 	}
 
+	m_kadAICHVotes.Merge(file->m_kadAICHVotes);
 	file->m_parent = this;
 
 	for (size_t i = 0; i < m_children.size(); ++i) {

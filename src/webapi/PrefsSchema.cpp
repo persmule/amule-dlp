@@ -287,6 +287,8 @@ const PrefField kSchema[] = {
 
 	// [kad] (EC group: KADEMLIA)
 	PREF_STR("kad", "update_url", EC_TAG_KADEMLIA_UPDATE_URL, PrefAccess::ReadWrite, kad.update_url),
+	PREF_BOOL("kad", "protocol10_enabled", EC_TAG_KADEMLIA_PROTOCOL10, PrefEnc::Value, false, PrefAccess::ReadWrite, kad.protocol10_enabled),
+	PREF_BOOL("kad", "strict_aich_publishers", EC_TAG_KADEMLIA_STRICT_AICH_PUBLISHERS, PrefEnc::Value, false, PrefAccess::ReadWrite, kad.strict_aich_publishers),
 
 	// [geoip] (EC group: IP2COUNTRY)
 	PREF_BOOL("geoip", "auto_update_enabled", EC_TAG_IP2COUNTRY_AUTO_UPDATE, PrefEnc::Value, false, PrefAccess::ReadWrite, geoip.auto_update_enabled),
