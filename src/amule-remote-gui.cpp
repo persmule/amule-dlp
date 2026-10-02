@@ -2412,6 +2412,19 @@ void CKnownFilesRem::ProcessItemUpdate(const CEC_SharedFile_Tag *tag, CKnownFile
 		file->SetLastUpload(lastUpload);
 	}
 
+	uint32 verifyDate;
+	wxString corruptMD4, corruptAICH;
+	const bool hasDate = tag->GetVerifyDate(verifyDate);
+	const bool hasMD4 = tag->GetVerifyCorruptMD4(corruptMD4);
+	const bool hasAICH = tag->GetVerifyCorruptAICH(corruptAICH);
+	CVerifyLocalDataResult verify = file->GetVerifyResult();
+	if (verify.ApplyUpdate(hasDate ? &verifyDate : nullptr,
+		    hasMD4 ? &corruptMD4 : nullptr,
+		    hasAICH ? &corruptAICH : nullptr,
+		    file->GetFileSize())) {
+		file->SetVerifyResult(verify);
+	}
+
 	tag->GetComment(file->m_strComment);
 	tag->GetRating(file->m_iRating);
 

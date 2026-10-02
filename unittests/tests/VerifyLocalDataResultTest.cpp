@@ -47,30 +47,28 @@ TEST(VerifyLocalDataResult, CleanResultEncodesToNothing)
 	CVerifyLocalDataResult result;
 	result.date = 1234;
 	ASSERT_FALSE(result.IsCorrupt());
-	ASSERT_TRUE(result.EncodeCorruptedMD4().IsEmpty());
-	ASSERT_TRUE(result.EncodeCorruptedAICH().IsEmpty());
+	ASSERT_TRUE(result.EncodedMD4().IsEmpty());
+	ASSERT_TRUE(result.EncodedAICH().IsEmpty());
 }
 
 TEST(VerifyLocalDataResult, EncodesTheDocumentedFormat)
 {
 	CVerifyLocalDataResult result;
-	result.corruptedMD4 = { 0, 2 };
-	result.corruptedAICH = { { 0, { 1, 5 } }, { 2, { 52 } } };
+	result.SetCorrupted({ 0, 2 }, { { 0, { 1, 5 } }, { 2, { 52 } } });
 	ASSERT_TRUE(result.IsCorrupt());
-	ASSERT_EQUALS(wxString("0,2"), result.EncodeCorruptedMD4());
-	ASSERT_EQUALS(wxString("0:1.5;2:52"), result.EncodeCorruptedAICH());
+	ASSERT_EQUALS(wxString("0,2"), result.EncodedMD4());
+	ASSERT_EQUALS(wxString("0:1.5;2:52"), result.EncodedAICH());
 }
 
 TEST(VerifyLocalDataResult, RoundTrips)
 {
 	CVerifyLocalDataResult in;
-	in.corruptedMD4 = { 1, 3 };
-	in.corruptedAICH = { { 1, { 0, 7, (uint8)(kFullPartBlocks - 1) } }, { 3, { 0 } } };
+	in.SetCorrupted({ 1, 3 }, { { 1, { 0, 7, (uint8)(kFullPartBlocks - 1) } }, { 3, { 0 } } });
 
 	CVerifyLocalDataResult out;
-	out.DecodeCorrupted(in.EncodeCorruptedMD4(), in.EncodeCorruptedAICH(), kFileSize);
-	ASSERT_TRUE(in.corruptedMD4 == out.corruptedMD4);
-	ASSERT_TRUE(in.corruptedAICH == out.corruptedAICH);
+	out.DecodeCorrupted(in.EncodedMD4(), in.EncodedAICH(), kFileSize);
+	ASSERT_TRUE(in.CorruptedMD4() == out.CorruptedMD4());
+	ASSERT_TRUE(in.CorruptedAICH() == out.CorruptedAICH());
 }
 
 // A damaged or hand-edited known.met must not smuggle impossible part or block numbers in.
@@ -78,14 +76,14 @@ TEST(VerifyLocalDataResult, DropsOutOfRangeRepeatedAndMalformed)
 {
 	CVerifyLocalDataResult out;
 	out.DecodeCorrupted("1,4,1,x,,3", "", kFileSize);
-	ASSERT_TRUE((CVerifyLocalDataResult::PartList{ 1, 3 }) == out.corruptedMD4);
+	ASSERT_TRUE((CVerifyLocalDataResult::PartList{ 1, 3 }) == out.CorruptedMD4());
 
 	// Part 4 does not exist; part 3 has only block 0; block kFullPartBlocks is one past the
 	// end of a full part; a repeated part keeps its first entry; no ':' is malformed.
 	out.DecodeCorrupted(
 		"", wxString(CFormat("4:0;3:0.1;0:%u.2.2;0:9;junk;2:") % kFullPartBlocks), kFileSize);
 	CVerifyLocalDataResult::BlockList expected = { { 3, { 0 } }, { 0, { 2 } } };
-	ASSERT_TRUE(expected == out.corruptedAICH);
+	ASSERT_TRUE(expected == out.CorruptedAICH());
 }
 
 // A file of exactly n * PARTSIZE has n parts, not n + 1.
@@ -93,8 +91,8 @@ TEST(VerifyLocalDataResult, ExactMultipleOfPartSize)
 {
 	CVerifyLocalDataResult out;
 	out.DecodeCorrupted("1,2", "1:0", 2 * PARTSIZE);
-	ASSERT_TRUE((CVerifyLocalDataResult::PartList{ 1 }) == out.corruptedMD4);
-	ASSERT_EQUALS(1u, (unsigned)out.corruptedAICH.size());
+	ASSERT_TRUE((CVerifyLocalDataResult::PartList{ 1 }) == out.CorruptedMD4());
+	ASSERT_EQUALS(1u, (unsigned)out.CorruptedAICH().size());
 }
 
 // Decoding replaces, never appends: CKnownFile reloads the same object when it copies a record.
@@ -104,4 +102,89 @@ TEST(VerifyLocalDataResult, DecodeReplacesPreviousLists)
 	out.DecodeCorrupted("0", "0:0", kFileSize);
 	out.DecodeCorrupted("", "", kFileSize);
 	ASSERT_FALSE(out.IsCorrupt());
+}
+
+// EC sends the cached strings, so decoding (known.met load, amulegui) must refresh them.
+TEST(VerifyLocalDataResult, DecodeCachesTheEncoding)
+{
+	CVerifyLocalDataResult out;
+	out.DecodeCorrupted("2,1", "1:3.0", kFileSize);
+	ASSERT_EQUALS(wxString("2,1"), out.EncodedMD4());
+	ASSERT_EQUALS(wxString("1:3.0"), out.EncodedAICH());
+	out.DecodeCorrupted("", "", kFileSize);
+	ASSERT_TRUE(out.EncodedMD4().IsEmpty());
+	ASSERT_TRUE(out.EncodedAICH().IsEmpty());
+}
+
+TEST(VerifyLocalDataResult, FormatsAICHLikeTheLogReport)
+{
+	CVerifyLocalDataResult result;
+	ASSERT_TRUE(result.FormatCorruptedAICH().IsEmpty());
+	result.SetCorrupted({}, { { 3, { 0, 5 } }, { 17, { 12 } } });
+	ASSERT_EQUALS(wxString("3: (0,5), 17: (12)"), result.FormatCorruptedAICH());
+}
+
+namespace
+{
+CVerifyLocalDataResult CorruptResult()
+{
+	CVerifyLocalDataResult result;
+	result.DecodeCorrupted("1,3", "1:0.7", kFileSize);
+	result.date = 1000;
+	return result;
+}
+} // namespace
+
+// amulegui's merge of an incremental EC update: only the tags that changed arrive.
+TEST(VerifyLocalDataResult, UpdateWithoutVerifyTagsChangesNothing)
+{
+	CVerifyLocalDataResult result = CorruptResult();
+	ASSERT_FALSE(result.ApplyUpdate(nullptr, nullptr, nullptr, kFileSize));
+	ASSERT_EQUALS(1000u, result.date);
+	ASSERT_EQUALS(wxString("1,3"), result.EncodedMD4());
+}
+
+// A new check that found the same damage changes only the date.
+TEST(VerifyLocalDataResult, DateOnlyUpdateKeepsTheLists)
+{
+	CVerifyLocalDataResult result = CorruptResult();
+	const uint32 date = 2000;
+	ASSERT_TRUE(result.ApplyUpdate(&date, nullptr, nullptr, kFileSize));
+	ASSERT_EQUALS(2000u, result.date);
+	ASSERT_TRUE((CVerifyLocalDataResult::PartList{ 1, 3 }) == result.CorruptedMD4());
+	CVerifyLocalDataResult::BlockList expected = { { 1, { 0, 7 } } };
+	ASSERT_TRUE(expected == result.CorruptedAICH());
+}
+
+// One list changing, even to empty, leaves the other as it was.
+TEST(VerifyLocalDataResult, SingleListUpdateKeepsTheOther)
+{
+	CVerifyLocalDataResult result = CorruptResult();
+	const wxString noParts;
+	ASSERT_TRUE(result.ApplyUpdate(nullptr, &noParts, nullptr, kFileSize));
+	ASSERT_TRUE(result.CorruptedMD4().empty());
+	ASSERT_EQUALS(wxString("1:0.7"), result.EncodedAICH());
+	ASSERT_EQUALS(1000u, result.date);
+}
+
+// A repaired file: new date, both lists emptied.
+TEST(VerifyLocalDataResult, FullUpdateReplacesTheResult)
+{
+	CVerifyLocalDataResult result = CorruptResult();
+	const uint32 date = 3000;
+	const wxString empty;
+	ASSERT_TRUE(result.ApplyUpdate(&date, &empty, &empty, kFileSize));
+	ASSERT_EQUALS(3000u, result.date);
+	ASSERT_FALSE(result.IsCorrupt());
+}
+
+// The core's reset to "never verified" (date 0) reaches amulegui like any other update.
+TEST(VerifyLocalDataResult, ResetToNeverVerified)
+{
+	CVerifyLocalDataResult result = CorruptResult();
+	const uint32 date = 0;
+	const wxString empty;
+	ASSERT_TRUE(result.ApplyUpdate(&date, &empty, &empty, kFileSize));
+	ASSERT_EQUALS(0u, result.date);
+	ASSERT_FALSE(result.IsCorrupt());
 }

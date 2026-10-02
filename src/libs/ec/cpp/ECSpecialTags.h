@@ -103,6 +103,10 @@ public:
 		m_map_tag = valuemap.m_map_tag;
 	}
 
+	// Whether an integer tag was ever sent through this map (they all go through uint64): lets a
+	// caller that omits a value while it is zero still send its reset to zero.
+	bool HasSentInt(ec_tagname_t tagname) const { return m_map_uint64.count(tagname) > 0; }
+
 	void CreateTag(ec_tagname_t tagname, uint8 value, CECTag *parent)
 	{
 		CreateTagT<uint8>(tagname, value, m_map_uint8, parent);
@@ -414,6 +418,20 @@ public:
 	time_t GetLastUpload(time_t *target = nullptr) const
 	{
 		return AssignIfExist(EC_TAG_KNOWNFILE_LAST_UPLOAD, target);
+	}
+
+	// Last Verify Local Data result, in the FT_VERIFY_* encoding.
+	bool GetVerifyDate(uint32 &target) const
+	{
+		return AssignIfExist(EC_TAG_KNOWNFILE_VERIFY_DATE, target);
+	}
+	bool GetVerifyCorruptMD4(wxString &target) const
+	{
+		return AssignIfExist(EC_TAG_KNOWNFILE_VERIFY_CORRUPT_MD4, target);
+	}
+	bool GetVerifyCorruptAICH(wxString &target) const
+	{
+		return AssignIfExist(EC_TAG_KNOWNFILE_VERIFY_CORRUPT_AICH, target);
 	}
 
 	bool GetComment(wxString &target) const { return AssignIfExist(EC_TAG_KNOWNFILE_COMMENT, target); }
