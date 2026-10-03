@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-03 11:27+0100\n"
-"PO-Revision-Date: 2026-10-02 00:50+0000\n"
+"PO-Revision-Date: 2026-10-03 12:53+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -7166,19 +7166,19 @@ msgid "No valid servers to which to connect found in server list"
 msgstr "В списке серверов не найдено ни одного доступного сервера"
 
 #: src/ServerConnect.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Connected to %s (%s:%i), sending login request"
-msgstr "Подключён к %s (%s:%i)"
+msgstr "Подключён к %s (%s:%i), отправка запроса на вход"
 
 #: src/ServerConnect.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Obfuscated connection established on: %s (%s:%i)"
-msgstr "Установлено соединение с: %s"
+msgstr "Установлено запутанное соединение с: %s (%s:%i)"
 
 #: src/ServerConnect.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Connection established on: %s (%s:%i)"
-msgstr "Установлено соединение с: %s"
+msgstr "Установлено соединение с: %s (%s:%i)"
 
 #: src/ServerConnect.cpp
 msgid "Fatal Error while trying to connect. Internet connection might be down"

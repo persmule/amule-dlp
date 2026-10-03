@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-03 11:27+0100\n"
-"PO-Revision-Date: 2026-10-02 00:44+0000\n"
+"PO-Revision-Date: 2026-10-03 12:42+0000\n"
 "Last-Translator: minterior <minterior@gmail.com>\n"
 "Language-Team: Català\n"
 "Language: ca\n"
@@ -210,11 +210,16 @@ msgid ""
 "\n"
 "The file is deleted and no longer shared. This cannot be undone."
 msgstr ""
+"Esteu segur que voleu esborrar «%s» del disc?\n"
+"\n"
+"Fitxer: %s\n"
+"\n"
+"El fitxer s'esborrarà i deixarà de compartir-se. Això no es pot desfer."
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "... and %i more"
-msgstr ""
+msgstr "... i %i més"
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -224,26 +229,29 @@ msgid ""
 "%s\n"
 "The files are deleted and no longer shared. This cannot be undone."
 msgstr ""
+"Esteu segur que voleu esborrar del disc els %i fitxers seleccionats?\n"
+"\n"
+"%s\n"
+"Els fitxers s'esborraran i deixaran de compartir-se. Això no es pot desfer."
 
 #: src/GuiEvents.cpp
-#, fuzzy
 msgid "Delete from disk"
-msgstr "Obtén de Kad"
+msgstr "Esborra del disc"
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Skipped deleting '%s': the selected file has changed."
-msgstr ""
+msgstr "S'ha omès l'esborrat de «%s»: el fitxer seleccionat ha canviat."
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Deleted '%s' from disk."
-msgstr ""
+msgstr "S'ha esborrat «%s» del disc."
 
 #: src/GuiEvents.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not delete '%s' from disk."
-msgstr "No s'ha pogut suprimir la categoria: %s"
+msgstr "No s'ha pogut esborrar «%s» del disc."
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -256,6 +264,13 @@ msgid ""
 "Yes: stop sharing and remove the list entries. A later share scan may share the files again.\n"
 "No: keep the files shared and listed."
 msgstr ""
+"No s'han pogut esborrar aquests fitxers del disc:\n"
+"\n"
+"%s\n"
+"Voleu treure'ls igualment dels compartits i de la llista de transferències completades?\n"
+"\n"
+"Sí: deixar de compartir-los i treure'n les entrades de la llista. Un examen posterior dels compartits podria tornar a compartir els fitxers.\n"
+"No: mantenir els fitxers compartits i a la llista."
 
 #: src/amuleAppCommon.cpp
 msgid "Failed to open ED2KLinks file."
@@ -604,7 +619,7 @@ msgstr "Metadades multimèdia: el fitxer analitzat ja no es coneix; s'ha descart
 #: src/amule.cpp
 #, c-format
 msgid "Verify Local Data: another file named '%s' in your shared folders has the same content as '%s' and may be an intact copy of it."
-msgstr ""
+msgstr "Verificació de dades locals: un altre fitxer anomenat «%s» de les vostres carpetes compartides té el mateix contingut que «%s» i en podria ser una còpia intacta."
 
 #: src/amule.cpp
 #, c-format
@@ -1985,9 +2000,8 @@ msgid "C&lear completed"
 msgstr "&Neteja els completats"
 
 #: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-#, fuzzy
 msgid "Delete file from &disk"
-msgstr "S'està esborrant el fitxer: %s"
+msgstr "Esborra el fitxer del &disc"
 
 #: src/DownloadListCtrl.cpp
 msgid "Swap every A4AF to this file now"
@@ -4674,13 +4688,12 @@ msgid "Reconnect on loss"
 msgstr "Reconnecta en perdre la connexió"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Kad protocol version"
-msgstr "Versió del protocol invàlida."
+msgstr "Versió del protocol Kad"
 
 #: src/muuli_wdr.cpp
 msgid "Advertise Kad protocol 0x0a (AICH keyword storage)"
-msgstr ""
+msgstr "Anuncia el protocol Kad 0x0a (emmagatzematge AICH de paraules clau)"
 
 #: src/muuli_wdr.cpp
 msgid ""
@@ -4692,10 +4705,17 @@ msgid ""
 "\n"
 "Hashes learned from Kad search results remain untrusted until download sources corroborate them. Reported publisher counts alone never authorize AICH recovery."
 msgstr ""
+"Quan s'activa, l'aMule anuncia la versió 0x0a del protocol Kad i processa els hash AICH dels resultats de publicació i cerca de paraules clau.\n"
+"\n"
+"AVÍS: Activar aquesta opció pot fer que els clients Kad antics (anteriors a la 0.49b), que no poden interpretar les etiquetes AICH dels resultats, descartin resultats de cerca. La majoria dels clients actuals ho admeten, però si observeu que falten resultats de cerca, proveu de desactivar aquesta opció.\n"
+"\n"
+"Desactivar aquesta opció descarta les dades AICH de l'índex de paraules clau desades en el següent desament; tornar-la a activar obliga a recollir aquestes dades de nou.\n"
+"\n"
+"Els hash obtinguts dels resultats de cerca de Kad no es consideren fiables fins que les fonts de baixada els corroboren. Els recomptes de publicadors notificats, per si sols, mai no autoritzen la recuperació AICH."
 
 #: src/muuli_wdr.cpp
 msgid "Reject AICH publish tags from legacy Kad peers (< 0x09)"
-msgstr ""
+msgstr "Rebutja les etiquetes de publicació AICH dels parells Kad antics (< 0x09)"
 
 #: src/muuli_wdr.cpp
 msgid ""
@@ -4703,6 +4723,9 @@ msgid ""
 "\n"
 "WARNING: This may reject legitimate publishers whose routing-table version is stale, reducing AICH hash coverage. Nodes with unknown version are still accepted. Hashes learned from Kad search results require download-source corroboration regardless of this setting."
 msgstr ""
+"Quan s'activa, es rebutgen les etiquetes de publicació de paraules clau AICH dels nodes que anuncien una versió de Kad inferior a 0x09, perquè aquestes versions no admeten l'emmagatzematge AICH de paraules clau. Les versions anunciades no demostren que un publicador sigui de confiança.\n"
+"\n"
+"AVÍS: Això pot rebutjar publicadors legítims la versió dels quals a la taula d'encaminament estigui desactualitzada, cosa que redueix la cobertura de hash AICH. Els nodes amb una versió desconeguda s'accepten igualment. Els hash obtinguts dels resultats de cerca de Kad requereixen la corroboració de fonts de baixada independentment d'aquest paràmetre."
 
 #: src/muuli_wdr.cpp
 msgid "Remove dead server after"
