@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-03 11:27+0100\n"
-"PO-Revision-Date: 2026-10-02 00:44+0000\n"
+"PO-Revision-Date: 2026-10-03 12:42+0000\n"
 "Last-Translator: David Watzke <david@watzke.cz>\n"
 "Language-Team: cs <cs@li.org>\n"
 "Language: cs\n"
@@ -1350,7 +1350,7 @@ msgstr "Zavřít ostatní karty"
 
 #: src/ChatWnd.cpp src/ClientContextActions.cpp
 msgid "Add to Friends"
-msgstr "Přidat mezi přátele"
+msgstr "Přidat mezi kamarády"
 
 #: src/ClientContextActions.cpp src/FriendListCtrl.cpp
 msgid "Show &Details"
@@ -5631,7 +5631,7 @@ msgstr "Filtrovat všechny zprávy"
 
 #: src/muuli_wdr.cpp
 msgid "Filter messages from people not on your friend list"
-msgstr "Filtrovat zprávy od lidí, kteří nejsou na seznamu přátel"
+msgstr "Filtrovat zprávy od lidí, kteří nejsou na seznamu kamarádů"
 
 #: src/muuli_wdr.cpp
 msgid "Filter messages from unknown clients"
@@ -9632,7 +9632,7 @@ msgstr "Odstranit soubory aplikace aMule, zástupce v nabídce Start / na ploše
 
 #: packaging/windows/installer_strings.c
 msgid "Permanently delete %APPDATA%\\aMule for the current user (aMule.conf, ED2K server list, Kad nodes, partfiles, IP filters, friends list). Leave unchecked to keep your settings."
-msgstr "Trvale smazat %APPDATA%\\aMule pro aktuálního uživatele (aMule.conf, seznam ED2K serverů, Kad uzly, dočasné soubory, IP filtry, seznam přátel). Ponechte nezaškrtnuté, chcete-li si zachovat svá nastavení."
+msgstr "Trvale smazat %APPDATA%\\aMule pro aktuálního uživatele (aMule.conf, seznam ED2K serverů, Kad uzly, dočasné soubory, IP filtry, seznam kamarádů). Ponechte nezaškrtnuté, chcete-li si zachovat svá nastavení."
 
 #: packaging/windows/installer_strings.c
 msgid ""
