@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
-"POT-Creation-Date: 2026-10-02 15:14+0200\n"
+"POT-Creation-Date: 2026-10-03 11:27+0100\n"
 "PO-Revision-Date: 2026-10-02 00:52+0000\n"
 "Last-Translator: Wayne Su <mstarmstar@gmail.com>\n"
 "Language-Team: \n"
@@ -1184,6 +1184,10 @@ msgstr ""
 msgid "Unknown"
 msgstr "不明"
 
+#: src/amule-remote-gui.cpp
+msgid "The connected daemon does not support All searches."
+msgstr ""
+
 #: src/BaseClient.cpp
 msgid "Searching buddy for lowid connection"
 msgstr "搜尋 LowID 連線好友"
@@ -1834,7 +1838,7 @@ msgstr "本地伺服器"
 msgid "Remote Server"
 msgstr "遠端伺服器"
 
-#: src/DataToText.cpp src/KadDlg.cpp src/muuli_wdr.cpp src/SearchDlg.cpp
+#: src/DataToText.cpp src/KadDlg.cpp src/muuli_wdr.cpp src/SearchModeIcons.h
 #: src/TextClient.cpp
 msgid "Kad"
 msgstr "Kad"
@@ -3981,13 +3985,10 @@ msgstr "搜尋"
 msgid "Type"
 msgstr "類型"
 
-#: src/muuli_wdr.cpp src/SearchDlg.cpp src/SearchListCtrl.cpp
-msgid "Local"
-msgstr "本地"
-
 #: src/muuli_wdr.cpp
-msgid "Global"
-msgstr "全球"
+#, fuzzy
+msgid "Search network"
+msgstr "搜尋錯誤"
 
 #: src/muuli_wdr.cpp
 msgid "Extended Parameters"
@@ -6872,8 +6873,17 @@ msgid "Invalid entry in stored search list, file may be corrupt"
 msgstr "已知檔案清單內有無效的項目，檔案可能有損壞： "
 
 #: src/SearchList.cpp
+#, fuzzy
+msgid "All search can't be done if neither eD2k nor Kad is available"
+msgstr "Kad 網路尚未連線，無法使用 Kad 搜尋"
+
+#: src/SearchList.cpp
 msgid "eD2k search can't be done if eD2k is not connected"
 msgstr "eD2k 網路尚未連線，無法使用 eD2k 搜尋"
+
+#: src/SearchList.cpp
+msgid "All search: no usable Kad keyword; continuing with eD2k."
+msgstr ""
 
 #: src/SearchList.cpp
 msgid "No keyword for Kad search - aborting"
@@ -6882,6 +6892,10 @@ msgstr "Kad 搜尋沒有關鍵字 - 已中止"
 #: src/SearchList.cpp
 msgid "Unexpected error while attempting Kad search: "
 msgstr "試圖 Kad 搜尋時發生無法預料的錯誤："
+
+#: src/SearchList.cpp
+msgid "All search: Kad component could not start: "
+msgstr ""
 
 #: src/SearchList.cpp
 msgid "Search timed out: the server did not answer."
@@ -6937,6 +6951,39 @@ msgstr "已取消"
 msgid "New"
 msgstr "新"
 
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "eD2k: Current server"
+msgstr "eD2k 伺服器清單（server.met）"
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "eD2k: All servers"
+msgstr "移除所有伺服器"
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "All networks"
+msgstr "無網路"
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "Search the connected eD2k server."
+msgstr "目前連線的伺服器。"
+
+#: src/SearchModeIcons.h
+msgid "Search the connected eD2k server and other servers in the server list."
+msgstr ""
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "Search the Kad network."
+msgstr "連線到網路。"
+
+#: src/SearchModeIcons.h
+msgid "Search eD2k servers and Kad, using whichever networks are available."
+msgstr ""
+
 #: src/SearchProgressReport.cpp
 #, fuzzy
 msgid "running"
@@ -6977,6 +7024,40 @@ msgstr "沒有進行中的搜尋"
 #: src/SearchProgressReport.cpp
 msgid "No search to report on.\n"
 msgstr ""
+
+#: src/SearchSourceFormat.h
+#, c-format
+msgid "Estimated availability: %u"
+msgstr ""
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "eD2k sources: %u"
+msgstr "檔案來源："
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "Kad sources: %u"
+msgstr "找到的來源數：%s"
+
+#: src/SearchSourceFormat.h
+msgid "Network counts may overlap; they are not added together."
+msgstr ""
+
+#: src/SearchSourceFormat.h
+#, fuzzy
+msgid "Network breakdown unavailable."
+msgstr "有新版本可用"
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "Complete sources: %u"
+msgstr "完整來源"
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "Direct client endpoints: %u"
+msgstr "新客戶端 ID：%u"
 
 #: src/ServerConnect.cpp
 msgid "Failed to connect to all obfuscated static servers listed. Making another pass without obfuscation."
@@ -8075,6 +8156,10 @@ msgstr "不是有效的數字\n"
 msgid "Not a valid hash (length should be exactly 32 chars)\n"
 msgstr "不是有效的 hash 值 (必須爲 32 碼)\n"
 
+#: src/TextClient.cpp
+msgid "The connected daemon does not support All searches.\n"
+msgstr ""
+
 #. TRANSLATORS:
 #. 'help search' is a command to the program, do not translate it.
 #: src/TextClient.cpp
@@ -8470,11 +8555,13 @@ msgid "Execute a search."
 msgstr "執行搜尋。"
 
 #: src/TextClient.cpp
+#, fuzzy
 msgid ""
 "A search type has to be specified by giving the type:\n"
 "    GLOBAL\n"
 "    LOCAL\n"
 "    KAD\n"
+"    ALL: All networks (requires daemon support)\n"
 "Example: 'search kad file' will execute a kad search for \"file\".\n"
 "\n"
 "Optional filters can be added before, after, or interleaved with\n"
@@ -8513,6 +8600,11 @@ msgstr "執行本地搜尋"
 
 #: src/TextClient.cpp
 msgid "Execute a kad search"
+msgstr "執行 Kad 搜尋"
+
+#: src/TextClient.cpp
+#, fuzzy
+msgid "Execute an eD2k and Kad search"
 msgstr "執行 Kad 搜尋"
 
 #: src/TextClient.cpp
@@ -9527,6 +9619,12 @@ msgstr "aMule 似乎正在執行中。請將其關閉後重新執行解除安裝
 #: packaging/windows/installer_strings.c
 msgid "Removing user data at $APPDATA\\aMule..."
 msgstr "正在移除位於 $APPDATA\\aMule 的使用者資料……"
+
+#~ msgid "Local"
+#~ msgstr "本地"
+
+#~ msgid "Global"
+#~ msgstr "全球"
 
 #~ msgid ""
 #~ "The number of a file from the last search has to be given.\n"

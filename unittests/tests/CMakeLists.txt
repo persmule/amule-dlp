@@ -1971,6 +1971,28 @@ target_include_directories (SearchRequestTest PRIVATE
 )
 target_link_libraries (SearchRequestTest muleunit mulecommon)
 
+# Source estimates must be independent of network arrival order and filename grouping.
+add_executable (SearchSourceCountTest SearchSourceCountTest.cpp)
+add_test (NAME SearchSourceCountTest COMMAND SearchSourceCountTest)
+target_include_directories (SearchSourceCountTest PRIVATE
+	${CMAKE_SOURCE_DIR}/src
+	${CMAKE_SOURCE_DIR}/src/libs
+)
+target_link_libraries (SearchSourceCountTest muleunit mulecommon)
+
+# AllSearch type (issue #1542): enum/EC alignment and CSearchRequest reuse logic.
+add_executable (AllSearchTypeTest AllSearchTypeTest.cpp)
+add_test (NAME AllSearchTypeTest COMMAND AllSearchTypeTest)
+target_include_directories (AllSearchTypeTest PRIVATE
+	${CMAKE_BINARY_DIR}
+	${CMAKE_SOURCE_DIR}/src
+	${CMAKE_SOURCE_DIR}/src/include
+	${CMAKE_SOURCE_DIR}/src/libs
+	${CMAKE_BINARY_DIR}/src/libs
+	${CMAKE_BINARY_DIR}/src/libs/ec/cpp
+)
+target_link_libraries (AllSearchTypeTest muleunit mulecommon ec)
+
 # Where amule/amuled look for amuleweb and amuleapi before falling back to PATH.
 add_executable (HelperBinaryPathTest HelperBinaryPathTest.cpp)
 add_test (NAME HelperBinaryPathTest COMMAND HelperBinaryPathTest)
@@ -1996,6 +2018,26 @@ if (UNIX AND NOT APPLE)
 	)
 	target_link_libraries (AutostartManagerTest muleunit mulecommon)
 endif()
+
+# EC and eD2k loopback integration: isolated config, no public servers or Kad peers.
+# Opt in for CI/development; daemon timing assumptions must not affect package builds.
+option (ENABLE_ALL_SEARCH_INTEGRATION_TEST "Register daemon loopback AllSearch integration test" OFF)
+if (ENABLE_ALL_SEARCH_INTEGRATION_TEST AND BUILD_DAEMON AND UNIX AND NOT APPLE)
+	find_package (Python3 QUIET COMPONENTS Interpreter)
+	if (Python3_Interpreter_FOUND)
+		add_test (NAME AllSearchIntegrationTest
+			COMMAND ${Python3_EXECUTABLE}
+				${CMAKE_CURRENT_SOURCE_DIR}/AllSearchIntegrationTest.py $<TARGET_FILE:amuled>
+		)
+		if (BUILD_AMULEAPI AND BUILD_AMULECMD)
+			add_test (NAME AllSearchClientCapabilityTest
+				COMMAND ${Python3_EXECUTABLE}
+					${CMAKE_CURRENT_SOURCE_DIR}/AllSearchClientCapabilityTest.py
+					$<TARGET_FILE:amuleapi> $<TARGET_FILE:amulecmd>
+			)
+		endif ()
+	endif ()
+endif ()
 
 # Exercise native scrolling/sizer behavior without starting the aMule application.
 # MuleUnit defines wxUSE_GUI=0, so this test owns a minimal wxApp instead.

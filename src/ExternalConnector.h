@@ -199,6 +199,7 @@ public:
 		return m_ECClient->SendRecvPacket(request);
 	}
 	void SendPacket(const CECPacket *request) { m_ECClient->SendPacket(request); }
+	bool IsServerSearchAllActive() const { return m_ECClient && m_ECClient->ServerSupportsSearchAll(); }
 	bool IsServerPartialUpdateActive() const { return m_ECClient->ServerSupportsPartialUpdate(); }
 	// True when an id-less EC_OP_SEARCH_PROGRESS returns every search as children, so a client
 	// polling N searches can do it in one round trip. Null-checked: the refresher can reach

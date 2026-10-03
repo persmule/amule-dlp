@@ -4,6 +4,7 @@
 // navigates to another section and the tabs have to survive that.
 
 import { api } from "../api.js";
+import { data } from "../events.js";
 import { html, useState, useEffect, useStore } from "../dom.js";
 import { Badge, checkCell, listPlaceholder, Tabs, CommentsList, ratingLabel, toast } from "../components.js";
 import { VirtualTable, sortRows, textMatcher, useTablePrefs, ColumnPicker } from "../table.js";
@@ -32,6 +33,8 @@ export default function Search({ isGuest }) {
   const [maxSize, setMaxSize] = useState("");
   const [maxUnit, setMaxUnit] = useState("MiB");
   const [categories, setCategories] = useState([]);
+  const status = useStore("status");
+  const supportsAll = status?.search_all_supported === true;
 
   // The registry publishes the light tab list; the heavy results array rides
   // its own key, consumed by the pane below.
@@ -43,6 +46,7 @@ export default function Search({ isGuest }) {
     // already holds (this browser's searches, another client's, or ones
     // restored across a restart).
     searches.ensure();
+    data.ensureStatus();
     // An unopened tab has no amuleapi slot, so no SSE refreshes its badge --
     // re-list on every mount instead. Debounced, so the first one is free.
     searches.nudgeAdopt();
@@ -94,6 +98,7 @@ export default function Search({ isGuest }) {
         ${field(t("search_query"), html`<input class="input" name="query" type="text" placeholder=${t("search_terms_ph")} required value=${query} onInput=${(e) => setQuery(e.target.value)} />`, "field-wide")}
         ${field(t("search_type"), html`<select class="input" name="search_type" value=${type} onChange=${(e) => setType(e.target.value)}>
           <option value="global">${t("search_type_global")}</option><option value="local">${t("search_type_local")}</option><option value="kad">${t("search_type_kad")}</option>
+          ${supportsAll && html`<option value="all">${t("search_type_all")}</option>`}
         </select>`)}
         ${field(t("search_file_type"), html`<select class="input" name="search_file_type" value=${fileType} onChange=${(e) => setFileType(e.target.value)}>
           ${FILE_TYPES.map((v) => html`<option value=${v}>${v ? fileTypeLabel(v) : t("search_ftype_any")}</option>`)}
@@ -324,8 +329,8 @@ function ResultsPane({ tab, categories }) {
   // Extend greys out rather than hiding, like Stop, and its title names which
   // of the three conditions is in the way -- the last being the daemon having
   // told us this search can no longer be widened (409 kad_more_exhausted).
-  const canExtend = tab.kind === "kad" && running && !tab.moreExhausted;
-  const extendTitle = tab.kind !== "kad" ? t("search_extend_kad_only")
+  const canExtend = tab.kadActive && running && !tab.moreExhausted;
+  const extendTitle = !tab.kadActive ? t("search_extend_kad_only")
     : !running ? t("search_extend_finished")
     : tab.moreExhausted ? t("search_extend_exhausted")
     : t("search_extend_title");

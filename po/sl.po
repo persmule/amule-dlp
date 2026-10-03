@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
-"POT-Creation-Date: 2026-10-02 15:14+0200\n"
+"POT-Creation-Date: 2026-10-03 11:27+0100\n"
 "PO-Revision-Date: 2026-10-02 00:50+0000\n"
 "Last-Translator: Jure Repinc <jlp@holodeck1.com>\n"
 "Language-Team: Slovenian\n"
@@ -1183,6 +1183,10 @@ msgstr ""
 msgid "Unknown"
 msgstr "Neznano"
 
+#: src/amule-remote-gui.cpp
+msgid "The connected daemon does not support All searches."
+msgstr ""
+
 #: src/BaseClient.cpp
 msgid "Searching buddy for lowid connection"
 msgstr "Iskanje kolega za povezavo z nizkim ID-jem"
@@ -1861,7 +1865,7 @@ msgstr "Krajevni strežnik"
 msgid "Remote Server"
 msgstr "Oddaljni strežnik"
 
-#: src/DataToText.cpp src/KadDlg.cpp src/muuli_wdr.cpp src/SearchDlg.cpp
+#: src/DataToText.cpp src/KadDlg.cpp src/muuli_wdr.cpp src/SearchModeIcons.h
 #: src/TextClient.cpp
 msgid "Kad"
 msgstr "Kad"
@@ -4040,13 +4044,10 @@ msgstr "Iskanje"
 msgid "Type"
 msgstr "Vrsta"
 
-#: src/muuli_wdr.cpp src/SearchDlg.cpp src/SearchListCtrl.cpp
-msgid "Local"
-msgstr "Krajevno"
-
 #: src/muuli_wdr.cpp
-msgid "Global"
-msgstr "Globalno"
+#, fuzzy
+msgid "Search network"
+msgstr "Napaka iskanja"
 
 #: src/muuli_wdr.cpp
 msgid "Extended Parameters"
@@ -6968,8 +6969,17 @@ msgid "Invalid entry in stored search list, file may be corrupt"
 msgstr "Neveljaven vnos na seznamu znanih datotek, datoteka je morda pokvarjena: "
 
 #: src/SearchList.cpp
+#, fuzzy
+msgid "All search can't be done if neither eD2k nor Kad is available"
+msgstr "Iskanje preko Kad ni mogoče, če Kad ne teče"
+
+#: src/SearchList.cpp
 msgid "eD2k search can't be done if eD2k is not connected"
 msgstr "Iskanje preko eD2k ni mogoče, če eD2k ni povezan"
+
+#: src/SearchList.cpp
+msgid "All search: no usable Kad keyword; continuing with eD2k."
+msgstr ""
 
 #: src/SearchList.cpp
 msgid "No keyword for Kad search - aborting"
@@ -6978,6 +6988,10 @@ msgstr "Brez ključne besede za iskanje – prekinjam"
 #: src/SearchList.cpp
 msgid "Unexpected error while attempting Kad search: "
 msgstr "Nepričakovana napaka med iskanjem Kad: "
+
+#: src/SearchList.cpp
+msgid "All search: Kad component could not start: "
+msgstr ""
 
 #: src/SearchList.cpp
 msgid "Search timed out: the server did not answer."
@@ -7033,6 +7047,39 @@ msgstr "Preklicano"
 msgid "New"
 msgstr "Novo"
 
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "eD2k: Current server"
+msgstr "Seznam strežnikov eD2k (server.met)"
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "eD2k: All servers"
+msgstr "Odstrani vse strežnike"
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "All networks"
+msgstr "Brez omrežja"
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "Search the connected eD2k server."
+msgstr "Trenutno povezan strežnik."
+
+#: src/SearchModeIcons.h
+msgid "Search the connected eD2k server and other servers in the server list."
+msgstr ""
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "Search the Kad network."
+msgstr "Poveži se z omrežjem."
+
+#: src/SearchModeIcons.h
+msgid "Search eD2k servers and Kad, using whichever networks are available."
+msgstr ""
+
 #: src/SearchProgressReport.cpp
 #, fuzzy
 msgid "running"
@@ -7073,6 +7120,40 @@ msgstr "Napredek iskanja ni na voljo"
 #: src/SearchProgressReport.cpp
 msgid "No search to report on.\n"
 msgstr ""
+
+#: src/SearchSourceFormat.h
+#, c-format
+msgid "Estimated availability: %u"
+msgstr ""
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "eD2k sources: %u"
+msgstr "Viri datoteke:"
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "Kad sources: %u"
+msgstr "Najdeni viri: %s"
+
+#: src/SearchSourceFormat.h
+msgid "Network counts may overlap; they are not added together."
+msgstr ""
+
+#: src/SearchSourceFormat.h
+#, fuzzy
+msgid "Network breakdown unavailable."
+msgstr "Na voljo je nova različica"
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "Complete sources: %u"
+msgstr "Popolnih virov"
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "Direct client endpoints: %u"
+msgstr "Nov odjemalčev ID je %u"
 
 #: src/ServerConnect.cpp
 msgid "Failed to connect to all obfuscated static servers listed. Making another pass without obfuscation."
@@ -8225,6 +8306,10 @@ msgstr "Ni veljavno število\n"
 msgid "Not a valid hash (length should be exactly 32 chars)\n"
 msgstr "Ni veljavna koda (dolžina mora biti točno 32 znakov)\n"
 
+#: src/TextClient.cpp
+msgid "The connected daemon does not support All searches.\n"
+msgstr ""
+
 #. TRANSLATORS:
 #. 'help search' is a command to the program, do not translate it.
 #: src/TextClient.cpp
@@ -8617,11 +8702,13 @@ msgid "Execute a search."
 msgstr "Izvrši iskanje."
 
 #: src/TextClient.cpp
+#, fuzzy
 msgid ""
 "A search type has to be specified by giving the type:\n"
 "    GLOBAL\n"
 "    LOCAL\n"
 "    KAD\n"
+"    ALL: All networks (requires daemon support)\n"
 "Example: 'search kad file' will execute a kad search for \"file\".\n"
 "\n"
 "Optional filters can be added before, after, or interleaved with\n"
@@ -8660,6 +8747,11 @@ msgstr "Izvrši krajevno iskanje."
 
 #: src/TextClient.cpp
 msgid "Execute a kad search"
+msgstr "Izvrši iskanje kad."
+
+#: src/TextClient.cpp
+#, fuzzy
+msgid "Execute an eD2k and Kad search"
 msgstr "Izvrši iskanje kad."
 
 #: src/TextClient.cpp
@@ -9673,6 +9765,12 @@ msgstr "Videti je, da se aMule izvaja. Zaprite ga in znova zaženite odstranitve
 #: packaging/windows/installer_strings.c
 msgid "Removing user data at $APPDATA\\aMule..."
 msgstr "Odstranjevanje uporabniških podatkov na $APPDATA\\aMule..."
+
+#~ msgid "Local"
+#~ msgstr "Krajevno"
+
+#~ msgid "Global"
+#~ msgstr "Globalno"
 
 #~ msgid ""
 #~ "The number of a file from the last search has to be given.\n"

@@ -182,6 +182,10 @@ search. Several searches can run at once, each with its own id.
 
 Available search types:
 .RS
+.IP All 10
+Searches eD2k and Kad together, using the available network if the other cannot
+start. Requires a daemon advertising All search support; older daemons return
+a clear error without starting a search. Example: 'search all amule'.
 .IP Global 10
 Performs a global search.
 .IP Kad 10

@@ -232,6 +232,7 @@ private:
 	// falls into ProcessRequest2's unknown-opcode branch and trips a wxFAIL. Without
 	// the list the GUI sees only the searches it started itself.
 	bool m_serverSearchList;
+	bool m_serverSearchAll;
 
 	// Steady-clock stamp of the last packet received from the daemon. Steady, not
 	// wall-clock: a system clock step (NTP, sleep/wake) must not read as a stall.
@@ -329,6 +330,7 @@ public:
 	bool ServerSupportsSharedDirsConfig() const { return m_serverSharedDirsConfig; }
 
 	bool ServerSupportsSearchList() const { return m_serverSearchList; }
+	bool ServerSupportsSearchAll() const { return m_serverSearchAll; }
 
 	bool ServerSupportsSearchProgressUnion() const { return m_serverSearchProgressUnion; }
 

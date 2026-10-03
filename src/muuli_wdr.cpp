@@ -43,6 +43,7 @@
 
 #include <wx/artprov.h> // Needed for the "amule:" art ids (status bar + transfer window icons)
 #include <wx/intl.h>
+#include <wx/bmpcbox.h>
 #include <wx/wrapsizer.h> // Needed for the responsive statistics legends
 
 // Euro sign hack of the year
@@ -238,13 +239,9 @@ wxSizer *searchDlg( wxWindow *parent, bool call_fit, bool set_sizer )
 
     wxStaticText *item7 = new wxStaticText( item2, -1, _("Type"), wxDefaultPosition, wxDefaultSize, 0 );
     item6->Add( item7, wxSizerFlags().Center().Border(wxALL, 5) );
-    wxString strs8[] = 
-    {
-        _("Local"), 
-        _("Global"), 
-        _("Kad")
-    };
-    wxChoice *item8 = new wxChoice( item2, ID_SEARCHTYPE, wxDefaultPosition, wxDefaultSize, 3, strs8, 0 );
+    wxBitmapComboBox *item8 = new wxBitmapComboBox( item2, ID_SEARCHTYPE, wxEmptyString,
+        wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY );
+    item8->SetName( _("Search network") );
     item6->Add( item8, wxSizerFlags().Center().Border(wxALL, 5) );
     wxStaticLine *item9 = new wxStaticLine( item2, -1, wxDefaultPosition, wxSize(-1,20), wxLI_VERTICAL );
     item6->Add( item9, wxSizerFlags().Expand().CenterVertical().Border(wxALL, 5) );

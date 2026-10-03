@@ -27,6 +27,7 @@
 #define MULENOTEBOOK_H
 
 #include <wx/notebook.h>
+#include <map>
 
 wxDECLARE_EVENT(wxEVT_COMMAND_MULENOTEBOOK_PAGE_CLOSING, wxEvent);
 wxDECLARE_EVENT(wxEVT_COMMAND_MULENOTEBOOK_ALL_PAGES_CLOSED, wxEvent);
@@ -94,7 +95,14 @@ public:
 	 */
 	void SetPopupHandler(wxWindow *widget);
 
+	// 0: the whole image closes (legacy tabs); positive: only that many leftmost
+	// pixels close, leaving the rest for a mode icon; -1: images never close tabs.
+	void SetCloseIconWidth(int width) { m_closeIconWidth = width; }
+	void SetPageToolTip(size_t page, const wxString &text);
+
 protected:
+	bool IsCloseIconHit(const wxPoint &position, int tab, long flags) const;
+	void OnMouseLeave(wxMouseEvent &event);
 	/**
 	 * Left or middle mouse button press or release, for closing pages.
 	 */
@@ -130,6 +138,12 @@ protected:
 
 	//! The pointer to the widget which would receive right-click events or NULL.
 	wxWindow *m_popup_widget;
+	int m_closeIconWidth = 0;
+	// Window keys survive tab reordering. Entries are removed with their pages;
+	// unlike SetHelpText(), this does not require an installed wxHelpProvider.
+	std::map<const wxWindow *, wxString> m_pageTooltips;
+	int m_tabDownIcon = -1;
+	int m_tabDownMiddle = -1;
 
 	wxDECLARE_EVENT_TABLE();
 };

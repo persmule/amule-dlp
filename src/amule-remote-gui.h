@@ -25,6 +25,8 @@
 #ifndef AMULE_REMOTE_GUI_H
 #define AMULE_REMOTE_GUI_H
 
+#include "SearchEd2kSlot.h"
+#include "SearchStartRequests.h"
 #include <functional>             // std::function for the CSharedFilesRem
 #include <memory>                 // std::unique_ptr for CPreferencesRem
 #include <vector>                 // std::vector for CChatMsgHandlerRem's tracked sessions
@@ -617,7 +619,7 @@ public:
 class CSearchListRem : public CRemoteContainer<CSearchFile, uint32, CEC_SearchFile_Tag>,
 		       public CSearchResultIndex
 {
-	virtual void HandlePacket(const CECPacket *);
+	virtual void HandlePacket(const CECPacket *) override;
 
 	// Partial-update union poll: delete a result only when the daemon says so
 	// (EC_TAG_FILE_REMOVED), instead of the base class's "anything missing from this reply is
@@ -629,7 +631,7 @@ class CSearchListRem : public CRemoteContainer<CSearchFile, uint32, CEC_SearchFi
 	// removal made explicit the daemon can skip an unchanged result entirely, and an idle
 	// search costs nothing. Falls back to the base implementation against a daemon that did
 	// not echo EC_TAG_CAN_PARTIAL_UPDATE, which still relies on absence.
-	virtual void ProcessUpdate(const CECTag *reply, CECPacket *full_req, int req_type);
+	virtual void ProcessUpdate(const CECTag *reply, CECPacket *full_req, int req_type) override;
 
 public:
 	CSearchListRem(CRemoteConnect *);
@@ -642,22 +644,33 @@ public:
 	// OnPollTimer right after sending the request, so steady state costs nothing.
 	bool m_needSearchListRequery;
 
-	// Optimistic local IDs of this session's own EC_OP_SEARCH_START requests sent but not yet
-	// remapped (see RemapSearch). While non-empty, the EC_OP_SEARCH_LIST discovery branch
-	// defers creating any new tab: the daemon already knows about a just-started search
-	// before this client's START reply (carrying EC_TAG_SEARCH_REF/EC_TAG_SEARCH_ID) comes
-	// back, so a list reply landing in that window would otherwise be indistinguishable from
-	// a genuinely foreign search and create a second tab for the same one, which RemapSearch
-	// then rekeys onto -- two tabs, one search (got3nks, PR #680 review). Inserted in
-	// StartNewSearch's multi-search branch, erased in RemapSearch.
-	//
-	// A set of IDs rather than a bare count so an unattributable reply can never clear it:
-	// EC_OP_FAILED reaches this same handler for a failed *browse* too (SendBrowseRequest
-	// routes EC_OP_FRIEND here, and the daemon's EC_TAG_FRIEND_SHARED branch has "Friend not
-	// found." / "Client not found." / malformed exits), and "client not found" is ordinary --
-	// the peer gets reaped between the user seeing the row and clicking View Files. A count
-	// would have let that decrement lift the deferral a round trip early.
-	std::set<uint32> m_pendingSearchStarts;
+	// Search and browse requests keep their optimistic IDs and cancellation intent
+	// until the daemon returns a real ID. Discovery waits for START and CLOSE
+	// acknowledgments so a stale list cannot duplicate a pending or deleted tab.
+	CSearchStartRequests m_pendingSearchStarts;
+	void AbortPendingRequest() override;
+
+	// A separate FIFO callback identifies close acknowledgments even on older
+	// daemons whose generic MISC_DATA reply carries no identifying tags.
+	class CloseReplyHandler : public CECPacketHandlerBase
+	{
+	public:
+		explicit CloseReplyHandler(CSearchListRem &owner)
+		: m_owner(owner)
+		{
+		}
+		void HandlePacket(const CECPacket *) override
+		{
+			m_owner.m_pendingSearchStarts.FinishClose();
+			m_owner.m_needSearchListRequery = true;
+		}
+		void AbortPendingRequest() override { m_owner.AbortPendingRequest(); }
+
+	private:
+		CSearchListRem &m_owner;
+	};
+	CloseReplyHandler m_closeReplyHandler{ *this };
+	CSearchEd2kSlot m_ed2kSlot;
 
 	// Most-recently-started search ID (0 = none). uint32 so it correctly holds a
 	// daemon-allocated Kad ID (top half of the range); as a signed int those wrapped negative
@@ -667,11 +680,10 @@ public:
 	// progress so each tab's lifecycle ("!", progress bar) is tracked independently.
 	// Populated on remap, removed on tab close.
 	std::set<uint32> m_activeSearches;
-	// Per-search "is this a running Kad search?" -- the SearchDlg "More" button gate. Set
-	// from LIFECYCLE_KIND + LIFECYCLE_STATE in each progress reply (kind == KadSearch &&
-	// state == RUNNING), so "More" is enabled only while the search runs and greys out once
-	// it completes. Pruned on tab close / removal.
-	std::map<uint32, bool> m_kadActive;
+	// Only searches with active Kad work are cached. The value distinguishes a
+	// standalone Kad search (true) from the Kad component of AllSearch (false).
+	// Finished searches have no entry, even while their result tabs remain open.
+	std::map<uint32, bool> m_runningKadSearches;
 
 	// The result index (ResultMap / m_results) and GetSearchResults() live in
 	// CSearchResultIndex, shared with the monolithic search list. Results here are owned by
@@ -693,7 +705,7 @@ public:
 
 	// Multi-search: remap the optimistic local tab ID to the daemon-allocated
 	// ID once the START reply echoes the correlation token.
-	void RemapSearch(uint32 localID, uint32 daemonID);
+	void RemapSearch(uint32 localID, uint32 daemonID, bool ed2kActive = true);
 
 	// Reachability fix (#641): a direct one-off EC_OP_SEARCH_LIST request, bypassing
 	// DoRequery's single-request-in-flight state machine on purpose. HandlePacket answers
@@ -710,20 +722,26 @@ public:
 	// there is exactly one decode here rather than one per shape.
 	void ApplySearchProgress(const CECTag *src);
 
-	// Monolithic CSearchList API parity over EC. IsKadSearch reports whether a given tab is a
-	// *live* Kad search -- the SearchDlg "More" button gate -- from m_kadActive, which
-	// HandlePacket fills from each search's per-id LIFECYCLE_KIND + LIFECYCLE_STATE in the
-	// progress reply. RequestMoreResults sends EC_OP_SEARCH_REQUEST_MORE so the daemon widens
-	// that Kad search.
+	// Monolithic CSearchList API parity over EC. IsKadSearch identifies a running
+	// standalone Kad search; HasKadComponent also includes AllSearch's Kad work.
+	// Both read the activity cache populated by progress replies. RequestMoreResults
+	// sends EC_OP_SEARCH_REQUEST_MORE for the daemon to widen that search.
 	bool IsKadSearch(uint32_t searchID) const;
+	bool HasKadComponent(uint32_t searchID) const;
+	bool HasEd2kComponent(uint32_t searchID) const
+	{
+		// Legacy scalar progress uses 0 for both waiting and idle. Only a
+		// per-search lifecycle can support a reliable interruption warning.
+		return m_conn->ServerSupportsMultiSearch() && m_ed2kSlot.IsActive(searchID);
+	}
 	bool RequestMoreResults(uint32_t searchID);
 
 	// template
-	CSearchFile *CreateItem(const CEC_SearchFile_Tag *);
-	void DeleteItem(CSearchFile *);
-	uint32 GetItemID(CSearchFile *);
-	void ProcessItemUpdate(const CEC_SearchFile_Tag *, CSearchFile *);
-	bool Phase1Done(const CECPacket *);
+	CSearchFile *CreateItem(const CEC_SearchFile_Tag *) override;
+	void DeleteItem(CSearchFile *) override;
+	uint32 GetItemID(CSearchFile *) override;
+	void ProcessItemUpdate(const CEC_SearchFile_Tag *, CSearchFile *) override;
+	bool Phase1Done(const CECPacket *) override;
 };
 
 class CFriendListRem : public CRemoteContainer<CFriend, uint32, CEC_Friend_Tag>

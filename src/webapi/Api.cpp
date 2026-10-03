@@ -2332,6 +2332,8 @@ CHttpServer::Response CApiDispatcher::HandleStatus(const CHttpServer::Request &r
 	// wall-clock for anyone who needs it.
 	w.Key("ec_connected");
 	w.ValueBool(ec);
+	w.Key("search_all_supported");
+	w.ValueBool(s.search_all_supported);
 	(void)ts;
 
 	w.Key("ed2k");
@@ -7103,6 +7105,8 @@ wxString SearchKindToString(std::uint8_t kind)
 		return wxString::FromAscii("local");
 	case EC_SEARCH_KAD:
 		return wxString::FromAscii("kad");
+	case EC_SEARCH_ALL:
+		return wxString::FromAscii("all");
 	case EC_SEARCH_BROWSE:
 		// A "View Files" browse of one peer's share. Reported, never accepted
 		// by SearchTypeFromString: browses are not started through /search.
@@ -7424,6 +7428,8 @@ CHttpServer::Response CApiDispatcher::HandleSearchResults(
 	w.ValueString(wxString::FromUTF8(progress.kind.c_str()));
 	w.Key("percent");
 	w.ValueInt(static_cast<int64_t>(progress.percent));
+	w.Key("kad_active");
+	w.ValueBool(progress.kad_active);
 	w.EndObject();
 	w.EndObject();
 	FinalizeJsonBody(w, r);
@@ -7489,6 +7495,7 @@ bool CApiDispatcher::DiscoverSearchIfHeldByCore(std::uint32_t search_id)
 		// (an older daemon); the seed then derives it from the lifecycle state.
 		const CECTag *pctTag = entry.GetTagByName(EC_TAG_SEARCH_LIFECYCLE_PERCENT);
 		const int reported_pct = pctTag ? static_cast<int>(pctTag->GetInt()) : -1;
+		const CECTag *kadTag = entry.GetTagByName(EC_TAG_SEARCH_KAD_ACTIVE);
 		m_state.MarkSearchDiscovered(search_id,
 			SearchKindToString(
 				kindTag ? static_cast<std::uint8_t>(kindTag->GetInt()) : EC_SEARCH_GLOBAL)
@@ -7496,7 +7503,8 @@ bool CApiDispatcher::DiscoverSearchIfHeldByCore(std::uint32_t search_id)
 			nameTag ? std::string(nameTag->GetStringData().utf8_str()) : std::string(),
 			state_val == 1,
 			state_val == 2,
-			reported_pct);
+			reported_pct,
+			kadTag && kadTag->GetInt() != 0);
 		found = true;
 		break;
 	}
@@ -10153,7 +10161,7 @@ namespace
 {
 
 // Map wire-string search types to amule's EC_SEARCH_TYPE enum. "local" /
-// "global" / "kad" matches amulegui's UI labels.
+// "global" / "kad" / "all" matches amulegui's UI labels.
 bool SearchTypeFromString(const std::string &s, std::uint8_t &out)
 {
 	if (s == "local") {
@@ -10164,6 +10172,9 @@ bool SearchTypeFromString(const std::string &s, std::uint8_t &out)
 		return true;
 	} else if (s == "kad") {
 		out = EC_SEARCH_KAD;
+		return true;
+	} else if (s == "all") {
+		out = EC_SEARCH_ALL;
 		return true;
 	}
 	return false;
@@ -10290,7 +10301,7 @@ CHttpServer::Response CApiDispatcher::HandleSearchStart(const CHttpServer::Reque
 	}
 	const auto &obj = root.get<picojson::object>();
 
-	// Body: { "query": required string, "type": "local"|"global"|"kad" (default
+	// Body: { "query": required string, "type": "local"|"global"|"kad"|"all" (default
 	// "global"), "file_type": optional label, "extension": optional (e.g. "mkv"),
 	// "min_size_bytes"/"max_size_bytes": optional uint64 (0 = no cap),
 	// "min_source_count": optional uint32 }
@@ -10314,13 +10325,13 @@ CHttpServer::Response CApiDispatcher::HandleSearchStart(const CHttpServer::Reque
 			if (!it->second.is<std::string>()) {
 				return ErrorResponse(400,
 					"bad_request",
-					"`type` must be one of \"local\", \"global\", \"kad\"");
+					"`type` must be one of \"local\", \"global\", \"kad\", \"all\"");
 			}
 			search_kind = it->second.get<std::string>();
 			if (!SearchTypeFromString(search_kind, search_type)) {
 				return ErrorResponse(400,
 					"bad_request",
-					"`type` must be one of \"local\", \"global\", \"kad\"");
+					"`type` must be one of \"local\", \"global\", \"kad\", \"all\"");
 			}
 		}
 	}
@@ -10414,6 +10425,14 @@ CHttpServer::Response CApiDispatcher::HandleSearchStart(const CHttpServer::Reque
 		}
 	}
 
+	if (search_type == EC_SEARCH_ALL && !m_state.EcConnected()) {
+		return ErrorResponse(503, "ec_unavailable", "the EC connection is unavailable");
+	}
+	if (search_type == EC_SEARCH_ALL && !m_app.IsServerSearchAllActive()) {
+		return ErrorResponse(
+			503, "ec_unsupported", "the connected amuled does not support All searches");
+	}
+
 	std::unique_ptr<CECPacket> ec_req(new CECPacket(EC_OP_SEARCH_START));
 	ec_req->AddTag(CEC_Search_Tag(wxString::FromUTF8(query.c_str()),
 		static_cast<EC_SEARCH_TYPE>(search_type),
@@ -10439,6 +10458,8 @@ CHttpServer::Response CApiDispatcher::HandleSearchStart(const CHttpServer::Reque
 	if (const CECTag *t = ec_resp->GetTagByName(EC_TAG_SEARCH_ID)) {
 		search_id = static_cast<std::uint32_t>(t->GetInt());
 	}
+	const CECTag *kad_tag = ec_resp->GetTagByName(EC_TAG_SEARCH_KAD_ACTIVE);
+	const bool kad_active = kad_tag && kad_tag->GetInt() != 0;
 	delete ec_resp;
 	if (search_id == 0) {
 		return ErrorResponse(
@@ -10449,7 +10470,7 @@ CHttpServer::Response CApiDispatcher::HandleSearchStart(const CHttpServer::Reque
 	// it each tick until the daemon reports completion. This is the single fetcher, so
 	// SSE search_result_added / search_progress fire on the same delta a polling
 	// consumer would observe.
-	m_state.MarkSearchStarted(search_id, search_kind, query);
+	m_state.MarkSearchStarted(search_id, search_kind, query, kad_active);
 
 	// Same creation shape as the browse handler above: the daemon hands back
 	// EC_TAG_SEARCH_ID, so the response carries the resource and a Location.
@@ -10559,17 +10580,24 @@ CHttpServer::Response CApiDispatcher::HandleSearchMore(
 	if (auto rej = RequireSearch(search_id))
 		return *rej;
 
-	// The desktop "More" button re-asks already-queried Kad peers for a wider result
-	// frontier. Both constraints below mirror what that button does rather than what the
-	// core tolerates: CSearchManager::RequestMoreResults returns false for a non-Kad id,
-	// and the GUI greys the button out once the search ends.
+	// Refresh component activity before a mutation: All may still be running after
+	// its Kad component stops, or may have just started since the previous tick.
+	if (!RefresherTick(m_app, m_state)) {
+		return ErrorResponse(503, "ec_unavailable", "could not refresh search progress");
+	}
 	const webapi::SearchProgressSnapshot progress = m_state.SearchProgress(search_id);
-	if (progress.kind != "kad") {
-		return ErrorResponse(400, "bad_request", "`more` applies to Kad searches only");
+	if (progress.kind != "kad" && progress.kind != "all") {
+		return ErrorResponse(
+			400, "bad_request", "`more` requires a search with an active Kad component");
 	}
 	if (progress.complete || !progress.active) {
 		return ErrorResponse(
 			400, "bad_request", "`more` applies to a running search; this one has finished");
+	}
+
+	if (!progress.kad_active) {
+		return ErrorResponse(
+			400, "bad_request", "`more` requires a search with an active Kad component");
 	}
 
 	// The daemon logs what actually happened and answers with the other half: whether a

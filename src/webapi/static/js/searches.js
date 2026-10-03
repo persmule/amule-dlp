@@ -67,7 +67,7 @@ function tabList() {
     // has actually pulled: a tab whose results are loaded knows better than
     // the listing snapshot, and an unopened one has only the listing.
     percent: x.percent, count: Math.max(x.count || 0, x.results.size),
-    moreExhausted: !!x.moreExhausted,
+    moreExhausted: !!x.moreExhausted, kadActive: !!x.kadActive,
   }));
 }
 
@@ -116,6 +116,7 @@ async function refresh(id) {
     if (pr.state) cur.state = pr.state;
     if (pr.type) cur.kind = pr.type;
     cur.percent = pr.percent || 0;
+    cur.kadActive = pr.kad_active === true;
     publishTabs();
     publishResults(id);
   } catch (e) {
@@ -233,6 +234,7 @@ function onProgress(p) {
   if (p.state) tab.state = p.state;
   if (p.type) tab.kind = p.type;
   tab.percent = p.percent || 0;
+  tab.kadActive = p.kad_active === true;
   // The event's count is the backend's own map size and may legitimately run
   // ahead of the upserts seen so far.
   if (typeof p.result_count === "number") tab.count = p.result_count;

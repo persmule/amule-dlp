@@ -9,7 +9,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: aMule\n"
-"POT-Creation-Date: 2026-09-26 12:38+0100\n"
+"POT-Creation-Date: 2026-10-02 08:36+0800\n"
 "PO-Revision-Date: 2026-10-02 00:52+0000\n"
 "Last-Translator: Dylan Aïssi <bob.dybian@gmail.com>\n"
 "Language-Team: Français\n"
@@ -141,7 +141,6 @@ msgstr ""
 #. type: Plain text
 #: amule.1.in amuled.1.in amulegui.1.in
 #, fuzzy
-#| msgid "Enable or disable starting aMule on user login, then exit.  The OS-specific store is selected automatically: Windows registry Run key, macOS LaunchAgent, Linux XDG I<.desktop> autostart entry."
 msgid "Enable or disable aMule as the current user's handler for I<.emulecollection> files, then exit.  The OS-specific store is selected automatically: Windows registry, macOS LaunchServices, Linux XDG I<mimeapps.list>."
 msgstr "Activer ou désactiver le lancement d'aMule à l'ouverture d'une session de l'utilisateur, puis quitter.  Le dépôt spécifique au système d'exploitation est sélectionné automatiquement : clef d'exécution (Run) du registre pour Windows, LaunchAgent pour macOS et élément de lancement automatique XDG I<.desktop> pour GNU/Linux."
 
@@ -650,6 +649,11 @@ msgstr "Types de recherche disponibles :"
 
 #. type: Plain text
 #: amulecmd.1.in
+msgid "Searches eD2k and Kad together, using the available network if the other cannot start. Requires a daemon advertising All search support; older daemons return a clear error without starting a search. Example: 'search all amule'."
+msgstr ""
+
+#. type: Plain text
+#: amulecmd.1.in
 msgid "Performs a global search."
 msgstr "Effectue une recherche globale."
 
@@ -946,14 +950,12 @@ msgstr "Activer ou désactiver le lancement d'amulegui à l'ouverture d'une sess
 #. type: Plain text
 #: amulegui.1.in
 #, fuzzy
-#| msgid "Adds an eD2k-link, or every link in an eMule collection file, to the core."
 msgid "Sends an eD2k-link, or every link in an eMule collection file, to the connected core."
 msgstr "Ajoute au noyau un lien eD2k ou bien chaque lien d'un fichier de collection eMule."
 
 #. type: TP
 #: amulegui.1.in
 #, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
 msgid "I<~/.aMule/remote.conf>"
 msgstr "~/.aMule/remote.conf"
 
@@ -965,21 +967,18 @@ msgstr ""
 #. type: TP
 #: amulegui.1.in
 #, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
 msgid "I<~/.aMule/remotelogfile>"
 msgstr "~/.aMule/remote.conf"
 
 #. type: Plain text
 #: amulegui.1.in
 #, fuzzy
-#| msgid "Show log."
 msgid "The log."
 msgstr "Afficher le journal."
 
 #. type: TP
 #: amulegui.1.in
 #, fuzzy, no-wrap
-#| msgid "~/.aMule/ED2KLinks"
 msgid "I<~/.aMule/ED2KLinks>"
 msgstr "~/.aMule/ED2KLinks"
 

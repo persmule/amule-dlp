@@ -29,6 +29,9 @@
 #include "KadAICHVotes.h"
 
 #include "KnownFile.h" // Needed for CAbstractFile
+#include "SearchSourceCount.h"
+#include <memory>
+#include <optional>
 
 class CMemFile;
 class CMD4Hash;
@@ -42,8 +45,8 @@ typedef std::vector<CSearchFile *> CSearchResultList;
  *
  * A file may have either a parent or any number of children. When a child is added to a result, the
  * parent becomes a generic representation of all its children, including a copy of the original
- * result: it carries the sum of sources (total/complete) and the most common filename. Children are
- * owned by their parents, and can be displayed on CSearchListCtrl.
+ * result: it carries combined source estimates (total/complete) and the most common filename.
+ * Children are owned by their parents, and can be displayed on CSearchListCtrl.
  *
  * Basic file parameters (hash, name, size, rating) are read through the CAbstractFile functions;
  * meta-data tags live in the taglist inherited from CAbstractFile.
@@ -92,10 +95,9 @@ public:
 	bool WriteToFile(CFileDataIO *file) const;
 
 	/**
-	 * Reconstructs a result, and its children recursively, written by WriteToFile(). Returns a
-	 * heap-allocated, parentless root result the caller owns, or NULL on a malformed record --
-	 * which callers must treat as fatal for the whole load rather than skip-and-continue, since
-	 * a corrupt length prefix partway through the stream leaves every later record unreadable.
+	 * Reconstructs a result and its children written by WriteToFile(). Returns an owned,
+	 * parentless root, or nullptr on a malformed record. Malformed records and read exceptions
+	 * must abort the whole load: a corrupt length prefix leaves subsequent records unreadable.
 	 *
 	 * `allowChildren` caps recursion at the real two-level result-tree depth (parent plus
 	 * alternative-filename children, never grandchildren -- the same invariant AddChild()
@@ -108,7 +110,7 @@ public:
 	 * returned tree, root and every child, and call SetDownloadStatus() on each node once those
 	 * singletons are available.
 	 */
-	static CSearchFile *LoadFromFile(CFileDataIO *file, bool allowChildren = true);
+	static std::unique_ptr<CSearchFile> LoadFromFile(CFileDataIO *file, bool allowChildren = true);
 
 	/**
 	 * Merges @a other into this result, updating the various information.
@@ -116,9 +118,27 @@ public:
 	void MergeResults(const CSearchFile &other);
 
 	/** Returns the total number of sources. */
-	uint32 GetSourceCount() const { return m_sourceCount; }
+	uint32 GetSourceCount() const
+	{
+#ifdef CLIENT_GUI
+		return m_sourceCount;
+#else
+		return m_sourceContributions.Total();
+#endif
+	}
 	/** Returns the number of sources that have the entire file. */
-	uint32 GetCompleteSourceCount() const { return m_completeSourceCount; }
+	uint32 GetCompleteSourceCount() const
+	{
+#ifdef CLIENT_GUI
+		return m_completeSourceCount;
+#else
+		return m_completeSourceContributions.Total();
+#endif
+	}
+	// Only ALL exposes a known split; single-network searches use their aggregate.
+	// Older daemons and legacy ALL snapshots may expose only the aggregate.
+	std::optional<CSearchSourceCount> GetNetworkSourceCounts() const;
+
 	/** Returns the ID of the search, used to select the right list when displaying. */
 	wxUIntPtr GetSearchID() const { return m_searchID; }
 	/** Returns true if the result is from a Kademlia search. */
@@ -236,10 +256,18 @@ private:
 	bool m_showChildren;
 	//! The unique ID of this search owning this result.
 	wxUIntPtr m_searchID;
-	//! The total number of sources for this file.
+#ifdef CLIENT_GUI
+	//! The remote GUI receives aggregates and an optional ALL breakdown; it never merges reports.
 	uint32 m_sourceCount;
-	//! The number of sources that have the complete file.
 	uint32 m_completeSourceCount;
+	std::optional<CSearchSourceCount> m_networkSourceCounts;
+#else
+	//! Live per-network contributions, retained through copies and child merges.
+	//! Aggregate counts are derived on demand rather than stored a second time.
+	CSearchSourceCount m_sourceContributions;
+	CSearchSourceCount m_completeSourceContributions;
+	bool m_sourceContributionsKnown = false;
+#endif
 	//! Specifies if the result is from a kademlia search.
 	bool m_kademlia;
 	//! The download status.

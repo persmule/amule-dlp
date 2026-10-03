@@ -3648,3 +3648,38 @@ TEST(PrefsSchema, AnUnboundedNumericRowIsADeliberateChoice)
 				 "kKnownUnbounded once you have checked the core's storage width"));
 	}
 }
+
+TEST(Refresher, AllKadActivityFollowsComponentInsteadOfOverallLifecycle)
+{
+	SearchProgressSnapshot s;
+	s.kind = "all";
+	s = AdvanceSearchProgress(s, 1, 20, 1);
+	ASSERT_TRUE(s.active && s.kad_active);
+	s = AdvanceSearchProgress(s, 1, 20, 0);
+	ASSERT_TRUE(s.active && !s.kad_active);
+	s = AdvanceSearchProgress(s, 2, 100, 1);
+	ASSERT_TRUE(s.complete && !s.kad_active);
+	s.kind = "kad";
+	s = AdvanceSearchProgress(s, 1, 20);
+	ASSERT_TRUE(s.kad_active); // legacy daemon has no component tag
+	s.kind = "all";
+	s = AdvanceSearchProgress(s, 1, 20);
+	ASSERT_TRUE(!s.kad_active); // absence must not invent an All component
+}
+
+TEST(Refresher, SearchProgressUnionKeepsExplicitAndMissingKadActivityDistinct)
+{
+	CECPacket resp(EC_OP_SEARCH_PROGRESS);
+	for (uint32 sid = 1; sid <= 3; ++sid) {
+		CECTag entry(EC_TAG_SEARCH_ID, sid);
+		if (sid != 3)
+			entry.AddTag(CECTag(EC_TAG_SEARCH_KAD_ACTIVE, uint8(sid == 1)));
+		resp.AddTag(entry);
+	}
+	std::map<std::uint32_t, std::pair<std::uint32_t, std::uint32_t>> progress;
+	std::map<std::uint32_t, bool> activity;
+	ASSERT_TRUE(ParseSearchProgressUnion(&resp, progress, &activity));
+	ASSERT_TRUE(activity[1]);
+	ASSERT_TRUE(!activity[2]);
+	ASSERT_TRUE(activity.find(3) == activity.end());
+}

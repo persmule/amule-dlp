@@ -154,6 +154,7 @@ bool RefresherTick(CamuleapiApp &app, CState &state)
 			return false;
 		StatusSnapshot s;
 		ParseStatusFromPacket(resp, s);
+		s.search_all_supported = app.IsServerSearchAllActive();
 		state.WriteStatus(std::move(s));
 		KadSnapshot k;
 		ParseKadFromPacket(resp, k);
@@ -275,6 +276,7 @@ bool RefresherTick(CamuleapiApp &app, CState &state)
 	// and process-wide mutexed, so N searches meant N serialized roundtrips inside a single
 	// tick.
 	std::map<std::uint32_t, std::pair<std::uint32_t, std::uint32_t>> union_progress;
+	std::map<std::uint32_t, bool> union_kad_activity;
 	bool have_union = false;
 	const std::vector<std::uint32_t> active_sids = state.ActiveSearchIds();
 	// Every slot the daemon could still speak for, finished ones included. A finished search is
@@ -300,7 +302,7 @@ bool RefresherTick(CamuleapiApp &app, CState &state)
 		// packet with no search children) must fall through to the per-id polling below:
 		// absence is the expiry signal, so reading it as an empty union would retire every
 		// tracked search.
-		have_union = ParseSearchProgressUnion(resp, union_progress);
+		have_union = ParseSearchProgressUnion(resp, union_progress, &union_kad_activity);
 		delete resp;
 	}
 
@@ -309,6 +311,7 @@ bool RefresherTick(CamuleapiApp &app, CState &state)
 	for (std::uint32_t sid : attached_sids) {
 		std::uint32_t percent = 0;
 		std::uint32_t lifecycle_state = 0;
+		int kad_active = -1;
 		bool expired = false;
 		// A finished slot is here for the expiry verdict only. Its progress is
 		// terminal and must not be re-derived: AdvanceSearchProgress reads a
@@ -323,6 +326,10 @@ bool RefresherTick(CamuleapiApp &app, CState &state)
 			} else {
 				percent = found->second.first;
 				lifecycle_state = found->second.second;
+				const auto kad = union_kad_activity.find(sid);
+				if (kad != union_kad_activity.end()) {
+					kad_active = kad->second ? 1 : 0;
+				}
 			}
 		} else if (was_active) {
 			// No union on this daemon: one roundtrip per search, and only the active
@@ -335,6 +342,9 @@ bool RefresherTick(CamuleapiApp &app, CState &state)
 				if (resp->GetTagByName(EC_TAG_SEARCH_EXPIRED)) {
 					expired = true;
 				} else {
+					if (const CECTag *t = resp->GetTagByName(EC_TAG_SEARCH_KAD_ACTIVE)) {
+						kad_active = t->GetInt() != 0 ? 1 : 0;
+					}
 					// Unified 0..100 the daemon computes for every kind
 					// (global = real, Kad = cosmetic ramp, finished = 100).
 					if (const CECTag *t =
@@ -360,6 +370,7 @@ bool RefresherTick(CamuleapiApp &app, CState &state)
 			state.DetachSearch(sid);
 			SearchProgressSnapshot fin = state.SearchProgress(sid);
 			fin.active = false;
+			fin.kad_active = false;
 			fin.complete = true;
 			fin.percent = 100;
 			state.WriteSearchProgress(sid, fin);
@@ -370,8 +381,8 @@ bool RefresherTick(CamuleapiApp &app, CState &state)
 			// snapshot alone is what keeps a finished search finished.
 			continue;
 		}
-		const SearchProgressSnapshot next =
-			AdvanceSearchProgress(state.SearchProgress(sid), lifecycle_state, percent);
+		const SearchProgressSnapshot next = AdvanceSearchProgress(
+			state.SearchProgress(sid), lifecycle_state, percent, kad_active);
 		state.WriteSearchProgress(sid, next);
 	}
 

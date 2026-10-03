@@ -91,6 +91,11 @@ public:
 		return m_searchRequest ? &*m_searchRequest : nullptr;
 	}
 
+	const wxString &GetSearchTabLabel() const { return m_searchTabLabel; }
+	void SetSearchTabLabel(const wxString &label) { m_searchTabLabel = label; }
+	bool IsSearchRunning() const { return m_searchRunning; }
+	void SetSearchRunning(bool running) { m_searchRunning = running; }
+
 	/// Re-key this control's search ID: the multi-search remote GUI remaps an optimistically-
 	/// created tab from its local ID to the daemon-allocated one once the START reply arrives.
 	void SetSearchId(wxUIntPtr id) { m_nResultsID = id; }
@@ -223,6 +228,14 @@ protected:
 	static std::list<CSearchListCtrl *> s_lists;
 
 	std::optional<CSearchRequest> m_searchRequest;
+
+	//! Base display label for this tab, without the running "!" marker or the hit count.
+	//! Set at tab creation so UpdateHitCount / KadSearchEnd can rebuild the full label
+	//! without parsing the display text. Empty for browse tabs (they use m_browseName).
+	wxString m_searchTabLabel;
+
+	//! True while a Kad/All search is running; controls the "!" prefix on the tab label.
+	bool m_searchRunning = false;
 
 	//! The ID of the search-results which the list is displaying or zero if unset.
 	wxUIntPtr m_nResultsID;

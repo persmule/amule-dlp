@@ -2143,3 +2143,25 @@ TEST(EventDiff, ServerSoftwareVersionIsNullWhenUnreported)
 	ASSERT_TRUE(payload.find("\"software_version\":null") != std::string::npos);
 	ASSERT_TRUE(payload.find("\"software_version\":\"\"") == std::string::npos);
 }
+
+TEST(EventDiff, AllKadComponentEndEmitsWithoutPercentChange)
+{
+	CState state;
+	CEventBus bus;
+	LastSeenState prev;
+	state.MarkSearchStarted(42, "all", "ubuntu");
+	SearchProgressSnapshot s = state.SearchProgress(42);
+	s.kad_active = true;
+	s.percent = 20;
+	state.WriteSearchProgress(42, s);
+	EmitDiffsAndUpdate(bus, prev, state);
+	const auto baseline = DrainAll(bus);
+	const auto cursor = baseline.empty() ? 0 : baseline.back().id;
+	s.kad_active = false;
+	state.WriteSearchProgress(42, s);
+	EmitDiffsAndUpdate(bus, prev, state);
+	const auto events = DrainSince(bus, cursor);
+	ASSERT_EQUALS(size_t(1), events.size());
+	ASSERT_EQUALS(std::string("search_progress"), events[0].name);
+	ASSERT_TRUE(events[0].data.find("\"kad_active\":false") != std::string::npos);
+}

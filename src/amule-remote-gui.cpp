@@ -3502,6 +3502,7 @@ static void SendBrowseRequest(
 		theApp->amuledlg->m_searchwnd->EnsureBrowseTab(peerEcid, peerName, localID);
 		sharedtag.AddTag(CECTag(EC_TAG_SEARCH_REF, (uint32)localID));
 		req.AddTag(sharedtag);
+		theApp->searchlist->m_pendingSearchStarts.Begin(static_cast<uint32>(localID), BrowseSearch);
 		conn->SendRequest(theApp->searchlist, &req);
 	} else {
 		req.AddTag(sharedtag);
@@ -3531,9 +3532,26 @@ CSearchListRem::CSearchListRem(CRemoteConnect *conn)
 	m_curr_search = 0;
 }
 
+void CSearchListRem::AbortPendingRequest()
+{
+	CRemoteContainer<CSearchFile, uint32, CEC_SearchFile_Tag>::AbortPendingRequest();
+	const auto pending = m_pendingSearchStarts.PendingIds();
+	m_pendingSearchStarts.Reset();
+	m_ed2kSlot = CSearchEd2kSlot();
+	m_needSearchListRequery = true;
+	if (theApp->amuledlg && theApp->amuledlg->m_searchwnd) {
+		for (uint32 id : pending) {
+			theApp->amuledlg->m_searchwnd->CloseSearchTab(id);
+		}
+	}
+}
+
 wxString CSearchListRem::StartNewSearch(
 	uint32 *nSearchID, SearchType search_type, const CSearchList::CSearchParams &params)
 {
+	if (search_type == AllSearch && !m_conn->ServerSupportsSearchAll()) {
+		return _("The connected daemon does not support All searches.");
+	}
 	CECPacket search_req(EC_OP_SEARCH_START);
 	EC_SEARCH_TYPE ec_search_type = EC_SEARCH_LOCAL;
 	switch (search_type) {
@@ -3545,6 +3563,9 @@ wxString CSearchListRem::StartNewSearch(
 		break;
 	case KadSearch:
 		ec_search_type = EC_SEARCH_KAD;
+		break;
+	case AllSearch:
+		ec_search_type = EC_SEARCH_ALL;
 		break;
 	case BrowseSearch:
 		// Never a query: a browse goes out as EC_OP_FRIEND from SendBrowseRequest().
@@ -3566,13 +3587,17 @@ wxString CSearchListRem::StartNewSearch(
 		// EC_TAG_SEARCH_ID and HandlePacket remaps the tab. Sent via SendRequest so the
 		// reply routes back to this handler.
 		search_req.AddTag(CECTag(EC_TAG_SEARCH_REF, *nSearchID));
-		m_conn->SendRequest(this, &search_req);
 		// See m_pendingSearchStarts's declaration: closes the window where an
 		// EC_OP_SEARCH_LIST reply could double-tab this not-yet-remapped search before
 		// RemapSearch erases this ID again.
-		m_pendingSearchStarts.insert(*nSearchID);
+		m_pendingSearchStarts.Begin(*nSearchID, search_type);
+		m_conn->SendRequest(this, &search_req);
 	} else {
 		// Legacy single-search daemon: no ID negotiation, sentinel bucket.
+		const uint32 previous = m_ed2kSlot.Accept(*nSearchID, search_type != KadSearch);
+		if (previous && theApp->amuledlg && theApp->amuledlg->m_searchwnd) {
+			theApp->amuledlg->m_searchwnd->ClearSearchRequest(previous);
+		}
 		m_conn->SendPacket(&search_req);
 	}
 	m_curr_search = *(nSearchID);
@@ -3608,6 +3633,10 @@ void CSearchListRem::StopSearchById(wxUIntPtr searchID, bool andClose)
 	if (searchID == 0) {
 		return;
 	}
+	if (m_pendingSearchStarts.DeferStop(static_cast<uint32>(searchID), andClose)) {
+		return; // The daemon cannot stop an optimistic GUI ID; wait for START's reply.
+	}
+	m_ed2kSlot.Observe(static_cast<uint32>(searchID), false);
 	CECPacket search_req(EC_OP_SEARCH_STOP);
 	if (m_conn->ServerSupportsMultiSearch()) {
 		// Per-ID stop; the close flag also frees the results (tab close).
@@ -3616,12 +3645,10 @@ void CSearchListRem::StopSearchById(wxUIntPtr searchID, bool andClose)
 			search_req.AddTag(CECEmptyTag(EC_TAG_SEARCH_CLOSE));
 			// Tab closed: stop tracking this search's lifecycle.
 			m_activeSearches.erase((uint32)searchID);
-			m_kadActive.erase((uint32)searchID);
-			// Also the backstop for a START whose reply never attributed itself (an
-			// EC_OP_FAILED carries no ID): closing the tab the failed start left behind
-			// clears its entry, so the discovery deferral cannot be held open for the rest
-			// of the session. A no-op in the normal case.
-			m_pendingSearchStarts.erase((uint32)searchID);
+			m_runningKadSearches.erase((uint32)searchID);
+			m_pendingSearchStarts.BeginClose();
+			m_conn->SendRequest(&m_closeReplyHandler, &search_req);
+			return;
 		}
 	}
 	// Legacy: parameterless stop of the single current search.
@@ -3633,8 +3660,13 @@ bool CSearchListRem::IsKadSearch(uint32_t searchID) const
 	// The "More" button applies only to a *running* Kad search -- it greys out once the
 	// search completes. The flag is set from each search's per-id kind and lifecycle
 	// state in HandlePacket.
-	std::map<uint32, bool>::const_iterator it = m_kadActive.find(searchID);
-	return it != m_kadActive.end() && it->second;
+	const auto it = m_runningKadSearches.find(searchID);
+	return it != m_runningKadSearches.end() && it->second;
+}
+
+bool CSearchListRem::HasKadComponent(uint32_t searchID) const
+{
+	return m_runningKadSearches.count(searchID) != 0;
 }
 
 bool CSearchListRem::RequestMoreResults(uint32_t searchID)
@@ -3659,26 +3691,37 @@ bool CSearchListRem::RequestMoreResults(uint32_t searchID)
 	return true;
 }
 
-void CSearchListRem::RemapSearch(uint32 localID, uint32 daemonID)
+void CSearchListRem::RemapSearch(uint32 localID, uint32 daemonID, bool ed2kActive)
 {
-	// Closes this ID's m_pendingSearchStarts window regardless of whether the local and
-	// daemon ids happen to match -- the early return below is only about whether a rekey
-	// is needed, not whether the START round trip has completed. Keyed by ID, so a
-	// *browse* remap, which also lands here, erases nothing and cannot lift the deferral
-	// for someone else's in-flight start.
-	m_pendingSearchStarts.erase(localID);
-	if (localID == daemonID) {
-		return;
+	// Consume only this request's token. Search and browse starts share the
+	// correlation space; neither may release discovery for another pending request.
+	const auto pending = m_pendingSearchStarts.Take(localID);
+	if (pending && pending->ReplacesEd2kSlot()) {
+		// START succeeded: the daemon has replaced its single eD2k slot. Invalidate
+		// the old tab's reusable request before the next progress poll arrives.
+		const uint32 previous = m_ed2kSlot.Accept(daemonID, ed2kActive);
+		if (theApp->amuledlg && theApp->amuledlg->m_searchwnd && previous) {
+			theApp->amuledlg->m_searchwnd->ClearSearchRequest(previous);
+		}
+	}
+	if (pending && pending->closeRequested) {
+		StopSearchById(daemonID, true);
+		return; // The user already deleted the optimistic tab; never rediscover it.
 	}
 	// Rekey the optimistic tab (created with the local ID) to the daemon's ID so the
 	// union-poll results, tagged with the daemon ID, route to it. The START reply arrives
 	// well before any network results, so nothing is misrouted.
 	if (theApp->amuledlg && theApp->amuledlg->m_searchwnd) {
-		theApp->amuledlg->m_searchwnd->RekeySearch(localID, daemonID);
+		if (localID != daemonID) {
+			theApp->amuledlg->m_searchwnd->RekeySearch(localID, daemonID);
+		}
 	}
 	m_curr_search = daemonID;
 	// Track this search for per-tab progress polling.
 	m_activeSearches.insert(daemonID);
+	if (pending && pending->stopRequested) {
+		StopSearchById(daemonID, false);
+	}
 }
 
 void CSearchListRem::RequestSearchList()
@@ -3743,7 +3786,8 @@ void CSearchListRem::ApplySearchProgress(const CECTag *src)
 	// Per-search progress: STATUS is the first tag; EC_TAG_SEARCH_ID is echoed so we can
 	// update this specific tab's lifecycle. An expired search, evicted on the daemon,
 	// reports done so its "!" clears.
-	const CECTag *idTag = src->GetTagByName(EC_TAG_SEARCH_ID);
+	const CECTag *idTag =
+		src->GetTagName() == EC_TAG_SEARCH_ID ? src : src->GetTagByName(EC_TAG_SEARCH_ID);
 	const CECTag *browseTag = src->GetTagByName(EC_TAG_SEARCH_BROWSE_STATUS);
 	if (idTag && theApp->amuledlg && theApp->amuledlg->m_searchwnd) {
 		if (browseTag) {
@@ -3768,22 +3812,42 @@ void CSearchListRem::ApplySearchProgress(const CECTag *src)
 				// EC_OP_SEARCH_STOP, since the daemon already does not know this id.
 				const uint32 sid = (uint32)idTag->GetInt();
 				m_activeSearches.erase(sid);
+				m_runningKadSearches.erase(sid);
 				if (theApp->amuledlg && theApp->amuledlg->m_searchwnd) {
 					theApp->amuledlg->m_searchwnd->CloseSearchTab(sid);
 				}
 			} else {
-				// Cache whether this tab is a *running* Kad search so IsKadSearch can gate
-				// the "More" button -- enabled only while the search runs. Updated before
-				// the progress call, which refreshes that button for the visible tab.
+				// Cache active Kad work before updating the controls. Older daemons
+				// report only standalone Kad lifecycle; newer ones also report All's
+				// Kad component independently of its eD2k activity.
 				const CECTag *kindTag = src->GetTagByName(EC_TAG_SEARCH_LIFECYCLE_KIND);
 				const CECTag *stateTag = src->GetTagByName(EC_TAG_SEARCH_LIFECYCLE_STATE);
-				if (kindTag && stateTag) {
-					m_kadActive[(uint32)idTag->GetInt()] =
-						(kindTag->GetInt() == KadSearch) &&
-						(stateTag->GetInt() == CSearchList::SEARCH_LIFECYCLE_RUNNING);
+				const CECTag *kadActive = src->GetTagByName(EC_TAG_SEARCH_KAD_ACTIVE);
+				const uint32 sid = static_cast<uint32>(idTag->GetInt());
+				const CECTag *ed2kActive = src->GetTagByName(EC_TAG_SEARCH_ED2K_ACTIVE);
+				if (ed2kActive) {
+					m_ed2kSlot.Observe(sid, ed2kActive->GetInt() != 0);
+				} else if (kindTag && stateTag && kindTag->GetInt() != KadSearch &&
+					   kindTag->GetInt() != BrowseSearch) {
+					// Older daemons report only the combined lifecycle.
+					m_ed2kSlot.Observe(sid,
+						stateTag->GetInt() == CSearchList::SEARCH_LIFECYCLE_RUNNING);
 				}
-				theApp->amuledlg->m_searchwnd->UpdateSearchProgress(
-					idTag->GetInt(), (uint32)src->GetFirstTagSafe()->GetInt());
+				bool standalone;
+				if (kindTag && stateTag) {
+					standalone =
+						kindTag->GetInt() == KadSearch &&
+						stateTag->GetInt() == CSearchList::SEARCH_LIFECYCLE_RUNNING;
+				} else {
+					standalone = IsKadSearch(sid);
+				}
+				if (standalone || (kadActive && kadActive->GetInt())) {
+					m_runningKadSearches.insert_or_assign(sid, standalone);
+				} else {
+					m_runningKadSearches.erase(sid);
+				}
+				theApp->amuledlg->m_searchwnd->UpdateSearchProgress(idTag->GetInt(),
+					(uint32)src->GetTagByNameSafe(EC_TAG_SEARCH_STATUS)->GetInt());
 			}
 		}
 	}
@@ -3833,12 +3897,14 @@ void CSearchListRem::HandlePacket(const CECPacket *packet)
 				// than whenever that id next gets polled.
 				//
 				// Snapshot first: CloseSearchTab erases from m_activeSearches.
-				const std::set<uint32> tracked = m_activeSearches;
+				const std::vector<uint32> tracked(
+					m_activeSearches.begin(), m_activeSearches.end());
 				for (uint32 id : tracked) {
 					if (reported.count(id)) {
 						continue;
 					}
 					m_activeSearches.erase(id);
+					m_runningKadSearches.erase(id);
 					if (theApp->amuledlg && theApp->amuledlg->m_searchwnd) {
 						theApp->amuledlg->m_searchwnd->CloseSearchTab(id);
 					}
@@ -3847,7 +3913,9 @@ void CSearchListRem::HandlePacket(const CECPacket *packet)
 				ApplySearchProgress(packet);
 			}
 		} else {
-			CoreNotify_Search_Update_Progress(packet->GetFirstTagSafe()->GetInt());
+			const uint32 progress = packet->GetFirstTagSafe()->GetInt();
+			m_ed2kSlot.ObserveLegacyProgress(m_curr_search, progress);
+			CoreNotify_Search_Update_Progress(progress);
 		}
 	} else if (packet->GetOpCode() == EC_OP_STRINGS) {
 		// Multi-search START reply: remap the optimistic local tab ID to the
@@ -3856,7 +3924,9 @@ void CSearchListRem::HandlePacket(const CECPacket *packet)
 		const CECTag *idTag = packet->GetTagByName(EC_TAG_SEARCH_ID);
 		const CECTag *refTag = packet->GetTagByName(EC_TAG_SEARCH_REF);
 		if (idTag && refTag) {
-			RemapSearch(refTag->GetInt(), idTag->GetInt());
+			const CECTag *ed2kActive = packet->GetTagByName(EC_TAG_SEARCH_ED2K_ACTIVE);
+			RemapSearch(
+				refTag->GetInt(), idTag->GetInt(), !ed2kActive || ed2kActive->GetInt() != 0);
 		}
 	} else if (packet->GetOpCode() == EC_OP_FAILED) {
 		// A rejected EC_OP_SEARCH_START or browse -- both route their replies here. Both
@@ -3871,7 +3941,12 @@ void CSearchListRem::HandlePacket(const CECPacket *packet)
 		// happened to be outstanding, consumes that reply.
 		if (const CECTag *refTag = packet->GetTagByName(EC_TAG_SEARCH_REF)) {
 			const uint32 localID = static_cast<uint32>(refTag->GetInt());
-			m_pendingSearchStarts.erase(localID);
+			const auto pending = m_pendingSearchStarts.Take(localID);
+			if (pending && pending->closeRequested) {
+				m_needSearchListRequery = true;
+				// A canceled and rejected request has no remaining daemon work.
+				return;
+			}
 			// Report it and undo the optimistic tab/button state, through the same path the
 			// monolithic build uses for a rejected start. The daemon sends the reason as
 			// EC_TAG_STRING (a wxTRANSLATE'd literal, so translate it here); without this the
@@ -3883,9 +3958,8 @@ void CSearchListRem::HandlePacket(const CECPacket *packet)
 								: wxString();
 				theApp->amuledlg->m_searchwnd->OnStartRejected(localID, reason);
 			}
-			// Nothing to prune from m_activeSearches / m_kadActive: both are only ever keyed
-			// by a daemon-allocated id (RemapSearch, or the discovery branch), never by an
-			// optimistic one.
+			// The activity caches use daemon IDs, never optimistic IDs, so a
+			// rejected start has no cached activity to remove.
 		}
 	} else if (packet->GetOpCode() == EC_OP_SEARCH_LIST) {
 		// One entry per search the daemon currently holds, so a search this client never
@@ -3894,12 +3968,12 @@ void CSearchListRem::HandlePacket(const CECPacket *packet)
 		// neither of which looks up a tab that does not exist yet. Skips any ID that
 		// already has a tab.
 		//
-		// Deferred whole, rather than per-id, while m_pendingSearchStarts is non-empty:
+		// Defer discovery while START or CLOSE replies are pending:
 		// this reply's ids reflect the daemon's state at send time, which can already
 		// include a search THIS client just started but has not been told the id of yet --
 		// and the ids in that set are the client's *optimistic* ones, which never match the
 		// daemon ids here. Re-arming for the next tick costs one extra poll.
-		if (!m_pendingSearchStarts.empty()) {
+		if (m_pendingSearchStarts.DiscoveryBlocked()) {
 			m_needSearchListRequery = true;
 		} else if (theApp->amuledlg && theApp->amuledlg->m_searchwnd) {
 			for (const CECTag &entry : *packet) {
@@ -3908,22 +3982,6 @@ void CSearchListRem::HandlePacket(const CECPacket *packet)
 					continue;
 				}
 				const CECTag *nameTag = entry.GetTagByName(EC_TAG_SEARCH_NAME);
-				// "(0)" matches CSearchDlg::CreateNewTab's own callers -- no leading "!"
-				// even for a Kad search: that marker is a live indicator normal callers
-				// seed only because they know at creation time they just started a Kad
-				// search, and it is only ever cleared, never set, by the progress path
-				// below. Making this tab first-class in m_activeSearches is what lets
-				// that live path take over.
-				//
-				// Unselected: this tab appears on its own, driven by another client, so
-				// it must not pull the selection away from whatever the local user is
-				// looking at -- possibly mid-typing in the search box.
-				//
-				// A browse the daemon is serving for someone else arrives here like any
-				// other search, since it shares the id space. Rebuild it as a browse tab
-				// rather than a search tab, which is what the kind is reported for.
-				// Daemons predating EC_SEARCH_BROWSE never send it, so the test simply
-				// fails there.
 				const CECTag *kindTag = entry.GetTagByName(EC_TAG_SEARCH_LIFECYCLE_KIND);
 				const CECTag *peerTag = entry.GetTagByName(EC_TAG_CLIENT);
 				const uint32 peerEcid = peerTag ? static_cast<uint32>(peerTag->GetInt()) : 0;
@@ -3938,10 +3996,13 @@ void CSearchListRem::HandlePacket(const CECPacket *packet)
 						sid,
 						false);
 				} else {
-					theApp->amuledlg->m_searchwnd->CreateNewTab(
-						(nameTag ? nameTag->GetStringData() : wxString()) + " (0)",
-						sid,
-						false);
+					theApp->amuledlg->m_searchwnd->OnSearchAdded(sid,
+						nameTag ? nameTag->GetStringData() : wxString(),
+						kindTag ? static_cast<uint32>(kindTag->GetInt())
+							: LocalSearch);
+				}
+				if (entry.GetTagByName(EC_TAG_SEARCH_STATUS)) {
+					ApplySearchProgress(&entry);
 				}
 				// Without this, a discovered tab never gets polled for progress at all
 				// (Phase1Done only loops over m_activeSearches), so its hit count, progress
@@ -4002,6 +4063,11 @@ CSearchFile::CSearchFile(const CEC_SearchFile_Tag *tag)
 			parent->AddChild(this);
 		}
 	}
+}
+
+std::optional<CSearchSourceCount> CSearchFile::GetNetworkSourceCounts() const
+{
+	return m_networkSourceCounts;
 }
 
 void CSearchFile::AddChild(CSearchFile *file)
@@ -4078,6 +4144,11 @@ void CSearchListRem::ProcessItemUpdate(const CEC_SearchFile_Tag *tag, CSearchFil
 	tag->SourceCount(&file->m_sourceCount);
 	tag->CompleteSourceCount(&file->m_completeSourceCount);
 	tag->DownloadStatus((uint32 *)&file->m_downloadStatus);
+	const CECTag *ed2kTag = tag->GetTagByName(EC_TAG_SEARCHFILE_ED2K_SOURCES);
+	const CECTag *kadTag = tag->GetTagByName(EC_TAG_SEARCHFILE_KAD_SOURCES);
+	const bool networkCountsChanged = UpdateSearchSourceCounts(file->m_networkSourceCounts,
+		ed2kTag ? std::optional<uint32_t>(ed2kTag->GetInt()) : std::nullopt,
+		kadTag ? std::optional<uint32_t>(kadTag->GetInt()) : std::nullopt);
 
 	// On-demand Kad community ratings/comments (same positional encoding as a partfile's;
 	// see CEC_SearchFile_Tag). The comments dialog polls the running flag + rating list
@@ -4103,8 +4174,8 @@ void CSearchListRem::ProcessItemUpdate(const CEC_SearchFile_Tag *tag, CSearchFil
 	// the monolithic client filled those columns in from the same server reply.
 	DecodeMediaTags(tag, file);
 
-	if (file->m_sourceCount != sourceCount || file->m_completeSourceCount != completeSourceCount ||
-		file->m_downloadStatus != status) {
+	if (networkCountsChanged || file->m_sourceCount != sourceCount ||
+		file->m_completeSourceCount != completeSourceCount || file->m_downloadStatus != status) {
 		if (theApp->amuledlg && theApp->amuledlg->m_searchwnd) {
 			theApp->amuledlg->m_searchwnd->UpdateResult(file);
 		}
@@ -4131,7 +4202,7 @@ bool CSearchListRem::Phase1Done(const CECPacket *WXUNUSED(reply))
 		// Poll progress for each open search so every tab's lifecycle ("!", progress bar)
 		// is tracked independently. Snapshot the set: an expired reply may erase from
 		// m_activeSearches while iterating.
-		std::set<uint32> ids = m_activeSearches;
+		const std::vector<uint32> ids(m_activeSearches.begin(), m_activeSearches.end());
 		for (uint32 id : ids) {
 			CECPacket progress_req(EC_OP_SEARCH_PROGRESS);
 			progress_req.AddTag(CECTag(EC_TAG_SEARCH_ID, id));
@@ -4151,7 +4222,7 @@ void CSearchListRem::RemoveResults(wxUIntPtr nSearchID)
 	// through DeleteItem(), so dropping the index is all that is needed -- deleting would
 	// double-free.
 	DropResultIndex(nSearchID);
-	m_kadActive.erase((uint32)nSearchID);
+	m_runningKadSearches.erase((uint32)nSearchID);
 }
 
 void CStatsUpdaterRem::HandlePacket(const CECPacket *packet)

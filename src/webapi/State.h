@@ -866,10 +866,11 @@ struct SearchProgressSnapshot
 	// True between POST /search and the daemon-reported finished state. Drives whether
 	// the refresher keeps polling EC_OP_SEARCH_RESULTS + EC_OP_SEARCH_PROGRESS.
 	bool active = false;
-	// "global" | "local" | "kad". Captured from POST /search's `type` param. Surfaced in
+	// "global" | "local" | "kad" | "all" | "browse". The requested or discovered type. Surfaced in
 	// `search_progress` SSE so consumers can distinguish which network produced the
 	// result set.
 	std::string kind;
+	bool kad_active = false;   // an All search may continue after its Kad component finishes
 	std::uint32_t percent = 0; // 0..100, daemon-computed for every
 				   // kind (global = real server-queue
 				   // percent; Kad = cosmetic time-ramp;
@@ -1238,6 +1239,7 @@ struct PreferencesSnapshot
 
 struct StatusSnapshot
 {
+	bool search_all_supported = false; // negotiated EC capability
 	// "connected" / "connecting" / "disconnected" -- the literal string the API
 	// returns, decoded at parse time so the snapshot is self-describing.
 	std::string ed2k_state = "disconnected";
@@ -1743,7 +1745,10 @@ public:
 	// Called by POST /search with the daemon-allocated search_id. Creates (or resets) that
 	// search's slot and marks it active. The refresher then polls EC_OP_SEARCH_RESULTS /
 	// _PROGRESS for it each tick.
-	void MarkSearchStarted(std::uint32_t search_id, const std::string &kind, const std::string &query);
+	void MarkSearchStarted(std::uint32_t search_id,
+		const std::string &kind,
+		const std::string &query,
+		bool kad_active = false);
 	/**
 	 * Mark a slot as no longer backed by the daemon. Freezes its results: see
 	 * SearchSlot::detached. Idempotent; a no-op for an unknown id.
@@ -1781,7 +1786,8 @@ public:
 		const std::string &query,
 		bool active,
 		bool complete,
-		int reported_percent = -1);
+		int reported_percent = -1,
+		bool kad_active = false);
 	// Refresher-side write path for one search's progress snapshot.
 	void WriteSearchProgress(std::uint32_t search_id, SearchProgressSnapshot s);
 	// Drop a search's slot entirely: DELETE /search/{id}, or the refresher

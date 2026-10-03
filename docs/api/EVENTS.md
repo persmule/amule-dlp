@@ -544,6 +544,7 @@ Rate impact is small: the overhead rates move about as often as the speeds alrea
 ```json
 {
   "ec_connected": true,
+  "search_all_supported": true,
   "ed2k": {
     "state":       "connected",
     "high_id":     true,
@@ -633,17 +634,18 @@ This matters most on a **finished** search, which publishes no further [`search_
 Emitted whenever a search's completion advances and once more on its completion; every frame carries the `search_id` it refers to. Two triggers, both off the daemon's unambiguous `EC_TAG_SEARCH_LIFECYCLE_*` tags (see [REFERENCE.md](REFERENCE.md#get-apiv1searchidresults)): the `percent` changing between refresher ticks while the search runs, and the lifecycle flipping to finished (the `state` `running` → `finished` edge). A newly-started search also emits its initial `running` frame. The completion frame is just the terminal `search_progress` with `"state": "finished"` — there is **no** separate `search_finished` event.
 
 ```json
-{ "search_id": 42, "state": "running", "percent": 47, "result_count": 88, "type": "kad" }
+{ "search_id": 42, "state": "running", "percent": 47, "result_count": 88, "type": "kad", "kad_active": true }
 ```
 
 ```json
-{ "search_id": 42, "state": "finished", "percent": 100, "result_count": 153, "type": "local" }
+{ "search_id": 42, "state": "finished", "percent": 100, "result_count": 153, "type": "local", "kad_active": false }
 ```
 
 - `search_id` — which search this frame is about.
 - `state` — `"running"` while the search is in flight, `"finished"` on the terminal frame.
 - `percent` — `0..100`, daemon-computed for every search kind. For **global** it is the real server-queue progress. For **Kad**, which has no measurable progress, it is a cosmetic time-ramp derived from the fixed 45 s keyword-search lifetime (capped at 99 until the daemon authoritatively reports completion, then 100); see [REFERENCE.md](REFERENCE.md#get-apiv1searchidresults). Treat the Kad value as a liveliness indicator, not an accurate completion estimate.
-- `type` — the originally-requested search type (`"local"` | `"global"` | `"kad"` | `"browse"`).
+- `type` — the originally-requested search type (`"local"` | `"global"` | `"kad"` | `"all"` | `"browse"`). `"all"` identifies a combined eD2k/Kad search.
+- `kad_active` — whether this search has an active Kad component. A component activity change emits a frame even if percent is unchanged; use this to enable **More** for Kad and All searches.
 - `result_count` — the current results-map size; subscribers can reconcile against any `search_result_added` / `search_result_updated` they may have missed via `GET /search/{id}/results`.
 
 A Kad search hitting its result cap (`SEARCHKEYWORD_TOTAL`, 300) before the 45 s deadline finishes early — the lifecycle flips to `finished` and `percent` jumps straight to 100 ahead of the ramp.

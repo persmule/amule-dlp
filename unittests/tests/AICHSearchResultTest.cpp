@@ -183,12 +183,13 @@ TEST(AICHSearchResult, VotesAreBoundedAndUnknownRespondersExcluded)
 class CSearchFileTestFixture
 {
 public:
-	static CSearchFile *Result(const wxString &name, uint32_t responder, const CAICHHash &root)
+	static CSearchFile *Result(
+		const wxString &name, uint32_t responder, const CAICHHash &root, bool kad = true)
 	{
 		auto *result = new CSearchFile;
 		result->SetFileName(CPath(name));
 		result->SetFileSize(1024);
-		result->m_kademlia = true;
+		result->m_kademlia = kad;
 		result->m_kadAICHVotes.Add(responder, root);
 		return result;
 	}
@@ -239,4 +240,21 @@ TEST(AICHSearchResult, ChildDownloadRetainsOtherVariantsDisagreement)
 	// Its own ten matching votes would be trusted. Including the other filename's
 	// disagreement keeps ten out of eleven below the existing 92% threshold.
 	ASSERT_EQUALS(AICH_UNTRUSTED, downloaded.GetStatus());
+}
+
+TEST(AICHSearchResult, ServerFirstAllSearchGroupReplaysKadVotes)
+{
+	const CAICHHash root = MakeRoot(0xAB);
+	std::unique_ptr<CSearchFile> group(CSearchFileTestFixture::Result("server", 0, root, false));
+	for (uint32_t i = 1; i <= 10; ++i) {
+		group->AddChild(CSearchFileTestFixture::Result("kad", i, root));
+	}
+	ASSERT_FALSE(group->IsKademlia());
+	ASSERT_EQUALS(size_t(10), group->GetKadAICHVotes().size());
+	for (const CSearchFile *child : group->GetChildren()) {
+		CAICHHashSet downloaded(nullptr);
+		ASSERT_TRUE(child->ApplyKadAICHVotes(downloaded));
+		ASSERT_EQUALS(AICH_TRUSTED, downloaded.GetStatus());
+		ASSERT_TRUE(downloaded.GetMasterHash() == root);
+	}
 }

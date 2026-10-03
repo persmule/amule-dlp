@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aMule GIT\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
-"POT-Creation-Date: 2026-10-02 15:14+0200\n"
+"POT-Creation-Date: 2026-10-03 11:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1130,6 +1130,10 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
+#: src/amule-remote-gui.cpp
+msgid "The connected daemon does not support All searches."
+msgstr ""
+
 #: src/BaseClient.cpp
 msgid "Searching buddy for lowid connection"
 msgstr ""
@@ -1777,7 +1781,7 @@ msgstr ""
 msgid "Remote Server"
 msgstr ""
 
-#: src/DataToText.cpp src/KadDlg.cpp src/muuli_wdr.cpp src/SearchDlg.cpp
+#: src/DataToText.cpp src/KadDlg.cpp src/muuli_wdr.cpp src/SearchModeIcons.h
 #: src/TextClient.cpp
 msgid "Kad"
 msgstr ""
@@ -3881,12 +3885,8 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: src/muuli_wdr.cpp src/SearchDlg.cpp src/SearchListCtrl.cpp
-msgid "Local"
-msgstr ""
-
 #: src/muuli_wdr.cpp
-msgid "Global"
+msgid "Search network"
 msgstr ""
 
 #: src/muuli_wdr.cpp
@@ -6710,7 +6710,15 @@ msgid "Invalid entry in stored search list, file may be corrupt"
 msgstr ""
 
 #: src/SearchList.cpp
+msgid "All search can't be done if neither eD2k nor Kad is available"
+msgstr ""
+
+#: src/SearchList.cpp
 msgid "eD2k search can't be done if eD2k is not connected"
+msgstr ""
+
+#: src/SearchList.cpp
+msgid "All search: no usable Kad keyword; continuing with eD2k."
 msgstr ""
 
 #: src/SearchList.cpp
@@ -6719,6 +6727,10 @@ msgstr ""
 
 #: src/SearchList.cpp
 msgid "Unexpected error while attempting Kad search: "
+msgstr ""
+
+#: src/SearchList.cpp
+msgid "All search: Kad component could not start: "
 msgstr ""
 
 #: src/SearchList.cpp
@@ -6774,6 +6786,34 @@ msgstr ""
 msgid "New"
 msgstr ""
 
+#: src/SearchModeIcons.h
+msgid "eD2k: Current server"
+msgstr ""
+
+#: src/SearchModeIcons.h
+msgid "eD2k: All servers"
+msgstr ""
+
+#: src/SearchModeIcons.h
+msgid "All networks"
+msgstr ""
+
+#: src/SearchModeIcons.h
+msgid "Search the connected eD2k server."
+msgstr ""
+
+#: src/SearchModeIcons.h
+msgid "Search the connected eD2k server and other servers in the server list."
+msgstr ""
+
+#: src/SearchModeIcons.h
+msgid "Search the Kad network."
+msgstr ""
+
+#: src/SearchModeIcons.h
+msgid "Search eD2k servers and Kad, using whichever networks are available."
+msgstr ""
+
 #: src/SearchProgressReport.cpp
 msgid "running"
 msgstr ""
@@ -6811,6 +6851,39 @@ msgstr ""
 
 #: src/SearchProgressReport.cpp
 msgid "No search to report on.\n"
+msgstr ""
+
+#: src/SearchSourceFormat.h
+#, c-format
+msgid "Estimated availability: %u"
+msgstr ""
+
+#: src/SearchSourceFormat.h
+#, c-format
+msgid "eD2k sources: %u"
+msgstr ""
+
+#: src/SearchSourceFormat.h
+#, c-format
+msgid "Kad sources: %u"
+msgstr ""
+
+#: src/SearchSourceFormat.h
+msgid "Network counts may overlap; they are not added together."
+msgstr ""
+
+#: src/SearchSourceFormat.h
+msgid "Network breakdown unavailable."
+msgstr ""
+
+#: src/SearchSourceFormat.h
+#, c-format
+msgid "Complete sources: %u"
+msgstr ""
+
+#: src/SearchSourceFormat.h
+#, c-format
+msgid "Direct client endpoints: %u"
 msgstr ""
 
 #: src/ServerConnect.cpp
@@ -7919,6 +7992,10 @@ msgstr ""
 msgid "Not a valid hash (length should be exactly 32 chars)\n"
 msgstr ""
 
+#: src/TextClient.cpp
+msgid "The connected daemon does not support All searches.\n"
+msgstr ""
+
 #. TRANSLATORS:
 #. 'help search' is a command to the program, do not translate it.
 #: src/TextClient.cpp
@@ -8285,6 +8362,7 @@ msgid ""
 "    GLOBAL\n"
 "    LOCAL\n"
 "    KAD\n"
+"    ALL: All networks (requires daemon support)\n"
 "Example: 'search kad file' will execute a kad search for \"file\".\n"
 "\n"
 "Optional filters can be added before, after, or interleaved with\n"
@@ -8308,6 +8386,10 @@ msgstr ""
 
 #: src/TextClient.cpp
 msgid "Execute a kad search"
+msgstr ""
+
+#: src/TextClient.cpp
+msgid "Execute an eD2k and Kad search"
 msgstr ""
 
 #: src/TextClient.cpp

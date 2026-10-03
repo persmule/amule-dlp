@@ -376,7 +376,7 @@ confirmation — the server does not echo those two tags.
 `EC_TAG_CAN_PARTIAL_UPDATE`, `EC_TAG_CAN_MULTI_SEARCH`,
 `EC_TAG_CAN_CHAT`, `EC_TAG_CAN_CHAT_SESSIONS`,
 `EC_TAG_CAN_SHAREDDIRS_CONFIG`, `EC_TAG_CAN_SEARCH_LIST`,
-`EC_TAG_CAN_SEARCH_PROGRESS_UNION`. The server
+`EC_TAG_CAN_SEARCH_PROGRESS_UNION`, `EC_TAG_CAN_SEARCH_ALL`. The server
 echoes each of these in its `EC_OP_AUTH_OK` response when it supports it,
 so the client learns what is negotiated for this connection.
 
@@ -844,3 +844,61 @@ means an older daemon, which is a **third state**, distinct from a peer
 that advertised no capabilities (word `0`). aMule itself advertises
 nothing here yet — it implements none of the five features — so the tag
 describes the peer only.
+
+### Combined network searches
+
+`EC_SEARCH_ALL` (`5`) starts a global eD2k search and a Kad keyword search
+under one public search ID. It uses whichever networks are available at
+submission time; neither available is an error. A Kad keyword already in
+use by another search is preserved. The new search cannot acquire that Kad
+target; if eD2k is connected the new search continues there and logs why its
+Kad component could not start. A query with no usable Kad keyword also
+continues over eD2k when connected; it fails when Kad is the only available
+network.
+
+Combined result rows sum eD2k source reports and take the maximum Kad source
+estimate, then display the larger of those two counts because the networks
+can overlap. Summed eD2k counts saturate at the unsigned 32-bit maximum.
+
+Only ALL results with a known split carry
+`EC_TAG_SEARCHFILE_ED2K_SOURCES` (`0x0718`) and
+`EC_TAG_SEARCHFILE_KAD_SOURCES` (`0x0719`) as an optional pair of unsigned
+counts. An initial full result includes both halves, including zero counts.
+Incremental updates use the value map and omit unchanged halves; clients retain
+the last-known value of the omitted half. Without an initial pair the split is
+unknown (older daemons or legacy ALL snapshots). Single-network results do not
+carry this pair.
+Existing aggregate source tags retain their meaning and determine sorting.
+Clients display only nonzero network counts: `E:9`, `K:50`, or `E:9 K:50`.
+Both zero produces `0`; an unknown breakdown displays the aggregate alone.
+A Sources-cell tooltip explains estimated availability, network counts,
+complete sources, direct client endpoints when available locally, and overlapping
+network estimates. EC does not supply a direct-endpoint count, so remote clients
+omit that detail rather than displaying zero.
+New saved ALL results retain the split; single-network results do not save it.
+
+For multi-search clients, replacement requests are validated before the existing
+eD2k search is stopped. Rejected requests leave it running; standalone Kad searches
+run alongside it. The legacy single-search sentinel still replaces its one bucket.
+
+Clients must require `EC_TAG_CAN_SEARCH_ALL` (`0x0029`) in `EC_OP_AUTH_OK`
+before submitting this type. Older daemons may interpret an unknown search
+type as a local search. This capability is advertised unconditionally by
+supporting daemons and requires no new framing or protocol version.
+
+The public ID is used for results, stop, close, and "More". The internal Kad
+ID is never exposed. Lifecycle state remains running until both components
+finish; stopping or closing the public ID stops both. Successful multi-search
+START replies, progress replies, and search-list entries include
+`EC_TAG_SEARCH_KAD_ACTIVE` (`0x0717`, integer boolean), indicating whether
+that ID still has an active Kad component, independently of the aggregate
+lifecycle. Clients use it to gate "More"; its absence on older daemons is
+unknown, with the existing Kad kind/state check as the fallback. A restored
+All search retains results but has no running network components.
+
+`EC_TAG_SEARCH_ED2K_ACTIVE` (`0x071A`, integer boolean) reports whether this
+search still owns the active eD2k slot, independently of its Kad component.
+It is included in successful multi-search START replies, progress replies,
+and search-list entries. Clients use it to decide whether a new eD2k request
+would interrupt existing work. Its
+absence on older daemons means unknown; use the lifecycle as a fallback.

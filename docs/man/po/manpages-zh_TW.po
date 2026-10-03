@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aMule Manual zh_TW\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-26 12:38+0100\n"
+"POT-Creation-Date: 2026-10-02 08:36+0800\n"
 "PO-Revision-Date: 2026-10-02 00:52+0000\n"
 "Last-Translator: Wayne Su <mstarmstar@gmail.com>\n"
 "Language-Team: \n"
@@ -86,7 +86,6 @@ msgstr "[B<-w> I<E<lt>路徑E<gt>>]"
 #. type: Plain text
 #: amule.1.in amuled.1.in amulegui.1.in
 #, fuzzy
-#| msgid "[B<-t> I<E<lt>numE<gt>>] [I<eD2k-link>]"
 msgid "[B<-t> I<E<lt>numE<gt>>] [I<eD2k-link>|I<collection-file>]"
 msgstr "[B<-t> I<E<lt>號碼E<gt>>] [I<eD2k 連結>]"
 
@@ -195,14 +194,12 @@ msgstr "顯示簡短的使用說明。"
 #. type: TP
 #: amule.1.in amuled.1.in amulegui.1.in
 #, fuzzy, no-wrap
-#| msgid "B<[ eD2k-link ]>"
 msgid "B<[ eD2k-link | collection-file ]>"
 msgstr "B<[ eD2k 連結 ]>"
 
 #. type: Plain text
 #: amule.1.in amuled.1.in
 #, fuzzy
-#| msgid "Adds an eD2k-link or a magnet-link to the core."
 msgid "Adds an eD2k-link, or every link in an eMule collection file, to the core."
 msgstr "將 eD2k 連結或 magnet 加到核心。"
 
@@ -612,7 +609,6 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in
 #, fuzzy
-#| msgid "A synonim of the B<exit> command."
 msgid "A synonym of the B<exit> command."
 msgstr "功能和 B<exit> 一樣的指令。"
 
@@ -649,7 +645,6 @@ msgstr "繼續下載指定的檔案，指定方式：I<E<lt>hash 值E<gt>> 或 I
 #. type: Plain text
 #: amulecmd.1.in
 #, fuzzy
-#| msgid "Makes a search for the given I<E<lt>keywordE<gt>>. A search type and a keyword to search is mandatory to do this.  Example: `search kad amule' performs a kad search for `amule'."
 msgid "Makes a search for the given I<E<lt>keywordE<gt>>. A search type and a keyword to search is mandatory to do this.  Example: 'search kad amule' performs a kad search for 'amule'.  Prints a search id; pass it to B<results> or B<progress> to address this search. Several searches can run at once, each with its own id."
 msgstr "用指定的 I<E<lt>關鍵字E<gt>> 搜尋。必須要有搜尋的「種類」加上「關鍵字」，例如：「search kad amule」會開始在 KAD 網路搜尋「amule」。"
 
@@ -657,6 +652,11 @@ msgstr "用指定的 I<E<lt>關鍵字E<gt>> 搜尋。必須要有搜尋的「種
 #: amulecmd.1.in
 msgid "Available search types:"
 msgstr "可用的搜尋類型："
+
+#. type: Plain text
+#: amulecmd.1.in
+msgid "Searches eD2k and Kad together, using the available network if the other cannot start. Requires a daemon advertising All search support; older daemons return a clear error without starting a search. Example: 'search all amule'."
+msgstr ""
 
 #. type: Plain text
 #: amulecmd.1.in
@@ -912,7 +912,6 @@ msgstr ""
 #. type: TP
 #: amuled.1.in
 #, fuzzy, no-wrap
-#| msgid "B<[ -t> I<E<lt>nameE<gt>>, B<--template>=I<E<lt>nameE<gt>> B<]>"
 msgid "B<[ -t> I<E<lt>numE<gt>>, B<--category>=I<E<lt>numE<gt>> B<]>"
 msgstr "B<[ -t> I<E<lt>名稱E<gt>>, B<--template>=I<E<lt>名稱E<gt>> B<]>"
 
@@ -957,14 +956,12 @@ msgstr ""
 #. type: Plain text
 #: amulegui.1.in
 #, fuzzy
-#| msgid "Adds an eD2k-link or a magnet-link to the core."
 msgid "Sends an eD2k-link, or every link in an eMule collection file, to the connected core."
 msgstr "將 eD2k 連結或 magnet 加到核心。"
 
 #. type: TP
 #: amulegui.1.in
 #, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
 msgid "I<~/.aMule/remote.conf>"
 msgstr "~/.aMule/remote.conf"
 
@@ -976,21 +973,18 @@ msgstr ""
 #. type: TP
 #: amulegui.1.in
 #, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
 msgid "I<~/.aMule/remotelogfile>"
 msgstr "~/.aMule/remote.conf"
 
 #. type: Plain text
 #: amulegui.1.in
 #, fuzzy
-#| msgid "Show log."
 msgid "The log."
 msgstr "顯示記錄。"
 
 #. type: TP
 #: amulegui.1.in
 #, fuzzy, no-wrap
-#| msgid "~/.aMule/ED2KLinks"
 msgid "I<~/.aMule/ED2KLinks>"
 msgstr "~/.aMule/ED2KLinks"
 
@@ -1091,7 +1085,6 @@ msgstr "啟用 UPnP。"
 #. type: TP
 #: amuleweb.1.in
 #, fuzzy, no-wrap
-#| msgid "B<[ -U> I<E<lt>portE<gt>>, B<--upnp-port> I<E<lt>portE<gt>> B<]>"
 msgid "B<[ -U> I<E<lt>portE<gt>>, B<--upnp-port>=I<E<lt>portE<gt>> B<]>"
 msgstr "B<[ -U> I<E<lt>通訊埠E<gt>>, B<--upnp-port> I<E<lt>通訊埠E<gt>> B<]>"
 
@@ -1249,7 +1242,6 @@ msgstr "將指定的 I<E<lt>eD2k 連結E<gt>> 傳送給 aMule，會寫入 aMule 
 #. type: TP
 #: ed2k.1.in
 #, fuzzy, no-wrap
-#| msgid "B<[ -t> I<E<lt>nameE<gt>>, B<--template>=I<E<lt>nameE<gt>> B<]>"
 msgid "B<[ -t> I<E<lt>numE<gt>>, B<--category> I<E<lt>numE<gt>> B<]>"
 msgstr "B<[ -t> I<E<lt>名稱E<gt>>, B<--template>=I<E<lt>名稱E<gt>> B<]>"
 
@@ -1261,14 +1253,12 @@ msgstr ""
 #. type: Plain text
 #: ed2k.1.in
 #, fuzzy
-#| msgid "Loads all link found in the emulecollection given as I<E<lt>ed2k-linkE<gt>>"
 msgid "Loads all links found in the emulecollection given as I<E<lt>ed2k-linkE<gt>>"
 msgstr "載入所有以 I<E<lt>eD2k 連結E<gt>> 方式指定的 eMule 收藏庫裏找到的連結"
 
 #. type: Plain text
 #: ed2k.1.in
 #, fuzzy
-#| msgid "Lists all link found in the emulecollection given as I<E<lt>ed2k-linkE<gt>>"
 msgid "Lists all links found in the emulecollection given as I<E<lt>ed2k-linkE<gt>>"
 msgstr "列出所有以 I<E<lt>eD2k 連結E<gt>> 方式指定的 eMule 收藏庫裏找到的連結"
 

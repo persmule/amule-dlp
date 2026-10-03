@@ -89,6 +89,11 @@ JWT_SECRET=$(od -An -tx1 -N32 /dev/urandom | tr -d ' \n')
 run_phase() {
 	local script=$1
 	echo "==================== $script ===================="
+	# This phase owns an offline core/API pair on private ports.
+	if [ "$script" = "45-all-search.sh" ]; then
+		AMULEAPI_BIN="$BIN" bash "$SCRIPT_DIR/$script"
+		return $?
+	fi
 	# Narrowly target the regtest daemon so a dev who happens to have
 	# `vim path/to/amuleapi.cpp` open doesn't get their editor killed.
 	# The config-dir suffix is uniquely ours.
@@ -282,6 +287,7 @@ PHASES=(
 	42-path-and-body-contracts.sh
 	43-client-protocol-extensions.sh
 	44-base-path.sh
+	45-all-search.sh
 	99-peer-fixture-teardown.sh
 )
 

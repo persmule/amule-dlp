@@ -119,8 +119,9 @@ void ParseAmuleLogFromPacket(const CECPacket *resp, std::vector<std::string> &ou
 //
 // An *empty* union with the right opcode is NOT malformed -- it is the daemon legitimately saying
 // it holds none of the searches asked about.
-bool ParseSearchProgressUnion(
-	const CECPacket *resp, std::map<std::uint32_t, std::pair<std::uint32_t, std::uint32_t>> &out);
+bool ParseSearchProgressUnion(const CECPacket *resp,
+	std::map<std::uint32_t, std::pair<std::uint32_t, std::uint32_t>> &out,
+	std::map<std::uint32_t, bool> *kad_activity = nullptr);
 
 // EC_OP_GET_PREFERENCES response -> flat prefs + bundled categories (the packet carries categories
 // under EC_TAG_PREFS_CATEGORIES), so one roundtrip populates both /preferences and /categories.
@@ -256,8 +257,10 @@ void ApplySearchFullReply(const CECPacket *resp,
 // every search kind, passed straight through with no per-kind masking. Pure function: no I/O, no
 // globals.
 struct SearchProgressSnapshot;
-SearchProgressSnapshot AdvanceSearchProgress(
-	const SearchProgressSnapshot &prev, std::uint32_t lifecycle_state, std::uint32_t pct_now);
+SearchProgressSnapshot AdvanceSearchProgress(const SearchProgressSnapshot &prev,
+	std::uint32_t lifecycle_state,
+	std::uint32_t pct_now,
+	int kad_active = -1);
 
 // `ApplyGetUpdateToClients` consumes the EC_TAG_CLIENT container from the consolidated GET_UPDATE
 // response, with "seen-this-tick = keep, absent = evict" semantics: every alive client surfaces

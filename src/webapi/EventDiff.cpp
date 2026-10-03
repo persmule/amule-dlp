@@ -380,7 +380,8 @@ std::string ToJsonStatusEvent(const StatusSnapshot &s, const KadSnapshot &k, boo
 {
 	std::ostringstream o;
 	o << "{"
-	  << "\"ec_connected\":" << (ec_connected ? "true" : "false") << ",\"ed2k\":{"
+	  << "\"ec_connected\":" << (ec_connected ? "true" : "false")
+	  << ",\"search_all_supported\":" << (s.search_all_supported ? "true" : "false") << ",\"ed2k\":{"
 	  << "\"state\":\"" << EscJson(s.ed2k_state) << "\""
 	  << ",\"high_id\":" << (s.ed2k_high_id ? "true" : "false") << ",\"user_id\":"
 	  << s.ed2k_user_id
@@ -549,9 +550,9 @@ bool Equal(const ClientSnapshot &a, const ClientSnapshot &b)
 bool Equal(const StatusSnapshot &a, const StatusSnapshot &b)
 {
 	// public_ip is derived from ed2k_user_id, so comparing the id covers it.
-	return a.ed2k_state == b.ed2k_state && a.kad_state == b.kad_state &&
-	       a.ed2k_high_id == b.ed2k_high_id && a.ed2k_user_id == b.ed2k_user_id &&
-	       a.ed2k_connected_since == b.ed2k_connected_since &&
+	return a.search_all_supported == b.search_all_supported && a.ed2k_state == b.ed2k_state &&
+	       a.kad_state == b.kad_state && a.ed2k_high_id == b.ed2k_high_id &&
+	       a.ed2k_user_id == b.ed2k_user_id && a.ed2k_connected_since == b.ed2k_connected_since &&
 	       a.kad_connected_since == b.kad_connected_since &&
 	       a.kad_firewalled_tcp == b.kad_firewalled_tcp && a.server_name == b.server_name &&
 	       a.server_ip == b.server_ip && a.server_port == b.server_port &&
@@ -973,6 +974,7 @@ void EmitDiffsAndUpdate(CEventBus &bus, LastSeenState &prev, const CState &state
 				auto &b = prev.searches[sid];
 				b.results = search_now;
 				b.complete = progress_now.complete;
+				b.kad_active = progress_now.kad_active;
 				b.percent = progress_now.percent;
 				b.generation = progress_now.generation;
 				continue;
@@ -1023,7 +1025,8 @@ void EmitDiffsAndUpdate(CEventBus &bus, LastSeenState &prev, const CState &state
 			const bool generation_bumped = progress_now.generation != pstate.generation;
 			const bool finished_edge = progress_now.complete && !pstate.complete;
 			const bool percent_moved = progress_now.percent != pstate.percent;
-			if (generation_bumped || finished_edge || percent_moved) {
+			if (generation_bumped || finished_edge || percent_moved ||
+				progress_now.kad_active != pstate.kad_active) {
 				std::ostringstream payload;
 				payload << "{\"search_id\":" << sid << ",\"state\":\""
 					<< (progress_now.complete ? "finished" : "running") << "\""
@@ -1034,11 +1037,13 @@ void EmitDiffsAndUpdate(CEventBus &bus, LastSeenState &prev, const CState &state
 					// already calls this number result_count.
 					<< ",\"result_count\":" << search_now.size() << ",\"type\":\""
 					<< EscJson(progress_now.kind) << "\""
+					<< ",\"kad_active\":" << (progress_now.kad_active ? "true" : "false")
 					<< "}";
 				bus.Publish("search_progress", payload.str());
 			}
 			pstate.results = search_now;
 			pstate.complete = progress_now.complete;
+			pstate.kad_active = progress_now.kad_active;
 			pstate.percent = progress_now.percent;
 			pstate.generation = progress_now.generation;
 		}

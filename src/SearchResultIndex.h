@@ -26,7 +26,8 @@
 #define SEARCHRESULTINDEX_H
 
 #include <algorithm> // Needed for std::find
-#include <map>       // Needed for std::map
+#include <utility>
+#include <map> // Needed for std::map
 
 #include "SearchFile.h" // Needed for CSearchFile, CSearchResultList
 
@@ -154,6 +155,19 @@ protected:
 	 * derived class.
 	 */
 	void DropResultIndex(wxUIntPtr searchID) { m_results.erase(searchID); }
+
+	// The owner detaches the bucket before deleting its files: destructor callbacks
+	// must never find freed objects in the shared index.
+	CSearchResultList TakeSearchResults(wxUIntPtr searchID)
+	{
+		auto it = m_results.find(searchID);
+		if (it == m_results.end()) {
+			return {};
+		}
+		auto results = std::move(it->second);
+		m_results.erase(it);
+		return results;
+	}
 
 private:
 	//! Map of all indexed top-level search results, keyed by search id. Private so the only way

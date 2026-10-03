@@ -301,7 +301,8 @@ bool CState::FindSearchResultByHash(
 	return false;
 }
 
-void CState::MarkSearchStarted(std::uint32_t search_id, const std::string &kind, const std::string &query)
+void CState::MarkSearchStarted(
+	std::uint32_t search_id, const std::string &kind, const std::string &query, bool kad_active)
 {
 	std::unique_lock<std::shared_timed_mutex> lock(m_mu);
 	SearchSlot &slot = m_searches[search_id];
@@ -322,6 +323,7 @@ void CState::MarkSearchStarted(std::uint32_t search_id, const std::string &kind,
 	slot.progress = SearchProgressSnapshot{};
 	slot.progress.active = true;
 	slot.progress.kind = kind;
+	slot.progress.kad_active = kind == "kad" || kad_active;
 	slot.progress.generation = next_generation;
 	slot.query = query;
 	slot.started_at = std::time(nullptr);
@@ -334,7 +336,8 @@ void CState::MarkSearchDiscovered(std::uint32_t search_id,
 	const std::string &query,
 	bool active,
 	bool complete,
-	int reported_percent)
+	int reported_percent,
+	bool kad_active)
 {
 	std::unique_lock<std::shared_timed_mutex> lock(m_mu);
 	auto known = m_searches.find(search_id);
@@ -362,6 +365,7 @@ void CState::MarkSearchDiscovered(std::uint32_t search_id,
 	slot.progress.percent =
 		reported_percent >= 0 ? static_cast<std::uint32_t>(reported_percent) : (complete ? 100u : 0u);
 	slot.progress.kind = kind;
+	slot.progress.kad_active = active && (kind == "kad" || kad_active);
 	slot.query = query;
 	EvictSurplusSearchSlotsLocked(search_id);
 }

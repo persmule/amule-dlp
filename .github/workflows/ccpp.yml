@@ -107,6 +107,7 @@ env:
     -DBUILD_MONOLITHIC=YES \
     -DBUILD_REMOTEGUI=YES \
     -DBUILD_TESTING=YES \
+    -DENABLE_ALL_SEARCH_INTEGRATION_TEST=YES \
     -DBUILD_WEBSERVER=YES \
     -DENABLE_NLS=YES \
     -DENABLE_UPNP=YES
@@ -128,9 +129,12 @@ env:
     --output-on-failure
   # CredentialsTest and AmuleApiConfigTest run the production 210,000-iteration PBKDF2 on
   # every password set and check, 5-7 s on the macOS runners, so they get 60 s where every
-  # other test gets 10 s. The budget lives here rather than in a TIMEOUT property, which
+  # fast unit test gets 10 s. The budget lives here rather than in a TIMEOUT property, which
   # would also cap distro builds that run ctest with no limit.
   ctest_kdf_tests: '^(CredentialsTest|AmuleApiConfigTest)$'
+  # AllSearchIntegrationTest starts and restarts a real daemon. Run it separately
+  # on Ubuntu without a per-test deadline, rather than applying the unit budget.
+  ctest_fast_exclude: '^(CredentialsTest|AmuleApiConfigTest|AllSearchIntegrationTest|AllSearchClientCapabilityTest)$'
 
 jobs:
   # Window IDs in muuli_wdr.h and each EC enum in the .abstract files must not repeat a value. Two
@@ -188,8 +192,10 @@ jobs:
         run: ccache --show-stats
       - name: run tests
         run: |
-          xvfb-run -a ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_kdf_tests }}' &&
+          xvfb-run -a ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_fast_exclude }}' &&
           xvfb-run -a ctest ${{ env.ctest_flags }} --timeout 60 -R '${{ env.ctest_kdf_tests }}'
+      - name: run All search integration test
+        run: ctest ${{ env.ctest_flags }} --no-tests=error -R '^AllSearch(Integration|ClientCapability)Test$'
       # amuleapi_curl_smoke drives these two against a live daemon rather than
       # compiling its own copy. Release only: the smoke times SSE windows, and
       # a Debug daemon makes those flaky.
@@ -270,8 +276,10 @@ jobs:
         run: ccache --show-stats
       - name: run tests
         run: |
-          xvfb-run -a ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_kdf_tests }}' &&
+          xvfb-run -a ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_fast_exclude }}' &&
           xvfb-run -a ctest ${{ env.ctest_flags }} --timeout 60 -R '${{ env.ctest_kdf_tests }}'
+      - name: run All search integration test
+        run: ctest ${{ env.ctest_flags }} --no-tests=error -R '^AllSearch(Integration|ClientCapability)Test$'
 
   # Configures with the oldest CMake that CMakeLists.txt declares, so the floor stays
   # true. Configure only: the build itself does not depend on the CMake version.
@@ -303,6 +311,7 @@ jobs:
           "$RUNNER_TEMP/cmake-min/bin/cmake" .. \
             -DBUILD_EVERYTHING=YES \
             -DBUILD_TESTING=YES \
+            -DENABLE_ALL_SEARCH_INTEGRATION_TEST=YES \
             -DENABLE_ALL_EXPERIMENTAL=YES \
             ${{ env.cmake_ubuntu_config_flags }}
 
@@ -409,6 +418,8 @@ jobs:
           # asserts resync(idle). Running any of them would mean putting a CI
           # runner on the ed2k network. 00 and 99 bracket the full suite with
           # a peer fixture built from a real search hit, so they go too.
+          # 45-all-search owns an offline core/API fixture and stays included
+          # to cover type=all in REST and SSE even though 19 is excluded.
           EXCLUDED=(
             00-peer-fixture.sh
             07-read-stats-and-search-results.sh
@@ -520,7 +531,7 @@ jobs:
         run: ccache --show-stats
       - name: run tests
         run: |
-          ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_kdf_tests }}' &&
+          ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_fast_exclude }}' &&
           ctest ${{ env.ctest_flags }} --timeout 60 -R '${{ env.ctest_kdf_tests }}'
 
   build_cmake_windows_mingw_w64:
@@ -598,5 +609,5 @@ jobs:
         run: ccache --show-stats
       - name: run tests
         run: |
-          ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_kdf_tests }}' &&
+          ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_fast_exclude }}' &&
           ctest ${{ env.ctest_flags }} --timeout 60 -R '${{ env.ctest_kdf_tests }}'

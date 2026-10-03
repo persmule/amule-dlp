@@ -115,7 +115,7 @@ The API is versioned in the path. **`/api/v1/` is frozen**: anything that could 
 
 **Search**
 - [`GET /api/v1/search`](#get-apiv1search) — enumerate every search amuled currently holds, including ones this session never started
-- [`POST /api/v1/search`](#post-apiv1search) — start a search (global / local / kad), returns its `search_id`
+- [`POST /api/v1/search`](#post-apiv1search) — start a search (global / local / kad / all), returns its `search_id`
 - [`GET /api/v1/search/{id}/results`](#get-apiv1searchidresults) — one search's results + progress envelope
 - [`POST /api/v1/search/{id}/stop`](#post-apiv1searchidstop) — stop a search, keeping its results
 - [`POST /api/v1/search/{id}/more`](#post-apiv1searchidmore) — widen a running Kad search
@@ -603,6 +603,7 @@ curl -s -H "Authorization: Bearer $TOKEN" http://$HOST/api/v1/status
 ```json
 {
   "ec_connected": true,
+  "search_all_supported": true,
   "ed2k": {
     "state": "connected",
     "high_id": true,
@@ -630,6 +631,8 @@ curl -s -H "Authorization: Bearer $TOKEN" http://$HOST/api/v1/status
   "queue": { "waiting_upload_client_count": 12, "download_source_count": 1843 }
 }
 ```
+
+`search_all_supported` reports whether the connected daemon advertises `EC_TAG_CAN_SEARCH_ALL`; use it to offer All in a search form. The capability is read from the EC handshake and is returned by REST `/status` and SSE `status_changed`.
 
 `ec_connected` is `false` while amuleapi can't reach the underlying amuled. Most other endpoints return `503 ec_unavailable` in that state.
 
@@ -2914,7 +2917,7 @@ Lists every search amuled currently holds — including ones started by a **diff
 
 This is a list endpoint like the others: it takes `?limit`, `?offset`, `?sort` and `?order`, and carries the same `total` / `offset` / `limit` trio. See [List pagination and sorting](#list-pagination-and-sorting); the sort keys are `search_id`, `query`, `started_at` and `result_count`.
 
-`search_id` is the value that fills `{id}` on every search-scoped path: [`GET /search/{id}/results`](#get-apiv1searchidresults) to read its hits, [`POST /search/{id}/stop`](#post-apiv1searchidstop) to stop it, [`DELETE /search/{id}`](#delete-apiv1searchid) to free it. `type` is `"local"` | `"global"` | `"kad"` | `"browse"`. The first three are the vocabulary `POST /search`'s `type` accepts; `"browse"` is reported only, for a "View Files" listing of one client's share, which is started through the client endpoints rather than by a query. `state` is `"running"` | `"finished"` | `"idle"`, same vocabulary and meaning as `GET /search/{id}/results`'s `progress.state`.
+`search_id` is the value that fills `{id}` on every search-scoped path: [`GET /search/{id}/results`](#get-apiv1searchidresults) to read its hits, [`POST /search/{id}/stop`](#post-apiv1searchidstop) to stop it, [`DELETE /search/{id}`](#delete-apiv1searchid) to free it. `type` is `"local"` | `"global"` | `"kad"` | `"all"` | `"browse"`. `"all"` identifies a combined eD2k/Kad search. The first four are the vocabulary `POST /search`'s `type` accepts; `"browse"` is reported only, for a "View Files" listing of one client's share, which is started through the client endpoints rather than by a query. `state` is `"running"` | `"finished"` | `"idle"`, same vocabulary and meaning as `GET /search/{id}/results`'s `progress.state`.
 
 For a `"browse"` entry, `state` and the results endpoint's `progress.percent` come from the browse's own lifecycle rather than from a query's: the request being sent is `"running"`, and the client having answered, denied the request, or disconnected mid-list is `"finished"` — a browse is never reported as `"idle"`. `percent` is the share of the client's directory list received so far, so it climbs while the listing streams in rather than jumping straight from `0` to `100`.
 
@@ -2954,7 +2957,7 @@ Kicks off a new search. amuleapi supports **several concurrent searches** — a 
 }
 ```
 
-Only `query` is required. `type` defaults to `"global"`; valid values are `"local"`, `"global"`, `"kad"`. `file_type` filters by category and takes the same tokens the result rows report: `"audio"`, `"video"`, `"picture"`, `"text"`, `"program"`, `"archive"`, `"disc_image"`. Omit it, or send `""`, for any type; anything else is `400 bad_request`, `"unknown"` included, since no ed2k category corresponds to it. `min_size_bytes`, `max_size_bytes` and `min_source_count` are integers: a fractional value is a `400` rather than being truncated, so a client that computed a size cannot half-apply a filter it thinks it set. A `"global"`/`"local"` (ed2k) search and a `"kad"` search run independently and can be in flight at the same time; starting one never disturbs the other.
+Only `query` is required. `type` defaults to `"global"`; valid values are `"local"`, `"global"`, `"kad"`, `"all"`. `"all"` searches eD2k and Kad together, falling back to the available network if the other cannot start. It requires the daemon to advertise `EC_TAG_CAN_SEARCH_ALL`; otherwise the API returns `503 ec_unsupported` before sending a search request. `GET /status` exposes this capability as `search_all_supported` (boolean), which the WebUI uses to offer All. This additive value keeps `/api/v1` compatible. `file_type` filters by category and takes the same tokens the result rows report: `"audio"`, `"video"`, `"picture"`, `"text"`, `"program"`, `"archive"`, `"disc_image"`. Omit it, or send `""`, for any type; anything else is `400 bad_request`, `"unknown"` included, since no ed2k category corresponds to it. `min_size_bytes`, `max_size_bytes` and `min_source_count` are integers: a fractional value is a `400` rather than being truncated, so a client that computed a size cannot half-apply a filter it thinks it set. A `"global"`/`"local"` (ed2k) search and a `"kad"` search run independently and can be in flight at the same time; starting one never disturbs the other.
 
 **Response:** `202 Accepted`, with a `Location: /api/v1/search/{search_id}` header and the created search as the body -- the same row [`GET /search`](#get-apiv1search) lists, so it can go straight into a collection the client already keeps:
 
@@ -2971,7 +2974,7 @@ Only `query` is required. `type` defaults to `"global"`; valid values are `"loca
 
 Keep the `search_id` to read this search's results/progress or to stop it. This is one of the two creations that answer with the resource, because `EC_OP_SEARCH_START` really does hand one back; the ones whose EC op answers success or failure and nothing more are a bare `202` with no body.
 
-**Errors:** `400 bad_request` for any body validation (missing or non-string `query`, an unknown `type`, an unknown `file_type`, out-of-range size or availability bounds, and the rest of the body rules above); `400 amuled_rejected` when the daemon refuses the search (its own message is passed through); `502 amuled_rejected` when the daemon accepts it but returns no search_id; `503 ec_unavailable`.
+**Errors:** `400 bad_request` for any body validation (missing or non-string `query`, an unknown `type`, an unknown `file_type`, out-of-range size or availability bounds, and the rest of the body rules above); `400 amuled_rejected` when the daemon refuses the search (its own message is passed through); `502 amuled_rejected` when the daemon accepts it but returns no search_id; `503 ec_unavailable`; `503 ec_unsupported` for `"all"` on a daemon without that capability.
 
 #### `GET /api/v1/search/{id}/results`
 
@@ -3018,6 +3021,7 @@ amuled keeps a bounded ring of recent searches (20). A search evicted from that 
   "progress": {
     "state":    "running",
     "type":     "kad",
+    "kad_active": true,
     "percent":  67
   }
 }
@@ -3036,8 +3040,9 @@ Each result carries `sources` as a nested `{total, complete}` object — `total`
 The `progress` object carries the same `state` / `type` / `percent` fields as the [`search_progress`](EVENTS.md#search_progress) SSE event, so REST pollers and stream consumers interpret progress identically. (The event additionally carries a `results` count, since — unlike this response — it has no `results` array beside it.)
 
 - `state` — `"running"` while the search is in flight, `"finished"` once amuled reports completion, `"idle"` when no search has run this session. This single field is canonical; a client that wants booleans can derive them (`complete = state == "finished"`, `active = state == "running"`).
-- `type` — the originally-requested search type (`"local"` | `"global"` | `"kad"` | `"browse"`), spelled like `POST /search`'s body field and the `searches[]` row.
-- `percent` — `[0, 100]`, computed by amuled for every search kind from its `EC_TAG_SEARCH_LIFECYCLE_PERCENT` tag. For **global** it is the real server-queue progress. For **Kad** — which has no measurable mid-flight progress — it is a cosmetic time-ramp off the fixed 45 s keyword-search lifetime, capped at 99 until amuled authoritatively reports completion (`EC_TAG_SEARCH_LIFECYCLE_STATE` = finished), at which point it snaps to 100. Treat the Kad value as a liveliness indicator, not an accurate estimate.
+- `kad_active` — whether this search has a running Kad component; use it to enable **More**, including for `"all"`. Older daemons without the component tag retain the running-only behavior for ordinary `"kad"` searches.
+- `type` — the originally-requested search type (`"local"` | `"global"` | `"kad"` | `"all"` | `"browse"`), using the same vocabulary as the `searches[]` row; `"browse"` is reported for searches started through the client endpoints.
+- `percent` — `[0, 100]`, computed by amuled for every search kind from its `EC_TAG_SEARCH_LIFECYCLE_PERCENT` tag. For **global** it is the real server-queue progress. For **Kad** — which has no measurable mid-flight progress — it is a cosmetic time-ramp off the fixed 45 s keyword-search lifetime, capped at 99 until amuled authoritatively reports completion (`EC_TAG_SEARCH_LIFECYCLE_STATE` = finished), at which point it snaps to 100. Treat the Kad value as a liveliness indicator, not an accurate estimate. For **All**, progress is the smaller of the eD2k sweep percentage and the Kad ramp while both components run; a finished or unavailable component contributes 100.
 
 A client that wants to wait for completion polls while `state == "running"`. amuled reports the lifecycle state directly (no sentinel decode), so `state == "running"` unambiguously means in-flight even for Kad; check `state` rather than trying to read `percent: 0` as stalled-or-absent. A Kad search that hits its result cap (`SEARCHKEYWORD_TOTAL`, 300) before the 45 s deadline finishes early — `state` flips to `finished` and `percent` jumps to 100 ahead of the ramp.
 
@@ -3069,9 +3074,9 @@ Freeing a search delivers a [`search_closed`](EVENTS.md#search_closed) event to 
 
 **Auth:** `ADMIN`
 
-Widens a running **Kad** search — the desktop's **"More"** button. It re-asks the Kad clients already queried for a wider result frontier. No body.
+Widens a running **Kad** search or the active Kad component of an **All** search — the desktop's **"More"** button. It re-asks the Kad clients already queried for a wider result frontier. No body.
 
-Kad-only and running-only, matching what the desktop button allows rather than what the core tolerates: amuled turns a `more` on a non-Kad or finished search into a silent no-op, so both are rejected here instead of being answered with a misleading `202`.
+Requires an active Kad component, matching the desktop button. An All search may continue on eD2k after Kad ends, or fall back to eD2k alone; neither can be extended. `progress.kad_active` on the results response and `kad_active` in `search_progress` events tell clients when the component is active. The API refreshes activity before handling `more`.
 
 **Response:** `202 Accepted`, no body - the reask was performed, or could not be performed *yet* but may be on a later press. The terminal case is the `409` below, so the status code is the whole answer.
 
@@ -3083,7 +3088,7 @@ Note that a successful reask changes neither `progress.percent` nor `progress.st
 
 **Older daemons.** A daemon predating this reports nothing, and amuleapi keeps answering `202` for every press rather than guessing. Absent is *unknown*, never *exhausted*.
 
-**Errors:** `400 bad_request` (bad `{id}`, a non-Kad search, or one that has already finished), `400 amuled_rejected`, `403 forbidden` (guest), `404 not_found` (no such search), `405`, `409 kad_more_exhausted`, `503 ec_unavailable`.
+**Errors:** `400 bad_request` (bad `{id}`, a search without an active Kad component, or one that has already finished), `400 amuled_rejected`, `403 forbidden` (guest), `404 not_found` (no such search), `405`, `409 kad_more_exhausted`, `503 ec_unavailable`.
 
 #### Related-files search
 
@@ -3321,7 +3326,7 @@ Every error code emitted by `/api/v1/*`, sorted by what triggered it. Two codes 
 | `internal_error` | 500 | A server-side failure: a handler failed internally (hash decode, serialization) or threw and was caught by the HTTP layer. The body is generic; details land in the daemon's stderr. |
 | `amuled_response_invalid` | 502 | amuled returned an EC payload this endpoint could not decode. |
 | `ec_unavailable` | 503 | EC connection not ready yet (cold start, transient amuled restart). |
-| `ec_unsupported` | 503 | The connected amuled is too old to serve this route — the chat endpoints and `/known_clients`. |
+| `ec_unsupported` | 503 | The connected amuled does not advertise support for this operation, including All search, the chat endpoints and `/known_clients`. |
 | `login_disabled` | 503 | `/auth/login` reached but no admin AND no guest password configured. |
 | `too_many_streams` | 503 | Too many concurrent SSE streams. `Retry-After` accompanies the response. |
 | `file_responses_exhausted` | 503 | Too many concurrent file responses (`[Streaming]/MaxConcurrentFileResponses`, default 6) on [`GET /shared/{hash}/content`](#get-apiv1sharedhashcontent). `Retry-After` accompanies the response. |

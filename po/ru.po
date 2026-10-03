@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
-"POT-Creation-Date: 2026-10-02 15:14+0200\n"
+"POT-Creation-Date: 2026-10-03 11:27+0100\n"
 "PO-Revision-Date: 2026-10-02 00:50+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
@@ -1204,6 +1204,10 @@ msgstr "Удалённое ядро отправило противоречив�
 msgid "Unknown"
 msgstr "Неизвестно"
 
+#: src/amule-remote-gui.cpp
+msgid "The connected daemon does not support All searches."
+msgstr ""
+
 #: src/BaseClient.cpp
 msgid "Searching buddy for lowid connection"
 msgstr "Ищем друга для соединения с Низким ИД"
@@ -1866,7 +1870,7 @@ msgstr "Локальный сервер"
 msgid "Remote Server"
 msgstr "Удалённый сервер"
 
-#: src/DataToText.cpp src/KadDlg.cpp src/muuli_wdr.cpp src/SearchDlg.cpp
+#: src/DataToText.cpp src/KadDlg.cpp src/muuli_wdr.cpp src/SearchModeIcons.h
 #: src/TextClient.cpp
 msgid "Kad"
 msgstr "Kad"
@@ -4032,13 +4036,10 @@ msgstr "Поиск"
 msgid "Type"
 msgstr "Тип"
 
-#: src/muuli_wdr.cpp src/SearchDlg.cpp src/SearchListCtrl.cpp
-msgid "Local"
-msgstr "Локальный"
-
 #: src/muuli_wdr.cpp
-msgid "Global"
-msgstr "Глобальный"
+#, fuzzy
+msgid "Search network"
+msgstr "Ошибка поиска"
 
 #: src/muuli_wdr.cpp
 msgid "Extended Parameters"
@@ -6947,9 +6948,19 @@ msgstr "ПРЕДУПРЕЖДЕНИЕ: сохранённый список пои
 msgid "Invalid entry in stored search list, file may be corrupt"
 msgstr "Неверная запись в сохранённом списке поиска, файл возможно повреждён"
 
+# unification
+#: src/SearchList.cpp
+#, fuzzy
+msgid "All search can't be done if neither eD2k nor Kad is available"
+msgstr "Поиск по сети Kad не может быть произведён, когда она отсоединена"
+
 #: src/SearchList.cpp
 msgid "eD2k search can't be done if eD2k is not connected"
 msgstr "Поиск по eD2k невозможен, если сеть eD2k не подключена"
+
+#: src/SearchList.cpp
+msgid "All search: no usable Kad keyword; continuing with eD2k."
+msgstr ""
 
 #: src/SearchList.cpp
 msgid "No keyword for Kad search - aborting"
@@ -6958,6 +6969,10 @@ msgstr "Нет ключевого слова для поиска Kad — отм�
 #: src/SearchList.cpp
 msgid "Unexpected error while attempting Kad search: "
 msgstr "Ошибка при поиске через Kad: "
+
+#: src/SearchList.cpp
+msgid "All search: Kad component could not start: "
+msgstr ""
 
 #: src/SearchList.cpp
 msgid "Search timed out: the server did not answer."
@@ -7012,6 +7027,39 @@ msgstr "Отменено"
 msgid "New"
 msgstr "Новый"
 
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "eD2k: Current server"
+msgstr "Список серверов eD2k (server.met)"
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "eD2k: All servers"
+msgstr "Удалить все серверы"
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "All networks"
+msgstr "Нет сети"
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "Search the connected eD2k server."
+msgstr "Сейчас подключён к серверу."
+
+#: src/SearchModeIcons.h
+msgid "Search the connected eD2k server and other servers in the server list."
+msgstr ""
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "Search the Kad network."
+msgstr "Подключиться к сети."
+
+#: src/SearchModeIcons.h
+msgid "Search eD2k servers and Kad, using whichever networks are available."
+msgstr ""
+
 #: src/SearchProgressReport.cpp
 msgid "running"
 msgstr "выполняется"
@@ -7050,6 +7098,40 @@ msgstr "Прогресс поиска недоступен"
 #: src/SearchProgressReport.cpp
 msgid "No search to report on.\n"
 msgstr "Нет поиска для отчёта.\n"
+
+#: src/SearchSourceFormat.h
+#, c-format
+msgid "Estimated availability: %u"
+msgstr ""
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "eD2k sources: %u"
+msgstr "Источники файлов:"
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "Kad sources: %u"
+msgstr "Найдено источников: %s"
+
+#: src/SearchSourceFormat.h
+msgid "Network counts may overlap; they are not added together."
+msgstr ""
+
+#: src/SearchSourceFormat.h
+#, fuzzy
+msgid "Network breakdown unavailable."
+msgstr "Доступна новая версия"
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "Complete sources: %u"
+msgstr "Полные источники"
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "Direct client endpoints: %u"
+msgstr "Новый идентификатор клиента — %u"
 
 #: src/ServerConnect.cpp
 msgid "Failed to connect to all obfuscated static servers listed. Making another pass without obfuscation."
@@ -8180,6 +8262,10 @@ msgstr "Недопустимый номер\n"
 msgid "Not a valid hash (length should be exactly 32 chars)\n"
 msgstr "Недопустимый хеш (длина должна быть равна 32 символам)\n"
 
+#: src/TextClient.cpp
+msgid "The connected daemon does not support All searches.\n"
+msgstr ""
+
 #. TRANSLATORS:
 #. 'help search' is a command to the program, do not translate it.
 #: src/TextClient.cpp
@@ -8577,11 +8663,13 @@ msgid "Execute a search."
 msgstr "Выполнить поиск."
 
 #: src/TextClient.cpp
+#, fuzzy
 msgid ""
 "A search type has to be specified by giving the type:\n"
 "    GLOBAL\n"
 "    LOCAL\n"
 "    KAD\n"
+"    ALL: All networks (requires daemon support)\n"
 "Example: 'search kad file' will execute a kad search for \"file\".\n"
 "\n"
 "Optional filters can be added before, after, or interleaved with\n"
@@ -8620,6 +8708,11 @@ msgstr "Выполнить локальный поиск"
 
 #: src/TextClient.cpp
 msgid "Execute a kad search"
+msgstr "Выполнить поиск в Kad"
+
+#: src/TextClient.cpp
+#, fuzzy
+msgid "Execute an eD2k and Kad search"
 msgstr "Выполнить поиск в Kad"
 
 #: src/TextClient.cpp
@@ -9644,6 +9737,12 @@ msgstr "Похоже, что aMule запущен. Закройте его и п
 #: packaging/windows/installer_strings.c
 msgid "Removing user data at $APPDATA\\aMule..."
 msgstr "Удаление пользовательских данных в $APPDATA\\aMule…"
+
+#~ msgid "Local"
+#~ msgstr "Локальный"
+
+#~ msgid "Global"
+#~ msgstr "Глобальный"
 
 #~ msgid ""
 #~ "The number of a file from the last search has to be given.\n"

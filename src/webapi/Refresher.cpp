@@ -1434,8 +1434,9 @@ const char *KadBuddyStatusName(std::uint32_t status_code)
 
 } // namespace
 
-bool ParseSearchProgressUnion(
-	const CECPacket *resp, std::map<std::uint32_t, std::pair<std::uint32_t, std::uint32_t>> &out)
+bool ParseSearchProgressUnion(const CECPacket *resp,
+	std::map<std::uint32_t, std::pair<std::uint32_t, std::uint32_t>> &out,
+	std::map<std::uint32_t, bool> *kad_activity)
 {
 	// Opcode gate, not a child-count gate: see the header. A reply we cannot parse must NOT
 	// reach the caller as an empty union, because the caller reads absence as expiry and would
@@ -1455,7 +1456,13 @@ bool ParseSearchProgressUnion(
 		if (const CECTag *t = entry.GetTagByName(EC_TAG_SEARCH_LIFECYCLE_STATE)) {
 			st = static_cast<std::uint32_t>(t->GetInt());
 		}
-		out[static_cast<std::uint32_t>(entry.GetInt())] = { pct, st };
+		const auto sid = static_cast<std::uint32_t>(entry.GetInt());
+		out[sid] = { pct, st };
+		if (kad_activity) {
+			if (const CECTag *t = entry.GetTagByName(EC_TAG_SEARCH_KAD_ACTIVE)) {
+				(*kad_activity)[sid] = t->GetInt() != 0;
+			}
+		}
 	}
 	return true;
 }
@@ -2683,8 +2690,10 @@ void ApplySearchFullReply(const CECPacket *resp,
 // Reads EC_TAG_SEARCH_LIFECYCLE_STATE from the EC_OP_SEARCH_PROGRESS response. No sentinel
 // decode, no `saw_in_progress` tracking, no defensive timeout: the daemon's flag is the
 // source of truth, and amuleapi pins a version that carries the tag.
-SearchProgressSnapshot AdvanceSearchProgress(
-	const SearchProgressSnapshot &prev, std::uint32_t lifecycle_state, std::uint32_t pct_now)
+SearchProgressSnapshot AdvanceSearchProgress(const SearchProgressSnapshot &prev,
+	std::uint32_t lifecycle_state,
+	std::uint32_t pct_now,
+	int kad_active)
 {
 	SearchProgressSnapshot next = prev;
 	if (lifecycle_state == 2 /* SEARCH_LIFECYCLE_FINISHED */) {
@@ -2704,6 +2713,7 @@ SearchProgressSnapshot AdvanceSearchProgress(
 		next.active = false;
 		next.percent = 0;
 	}
+	next.kad_active = next.active && (kad_active >= 0 ? kad_active != 0 : next.kind == "kad");
 	return next;
 }
 

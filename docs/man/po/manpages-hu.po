@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: po 4a\n"
-"POT-Creation-Date: 2026-09-26 12:38+0100\n"
+"POT-Creation-Date: 2026-10-02 08:36+0800\n"
 "PO-Revision-Date: 2026-10-02 00:52+0000\n"
 "Last-Translator: Dévai Tamás <gonosztopi@amule.org>\n"
 "Language-Team: none\n"
@@ -79,7 +79,6 @@ msgstr "[B<-w> I<E<lt>fájlE<gt>>]"
 #. type: Plain text
 #: amule.1.in amuled.1.in amulegui.1.in
 #, fuzzy
-#| msgid "[B<-t> I<E<lt>numE<gt>>] [I<eD2k-link>]"
 msgid "[B<-t> I<E<lt>numE<gt>>] [I<eD2k-link>|I<collection-file>]"
 msgstr "[B<-t> I<E<lt>számE<gt>>] [I<eD2k-hivatkozás>]"
 
@@ -188,14 +187,12 @@ msgstr "Egy rövid használati leírást jelenít meg."
 #. type: TP
 #: amule.1.in amuled.1.in amulegui.1.in
 #, fuzzy, no-wrap
-#| msgid "B<[ eD2k-link ]>"
 msgid "B<[ eD2k-link | collection-file ]>"
 msgstr "B<[ eD2k-hivatkozás ]>"
 
 #. type: Plain text
 #: amule.1.in amuled.1.in
 #, fuzzy
-#| msgid "Adds an eD2k-link or a magnet-link to the core."
 msgid "Adds an eD2k-link, or every link in an eMule collection file, to the core."
 msgstr "Egy eD2k vagy magnet hivatkozást ad a letöltéshez."
 
@@ -605,7 +602,6 @@ msgstr ""
 #. type: Plain text
 #: amulecmd.1.in
 #, fuzzy
-#| msgid "A synonim of the B<exit> command."
 msgid "A synonym of the B<exit> command."
 msgstr "Az B<exit> parancs szinonímája."
 
@@ -642,7 +638,6 @@ msgstr "Folytatja a I<E<lt>hashE<gt>> vagy I<E<lt>számE<gt>> által azonosítot
 #. type: Plain text
 #: amulecmd.1.in
 #, fuzzy
-#| msgid "Makes a search for the given I<E<lt>keywordE<gt>>. A search type and a keyword to search is mandatory to do this.  Example: `search kad amule' performs a kad search for `amule'."
 msgid "Makes a search for the given I<E<lt>keywordE<gt>>. A search type and a keyword to search is mandatory to do this.  Example: 'search kad amule' performs a kad search for 'amule'.  Prints a search id; pass it to B<results> or B<progress> to address this search. Several searches can run at once, each with its own id."
 msgstr "Elindít egy keresést a megadott I<E<lt>kulcsszóE<gt>>-ra. Kötelező megadni a keresés típusát és a kulcsszót. Példa: a \\(Bqsearch kad amule' parancs egy Kademlia keresést indít az \\(Bqamule' kulcsszóra."
 
@@ -650,6 +645,11 @@ msgstr "Elindít egy keresést a megadott I<E<lt>kulcsszóE<gt>>-ra. Kötelező 
 #: amulecmd.1.in
 msgid "Available search types:"
 msgstr "Elérhető keresés típusok:"
+
+#. type: Plain text
+#: amulecmd.1.in
+msgid "Searches eD2k and Kad together, using the available network if the other cannot start. Requires a daemon advertising All search support; older daemons return a clear error without starting a search. Example: 'search all amule'."
+msgstr ""
 
 #. type: Plain text
 #: amulecmd.1.in
@@ -739,7 +739,6 @@ msgstr "Kiszolgálók listájának megjelenítése."
 #. type: Plain text
 #: amulecmd.1.in
 #, fuzzy
-#| msgid "Reload shared files list."
 msgid "Show shared files list."
 msgstr "A megosztott fájlok listájt tölti újra."
 
@@ -907,7 +906,6 @@ msgstr ""
 #. type: TP
 #: amuled.1.in
 #, fuzzy, no-wrap
-#| msgid "B<[ -t> I<E<lt>nameE<gt>>, B<--template>=I<E<lt>nameE<gt>> B<]>"
 msgid "B<[ -t> I<E<lt>numE<gt>>, B<--category>=I<E<lt>numE<gt>> B<]>"
 msgstr "B<[ -t> I<E<lt>sablonE<gt>>, B<--template>=I<E<lt>sablonE<gt>> B<]>"
 
@@ -952,14 +950,12 @@ msgstr ""
 #. type: Plain text
 #: amulegui.1.in
 #, fuzzy
-#| msgid "Adds an eD2k-link or a magnet-link to the core."
 msgid "Sends an eD2k-link, or every link in an eMule collection file, to the connected core."
 msgstr "Egy eD2k vagy magnet hivatkozást ad a letöltéshez."
 
 #. type: TP
 #: amulegui.1.in
 #, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
 msgid "I<~/.aMule/remote.conf>"
 msgstr "~/.aMule/remote.conf"
 
@@ -971,21 +967,18 @@ msgstr ""
 #. type: TP
 #: amulegui.1.in
 #, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
 msgid "I<~/.aMule/remotelogfile>"
 msgstr "~/.aMule/remote.conf"
 
 #. type: Plain text
 #: amulegui.1.in
 #, fuzzy
-#| msgid "Show log."
 msgid "The log."
 msgstr "Napló megjelenítése."
 
 #. type: TP
 #: amulegui.1.in
 #, fuzzy, no-wrap
-#| msgid "~/.aMule/ED2KLinks"
 msgid "I<~/.aMule/ED2KLinks>"
 msgstr "~/.aMule/ED2KLinks"
 
@@ -1086,7 +1079,6 @@ msgstr "UPnP engedélyezése."
 #. type: TP
 #: amuleweb.1.in
 #, fuzzy, no-wrap
-#| msgid "B<[ -U> I<E<lt>portE<gt>>, B<--upnp-port> I<E<lt>portE<gt>> B<]>"
 msgid "B<[ -U> I<E<lt>portE<gt>>, B<--upnp-port>=I<E<lt>portE<gt>> B<]>"
 msgstr "B<[ -U> I<E<lt>portE<gt>>, B<--upnp-port> I<E<lt>portE<gt>> B<]>"
 
@@ -1244,7 +1236,6 @@ msgstr "Elküldi a megadott I<E<lt>eD2k hivatkozásE<gt>>-t az aMule-nek, azaz b
 #. type: TP
 #: ed2k.1.in
 #, fuzzy, no-wrap
-#| msgid "B<[ -t> I<E<lt>nameE<gt>>, B<--template>=I<E<lt>nameE<gt>> B<]>"
 msgid "B<[ -t> I<E<lt>numE<gt>>, B<--category> I<E<lt>numE<gt>> B<]>"
 msgstr "B<[ -t> I<E<lt>sablonE<gt>>, B<--template>=I<E<lt>sablonE<gt>> B<]>"
 
@@ -1256,14 +1247,12 @@ msgstr ""
 #. type: Plain text
 #: ed2k.1.in
 #, fuzzy
-#| msgid "Loads all link found in the emulecollection given as I<E<lt>ed2k-linkE<gt>>"
 msgid "Loads all links found in the emulecollection given as I<E<lt>ed2k-linkE<gt>>"
 msgstr "A megadott gyűjtemény összes fájlját letölti."
 
 #. type: Plain text
 #: ed2k.1.in
 #, fuzzy
-#| msgid "Lists all link found in the emulecollection given as I<E<lt>ed2k-linkE<gt>>"
 msgid "Lists all links found in the emulecollection given as I<E<lt>ed2k-linkE<gt>>"
 msgstr "Kilistázza a megadott gyűjtmény összes fájlját."
 

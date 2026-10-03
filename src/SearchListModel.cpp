@@ -36,8 +36,9 @@
 #include "MuleColour.h"     // Needed for IsListBackgroundDark
 #include "OtherFunctions.h" // Needed for CastItoXBytes, GetFiletypeByName, GetRateString, FormatMediaCodec
 #include "SearchDlg.h"      // Needed for CSearchListCtrl
-#include "SearchFile.h"     // Needed for CSearchFile
-#include "SearchList.h"     // Needed for CSearchList, CSearchResultList
+#include "SearchSourceFormat.h"
+#include "SearchFile.h" // Needed for CSearchFile
+#include "SearchList.h" // Needed for CSearchList, CSearchResultList
 #include "SearchListCtrl.h"
 
 namespace
@@ -233,12 +234,15 @@ void CSearchListModel::GetValue(wxVariant &variant, const wxDataViewItem &item, 
 		break;
 
 	case COL_SOURCES: {
-		wxString temp = CFormat("%d") % file->GetSourceCount();
-		if (file->GetCompleteSourceCount()) {
-			temp += CFormat(" (%d)") % file->GetCompleteSourceCount();
-		}
-		if (file->GetClientsCount()) {
-			temp += CFormat(" [%d]") % file->GetClientsCount();
+		const auto networks = file->GetNetworkSourceCounts();
+		wxString temp = FormatSearchSources(file->GetSourceCount(), networks);
+		if (!networks) {
+			if (file->GetCompleteSourceCount()) {
+				temp += CFormat(" (%d)") % file->GetCompleteSourceCount();
+			}
+			if (file->GetClientsCount()) {
+				temp += CFormat(" [%d]") % file->GetClientsCount();
+			}
 		}
 #if defined(__DEBUG__) && !defined(CLIENT_GUI)
 		if (file->GetKadPublishInfo() == 0) {

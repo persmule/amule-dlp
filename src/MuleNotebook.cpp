@@ -48,6 +48,7 @@ wxBEGIN_EVENT_TABLE(CMuleNotebook, wxNotebook)
 	EVT_MIDDLE_DOWN(CMuleNotebook::OnMouseButton)
 	EVT_MIDDLE_UP(CMuleNotebook::OnMouseButton)
 	EVT_MOTION(CMuleNotebook::OnMouseMotion)
+	EVT_LEAVE_WINDOW(CMuleNotebook::OnMouseLeave)
 wxEND_EVENT_TABLE()
 
 wxBitmap ThemedCloseIcon(const wxSize &size)
@@ -89,11 +90,22 @@ CMuleNotebook::~CMuleNotebook()
 	DeleteAllPages();
 }
 
+void CMuleNotebook::SetPageToolTip(size_t page, const wxString &text)
+{
+	wxCHECK_RET(page < GetPageCount(), "Invalid page for tab tooltip");
+	m_pageTooltips[GetPage(page)] = text;
+}
+
 bool CMuleNotebook::DeletePage(int nPage)
 {
 	wxCHECK_MSG((nPage >= 0) && (nPage < (int)GetPageCount()),
 		false,
 		"Trying to delete invalid page-index in CMuleNotebook::DeletePage");
+	if (!m_pageTooltips.empty()) {
+		UnsetToolTip();
+	}
+	m_pageTooltips.erase(GetPage(nPage));
+	m_tabDownIcon = m_tabDownMiddle = -1;
 
 	wxNotebookEvent evt(wxEVT_COMMAND_MULENOTEBOOK_PAGE_CLOSING, GetId(), nPage);
 	evt.SetEventObject(this);
@@ -223,6 +235,40 @@ void CMuleNotebook::OnPopupCloseOthers(wxCommandEvent &WXUNUSED(evt))
 	}
 }
 
+bool CMuleNotebook::IsCloseIconHit(const wxPoint &position, int tab, long flags) const
+{
+	if (tab == wxNOT_FOUND || !(flags & wxNB_HITTEST_ONICON) || m_closeIconWidth < 0) {
+		return false;
+	}
+	if (m_closeIconWidth == 0) {
+		return true;
+	}
+	// wxNotebook exposes HitTest, but no portable image rectangle. Locate its
+	// left edge with a bounded scan so the adjacent mode icon remains selectable.
+	int width, height;
+	if (!GetImageList() || !GetImageList()->GetSize(GetPageImage(tab), width, height)) {
+		return false;
+	}
+	int left = position.x;
+	for (int offset = 1; offset <= width; ++offset) {
+		long neighborFlags = 0;
+		const wxPoint neighbor(position.x - offset, position.y);
+		if (HitTest(neighbor, &neighborFlags) != tab || !(neighborFlags & wxNB_HITTEST_ONICON)) {
+			break;
+		}
+		left = neighbor.x;
+	}
+	return position.x - left < m_closeIconWidth;
+}
+
+void CMuleNotebook::OnMouseLeave(wxMouseEvent &event)
+{
+	if (!m_pageTooltips.empty()) {
+		UnsetToolTip();
+	}
+	event.Skip();
+}
+
 void CMuleNotebook::OnMouseButton(wxMouseEvent &event)
 {
 	if (GetImageList() == NULL) {
@@ -231,29 +277,26 @@ void CMuleNotebook::OnMouseButton(wxMouseEvent &event)
 		return;
 	}
 
-	long xpos, ypos;
-	event.GetPosition(&xpos, &ypos);
-
+	const wxPoint position = event.GetPosition();
 	long flags = 0;
-	int tab = HitTest(wxPoint(xpos, ypos), &flags);
-	static int tab_down_icon = -1;
-	static int tab_down_middle = -1;
+	const int tab = HitTest(position, &flags);
+	const bool onClose = IsCloseIconHit(position, tab, flags);
 
-	if (event.LeftDown() && (flags == wxNB_HITTEST_ONICON)) {
-		tab_down_icon = tab;
+	if (event.LeftDown() && onClose) {
+		m_tabDownIcon = tab;
 	} else if (event.MiddleDown() && (tab != -1)) {
 		// Anywhere on the tab, the 'x' included: it is the tab's image, not its label.
-		tab_down_middle = tab;
+		m_tabDownMiddle = tab;
 	} else if (event.LeftDown() || event.MiddleDown()) {
-		tab_down_icon = -1;
-		tab_down_middle = -1;
+		m_tabDownIcon = -1;
+		m_tabDownMiddle = -1;
 	}
 
-	if ((tab != -1) && (((flags == wxNB_HITTEST_ONICON) && event.LeftUp() && (tab == tab_down_icon)) ||
-				   (event.MiddleUp() && (tab == tab_down_middle)))) {
+	if ((tab != -1) && ((onClose && event.LeftUp() && (tab == m_tabDownIcon)) ||
+				   (event.MiddleUp() && (tab == m_tabDownMiddle)))) {
 		// User did click on a 'x' or middle click on the tab
-		tab_down_icon = -1;
-		tab_down_middle = -1;
+		m_tabDownIcon = -1;
+		m_tabDownMiddle = -1;
 		DeletePage(tab);
 	} else {
 		// Is not a 'x'. Send this event up.
@@ -269,9 +312,33 @@ void CMuleNotebook::OnMouseMotion(wxMouseEvent &event)
 		return;
 	}
 
+	const wxPoint position = event.GetPosition();
 	long flags = 0;
-	int tab = HitTest(wxPoint(event.m_x, event.m_y), &flags);
+	const int tab = HitTest(position, &flags);
 	const bool onIcon = (tab != -1) && (flags == wxNB_HITTEST_ONICON);
+	if (!m_pageTooltips.empty()) {
+		wxString tip;
+		if (IsCloseIconHit(position, tab, flags)) {
+			tip = _("Close tab");
+		} else if (tab != wxNOT_FOUND) {
+			const auto found = m_pageTooltips.find(GetPage(tab));
+			if (found != m_pageTooltips.end()) {
+				tip = found->second;
+			}
+		}
+		if (tip != GetToolTipText()) {
+			if (tip.empty()) {
+				UnsetToolTip();
+			} else {
+				SetToolTip(tip);
+			}
+		}
+	}
+	if (m_closeIconWidth != 0) {
+		// Composite images already contain the close button: preserve their mode icon.
+		event.Skip();
+		return;
+	}
 
 	// Write only the images that actually change. SetPageImage() is a TCM_SETITEM on MSW, which
 	// invalidates the tab it names, so setting every page on every motion event kept the whole

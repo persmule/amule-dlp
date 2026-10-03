@@ -1361,6 +1361,7 @@ const CECPacket *CECServerSocket::Authenticate(const CECPacket *request)
 				// gets no echo must not send the opcode at all -- it would land in
 				// ProcessRequest2's unknown-opcode branch and assert.
 				response->AddTag(CECEmptyTag(EC_TAG_CAN_SEARCH_LIST));
+				response->AddTag(CECEmptyTag(EC_TAG_CAN_SEARCH_ALL));
 			} else {
 				wxString err;
 				if (passwd) {
@@ -2368,6 +2369,8 @@ static_assert(
 	static_cast<int>(KadSearch) == EC_SEARCH_KAD, "SearchType and EC_SEARCH_TYPE must agree: KadSearch");
 static_assert(static_cast<int>(BrowseSearch) == EC_SEARCH_BROWSE,
 	"SearchType and EC_SEARCH_TYPE must agree: BrowseSearch");
+static_assert(
+	static_cast<int>(AllSearch) == EC_SEARCH_ALL, "SearchType and EC_SEARCH_TYPE must agree: AllSearch");
 
 static uint32 AllocateBrowseSearchId();
 // Undo an AllocateBrowseSearchId() whose browse never started. Drops the results and
@@ -2881,6 +2884,11 @@ static CECPacket *Get_EC_Response_Search_List()
 	for (const auto &known : theApp->searchlist->GetKnownSearchIds()) {
 		uint32 sid = known.first;
 		CECTag entry(EC_TAG_SEARCH_ID, sid);
+		entry.AddTag(CECTag(EC_TAG_SEARCH_STATUS, theApp->searchlist->GetSearchBarStatusById(sid)));
+		entry.AddTag(CECTag(EC_TAG_SEARCH_ED2K_ACTIVE,
+			static_cast<uint8>(theApp->searchlist->HasEd2kComponent(sid))));
+		entry.AddTag(CECTag(EC_TAG_SEARCH_KAD_ACTIVE,
+			static_cast<uint8>(theApp->searchlist->HasKadComponent(sid))));
 		// known.second is the same string GetSearchStringById(sid) would
 		// look up -- already have it from this map entry, no need to re-find.
 		entry.AddTag(EC_TAG_SEARCH_NAME, known.second);
@@ -2983,6 +2991,10 @@ static void AppendSearchProgress(CECTag &out, wxUIntPtr sid)
 	out.AddTag(CECTag(EC_TAG_SEARCH_RESULT_COUNT,
 		static_cast<uint32>(theApp->searchlist->GetSearchResults(sid).size())));
 	out.AddTag(CECTag(EC_TAG_SEARCH_LIFECYCLE_PERCENT, pct));
+	out.AddTag(CECTag(EC_TAG_SEARCH_ED2K_ACTIVE,
+		static_cast<uint8>(theApp->searchlist->HasEd2kComponent(static_cast<uint32>(sid)))));
+	out.AddTag(CECTag(EC_TAG_SEARCH_KAD_ACTIVE,
+		static_cast<uint8>(theApp->searchlist->HasKadComponent(static_cast<uint32>(sid)))));
 }
 
 // Progress for every search this connection could hold a tab for, one child per
@@ -3168,19 +3180,12 @@ static CECPacket *Get_EC_Response_Search(const CECPacket *request, bool multiSea
 	} else {
 		SearchType core_search_type = (search_type == EC_SEARCH_GLOBAL) ? GlobalSearch
 					      : (search_type == EC_SEARCH_KAD)  ? KadSearch
+					      : (search_type == EC_SEARCH_ALL)  ? AllSearch
 										: LocalSearch;
 
 		if (multiSearch) {
-			// START is additive -- it does not stop sibling searches. But ed2k
-			// (local/global) share a single in-flight slot and file their results under the
-			// scalar m_currentSearch, so starting a NEW ed2k search must finalize any
-			// in-flight one first, or its late UDP results land in the new search's bucket.
-			// A Kad search uses its own ID and machinery, so it must NOT disturb a running
-			// ed2k search -- doing so used to kill an in-flight global search, which then
-			// returned zero results.
-			if (core_search_type != KadSearch) {
-				theApp->searchlist->StopInFlightEd2kSearch();
-			}
+			// The core replaces an in-flight eD2k search only after validating the
+			// new request; a failed START leaves the existing search running.
 			// The daemon allocates the ID (no sentinel): ed2k gets a bottom-half ID; a Kad
 			// search self-allocates a top-half ID inside StartNewSearch, which overwrites
 			// this seed and we read the real ID back.
@@ -3216,6 +3221,10 @@ static CECPacket *Get_EC_Response_Search(const CECPacket *request, bool multiSea
 		// Hand the daemon-allocated ID back so the client can address this
 		// search.
 		reply->AddTag(CECTag(EC_TAG_SEARCH_ID, search_id));
+		reply->AddTag(CECTag(EC_TAG_SEARCH_ED2K_ACTIVE,
+			static_cast<uint8>(theApp->searchlist->HasEd2kComponent(search_id))));
+		reply->AddTag(CECTag(EC_TAG_SEARCH_KAD_ACTIVE,
+			static_cast<uint8>(theApp->searchlist->HasKadComponent(search_id))));
 	}
 	if (multiSearch) {
 		// Echo the client's correlation token (if any) on BOTH outcomes, not just success:

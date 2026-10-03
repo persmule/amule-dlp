@@ -156,3 +156,38 @@ How to use:
 
     curl-tests/amuleweb-smoke/phase0.sh checks the landing pages of a
     running amuleweb. See the header of the script for its settings.
+
+AllSearch integration coverage (Linux, Python 3, BUILD_DAEMON=ON):
+
+  ctest --test-dir build -R 'AllSearch|SearchSourceCount|SearchRequest|SearchProgressReport|SearchHistory' --output-on-failure
+
+AllSearchIntegrationTest starts an isolated daemon with temporary HOME/config
+and a loopback eD2k server. Bootstrap downloads are disabled and Kad has no
+public contacts. It checks unavailable-network fallback, query encoding,
+both component completion orders, duplicate keywords, stop/close, and restored
+search types after restart. Rejected replacements and independent Kad starts must
+preserve a pending eD2k search. It also exercises duplicate/grouped results,
+source-count aggregation and persistence, repeated close/restart, late server
+replies after close, bulk Kad stop, and shutdown with active searches.
+Truncated saved-search fixtures exercise cleanup after a complete
+root result and after a complete child result. Every daemon shutdown must exit
+successfully, so sanitizer failures fail the test. It does not use an existing
+daemon or user profile.
+
+With BUILD_AMULEAPI=ON and BUILD_AMULECMD=ON, AllSearchClientCapabilityTest
+also checks a loopback EC peer omitting EC_TAG_CAN_SEARCH_ALL: the API returns
+503 ec_unsupported and amulecmd reports a clear error; neither sends SEARCH_START.
+The offline 45-all-search.sh curl phase covers REST/SSE discovery, API starts,
+Kad-only fallback, component activity, More, stop and close. When amulecmd is
+built alongside amuled, it also starts an All search with command-line filters.
+
+For a sanitizer-instrumented daemon, run this script directly with
+ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 and
+UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1:
+
+  python3 unittests/tests/AllSearchIntegrationTest.py <path-to-amuled>
+
+The existing wxGetApp downcast during CamuleApp construction triggers the UBSan
+vptr check before startup. If encountered, a temporary suppression file containing
+"vptr:wxGetApp" can be passed via UBSAN_OPTIONS=suppressions=<file> alongside the
+options above; keep address and leak checking enabled.

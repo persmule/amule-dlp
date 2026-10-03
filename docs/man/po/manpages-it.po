@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: aMule SVN\n"
-"POT-Creation-Date: 2026-09-26 12:38+0100\n"
+"POT-Creation-Date: 2026-10-02 08:36+0800\n"
 "PO-Revision-Date: 2026-10-02 00:52+0000\n"
 "Last-Translator: Sebastiano Pistore <SebastianoPistore.info@protonmail.ch>\n"
 "Language-Team: none\n"
@@ -155,7 +155,6 @@ msgstr ""
 #. type: Plain text
 #: amule.1.in amuled.1.in amulegui.1.in
 #, fuzzy
-#| msgid "Enable or disable starting aMule on user login, then exit.  The OS-specific store is selected automatically: Windows registry Run key, macOS LaunchAgent, Linux XDG I<.desktop> autostart entry."
 msgid "Enable or disable aMule as the current user's handler for I<.emulecollection> files, then exit.  The OS-specific store is selected automatically: Windows registry, macOS LaunchServices, Linux XDG I<mimeapps.list>."
 msgstr "Abilita o disabilita l'avvio di aMule all'accesso dell'utente, poi esce.  L'archivio specifico del sistema operativo viene selezionato automaticamente: chiave Run del registro di Windows, LaunchAgent su macOS, voce di avvio automatico XDG I<.desktop> su Linux."
 
@@ -745,6 +744,11 @@ msgstr "Esegue una ricerca per la data I<E<lt>parola-chiaveE<gt>>. Il tipo della
 msgid "Available search types:"
 msgstr "Tipi di ricerca disponibili:"
 
+#. type: Plain text
+#: amulecmd.1.in
+msgid "Searches eD2k and Kad together, using the available network if the other cannot start. Requires a daemon advertising All search support; older daemons return a clear error without starting a search. Example: 'search all amule'."
+msgstr ""
+
 # type: Plain text
 #. type: Plain text
 #: amulecmd.1.in
@@ -1100,7 +1104,6 @@ msgstr "Abilita o disabilita l'avvio di amulegui all'accesso dell'utente, poi es
 #. type: Plain text
 #: amulegui.1.in
 #, fuzzy
-#| msgid "Adds an eD2k-link, or every link in an eMule collection file, to the core."
 msgid "Sends an eD2k-link, or every link in an eMule collection file, to the connected core."
 msgstr "Aggiunge al core un collegamento eD2k, o ogni collegamento contenuto in un file collezione eMule."
 
@@ -1108,7 +1111,6 @@ msgstr "Aggiunge al core un collegamento eD2k, o ogni collegamento contenuto in 
 #. type: TP
 #: amulegui.1.in
 #, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
 msgid "I<~/.aMule/remote.conf>"
 msgstr "~/.aMule/remote.conf"
 
@@ -1121,7 +1123,6 @@ msgstr ""
 #. type: TP
 #: amulegui.1.in
 #, fuzzy, no-wrap
-#| msgid "~/.aMule/remote.conf"
 msgid "I<~/.aMule/remotelogfile>"
 msgstr "~/.aMule/remote.conf"
 
@@ -1129,7 +1130,6 @@ msgstr "~/.aMule/remote.conf"
 #. type: Plain text
 #: amulegui.1.in
 #, fuzzy
-#| msgid "Show log."
 msgid "The log."
 msgstr "Mostra il log."
 
@@ -1137,7 +1137,6 @@ msgstr "Mostra il log."
 #. type: TP
 #: amulegui.1.in
 #, fuzzy, no-wrap
-#| msgid "~/.aMule/ED2KLinks"
 msgid "I<~/.aMule/ED2KLinks>"
 msgstr "~/.aMule/ED2KLinks"
 

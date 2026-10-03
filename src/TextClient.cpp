@@ -98,6 +98,7 @@ enum
 	CMD_ID_GET_ENDGAME,
 	CMD_ID_STATTREE,
 	CMD_ID_SEARCH,
+	CMD_ID_SEARCH_ALL,
 	CMD_ID_SEARCH_GLOBAL,
 	CMD_ID_SEARCH_LOCAL,
 	CMD_ID_SEARCH_KAD,
@@ -657,17 +658,20 @@ int CamulecmdApp::ProcessCommand(int CmdId)
 		}
 		request_list.push_back(request);
 		break;
+	case CMD_ID_SEARCH_ALL:
 	case CMD_ID_SEARCH_GLOBAL:
-		search_type = EC_SEARCH_GLOBAL;
-	/* fall through */
 	case CMD_ID_SEARCH_LOCAL:
-		if (search_type != EC_SEARCH_GLOBAL) {
-			search_type = EC_SEARCH_LOCAL;
-		}
-	/* fall through */
 	case CMD_ID_SEARCH_KAD:
-		if (search_type != EC_SEARCH_GLOBAL && search_type != EC_SEARCH_LOCAL) {
-			search_type = EC_SEARCH_KAD;
+		if (CmdId == CMD_ID_SEARCH_ALL) {
+			if (!IsServerSearchAllActive()) {
+				Show(_("The connected daemon does not support All searches.\n"));
+				return CMD_ERR_INVALID_ARG;
+			}
+			search_type = EC_SEARCH_ALL;
+		} else if (CmdId == CMD_ID_SEARCH_GLOBAL) {
+			search_type = EC_SEARCH_GLOBAL;
+		} else if (CmdId == CMD_ID_SEARCH_LOCAL) {
+			search_type = EC_SEARCH_LOCAL;
 		}
 		if (!args.IsEmpty()) {
 			wxString search = args;
@@ -1336,6 +1340,7 @@ void CamulecmdApp::OnInitCommandSet()
 			    "    GLOBAL\n"
 			    "    LOCAL\n"
 			    "    KAD\n"
+			    "    ALL: All networks (requires daemon support)\n"
 			    "Example: 'search kad file' will execute a kad search for \"file\".\n"
 			    "\n"
 			    "Optional filters can be added before, after, or interleaved with\n"
@@ -1356,6 +1361,11 @@ void CamulecmdApp::OnInitCommandSet()
 	tmp->AddCommand(
 		"local", CMD_ID_SEARCH_LOCAL, wxTRANSLATE("Execute a local search"), "", CMD_PARAM_ALWAYS);
 	tmp->AddCommand("kad", CMD_ID_SEARCH_KAD, wxTRANSLATE("Execute a kad search"), "", CMD_PARAM_ALWAYS);
+	tmp->AddCommand("all",
+		CMD_ID_SEARCH_ALL,
+		wxTRANSLATE("Execute an eD2k and Kad search"),
+		"",
+		CMD_PARAM_ALWAYS);
 
 	m_commands.AddCommand("Results",
 		CMD_ID_SEARCH_RESULTS,

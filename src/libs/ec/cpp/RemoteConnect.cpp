@@ -203,6 +203,7 @@ m_req_fifo_thr(20)
 , m_serverChatPeerHash(false)
 , m_serverSharedDirsConfig(false)
 , m_serverSearchList(false)
+, m_serverSearchAll(false)
 , m_serverSearchProgressUnion(false)
 , m_lastReplyAt(std::chrono::steady_clock::now())
 {
@@ -746,6 +747,8 @@ bool CRemoteConnect::ProcessAuthPacket(const CECPacket *reply)
 			if (reply->GetTagByName(EC_TAG_CAN_SEARCH_LIST)) {
 				m_serverSearchList = true;
 			}
+			// Unknown search kinds silently become local on older daemons.
+			m_serverSearchAll = reply->GetTagByName(EC_TAG_CAN_SEARCH_ALL) != nullptr;
 			// Server serves the shared-directory config ops. Without the echo the GUI keeps
 			// the folders panel read-only rather than discarding edits silently.
 			if (reply->GetTagByName(EC_TAG_CAN_SHAREDDIRS_CONFIG)) {

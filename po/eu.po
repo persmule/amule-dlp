@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
-"POT-Creation-Date: 2026-10-02 15:14+0200\n"
+"POT-Creation-Date: 2026-10-03 11:27+0100\n"
 "PO-Revision-Date: 2026-10-02 00:46+0000\n"
 "Last-Translator: Piarres Beobide <pi@beobide.net>\n"
 "Language-Team: Euskara <librezale@librezale.org>\n"
@@ -1181,6 +1181,10 @@ msgstr ""
 msgid "Unknown"
 msgstr "Ezezaguna"
 
+#: src/amule-remote-gui.cpp
+msgid "The connected daemon does not support All searches."
+msgstr ""
+
 #: src/BaseClient.cpp
 msgid "Searching buddy for lowid connection"
 msgstr "Laguna bilatzen id-baxu konexiorako"
@@ -1839,7 +1843,7 @@ msgstr "Zerbitzari lokala"
 msgid "Remote Server"
 msgstr "Urruneko zerbitzaria"
 
-#: src/DataToText.cpp src/KadDlg.cpp src/muuli_wdr.cpp src/SearchDlg.cpp
+#: src/DataToText.cpp src/KadDlg.cpp src/muuli_wdr.cpp src/SearchModeIcons.h
 #: src/TextClient.cpp
 msgid "Kad"
 msgstr "Kad"
@@ -3995,13 +3999,10 @@ msgstr "Bilatu"
 msgid "Type"
 msgstr "Mota"
 
-#: src/muuli_wdr.cpp src/SearchDlg.cpp src/SearchListCtrl.cpp
-msgid "Local"
-msgstr "Lokala"
-
 #: src/muuli_wdr.cpp
-msgid "Global"
-msgstr "Orokorra"
+#, fuzzy
+msgid "Search network"
+msgstr "Bilaketa-errorea"
 
 #: src/muuli_wdr.cpp
 msgid "Extended Parameters"
@@ -6898,8 +6899,17 @@ msgid "Invalid entry in stored search list, file may be corrupt"
 msgstr "Okerreko sarrera fitxategi ezagunen zerrendako fitxategian, hondaturik egon liteke: "
 
 #: src/SearchList.cpp
+#, fuzzy
+msgid "All search can't be done if neither eD2k nor Kad is available"
+msgstr "Ezin da Kad bilaketarik egin Kad ez badago abiarazirik"
+
+#: src/SearchList.cpp
 msgid "eD2k search can't be done if eD2k is not connected"
 msgstr "Ezin da eD2k bilaketarik egin eD2k ez badago konektaturik"
+
+#: src/SearchList.cpp
+msgid "All search: no usable Kad keyword; continuing with eD2k."
+msgstr ""
 
 #: src/SearchList.cpp
 msgid "No keyword for Kad search - aborting"
@@ -6908,6 +6918,10 @@ msgstr "Ez dago gako-hitzik Kad bilaketarako - abortatzen"
 #: src/SearchList.cpp
 msgid "Unexpected error while attempting Kad search: "
 msgstr "Espero gabeko errorea Kad bilaketa egitean: "
+
+#: src/SearchList.cpp
+msgid "All search: Kad component could not start: "
+msgstr ""
 
 #: src/SearchList.cpp
 msgid "Search timed out: the server did not answer."
@@ -6963,6 +6977,39 @@ msgstr "Utzia"
 msgid "New"
 msgstr "Berria"
 
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "eD2k: Current server"
+msgstr "eD2k zerbitzari-zerrenda (server.met)"
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "eD2k: All servers"
+msgstr "Kendu zerbitzari guztiak"
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "All networks"
+msgstr "Sarerik ez"
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "Search the connected eD2k server."
+msgstr "Une honetan konektaturiko zerbitzaria."
+
+#: src/SearchModeIcons.h
+msgid "Search the connected eD2k server and other servers in the server list."
+msgstr ""
+
+#: src/SearchModeIcons.h
+#, fuzzy
+msgid "Search the Kad network."
+msgstr "Sarera konektatu."
+
+#: src/SearchModeIcons.h
+msgid "Search eD2k servers and Kad, using whichever networks are available."
+msgstr ""
+
 #: src/SearchProgressReport.cpp
 #, fuzzy
 msgid "running"
@@ -7003,6 +7050,40 @@ msgstr "Bilaketa aurrerapena ez dago eskuragarri"
 #: src/SearchProgressReport.cpp
 msgid "No search to report on.\n"
 msgstr ""
+
+#: src/SearchSourceFormat.h
+#, c-format
+msgid "Estimated availability: %u"
+msgstr ""
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "eD2k sources: %u"
+msgstr "Fitxategiaren iturburua:"
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "Kad sources: %u"
+msgstr "Aurkituriko iturburuak: %s"
+
+#: src/SearchSourceFormat.h
+msgid "Network counts may overlap; they are not added together."
+msgstr ""
+
+#: src/SearchSourceFormat.h
+#, fuzzy
+msgid "Network breakdown unavailable."
+msgstr "Bertsio berria eskuragarri"
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "Complete sources: %u"
+msgstr "Jatorri osoak"
+
+#: src/SearchSourceFormat.h
+#, fuzzy, c-format
+msgid "Direct client endpoints: %u"
+msgstr "Bezero id berria: %u"
 
 #: src/ServerConnect.cpp
 msgid "Failed to connect to all obfuscated static servers listed. Making another pass without obfuscation."
@@ -8119,6 +8200,10 @@ msgstr "Ez da baliozko zenbaki bat\n"
 msgid "Not a valid hash (length should be exactly 32 chars)\n"
 msgstr "Ez da baliozko egiaztapen bat (luzera zehazki 32 karakterekoa izan behar da)\n"
 
+#: src/TextClient.cpp
+msgid "The connected daemon does not support All searches.\n"
+msgstr ""
+
 #. TRANSLATORS:
 #. 'help search' is a command to the program, do not translate it.
 #: src/TextClient.cpp
@@ -8515,11 +8600,13 @@ msgid "Execute a search."
 msgstr "Bilaketa bat egiten."
 
 #: src/TextClient.cpp
+#, fuzzy
 msgid ""
 "A search type has to be specified by giving the type:\n"
 "    GLOBAL\n"
 "    LOCAL\n"
 "    KAD\n"
+"    ALL: All networks (requires daemon support)\n"
 "Example: 'search kad file' will execute a kad search for \"file\".\n"
 "\n"
 "Optional filters can be added before, after, or interleaved with\n"
@@ -8558,6 +8645,11 @@ msgstr "Bilaketa lokal bat egin"
 
 #: src/TextClient.cpp
 msgid "Execute a kad search"
+msgstr "Kad bilaketa bat egin"
+
+#: src/TextClient.cpp
+#, fuzzy
+msgid "Execute an eD2k and Kad search"
 msgstr "Kad bilaketa bat egin"
 
 #: src/TextClient.cpp
@@ -9571,6 +9663,12 @@ msgstr "Badirudi aMule exekutatzen ari dela. Mesedez, itxi eta exekutatu berriro
 #: packaging/windows/installer_strings.c
 msgid "Removing user data at $APPDATA\\aMule..."
 msgstr "Erabiltzailearen datuak kentzen $APPDATA\\aMule(e)n..."
+
+#~ msgid "Local"
+#~ msgstr "Lokala"
+
+#~ msgid "Global"
+#~ msgstr "Orokorra"
 
 #~ msgid ""
 #~ "The number of a file from the last search has to be given.\n"

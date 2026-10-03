@@ -936,6 +936,19 @@ TEST(State, SearchResultsRoundtripAndOrderByEcid)
 	ASSERT_FALSE(s.HasSearch(0));
 }
 
+TEST(State, AllSearchSeedsKadActivityFromDaemon)
+{
+	CState s;
+	s.MarkSearchStarted(1, "all", "combined", true);
+	ASSERT_TRUE(s.SearchProgress(1).kad_active);
+	s.MarkSearchStarted(2, "all", "ed2k-only", false);
+	ASSERT_FALSE(s.SearchProgress(2).kad_active);
+	s.MarkSearchDiscovered(3, "all", "discovered", true, false, 10, true);
+	ASSERT_TRUE(s.SearchProgress(3).kad_active);
+	s.MarkSearchDiscovered(4, "all", "finished", false, true, 100, true);
+	ASSERT_FALSE(s.SearchProgress(4).kad_active);
+}
+
 TEST(State, MultiSearchSlotsAreIndependentAndAddressable)
 {
 	CState s;

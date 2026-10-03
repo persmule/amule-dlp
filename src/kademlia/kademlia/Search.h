@@ -40,6 +40,7 @@ there client on the eMule forum..
 #define SEARCH_H
 
 #include <set>
+#include <vector>
 
 #include "SearchManager.h"
 
@@ -184,8 +185,7 @@ private:
 	uint32_t m_searchID;
 	bool m_searchIDAssigned;
 	CUInt128 m_target;
-	uint32_t m_searchTermsDataSize;
-	uint8_t *m_searchTermsData;
+	std::vector<uint8_t> m_searchTermsData;
 	WordList m_words; // list of words in the search string (populated in
 			  // CSearchManager::PrepareFindKeywords)
 	wxString m_fileName;

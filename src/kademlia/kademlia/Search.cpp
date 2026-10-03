@@ -102,8 +102,6 @@ CSearch::CSearch()
 #ifdef ENABLE_KAD_NODE_PROTECTION
 	m_lastResponseTick = ::GetTickCount64();
 #endif
-	m_searchTermsData = NULL;
-	m_searchTermsDataSize = 0;
 	m_nodeSpecialSearchRequester = NULL;
 	m_closestDistantFound = 0;
 }
@@ -193,11 +191,12 @@ CSearch::~CSearch()
 		}
 	}
 
-	delete[] m_searchTermsData;
-
 	switch (m_type) {
 	case KEYWORD:
-		Notify_KadSearchEnd(m_searchID);
+		// Rejected keyword searches have never been assigned a public identity.
+		if (HasSearchID()) {
+			Notify_KadSearchEnd(m_searchID);
+		}
 		break;
 	}
 }
@@ -640,24 +639,24 @@ void CSearch::StorePacket()
 		CMemFile searchTerms;
 		searchTerms.WriteUInt128(m_target);
 		if (from->GetVersion() >= 3) {
-			if (m_searchTermsDataSize == 0) {
+			if (m_searchTermsData.empty()) {
 				// Start position range (0x0 to 0x7FFF)
 				searchTerms.WriteUInt16(0);
 			} else {
 				// Start position range (0x8000 to 0xFFFF)
 				searchTerms.WriteUInt16(0x8000);
-				searchTerms.Write(m_searchTermsData, m_searchTermsDataSize);
+				searchTerms.Write(m_searchTermsData.data(), m_searchTermsData.size());
 			}
 			DebugSend(Kad2SearchKeyReq, from->GetIPAddress(), from->GetUDPPort());
 		} else {
-			if (m_searchTermsDataSize == 0) {
+			if (m_searchTermsData.empty()) {
 				searchTerms.WriteUInt8(0);
 				// We send this extra byte to flag we handle large files.
 				searchTerms.WriteUInt8(0);
 			} else {
 				// Set to 2 to flag we handle large files.
 				searchTerms.WriteUInt8(2);
-				searchTerms.Write(m_searchTermsData, m_searchTermsDataSize);
+				searchTerms.Write(m_searchTermsData.data(), m_searchTermsData.size());
 			}
 			DebugSendF("KadSearchReq(Keyword)", from->GetIPAddress(), from->GetUDPPort());
 		}
@@ -1670,9 +1669,11 @@ void CSearch::PreparePacketForTags(CMemFile *bio, CKnownFile *file, uint8_t targ
 
 void CSearch::SetSearchTermData(uint32_t searchTermsDataSize, const uint8_t *searchTermsData)
 {
-	m_searchTermsDataSize = searchTermsDataSize;
-	m_searchTermsData = new uint8_t[searchTermsDataSize];
-	memcpy(m_searchTermsData, searchTermsData, searchTermsDataSize);
+	if (searchTermsDataSize == 0) {
+		m_searchTermsData.clear();
+		return;
+	}
+	m_searchTermsData.assign(searchTermsData, searchTermsData + searchTermsDataSize);
 }
 
 uint8_t CSearch::GetRequestContactCount() const

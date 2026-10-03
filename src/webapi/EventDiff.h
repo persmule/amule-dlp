@@ -77,6 +77,7 @@ struct LastSeenState
 	{
 		std::map<std::uint32_t, SearchResult> results;
 		bool complete = false;
+		bool kad_active = false;
 		std::uint32_t percent = 0;
 		// Baseline `generation` from the previous tick. Any bump forces a search_progress
 		// emit, so back-to-back searches that start and finish inside one refresher

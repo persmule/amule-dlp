@@ -31,9 +31,10 @@
 #include "SearchFile.h"        // Needed for CSearchFile
 #include "SearchResultIndex.h" // Needed for CSearchResultIndex
 #include <common/SmartPtr.h>   // Needed for CSmartPtr
-#include <set>                 // Needed for std::set (per-search Kad completion)
-#include <map>                 // Needed for std::map (per-search start times)
-#include <vector>              // Needed for std::vector (same-hash result fan-out)
+#include <memory>
+#include <set>    // Needed for std::set (per-search Kad completion)
+#include <map>    // Needed for std::map (per-search start times)
+#include <vector> // Needed for std::vector (same-hash result fan-out)
 
 class CMemFile;
 class CMD4Hash;
@@ -67,7 +68,9 @@ enum SearchType
 	// 3 is EC_SEARCH_WEB -- deliberately skipped, see above.
 	//! A "View Files" browse of one peer's share. Shares the id space and the lifecycle
 	//! machinery with real searches, but is started by EnsureBrowseTab, not a query.
-	BrowseSearch = 4
+	BrowseSearch = 4,
+	//! Search all available networks simultaneously (eD2k local + global + Kad).
+	AllSearch = 5
 };
 
 typedef std::vector<CSearchFile *> CSearchResultList;
@@ -123,15 +126,6 @@ public:
 	 * sweep if this ID is the in-flight one. A no-op for an already-finished / unknown ID.
 	 */
 	void StopSearchById(wxUIntPtr searchID);
-
-	/**
-	 * Finalizes any in-flight ed2k (local/global) search, keeping its results. ed2k
-	 * searches share a single in-flight slot and file their results under the scalar
-	 * m_currentSearch, so the multi-search EC layer calls this before starting a new
-	 * search to stop the old sweep's late UDP results from leaking into the new search's
-	 * bucket. Running Kad searches are attributed by their own ID and are left untouched.
-	 */
-	void StopInFlightEd2kSearch();
 
 	/**
 	 * Allocates a fresh ed2k search ID from the single core counter shared by the
@@ -203,9 +197,25 @@ public:
 	/**
 	 * Ask the Kad search identified by searchID to widen its frontier via
 	 * KADEMLIA_FIND_VALUE_MORE. Wired to the search dialog "More" button. Returns true if
-	 * a reask was dispatched.
+	 * a reask was dispatched. For AllSearch, the ed2k tab ID is mapped to its Kad component.
 	 */
 	bool RequestMoreResults(uint32_t searchID);
+
+	/**
+	 * True if this search ID has a Kad component -- either a direct Kad search or an
+	 * AllSearch whose Kad part is still active. Used to gate the "More" button.
+	 */
+	bool HasKadComponent(uint32_t searchID) const;
+	bool HasEd2kComponent(uint32_t searchID) const
+	{
+		return searchID == m_currentSearch && m_searchInProgress && !m_ed2kSearchFinished;
+	}
+
+	/**
+	 * Maps a Kad search ID back to the ed2k tab ID that owns its results, or returns
+	 * the ID unchanged. Used so a Kad completion notification reaches the AllSearch tab.
+	 */
+	uint32_t GetEffectiveSearchId(uint32_t searchID) const;
 
 	/** Returns the completion percentage of the current search. */
 	uint32 GetSearchProgress() const;
@@ -404,8 +414,12 @@ public:
 	 * GetSearchLifecycleState) path.
 	 */
 	void SetKadSearchFinished(uint32_t searchID);
+	bool IsShuttingDown() const { return m_shuttingDown; }
 
 private:
+	// Called only after a replacement query is validated. Kad work is independent.
+	void StopInFlightEd2kSearch();
+
 	//! On-disk name of the search-results persistence file, in the config dir.
 	static const wxChar *const s_storedSearchesFilename;
 
@@ -475,7 +489,7 @@ private:
 	 * Takes ownership of the CSearchFile object whether or not it was actually added to the
 	 * results list.
 	 */
-	bool AddToList(CSearchFile *toadd, bool clientResponse = false);
+	bool AddToList(std::unique_ptr<CSearchFile> owned, bool clientResponse = false);
 
 	//! This smart pointer is used to safely prevent leaks.
 	typedef CSmartPtr<CMemFile> CMemFilePtr;
@@ -502,7 +516,7 @@ private:
 	uint32 m_nextEd2kId = 0;
 
 	//! The current packet used for searches.
-	CPacket *m_searchPacket;
+	std::unique_ptr<CPacket> m_searchPacket;
 
 	//! Does the current search packet contain 64bit values?
 	bool m_64bitSearchPacket;
@@ -524,6 +538,13 @@ private:
 	//! each polled tab's real type instead of the scalar m_searchType (which only tracks the
 	//! most-recently-started search). Pruned in RemoveResults.
 	std::map<uint32_t, SearchType> m_searchKinds;
+
+	//! For AllSearch, a Kad search is started alongside the ed2k one under a separate
+	//! Kad-assigned ID. This maps that Kad ID back to the ed2k ID that owns the tab, so
+	//! KademliaSearchKeyword results land in the right bucket. Pruned in RemoveResults.
+	std::map<uint32_t, uint32_t> m_kadToEd2kSearchId;
+	uint32_t KadComponentOf(uint32_t searchID) const;
+
 	//! Peer ecid per browse id; see RegisterBrowseSearch().
 	std::map<uint32_t, uint32> m_browsePeers;
 
@@ -561,9 +582,8 @@ private:
 	// The map of search-results (ResultMap / m_results) lives in
 	// CSearchResultIndex, shared with the remote search list.
 
-	//! Contains the results type desired in the current search.
-	//! If not empty, results of different types are filtered.
-	wxString m_resultType;
+	//! Per-search result type filters; missing or empty values accept all types.
+	std::map<uint32_t, wxString> m_resultTypes;
 
 	wxDECLARE_EVENT_TABLE();
 };

@@ -131,3 +131,11 @@ void Search_Add_Result(CSearchFile *) {}
 void Search_Update_Sources(CSearchFile *) {}
 void HandleNotification(const CMuleNotiferBase &) {}
 } // namespace MuleNotify
+
+#include <SearchList.h>
+
+SearchType CSearchList::GetSearchLifecycleKindById(wxUIntPtr) const
+{
+	FAIL_M("AICH consensus test unexpectedly queried search lifecycle");
+	return LocalSearch;
+}
