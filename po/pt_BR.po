@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-03 11:27+0100\n"
-"PO-Revision-Date: 2026-10-03 12:52+0000\n"
+"PO-Revision-Date: 2026-10-04 14:56+0000\n"
 "Last-Translator: Marcelo Jimenez <mroberto@users.sourceforge.com>\n"
 "Language-Team: Português (Brasileiro) <pt@li.org>\n"
 "Language: pt_BR\n"
@@ -1202,7 +1202,7 @@ msgstr "Desconhecido"
 
 #: src/amule-remote-gui.cpp
 msgid "The connected daemon does not support All searches."
-msgstr ""
+msgstr "O daemon conectado não suporta \"Todas as buscas\"."
 
 #: src/BaseClient.cpp
 msgid "Searching buddy for lowid connection"
@@ -4002,9 +4002,8 @@ msgid "Type"
 msgstr "Tipo"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Search network"
-msgstr "Erro na busca"
+msgstr "Rede de busca"
 
 #: src/muuli_wdr.cpp
 msgid "Extended Parameters"
@@ -6890,9 +6889,8 @@ msgid "Invalid entry in stored search list, file may be corrupt"
 msgstr "Entrada inválida na lista de busca guardada, o arquivo pode estar corrompido"
 
 #: src/SearchList.cpp
-#, fuzzy
 msgid "All search can't be done if neither eD2k nor Kad is available"
-msgstr "A busca do Kad não pode ser feita se o Kad não estiver rodando"
+msgstr "\"Todas as buscas\" não pode ser feita se nem eD2k nem Kad estiverem disponíveis"
 
 #: src/SearchList.cpp
 msgid "eD2k search can't be done if eD2k is not connected"
@@ -6900,7 +6898,7 @@ msgstr "Procura eD2k não pode ser concluída se o eD2k não está conectado"
 
 #: src/SearchList.cpp
 msgid "All search: no usable Kad keyword; continuing with eD2k."
-msgstr ""
+msgstr "\"Todas as buscas\": nenhuma palavra chave Kad usável; continuando com eD2k."
 
 #: src/SearchList.cpp
 msgid "No keyword for Kad search - aborting"
@@ -6912,7 +6910,7 @@ msgstr "Erro inesperado quando tentava fazer a busca do Kad: "
 
 #: src/SearchList.cpp
 msgid "All search: Kad component could not start: "
-msgstr ""
+msgstr "Todas as buscas: a componente Kad não pode iniciar. "
 
 #: src/SearchList.cpp
 msgid "Search timed out: the server did not answer."
@@ -6968,37 +6966,32 @@ msgid "New"
 msgstr "Novo"
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "eD2k: Current server"
-msgstr "Lista de servidores eD2k (server.met)"
+msgstr "eD2k: Servidor atual"
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "eD2k: All servers"
-msgstr "Remover todos os servidores"
+msgstr "eD2k: Todos os servidores"
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "All networks"
-msgstr "Sem redes"
+msgstr "Todas as redes"
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "Search the connected eD2k server."
-msgstr "Servidor atualmente conectado."
+msgstr "Buscar no servidor eD2k conectado."
 
 #: src/SearchModeIcons.h
 msgid "Search the connected eD2k server and other servers in the server list."
-msgstr ""
+msgstr "Buscar no servidor eD2k conectado e em outros servidores na lista de servidores."
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "Search the Kad network."
-msgstr "Conectar à rede."
+msgstr "Buscar na rede Kad."
 
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
-msgstr ""
+msgstr "Buscar nos servidores eD2k e na rede Kad, usando a rede que estiver disponível."
 
 #: src/SearchProgressReport.cpp
 msgid "running"
@@ -7042,36 +7035,35 @@ msgstr "Nenhuma busca para reportar sobre.\n"
 #: src/SearchSourceFormat.h
 #, c-format
 msgid "Estimated availability: %u"
-msgstr ""
+msgstr "Disponibilidade estimada: %u"
 
 #: src/SearchSourceFormat.h
-#, fuzzy, c-format
+#, c-format
 msgid "eD2k sources: %u"
-msgstr "Fontes de arquivos:"
+msgstr "Fontes eD2k: %u"
 
 #: src/SearchSourceFormat.h
-#, fuzzy, c-format
+#, c-format
 msgid "Kad sources: %u"
-msgstr "Fontes encontradas: %s"
+msgstr "Fontes Kad: %u"
 
 #: src/SearchSourceFormat.h
 msgid "Network counts may overlap; they are not added together."
-msgstr ""
+msgstr "As contagens de rede pode se sobrepor; elas não são somadas juntas."
 
 #: src/SearchSourceFormat.h
-#, fuzzy
 msgid "Network breakdown unavailable."
-msgstr "Uma versão mais nova está disponível"
+msgstr "Breakdown de rede indisponível."
 
 #: src/SearchSourceFormat.h
-#, fuzzy, c-format
+#, c-format
 msgid "Complete sources: %u"
-msgstr "Fontes completas"
+msgstr "Fontes completas: %u"
 
 #: src/SearchSourceFormat.h
-#, fuzzy, c-format
+#, c-format
 msgid "Direct client endpoints: %u"
-msgstr "Novo ID do cliente é %u"
+msgstr "Pontos finais de clientes diretos: %u"
 
 #: src/ServerConnect.cpp
 msgid "Failed to connect to all obfuscated static servers listed. Making another pass without obfuscation."
@@ -7105,19 +7097,19 @@ msgid "No valid servers to which to connect found in server list"
 msgstr "Nenhum servidor válido para o qual conectar na lista de servidor"
 
 #: src/ServerConnect.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Connected to %s (%s:%i), sending login request"
-msgstr "Conectado a %s (%s:%i)"
+msgstr "Conectado a %s (%s:%i), enviando o pedido de login"
 
 #: src/ServerConnect.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Obfuscated connection established on: %s (%s:%i)"
-msgstr "Conexão estabelecida em: %s"
+msgstr "Conexão ofuscada estabelecida em: %s(%s:%i)"
 
 #: src/ServerConnect.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Connection established on: %s (%s:%i)"
-msgstr "Conexão estabelecida em: %s"
+msgstr "Conexão estabelecida em: %s (%s:%i)"
 
 #: src/ServerConnect.cpp
 msgid "Fatal Error while trying to connect. Internet connection might be down"
@@ -8181,7 +8173,7 @@ msgstr "Não é uma hash válida (precisa ter exatamente 32 caracteres)\n"
 
 #: src/TextClient.cpp
 msgid "The connected daemon does not support All searches.\n"
-msgstr ""
+msgstr "O daemon conectado não suporta \"Todas as buscas\".\n"
 
 #. TRANSLATORS:
 #. 'help search' is a command to the program, do not translate it.
@@ -8579,7 +8571,6 @@ msgid "Execute a search."
 msgstr "Faça uma pesquisa."
 
 #: src/TextClient.cpp
-#, fuzzy
 msgid ""
 "A search type has to be specified by giving the type:\n"
 "    GLOBAL\n"
@@ -8602,6 +8593,7 @@ msgstr ""
 "    GLOBAL\n"
 "    LOCAL\n"
 "    KAD\n"
+"    ALL: todas as redes (requer suporte do daemon)\n"
 "Exemplo: 'search kad file' executará uma busca kad por \"file\".\n"
 "\n"
 "Filtros opcionais podem ser adicionados antes, depois ou intercalados\n"
@@ -8627,9 +8619,8 @@ msgid "Execute a kad search"
 msgstr "Faça uma pesquisa no kad"
 
 #: src/TextClient.cpp
-#, fuzzy
 msgid "Execute an eD2k and Kad search"
-msgstr "Faça uma pesquisa no kad"
+msgstr "Faça uma busca nas redes eD2k e kad"
 
 #: src/TextClient.cpp
 msgid "Show the results of a search."

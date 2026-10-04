@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-03 11:27+0100\n"
-"PO-Revision-Date: 2026-10-03 12:42+0000\n"
+"PO-Revision-Date: 2026-10-04 14:56+0000\n"
 "Last-Translator: minterior <minterior@gmail.com>\n"
 "Language-Team: Català\n"
 "Language: ca\n"
@@ -1199,7 +1199,7 @@ msgstr "Desconegut"
 
 #: src/amule-remote-gui.cpp
 msgid "The connected daemon does not support All searches."
-msgstr ""
+msgstr "El dimoni connectat no admet la cerca a totes les xarxes."
 
 #: src/BaseClient.cpp
 msgid "Searching buddy for lowid connection"
@@ -3999,9 +3999,8 @@ msgid "Type"
 msgstr "Tipus"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Search network"
-msgstr "Error en la cerca"
+msgstr "Xarxa de cerca"
 
 #: src/muuli_wdr.cpp
 msgid "Extended Parameters"
@@ -6887,9 +6886,8 @@ msgid "Invalid entry in stored search list, file may be corrupt"
 msgstr "Entrada no vàlida a la llista de cerques desada; el fitxer podria estar malmès"
 
 #: src/SearchList.cpp
-#, fuzzy
 msgid "All search can't be done if neither eD2k nor Kad is available"
-msgstr "No es pot fer una cerca Kad si la xarxa Kad no està engegada"
+msgstr "No es pot fer una cerca a totes les xarxes si no hi ha disponible ni eD2k ni Kad"
 
 #: src/SearchList.cpp
 msgid "eD2k search can't be done if eD2k is not connected"
@@ -6897,7 +6895,7 @@ msgstr "No es pot executar una cerca eD2k si la xarxa eD2k no està connectada"
 
 #: src/SearchList.cpp
 msgid "All search: no usable Kad keyword; continuing with eD2k."
-msgstr ""
+msgstr "Cerca a totes les xarxes: no hi ha cap paraula clau utilitzable per a Kad; es continua amb eD2k."
 
 #: src/SearchList.cpp
 msgid "No keyword for Kad search - aborting"
@@ -6909,7 +6907,7 @@ msgstr "Error inesperat mentre s'intentava fer una cerca Kad: "
 
 #: src/SearchList.cpp
 msgid "All search: Kad component could not start: "
-msgstr ""
+msgstr "Cerca a totes les xarxes: no s'ha pogut iniciar la part de Kad: "
 
 #: src/SearchList.cpp
 msgid "Search timed out: the server did not answer."
@@ -6965,37 +6963,32 @@ msgid "New"
 msgstr "Nou"
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "eD2k: Current server"
-msgstr "Llista de servidors eD2k (server.met)"
+msgstr "eD2k: Servidor actual"
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "eD2k: All servers"
-msgstr "Esborra tots els servidors"
+msgstr "eD2k: Tots els servidors"
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "All networks"
-msgstr "Cap xarxa"
+msgstr "Totes les xarxes"
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "Search the connected eD2k server."
-msgstr "Servidor connectat actualment."
+msgstr "Cerca al servidor eD2k connectat."
 
 #: src/SearchModeIcons.h
 msgid "Search the connected eD2k server and other servers in the server list."
-msgstr ""
+msgstr "Cerca al servidor eD2k connectat i als altres servidors de la llista de servidors."
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "Search the Kad network."
-msgstr "Connecta a la xarxa."
+msgstr "Cerca a la xarxa Kad."
 
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
-msgstr ""
+msgstr "Cerca als servidors eD2k i a Kad, amb les xarxes que estiguin disponibles."
 
 #: src/SearchProgressReport.cpp
 msgid "running"
@@ -7039,36 +7032,35 @@ msgstr "No hi ha cap cerca de la qual informar.\n"
 #: src/SearchSourceFormat.h
 #, c-format
 msgid "Estimated availability: %u"
-msgstr ""
+msgstr "Disponibilitat estimada: %u"
 
 #: src/SearchSourceFormat.h
-#, fuzzy, c-format
+#, c-format
 msgid "eD2k sources: %u"
-msgstr "Fonts del fitxer:"
+msgstr "Fonts d'eD2k: %u"
 
 #: src/SearchSourceFormat.h
-#, fuzzy, c-format
+#, c-format
 msgid "Kad sources: %u"
-msgstr "Fonts trobades: %s"
+msgstr "Fonts de Kad: %u"
 
 #: src/SearchSourceFormat.h
 msgid "Network counts may overlap; they are not added together."
-msgstr ""
+msgstr "Els recomptes de cada xarxa es poden solapar; no se sumen."
 
 #: src/SearchSourceFormat.h
-#, fuzzy
 msgid "Network breakdown unavailable."
-msgstr "Hi ha una versió nova disponible"
+msgstr "Desglossament per xarxa no disponible."
 
 #: src/SearchSourceFormat.h
-#, fuzzy, c-format
+#, c-format
 msgid "Complete sources: %u"
-msgstr "Fonts completes"
+msgstr "Fonts completes: %u"
 
 #: src/SearchSourceFormat.h
-#, fuzzy, c-format
+#, c-format
 msgid "Direct client endpoints: %u"
-msgstr "La nova ID d'usuari és %u"
+msgstr "Adreces directes de clients: %u"
 
 #: src/ServerConnect.cpp
 msgid "Failed to connect to all obfuscated static servers listed. Making another pass without obfuscation."
@@ -7102,19 +7094,19 @@ msgid "No valid servers to which to connect found in server list"
 msgstr "No s'han trobat a la llista servidors vàlids als que connectar"
 
 #: src/ServerConnect.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Connected to %s (%s:%i), sending login request"
-msgstr "Connectat a %s (%s:%i)"
+msgstr "Connectat a %s (%s:%i), s'està enviant la sol·licitud d'inici de sessió"
 
 #: src/ServerConnect.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Obfuscated connection established on: %s (%s:%i)"
-msgstr "Connexió establerta amb: %s"
+msgstr "Connexió ofuscada establerta amb: %s (%s:%i)"
 
 #: src/ServerConnect.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Connection established on: %s (%s:%i)"
-msgstr "Connexió establerta amb: %s"
+msgstr "Connexió establerta amb: %s (%s:%i)"
 
 #: src/ServerConnect.cpp
 msgid "Fatal Error while trying to connect. Internet connection might be down"
@@ -8178,7 +8170,7 @@ msgstr "No és un resum vàlid (la longitud hauria de ser exactament de 32 carà
 
 #: src/TextClient.cpp
 msgid "The connected daemon does not support All searches.\n"
-msgstr ""
+msgstr "El dimoni connectat no admet la cerca a totes les xarxes.\n"
 
 #. TRANSLATORS:
 #. 'help search' is a command to the program, do not translate it.
@@ -8576,7 +8568,6 @@ msgid "Execute a search."
 msgstr "Realitza una cerca."
 
 #: src/TextClient.cpp
-#, fuzzy
 msgid ""
 "A search type has to be specified by giving the type:\n"
 "    GLOBAL\n"
@@ -8599,6 +8590,7 @@ msgstr ""
 "    GLOBAL\n"
 "    LOCAL\n"
 "    KAD\n"
+"    ALL: totes les xarxes (cal que el dimoni ho admeti)\n"
 "Exemple: «search kad fitxer» farà una cerca kad de «fitxer».\n"
 "\n"
 "Es poden afegir filtres opcionals abans, després o intercalats amb\n"
@@ -8624,9 +8616,8 @@ msgid "Execute a kad search"
 msgstr "Realitza una cerca kad"
 
 #: src/TextClient.cpp
-#, fuzzy
 msgid "Execute an eD2k and Kad search"
-msgstr "Realitza una cerca kad"
+msgstr "Realitza una cerca a eD2k i Kad"
 
 #: src/TextClient.cpp
 msgid "Show the results of a search."

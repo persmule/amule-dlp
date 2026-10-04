@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aMule man pages\n"
 "POT-Creation-Date: 2026-10-02 08:36+0800\n"
-"PO-Revision-Date: 2026-10-03 12:57+0000\n"
+"PO-Revision-Date: 2026-10-04 14:56+0000\n"
 "Last-Translator: \n"
 "Language-Team: Marcelo Roberto Jimenez <mroberto@users.sourceforge.net>\n"
 "Language: pt_BR\n"
@@ -646,7 +646,7 @@ msgstr "Tipos de busca disponíveis:"
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Searches eD2k and Kad together, using the available network if the other cannot start. Requires a daemon advertising All search support; older daemons return a clear error without starting a search. Example: 'search all amule'."
-msgstr ""
+msgstr "Buscas nas redes eD2k e Kad juntas, usando a próxima rede disponível se a outra não conseguir iniciar. Requer um daemon propagando suporte de \"Todas as buscas\"; daemons antigos retornam um erro sem iniciar uma busca. Exemplo: 'search all amule'."
 
 #. type: Plain text
 #: amulecmd.1.in
