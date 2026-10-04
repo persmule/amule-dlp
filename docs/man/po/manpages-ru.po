@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: manpages-ru\n"
 "POT-Creation-Date: 2026-10-02 08:36+0800\n"
-"PO-Revision-Date: 2026-10-03 12:57+0000\n"
+"PO-Revision-Date: 2026-10-04 14:56+0000\n"
 "Last-Translator: Sebastiano Pistore <SebastianoPistore.info@protonmail.ch>\n"
 "Language-Team: Russian <LL@li.org>\n"
 "Language: ru\n"
@@ -647,7 +647,7 @@ msgstr "Возможные типы поиска:"
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Searches eD2k and Kad together, using the available network if the other cannot start. Requires a daemon advertising All search support; older daemons return a clear error without starting a search. Example: 'search all amule'."
-msgstr ""
+msgstr "Ищет сразу в eD2k и Kad; если одна сеть недоступна, использует другую. Требуется демон с поддержкой поиска «Все»; старые демоны выдают понятную ошибку без запуска поиска. Пример: 'search all amule'."
 
 #. type: Plain text
 #: amulecmd.1.in

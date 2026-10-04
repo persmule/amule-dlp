@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-03 11:27+0100\n"
-"PO-Revision-Date: 2026-10-03 12:56+0000\n"
+"PO-Revision-Date: 2026-10-04 14:56+0000\n"
 "Last-Translator: Mike Akiba <mike2718@gmail.com>\n"
 "Language-Team: Chinese Simplified <kde-i18n-doc@kde.org>\n"
 "Language: zh_CN\n"
@@ -1198,7 +1198,7 @@ msgstr "未知"
 
 #: src/amule-remote-gui.cpp
 msgid "The connected daemon does not support All searches."
-msgstr ""
+msgstr "已连接的 daemon 不支持 All 搜索类型。"
 
 #: src/BaseClient.cpp
 msgid "Searching buddy for lowid connection"
@@ -3998,9 +3998,8 @@ msgid "Type"
 msgstr "类型"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Search network"
-msgstr "搜索错误"
+msgstr "搜索网络"
 
 #: src/muuli_wdr.cpp
 msgid "Extended Parameters"
@@ -6886,9 +6885,8 @@ msgid "Invalid entry in stored search list, file may be corrupt"
 msgstr "存储的搜索列表包含无效条目，文件可能损坏："
 
 #: src/SearchList.cpp
-#, fuzzy
 msgid "All search can't be done if neither eD2k nor Kad is available"
-msgstr "Kad搜索不能使用，因为Kad没有连接"
+msgstr "如果 eD2k 和 Kad 均不可用则所有搜索均无法进行"
 
 #: src/SearchList.cpp
 msgid "eD2k search can't be done if eD2k is not connected"
@@ -6896,7 +6894,7 @@ msgstr "eD2k未连接时eD2k搜索无法进行"
 
 #: src/SearchList.cpp
 msgid "All search: no usable Kad keyword; continuing with eD2k."
-msgstr ""
+msgstr "All 搜索：无可用 Kad 关键词；继续用 eD2k 搜索."
 
 #: src/SearchList.cpp
 msgid "No keyword for Kad search - aborting"
@@ -6908,7 +6906,7 @@ msgstr "尝试Kad搜索时出现未预料的错误： "
 
 #: src/SearchList.cpp
 msgid "All search: Kad component could not start: "
-msgstr ""
+msgstr "All 搜索: Kad 部件无法启动: "
 
 #: src/SearchList.cpp
 msgid "Search timed out: the server did not answer."
@@ -6964,37 +6962,32 @@ msgid "New"
 msgstr "新建"
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "eD2k: Current server"
-msgstr "eD2k 服务器列表 (server.met)"
+msgstr "eD2k：当前服务器"
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "eD2k: All servers"
-msgstr "删除所有服务器"
+msgstr "eD2k：所有服务器"
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "All networks"
-msgstr "无网络"
+msgstr "所有网络"
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "Search the connected eD2k server."
-msgstr "现在已连接的服务器。"
+msgstr "搜索已连接的 eD2k 服务器。"
 
 #: src/SearchModeIcons.h
 msgid "Search the connected eD2k server and other servers in the server list."
-msgstr ""
+msgstr "搜索已连接的 eD2k 服务器和服务器列表中其他服务器。"
 
 #: src/SearchModeIcons.h
-#, fuzzy
 msgid "Search the Kad network."
-msgstr "连接至网络。"
+msgstr "搜索 Kad 网络。"
 
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
-msgstr ""
+msgstr "搜索 eD2k 服务器和 Kad，哪个网络可用就用哪个。"
 
 #: src/SearchProgressReport.cpp
 msgid "running"
@@ -7038,36 +7031,35 @@ msgstr "没有可报告的搜索。\n"
 #: src/SearchSourceFormat.h
 #, c-format
 msgid "Estimated availability: %u"
-msgstr ""
+msgstr "预计的可用性：%u"
 
 #: src/SearchSourceFormat.h
-#, fuzzy, c-format
+#, c-format
 msgid "eD2k sources: %u"
-msgstr "文件源:"
+msgstr "eD2k 源：%u"
 
 #: src/SearchSourceFormat.h
-#, fuzzy, c-format
+#, c-format
 msgid "Kad sources: %u"
-msgstr "发现的源: %s"
+msgstr "Kad 源： %u"
 
 #: src/SearchSourceFormat.h
 msgid "Network counts may overlap; they are not added together."
-msgstr ""
+msgstr "网络计数可能重叠；不是把它们相加。"
 
 #: src/SearchSourceFormat.h
-#, fuzzy
 msgid "Network breakdown unavailable."
-msgstr "有新版"
+msgstr "网络分析不可用。"
 
 #: src/SearchSourceFormat.h
-#, fuzzy, c-format
+#, c-format
 msgid "Complete sources: %u"
-msgstr "完成的源"
+msgstr "完成的源：%u"
 
 #: src/SearchSourceFormat.h
-#, fuzzy, c-format
+#, c-format
 msgid "Direct client endpoints: %u"
-msgstr "新的用户编号是 %u"
+msgstr "直连客户端端点： %u"
 
 #: src/ServerConnect.cpp
 msgid "Failed to connect to all obfuscated static servers listed. Making another pass without obfuscation."
@@ -7101,19 +7093,19 @@ msgid "No valid servers to which to connect found in server list"
 msgstr "服务器列表中没有可以连接的服务器"
 
 #: src/ServerConnect.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Connected to %s (%s:%i), sending login request"
-msgstr "已连接至 %s (%s:%i)"
+msgstr "已连接至 %s (%s:%i)，正发送登录请求"
 
 #: src/ServerConnect.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Obfuscated connection established on: %s (%s:%i)"
-msgstr "已成功连接到：%s"
+msgstr "混淆连接已建立于：%s (%s:%i)"
 
 #: src/ServerConnect.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Connection established on: %s (%s:%i)"
-msgstr "已成功连接到：%s"
+msgstr "连接已建立于：%s (%s:%i)"
 
 #: src/ServerConnect.cpp
 msgid "Fatal Error while trying to connect. Internet connection might be down"
@@ -8177,7 +8169,7 @@ msgstr "无效的校验值（长度必须为32个字符）\n"
 
 #: src/TextClient.cpp
 msgid "The connected daemon does not support All searches.\n"
-msgstr ""
+msgstr "已连接的 daemon 不支持 All 搜索类型。\n"
 
 #. TRANSLATORS:
 #. 'help search' is a command to the program, do not translate it.
@@ -8574,7 +8566,6 @@ msgid "Execute a search."
 msgstr "执行搜索。"
 
 #: src/TextClient.cpp
-#, fuzzy
 msgid ""
 "A search type has to be specified by giving the type:\n"
 "    GLOBAL\n"
@@ -8597,6 +8588,7 @@ msgstr ""
 "    GLOBAL\n"
 "    LOCAL\n"
 "    KAD\n"
+"    ALL: 所有网络 (需要 daemon 支持)\n"
 "示例：'search kad file' 会执行 kad \"file\" 搜索。\n"
 "\n"
 "可在搜索词前、后、中间添加筛选器\n"
@@ -8622,9 +8614,8 @@ msgid "Execute a kad search"
 msgstr "执行 Kad 搜索"
 
 #: src/TextClient.cpp
-#, fuzzy
 msgid "Execute an eD2k and Kad search"
-msgstr "执行 Kad 搜索"
+msgstr "执行 eD2k 和 Kad 搜索"
 
 #: src/TextClient.cpp
 msgid "Show the results of a search."
