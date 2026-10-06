@@ -285,7 +285,7 @@
   "downloads_peer_col_last_seen": "Последнее появление",
   "search_ftype_any": "Любой",
   "shared_prio_low": "Низкий",
-  "prefs_field_files_save_sources_for_rare_files": "Оставлять 10 источников для редких файлов (<20 источников)",
+  "prefs_field_files_save_sources_for_rare_files": "Сохранять до 10 источников с Высоким ИД для редких файлов (20 источников или меньше) при выходе; они используются снова, если aMule перезапустится в течение 2 часов",
   "prefs_servers": "Серверы",
   "prefs_field_files_ffprobe_path": "Путь к ffprobe (пусто = автоопределение)",
   "prefs_field_servers_manual_servers_high_priority": "Высокий приоритет серверов, добавленных вручную",
