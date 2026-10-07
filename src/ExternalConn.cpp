@@ -907,6 +907,7 @@ ExternalConn::ExternalConn(amuleIPV4Address addr, wxString *msg)
 {
 	wxString msgLocal;
 	m_ECServer = NULL;
+	m_ec_notifier = NULL;
 	// Are we allowed to accept External Connections?
 	if (thePrefs::AcceptExternalConnections()) {
 		// We must have a valid password, otherwise we will not allow EC connections
