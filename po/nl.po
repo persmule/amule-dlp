@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-08 11:09+0000\n"
+"PO-Revision-Date: 2026-10-11 09:44+0000\n"
 "Last-Translator: Marcel Pol <marcel@timelord.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
@@ -2782,15 +2782,15 @@ msgstr ""
 
 #: src/ExternalCommand.cpp
 msgid "The command template or an argument contains a NUL character."
-msgstr ""
+msgstr "Het commandosjabloon of een argument bevat een NUL-teken."
 
 #: src/ExternalCommand.cpp
 msgid "An event value cannot select the executable."
-msgstr ""
+msgstr "Een gebeurteniswaarde kan het uitvoerbare bestand niet kiezen."
 
 #: src/ExternalCommand.cpp
 msgid "An event value would be used as interpreter code, a script name, or an unsupported launcher argument."
-msgstr ""
+msgstr "Een gebeurteniswaarde zou gebruikt worden als code voor de interpreter, een scriptnaam of een niet-ondersteund argument voor een opstartprogramma."
 
 #: src/ExternalCommand.cpp
 msgid "A command-shell argument contains a double quote, percent sign, exclamation mark, or line break."

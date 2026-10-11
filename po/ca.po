@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-08 20:54+0000\n"
+"PO-Revision-Date: 2026-10-11 09:38+0000\n"
 "Last-Translator: minterior <minterior@gmail.com>\n"
 "Language-Team: Català\n"
 "Language: ca\n"
@@ -2779,27 +2779,27 @@ msgstr "OK"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
-msgstr ""
+msgstr "L'ordre no té cap executable."
 
 #: src/ExternalCommand.cpp
 msgid "The command template or an argument contains a NUL character."
-msgstr ""
+msgstr "La plantilla de l'ordre o un argument contenen un caràcter NUL."
 
 #: src/ExternalCommand.cpp
 msgid "An event value cannot select the executable."
-msgstr ""
+msgstr "Un valor d'esdeveniment no pot seleccionar l'executable."
 
 #: src/ExternalCommand.cpp
 msgid "An event value would be used as interpreter code, a script name, or an unsupported launcher argument."
-msgstr ""
+msgstr "Un valor d'esdeveniment s'utilitzaria com a codi de l'intèrpret, com a nom d'script o com a argument del llançador no admès."
 
 #: src/ExternalCommand.cpp
 msgid "A command-shell argument contains a double quote, percent sign, exclamation mark, or line break."
-msgstr ""
+msgstr "Un argument de l'intèrpret d'ordres conté cometes dobles, un signe de percentatge, un signe d'exclamació o un salt de línia."
 
 #: src/ExternalCommand.cpp
 msgid "cmd.exe requires a fixed builtin or an explicit .exe, .com, .bat, or .cmd target followed by separate data arguments."
-msgstr ""
+msgstr "cmd.exe requereix una ordre interna fixa o un destí .exe, .com, .bat o .cmd explícit seguit d'arguments de dades separats."
 
 #: src/FileLaunch.cpp
 msgid "File preview"
@@ -2808,7 +2808,7 @@ msgstr "Previsualització"
 #: src/FileLaunch.cpp
 #, c-format
 msgid "Media-player command '%s' was not run: %s"
-msgstr ""
+msgstr "No s'ha executat l'ordre del reproductor multimèdia «%s»: %s"
 
 #: src/FileLaunch.cpp
 #, c-format
@@ -6868,6 +6868,9 @@ msgid ""
 "Chat and observed download completions support GUI commands with a remote core.\n"
 "Already completed downloads do not run commands at first sync or reconnect."
 msgstr ""
+"Les ordres del nucli s'han de configurar a l'amule.conf del dimoni.\n"
+"El xat i les baixades completades observades admeten ordres de la IGU amb un nucli remot.\n"
+"Les baixades ja completades no executen ordres en la primera sincronització ni en reconnectar-se."
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "The following variables will be replaced:"
@@ -8975,7 +8978,7 @@ msgstr "S'està suspenent la pujada del fitxer: %s"
 #: src/UserEvents.cpp
 #, c-format
 msgid "Command '%s' was not run on '%s' event: %s"
-msgstr ""
+msgstr "No s'ha executat l'ordre «%s» en l'esdeveniment «%s»: %s"
 
 #: src/UserEvents.cpp
 #, c-format
@@ -8987,9 +8990,8 @@ msgid "Download completed"
 msgstr "Descàrrega completada"
 
 #: src/UserEvents.h
-#, fuzzy
 msgid "The full path to the file (empty in remote GUI mode)."
-msgstr "La ruta completa al fitxer."
+msgstr "La ruta completa al fitxer (buida en el mode d'IGU remota)."
 
 #: src/UserEvents.h
 msgid "The name of the file without path component."
@@ -9751,20 +9753,20 @@ msgstr "S'estan eliminant les dades d'usuari a $APPDATA\\aMule..."
 #: src/kademlia/kademlia/Indexed.cpp
 #, c-format
 msgid "Kad could not read %s. It was renamed to %s.bad, and a new index will be saved at shutdown."
-msgstr ""
+msgstr "Kad no ha pogut llegir %s. S'ha canviat el nom a %s.bad i es desarà un índex nou en tancar."
 
 #: src/kademlia/kademlia/Indexed.cpp
 #, c-format
 msgid "Kad could not preserve the unreadable index %s as %s.bad. Its original file will not be overwritten."
-msgstr ""
+msgstr "Kad no ha pogut conservar l'índex il·legible %s com a %s.bad. El fitxer original no se sobreescriurà."
 
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not load its saved index. Existing index files were preserved."
-msgstr ""
+msgstr "Kad no ha pogut carregar l'índex desat. S'han conservat els fitxers d'índex existents."
 
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
-msgstr ""
+msgstr "Kad no ha pogut desar un índex. S'ha conservat la còpia anterior d'aquest fitxer."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

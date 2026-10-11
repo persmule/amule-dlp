@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-10 14:46+0000\n"
+"PO-Revision-Date: 2026-10-11 09:48+0000\n"
 "Last-Translator: Mike Akiba <mike2718@gmail.com>\n"
 "Language-Team: Chinese Simplified <kde-i18n-doc@kde.org>\n"
 "Language: zh_CN\n"
@@ -6867,6 +6867,9 @@ msgid ""
 "Chat and observed download completions support GUI commands with a remote core.\n"
 "Already completed downloads do not run commands at first sync or reconnect."
 msgstr ""
+"必须在 daemon 的 amule.conf 文件中配置核心命令。\n"
+"聊天和观察到的下载完成项支持远端核心的 GUI 命令。\n"
+"已完成的下载不在首次运行或重连时运行命令。"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "The following variables will be replaced:"
@@ -8983,9 +8986,8 @@ msgid "Download completed"
 msgstr "下载已完成"
 
 #: src/UserEvents.h
-#, fuzzy
 msgid "The full path to the file (empty in remote GUI mode)."
-msgstr "文件的完整路径。"
+msgstr "文件的完整路径 （远程 GUI 模式下为空）。"
 
 #: src/UserEvents.h
 msgid "The name of the file without path component."
@@ -9747,20 +9749,20 @@ msgstr "正在删除 $APPDATA\\aMule 中的用户数据..."
 #: src/kademlia/kademlia/Indexed.cpp
 #, c-format
 msgid "Kad could not read %s. It was renamed to %s.bad, and a new index will be saved at shutdown."
-msgstr ""
+msgstr "Kad 无法读取 %s。它被重命名为 %s.bad。将在关机时保存新的索引。"
 
 #: src/kademlia/kademlia/Indexed.cpp
 #, c-format
 msgid "Kad could not preserve the unreadable index %s as %s.bad. Its original file will not be overwritten."
-msgstr ""
+msgstr "Kad 无法将不可读的 %s 索引保留为 %s.bad。其原始文件不会被覆盖。"
 
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not load its saved index. Existing index files were preserved."
-msgstr ""
+msgstr "Kad 无法加载其已保存的索引。现有的索引文件被保留。"
 
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
-msgstr ""
+msgstr "Kad 无法保存索引。该文件之前的副本被保留。"
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-10 14:45+0000\n"
+"PO-Revision-Date: 2026-10-11 09:46+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -6929,6 +6929,9 @@ msgid ""
 "Chat and observed download completions support GUI commands with a remote core.\n"
 "Already completed downloads do not run commands at first sync or reconnect."
 msgstr ""
+"Команды ядра должны быть настроены в amule.conf демона.\n"
+"Чат и отслеживаемые завершения загрузок поддерживают команды графического интерфейса при удалённом ядре.\n"
+"Уже завершённые загрузки не запускают команды при первой синхронизации или переподключении."
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "The following variables will be replaced:"
@@ -9074,9 +9077,8 @@ msgid "Download completed"
 msgstr "Загрузка завершена"
 
 #: src/UserEvents.h
-#, fuzzy
 msgid "The full path to the file (empty in remote GUI mode)."
-msgstr "Полный путь к файлу."
+msgstr "Полный путь к файлу (пусто в режиме удалённого графического интерфейса)."
 
 #: src/UserEvents.h
 msgid "The name of the file without path component."
@@ -9840,20 +9842,20 @@ msgstr "Удаление пользовательских данных в $APPDA
 #: src/kademlia/kademlia/Indexed.cpp
 #, c-format
 msgid "Kad could not read %s. It was renamed to %s.bad, and a new index will be saved at shutdown."
-msgstr ""
+msgstr "Kad не смогла прочитать %s. Файл переименован в %s.bad, новый индекс будет сохранён при завершении работы."
 
 #: src/kademlia/kademlia/Indexed.cpp
 #, c-format
 msgid "Kad could not preserve the unreadable index %s as %s.bad. Its original file will not be overwritten."
-msgstr ""
+msgstr "Kad не смогла сохранить нечитаемый индекс %s как %s.bad. Исходный файл не будет перезаписан."
 
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not load its saved index. Existing index files were preserved."
-msgstr ""
+msgstr "Kad не смогла подгрузить сохранённый индекс. Существующие файлы индекса сохранены."
 
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
-msgstr ""
+msgstr "Kad не смогла сохранить индекс. Предыдущая копия этого файла сохранена."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."
