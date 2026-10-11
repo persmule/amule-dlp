@@ -34,18 +34,37 @@
 #include <utility>
 #include <vector>
 
+#ifdef ENABLE_IPV6
+#include <AddressFamilyPolicy.h>
+
+#include <optional>
+
+#include "WarningsPush_Asio.h"
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include "WarningsPop.h"
+#endif
+
 using namespace muleunit;
 
 DECLARE_SIMPLE(LibSocketTransport)
 
 // Link seams: CLibSocket's asio side reaches the notification layer and the
-// address helpers, which pull in the application. Nothing here drives an asio
-// callback, so these are never called.
+// address helpers, which pull in the application. Notifications are counted,
+// never delivered: nothing here drives an asio callback.
+namespace
+{
+int s_queuedNotifications = 0;
+} // namespace
+
 namespace MuleNotify
 {
 class CMuleNotiferBase;
 void HandleNotificationAlways(const CMuleNotiferBase &);
-void HandleNotificationAlways(const CMuleNotiferBase &) {}
+void HandleNotificationAlways(const CMuleNotiferBase &)
+{
+	++s_queuedNotifications;
+}
 } // namespace MuleNotify
 
 bool StringIPtoUint32(const wxString &, uint32 &);
@@ -209,5 +228,260 @@ TEST(LibSocketTransport, AnUnattachedSocketStillAnswersForItself)
 	ASSERT_FALSE(socket.IsConnected());
 	ASSERT_FALSE(socket.IsOk());
 }
+
+#ifdef ENABLE_IPV6
+namespace
+{
+class CScopedFamilies
+{
+public:
+	explicit CScopedFamilies(AddressFamilyPolicy::Families families)
+	: m_previous(AddressFamilyPolicy::Configured())
+	{
+		AddressFamilyPolicy::SetConfigured(families);
+	}
+	~CScopedFamilies() { AddressFamilyPolicy::SetConfigured(m_previous); }
+	CScopedFamilies(const CScopedFamilies &) = delete;
+	CScopedFamilies &operator=(const CScopedFamilies &) = delete;
+
+private:
+	AddressFamilyPolicy::Families m_previous;
+};
+
+class CScopedBindInterface
+{
+public:
+	explicit CScopedBindInterface(const wxString &iface) { SetSocketBindInterface(iface); }
+	~CScopedBindInterface() { SetSocketBindInterface(wxEmptyString); }
+	CScopedBindInterface(const CScopedBindInterface &) = delete;
+	CScopedBindInterface &operator=(const CScopedBindInterface &) = delete;
+};
+
+// The backlog tells whether a connect was attempted: a blocking loopback connect has completed
+// the handshake by the time it returns, so a refused attempt leaves nothing to accept.
+class CLoopbackListener
+{
+public:
+	explicit CLoopbackListener(const boost::asio::ip::address &address)
+	: m_acceptor(m_io)
+	{
+		const boost::asio::ip::tcp::endpoint endpoint(address, 0);
+		boost::system::error_code ec;
+		m_acceptor.open(endpoint.protocol(), ec);
+		if (!ec) {
+			m_acceptor.bind(endpoint, ec);
+		}
+		if (!ec) {
+			m_acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
+		}
+		if (!ec) {
+			m_acceptor.non_blocking(true, ec);
+		}
+		m_ok = !ec;
+	}
+
+	bool IsOk() const { return m_ok; }
+	uint16 Port() const { return m_acceptor.local_endpoint().port(); }
+
+	std::optional<boost::asio::ip::address> AcceptPending()
+	{
+		boost::asio::ip::tcp::socket peer(m_io);
+		boost::system::error_code ec;
+		m_acceptor.accept(peer, ec);
+		if (ec) {
+			return std::nullopt;
+		}
+		const boost::asio::ip::tcp::endpoint remote = peer.remote_endpoint(ec);
+		if (ec) {
+			return std::nullopt;
+		}
+		return remote.address();
+	}
+
+private:
+	boost::asio::io_context m_io;
+	boost::asio::ip::tcp::acceptor m_acceptor;
+	bool m_ok = false;
+};
+
+CNetworkAddress LoopbackIPv6()
+{
+	return CNetworkAddress::IPv6FromOctets({ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 });
+}
+
+boost::asio::ip::address AsioLoopbackIPv6()
+{
+	return boost::asio::ip::address(boost::asio::ip::address_v6::loopback());
+}
+
+boost::asio::ip::address AsioLoopbackIPv4()
+{
+	return boost::asio::ip::address(boost::asio::ip::address_v4::loopback());
+}
+} // namespace
+
+// Every test below returns early when the host cannot listen on [::1]: that is the environment,
+// not the behavior under test.
+TEST(LibSocketTransport, ConnectIPv6ReachesANativeIPv6Peer)
+{
+	CLoopbackListener listener(AsioLoopbackIPv6());
+	if (!listener.IsOk()) {
+		return;
+	}
+	CScopedFamilies families(AddressFamilyPolicy::Families::DualStack);
+	CLibSocket socket;
+	socket.Notify(false);
+
+	ASSERT_TRUE(socket.ConnectIPv6(LoopbackIPv6(), listener.Port(), false));
+	ASSERT_TRUE(socket.IsConnected());
+	ASSERT_TRUE(socket.GetPeerAddress() == LoopbackIPv6());
+	ASSERT_EQUALS(0u, socket.GetPeerInt());
+	const std::optional<boost::asio::ip::address> remote = listener.AcceptPending();
+	ASSERT_TRUE(remote.has_value());
+	ASSERT_TRUE(*remote == AsioLoopbackIPv6());
+}
+
+TEST(LibSocketTransport, ConnectIPv6IsRefusedUnlessThePolicyPermitsIPv6)
+{
+	CLoopbackListener listener(AsioLoopbackIPv6());
+	if (!listener.IsOk()) {
+		return;
+	}
+	CScopedFamilies families(AddressFamilyPolicy::Families::IPv4Only);
+	CLibSocket socket;
+	socket.Notify(false);
+
+	ASSERT_FALSE(socket.ConnectIPv6(LoopbackIPv6(), listener.Port(), false));
+	ASSERT_EQUALS(static_cast<int>(boost::asio::error::address_family_not_supported), socket.LastError());
+	ASSERT_FALSE(listener.AcceptPending().has_value());
+}
+
+TEST(LibSocketTransport, ConnectIPv6LeavesIPv4TargetsToConnect)
+{
+	CLoopbackListener listener(AsioLoopbackIPv4());
+	if (!listener.IsOk()) {
+		return;
+	}
+	CScopedFamilies families(AddressFamilyPolicy::Families::DualStack);
+	const CNetworkAddress mapped =
+		CNetworkAddress::IPv6FromOctets({ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 127, 0, 0, 1 });
+	for (const CNetworkAddress &target : { CNetworkAddress::FromString("127.0.0.1"), mapped }) {
+		CLibSocket socket;
+		socket.Notify(false);
+		ASSERT_FALSE(socket.ConnectIPv6(target, listener.Port(), false));
+		ASSERT_EQUALS(static_cast<int>(boost::asio::error::address_family_not_supported),
+			socket.LastError());
+	}
+	ASSERT_FALSE(listener.AcceptPending().has_value());
+}
+
+// Discriminates where DiallingIsRefusedWhileATransportIsAttached cannot: this peer is connectable.
+TEST(LibSocketTransport, ConnectIPv6IsRefusedWhileATransportIsAttached)
+{
+	CLoopbackListener listener(AsioLoopbackIPv6());
+	if (!listener.IsOk()) {
+		return;
+	}
+	CScopedFamilies families(AddressFamilyPolicy::Families::DualStack);
+	CLibSocket socket;
+	socket.Notify(false);
+	Attach(socket);
+
+	ASSERT_FALSE(socket.ConnectIPv6(LoopbackIPv6(), listener.Port(), false));
+	ASSERT_FALSE(listener.AcceptPending().has_value());
+}
+
+// A configured bind address opens the socket as IPv4 before any connect (CEMSocket's ctor).
+TEST(LibSocketTransport, ConnectIPv6IsRefusedOnASocketBoundToALocalIPv4Address)
+{
+	CLoopbackListener listener(AsioLoopbackIPv6());
+	if (!listener.IsOk()) {
+		return;
+	}
+	CScopedFamilies families(AddressFamilyPolicy::Families::DualStack);
+	CLibSocket socket;
+	socket.Notify(false);
+	amuleIPV4Address local;
+	local.Hostname(wxString("127.0.0.1"));
+	local.Service(0);
+	socket.SetLocal(local);
+
+	ASSERT_FALSE(socket.ConnectIPv6(LoopbackIPv6(), listener.Port(), false));
+	ASSERT_EQUALS(static_cast<int>(boost::asio::error::address_family_not_supported), socket.LastError());
+	ASSERT_FALSE(listener.AcceptPending().has_value());
+}
+
+// The pin keeps traffic on the configured interface (VPN-leak fix, #173); an IPv6 connect it
+// cannot pin is refused rather than sent through the default route.
+TEST(LibSocketTransport, ConnectIPv6IsRefusedWhenTheInterfacePinFails)
+{
+	CLoopbackListener listener(AsioLoopbackIPv6());
+	if (!listener.IsOk()) {
+		return;
+	}
+	CScopedFamilies families(AddressFamilyPolicy::Families::DualStack);
+	CScopedBindInterface pin(wxString("amulenoif0"));
+	CLibSocket socket;
+	socket.Notify(false);
+
+	ASSERT_FALSE(socket.ConnectIPv6(LoopbackIPv6(), listener.Port(), false));
+	ASSERT_EQUALS(static_cast<int>(boost::asio::error::no_such_device), socket.LastError());
+	ASSERT_FALSE(listener.AcceptPending().has_value());
+}
+
+// With notifications on, false means "pending": a refusal must still reach OnConnect() as a
+// failed connect, or the caller waits for its connect timeout.
+TEST(LibSocketTransport, ARefusedConnectIPv6IsReportedAsAFailedConnectWhenNotifying)
+{
+	CLoopbackListener listener(AsioLoopbackIPv6());
+	if (!listener.IsOk()) {
+		return;
+	}
+	CScopedFamilies families(AddressFamilyPolicy::Families::IPv4Only);
+	CLibSocket socket;
+	const int queuedBefore = s_queuedNotifications;
+
+	ASSERT_FALSE(socket.ConnectIPv6(LoopbackIPv6(), listener.Port(), false));
+	ASSERT_EQUALS(queuedBefore + 1, s_queuedNotifications);
+	ASSERT_EQUALS(static_cast<int>(boost::asio::error::address_family_not_supported), socket.LastError());
+	ASSERT_FALSE(listener.AcceptPending().has_value());
+}
+
+// An attached transport already carries a live stream; a failed-connect event would tear it down.
+TEST(LibSocketTransport, ARefusalLeavesAnAttachedTransportUnnotified)
+{
+	CLoopbackListener listener(AsioLoopbackIPv6());
+	if (!listener.IsOk()) {
+		return;
+	}
+	CScopedFamilies families(AddressFamilyPolicy::Families::DualStack);
+	CLibSocket socket;
+	Attach(socket);
+	const int queuedBefore = s_queuedNotifications;
+
+	ASSERT_FALSE(socket.ConnectIPv6(LoopbackIPv6(), listener.Port(), false));
+	ASSERT_EQUALS(queuedBefore, s_queuedNotifications);
+	ASSERT_FALSE(listener.AcceptPending().has_value());
+}
+
+TEST(LibSocketTransport, ConnectIPv6ReportsAClosedPort)
+{
+	uint16 closedPort = 0;
+	{
+		CLoopbackListener listener(AsioLoopbackIPv6());
+		if (!listener.IsOk()) {
+			return;
+		}
+		closedPort = listener.Port();
+	}
+	CScopedFamilies families(AddressFamilyPolicy::Families::DualStack);
+	CLibSocket socket;
+	socket.Notify(false);
+
+	ASSERT_FALSE(socket.ConnectIPv6(LoopbackIPv6(), closedPort, false));
+	ASSERT_FALSE(socket.IsConnected());
+	ASSERT_TRUE(socket.LastError() != 0);
+}
+#endif
 
 // File_checked_for_headers

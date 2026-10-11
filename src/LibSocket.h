@@ -80,6 +80,10 @@ public:
 	// wx Stuff
 	void Notify(bool);
 	bool Connect(const amuleIPV4Address &adr, bool wait);
+#ifdef ENABLE_IPV6
+	// IPv4 and IPv4-mapped targets are refused here; they keep using Connect().
+	bool ConnectIPv6(const CNetworkAddress &target, uint16 port, bool wait);
+#endif
 	// Bound the synchronous connect to `ms` milliseconds (0 = no bound, the default). Only
 	// affects the blocking connect path used by the synchronous EC clients (amulecmd); the
 	// async path is unaffected.
@@ -184,6 +188,13 @@ public:
 	void OnStreamWritable() override;
 	void OnStreamLost() override;
 	void OnFlushRequested() override;
+
+#ifdef ENABLE_IPV6
+
+protected:
+	// For a subclass that refuses an IPv6 connect itself, so the refusal still reaches OnConnect().
+	bool RefuseConnectIPv6(const CNetworkAddress &target, uint16 port);
+#endif
 
 private:
 	// Replace the internal socket. Takes ownership of the passed shared_ptr.
