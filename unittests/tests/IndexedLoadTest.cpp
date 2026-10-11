@@ -466,9 +466,11 @@ TEST(IndexedLoad, LargeKeywordAndSourceIndexesRoundTrip)
 	}
 	for (int cycle = 0; cycle < 2; ++cycle) {
 		CIndexed index(temp.path, CUInt128(1u));
-		// Outgoing keyword publishing continues; incoming publications wait for adoption.
+		// Outgoing keyword publishing continues and records its delays; incoming
+		// publications wait for adoption.
 		ASSERT_TRUE(index.SendStoreRequest(CUInt128(1u)));
-		ASSERT_FALSE(index.AddLoad(CUInt128(count + 1), time(nullptr) + 3600));
+		ASSERT_TRUE(index.AddLoad(CUInt128(count + 1), time(nullptr) + 3600));
+		ASSERT_FALSE(index.SendStoreRequest(CUInt128(count + 1)));
 		uint8_t load = 0;
 		auto entry = std::unique_ptr<CKeyEntry>(index.CreateKeyEntry());
 		ASSERT_FALSE(index.AddKeyword(CUInt128(count + 1), CUInt128(2u), entry.get(), load));
@@ -478,6 +480,9 @@ TEST(IndexedLoad, LargeKeywordAndSourceIndexesRoundTrip)
 		ASSERT_EQUALS(count, index.m_totalIndexKeyword);
 		ASSERT_EQUALS(count, index.m_totalIndexSource);
 		ASSERT_EQUALS(size_t(count), index.GetFileKeyCount());
+		// The second cycle reads the same delay back from disk and merges it.
+		ASSERT_EQUALS(1u, index.m_totalIndexLoad);
+		ASSERT_FALSE(index.SendStoreRequest(CUInt128(count + 1)));
 	}
 }
 
@@ -538,6 +543,46 @@ TEST(IndexedLoad, CorruptPartDoesNotDiscardHealthyParts)
 			ASSERT_TRUE(WaitForLoad(reloaded));
 			ASSERT_EQUALS(bad == "load_index.dat" ? 1u : 2u, reloaded.m_totalIndexLoad);
 		}
+	}
+}
+
+TEST(IndexedLoad, PublishDelaysRecordedWhileLoadingAreKept)
+{
+	TempIndex temp;
+	const uint32_t now = time(nullptr);
+	{
+		CFile file(temp.path + "load_index.dat", CFile::write);
+		file.WriteUInt32(1);
+		file.WriteUInt32(now);
+		file.WriteUInt32(2);
+		file.WriteUInt128(CUInt128(2u));
+		file.WriteUInt32(now + 3600);
+		file.WriteUInt128(CUInt128(4u));
+		file.WriteUInt32(now + 3600);
+	}
+	{
+		CIndexed index(temp.path, CUInt128(1u));
+		// Our own publishes end while the worker reads: one new delay, one that extends a
+		// saved delay, and one shorter than the saved delay, which must not cut it.
+		ASSERT_TRUE(index.AddLoad(CUInt128(2u), now + 7200));
+		ASSERT_TRUE(index.AddLoad(CUInt128(3u), now + 3600));
+		ASSERT_TRUE(index.AddLoad(CUInt128(4u), now + 600));
+		ASSERT_FALSE(index.SendStoreRequest(CUInt128(3u)));
+		ASSERT_TRUE(WaitForLoad(index));
+		ASSERT_EQUALS(3u, index.m_totalIndexLoad);
+		for (uint32_t key : { 2u, 3u, 4u }) {
+			ASSERT_FALSE(index.SendStoreRequest(CUInt128(key)));
+		}
+	}
+	CFile saved(temp.path + "load_index.dat");
+	ASSERT_EQUALS(1u, saved.ReadUInt32());
+	saved.ReadUInt32();
+	ASSERT_EQUALS(3u, saved.ReadUInt32());
+	for (const auto &expected : { std::make_pair(2u, now + 7200),
+		     std::make_pair(3u, now + 3600),
+		     std::make_pair(4u, now + 3600) }) {
+		ASSERT_TRUE(saved.ReadUInt128() == CUInt128(expected.first));
+		ASSERT_EQUALS(expected.second, saved.ReadUInt32());
 	}
 }
 

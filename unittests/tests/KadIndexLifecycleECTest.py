@@ -14,6 +14,22 @@ from pathlib import Path
 from AllSearchIntegrationTest import C, connect_daemon, free_port
 
 
+def wait_adopted(ec, proc, count):
+    """Wait until EC reports the adopted index; the counters are absent before."""
+    # Bounded, so a hang fails here and the handlers below still print the daemon
+    # log and stop amuled. A ctest timeout would kill this script first.
+    deadline = time.monotonic() + 120
+    while True:
+        assert proc.poll() is None, 'amuled exited while loading'
+        _, tags = ec.call(C['EC_OP_STAT_REQ'])
+        loaded = tags.get(C['EC_TAG_STATS_KAD_INDEXED_LOAD'], [None])[0]
+        assert loaded in (None, count), 'partial index escaped the worker'
+        if loaded == count:
+            return
+        assert time.monotonic() < deadline, 'index adoption timed out'
+        time.sleep(0.05)
+
+
 def keyword_round_trip(udp_port, key_id, publish):
     """Publish over the real UDP listener and request the stored keyword result."""
     file_id = bytes(12) + struct.pack('<I', 0x12345678)
@@ -77,15 +93,7 @@ ECPassword={hashlib.md5(b'regression').hexdigest()}
             ec = connect_daemon(proc, port)
             started = time.monotonic()
             assert ec.call(C['EC_OP_KAD_START'])[0] == C['EC_OP_NOOP']
-            deadline = time.monotonic() + 15
-            while True:
-                _, tags = ec.call(C['EC_OP_STAT_REQ'])
-                loaded = tags[C['EC_TAG_STATS_KAD_INDEXED_LOAD']][0]
-                assert loaded in (0, count), 'partial index escaped the worker'
-                if loaded == count:
-                    break
-                assert time.monotonic() < deadline, 'large index adoption timed out'
-                time.sleep(0.05)
+            wait_adopted(ec, proc, count)
             adoption_seconds = time.monotonic() - started
             assert ec.call(C['EC_OP_KAD_STOP'])[0] == C['EC_OP_NOOP']
             assert (root / 'key_index.dat').exists(), 'empty index was not adopted and saved'
@@ -96,13 +104,7 @@ ECPassword={hashlib.md5(b'regression').hexdigest()}
             # healthy 50,000-entry load map. EC remains responsive across restarts.
             for i in range(10):
                 assert ec.call(C['EC_OP_KAD_START'])[0] == C['EC_OP_NOOP']
-                deadline = time.monotonic() + 15
-                while True:
-                    _, tags = ec.call(C['EC_OP_STAT_REQ'])
-                    if tags[C['EC_TAG_STATS_KAD_INDEXED_LOAD']][0] == count:
-                        break
-                    assert time.monotonic() < deadline, 'recovery adoption timed out'
-                    time.sleep(0.05)
+                wait_adopted(ec, proc, count)
                 assert (root / 'key_index.dat.bad').read_bytes() == corrupt
                 # Publish only in the recovery session. Later searches must be
                 # served from the saved/reloaded keyword, without re-publication.

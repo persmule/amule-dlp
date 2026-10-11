@@ -1496,9 +1496,9 @@ void ParseKadFromPacket(const CECPacket *resp, KadSnapshot &out)
 	}
 
 	// Gated on `connected`, unlike the tags below, which amuled already gates itself. These
-	// three ship unconditionally: `users`/`files` are the last persisted estimate and survive
-	// into `connecting`, and `nodes` is our own routing-table size -- measured at 2 with Kad
-	// fully stopped.
+	// can arrive before Kad connects: `users`/`files` are the last persisted estimate, `nodes`
+	// is our own routing-table size -- measured at 2 with Kad fully stopped -- and the index
+	// counters ship once the saved index is adopted.
 	if (out.state == "connected") {
 		if (const CECTag *t = resp->GetTagByName(EC_TAG_STATS_KAD_USERS)) {
 			out.users = static_cast<std::uint32_t>(t->GetInt());
@@ -1510,6 +1510,18 @@ void ParseKadFromPacket(const CECPacket *resp, KadSnapshot &out)
 			out.nodes = static_cast<std::uint32_t>(t->GetInt());
 		}
 		out.has_network = true;
+		// amuled ships the four index counters together, so one stands for the set.
+		out.has_indexed = resp->GetTagByName(EC_TAG_STATS_KAD_INDEXED_LOAD) != nullptr;
+		if (out.has_indexed) {
+			out.indexed_sources = static_cast<std::uint32_t>(
+				resp->GetTagByNameSafe(EC_TAG_STATS_KAD_INDEXED_SOURCES)->GetInt());
+			out.indexed_keywords = static_cast<std::uint32_t>(
+				resp->GetTagByNameSafe(EC_TAG_STATS_KAD_INDEXED_KEYWORDS)->GetInt());
+			out.indexed_notes = static_cast<std::uint32_t>(
+				resp->GetTagByNameSafe(EC_TAG_STATS_KAD_INDEXED_NOTES)->GetInt());
+			out.indexed_load = static_cast<std::uint32_t>(
+				resp->GetTagByNameSafe(EC_TAG_STATS_KAD_INDEXED_LOAD)->GetInt());
+		}
 	}
 
 	// These ship only when Kad is connected (server gates them at
@@ -1518,21 +1530,6 @@ void ParseKadFromPacket(const CECPacket *resp, KadSnapshot &out)
 		out.firewalled_udp = (t->GetInt() != 0);
 		out.has_firewalled_udp = true;
 	}
-	if (const CECTag *t = resp->GetTagByName(EC_TAG_STATS_KAD_INDEXED_SOURCES)) {
-		out.indexed_sources = static_cast<std::uint32_t>(t->GetInt());
-	}
-	if (const CECTag *t = resp->GetTagByName(EC_TAG_STATS_KAD_INDEXED_KEYWORDS)) {
-		out.indexed_keywords = static_cast<std::uint32_t>(t->GetInt());
-	}
-	if (const CECTag *t = resp->GetTagByName(EC_TAG_STATS_KAD_INDEXED_NOTES)) {
-		out.indexed_notes = static_cast<std::uint32_t>(t->GetInt());
-	}
-	if (const CECTag *t = resp->GetTagByName(EC_TAG_STATS_KAD_INDEXED_LOAD)) {
-		out.indexed_load = static_cast<std::uint32_t>(t->GetInt());
-	}
-	// One flag for the group: amuled ships all four together, inside its own
-	// `if (IsConnected())`, so any one arriving means the set did.
-	out.has_indexed = resp->GetTagByName(EC_TAG_STATS_KAD_INDEXED_LOAD) != nullptr;
 	if (const CECTag *t = resp->GetTagByName(EC_TAG_STATS_KAD_IP_ADDRESS)) {
 		out.public_ip = IPv4ToDotted(static_cast<std::uint32_t>(t->GetInt()));
 	}
