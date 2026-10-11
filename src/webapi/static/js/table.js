@@ -46,12 +46,21 @@ export function ipNum(ip) {
   return String(ip || "").split(".").reduce((acc, octet) => acc * 256 + (parseInt(octet, 10) || 0), 0);
 }
 
-// Build a predicate for a free-text filter box: case-insensitive and
-// order-independent — every whitespace-separated token must appear in the
-// string. Empty query → matches everything.
+// Fold a string for filtering: lowercase, then strip accents, so "africa"
+// matches "África". Only the combining accents block (U+0300-U+036F) is
+// removed and the result recomposed, so other scripts match as before.
+// Plain-ASCII strings, most file names, skip the normalization.
+const fold = (s) => {
+  const l = (s || "").toLowerCase();
+  return /[^\x00-\x7f]/.test(l) ? l.normalize("NFD").replace(/[\u0300-\u036f]/g, "").normalize("NFC") : l;
+};
+
+// Build a predicate for a free-text filter box: case-insensitive,
+// accent-insensitive and order-independent — every whitespace-separated
+// token must appear in the string. Empty query → matches everything.
 export function textMatcher(query) {
-  const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
-  return (s) => { const n = (s || "").toLowerCase(); return tokens.every((tok) => n.includes(tok)); };
+  const tokens = fold(query).split(/\s+/).filter(Boolean);
+  return (s) => { const n = fold(s); return tokens.every((tok) => n.includes(tok)); };
 }
 
 const colClass = (c) => [c.num ? "num" : "", c.cls || ""].filter(Boolean).join(" ");
