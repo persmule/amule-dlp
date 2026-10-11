@@ -128,11 +128,13 @@ void CUploadQueue::SortGetBestClient(CClientRef *bestClient)
 			// There's a better high id client
 			cur_client->m_bAddNextConnect = false;
 		} else {
-			if (cur_client->HasLowID() && !cur_client->IsConnected()) {
+			if (cur_client->HasLowID() && !cur_client->IsConnected() &&
+				!cur_client->IsCallableIPv6Contact()) {
 				// No better high id client, so start upload to this one once it connects
 				cur_client->m_bAddNextConnect = true;
 			} else {
-				// We found a high id client (or a currently connected low id client)
+				// We found a high id client (or a currently connected low id client, or a
+				// native IPv6 contact whose address has not failed a callback dial)
 				bestClientFound = true;
 				cur_client->m_bAddNextConnect = false;
 				if (bestClient) {
@@ -592,6 +594,18 @@ bool CUploadQueue::RemoveFromUploadQueue(CUpDownClient *client)
 	}
 
 	return false;
+}
+
+void CUploadQueue::RequeueUnreachable(CUpDownClient *client)
+{
+	RemoveFromUploadQueue(client);
+	if (!IsOnUploadQueue(client)) {
+		m_waitinglist.emplace_back(client CLIENT_DEBUGSTRING("CUploadQueue::RequeueUnreachable"));
+		theStats::AddWaitingClient();
+		client->SetUploadState(US_ONUPLOADQUEUE);
+	}
+	client->m_bAddNextConnect = true;
+	SortGetBestClient();
 }
 
 bool CUploadQueue::CheckForTimeOver(CUpDownClient *client)
