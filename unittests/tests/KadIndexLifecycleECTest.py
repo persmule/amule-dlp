@@ -11,7 +11,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-from AllSearchIntegrationTest import C, connect_daemon, free_ports
+from AllSearchIntegrationTest import C, connect_daemon, free_ports, retry_port_collisions
 
 
 def wait_adopted(ec, proc, count):
@@ -55,16 +55,16 @@ def keyword_round_trip(udp_port, key_id, publish):
         assert name in response, 'stored filename was not served'
 
 
-binary = str(Path(sys.argv[1]).resolve())
-with tempfile.TemporaryDirectory(prefix='kad-index-review-') as directory:
-    root = Path(directory)
-    port, udp_port, peer_port = free_ports(3)
-    count = 50000
-    with (root / 'load_index.dat').open('wb') as persisted:
-        persisted.write(struct.pack('<III', 1, int(time.time()), count))
-        for i in range(1, count + 1):
-            persisted.write(bytes(12) + struct.pack('<II', i, int(time.time()) + 3600))
-    (root / 'amule.conf').write_text(f"""[eMule]
+def run(binary):
+    with tempfile.TemporaryDirectory(prefix='kad-index-review-') as directory:
+        root = Path(directory)
+        port, udp_port, peer_port = free_ports(3, udp_indices=(1,), peer_index=2)
+        count = 50000
+        with (root / 'load_index.dat').open('wb') as persisted:
+            persisted.write(struct.pack('<III', 1, int(time.time()), count))
+            for i in range(1, count + 1):
+                persisted.write(bytes(12) + struct.pack('<II', i, int(time.time()) + 3600))
+        (root / 'amule.conf').write_text(f"""[eMule]
 Nick=review
 Port={peer_port}
 UDPPort={udp_port}
@@ -79,52 +79,57 @@ Ed2kServersUrl=
 KadNodesUrl=
 TempDir={root}/Temp
 IncomingDir={root}/Incoming
+Language=en_US
 [ExternalConnect]
 AcceptExternalConnections=1
 ECAddress=127.0.0.1
 ECPort={port}
 ECPassword={hashlib.md5(b'regression').hexdigest()}
 """)
-    with (root / 'stdout.log').open('w') as log:
-        env = dict(os.environ, XDG_CONFIG_HOME=str(root / 'xdg'))
-        proc = subprocess.Popen([binary, '-c', str(root)], stdout=log, stderr=log, env=env)
-        try:
-            ec = connect_daemon(proc, port)
-            started = time.monotonic()
-            assert ec.call(C['EC_OP_KAD_START'])[0] == C['EC_OP_NOOP']
-            wait_adopted(ec, proc, count)
-            adoption_seconds = time.monotonic() - started
-            assert ec.call(C['EC_OP_KAD_STOP'])[0] == C['EC_OP_NOOP']
-            assert (root / 'key_index.dat').exists(), 'empty index was not adopted and saved'
-            key_id = (root / 'key_index.dat').read_bytes()[8:24]
-            corrupt = struct.pack('<I', 4)
-            (root / 'key_index.dat').write_bytes(corrupt)
-            # Adoption quarantines the damaged keyword file while retaining the
-            # healthy 50,000-entry load map. EC remains responsive across restarts.
-            for i in range(10):
+        with (root / 'stdout.log').open('w') as log:
+            env = dict(os.environ, XDG_CONFIG_HOME=str(root / 'xdg'), LC_ALL='C.UTF-8')
+            proc = subprocess.Popen([binary, '-c', str(root)], stdout=log, stderr=log, env=env)
+            try:
+                ec = connect_daemon(proc, port, root, peer_port, udp_port)
+                started = time.monotonic()
                 assert ec.call(C['EC_OP_KAD_START'])[0] == C['EC_OP_NOOP']
                 wait_adopted(ec, proc, count)
-                assert (root / 'key_index.dat.bad').read_bytes() == corrupt
-                # Publish only in the recovery session. Later searches must be
-                # served from the saved/reloaded keyword, without re-publication.
-                keyword_round_trip(udp_port, key_id, publish=(i == 0))
-                _, tags = ec.call(C['EC_OP_STAT_REQ'])
-                assert tags[C['EC_TAG_STATS_KAD_INDEXED_KEYWORDS']][0] == 1
+                adoption_seconds = time.monotonic() - started
                 assert ec.call(C['EC_OP_KAD_STOP'])[0] == C['EC_OP_NOOP']
-                assert (root / 'key_index.dat').read_bytes() != corrupt
-                assert ec.call(C['EC_OP_STAT_REQ'])[0] == C['EC_OP_STATS']
-                assert proc.poll() is None
-            ec.sock.close()
-            print(f'Real daemon: 50000-entry adoption in {adoption_seconds:.3f}s/save and corrupt-index recovery and 10 restart cycles passed; damaged file quarantined and keyword publication/search served with EC responsive.')
-        except BaseException:
-            log.flush()
-            print((root / 'stdout.log').read_text(), file=sys.stderr)
-            raise
-        finally:
-            if proc.poll() is None:
-                proc.terminate()
-            try:
-                proc.wait(timeout=10)
-            except subprocess.TimeoutExpired:
-                proc.kill()
-                proc.wait()
+                assert (root / 'key_index.dat').exists(), 'empty index was not adopted and saved'
+                key_id = (root / 'key_index.dat').read_bytes()[8:24]
+                corrupt = struct.pack('<I', 4)
+                (root / 'key_index.dat').write_bytes(corrupt)
+                # Adoption quarantines the damaged keyword file while retaining the
+                # healthy 50,000-entry load map. EC remains responsive across restarts.
+                for i in range(10):
+                    assert ec.call(C['EC_OP_KAD_START'])[0] == C['EC_OP_NOOP']
+                    wait_adopted(ec, proc, count)
+                    assert (root / 'key_index.dat.bad').read_bytes() == corrupt
+                    # Publish only in the recovery session. Later searches must be
+                    # served from the saved/reloaded keyword, without re-publication.
+                    keyword_round_trip(udp_port, key_id, publish=(i == 0))
+                    _, tags = ec.call(C['EC_OP_STAT_REQ'])
+                    assert tags[C['EC_TAG_STATS_KAD_INDEXED_KEYWORDS']][0] == 1
+                    assert ec.call(C['EC_OP_KAD_STOP'])[0] == C['EC_OP_NOOP']
+                    assert (root / 'key_index.dat').read_bytes() != corrupt
+                    assert ec.call(C['EC_OP_STAT_REQ'])[0] == C['EC_OP_STATS']
+                    assert proc.poll() is None
+                ec.sock.close()
+                print(f'Real daemon: 50000-entry adoption in {adoption_seconds:.3f}s/save and corrupt-index recovery and 10 restart cycles passed; damaged file quarantined and keyword publication/search served with EC responsive.')
+            except BaseException:
+                log.flush()
+                print((root / 'stdout.log').read_text(), file=sys.stderr)
+                raise
+            finally:
+                if proc.poll() is None:
+                    proc.terminate()
+                try:
+                    proc.wait(timeout=10)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    proc.wait()
+
+
+if __name__ == '__main__':
+    retry_port_collisions(run, str(Path(sys.argv[1]).resolve()))

@@ -12,7 +12,9 @@ import sys
 import tempfile
 import time
 
-from AllSearchIntegrationTest import C, EC, free_ports, string
+from AllSearchIntegrationTest import (C, EC, PortCollision, check_daemon_ports,
+                                      free_ports, log_snapshot, new_log_text,
+                                      retry_port_collisions, string)
 
 
 def stop_forked_daemon(pid):
@@ -59,7 +61,7 @@ ECPort={port}
 ECPassword={hashlib.md5(b'regression').hexdigest()}
 '''
     (root / 'amule.conf').write_text(config)
-    return port
+    return port, peer_port
 
 
 def daemon_env(root):
@@ -72,7 +74,7 @@ def daemon_env(root):
 def run(binary, root, setting=None, override=None, expected=None, failure=False,
         backup_failure=False, full_daemon=False, reset_failure=False):
     root.mkdir()
-    port = write_config(root, setting)
+    port, peer_port = write_config(root, setting)
     args = [binary, '-c', str(root), '--disable-fatal']
     if override is not None:
         args += [f'--log-file={override}']
@@ -89,6 +91,8 @@ def run(binary, root, setting=None, override=None, expected=None, failure=False,
     for restart in range(1 if failure else 2):
         if full_daemon:
             pidfile.unlink(missing_ok=True)
+        selected_log = expected or root / 'logfile'
+        snapshot = log_snapshot(selected_log)
         with (root / 'console.log').open('w') as console:
             proc = subprocess.Popen(args, stdout=console, stderr=console, env=env)
             ec = None
@@ -109,6 +113,9 @@ def run(binary, root, setting=None, override=None, expected=None, failure=False,
                 # owns the overall deadline. A forked launcher's success is not
                 # evidence that its daemon child is still alive.
                 while ec is None:
+                    startup = new_log_text(selected_log, snapshot)
+                    if 'Could not listen for external connections at ' in startup:
+                        raise PortCollision(f'Daemon could not bind EC port {port}')
                     if full_daemon:
                         if pidfile.exists():
                             pid = pidfile.read_text().strip()
@@ -123,6 +130,10 @@ def run(binary, root, setting=None, override=None, expected=None, failure=False,
                             raise AssertionError((root / 'console.log').read_text(errors='replace'))
                     elif proc.poll() is not None:
                         raise AssertionError((root / 'console.log').read_text(errors='replace'))
+                    if 'amuled: OnInit - starting timer' not in startup:
+                        time.sleep(0.1)
+                        continue
+                    check_daemon_ports(root, port, peer_port, log_text=startup)
                     try:
                         ec = EC(port)
                     except ConnectionRefusedError:
@@ -204,16 +215,24 @@ def run(binary, root, setting=None, override=None, expected=None, failure=False,
 def run_second_instance(binary, root):
     """A second amuled -f on a config another daemon holds must say why it stopped."""
     root.mkdir()
-    port = write_config(root)
+    port, peer_port = write_config(root)
     env = daemon_env(root)
+    snapshot = log_snapshot(root / 'logfile')
     with (root / 'first.log').open('w') as out:
         first = subprocess.Popen([binary, '-c', str(root), '--disable-fatal'],
                                  stdout=out, stderr=out, env=env)
         ec = None
         try:
             while ec is None:
+                startup = new_log_text(root / 'logfile', snapshot)
+                if 'Could not listen for external connections at ' in startup:
+                    raise PortCollision(f'Daemon could not bind EC port {port}')
                 if first.poll() is not None:
                     raise AssertionError((root / 'first.log').read_text())
+                if 'amuled: OnInit - starting timer' not in startup:
+                    time.sleep(0.1)
+                    continue
+                check_daemon_ports(root, port, peer_port, log_text=startup)
                 try:
                     ec = EC(port)
                 except ConnectionRefusedError:
@@ -288,4 +307,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    retry_port_collisions(main)

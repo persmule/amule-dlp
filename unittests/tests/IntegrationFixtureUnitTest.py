@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Offline regression checks for integration fixture port selection and diagnostics."""
 from pathlib import Path
+import errno
+from itertools import cycle
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -35,6 +37,39 @@ class ReusingSocket:
         return '127.0.0.1', self.port
 
 
+class PortConflictSocket:
+    """Force a peer+3 collision and an occupied client UDP port."""
+    tcp_ports = iter(())
+    sockets = []
+    udp_binds = []
+
+    def __init__(self, *args):
+        self.udp = len(args) > 1 and args[1] == AllSearchIntegrationTest.socket.SOCK_DGRAM
+        self.port = None
+        self.closed = False
+        self.sockets.append(self)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        self.closed = True
+
+    def bind(self, address):
+        assert address[0] == '127.0.0.1'
+        if self.udp:
+            self.udp_binds.append(address[1])
+            if address[1] == 40012:
+                raise OSError(errno.EADDRINUSE, 'UDP port occupied')
+            self.port = address[1]
+        else:
+            assert address[1] == 0
+            self.port = next(self.tcp_ports)
+
+    def getsockname(self):
+        return '127.0.0.1', self.port
+
+
 class FailedDaemon:
     def __init__(self, *args, stdout, **kwargs):
         stdout.buffer.write(b'\xff ERROR: cannot open log file\n')
@@ -54,6 +89,87 @@ class IntegrationFixtureUnitTest(unittest.TestCase):
             ports = AllSearchIntegrationTest.free_ports(4)
         self.assertEqual(ports, (40000, 40001, 40002, 40003))
         self.assertTrue(all(sock.closed for sock in ReusingSocket.sockets))
+
+    def test_udp_conflicts_are_retried(self):
+        PortConflictSocket.tcp_ports = iter((40000, 40001, 40004,
+                                             40010, 40011, 40012,
+                                             40020, 40021, 40022))
+        PortConflictSocket.sockets = []
+        PortConflictSocket.udp_binds = []
+        with patch.object(AllSearchIntegrationTest.socket, 'socket', PortConflictSocket):
+            ports = AllSearchIntegrationTest.free_ports(3, udp_indices=(2,), peer_index=1)
+        self.assertEqual(ports, (40020, 40021, 40022))
+        self.assertEqual(PortConflictSocket.udp_binds, [40012, 40022, 40024])
+        self.assertTrue(all(sock.closed for sock in PortConflictSocket.sockets))
+
+    def test_persistent_udp_conflict_fails_without_hanging(self):
+        PortConflictSocket.tcp_ports = cycle((40010, 40011, 40012))
+        PortConflictSocket.sockets = []
+        PortConflictSocket.udp_binds = []
+        with patch.object(AllSearchIntegrationTest.socket, 'socket', PortConflictSocket):
+            with self.assertRaisesRegex(AllSearchIntegrationTest.PortCollision,
+                                        'Could not select available fixture UDP ports'):
+                AllSearchIntegrationTest.free_ports(3, udp_indices=(2,), peer_index=1)
+        self.assertEqual(PortConflictSocket.udp_binds, [40012] * 32)
+        self.assertTrue(all(sock.closed for sock in PortConflictSocket.sockets))
+
+    def test_startup_retry_after_late_udp_collision(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            attempts = []
+
+            def start():
+                attempts.append(len(attempts))
+                log = ('*** TCP socket (ECServer) listening on 127.0.0.1:40000\n'
+                       'ListenSocket: Ok.\n')
+                if len(attempts) == 2:
+                    log += 'Created Client UDP-Socket at port 40002\n'
+                (root / 'logfile').write_text(log)
+                AllSearchIntegrationTest.check_daemon_ports(root, 40000, 40001, 40002)
+
+            AllSearchIntegrationTest.retry_port_collisions(start)
+            self.assertEqual(len(attempts), 2)
+
+    def test_unrelated_error_is_not_retried(self):
+        attempts = []
+
+        def start():
+            attempts.append(None)
+            raise ValueError('unrelated startup failure')
+
+        with self.assertRaisesRegex(ValueError, 'unrelated startup failure'):
+            AllSearchIntegrationTest.retry_port_collisions(start)
+        self.assertEqual(len(attempts), 1)
+
+    def test_ec_does_not_connect_to_a_stolen_port(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / 'logfile').write_text(
+                'Could not listen for external connections at 127.0.0.1:40000!\n')
+            proc = type('RunningDaemon', (), {'poll': lambda self: None})()
+            with patch.object(AllSearchIntegrationTest, 'EC') as ec:
+                with self.assertRaises(AllSearchIntegrationTest.PortCollision):
+                    AllSearchIntegrationTest.connect_daemon(proc, 40000, root, 40001)
+                ec.assert_not_called()
+
+    def test_startup_log_ignores_previous_launch(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            log = Path(temporary) / 'logfile'
+            log.write_bytes(b'previous success\n')
+            snapshot = AllSearchIntegrationTest.log_snapshot(log)
+            self.assertEqual(AllSearchIntegrationTest.new_log_text(log, snapshot), '')
+            with log.open('ab') as stream:
+                stream.write(b'current failure\n')
+            self.assertEqual(AllSearchIntegrationTest.new_log_text(log, snapshot),
+                             'current failure\n')
+            log.write_bytes(b'truncated and regrown with different startup lines\n')
+            self.assertEqual(AllSearchIntegrationTest.new_log_text(log, snapshot),
+                             'truncated and regrown with different startup lines\n')
+            replacement = Path(temporary) / 'replacement'
+            replacement.write_bytes(b'new file success\n')
+            replacement.replace(log)
+            self.assertEqual(AllSearchIntegrationTest.new_log_text(log, snapshot),
+                             'new file success\n')
 
     def test_invalid_console_bytes_preserve_startup_failure(self):
         with tempfile.TemporaryDirectory() as temporary:

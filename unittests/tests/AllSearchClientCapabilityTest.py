@@ -4,7 +4,8 @@
 """Verify API and command-line guards against a loopback EC peer without All support."""
 import json, os, socketserver, struct, subprocess, sys, tempfile, threading, time, urllib.request, zlib
 from pathlib import Path
-from AllSearchIntegrationTest import C, exact, free_ports, integer, string
+from AllSearchIntegrationTest import (C, PortCollision, exact, free_ports,
+                                      integer, retry_port_collisions, string)
 requests = []
 class Handler(socketserver.BaseRequestHandler):
     def handle(self):
@@ -51,7 +52,16 @@ def run(api, cmd):
                 try:
                     deadline=time.monotonic()+30
                     while time.monotonic()<deadline:
-                        assert proc.poll() is None, (cfg/'api.log').read_text()
+                        if proc.poll() is not None:
+                            failure = (cfg/'api.log').read_text(errors='replace')
+                            if 'amuleapi: HTTP server failed to start:' in failure:
+                                raise PortCollision(f'API could not bind HTTP port {hp}')
+                            raise AssertionError(failure)
+                        log.flush()
+                        startup = (cfg/'api.log').read_text(errors='replace')
+                        if f'amuleapi: listening on http://127.0.0.1:{hp}/' not in startup:
+                            time.sleep(.1)
+                            continue
                         try:
                             if http(url+'/health')[1].get('ec_connected'): break
                         except OSError: pass
@@ -75,4 +85,4 @@ def run(api, cmd):
 
 
 if __name__ == "__main__":
-    run(*sys.argv[1:])
+    retry_port_collisions(run, *sys.argv[1:])

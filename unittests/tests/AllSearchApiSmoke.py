@@ -10,7 +10,8 @@ import sys
 import tempfile
 import time
 
-from AllSearchIntegrationTest import C, connect_daemon, free_ports, integer, stored_search
+from AllSearchIntegrationTest import (C, PortCollision, connect_daemon, free_ports,
+                                      integer, retry_port_collisions, stored_search)
 
 
 def run(daemon_binary, api_binary, checks):
@@ -19,7 +20,7 @@ def run(daemon_binary, api_binary, checks):
         core, api = root / 'core', root / 'api'
         core.mkdir()
         api.mkdir()
-        port, http, peer_port, udp_port = free_ports(4)
+        port, http, peer_port, udp_port = free_ports(4, udp_indices=(3,), peer_index=2)
         (core / 'amule.conf').write_text(f'''[eMule]
 Nick=regression
 Port={peer_port}
@@ -39,6 +40,7 @@ AddServerListFromClient=0
 UPnPEnabled=0
 TempDir={core}/Temp
 IncomingDir={core}/Incoming
+Language=en_US
 [ExternalConnect]
 AcceptExternalConnections=1
 ECAddress=127.0.0.1
@@ -59,7 +61,7 @@ Enabled=0
                 daemon = subprocess.Popen([daemon_binary, '-c', str(core)],
                                           env=env, stdout=log, stderr=log)
                 processes.append(daemon)
-                connect_daemon(daemon, port).sock.close()
+                connect_daemon(daemon, port, core, peer_port, udp_port).sock.close()
                 subprocess.run([api_binary, f'--config-dir={api}',
                                 '--set-admin-pass=adminpass'], check=True,
                                env=env, stdout=log, stderr=log)
@@ -76,15 +78,23 @@ Enabled=0
                 # caller impose a deadline, while detecting process failure.
                 while True:
                     if any(proc.poll() is not None for proc in processes):
+                        log.flush()
+                        failure = (root / 'fixture.log').read_text(errors='replace')
+                        if 'amuleapi: HTTP server failed to start:' in failure:
+                            raise PortCollision(f'API could not bind HTTP port {http}')
                         raise RuntimeError('fixture process exited during startup')
-                    if subprocess.run(['curl', '-sf', '--max-time', '2', url + '/health'],
-                                      stdout=subprocess.DEVNULL).returncode == 0:
+                    log.flush()
+                    api_listening = (f'amuleapi: listening on http://127.0.0.1:{http}/'
+                                     in (root / 'fixture.log').read_text(errors='replace'))
+                    if api_listening and subprocess.run(
+                            ['curl', '-sf', '--max-time', '2', url + '/health'],
+                            stdout=subprocess.DEVNULL).returncode == 0:
                         break
                     time.sleep(0.1)
                 # Exercise the command parser and real EC_SEARCH_ALL request too.
                 command = Path(daemon_binary).with_name('amulecmd')
                 if command.exists():
-                    ec = connect_daemon(daemon, port)
+                    ec = connect_daemon(daemon, port, core, peer_port, udp_port)
                     assert ec.call(C['EC_OP_KAD_START'])[0] == C['EC_OP_NOOP']
                     result = subprocess.run([
                         str(command), '-h', '127.0.0.1', '-p', str(port),
@@ -118,4 +128,4 @@ Enabled=0
 
 
 if __name__ == '__main__':
-    run(*sys.argv[1:])
+    retry_port_collisions(run, *sys.argv[1:])
