@@ -2,6 +2,7 @@
 # Copyright (c) 2026 aMule Team
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Exercise AllSearch through EC against an isolated daemon and a loopback eD2k server."""
+from contextlib import ExitStack
 import hashlib
 import os
 from pathlib import Path
@@ -154,20 +155,24 @@ def stop_daemon(proc):
     assert code == 0, f"daemon shutdown failed: {code}"
 
 
-def free_port():
-    with socket.socket() as s:
-        s.bind(('127.0.0.1', 0))
-        return s.getsockname()[1]
+def free_ports(n):
+    # Keep every socket bound until all ports are chosen, so the kernel cannot
+    # assign the same ephemeral port twice within one fixture.
+    with ExitStack() as stack:
+        sockets = [stack.enter_context(socket.socket()) for _ in range(n)]
+        for sock in sockets:
+            sock.bind(('127.0.0.1', 0))
+        return tuple(sock.getsockname()[1] for sock in sockets)
 
 
 def run(binary):
     with tempfile.TemporaryDirectory(prefix='amule-all-search-') as root:
         root = Path(root)
-        ec_port = free_port()
+        ec_port, peer_port, udp_port = free_ports(3)
         config = f'''[eMule]
 Nick=regression
-Port={free_port()}
-UDPPort={free_port()}
+Port={peer_port}
+UDPPort={udp_port}
 Address=127.0.0.1
 ConnectToKad=1
 ConnectToED2K=1

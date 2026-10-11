@@ -11,7 +11,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-from AllSearchIntegrationTest import C, connect_daemon, free_port
+from AllSearchIntegrationTest import C, connect_daemon, free_ports
 
 
 def wait_adopted(ec, proc, count):
@@ -58,8 +58,7 @@ def keyword_round_trip(udp_port, key_id, publish):
 binary = str(Path(sys.argv[1]).resolve())
 with tempfile.TemporaryDirectory(prefix='kad-index-review-') as directory:
     root = Path(directory)
-    port = free_port()
-    udp_port = free_port()
+    port, udp_port, peer_port = free_ports(3)
     count = 50000
     with (root / 'load_index.dat').open('wb') as persisted:
         persisted.write(struct.pack('<III', 1, int(time.time()), count))
@@ -67,7 +66,7 @@ with tempfile.TemporaryDirectory(prefix='kad-index-review-') as directory:
             persisted.write(bytes(12) + struct.pack('<II', i, int(time.time()) + 3600))
     (root / 'amule.conf').write_text(f"""[eMule]
 Nick=review
-Port={free_port()}
+Port={peer_port}
 UDPPort={udp_port}
 Address=127.0.0.1
 ConnectToKad=1

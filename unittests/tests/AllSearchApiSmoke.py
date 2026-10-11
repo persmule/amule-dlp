@@ -10,7 +10,7 @@ import sys
 import tempfile
 import time
 
-from AllSearchIntegrationTest import C, connect_daemon, free_port, integer, stored_search
+from AllSearchIntegrationTest import C, connect_daemon, free_ports, integer, stored_search
 
 
 def run(daemon_binary, api_binary, checks):
@@ -19,12 +19,12 @@ def run(daemon_binary, api_binary, checks):
         core, api = root / 'core', root / 'api'
         core.mkdir()
         api.mkdir()
-        port, http = free_port(), free_port()
+        port, http, peer_port, udp_port = free_ports(4)
         (core / 'amule.conf').write_text(f'''[eMule]
 Nick=regression
-Port={free_port()}
+Port={peer_port}
 UDPEnable=1
-UDPPort={free_port()}
+UDPPort={udp_port}
 Address=127.0.0.1
 Autoconnect=0
 ConnectToKad=1

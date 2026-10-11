@@ -7,19 +7,12 @@ import hashlib
 import os
 from pathlib import Path
 import signal
-import socket
 import subprocess
 import sys
 import tempfile
 import time
 
-from AllSearchIntegrationTest import C, EC, string
-
-
-def free_port():
-    with socket.socket() as sock:
-        sock.bind(('127.0.0.1', 0))
-        return sock.getsockname()[1]
+from AllSearchIntegrationTest import C, EC, free_ports, string
 
 
 def stop_forked_daemon(pid):
@@ -38,11 +31,11 @@ def stop_forked_daemon(pid):
 
 def write_config(root, setting=None):
     """Write an offline amule.conf with EC on a free port, and return that port."""
-    port = free_port()
+    port, peer_port = free_ports(2)
     config = f'''[eMule]
 Nick=logfile-regression
 FirstRunWizardDone=1
-Port={free_port()}
+Port={peer_port}
 UDPEnable=0
 Address=127.0.0.1
 ConnectToKad=0
@@ -106,7 +99,7 @@ def run(binary, root, setting=None, override=None, expected=None, failure=False,
                     assert proc.wait() == 0
                 if failure:
                     assert proc.wait() != 0
-                    error = (root / 'console.log').read_text()
+                    error = (root / 'console.log').read_text(errors='replace')
                     assert 'ERROR:' in error and 'log file' in error, error
                     if expected != root / 'logfile':
                         assert not (root / 'logfile').exists(), 'silently used default path'
@@ -127,9 +120,9 @@ def run(binary, root, setting=None, override=None, expected=None, failure=False,
                             ended = True
                         if ended:
                             daemon_reaped = True
-                            raise AssertionError((root / 'console.log').read_text())
+                            raise AssertionError((root / 'console.log').read_text(errors='replace'))
                     elif proc.poll() is not None:
-                        raise AssertionError((root / 'console.log').read_text())
+                        raise AssertionError((root / 'console.log').read_text(errors='replace'))
                     try:
                         ec = EC(port)
                     except ConnectionRefusedError:
@@ -171,6 +164,12 @@ def run(binary, root, setting=None, override=None, expected=None, failure=False,
                 text = tags[C['EC_TAG_STRING']][0]
                 assert b'logfile-regression-before-reset' not in text, text
                 assert b'Log has been reset' in text, text
+            except BaseException:
+                console.flush()
+                print((root / 'console.log').read_text(errors='replace'), file=sys.stderr)
+                if expected is not None and expected.is_file():
+                    print(expected.read_text(errors='replace'), file=sys.stderr)
+                raise
             finally:
                 if ec:
                     ec.sock.close()

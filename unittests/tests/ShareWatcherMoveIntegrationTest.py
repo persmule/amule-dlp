@@ -17,7 +17,7 @@ import sys
 import tempfile
 import time
 
-from AllSearchIntegrationTest import C, connect_daemon, exact, free_port, stop_daemon
+from AllSearchIntegrationTest import C, connect_daemon, exact, free_ports, stop_daemon
 
 
 def tag_list(data, offset, count):
@@ -74,11 +74,11 @@ def run(binary, root):
         d.mkdir()
     (incoming / 'a.bin').write_bytes(os.urandom(300_000))
     (incoming / 'c.bin').write_bytes(os.urandom(150_000))
-    port = free_port()
+    port, peer_port = free_ports(2)
     (root / 'amule.conf').write_text(f'''[eMule]
 Nick=watcher-regression
 FirstRunWizardDone=1
-Port={free_port()}
+Port={peer_port}
 UDPEnable=0
 Address=127.0.0.1
 ConnectToKad=0
