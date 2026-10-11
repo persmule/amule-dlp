@@ -671,7 +671,6 @@ public:
 		m_sendBuffer.store(newBuf, std::memory_order_release);
 		auto self = shared_from_this();
 		dispatch(m_strand, [self, newBuf, nbytes]() { self->DispatchWrite(newBuf, nbytes); });
-		m_ErrorCode = 0;
 		return nbytes;
 	}
 
@@ -878,31 +877,39 @@ private:
 
 	void HandleConnect(const error_code &err)
 	{
-		m_OK = !err;
-		if (m_OK) {
+		const bool ok = !err;
+		m_OK = ok;
+		if (ok) {
 			// A successful connect means the socket is healthy: clear any stale error left on
 			// this impl (e.g. an EBADF/aborted read that completed during the reconnect
 			// socket-swap). Otherwise SocketRealError() stays true and CECSocket::WritePacket
 			// refuses to send the EC login on the reused connection (#444).
 			m_ErrorCode = 0;
 		}
-		AddDebugLogLineF(logAsio, CFormat("HandleConnect %d %s") % m_OK % m_IP);
+		AddDebugLogLineF(logAsio, CFormat("HandleConnect %d %s") % ok % m_IP);
 		CLibSocket *wrapper = m_libSocket.load(std::memory_order_acquire);
 		if (!wrapper) {
 			AddDebugLogLineF(logAsio, CFormat("HandleConnect: wrapper gone %s") % m_IP);
 		} else {
+			if (ok) {
+				// Before the connect event, so its handler sees IsConnected(). Close() sets
+				// m_closed before it clears m_connected, so re-checking here cannot miss it.
+				m_connected = true;
+				if (m_closed) {
+					m_connected = false;
+				}
+			}
 			// The handlers compare against boost::system::errc, which Windows does not report
 			// directly: its WSAECONNREFUSED is 10061, not ECONNREFUSED.
 			const boost::system::error_condition condition = err.default_error_condition();
 			CoreNotify_LibSocketConnect(wrapper,
 				condition.category() == boost::system::generic_category() ? condition.value()
 											  : err.value());
-			if (m_OK) {
+			if (ok) {
 				// After connect also send a OUTPUT event to show data is available
 				CoreNotify_LibSocketSend(wrapper, 0);
 				// Start reading
 				StartBackgroundRead();
-				m_connected = true;
 			}
 		}
 	}
@@ -927,7 +934,7 @@ private:
 				AddDebugLogLineF(
 					logAsio, CFormat("HandleSend %d %s") % bytes_transferred % m_IP);
 				m_blocksWrite.store(false, std::memory_order_release);
-				CoreNotify_LibSocketSend(wrapper, m_ErrorCode);
+				CoreNotify_LibSocketSend(wrapper, 0);
 			}
 		}
 	}
@@ -1006,7 +1013,7 @@ private:
 
 		if (!m_eventPending.exchange(true, std::memory_order_acq_rel)) {
 			AddDebugLogLineF(logAsio, CFormat("Post read event %d %s") % from % m_IP);
-			CoreNotify_LibSocketReceive(wrapper, m_ErrorCode);
+			CoreNotify_LibSocketReceive(wrapper, m_ErrorCode.load());
 		}
 	}
 
@@ -1020,10 +1027,14 @@ private:
 
 	void SetError() { m_ErrorCode = 2; }
 
+	// Success leaves m_ErrorCode alone: the other direction's handler may have stored an error.
+	// HandleConnect and SetProxyState(false) clear it on purpose.
 	bool SetError(const error_code &err)
 	{
-		m_ErrorCode = err.value();
-		return m_ErrorCode != errc::success;
+		if (err) {
+			m_ErrorCode = err.value();
+		}
+		return static_cast<bool>(err);
 	}
 
 	// Synchronous sockets (amulecmd)
@@ -1200,12 +1211,12 @@ private:
 			} else {
 				m_socket->connect(endpoint, ec);
 			}
-			m_OK = !ec;
-			m_connected = m_OK;
-			if (ec) {
-				m_ErrorCode = ec.value();
-			}
-			return m_OK;
+			const bool ok = !ec;
+			m_OK = ok;
+			m_connected = ok;
+			// As in HandleConnect, a successful connect clears a stale error.
+			m_ErrorCode = ec.value();
+			return ok;
 		} else {
 			auto self = shared_from_this();
 			m_socket->async_connect(endpoint,
@@ -1264,9 +1275,13 @@ private:
 	uint32 m_IPint;                // as int
 	CNetworkAddress m_peerAddress; // Native accepted TCP peer; absent before UpdateIP.
 	uint16 m_port;                 // remote port
-	bool m_OK;
-	int m_ErrorCode;
-	bool m_blocksRead;
+	// atomic: HandleConnect sets it on the ASIO thread, IsOk() reads it on the main thread
+	std::atomic<bool> m_OK;
+	// atomic: shared by the ASIO, main and throttler threads
+	std::atomic<int> m_ErrorCode;
+	// atomic only against the data race. Read() can still store true after HandleRead() stored
+	// false, so BlocksRead() stays stale until the read event HandleRead() posted runs Read().
+	std::atomic<bool> m_blocksRead;
 	char *m_readBuffer;
 	uint32 m_readBufferSize;
 	char *m_readBufferPtr;
@@ -1283,8 +1298,10 @@ private:
 	std::atomic<bool> m_blocksWrite; // atomic: shared between throttler thread (BlocksWrite) and ASIO
 					 // thread (HandleSend)
 	io_context::strand m_strand;     // handle synchronisation in io_service thread pool
-	bool m_connected;
-	bool m_closed;
+	// atomic: HandleConnect sets it on the ASIO thread, IsConnected() reads it on the main thread
+	std::atomic<bool> m_connected;
+	// atomic: Close() sets it on the main thread, PostLostEvent() reads it on the ASIO thread
+	std::atomic<bool> m_closed;
 	std::atomic<bool> m_destroying; // set once Destroy() has been called
 	bool m_proxyState;
 	bool m_notify;           // set by Notify()
@@ -1943,12 +1960,15 @@ private:
 	};
 
 public:
-	CAsioUDPSocketImpl(const amuleIPV4Address &address, int /* flags */, CLibUDPSocket *libSocket)
+	CAsioUDPSocketImpl(const amuleIPV4Address &address,
+		int /* flags */,
+		CLibUDPSocket *libSocket,
+		CMuleUDPSocket *muleSocket)
 	: m_libSocket(libSocket)
+	, m_muleSocket(muleSocket)
 	, m_strand(s_io_service)
 	, m_address(address)
 	{
-		m_muleSocket = NULL;
 		m_socket = NULL;
 		m_readBuffer = new char[CMuleUDPSocket::UDP_BUFFER_SIZE];
 		m_OK = true;
@@ -1974,12 +1994,6 @@ public:
 	// so any still-in-flight callbacks no-op the notify path instead of touching the freed
 	// wrapper. Atomic so it is safe to call from any thread without an external lock.
 	void OnWrapperGone() { m_libSocket.store(nullptr, std::memory_order_release); }
-
-	void SetClientData(CMuleUDPSocket *muleSocket)
-	{
-		AddDebugLogLineF(logAsio, "UDP SetClientData");
-		m_muleSocket = muleSocket;
-	}
 
 	uint32 RecvFrom(CNetworkAddress &addr, uint16 &port, void *buf, uint32 nBytes)
 	{
@@ -2115,8 +2129,6 @@ private:
 			AddDebugLogLineN(logAsio, CFormat("UDP HandleReadError %s") % ec.message());
 		} else if (received == 0) {
 			AddDebugLogLineF(logAsio, "UDP HandleReadError nothing available");
-		} else if (m_muleSocket == NULL) {
-			AddDebugLogLineN(logAsio, "UDP HandleReadError no handler");
 		} else {
 
 			const CNetworkAddress sourceAddress =
@@ -2145,13 +2157,9 @@ private:
 			AddDebugLogLineN(logAsio,
 				CFormat("UDP HandleSendToError tosend: %d sent %d") % recdata->size % sent);
 		}
-		if (m_muleSocket == NULL) {
-			AddDebugLogLineN(logAsio, "UDP HandleSendToError no handler");
-		} else {
-			AddDebugLogLineF(logAsio,
-				CFormat("UDP HandleSendTo %d to %s") % sent % recdata->ipadr.IPAddress());
-			CoreNotify_UDPSocketSend(m_muleSocket);
-		}
+		AddDebugLogLineF(
+			logAsio, CFormat("UDP HandleSendTo %d to %s") % sent % recdata->ipadr.IPAddress());
+		CoreNotify_UDPSocketSend(m_muleSocket);
 		delete recdata;
 	}
 
@@ -2208,7 +2216,8 @@ private:
 	// strand-side load in Destroy() can both touch it without an external lock.
 	std::atomic<CLibUDPSocket *> m_libSocket;
 	ip::udp::socket *m_socket;
-	CMuleUDPSocket *m_muleSocket;
+	// const: HandleRead() and HandleSendTo() read it on the ASIO thread
+	CMuleUDPSocket *const m_muleSocket;
 	bool m_OK;
 	std::atomic<bool> m_destroying; // set once Destroy() has been called
 	io_context::strand m_strand;    // handle synchronisation in io_service thread pool
@@ -2227,12 +2236,13 @@ private:
 
 /** Library UDP socket wrapper */
 
-CLibUDPSocket::CLibUDPSocket(amuleIPV4Address &address, int flags)
+CLibUDPSocket::CLibUDPSocket(amuleIPV4Address &address, int flags, CMuleUDPSocket *handler)
 {
+	wxASSERT(handler);
 	// make_shared must run to completion (so a shared_ptr exists to manage the object) before
 	// Init() -- Init triggers async_receive_from whose completion handler captures
 	// shared_from_this(), and that requires a managing shared_ptr to already be in place.
-	m_aSocket = std::make_shared<CAsioUDPSocketImpl>(address, flags, this);
+	m_aSocket = std::make_shared<CAsioUDPSocketImpl>(address, flags, this, handler);
 	m_aSocket->Init();
 }
 
@@ -2261,11 +2271,6 @@ uint32 CLibUDPSocket::RecvFrom(CNetworkAddress &addr, uint16 &port, void *buf, u
 uint32 CLibUDPSocket::SendTo(const amuleIPV4Address &addr, const void *buf, uint32 nBytes)
 {
 	return m_aSocket->SendTo(addr, buf, nBytes);
-}
-
-void CLibUDPSocket::SetClientData(CMuleUDPSocket *muleSocket)
-{
-	m_aSocket->SetClientData(muleSocket);
 }
 
 int CLibUDPSocket::LastError() const

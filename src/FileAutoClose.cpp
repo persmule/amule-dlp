@@ -45,6 +45,7 @@ CFileAutoClose::CFileAutoClose(const CPath &path, CFile::OpenMode mode)
 
 bool CFileAutoClose::Open(const CPath &path, CFile::OpenMode mode)
 {
+	std::lock_guard<std::mutex> lock(m_stateMutex);
 	m_mode = mode;
 	m_autoClosed = false;
 	m_locked = 0;
@@ -55,6 +56,7 @@ bool CFileAutoClose::Open(const CPath &path, CFile::OpenMode mode)
 
 bool CFileAutoClose::Create(const CPath &path, bool overwrite)
 {
+	std::lock_guard<std::mutex> lock(m_stateMutex);
 	m_mode = CFile::write;
 	m_autoClosed = false;
 	m_lastAccess = TheTime;
@@ -63,6 +65,7 @@ bool CFileAutoClose::Create(const CPath &path, bool overwrite)
 
 bool CFileAutoClose::Close()
 {
+	std::lock_guard<std::mutex> lock(m_stateMutex);
 	bool state = m_autoClosed ? true : m_file.Close();
 	m_autoClosed = false;
 	return state;
@@ -70,12 +73,13 @@ bool CFileAutoClose::Close()
 
 uint64 CFileAutoClose::GetLength() const
 {
+	std::lock_guard<std::mutex> lock(m_stateMutex);
 	return m_autoClosed ? m_size : m_file.GetLength();
 }
 
 bool CFileAutoClose::SetLength(uint64 newLength)
 {
-	Reopen();
+	CInUse inUse(*this);
 	return m_file.SetLength(newLength);
 }
 
@@ -86,31 +90,33 @@ const CPath &CFileAutoClose::GetFilePath() const
 
 bool CFileAutoClose::IsOpened() const
 {
+	std::lock_guard<std::mutex> lock(m_stateMutex);
 	return m_autoClosed || m_file.IsOpened();
 }
 
 void CFileAutoClose::ReadAt(void *buffer, uint64 offset, size_t count)
 {
-	Reopen();
+	CInUse inUse(*this);
 	m_file.Seek(offset);
 	m_file.Read(buffer, count);
 }
 
 void CFileAutoClose::WriteAt(const void *buffer, uint64 offset, size_t count)
 {
-	Reopen();
+	CInUse inUse(*this);
 	m_file.Seek(offset);
 	m_file.Write(buffer, count);
 }
 
 bool CFileAutoClose::Eof()
 {
-	Reopen();
+	CInUse inUse(*this);
 	return m_file.Eof();
 }
 
 int CFileAutoClose::fd()
 {
+	std::lock_guard<std::mutex> lock(m_stateMutex);
 	Reopen();
 	m_locked++;
 	return m_file.fd();
@@ -118,9 +124,18 @@ int CFileAutoClose::fd()
 
 void CFileAutoClose::Unlock()
 {
+	std::lock_guard<std::mutex> lock(m_stateMutex);
 	if (m_locked) {
 		m_locked--;
 	}
+}
+
+CFileAutoClose::CInUse::CInUse(CFileAutoClose &file)
+: m_owner(file)
+{
+	std::lock_guard<std::mutex> lock(m_owner.m_stateMutex);
+	m_owner.Reopen();
+	m_owner.m_locked++;
 }
 
 void CFileAutoClose::Reopen()
@@ -138,6 +153,7 @@ void CFileAutoClose::Reopen()
 
 bool CFileAutoClose::Release(bool now)
 {
+	std::lock_guard<std::mutex> lock(m_stateMutex);
 	if (!m_autoClosed && (now || TheTime - m_lastAccess >= ReleaseTime) && !m_locked &&
 		m_file.IsOpened()) {
 		m_autoClosed = true;
