@@ -42,14 +42,20 @@ inline bool NeedsBuddy(bool tcpFirewalled, bool udpFirewalled, bool udpVerified)
 }
 
 // A changed callback route must replace its published address without waiting for the timer.
-inline bool CanPublishSource(
-	bool needsBuddy, uint32_t buddyIP, uint32_t lastBuddyIP, uint32_t nextPublishTime, uint32_t now)
+inline bool CanPublishSource(bool needsBuddy,
+	uint32_t buddyIP,
+	uint32_t lastBuddyIP,
+	uint32_t nextPublishTime,
+	uint32_t now,
+	uint16_t buddyPort,
+	uint16_t lastBuddyPort)
 {
 	if (needsBuddy && buddyIP == 0) {
 		return false;
 	}
 	const uint32_t routeBuddyIP = needsBuddy ? buddyIP : 0;
-	return routeBuddyIP != lastBuddyIP || now >= nextPublishTime;
+	const uint16_t routeBuddyPort = needsBuddy ? buddyPort : 0;
+	return routeBuddyIP != lastBuddyIP || routeBuddyPort != lastBuddyPort || now >= nextPublishTime;
 }
 
 } // namespace Kademlia

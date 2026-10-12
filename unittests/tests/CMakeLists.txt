@@ -11,7 +11,7 @@ endfunction()
 find_package (Python3 QUIET COMPONENTS Interpreter)
 if (Python3_Interpreter_FOUND)
 	add_test (NAME IntegrationFixtureUnitTest
-		COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/IntegrationFixtureUnitTest.py
+		COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/IntegrationFixtureUnitTest.py -v
 	)
 endif ()
 
@@ -76,6 +76,12 @@ add_executable (KadCallbackPolicyTest KadCallbackPolicyTest.cpp)
 add_test (NAME KadCallbackPolicyTest COMMAND KadCallbackPolicyTest)
 target_include_directories (KadCallbackPolicyTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries (KadCallbackPolicyTest muleunit mulecommon)
+
+# Buddy keepalives and receive expiry with a deterministic monotonic clock.
+add_executable (KadBuddyLivenessTest KadBuddyLivenessTest.cpp)
+add_test (NAME KadBuddyLivenessTest COMMAND KadBuddyLivenessTest)
+target_include_directories (KadBuddyLivenessTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries (KadBuddyLivenessTest muleunit mulecommon)
 
 # The Kad firewall state across an hourly recheck, with the clock passed in.
 add_executable (KadFirewallRecheckTest KadFirewallRecheckTest.cpp)

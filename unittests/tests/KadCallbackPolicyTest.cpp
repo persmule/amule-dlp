@@ -38,33 +38,42 @@ TEST(KadCallbackPolicy, BuddyToDirectRouteBypassesPublishTimer)
 	const uint32_t now = 1000;
 	const uint32_t lastBuddy = 0x12345678;
 	const uint32_t nextPublish = now + 5 * 60 * 60;
-	ASSERT_FALSE(Kademlia::CanPublishSource(true, lastBuddy, lastBuddy, nextPublish, now));
+	ASSERT_FALSE(Kademlia::CanPublishSource(true, lastBuddy, lastBuddy, nextPublish, now, 4665, 4665));
 	// UDP becomes verified open, and ClientList drops the old buddy.
-	ASSERT_TRUE(Kademlia::CanPublishSource(false, 0, lastBuddy, nextPublish, now + 1));
+	ASSERT_TRUE(Kademlia::CanPublishSource(false, 0, lastBuddy, nextPublish, now + 1, 0, 4665));
 	// Once the new route is published, the regular throttle applies again.
-	ASSERT_FALSE(Kademlia::CanPublishSource(false, 0, 0, nextPublish, now + 2));
+	ASSERT_FALSE(Kademlia::CanPublishSource(false, 0, 0, nextPublish, now + 2, 0, 0));
 }
 
 TEST(KadCallbackPolicy, DirectToBuddyAndChangedBuddyBypassPublishTimer)
 {
-	ASSERT_TRUE(Kademlia::CanPublishSource(true, 123, 0, 5000, 1000));
-	ASSERT_TRUE(Kademlia::CanPublishSource(true, 456, 123, 5000, 1000));
-	ASSERT_FALSE(Kademlia::CanPublishSource(true, 456, 456, 5000, 1000));
+	ASSERT_TRUE(Kademlia::CanPublishSource(true, 123, 0, 5000, 1000, 4665, 0));
+	ASSERT_TRUE(Kademlia::CanPublishSource(true, 456, 123, 5000, 1000, 4665, 4665));
+	ASSERT_FALSE(Kademlia::CanPublishSource(true, 456, 456, 5000, 1000, 4665, 4665));
 }
 
 TEST(KadCallbackPolicy, NoRouteNeverStartsAPublish)
 {
-	ASSERT_FALSE(Kademlia::CanPublishSource(true, 0, 123, 5000, 1000));
-	ASSERT_FALSE(Kademlia::CanPublishSource(true, 0, 123, 0, 1000));
-	ASSERT_FALSE(Kademlia::CanPublishSource(true, 0, 0, 0, 1000));
+	ASSERT_FALSE(Kademlia::CanPublishSource(true, 0, 123, 5000, 1000, 0, 4665));
+	ASSERT_FALSE(Kademlia::CanPublishSource(true, 0, 123, 0, 1000, 0, 4665));
+	ASSERT_FALSE(Kademlia::CanPublishSource(true, 0, 0, 0, 1000, 0, 0));
+}
+
+TEST(KadCallbackPolicy, ChangedBuddyPortBypassesPublishTimer)
+{
+	ASSERT_FALSE(Kademlia::CanPublishSource(true, 123, 123, 5000, 1000, 4665, 4665));
+	ASSERT_TRUE(Kademlia::CanPublishSource(true, 123, 123, 5000, 1000, 4675, 4665));
+	ASSERT_FALSE(Kademlia::CanPublishSource(true, 123, 123, 5000, 1000, 4675, 4675));
+	ASSERT_FALSE(Kademlia::CanPublishSource(true, 0, 123, 5000, 1000, 4675, 4665));
+	ASSERT_TRUE(Kademlia::CanPublishSource(false, 0, 123, 5000, 1000, 0, 4665));
 }
 
 TEST(KadCallbackPolicy, RepublishBoundaryAndAbortedPublishRetry)
 {
-	ASSERT_FALSE(Kademlia::CanPublishSource(false, 0, 0, 1000, 999));
-	ASSERT_TRUE(Kademlia::CanPublishSource(false, 0, 0, 1000, 1000));
-	ASSERT_TRUE(Kademlia::CanPublishSource(true, 123, 123, 1000, 1000));
+	ASSERT_FALSE(Kademlia::CanPublishSource(false, 0, 0, 1000, 999, 0, 0));
+	ASSERT_TRUE(Kademlia::CanPublishSource(false, 0, 0, 1000, 1000, 0, 0));
+	ASSERT_TRUE(Kademlia::CanPublishSource(true, 123, 123, 1000, 1000, 4665, 4665));
 	// Search cleared the timestamp after losing its callback route.
-	ASSERT_TRUE(Kademlia::CanPublishSource(false, 0, 0, 0, 1000));
-	ASSERT_TRUE(Kademlia::CanPublishSource(true, 123, 0, 0, 1000));
+	ASSERT_TRUE(Kademlia::CanPublishSource(false, 0, 0, 0, 1000, 0, 0));
+	ASSERT_TRUE(Kademlia::CanPublishSource(true, 123, 0, 0, 1000, 4665, 0));
 }

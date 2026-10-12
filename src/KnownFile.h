@@ -371,10 +371,11 @@ public:
 	const Kademlia::WordList &GetKadKeywords() const { return wordlist; }
 	// KAD TODO: If we add the proper column to SharedFilesCtrl, this is the function.
 	uint32 GetLastPublishTimeKadSrc() const { return m_lastPublishTimeKadSrc; }
-	void SetLastPublishTimeKadSrc(uint32 time, uint32 buddyip)
+	void SetLastPublishTimeKadSrc(uint32 time, uint32 buddyip, uint16 buddyport = 0)
 	{
 		m_lastPublishTimeKadSrc = time;
 		m_lastBuddyIP = buddyip;
+		m_lastBuddyPort = buddyport;
 	}
 	// Another unused function, useful for the shared files control column
 	uint32 GetLastPublishBuddy() const { return m_lastBuddyIP; }
@@ -507,6 +508,7 @@ protected:
 	uint32 m_lastPublishTimeKadSrc;
 	uint32 m_lastPublishTimeKadNotes;
 	uint32 m_lastBuddyIP;
+	uint16 m_lastBuddyPort;
 
 	uint32 m_lastSeen;
 

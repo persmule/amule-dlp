@@ -43,6 +43,7 @@
 #include "ClientRef.h"        // Needed for debug defines
 #include "PeerCapabilities.h" // Needed for CPeerCapabilities
 #include "ProtocolPeerIdentity.h"
+#include "KadBuddyLiveness.h"
 
 #include <map>
 #include <wx/thread.h> // Needed for wxMutex
@@ -625,17 +626,24 @@ public:
 	uint16 GetBuddyPort() const { return m_nBuddyPort; }
 
 	// KadIPCheck
-	bool SendBuddyPingPong() { return m_dwLastBuddyPingPongTime < ::GetTickCount64(); }
-	bool AllowIncomeingBuddyPingPong()
+	bool IsBuddyPingDue() const { return m_buddyLiveness.PingDue(::GetTickCount64()); }
+	bool AllowIncomingBuddyPing() const { return m_buddyLiveness.AllowIncomingPing(::GetTickCount64()); }
+	void RecordBuddyPingSent() { m_buddyLiveness.PingSent(::GetTickCount64()); }
+	void RecordBuddyPingReceived() { m_buddyLiveness.PingReceived(::GetTickCount64()); }
+	void RecordBuddyPongReceived() { m_buddyLiveness.PongReceived(::GetTickCount64()); }
+	void RecordBuddyPacketReceived() { m_buddyLiveness.ReceivedPacket(::GetTickCount64()); }
+	bool HasBuddyTimedOut() const
 	{
-		return m_dwLastBuddyPingPongTime < (::GetTickCount64() - (3 * 60 * 1000));
-	}
-	void SetLastBuddyPingPongTime()
-	{
-		m_dwLastBuddyPingPongTime = (::GetTickCount64() + (10 * 60 * 1000));
+		return m_buddyLiveness.Expired(::GetTickCount64(), m_byKadVersion != 0);
 	}
 	EKadState GetKadState() const { return m_nKadState; }
-	void SetKadState(EKadState nNewS) { m_nKadState = nNewS; }
+	void SetKadState(EKadState nNewS)
+	{
+		if (nNewS == KS_CONNECTED_BUDDY && m_nKadState != KS_CONNECTED_BUDDY) {
+			m_buddyLiveness.Reset(::GetTickCount64());
+		}
+		m_nKadState = nNewS;
+	}
 	uint8 GetKadVersion() { return m_byKadVersion; }
 	void ProcessFirewallCheckUDPRequest(CMemFile *data);
 
@@ -960,7 +968,7 @@ private:
 	bool m_hasModIPv6;
 	bool m_hasServingBuddyIPv6;
 
-	uint64 m_dwLastBuddyPingPongTime;
+	Kademlia::CBuddyLiveness m_buddyLiveness;
 	uint64_t m_dwDirectCallbackTimeout;
 
 	//! This keeps track of aggressive requests for files.

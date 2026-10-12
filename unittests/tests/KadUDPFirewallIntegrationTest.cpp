@@ -194,7 +194,7 @@ TEST(KadUDPFirewallIntegration, VerificationQueryExpiresWithoutFirewallQuery)
 	ASSERT_FALSE(CUDPFirewallTester::IsVerified());
 	ASSERT_FALSE(CUDPFirewallTester::IsFirewalledUDP(true)); // stored open result is preserved
 	ASSERT_TRUE(NeedsBuddy(true, false, CUDPFirewallTester::IsVerified()));
-	ASSERT_FALSE(CanPublishSource(true, 0, 0, 0, 1));
+	ASSERT_FALSE(CanPublishSource(true, 0, 0, 0, 1, 0, 0));
 	ASSERT_EQUALS(2u, notifications); // successful result, then one expiry
 	ASSERT_FALSE(CUDPFirewallTester::IsVerified());
 	ASSERT_EQUALS(2u, notifications);

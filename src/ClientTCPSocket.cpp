@@ -209,15 +209,14 @@ bool CClientTCPSocket::CheckTimeOut()
 	if (m_client) {
 
 		if (m_client->GetKadState() == KS_CONNECTED_BUDDY) {
-			// The timeout used to be ignored for buddies; the ping/pong system now
-			// prevents those timeouts instead. lowID clients with KadVersion 0 are
-			// still allowed to stay connected, but a future version needs to let them
-			// time out so dead connections do not persist.
-			if (m_client->GetKadVersion() == 0) {
-				return false;
+			// Outgoing pings and relayed callbacks reset the ordinary socket timer.
+			// Only received packets prove a ping-capable buddy is still responding.
+			// Legacy peers without ping support retain their idle TCP connections.
+			if (m_client->HasBuddyTimedOut()) {
+				Disconnect("Buddy receive timeout");
+				return true;
 			}
-
-			uTimeout += MIN2MS(15);
+			return false;
 		}
 
 		if (m_client->GetChatState() != MS_NONE) {
@@ -1856,12 +1855,12 @@ bool CClientTCPSocket::ProcessExtPacket(const uint8_t *buffer, uint32 size, uint
 
 		CUpDownClient *buddy = theApp->clientlist->GetBuddy();
 		if (buddy != m_client || m_client->GetKadVersion() == 0 ||
-			!m_client->AllowIncomeingBuddyPingPong()) {
+			!m_client->AllowIncomingBuddyPing()) {
 			// This ping was not from our buddy or wrong version or packet sent to fast. Ignore
 			break;
 		}
 
-		m_client->SetLastBuddyPingPongTime();
+		m_client->RecordBuddyPingReceived();
 		CPacket *replypacket = new CPacket(OP_BUDDYPONG, 0, OP_EMULEPROT);
 		theStats::AddUpOverheadKad(replypacket->GetPacketSize());
 		AddDebugLogLineN(logLocalClient, "Local Client: OP_BUDDYPONG to " + m_client->GetFullIP());
@@ -1878,8 +1877,7 @@ bool CClientTCPSocket::ProcessExtPacket(const uint8_t *buffer, uint32 size, uint
 			// This pong was not from our buddy or wrong version. Ignore
 			break;
 		}
-		m_client->SetLastBuddyPingPongTime();
-		// All this is for is to reset our socket timeout.
+		m_client->RecordBuddyPongReceived();
 		break;
 	}
 	case OP_REASKCALLBACKTCP: {
@@ -2267,6 +2265,9 @@ bool CClientTCPSocket::PacketReceived(CPacket *packet)
 		Disconnect("Caught exception on CClientTCPSocket::ProcessPacket\n");
 	}
 
+	if (bResult && exception.IsEmpty() && m_client && m_client->GetKadState() == KS_CONNECTED_BUDDY) {
+		m_client->RecordBuddyPacketReceived();
+	}
 	return bResult;
 }
 

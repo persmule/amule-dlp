@@ -673,7 +673,7 @@ void CClientList::Process()
 				Notify_ServerUpdateED2KInfo();
 			}
 			if (m_pBuddy.GetClient() == cur_client && theApp->IsFirewalled() &&
-				cur_client->SendBuddyPingPong()) {
+				cur_client->IsBuddyPingDue()) {
 				cur_client->SendBuddyPing();
 			}
 			break;
@@ -1079,6 +1079,14 @@ void CClientList::RemoveFromKadList(CUpDownClient *torem)
 
 	if (m_KadSources.erase(CCLIENTREF(torem, ""))) {
 		if (torem == m_pBuddy.GetClient()) {
+			// Deletion may clear the buddy before Process sees the disconnected state.
+			// Request recovery here so it does not wait for the twenty-minute search timer.
+			if (Kademlia::CKademlia::IsRunning() &&
+				Kademlia::NeedsBuddy(theApp->IsFirewalled(),
+					Kademlia::CUDPFirewallTester::IsFirewalledUDP(true),
+					Kademlia::CUDPFirewallTester::IsVerified())) {
+				Kademlia::CKademlia::GetPrefs()->SetFindBuddy();
+			}
 			m_pBuddy.Unlink();
 			m_nBuddyStatus = Disconnected;
 			Notify_ServerUpdateED2KInfo();

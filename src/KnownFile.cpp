@@ -301,6 +301,7 @@ void CKnownFile::Init()
 	m_lastPublishTimeKadSrc = 0;
 	m_lastPublishTimeKadNotes = 0;
 	m_lastBuddyIP = 0;
+	m_lastBuddyPort = 0;
 	m_lastDateChanged = 0;
 	m_lastUploadDatetime = 0;
 	m_dateShared = 0;
@@ -1517,19 +1518,27 @@ bool CKnownFile::PublishSrc()
 	const bool needsBuddy = Kademlia::NeedsBuddy(
 		theApp->IsFirewalled(), udpFirewalled, Kademlia::CUDPFirewallTester::IsVerified());
 	uint32 buddyIP = 0;
+	uint16 buddyPort = 0;
 	if (needsBuddy) {
 		CUpDownClient *buddy = theApp->clientlist->GetBuddy();
 		if (buddy) {
 			buddyIP = buddy->GetIP();
+			buddyPort = buddy->GetUDPPort();
 		}
 	}
 
 	const uint32 now = static_cast<uint32>(time(nullptr));
-	if (!Kademlia::CanPublishSource(needsBuddy, buddyIP, m_lastBuddyIP, m_lastPublishTimeKadSrc, now)) {
+	if (!Kademlia::CanPublishSource(needsBuddy,
+		    buddyIP,
+		    m_lastBuddyIP,
+		    m_lastPublishTimeKadSrc,
+		    now,
+		    buddyPort,
+		    m_lastBuddyPort)) {
 		return false;
 	}
 
-	SetLastPublishTimeKadSrc(now + KADEMLIAREPUBLISHTIMES, buddyIP);
+	SetLastPublishTimeKadSrc(now + KADEMLIAREPUBLISHTIMES, buddyIP, buddyPort);
 	return true;
 }
 

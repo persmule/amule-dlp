@@ -296,7 +296,7 @@ void CUpDownClient::Init()
 	m_lastaverage = 0;
 	m_minRTT = 0;
 
-	SetLastBuddyPingPongTime();
+	m_buddyLiveness.Reset(::GetTickCount64());
 	m_fRequestsCryptLayer = 0;
 	m_fSupportsCryptLayer = 0;
 	m_fRequiresCryptLayer = 0;
@@ -3097,7 +3097,7 @@ void CUpDownClient::SetBuddyID(const uint8_t *pucBuddyID)
 
 bool CUpDownClient::SendBuddyPing()
 {
-	SetLastBuddyPingPongTime();
+	RecordBuddyPingSent();
 	CPacket *buddyPing = new CPacket(OP_BUDDYPING, 0, OP_EMULEPROT);
 	theStats::AddUpOverheadKad(buddyPing->GetPacketSize());
 	AddDebugLogLineN(logLocalClient, "Local Client: OP_BUDDYPING to " + GetFullIP());
