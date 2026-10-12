@@ -24,6 +24,7 @@
 //
 
 #include "KadDlg.h"
+#include "KadContactHistogram.h"
 #include "KadLookupView.h"
 #ifdef CLIENT_GUI
 #include "libs/ec/cpp/RemoteConnect.h"
@@ -74,6 +75,25 @@ void CKadDlg::Init()
 	SetGraphColors();
 
 	UpdateConnectButton();
+	m_contactHistogram = CastChild("kadContactDistribution", CKadContactHistogram);
+	m_distributionTimer.SetOwner(this);
+	Bind(
+		wxEVT_TIMER,
+		[this](wxTimerEvent &) {
+			if (!IsContactDistributionVisible()) {
+				return;
+			}
+			UpdateContactDistribution();
+		},
+		m_distributionTimer.GetId());
+	Bind(wxEVT_SHOW, [this](wxShowEvent &event) {
+		event.Skip();
+		if (event.IsShown()) {
+			CallAfter(&CKadDlg::ShowContactDistribution);
+		}
+	});
+	UpdateContactDistribution();
+	m_distributionTimer.Start(1000);
 	m_lookupButton = CastChild("kadLookupDiagnostics", wxButton);
 #ifdef CLIENT_GUI
 	m_lookupRequest = std::make_shared<CKadLookupRequestState>(m_lookupButton);
@@ -101,6 +121,34 @@ void CKadDlg::Init()
 	});
 	UpdateConnectButton();
 	Layout();
+}
+
+void CKadDlg::ShowContactDistribution()
+{
+	if (!IsContactDistributionVisible()) {
+		return;
+	}
+	UpdateContactDistribution();
+#ifdef CLIENT_GUI
+	theApp->RequestKadContactDistribution();
+#endif
+}
+
+bool CKadDlg::IsContactDistributionVisible() const
+{
+	// A minimized frame still has its shown flag set. Use the main window's
+	// event-based iconize state, which also handles wxGTK's stale IsIconized().
+	return IsShownOnScreen() && theApp->amuledlg && theApp->amuledlg->IsVisibleToUser();
+}
+
+void CKadDlg::UpdateContactDistribution()
+{
+	if (!m_contactHistogram) {
+		return;
+	}
+	Kademlia::ContactDistribution distribution;
+	const auto state = CStatistics::GetKadContactDistribution(distribution);
+	m_contactHistogram->SetDistribution(distribution, state);
 }
 
 void CKadDlg::UpdateConnectButton()

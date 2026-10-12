@@ -27,9 +27,11 @@
 #define KADDLG_H
 
 #include "KadLookupView.h"
+#include <wx/timer.h>
 #include <wx/panel.h> // Needed for wxPanel
 
 class COScopeCtrl;
+class CKadContactHistogram;
 class wxListEvent;
 class wxCommandEvent;
 class wxMouseEvent;
@@ -51,9 +53,14 @@ public:
 	// current state. Called from CamuleDlg::ShowConnectionState() alongside the ED2K
 	// equivalent, and once from Init() for the initial paint.
 	void UpdateConnectButton();
+	void UpdateContactDistribution();
+	void ShowContactDistribution();
+	bool IsContactDistributionVisible() const;
 
 private:
 	COScopeCtrl *m_kad_scope;
+	CKadContactHistogram *m_contactHistogram = nullptr;
+	wxTimer m_distributionTimer;
 	wxButton *m_lookupButton = nullptr;
 	wxWeakRef<CKadLookupView> m_lookupView;
 #ifdef CLIENT_GUI

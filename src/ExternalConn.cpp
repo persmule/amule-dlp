@@ -1499,6 +1499,12 @@ static CECPacket *Get_EC_Response_StatRequest(const CECPacket *request, CLoggerA
 			response->AddTag(CECTag(EC_TAG_STATS_KAD_NODES, CStatistics::GetKadNodes()));
 		}
 		// Kad stats
+		if (request->GetTagByName(EC_TAG_STATS_KAD_DISTRIBUTION)) {
+			Kademlia::ContactDistribution distribution;
+			CStatistics::GetKadContactDistribution(distribution);
+			const auto wire = distribution.Encode();
+			response->AddTag(CECTag(EC_TAG_STATS_KAD_DISTRIBUTION, wire.size(), wire.data()));
+		}
 		// The counts are local, so they ship before bootstrap, but only once the saved
 		// index is adopted: a 0 before that is not a real count.
 		if (theApp->IsKadIndexReady()) {
