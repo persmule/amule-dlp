@@ -2792,6 +2792,9 @@ wxSizer *KadDlg( wxWindow *parent, bool call_fit, bool set_sizer )
     // after construction, which sets the real label/bitmap for the current state.
     wxButton *item38 = new wxButton( parent, ID_KADDISCONNECT, _("Connect"), wxDefaultPosition, wxDefaultSize, 0 );
     item3->Add( item38, wxSizerFlags().Center().Border(wxLEFT|wxRIGHT, 5) );
+    wxButton *lookupButton = new wxButton( parent, wxID_ANY, _("Lookup diagnostics") );
+    lookupButton->SetName( "kadLookupDiagnostics" );
+    item3->Add( lookupButton, wxSizerFlags().Center().Border(wxRIGHT, 5) );
     // Top border: matches serverListDlgUp's top row (issue #402 review:
     // "too close to the borders of the tab container").
     item0->Add( item3, wxSizerFlags().Expand().CenterVertical().Border(wxTOP, 5) );

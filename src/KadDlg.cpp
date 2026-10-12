@@ -24,6 +24,12 @@
 //
 
 #include "KadDlg.h"
+#include "KadLookupView.h"
+#ifdef CLIENT_GUI
+#include "libs/ec/cpp/RemoteConnect.h"
+#else
+#include "kademlia/kademlia/SearchManager.h"
+#endif
 #include "muuli_wdr.h"
 #include "OScopeCtrl.h"
 #include "OtherFunctions.h"
@@ -68,6 +74,33 @@ void CKadDlg::Init()
 	SetGraphColors();
 
 	UpdateConnectButton();
+	m_lookupButton = CastChild("kadLookupDiagnostics", wxButton);
+#ifdef CLIENT_GUI
+	m_lookupRequest = std::make_shared<CKadLookupRequestState>(m_lookupButton);
+#endif
+	m_lookupButton->Bind(wxEVT_BUTTON, [this](wxCommandEvent &event) {
+		if (!m_lookupView) {
+			m_lookupView = new CKadLookupView(this);
+		}
+		m_lookupView->Show();
+		m_lookupView->Raise();
+#ifdef CLIENT_GUI
+		(void)event;
+		m_lookupRequest->SetSupported(theApp->m_connect->ServerSupportsKadLookups());
+		if (!m_lookupRequest->TryBegin()) {
+			return;
+		}
+		m_lookupView->SetSnapshot(_("Requesting Kad lookup diagnostics..."));
+		CECPacket request(EC_OP_GET_KAD_LOOKUPS);
+		theApp->m_connect->SendRequest(
+			new CKadLookupReply(m_lookupView.get(), m_lookupRequest), &request);
+#else
+		(void)event;
+		m_lookupView->SetSnapshot(Kademlia::CSearchManager::GetLookupDiagnostics());
+#endif
+	});
+	UpdateConnectButton();
+	Layout();
 }
 
 void CKadDlg::UpdateConnectButton()
@@ -87,6 +120,15 @@ void CKadDlg::UpdateConnectButton()
 	// _("Kad") matches the translatable tab label (muuli_wdr.cpp's
 	// NetDialog); see CServerWnd::UpdateED2KConnectButton's ED2K equivalent.
 	SetConnectButtonState(button, state, thePrefs::GetNetworkKademlia(), _("Kad"));
+#ifdef CLIENT_GUI
+	if (m_lookupRequest) {
+		const bool supported = theApp->m_connect->ServerSupportsKadLookups();
+		m_lookupRequest->SetSupported(supported);
+		m_lookupButton->SetToolTip(
+			supported ? wxString()
+				  : _("The connected core does not support Kad lookup diagnostics."));
+	}
+#endif
 }
 
 void CKadDlg::SetUpdatePeriod(int step)

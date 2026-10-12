@@ -4,6 +4,7 @@ if (BUILD_MONOLITHIC OR BUILD_DAEMON)
 		kademlia/kademlia/Prefs.cpp
 		kademlia/kademlia/Search.cpp
 		kademlia/kademlia/UDPFirewallTester.cpp
+		kademlia/utils/LookupDiagnosticsSnapshot.cpp
 		kademlia/net/KademliaUDPListener.cpp
 		kademlia/net/PacketTracking.cpp
 		kademlia/routing/Contact.cpp
@@ -147,6 +148,8 @@ endif()
 
 if (BUILD_MONOLITHIC OR BUILD_DAEMON OR BUILD_REMOTEGUI)
 	set (COMMON_SOURCES
+		kademlia/utils/LookupDiagnostics.cpp
+		kademlia/utils/LookupDiagnosticsEC.cpp
 		amuleAppCommon.cpp
 		AppImageEnv.cpp
 		AutostartManager.cpp

@@ -39,6 +39,9 @@ there client on the eMule forum..
 #include <wx/wx.h>
 
 #include "Search.h"
+#include "../utils/LookupDiagnostics.h"
+#include <algorithm>
+#include "../../GetTickCount.h"
 #include <common/Macros.h>
 
 #include "Indexed.h"
@@ -138,12 +141,23 @@ void CSearchManager::DeleteSearch(SearchMap::iterator it)
 	// query the registry, so no entry may point at an object being destroyed.
 	auto search = std::move(it->second);
 	m_searches.erase(it);
+	// Diagnostics must never prevent search cleanup or retain an object in the registry.
+	try {
+		RememberLookup(*search);
+	} catch (...) {
+	}
 }
 
 void CSearchManager::StopAllSearches()
 {
 	SearchMap stopped;
 	stopped.swap(m_searches);
+	for (const auto &item : stopped) {
+		try {
+			RememberLookup(*item.second);
+		} catch (...) {
+		}
+	}
 	// Every search is invisible before the first destructor invokes a callback.
 }
 
@@ -184,6 +198,7 @@ CSearch *CSearchManager::PrepareFindKeywords(const wxString &keyword,
 	try {
 		// Set search to a keyword type.
 		s->SetSearchTypes(CSearch::KEYWORD);
+		s->m_lookupKeyword = keyword;
 
 		// Make sure we have a keyword list
 		GetWords(keyword, &s->m_words, true);
@@ -611,3 +626,67 @@ void CSearchManager::CancelNodeFWCheckUDPSearch()
 	}
 }
 // File_checked_for_headers
+
+namespace
+{
+std::deque<LookupSnapshot> s_recentLookups;
+}
+
+void CSearchManager::RememberLookup(CSearch &search)
+{
+	if (search.GetLookupTrace().Peers().empty()) {
+		return;
+	}
+	if (s_recentLookups.size() == MaxLookupHistory) {
+		s_recentLookups.pop_front();
+	}
+	s_recentLookups.push_back({ search.GetSearchTypes(),
+		search.GetTarget().ToHexString(),
+		search.m_lookupKeyword,
+		search.GetLookupStarted(),
+		::GetTickCount64(),
+		std::move(search.m_lookupTrace) });
+}
+
+void CSearchManager::GetLookupSnapshots(
+	std::vector<LookupSnapshot> &active, std::deque<LookupSnapshot> &recent)
+{
+	std::vector<const CSearch *> searches;
+	searches.reserve(m_searches.size());
+	for (const auto &item : m_searches) {
+		searches.push_back(item.second.get());
+	}
+	std::sort(searches.begin(), searches.end(), [](const CSearch *a, const CSearch *b) {
+		return a->GetLookupStarted() > b->GetLookupStarted();
+	});
+	if (searches.size() > MaxLookupHistory) {
+		searches.resize(MaxLookupHistory);
+	}
+	active.clear();
+	active.reserve(searches.size());
+	for (const auto *search : searches) {
+		active.push_back({ search->GetSearchTypes(),
+			search->GetTarget().ToHexString(),
+			search->m_lookupKeyword,
+			search->GetLookupStarted(),
+			0,
+			search->GetLookupTrace() });
+	}
+	recent = s_recentLookups;
+}
+
+wxString CSearchManager::GetLookupDiagnostics()
+{
+	std::vector<LookupSnapshot> active;
+	std::deque<LookupSnapshot> recent;
+	GetLookupSnapshots(active, recent);
+	return FormatLookupDiagnostics(MakeLookupReports(active, recent, ::GetTickCount64()));
+}
+
+void CSearchManager::ProcessResultReply(const CUInt128 &target, uint32_t fromIP, uint16_t fromPort)
+{
+	const auto found = m_searches.find(target);
+	if (found != m_searches.end()) {
+		found->second->m_lookupTrace.ItemReply({ fromIP, fromPort });
+	}
+}
