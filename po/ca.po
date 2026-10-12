@@ -1326,21 +1326,22 @@ msgstr "L'usuari %s (%u) ha demanat la llista de fitxers compartits del director
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "No s'han pogut obtenir els compartits de l'usuari '%s'"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "AVÍS: No es pot obrir %s."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "AVÍS: La llista dels fitxers cancel·lats és malmesa, conté una capçalera no vàlida."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "AVÍS: %s pot ser corrupte (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "Error d'E/S metre es llegia el fitxer %s: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Error mentre es desava el fitxer %s: %s"
@@ -6207,11 +6208,6 @@ msgstr "No s'ha pogut obrir %s (%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "AVÍS: %s pot ser corrupte (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "ERROR mentre es desava un fitxer de parts: %s (%s ==> %s)"
 
@@ -9767,6 +9763,9 @@ msgstr "Kad no ha pogut carregar l'índex desat. S'han conservat els fitxers d'�
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr "Kad no ha pogut desar un índex. S'ha conservat la còpia anterior d'aquest fitxer."
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "AVÍS: La llista dels fitxers cancel·lats és malmesa, conté una capçalera no vàlida."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

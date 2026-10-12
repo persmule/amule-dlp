@@ -1304,21 +1304,22 @@ msgstr "ユーザ %s（%u）が存在しないディレクトリ '%s' の共有�
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "ユーザ '%s' から共有ファイルを取得することができませんでした"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "警告：%s を開けません。"
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "警告：キャンセルされたファイル・リストが破損しています。無効なヘッダーが含まれています。"
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "警告：%s は破損している可能性があります (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "%s ファイルの読み取り中にIOエラーが発生しました：%s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "%s ファイルの保存中にエラーが発生しました：%s"
@@ -6190,11 +6191,6 @@ msgstr "%s（%s）を開くことはできませんでした"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "警告：%s は破損している可能性があります (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "部分ファイル%s（%s ==> %s）の保存中にエラーが発生しました"
 
@@ -9732,6 +9728,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "警告：キャンセルされたファイル・リストが破損しています。無効なヘッダーが含まれています。"
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

@@ -1,1 +1,22 @@
-{}
+{
+  "app_files": "文件",
+  "common_err_method_not_allowed": "方法不受允许。",
+  "common_close": "关闭",
+  "common_err_internal_error": "服务器错误：{message}",
+  "common_err_forbidden": "禁止访问：{message}",
+  "app_error": "错误",
+  "common_network_error": "网络错误：{message}",
+  "app_connected": "已连接",
+  "app_disconnected": "未连接",
+  "app_add": "添加",
+  "app_add_ed2k_link": "添加ed2k链接",
+  "app_connecting": "连接中…",
+  "common_err_not_found": "未找到：{message}",
+  "common_err_bad_request": "无效的请求：{message}",
+  "app_ed2k": "ED2K",
+  "common_no": "否",
+  "common_cancel": "取消",
+  "app_language": "语言",
+  "common_err_unauthorized": "未授权。",
+  "common_yes": "是"
+}

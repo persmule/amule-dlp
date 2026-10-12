@@ -1309,21 +1309,22 @@ msgstr "Kasutaja %s (%u) küsis jagatud failide loendit olematu kataloogi '%s' j
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Ei suuda tõmmata kasutaja '%s' jagatud faili"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "HOIATUS: %s faili ei saa avada."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "HOIATUS: Katkestatud failde loetelu on riknenud, sisaldab riknenud päist."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "HOIATUS: %s võib olla riknenud (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "IO viga %s faili lugemisel: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "VIGA: tekkis %s faili salvestamisel: %s"
@@ -6211,11 +6212,6 @@ msgstr "Ei suuda avada: %s (%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "HOIATUS: %s võib olla riknenud (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "VIGA salvestades osafaili: %s (%s ==> %s)"
 
@@ -9778,6 +9774,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "HOIATUS: Katkestatud failde loetelu on riknenud, sisaldab riknenud päist."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

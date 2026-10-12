@@ -1325,21 +1325,22 @@ msgstr "用户 %s（%u）请求目录 %s 的共享文件列表 -> 已忽略"
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "无法获取用户 %s 的共享文件"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "警告：%s 文件无法打开。"
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "警告：已取消文件列表损坏，包含有非法头部。"
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "警告：%s可能已损坏（%i）"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "读取 %s 文件时发生 IO 错误：%s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "保存 %s 文件时发生错误：%s"
@@ -6206,11 +6207,6 @@ msgstr "无法读取 %s（%s）"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "警告：%s可能已损坏（%i）"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "part 文件存盘时发生错误：%s（%s => %s）"
 
@@ -9763,6 +9759,9 @@ msgstr "Kad 无法加载其已保存的索引。现有的索引文件被保留�
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr "Kad 无法保存索引。该文件之前的副本被保留。"
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "警告：已取消文件列表损坏，包含有非法头部。"
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

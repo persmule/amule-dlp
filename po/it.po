@@ -1335,21 +1335,22 @@ msgstr "L'utente %s (%u) ha richiesto la lista dei file condivisi in una cartell
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Impossibile ricevere i file condivisi dall'utente '%s'"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "ATTENZIONE: %s non può essere aperto."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "ATTENZIONE: la lista dei file conosciuti è danneggiata, contiene un'intestazione non valida."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "ATTENZIONE: %s potrebbe essere corrotto (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "Errore I/O durante la lettura del file %s: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Errore durante il salvataggio del file %s: %s"
@@ -6216,11 +6217,6 @@ msgstr "Impossibile aprire %s (%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "ATTENZIONE: %s potrebbe essere corrotto (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "Errore durante il salvataggio del file incompleto: %s (%s ==> %s)"
 
@@ -9775,6 +9771,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "ATTENZIONE: la lista dei file conosciuti è danneggiata, contiene un'intestazione non valida."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

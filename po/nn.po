@@ -1308,21 +1308,22 @@ msgstr "Brukar %s (%u) etterspurde lista over delte filer for katalogen «%s», 
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Greidde ikkje å hente delte filer frå brukar '%s'"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "ÅTVARING: %s kan ikkje opnast."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "ÅTVARING: Lista over kansellerte filer er korrupt, inneheld ugyldig overskrift."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "ÅTVARING: %s kan vere korrupt (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "IO-feil ved lesing av %s-fila: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Feil ved lagring av %s-fila: %s"
@@ -6220,11 +6221,6 @@ msgstr "Greidde ikkje å opne %s·(%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "ÅTVARING: %s kan vere korrupt (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "FEIL under lagring av delfila: %s·(%s·==>·%s)"
 
@@ -9793,6 +9789,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "ÅTVARING: Lista over kansellerte filer er korrupt, inneheld ugyldig overskrift."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

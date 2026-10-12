@@ -1305,21 +1305,22 @@ msgstr "A(z) %s (%u) felhasználó lekérdezte a nem létező '%s' könyvtárban
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Megosztott fájlok lehozatala sikertelen a(z) '%s' felhasználótól"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "FIGYELEM: %s nem nyitható meg."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "FIGYELEM: A megszakított fájlok listája sérült, érvénytelen fejlécet tartalmaz."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "FIGYELEM: %s lehet, hogy sérült (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "IO hiba a %s fájl olvasása közben: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Hiba a %s fájl mentése közben: %s"
@@ -6189,11 +6190,6 @@ msgstr "A(z) %s (%s) megnyitása sikertelen"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "FIGYELEM: %s lehet, hogy sérült (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "HIBA a fájlrész mentésénél: %s (%s ==> %s)"
 
@@ -9736,6 +9732,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "FIGYELEM: A megszakított fájlok listája sérült, érvénytelen fejlécet tartalmaz."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

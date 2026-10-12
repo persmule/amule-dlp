@@ -1309,21 +1309,22 @@ msgstr "Kullanıcı %s (%u), var olmayan '%s' dizini için paylaşılmış dosya
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "'%s' kullanıcısının paylaşılmış dosyalarını alma başarısız"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "UYARI: %s açılamıyor."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "UYARI: İptal edilen dosya listesi bozuk. Geçersiz başlık içeriyor."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "UYARI: %s bozulmuş olabilir (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "%s dosyası okumada IO hatası: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "%s dosyası kaydedilirken hata: %s"
@@ -6186,11 +6187,6 @@ msgstr "%s (%s) açma başarısız"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "UYARI: %s bozulmuş olabilir (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "Parça dosyası kaydedilirken HATA: %s (%s ==> %s)"
 
@@ -9750,6 +9746,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "UYARI: İptal edilen dosya listesi bozuk. Geçersiz başlık içeriyor."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

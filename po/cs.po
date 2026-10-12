@@ -1310,21 +1310,22 @@ msgstr "Uživatel %s (%u) požádal o seznam sdílených souborů v neexistujíc
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Seznam sdílených souborů uživatele '%s' se nepodařilo získat"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "VAROVÁNÍ: %s nelze otevřít."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "VAROVÁNÍ: Seznam zrušených souborů je poškozený a obsahuje neplatnou hlavičku."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "VAROVÁNÍ: %s může být poškozený (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "Chyba I/O při čtení souboru %s: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Chyba při ukládání souboru %s: %s"
@@ -6204,11 +6205,6 @@ msgstr "%s se nepodařilo otevřít (%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "VAROVÁNÍ: %s může být poškozený (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "CHYBA při ukládání částečného souboru: %s (%s ==> %s)"
 
@@ -9794,6 +9790,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "VAROVÁNÍ: Seznam zrušených souborů je poškozený a obsahuje neplatnou hlavičku."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

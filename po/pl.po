@@ -1314,21 +1314,22 @@ msgstr "Użytkownik %s (%u) zażądał listy udostępnionych plików dla nieistn
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Nieudane pobieranie udostępnionych plików od użytkownika '%s'"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "UWAGA: %s nie może być otwarty."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "OSTRZEŻENIE: Anulowana lista plików uszkodzona, zawiera nieprawidłowy nagłówek."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "OSTRZEŻENIE: %s może być uszkodzony (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "Błąd IO podczas odczytu pliku %s: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Błąd podczas zapisywania pliku %s: %s"
@@ -6244,11 +6245,6 @@ msgstr "Nie udało się otworzyć: %s (%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "OSTRZEŻENIE: %s może być uszkodzony (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "BŁĄD podczas zapisywania pliku części: %s (%s ==> %s)"
 
@@ -9842,6 +9838,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "OSTRZEŻENIE: Anulowana lista plików uszkodzona, zawiera nieprawidłowy nagłówek."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

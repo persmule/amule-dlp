@@ -1316,21 +1316,22 @@ msgstr "Uporabnik %s (%u) je zahteval seznam deljenih datotek za mapo »%s« →
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Ni bilo mogoče dobiti deljenih datotek od uporabnika »%s«"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "OPOZORILO: %s ni moč odpreti."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "OPOZORILO: Seznam preklicanih datotek je pokvarjen, vsebuje neveljavno glavo."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "OPOZORILO: %s je morda pokvarjena (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "Vhodno/izhodna napaka med branjem datoteke %s: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Napaka med shranjevanjem datoteke %s: %s"
@@ -6268,11 +6269,6 @@ msgstr "Ni bilo mogoče odpreti %s (%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "OPOZORILO: %s je morda pokvarjena (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "NAPAKA med shranjevanjem delne datoteke: %s (%s → %s)"
 
@@ -9890,6 +9886,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "OPOZORILO: Seznam preklicanih datotek je pokvarjen, vsebuje neveljavno glavo."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."
