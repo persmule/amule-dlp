@@ -61,6 +61,7 @@ there client on the eMule forum..
 #include "../../ClientList.h"
 #include "../../Statistics.h"
 #include "../../MemFile.h"
+#include "../../KadBuddyCallback.h"
 #include "../../updownclient.h"
 #include "../../ClientTCPSocket.h"
 #include "../../Logger.h"
@@ -1771,18 +1772,12 @@ void CKademliaUDPListener::ProcessCallbackRequest(const uint8_t *packetData,
 	CUpDownClient *buddy = theApp->clientlist->GetBuddy();
 	if (buddy != NULL) {
 		CMemFile bio(packetData, lenPacket);
-		CUInt128 check = bio.ReadUInt128();
-		// JOHNTODO: Begin filtering bad buddy ID's..
-		// CUInt128 bud(buddy->GetBuddyID());
-		CUInt128 file = bio.ReadUInt128();
-		uint16_t tcp = bio.ReadUInt16();
+		CMemFile packetdata(lenPacket + 6);
+		if (!BuildBuddyCallback(bio, CUInt128(buddy->GetBuddyID()), ip, packetdata)) {
+			return;
+		}
 
 		if (buddy->GetSocket()) {
-			CMemFile packetdata(lenPacket + 6);
-			packetdata.WriteUInt128(check);
-			packetdata.WriteUInt128(file);
-			packetdata.WriteUInt32(ip);
-			packetdata.WriteUInt16(tcp);
 			CPacket *packet = new CPacket(packetdata, OP_EMULEPROT, OP_CALLBACK);
 			AddDebugLogLineN(logLocalClient, "Local Client: OP_CALLBACK to " + KadIPToString(ip));
 			buddy->GetSocket()->SendPacket(packet);

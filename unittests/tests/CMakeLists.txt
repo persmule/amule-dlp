@@ -77,6 +77,21 @@ add_test (NAME KadCallbackPolicyTest COMMAND KadCallbackPolicyTest)
 target_include_directories (KadCallbackPolicyTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries (KadCallbackPolicyTest muleunit mulecommon)
 
+# Validate and serialize the production buddy callback relay without live sockets.
+add_executable (KadBuddyCallbackTest
+	KadBuddyCallbackTest.cpp
+	${CMAKE_SOURCE_DIR}/src/Tag.cpp
+	${CMAKE_SOURCE_DIR}/src/SafeFile.cpp
+	${CMAKE_SOURCE_DIR}/src/MemFile.cpp
+	${CMAKE_SOURCE_DIR}/src/kademlia/utils/UInt128.cpp
+	${CMAKE_SOURCE_DIR}/src/LoggerConsole.cpp
+)
+add_test (NAME KadBuddyCallbackTest COMMAND KadBuddyCallbackTest)
+target_include_directories (KadBuddyCallbackTest PRIVATE
+	${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/include
+)
+target_link_libraries (KadBuddyCallbackTest muleunit mulecommon)
+
 # Buddy keepalives and receive expiry with a deterministic monotonic clock.
 add_executable (KadBuddyLivenessTest KadBuddyLivenessTest.cpp)
 add_test (NAME KadBuddyLivenessTest COMMAND KadBuddyLivenessTest)
