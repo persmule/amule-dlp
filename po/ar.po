@@ -1308,21 +1308,22 @@ msgstr "طلب المستخدم %s (%u) قائمة الملفات المشترك
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "فشل استرجاع الملفات المشتركة من المستخدم '%s'"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "تحذير: تعذّر فتح %s."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "تحذير: قائمة الملفات الملغاة تالفة، تحتوي على ترويسة غير صالحة."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "تحذير: من المحتمل أن %s تالف (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "خطأ إدخال/إخراج أثناء قراءة الملف %s: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "خطأ أثناء حفظ الملف %s: %s"
@@ -6210,11 +6211,6 @@ msgstr "فشل لفتح %s (%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "تحذير: من المحتمل أن %s تالف (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "خطأ أثناء حفظ الملف الجزئي: %s (%s ==> %s)"
 
@@ -9773,6 +9769,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "تحذير: قائمة الملفات الملغاة تالفة، تحتوي على ترويسة غير صالحة."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

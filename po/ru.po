@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-11 09:46+0000\n"
+"PO-Revision-Date: 2026-10-12 16:51+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -1335,21 +1335,22 @@ msgstr "Пользователь %s (%u) запросил список публ�
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Не удалось получить список доступных файлов от '%s'"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "ПРЕДУПРЕЖДЕНИЕ: файл %s не может быть открыт."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "ПРЕДУПРЕЖДЕНИЕ: Список отменённых файлов повреждён, содержит неверный заголовок."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "ПРЕДУПРЕЖДЕНИЕ: %s возможно поврежден (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "Ошибка ввода/вывода при чтении файла %s: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Ошибка при сохранении файла %s: %s"
@@ -5315,11 +5316,11 @@ msgstr "Принимать внешние соединения"
 
 #: src/muuli_wdr.cpp
 msgid "IP of the listening interface:"
-msgstr "IP прослушиваемого интерфейса:"
+msgstr "IP интерфейса прослушивания:"
 
 #: src/muuli_wdr.cpp
 msgid "Enter here a valid ip in the a.b.c.d format for the listening EC interface. An empty field or 0.0.0.0 will mean any interface."
-msgstr "Введите верный IP формате A.B.C.D для прослушиваемого интерфейса внешних соединений. Пустое поле или 0.0.0.0 — любой интерфейс."
+msgstr "Укажите верный IP-адрес формате A.B.C.D для прослушиваемого интерфейса внешних соединений. Пустое поле или 0.0.0.0 — любой интерфейс."
 
 #: src/muuli_wdr.cpp
 msgid "TCP port:"
@@ -6255,11 +6256,6 @@ msgstr "Не удалось восстановить информацию о ф�
 #, c-format
 msgid "Failed to open %s (%s)"
 msgstr "Не удалось открыть %s (%s)"
-
-#: src/PartFile.cpp
-#, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "ПРЕДУПРЕЖДЕНИЕ: %s возможно поврежден (%i)"
 
 #: src/PartFile.cpp
 #, c-format
@@ -9856,6 +9852,9 @@ msgstr "Kad не смогла подгрузить сохранённый инд
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr "Kad не смогла сохранить индекс. Предыдущая копия этого файла сохранена."
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "ПРЕДУПРЕЖДЕНИЕ: Список отменённых файлов повреждён, содержит неверный заголовок."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

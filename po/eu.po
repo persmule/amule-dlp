@@ -1310,21 +1310,22 @@ msgstr "%s (%u) erabiltzaileak ez dagoen %s direktorioaren partekatutako fitxate
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Huts '%s' erabiltzailearen partekatutako fitxategiak jasotzerakoan"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "Oharra: %s ezin da ireki."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "Abisua: Utzitako fitxategi zerrenda hondaturik dago, buru baliogabeak ditu."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "ABISUA: %s agian hondaturik dago (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "SI errorea %s fitxategia irakurtzean: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Errorea %s fitxategia gordetzerakoan: %s"
@@ -6216,11 +6217,6 @@ msgstr "Huts egin du irekitzerakoan: %s (%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "ABISUA: %s agian hondaturik dago (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "ERROREA zati fitxategia gordetzerakoan: %s (%s ==> %s)"
 
@@ -9788,6 +9784,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "Abisua: Utzitako fitxategi zerrenda hondaturik dago, buru baliogabeak ditu."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

@@ -1309,21 +1309,22 @@ msgstr "사용자 %s (%u)가 존재하지 않는 폴더 '%s'에 대한 공유 �
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "사용자 %s로부터 공유파일을 찾지 못했습니다."
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "경고: %s을(를) 열 수 없습니다."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "경고: 취소된 파일 목록이 손상되었으며 잘못된 헤더가 포함되어 있습니다."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "경고: %s 파일이 손상되었을 수 있습니다 (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "%s 파일을 읽는 중 입출력 오류 발생: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "%s 파일을 저장하는 중 오류 발생: %s"
@@ -6212,11 +6213,6 @@ msgstr "%s(%s)을 열지 못했습니다."
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "경고: %s 파일이 손상되었을 수 있습니다 (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "부분파일을 저장하는 동안에 오류: %s (%s ==> %s)"
 
@@ -9782,6 +9778,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "경고: 취소된 파일 목록이 손상되었으며 잘못된 헤더가 포함되어 있습니다."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

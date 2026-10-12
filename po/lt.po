@@ -1312,21 +1312,22 @@ msgstr "Naudotojas %s (%u) paprašė dalinamų failų sąrašo neegzistuojančia
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Nepavyko gauti dalinamų failų iš vartotojo „%s“"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "DĖMESIO: nepavyksta atverti %s."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "DĖMESIO: atšauktų failų sąrašas sugadintas, jame yra netinkama antraštė."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "DĖMESIO: %s gali būti sugadintas (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "IO klaida skaitant failą %s: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Klaida įrašant failą %s: %s"
@@ -6245,11 +6246,6 @@ msgstr "Nepavyko atverti %s (%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "DĖMESIO: %s gali būti sugadintas (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "KLAIDA: įrašant dalių failą įvyko klaida: %s (%s ==> %s)"
 
@@ -9841,6 +9837,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "DĖMESIO: atšauktų failų sąrašas sugadintas, jame yra netinkama antraštė."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

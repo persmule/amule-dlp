@@ -1306,21 +1306,22 @@ msgstr "Utilizatorul %s (%u) a solicitat lista fișierelor partajate pentru un d
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "A eșuat preluarea fișierelor partajate de la utilizatorul '%s'"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "ATENȚIE: %s nu poate fi deschis."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "ATENȚIE: S-a anulat lista de fișiere coruptă, conține antet nevalid."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "ATENȚIE: %s ar putea fi corupt (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "Eroare IO în timpul citirii fișierului %s : %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Eroare în timpul salvării fișierului %s : %s"
@@ -6246,11 +6247,6 @@ msgstr "A eșuat deschiderea %s (%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "ATENȚIE: %s ar putea fi corupt (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "EROARE în timpul salvării fișierului parțial: %s (%s ==> %s)"
 
@@ -9844,6 +9840,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "ATENȚIE: S-a anulat lista de fișiere coruptă, conține antet nevalid."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

@@ -1329,21 +1329,22 @@ msgstr "Usuário %s (%u) solicitou sua lista de compartilhados para pasta não e
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Falha ao receber lista de compartilhamentos do usuário '%s'"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "CUIDADO: %s não pode ser aberto."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "CUIDADO: Cancela lista de arquivos corrompida, contém cabeçalho inválido."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "CUIDADO: %s pode estar corrompido (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "Erro de I/O ao ler arquivo %s: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Erro ao salvar arquivo %s: %s"
@@ -6199,11 +6200,6 @@ msgstr "Falha ao abrir %s (%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "CUIDADO: %s pode estar corrompido (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "Erro ao salvar arquivo .part: %s (%s ==> %s)"
 
@@ -9758,6 +9754,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "CUIDADO: Cancela lista de arquivos corrompida, contém cabeçalho inválido."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

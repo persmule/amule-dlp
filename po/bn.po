@@ -1295,21 +1295,22 @@ msgstr "ব্যবহারকারী %s (%u) অস্তিত্বহী
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "ব্যবহারকারী '%s' থেকে শেয়ার করা ফাইল আনতে ব্যর্থ"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "সতর্কতা: %s খোলা যাচ্ছে না।"
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "সতর্কতা: বাতিল করা ফাইল তালিকা ক্ষতিগ্রস্ত, এতে অবৈধ হেডার আছে।"
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "সতর্কতা: %s ক্ষতিগ্রস্ত হতে পারে (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "%s ফাইল পড়ার সময় IO ত্রুটি: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "%s ফাইল সংরক্ষণের সময় ত্রুটি: %s"
@@ -6167,11 +6168,6 @@ msgstr "%s (%s) খুলতে ব্যর্থ"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "সতর্কতা: %s ক্ষতিগ্রস্ত হতে পারে (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "পার্ট ফাইল সংরক্ষণে ত্রুটি: %s (%s ==> %s)"
 
@@ -9720,6 +9716,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "সতর্কতা: বাতিল করা ফাইল তালিকা ক্ষতিগ্রস্ত, এতে অবৈধ হেডার আছে।"
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

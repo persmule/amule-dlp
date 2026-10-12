@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: aMule GIT\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-10 14:47+0000\n"
+"PO-Revision-Date: 2026-10-12 16:51+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: none\n"
 "Language: lv\n"
@@ -481,7 +481,7 @@ msgstr "tīmekļa serveris darbojas ar pid %d"
 
 #: src/amule.cpp
 msgid "You requested to run web server on startup, but the amuleweb binary cannot be run. Please install the package containing aMule web server, or build aMule from source with -DBUILD_WEBSERVER=YES and install it."
-msgstr "Jūs esiet iespējojuši 'Kad palaiž, palaist arī tīmekļa serveri' iestatījumu, taču amuleweb izpildāmo (bināro) datni nevar palaist. Lūdzu, uzstādiet pakotni, kas satur aMule tīmekļa serveri (amuleweb), vai pārkompilējiet aMule no pirmkoda ar -DBUILD_WEBSERVER=YES parametru un uzstādiet to."
+msgstr "Jūs esiet iespējojuši 'Kad palaiž, palaist arī tīmekļa serveri' iestatījumu, taču amuleweb izpilddatni nevar palaist. Lūdzu, uzstādiet pakotni, kas satur aMule tīmekļa serveri (amuleweb), vai pārkompilējiet aMule no pirmkoda ar -DBUILD_WEBSERVER=YES parametru un uzstādiet to."
 
 #: src/amule.cpp src/amule-remote-gui.cpp src/DownloadQueue.cpp
 #: src/PrefsUnifiedDlg.cpp src/SearchDlg.cpp
@@ -828,7 +828,7 @@ msgstr "Tīkli"
 
 #: src/amuleDlg.cpp
 msgid "Searches"
-msgstr "Meklēšana"
+msgstr "Meklēt / Meklējumi"
 
 #: src/amuleDlg.cpp src/DownloadListCtrl.cpp src/muuli_wdr.cpp
 #: src/Statistics.cpp
@@ -1006,7 +1006,7 @@ msgstr "Tīklu logs"
 
 #: src/amuleDlg.cpp
 msgid "Searches Window"
-msgstr "Meklēšanas logs"
+msgstr "Meklēt / Meklējumi logs"
 
 #: src/amuleDlg.cpp
 msgid "Downloads Window"
@@ -1303,21 +1303,22 @@ msgstr "Dalībnieks %s (%u) pieprasīja kopīgoto datņu sarakstu neeksistējoš
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Neizdevās iegūt dalībnieka '%s' kopīgoto datņu sarakstu"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "BRĪDINĀJUMS: %s nevar atvērt."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "BRĪDINĀJUMS: atcelto datņu saraksts ir bojāts, satur nederīgu galveni."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "BRĪDINĀJUMS: %s, iespējams, ir bojāta (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "IO kļūda, lasot %s datni: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Kļūda, saglabājot %s datni: %s"
@@ -6214,11 +6215,6 @@ msgstr "Neizdevās atvērt %s (%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "BRĪDINĀJUMS: %s, iespējams, ir bojāta (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "KĻŪDA, saglabājot daļējo datni: %s (%s ==> %s)"
 
@@ -6740,7 +6736,7 @@ msgstr "Izvēlēties pārlūkprogrammu"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Select ffprobe binary"
-msgstr "Izvēlēties ffprobe bināro datni"
+msgstr "Atlasīt ffprobe izpilddatni"
 
 #: src/PrefsUnifiedDlg.cpp
 #, c-format
@@ -9801,6 +9797,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "BRĪDINĀJUMS: atcelto datņu saraksts ir bojāts, satur nederīgu galveni."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

@@ -1309,21 +1309,22 @@ msgstr "Bruger %s (%u) anmodede om liste over delte filer for ikke-eksisterende 
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Hentelse af delte fier fra bruger '%s' fejlede"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "ADVARSEL: %s kan ikke åbnes."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "ADVARSEL: Annulleret filliste er beskadiget og indeholder ugyldig header."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "ADVARSEL: %s kan være beskadiget (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "IO-fejl ved læsning af %s-fil: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Fejl ved lagring af %s-fil: %s"
@@ -6215,11 +6216,6 @@ msgstr "Kunne ikke åbne %s (%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "ADVARSEL: %s kan være beskadiget (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "FEJL under gemning af partfil: %s (%s ==> %s)"
 
@@ -9778,6 +9774,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "ADVARSEL: Annulleret filliste er beskadiget og indeholder ugyldig header."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

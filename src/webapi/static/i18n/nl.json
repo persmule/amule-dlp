@@ -2,5 +2,21 @@
   "shared_detail_complete_src": "Complete bronnen",
   "downloads_detail_tip_saved_ich": "Pakketten hersteld door ICH (Intelligente Corruptie Afhandeling) in plaats van ze opnieuw te downloaden.",
   "downloads_detail_lost_corruption": "Verloren door beschadiging",
-  "prefs_group_ich": "Intelligente Corruptie Afhandeling (I.C.H.)"
+  "prefs_group_ich": "Intelligente Corruptie Afhandeling (I.C.H.)",
+  "common_err_forbidden": "Verboden: {message}",
+  "common_network_error": "Netwerkfout: {message}",
+  "common_err_bad_request": "Ongeldig verzoek: {message}",
+  "common_err_unauthorized": "Niet bevoegd.",
+  "common_err_method_not_allowed": "Methode niet toegestaan.",
+  "common_err_partfile_unsupported": "Verifiëer Lokale Gegevens wordt niet ondersteund terwijl het bestand nog gedownload wordt.",
+  "common_err_internal_error": "Serverfout: {message}",
+  "common_err_ec_unavailable": "Geen verbinding met de aMule kern ({message})",
+  "common_bulk_partial": "{failed} van de {total} mislukt: {message}",
+  "common_err_rate_limited": "Te veel verzoeken. Probeer later opnieuw.",
+  "common_apierr_Server not added": "Server niet toegevoegd",
+  "common_err_kad_more_exhausted": "Deze zoekopdracht kan niet verder uitgebreid worden. Voer het opnieuw uit voor meer resultaten.",
+  "common_err_amuled_rejected": "aMule weigerde de bewerking: {message}",
+  "common_err_not_found": "Niet gevonden: {message}",
+  "common_no": "Nee",
+  "common_yes": "Ja"
 }

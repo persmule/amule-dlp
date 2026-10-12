@@ -1294,21 +1294,22 @@ msgstr "Korisnik %s (%u) ja zahtio tvoju listu dijeljenih fajlova za direktorij 
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr ""
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr ""
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
 msgstr ""
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, fuzzy, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "Neocekivana fajl greska prilikom pisanja %s : %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, fuzzy, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Greska prilikom spajanja sa %s (%s:%i): %d"
@@ -6206,11 +6207,6 @@ msgstr ""
 #, c-format
 msgid "Failed to open %s (%s)"
 msgstr "Neuspjelo otvaranje %s (%s)"
-
-#: src/PartFile.cpp
-#, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr ""
 
 #: src/PartFile.cpp
 #, c-format

@@ -1308,21 +1308,22 @@ msgstr "Потребител %s (%u) заяви списък със сподел
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Неуспешно извличане на споделени файлове от потребител „%s“"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "ПРЕДУПРЕЖДЕНИЕ: %s не може да бъде отворен."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "ПРЕДУПРЕЖДЕНИЕ: Списъкът с отказани файлове е повреден, съдържа невалидно заглавие."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "ПРЕДУПРЕЖДЕНИЕ: %s може да е повреден (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "Грешка при вход/изход при четене на файл %s: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Грешка при запазване на файл %s: %s"
@@ -6223,11 +6224,6 @@ msgstr "Неуспешно отваряне на %s (%s)"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "ПРЕДУПРЕЖДЕНИЕ: %s може да е повреден (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "ГРЕШКА при запазване на part файл: %s (%s ==> %s)"
 
@@ -9785,6 +9781,9 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "ПРЕДУПРЕЖДЕНИЕ: Списъкът с отказани файлове е повреден, съдържа невалидно заглавие."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

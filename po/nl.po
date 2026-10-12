@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-11 09:44+0000\n"
+"PO-Revision-Date: 2026-10-12 16:51+0000\n"
 "Last-Translator: Marcel Pol <marcel@timelord.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
@@ -1324,21 +1324,22 @@ msgstr "Gebruiker %s (%u) vroeg uw gedeelde-bestandenlijst van niet-bestaande ma
 msgid "Failed to retrieve shared files from user '%s'"
 msgstr "Kon gedeelde bestanden niet ontvangen van gebruiker '%s'"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "WARNING: %s cannot be opened."
 msgstr "WAARSCHUWING: %s kan niet geopend worden."
 
-#: src/CanceledFileList.cpp
-msgid "WARNING: Canceled file list corrupted, contains invalid header."
-msgstr "WAARSCHUWING: Geannuleerde-bestandenlijst beschadigd, bevat ongeldige header."
+#: src/HashListFile.cpp src/PartFile.cpp
+#, c-format
+msgid "WARNING: %s might be corrupted (%i)"
+msgstr "WAARSCHUWING: %s is mogelijk beschadigd (%i)"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp src/SearchList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
 msgstr "IO-fout bij het lezen van bestand %s: %s"
 
-#: src/CanceledFileList.cpp src/KnownFileList.cpp
+#: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
 msgid "Error while saving %s file: %s"
 msgstr "Fout bij het bewaren van bestand %s: %s"
@@ -2778,7 +2779,7 @@ msgstr "OK"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
-msgstr ""
+msgstr "Het commando is geen uitvoerbaar bestand."
 
 #: src/ExternalCommand.cpp
 msgid "The command template or an argument contains a NUL character."
@@ -2794,11 +2795,11 @@ msgstr "Een gebeurteniswaarde zou gebruikt worden als code voor de interpreter, 
 
 #: src/ExternalCommand.cpp
 msgid "A command-shell argument contains a double quote, percent sign, exclamation mark, or line break."
-msgstr ""
+msgstr "Een opdracht-shell argument bevat een dubbel aanhalingsteken, percentageteken, uitroepteken of regeleindeteken."
 
 #: src/ExternalCommand.cpp
 msgid "cmd.exe requires a fixed builtin or an explicit .exe, .com, .bat, or .cmd target followed by separate data arguments."
-msgstr ""
+msgstr "cmd.exe vereist een vaste builtin of een expliciet .exe, .com, .bat of .cmd doel gevolgd door zelfstandige gegevensargumenten."
 
 #: src/FileLaunch.cpp
 msgid "File preview"
@@ -2807,7 +2808,7 @@ msgstr "Voorbeeld"
 #: src/FileLaunch.cpp
 #, c-format
 msgid "Media-player command '%s' was not run: %s"
-msgstr ""
+msgstr "Mediaspeler commando '%s' werd niet uitgevoerd: %s"
 
 #: src/FileLaunch.cpp
 #, c-format
@@ -6207,11 +6208,6 @@ msgstr "Kon %s (%s) niet openen"
 
 #: src/PartFile.cpp
 #, c-format
-msgid "WARNING: %s might be corrupted (%i)"
-msgstr "WAARSCHUWING: %s is mogelijk beschadigd (%i)"
-
-#: src/PartFile.cpp
-#, c-format
 msgid "ERROR while saving partfile: %s (%s ==> %s)"
 msgstr "FOUT bij het bewaren van deelbestand: %s (%s ==> %s)"
 
@@ -6868,6 +6864,9 @@ msgid ""
 "Chat and observed download completions support GUI commands with a remote core.\n"
 "Already completed downloads do not run commands at first sync or reconnect."
 msgstr ""
+"Kerncommando's moeten worden geconfigureerd in het amule.conf van de daemon.\n"
+"Chat en bekeken voltooide downloads ondersteunen GUI-commando's met een externe kern.\n"
+"Al voltooide downloads voeren geen commando's uit bij eerste synchronizatie of herverbinding."
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "The following variables will be replaced:"
@@ -8976,7 +8975,7 @@ msgstr "Stoppen van upload van bestand: %s"
 #: src/UserEvents.cpp
 #, c-format
 msgid "Command '%s' was not run on '%s' event: %s"
-msgstr ""
+msgstr "Commando '%s' werd niet uitgeoerd tijdens gebeurtenis '%s': %s"
 
 #: src/UserEvents.cpp
 #, c-format
@@ -8988,9 +8987,8 @@ msgid "Download completed"
 msgstr "Download voltooid"
 
 #: src/UserEvents.h
-#, fuzzy
 msgid "The full path to the file (empty in remote GUI mode)."
-msgstr "Het volledige pad naar het bestand."
+msgstr "Het volledige pad naar het bestand, leeg in externe GUI-modus)."
 
 # re-check this
 #: src/UserEvents.h
@@ -9755,20 +9753,23 @@ msgstr "Gebruikersgegevens op $APPDATA\\aMule worden verwijderd..."
 #: src/kademlia/kademlia/Indexed.cpp
 #, c-format
 msgid "Kad could not read %s. It was renamed to %s.bad, and a new index will be saved at shutdown."
-msgstr ""
+msgstr "Kadd kon %s niet lezen. Het was hernoemd naar %s.bad en een nieuwe index zal worden opgeslagen bij het afluiten."
 
 #: src/kademlia/kademlia/Indexed.cpp
 #, c-format
 msgid "Kad could not preserve the unreadable index %s as %s.bad. Its original file will not be overwritten."
-msgstr ""
+msgstr "Kad kon de onleesbare index %s niet bewaren als %s.bad. Het oorspronkelijke bestand zal niet overschreven worden."
 
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not load its saved index. Existing index files were preserved."
-msgstr ""
+msgstr "Kad kon de opgeslagen index niet laden. Bestaande indexbestanden zijn bewaard."
 
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
-msgstr ""
+msgstr "Kad kon een index niet opslaan. De vorige kopie van dat bestand is bewaard."
+
+#~ msgid "WARNING: Canceled file list corrupted, contains invalid header."
+#~ msgstr "WAARSCHUWING: Geannuleerde-bestandenlijst beschadigd, bevat ongeldige header."
 
 #, c-format
 #~ msgid "Failed to load country data for '%s'."

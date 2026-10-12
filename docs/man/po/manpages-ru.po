@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: manpages-ru\n"
 "POT-Creation-Date: 2026-10-07 10:08-0400\n"
-"PO-Revision-Date: 2026-10-08 11:09+0000\n"
+"PO-Revision-Date: 2026-10-12 16:51+0000\n"
 "Last-Translator: Sebastiano Pistore <SebastianoPistore.info@protonmail.ch>\n"
 "Language-Team: Russian <LL@li.org>\n"
 "Language: ru\n"
@@ -1018,12 +1018,12 @@ msgstr "AMULEWEB"
 #: amuleweb.1.in
 #, no-wrap
 msgid "aMule webserver v@PACKAGE_VERSION@"
-msgstr "Вебсервер aMule v@PACKAGE_VERSION@"
+msgstr "Веб-сервер aMule v@PACKAGE_VERSION@"
 
 #. type: Plain text
 #: amuleweb.1.in
 msgid "amuleweb - aMule web server"
-msgstr "amuleweb - вебсервер aMule"
+msgstr "amuleweb — веб-сервер aMule"
 
 #. type: Plain text
 #: amuleweb.1.in
