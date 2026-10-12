@@ -3287,6 +3287,35 @@ msgstr "無法重新命名新的 %s 檔案，停止更新。"
 msgid "IP filter is ready"
 msgstr "IP 過濾表已備妥"
 
+#: src/KadContactHistogram.h
+msgid "Contacts grouped by the first twelve bits of their KadID. Blue: all contacts; green: verified addresses. The marker shows your own KadID; clustering near it is expected."
+msgstr ""
+
+#: src/KadContactHistogram.h
+msgid "Loading contact distribution..."
+msgstr ""
+
+#: src/KadContactHistogram.h
+msgid "This core does not send the contact distribution. Update the core to see the chart."
+msgstr ""
+
+#: src/KadContactHistogram.h
+msgid "The core sent contact distribution data that could not be read."
+msgstr ""
+
+#: src/KadContactHistogram.h
+#, c-format
+msgid "Routing-table contacts: %u; verified: %u; distinct /24s: %u"
+msgstr ""
+
+#: src/KadDlg.cpp
+msgid "Requesting Kad lookup diagnostics..."
+msgstr ""
+
+#: src/KadDlg.cpp
+msgid "The connected core does not support Kad lookup diagnostics."
+msgstr ""
+
 #: src/KadDlg.cpp src/muuli_wdr.cpp src/StatisticsDlg.cpp
 msgid "Current"
 msgstr "目前"
@@ -3332,6 +3361,22 @@ msgstr "這樣將會刪除您現有節點並重新啓動 Kad 連線。"
 msgid "Continue?"
 msgstr "繼續？"
 
+#: src/KadLookupView.h
+msgid "Kad lookup diagnostics"
+msgstr ""
+
+#: src/KadLookupView.h
+msgid "The core does not support Kad lookup diagnostics."
+msgstr ""
+
+#: src/KadLookupView.h
+msgid "Invalid Kad lookup diagnostics reply."
+msgstr ""
+
+#: src/KadLookupView.h
+msgid "Connection lost. Reconnect and request lookup diagnostics again."
+msgstr ""
+
 #: src/kademlia/kademlia/SearchManager.cpp
 msgid "Kademlia: search keyword too short"
 msgstr "Kad：關鍵字太短"
@@ -3365,6 +3410,122 @@ msgstr[0] "只有 %d 個 Kad 聯絡人，nods.dat 未寫入"
 msgid "Wrote %d Kad contact"
 msgid_plural "Wrote %d Kad contacts"
 msgstr[0] "已寫入 %d 個 Kad 聯絡人"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Node"
+msgstr "節點 (0)"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Complete node"
+msgstr "已完成"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "File"
+msgstr "檔案"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Keyword"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Notes"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Publish file"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Publish keyword"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Publish notes"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Find buddy"
+msgstr "沒有好友"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Find source"
+msgstr "檔案來源："
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Special node"
+msgstr "新節點"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "UDP firewall check"
+msgstr "防火牆內"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "type %u"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "Lookup %s (%s, %s): %u peers, %u overdue routing requests, %u omitted peers, %u evicted referrals"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "active lookup"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "finished lookup"
+msgstr "芬蘭語"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy, c-format
+msgid "Keyword: %s"
+msgstr "已過濾：%s"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "%s [%s], distance %s, Kad version %u (%s): %u routing requests, %u replies, last RTT %u ms, %u item requests, %u result packets, %u result records"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "awaiting reply"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "reply received"
+msgstr "未收到"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "+%u ms: %s referred %s (distance %s, %s)"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "closer to target"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "no closer to target"
+msgstr "(不明名稱)"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Overdue means a routing request unanswered for at least 3 seconds; late replies may still arrive. Result records are received records, not unique files. Only bounded recent history is retained."
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "No Kad lookup history available."
+msgstr "沒有選項"
 
 #: src/KnownFile.cpp
 msgid "Kad user"
@@ -5457,6 +5618,10 @@ msgstr "節點 (0)"
 #: src/muuli_wdr.cpp
 msgid "Enter the url to a nodes.dat file here and press the button to the left to update the list of known nodes."
 msgstr "輸入 nodes.dat 檔案的網址，並按下左邊的按鈕以更新已知節點清單。"
+
+#: src/muuli_wdr.cpp
+msgid "Lookup diagnostics"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Nodes stats"
@@ -9850,9 +10015,6 @@ msgstr ""
 
 #~ msgid "Bootstrap"
 #~ msgstr "啓動"
-
-#~ msgid "New node"
-#~ msgstr "新節點"
 
 #~ msgid "IP:"
 #~ msgstr "IP："
