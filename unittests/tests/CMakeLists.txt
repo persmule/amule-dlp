@@ -406,7 +406,8 @@ target_link_libraries (UtpSocketTransportTest
 
 add_executable (LibSocketTransportTest
 	LibSocketTransportTest.cpp
-	${CMAKE_SOURCE_DIR}/src/LibSocket.cpp
+	# The test includes LibSocket.cpp so it can drain the process-global io_context
+	# after joining CAsioService, including completions that intentionally queue no event.
 	# Same reason NetworkFunctionsTest compiles it: LibSocket.cpp includes
 	# LibSocketAsio.cpp, whose Windows interface-resolution path calls
 	# DetectNetworkInterfaces(), and this target does not link mulesocket.

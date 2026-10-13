@@ -863,9 +863,12 @@ void CECServerSocket::WriteDoneAndQueueEmpty()
 	// half-closed EC peer needs to be torn down. With the peer in kernel CLOSE-WAIT,
 	// writes silently succeed against the dead buffer and amuled spins indefinitely.
 	//
-	// Cap the dispatch depth so the chain returns to the event loop every MAX_DEPTH
-	// packets. Pending asio completions get processed in between; on a healthy peer the
-	// loop resumes when OnSend re-enters via the next one.
+	// Bound synchronous notification recursion so the main thread can return to the
+	// wx event loop. Reaching this limit does not schedule a continuation. Normal ASIO
+	// send completions notify OnSend only after a refused write; an accepted write alone
+	// does not guarantee another output event. Without a pending retry event, remaining
+	// updates wait until ECNotifier::NextPacketToSocket() or a client reply calls SendPacket().
+	// Continuous push draining requires an explicit deferred continuation.
 	static const int MAX_DEPTH = 8;
 	if (m_notification_dispatch_depth >= MAX_DEPTH) {
 		return;
