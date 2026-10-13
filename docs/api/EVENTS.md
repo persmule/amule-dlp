@@ -472,6 +472,16 @@ One event per message, **inbound and outbound alike**. An outbound one is how a 
 
 There is no separate "conversation started" event: a conversation that did not exist yet is implied by the first message carrying its `address`.
 
+#### `chat_session_updated`
+
+Emitted when a pending CAPTCHA changes, including expiry on peer disconnect or
+an answer sent by another client, even when no new message arrives. Re-read
+`GET /chats` for the pending image. A `null` id retires the old challenge.
+
+```json
+{ "address": "203.0.113.42:4662", "hash": "0123456789abcdef0123456789abcdef", "pending_captcha_id": null }
+```
+
 #### `chat_session_closed`
 
 ```json

@@ -66,6 +66,7 @@
 #include "ClientVersionString.h"
 #include "ClientList.h"       // Needed for CClientList
 #include "ChatSessionStore.h" // Needed for CChatSessionStore
+#include "ChatCaptcha.h"
 #ifndef AMULE_DAEMON
 #include "amuleDlg.h"      // Needed for CamuleDlg
 #include "CaptchaDialog.h" // Needed for CCaptchaDialog
@@ -1278,12 +1279,7 @@ void CUpDownClient::SendHelloTypePacket(CMemFile *data)
 	const uint32 uRequestsCryptLayer = thePrefs::IsClientCryptLayerRequested() ? 1 : 0;
 	const uint32 uRequiresCryptLayer = thePrefs::IsClientCryptLayerRequired() ? 1 : 0;
 	const uint32 uSupportsSourceEx2 = 1;
-#ifdef AMULE_DAEMON
-	// captcha for daemon/remotegui not supported for now
-	const uint32 uSupportsCaptcha = 0;
-#else
 	const uint32 uSupportsCaptcha = 1;
-#endif
 	// direct callback is only possible if connected to kad, tcp firewalled and verified UDP open (for
 	// example on a full cone NAT)
 	const bool udpFirewalled = Kademlia::CUDPFirewallTester::IsFirewalledUDP(true);
@@ -1535,6 +1531,13 @@ bool CUpDownClient::Disconnected(const wxString &DEBUG_ONLY(strReason), bool bFr
 		theApp->clientlist->AddDeadSource(this);
 		bDelete = true;
 	};
+
+	// A received CAPTCHA belongs to the connection that delivered it. A new
+	// connection must start with a normal message, not a stale solution.
+	if (GetChatCaptchaState() == CA_ACCEPTING || GetChatCaptchaState() == CA_CAPTCHARECV ||
+		GetChatCaptchaState() == CA_SOLUTIONSENT) {
+		m_nChatCaptchaState = CA_NONE;
+	}
 
 	// We keep chat partners in any case
 	if (GetChatState() != MS_NONE) {
@@ -3070,10 +3073,7 @@ bool CUpDownClient::SendChatMessage(const wxString &message)
 {
 	if (GetChatCaptchaState() == CA_CAPTCHARECV) {
 		m_nChatCaptchaState = CA_SOLUTIONSENT;
-	} else if (GetChatCaptchaState() == CA_SOLUTIONSENT) {
-		wxFAIL; // we responded to a captcha but didn't hear from the client afterwards - hopefully
-			// it's just lag and this message will get through
-	} else {
+	} else if (GetChatCaptchaState() != CA_SOLUTIONSENT) {
 		m_nChatCaptchaState = CA_ACCEPTING;
 	}
 
@@ -3241,84 +3241,59 @@ bool CUpDownClient::ShouldReceiveCryptUDPPackets() const
 		(thePrefs::IsClientCryptLayerRequested() || RequestsCryptLayer()));
 }
 
-#ifdef AMULE_DAEMON
-
-void CUpDownClient::ProcessCaptchaRequest(CMemFile *WXUNUSED(data)) {}
-void CUpDownClient::ProcessCaptchaReqRes(uint8 WXUNUSED(nStatus)) {}
-
-#else
-
 void CUpDownClient::ProcessCaptchaRequest(CMemFile *data)
 {
-	const CChatPeer id = GetChatPeer();
-	// received a captcha request, check if we actually accept it (only after sending a message ourself to
-	// this client)
-	if (GetChatCaptchaState() == CA_ACCEPTING && GetChatState() != MS_NONE &&
-		theApp->amuledlg->m_chatwnd->IsIdValid(id)) {
-		// read tags (for future use)
-		uint8 nTagCount = data->ReadUInt8();
-		if (nTagCount) {
-			AddDebugLogLineN(logClient,
-				CFormat("Received captcha request from client (%s) with (%u) tags") %
-					GetFullIP() % nTagCount);
-			// and ignore them for now
-			for (uint32 i = 0; i < nTagCount; i++) {
-				CTag tag(*data, true);
-			}
-		}
-
-		// sanitize checks - we want a small captcha not a wallpaper
-		uint32 nSize = (uint32)(data->GetLength() - data->GetPosition());
-
-		if (nSize > 128 && nSize < 4096) {
-			uint64 pos = data->GetPosition();
-			wxMemoryInputStream memstr(data->GetRawBuffer() + pos, nSize);
-			wxImage imgCaptcha(memstr, wxBITMAP_TYPE_BMP);
-
-			if (imgCaptcha.IsOk() && imgCaptcha.GetHeight() > 10 && imgCaptcha.GetHeight() < 50 &&
-				imgCaptcha.GetWidth() > 10 && imgCaptcha.GetWidth() < 150) {
-				m_nChatCaptchaState = CA_CAPTCHARECV;
-				CCaptchaDialog *dialog = new CCaptchaDialog(theApp->amuledlg, imgCaptcha, id);
-				dialog->Show();
-
-			} else {
-				AddDebugLogLineN(logClient,
-					CFormat("Received captcha request from client, processing image "
-						"failed or invalid pixel size (%s)") %
-						GetFullIP());
-			}
-		} else {
-			AddDebugLogLineN(logClient,
-				CFormat("Received captcha request from client, size sanitize check failed "
-					"(%u) (%s)") %
-					nSize % GetFullIP());
-		}
-	} else {
-		AddDebugLogLineN(logClient,
-			CFormat("Received captcha request from client, but don't accepting it at this time "
-				"(%s)") %
-				GetFullIP());
+	const CChatPeer peer = GetChatPeer();
+	if (GetChatCaptchaState() != CA_ACCEPTING || GetChatState() == MS_NONE || !theApp->chatsessions ||
+		!theApp->chatsessions->Find(peer)) {
+		AddDebugLogLineN(logClient, "Received unexpected chat CAPTCHA request from " + GetFullIP());
+		return;
 	}
+	// Reserved tags precede the bitmap; CMemFile/CTag reject truncated packets.
+	const uint8 count = data->ReadUInt8();
+	for (uint32 i = 0; i < count; ++i) {
+		CTag tag(*data, true);
+	}
+	const auto size = data->GetLength() - data->GetPosition();
+	const auto *image = data->GetRawBuffer() + data->GetPosition();
+	if (!theApp->chatsessions->AddCaptchaChallenge(peer, image, size)) {
+		AddDebugLogLineN(logClient, "Rejected invalid chat CAPTCHA from " + GetFullIP());
+		return;
+	}
+	m_nChatCaptchaState = CA_CAPTCHARECV;
+	m_chatCaptchaId = theApp->chatsessions->LastMsgId();
+#ifndef AMULE_DAEMON
+	if (theApp->amuledlg->m_chatwnd->IsIdValid(peer)) {
+		wxMemoryInputStream stream(image, size);
+		wxImage bitmap(stream, wxBITMAP_TYPE_BMP);
+		if (bitmap.IsOk()) {
+			auto *dialog = new CCaptchaDialog(theApp->amuledlg, bitmap, peer, m_chatCaptchaId);
+			dialog->Show();
+		}
+	}
+#endif
 }
 
-void CUpDownClient::ProcessCaptchaReqRes(uint8 nStatus)
+void CUpDownClient::ProcessCaptchaReqRes(uint8 status)
 {
-	const CChatPeer id = GetChatPeer();
-	if (GetChatCaptchaState() == CA_SOLUTIONSENT && GetChatState() != MS_NONE &&
-		theApp->amuledlg->m_chatwnd->IsIdValid(id)) {
-		wxASSERT(nStatus < 3);
-		m_nChatCaptchaState = CA_NONE;
-		theApp->amuledlg->m_chatwnd->ShowCaptchaResult(id, nStatus == 0);
-	} else {
-		m_nChatCaptchaState = CA_NONE;
+	const CChatPeer peer = GetChatPeer();
+	const bool expected = GetChatCaptchaState() == CA_SOLUTIONSENT && GetChatState() != MS_NONE;
+	if (!expected || status > 2) {
 		AddDebugLogLineN(logClient,
-			CFormat("Received captcha result from client, but not accepting it at this time "
-				"(%s)") %
+			CFormat("Received unexpected chat CAPTCHA result (%u) from %s") % status %
 				GetFullIP());
+		return;
 	}
+	m_nChatCaptchaState = CA_NONE;
+	if (theApp->chatsessions) {
+		theApp->chatsessions->AddCaptchaResult(peer, status);
+	}
+#ifndef AMULE_DAEMON
+	if (theApp->amuledlg->m_chatwnd->IsIdValid(peer)) {
+		theApp->amuledlg->m_chatwnd->ShowCaptchaResult(peer, status == 0);
+	}
+#endif
 }
-
-#endif // AMULE_DAEMON
 
 // Shared by both builds. The advanced spam filter (captcha + URL heuristic) is GUI-only --
 // CCaptchaGenerator lives in the monolithic target and the spam path touches the chat

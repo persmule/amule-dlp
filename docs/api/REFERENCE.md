@@ -3235,6 +3235,8 @@ curl -s -H "Authorization: Bearer $TOKEN" "http://$HOST/api/v1/chats"
       "client_ecid":     4382,
       "friend_ecid":     12,
       "connected":       true,
+      "pending_captcha_id": null,
+      "pending_captcha_image": null,
       "message_count":   14,
       "last_message_id":     91,
       "last_message_at": 1786652714,
@@ -3246,6 +3248,13 @@ curl -s -H "Authorization: Bearer $TOKEN" "http://$HOST/api/v1/chats"
 ```
 
 `name` falls back to the uppercase hash when known, otherwise `"IP: <ip> Port: <port>"`, matching desktop `ChatPeerFallbackName`. The same string appears in the SSE payload. `client_ecid` is `null` when the client is offline and `friend_ecid` is `null` when the client is not a friend — join either against [`GET /clients`](#get-apiv1clients) and [`GET /friends`](#get-apiv1friends). `connected` says whether a connection to the peer is actually up, which is not the same as `client_ecid` being non-null: the daemon holds a client object from the first contact attempt, so a conversation opened against an unreachable address has an ecid and is not online. `null` means the daemon does not report peer connectivity.
+
+`pending_captcha_id` on the chat session is the challenge message id while an
+answer is pending, otherwise `null`. `pending_captcha_image` holds its base64 BMP
+independently of transcript eviction, otherwise `null`. A disconnect or an answer
+from any client clears both fields and emits `chat_session_updated`, even without
+a new history row. Capture the id when composing an answer and send `captcha_id`
+to reject expiry races.
 
 `last_message` is `null` for a conversation that holds none; the key is always present. The full transcript is deliberately **not** on the list: 50 conversations at 200 messages each would be 10 000 objects per read. Use the messages endpoint below.
 
@@ -3276,6 +3285,13 @@ Served from the refresher snapshot — no EC roundtrip per request. Standard [li
 
 **Errors:** `404 not_found` (no such conversation), `400 bad_request` (malformed `{address}` or query), `503 ec_unsupported`, `503 ec_unavailable`.
 
+CAPTCHA entries use the same history cursor and `chat_message` event. A challenge
+adds `type: "captcha_challenge"` and `captcha_image` (a base64-encoded BMP) to the
+message object. A result adds `type: "captcha_result"` and `captcha_status`: `0`
+means accepted, `1` means failed with another attempt allowed, and `2` means no
+attempts remain. Ordinary messages omit these fields. The `text` field remains a
+readable explanation for clients that do not render CAPTCHA images.
+
 #### `POST /api/v1/chats/{address}/messages`
 
 **Auth:** `ADMIN`
@@ -3292,6 +3308,20 @@ curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/
   "message": { "id": 92, "direction": "out", "text": "hello", "sent_at": null } }
 ```
 
+To answer a challenge, send its text through this endpoint. A client presenting
+a dedicated answer dialog can include `captcha_id`, the challenge message's `id`:
+
+```json
+{ "text": "ABCD", "captcha_id": 92 }
+```
+
+`captcha_id` must be an integer in `1..4294967295`. If that exact challenge is no
+longer pending, the daemon rejects the answer with `409 captcha_expired` without
+sending it or reopening a conversation. An unknown hash-addressed conversation
+still returns `404 not_found`. After a retryable failure, send another ordinary
+message to request a new challenge. Retained challenge images are history, not a
+statement that the peer is still awaiting an answer.
+
 The created message stays in the body because the store-assigned `id` is only readable here. It is the same object shape [`GET /chats/{address}/messages`](#get-apiv1chatsaddressmessages) returns, emitted by the same writer, with one difference: `sent_at` is **`null`**, because `EC_OP_CHAT_SEND` answers with the message id and no timestamp. Read the timestamp back from [`GET /chats`](#get-apiv1chats) (as `last_message`), from the per-conversation messages endpoint, or from the `chat_message` SSE event.
 
 A legacy route key can create the conversation if it does not exist, so this doubles as "start a chat with this address". An unknown hash key cannot be dialed without a route and returns `404`; use the route from a chat row or friend record when starting a new legacy conversation.
@@ -3300,7 +3330,7 @@ The hash is the identity used for capable daemons. When a hash row also has an I
 
 Returns `202 Accepted`, not `200`: the core acknowledges that it queued the message on the client connection, not that the client received it. An unreachable client is not an error — the desktop behaves the same, optimistically showing `*** Connecting to Client ***`.
 
-**Errors:** `400 bad_request`, `404 not_found` (no client at that address to send to), `503 ec_unsupported`, `503 ec_unavailable`.
+**Errors:** `400 bad_request`, `409 captcha_expired`, `404 not_found` (no client at that address to send to), `503 ec_unsupported`, `503 ec_unavailable`.
 
 #### `DELETE /api/v1/chats/{address}`
 
@@ -3322,6 +3352,7 @@ Every error code emitted by `/api/v1/*`, sorted by what triggered it. Two codes 
 |------|--------|---------|
 | `bad_request` | 400 | Body, query, or path-segment validation failed. Body parse depth-cap rejects also surface here. |
 | `amuled_rejected` | 400, 502 | amuled rejected the EC operation and the message carries its reason verbatim (400); or amuled answered but its reply was unusable, e.g. no `search_id` came back from a search or a browse (502). |
+| `captcha_expired` | 409 | The challenge identified by `captcha_id` is no longer pending; its answer was not sent. |
 | `request_timeout` | 408 | The request was not completed within the 10 s read timeout. |
 | `unauthorized` | 401 | Missing token, bad signature, expired, revoked, or `iat` invariants failed. |
 | `invalid_credentials` | 401, 403 | `/auth/login` password didn't match any role (401); or `PATCH /auth/passwords` was given a `current_password` that does not match (403). |

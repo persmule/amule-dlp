@@ -484,8 +484,20 @@ public:
 
 	// chat
 	uint8 GetChatState() { return m_byChatstate; }
-	void SetChatState(uint8 nNewS) { m_byChatstate = nNewS; }
+	void SetChatState(uint8 nNewS)
+	{
+		m_byChatstate = nNewS;
+		if (nNewS == MS_NONE &&
+			(m_nChatCaptchaState == CA_ACCEPTING || m_nChatCaptchaState == CA_CAPTCHARECV ||
+				m_nChatCaptchaState == CA_SOLUTIONSENT)) {
+			m_nChatCaptchaState = CA_NONE;
+		}
+	}
 	EChatCaptchaState GetChatCaptchaState() const { return (EChatCaptchaState)m_nChatCaptchaState; }
+	uint32 GetPendingChatCaptchaId() const
+	{
+		return GetChatCaptchaState() == CA_CAPTCHARECV && IsConnected() ? m_chatCaptchaId : 0;
+	}
 	void ProcessCaptchaRequest(CMemFile *data);
 	void ProcessCaptchaReqRes(uint8 nStatus);
 	void ProcessChatMessage(wxString message);
@@ -922,6 +934,7 @@ private:
 	wxString m_strComment;
 	uint8 m_byChatstate;
 	uint8 m_nChatCaptchaState;
+	uint32 m_chatCaptchaId = 0;
 	uint8 m_cCaptchasSent;
 	int8 m_iRating;
 	uint8 m_cMessagesReceived; // count of chatmessages he sent to me
