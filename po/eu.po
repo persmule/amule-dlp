@@ -3295,6 +3295,35 @@ msgstr "Huts %s fitxategi berria berrizendatzean, eguneraketa baztertzen."
 msgid "IP filter is ready"
 msgstr "IP iragazkia presta dago"
 
+#: src/KadContactHistogram.h
+msgid "Contacts grouped by the first twelve bits of their KadID. Blue: all contacts; green: verified addresses. The marker shows your own KadID; clustering near it is expected."
+msgstr ""
+
+#: src/KadContactHistogram.h
+msgid "Loading contact distribution..."
+msgstr ""
+
+#: src/KadContactHistogram.h
+msgid "This core does not send the contact distribution. Update the core to see the chart."
+msgstr ""
+
+#: src/KadContactHistogram.h
+msgid "The core sent contact distribution data that could not be read."
+msgstr ""
+
+#: src/KadContactHistogram.h
+#, c-format
+msgid "Routing-table contacts: %u; verified: %u; distinct /24s: %u"
+msgstr ""
+
+#: src/KadDlg.cpp
+msgid "Requesting Kad lookup diagnostics..."
+msgstr ""
+
+#: src/KadDlg.cpp
+msgid "The connected core does not support Kad lookup diagnostics."
+msgstr ""
+
 #: src/KadDlg.cpp src/muuli_wdr.cpp src/StatisticsDlg.cpp
 msgid "Current"
 msgstr "Unekoa"
@@ -3340,6 +3369,22 @@ msgstr "Hau eginez zure nodo zerrenda ezabatu eta Kademlia konexioa berrabiarazi
 msgid "Continue?"
 msgstr "Jarraitu?"
 
+#: src/KadLookupView.h
+msgid "Kad lookup diagnostics"
+msgstr ""
+
+#: src/KadLookupView.h
+msgid "The core does not support Kad lookup diagnostics."
+msgstr ""
+
+#: src/KadLookupView.h
+msgid "Invalid Kad lookup diagnostics reply."
+msgstr ""
+
+#: src/KadLookupView.h
+msgid "Connection lost. Reconnect and request lookup diagnostics again."
+msgstr ""
+
 #: src/kademlia/kademlia/SearchManager.cpp
 msgid "Kademlia: search keyword too short"
 msgstr "Kademlia: bilaketa gako laburregia"
@@ -3376,6 +3421,122 @@ msgid "Wrote %d Kad contact"
 msgid_plural "Wrote %d Kad contacts"
 msgstr[0] "Idatzi Kad kontaktu %d"
 msgstr[1] "Idatzi %d Kad kontaktu"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Node"
+msgstr "Nodoak (0)"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Complete node"
+msgstr "Amaitua"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "File"
+msgstr "Fitxategiak"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Keyword"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Notes"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Publish file"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Publish keyword"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Publish notes"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Find buddy"
+msgstr "Laguna ez"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Find source"
+msgstr "Fitxategiaren iturburua:"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Special node"
+msgstr "Nodo berria"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "UDP firewall check"
+msgstr "suebakirik"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "type %u"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "Lookup %s (%s, %s): %u peers, %u overdue routing requests, %u omitted peers, %u evicted referrals"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "active lookup"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "finished lookup"
+msgstr "Finlandiera"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy, c-format
+msgid "Keyword: %s"
+msgstr "Iragazirik: %s"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "%s [%s], distance %s, Kad version %u (%s): %u routing requests, %u replies, last RTT %u ms, %u item requests, %u result packets, %u result records"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "awaiting reply"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "reply received"
+msgstr "Ez Jasoa"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "+%u ms: %s referred %s (distance %s, %s)"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "closer to target"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "no closer to target"
+msgstr "(Izen ezezaguna)"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Overdue means a routing request unanswered for at least 3 seconds; late replies may still arrive. Result records are received records, not unique files. Only bounded recent history is retained."
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "No Kad lookup history available."
+msgstr "ez dago aukera erabilgarririk"
 
 #: src/KnownFile.cpp
 msgid "Kad user"
@@ -5473,6 +5634,10 @@ msgstr "Nodoak (0)"
 #: src/muuli_wdr.cpp
 msgid "Enter the url to a nodes.dat file here and press the button to the left to update the list of known nodes."
 msgstr "nodes.dat fitxategi baten URL-a idatzi eta ezkerreko botoia sakatu nodo ezagunen zerrenda eguneratzeko."
+
+#: src/muuli_wdr.cpp
+msgid "Lookup diagnostics"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Nodes stats"
@@ -9895,9 +10060,6 @@ msgstr ""
 
 #~ msgid "Bootstrap"
 #~ msgstr "Autoabioa"
-
-#~ msgid "New node"
-#~ msgstr "Nodo berria"
 
 #~ msgid "IP:"
 #~ msgstr "IP:"

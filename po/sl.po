@@ -3326,6 +3326,35 @@ msgstr "Preimenovanje nove datoteke %s ni uspelo, posodobitev preklicana."
 msgid "IP filter is ready"
 msgstr "Filter IP je pripravljen"
 
+#: src/KadContactHistogram.h
+msgid "Contacts grouped by the first twelve bits of their KadID. Blue: all contacts; green: verified addresses. The marker shows your own KadID; clustering near it is expected."
+msgstr ""
+
+#: src/KadContactHistogram.h
+msgid "Loading contact distribution..."
+msgstr ""
+
+#: src/KadContactHistogram.h
+msgid "This core does not send the contact distribution. Update the core to see the chart."
+msgstr ""
+
+#: src/KadContactHistogram.h
+msgid "The core sent contact distribution data that could not be read."
+msgstr ""
+
+#: src/KadContactHistogram.h
+#, c-format
+msgid "Routing-table contacts: %u; verified: %u; distinct /24s: %u"
+msgstr ""
+
+#: src/KadDlg.cpp
+msgid "Requesting Kad lookup diagnostics..."
+msgstr ""
+
+#: src/KadDlg.cpp
+msgid "The connected core does not support Kad lookup diagnostics."
+msgstr ""
+
 #: src/KadDlg.cpp src/muuli_wdr.cpp src/StatisticsDlg.cpp
 msgid "Current"
 msgstr "Trenutno"
@@ -3371,6 +3400,22 @@ msgstr "S tem boste odstranili trenutna vozlišča in ponovno zagnali povezavo K
 msgid "Continue?"
 msgstr "Ali želite nadaljevati?"
 
+#: src/KadLookupView.h
+msgid "Kad lookup diagnostics"
+msgstr ""
+
+#: src/KadLookupView.h
+msgid "The core does not support Kad lookup diagnostics."
+msgstr ""
+
+#: src/KadLookupView.h
+msgid "Invalid Kad lookup diagnostics reply."
+msgstr ""
+
+#: src/KadLookupView.h
+msgid "Connection lost. Reconnect and request lookup diagnostics again."
+msgstr ""
+
 #: src/kademlia/kademlia/SearchManager.cpp
 msgid "Kademlia: search keyword too short"
 msgstr "Kademlia: iskalni niz je prekratek"
@@ -3413,6 +3458,122 @@ msgstr[0] "Zapisanih %d stikov Kad"
 msgstr[1] "Zapisan %d stik Kad"
 msgstr[2] "Zapisana %d stika Kad"
 msgstr[3] "Zapisani %d stiki Kad"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Node"
+msgstr "Vozlišča (0)"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Complete node"
+msgstr "Zaključeno"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "File"
+msgstr "Datoteke"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Keyword"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Notes"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Publish file"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Publish keyword"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Publish notes"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Find buddy"
+msgstr "Brez kolegov"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Find source"
+msgstr "Viri datoteke:"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "Special node"
+msgstr "Novo vozlišče"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "UDP firewall check"
+msgstr "za požarnim zidom"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "type %u"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "Lookup %s (%s, %s): %u peers, %u overdue routing requests, %u omitted peers, %u evicted referrals"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "active lookup"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "finished lookup"
+msgstr "Finsko"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy, c-format
+msgid "Keyword: %s"
+msgstr "Filtrirani: %s"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "%s [%s], distance %s, Kad version %u (%s): %u routing requests, %u replies, last RTT %u ms, %u item requests, %u result packets, %u result records"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "awaiting reply"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "reply received"
+msgstr "Ni prejeto"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "+%u ms: %s referred %s (distance %s, %s)"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "closer to target"
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "no closer to target"
+msgstr "(neznano ime)"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Overdue means a routing request unanswered for at least 3 seconds; late replies may still arrive. Result records are received records, not unique files. Only bounded recent history is retained."
+msgstr ""
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, fuzzy
+msgid "No Kad lookup history available."
+msgstr "na voljo ni nobene možnosti"
 
 #: src/KnownFile.cpp
 msgid "Kad user"
@@ -5518,6 +5679,10 @@ msgstr "Vozlišča (0)"
 #: src/muuli_wdr.cpp
 msgid "Enter the url to a nodes.dat file here and press the button to the left to update the list of known nodes."
 msgstr "Vnesite URL do datoteke nodes.dat in pritisnite gumb na levi za posodobitev seznama vozlišč."
+
+#: src/muuli_wdr.cpp
+msgid "Lookup diagnostics"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Nodes stats"
@@ -9998,9 +10163,6 @@ msgstr ""
 
 #~ msgid "Bootstrap"
 #~ msgstr "Začetno nalaganje"
-
-#~ msgid "New node"
-#~ msgstr "Novo vozlišče"
 
 #~ msgid "IP:"
 #~ msgstr "IP:"

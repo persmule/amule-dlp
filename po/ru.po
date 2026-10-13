@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-12 16:51+0000\n"
+"PO-Revision-Date: 2026-10-12 23:17+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -3322,6 +3322,35 @@ msgstr "Не удалось переименовать новый файл %s, �
 msgid "IP filter is ready"
 msgstr "IP-фильтр готов"
 
+#: src/KadContactHistogram.h
+msgid "Contacts grouped by the first twelve bits of their KadID. Blue: all contacts; green: verified addresses. The marker shows your own KadID; clustering near it is expected."
+msgstr "Контакты, сгруппированные по первым двенадцати битам их KadID. Синие — все контакты; зелёные — проверенные адреса. Маркер показывает ваш собственный KadID; скопление рядом с ним ожидаемо."
+
+#: src/KadContactHistogram.h
+msgid "Loading contact distribution..."
+msgstr "Подгрузка распределения контактов…"
+
+#: src/KadContactHistogram.h
+msgid "This core does not send the contact distribution. Update the core to see the chart."
+msgstr "Это ядро не передаёт распределение контактов. Обновите ядро, чтобы увидеть график."
+
+#: src/KadContactHistogram.h
+msgid "The core sent contact distribution data that could not be read."
+msgstr "Ядро передало данные распределения контактов, которые не удалось прочитать."
+
+#: src/KadContactHistogram.h
+#, c-format
+msgid "Routing-table contacts: %u; verified: %u; distinct /24s: %u"
+msgstr "Контактов в таблице маршрутизации: %u; проверенных: %u; уникальных /24: %u"
+
+#: src/KadDlg.cpp
+msgid "Requesting Kad lookup diagnostics..."
+msgstr "Запрос диагностики поиска Kad…"
+
+#: src/KadDlg.cpp
+msgid "The connected core does not support Kad lookup diagnostics."
+msgstr "Подключённое ядро не поддерживает диагностику поиска Kad."
+
 #: src/KadDlg.cpp src/muuli_wdr.cpp src/StatisticsDlg.cpp
 msgid "Current"
 msgstr "Текущая"
@@ -3367,6 +3396,22 @@ msgstr "Это удалит ваши текущие узлы и перезапу
 msgid "Continue?"
 msgstr "Продолжить?"
 
+#: src/KadLookupView.h
+msgid "Kad lookup diagnostics"
+msgstr "Диагностика поиска Kad"
+
+#: src/KadLookupView.h
+msgid "The core does not support Kad lookup diagnostics."
+msgstr "Ядро не поддерживает диагностику поиска Kad."
+
+#: src/KadLookupView.h
+msgid "Invalid Kad lookup diagnostics reply."
+msgstr "Неверный ответ диагностики поиска Kad."
+
+#: src/KadLookupView.h
+msgid "Connection lost. Reconnect and request lookup diagnostics again."
+msgstr "Соединение потеряно. Переподключитесь и снова запросите диагностику поиска."
+
 #: src/kademlia/kademlia/SearchManager.cpp
 msgid "Kademlia: search keyword too short"
 msgstr "Kad: слово запроса лишком коротко"
@@ -3406,6 +3451,111 @@ msgid_plural "Wrote %d Kad contacts"
 msgstr[0] "Записан %d контакт Kad"
 msgstr[1] "Записаны %d контакта Kad"
 msgstr[2] "Записано %d контактов Kad"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Node"
+msgstr "Узел"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Complete node"
+msgstr "Полный узел"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "File"
+msgstr "Файл"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Keyword"
+msgstr "Ключевое слово"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Notes"
+msgstr "Заметки"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Publish file"
+msgstr "Публикация файла"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Publish keyword"
+msgstr "Публикация ключевого слова"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Publish notes"
+msgstr "Публикация заметок"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Find buddy"
+msgstr "Поиск друга"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Find source"
+msgstr "Поиск источника"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Special node"
+msgstr "Особый узел"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "UDP firewall check"
+msgstr "Проверка UDP-фаервола"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "type %u"
+msgstr "тип %u"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "Lookup %s (%s, %s): %u peers, %u overdue routing requests, %u omitted peers, %u evicted referrals"
+msgstr "Поиск %s (%s, %s): пиров — %u, просроченных запросов маршрутизации — %u, пропущенных пиров — %u, вытесненных перенаправлений — %u"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "active lookup"
+msgstr "активный поиск"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "finished lookup"
+msgstr "завершённый поиск"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "Keyword: %s"
+msgstr "Ключевое слово: %s"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "%s [%s], distance %s, Kad version %u (%s): %u routing requests, %u replies, last RTT %u ms, %u item requests, %u result packets, %u result records"
+msgstr "%s [%s], расстояние %s, версия Kad %u (%s): запросов маршрутизации — %u, ответов — %u, последний RTT %u мс, запросов элементов — %u, пакетов результатов — %u, записей результатов — %u"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "awaiting reply"
+msgstr "ожидает ответа"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "reply received"
+msgstr "ответ получен"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+#, c-format
+msgid "+%u ms: %s referred %s (distance %s, %s)"
+msgstr "+%u мс: %s перенаправил на %s (расстояние %s, %s)"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "closer to target"
+msgstr "ближе к цели"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "no closer to target"
+msgstr "не ближе к цели"
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "Overdue means a routing request unanswered for at least 3 seconds; late replies may still arrive. Result records are received records, not unique files. Only bounded recent history is retained."
+msgstr "Просроченным считается запрос маршрутизации без ответа в течение как минимум 3 секунд; поздние ответы всё ещё могут прийти. Записи результатов — это полученные записи, а не уникальные файлы. Сохраняется только ограниченная недавняя история."
+
+#: src/kademlia/utils/LookupDiagnostics.cpp
+msgid "No Kad lookup history available."
+msgstr "История поиска Kad недоступна."
 
 #: src/KnownFile.cpp
 msgid "Kad user"
@@ -5517,6 +5667,10 @@ msgstr "Узлы (0)"
 #: src/muuli_wdr.cpp
 msgid "Enter the url to a nodes.dat file here and press the button to the left to update the list of known nodes."
 msgstr "Ведите сюда URL-адрес к файлу nodes.dat и нажмите кнопку слева, чтобы обновить список известных узлов."
+
+#: src/muuli_wdr.cpp
+msgid "Lookup diagnostics"
+msgstr "Диагностика поиска"
 
 #: src/muuli_wdr.cpp
 msgid "Nodes stats"
@@ -10006,9 +10160,6 @@ msgstr "Kad не смогла сохранить индекс. Предыдущ�
 
 #~ msgid "Bootstrap"
 #~ msgstr "Инициализация"
-
-#~ msgid "New node"
-#~ msgstr "Новый узел"
 
 #~ msgid "IP:"
 #~ msgstr "IP:"
