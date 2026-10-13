@@ -1014,7 +1014,7 @@
   "prefs_field_geoip_source": "Source",
   "prefs_field_geoip_custom_update_url": "Custom download URL",
   "prefs_field_geoip_maxmind_license": "MaxMind license key",
-  "prefs_field_geoip_auto_update_enabled": "Auto-update on startup",
+  "prefs_field_geoip_auto_update_enabled": "Auto-update on startup and weekly",
   "prefs_field_geoip_update_now": "Update database now",
   "prefs_field_geoip_loaded_source": "Loaded source",
   "prefs_field_geoip_db_path": "Database path",

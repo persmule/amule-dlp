@@ -2439,6 +2439,8 @@ Body shape mirrors the GET; every sub-object and every field is optional, and fi
 
 amuleapi's own `admin` and `guest` passwords are **not** settable here; `remote_controls.amuleapi.password`, `.guest_password` and `.guest_enabled` are rejected with `400 bad_request`. Use [`PATCH /auth/passwords`](#patch-apiv1authpasswords), which writes the credential file this daemon actually reads, requires the current password, and is rate-limited. A field here would instead travel over EC to whichever aMule this amuleapi is attached to and land in that host's config directory.
 
+`geoip.auto_update_enabled` controls conditional update checks at startup and weekly while the core remains running; `geoip.enabled` must also be enabled. Manual updates bypass this schedule.
+
 **`geoip`** accepts `enabled`, `source` (`"dbip"` / `"maxmind"` / `"custom"` — any other value is a `400`), `custom_update_url`, `maxmind_license`, and `auto_update_enabled`. `supported` and the read-only status fields (`loaded_source`, `db_path`, `db_loaded`, `download_in_progress`, `last_update_status`) are ignored if sent.
 
 Downloading a database **now** is [`POST /geoip/update`](#post-apiv1geoipupdate), not a field here: it is an action, not a setting. Sending `geoip.update_now` in this body is a `400` naming that endpoint.

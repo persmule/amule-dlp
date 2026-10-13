@@ -3038,6 +3038,11 @@ msgstr ""
 msgid "Failed to open MaxMindDB database '%s': %s"
 msgstr ""
 
+#: src/geoip/MaxMindDBDatabase.cpp
+#, c-format
+msgid "Failed to replace MaxMindDB database '%s': %s"
+msgstr ""
+
 #: src/HTTPDownload.cpp
 msgid "Downloading..."
 msgstr ""
@@ -3117,24 +3122,14 @@ msgstr ""
 msgid "Download of %s file failed, aborting update."
 msgstr ""
 
-#: src/IP2Country.cpp src/IPFilter.cpp
-#, c-format
-msgid "Failed to remove %s file, aborting update."
-msgstr ""
-
 #: src/IP2Country.cpp
 #, c-format
-msgid "Failed to rename %s file, aborting update."
+msgid "Error updating %s"
 msgstr ""
 
 #: src/IP2Country.cpp src/IPFilter.cpp
 #, c-format
 msgid "Successfully updated %s"
-msgstr ""
-
-#: src/IP2Country.cpp
-#, c-format
-msgid "Error updating %s"
 msgstr ""
 
 #: src/IP2Country.cpp
@@ -3173,6 +3168,11 @@ msgid "%u malformed line was discarded."
 msgid_plural "%u malformed lines were discarded."
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/IPFilter.cpp
+#, c-format
+msgid "Failed to remove %s file, aborting update."
+msgstr ""
 
 #: src/IPFilter.cpp
 #, c-format
@@ -5721,11 +5721,11 @@ msgid "Download the GeoIP database from the selected source."
 msgstr ""
 
 #: src/muuli_wdr.cpp
-msgid "Auto-update on startup"
+msgid "Auto-update on startup and weekly"
 msgstr ""
 
 #: src/muuli_wdr.cpp
-msgid "Re-download the GeoIP database from the selected source every time aMule starts."
+msgid "Check for a newer GeoIP database at startup and every week while aMule is running."
 msgstr ""
 
 #: src/muuli_wdr.cpp

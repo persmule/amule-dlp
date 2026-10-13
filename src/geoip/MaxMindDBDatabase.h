@@ -42,6 +42,10 @@ public:
 	// Calling Open() on an already-open instance closes the previous handle first.
 	bool Open(const wxString &path);
 
+	// Validate a staged download before atomically replacing path. On failure the
+	// existing file and resolver remain available. Both paths must be on one filesystem.
+	bool Replace(const wxString &downloadPath, const wxString &path);
+
 	void Close();
 
 	bool IsOpen() const { return m_isOpen; }
@@ -53,6 +57,7 @@ public:
 private:
 	MMDB_s m_mmdb;
 	bool m_isOpen;
+	wxString m_path;
 
 	CMaxMindDBDatabase(const CMaxMindDBDatabase &) = delete;
 	CMaxMindDBDatabase &operator=(const CMaxMindDBDatabase &) = delete;

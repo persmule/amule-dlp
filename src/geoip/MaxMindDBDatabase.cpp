@@ -30,8 +30,16 @@
 #include <common/StringFunctions.h> // unicode2char
 #include <wx/intl.h>                // _() gettext macro
 
+#include <filesystem>
+#include <utility>
+
+#ifdef __WXMSW__
+#include <wx/msw/wrapwin.h>
+#endif
+
 CMaxMindDBDatabase::CMaxMindDBDatabase()
-: m_isOpen(false)
+: m_mmdb{}
+, m_isOpen(false)
 {
 }
 
@@ -61,7 +69,56 @@ bool CMaxMindDBDatabase::Open(const wxString &path)
 		Close();
 		return false;
 	}
+	m_path = path;
 	return true;
+}
+
+bool CMaxMindDBDatabase::Replace(const wxString &downloadPath, const wxString &path)
+{
+	CMaxMindDBDatabase candidate;
+	if (!candidate.Open(downloadPath)) {
+		return false;
+	}
+
+	// Use a native replacement: wxRenameFile(overwrite=true)
+	// may remove the destination first or fall back to copying on failure.
+	std::error_code error;
+#ifdef __WXMSW__
+	// Windows cannot replace a memory-mapped file. Validation is complete before
+	// closing either mapping; a failed rename leaves the original file in place.
+	const bool wasOpen = IsOpen();
+	const wxString originalPath = m_path;
+	candidate.Close();
+	Close();
+	if (!MoveFileExW(downloadPath.wc_str(), path.wc_str(), MOVEFILE_REPLACE_EXISTING)) {
+		error = std::error_code(GetLastError(), std::system_category());
+	}
+#else
+	const std::filesystem::path source(downloadPath.fn_str().data());
+	const std::filesystem::path destination(path.fn_str().data());
+	std::filesystem::rename(source, destination, error);
+#endif
+	if (error) {
+		AddLogLineC(CFormat(_("Failed to replace MaxMindDB database '%s': %s")) % path %
+			    wxString::FromUTF8(error.message().c_str()));
+#ifdef __WXMSW__
+		if (wasOpen) {
+			Open(originalPath);
+		}
+#endif
+		return false;
+	}
+
+#ifdef __WXMSW__
+	return Open(path);
+#else
+	// Keep the validated mapping instead of reopening the renamed file. The old
+	// mapping is released by candidate's destructor after the swap.
+	std::swap(m_mmdb, candidate.m_mmdb);
+	std::swap(m_isOpen, candidate.m_isOpen);
+	m_path = path;
+	return true;
+#endif
 }
 
 void CMaxMindDBDatabase::Close()

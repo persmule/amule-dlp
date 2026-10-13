@@ -45,7 +45,7 @@ Open `Preferences → IP2Country`. The tab looks like this:
 │ │                                                    │
 │ └────────────────────────────────────────────────────│
 │                                                      │
-│ [Update now]    ☑ Auto-update on startup            │
+│ [Update now]  ☑ Auto-update on startup and weekly      │
 │                                                      │
 │ Status: Loaded (9.0 MiB) — Data by DB-IP.com        │
 └──────────────────────────────────────────────────────┘
@@ -74,9 +74,8 @@ below (source dropdown, credentials, Update now, Auto-update, status).
 
 Zero-configuration. Click `Update now` and aMule downloads
 `dbip-country-lite-YYYY-MM.mmdb.gz` from DB-IP's free distribution. The
-database refreshes monthly; with `Auto-update on startup` enabled
-(default) aMule re-downloads on every launch so you always have current
-data.
+database refreshes monthly; with `Auto-update on startup and weekly` enabled
+(default) aMule checks for newer data at startup and every week while running.
 
 Early-of-month note: DB-IP usually publishes the new month's file by the
 second or third day of the month. If you launch aMule on day 1 and the
@@ -113,7 +112,7 @@ MaxMind, available from
 [https://www.maxmind.com](https://www.maxmind.com)
 **License**: [MaxMind GeoLite2 EULA](https://www.maxmind.com/en/geolite2/eula)
 — requires attribution and account registration; the database must be
-refreshed at least every 30 days. The default `Auto-update on startup`
+refreshed at least every 30 days. The default `Auto-update on startup and weekly`
 keeps you compliant automatically.
 
 #### Custom URL
@@ -167,7 +166,7 @@ behaviour:
 |-----------------------------------------|--------------------------------------------------------------------------------------------|
 | `Update now` button                     | Log line **and** modal popup explaining what went wrong (missing License Key, HTTP error). |
 | `OK` after changing source / credential | Same as `Update now` — manual, popup on failure. See below.                                |
-| `Auto-update on startup` (default ON)   | Log line only — silent so a transient outage does not pop up on every cold boot.           |
+| `Auto-update on startup and weekly` (default ON)   | Log line only — silent so a transient outage does not pop up on every cold boot.           |
 | First-run / missing-file at any time    | Log line only.                                                                             |
 
 The on-OK auto-download fires when the user changes the source
@@ -179,24 +178,37 @@ Toggling the master `Show country flags for clients` from off to on
 does not double-trigger — `EnableIP2Country` already handles
 missing-file → download in that case.
 
-`Auto-update on startup` (single global toggle, default ON) triggers a
-fresh download from the selected source on every aMule launch when
+`Auto-update on startup and weekly` (single global toggle, default ON) triggers a
+check for newer data from the selected source on every aMule launch when
 both:
 
 * the master `Show country flags for clients` is ticked, AND
 * a database is already loaded (the first-run / missing-file path
   always triggers a download regardless of this toggle).
 
-For MaxMind this also satisfies their EULA's "refresh at least every
-30 days" requirement.
+While aMule stays running, the core timer checks again one week after
+the last update attempt, including manual updates and failed attempts.
+The master enable and auto-update preferences must remain enabled. In-flight downloads defer
+the check; automatic updates do not display a progress dialog or failure
+popup. This uses the same timer on Linux, Windows, and macOS, including
+headless `amuled`, and needs no system scheduler.
 
-The startup update skips the download when the server reports that its
+The weekly check does not depend on the provider's publication day.
+The usual DB-IP previous-month fallback still applies when the current
+month is unavailable; the next weekly check tries the current month again.
+
+Automatic updates skip the download when the server reports that its
 file has not changed. `Update now` always downloads, so it can replace
 a bad file on disk.
 
 On any failure path aMule continues using whatever database file is
 already on disk — the feature degrades gracefully rather than dropping
 all flag display.
+
+Updates unpack and validate the staged download with a country lookup
+before replacing the current database. The replacement uses an atomic
+rename in the same directory; invalid downloads or failed replacements
+leave the existing database and country lookups available.
 
 aMule checks each database it loads with a test lookup. A file that
 opens but returns no country is discarded and logged, and a fresh copy

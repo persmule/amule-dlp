@@ -3144,8 +3144,8 @@ wxSizer *PreferencesIP2CountryTab( wxWindow *parent, bool call_fit, bool set_siz
     wxButton *item24 = new wxButton( item3, IDC_GEOIP_UPDATE_NOW, _("Update now"), wxDefaultPosition, wxDefaultSize, 0 );
     item24->SetToolTip( _("Download the GeoIP database from the selected source.") );
     item23->Add( item24, wxSizerFlags().Border(wxRIGHT, 12) );
-    wxCheckBox *item25 = new wxCheckBox( item3, IDC_GEOIP_AUTOUPDATE, _("Auto-update on startup"), wxDefaultPosition, wxDefaultSize, 0 );
-    item25->SetToolTip( _("Re-download the GeoIP database from the selected source every time aMule starts.") );
+    wxCheckBox *item25 = new wxCheckBox( item3, IDC_GEOIP_AUTOUPDATE, _("Auto-update on startup and weekly"), wxDefaultPosition, wxDefaultSize, 0 );
+    item25->SetToolTip( _("Check for a newer GeoIP database at startup and every week while aMule is running.") );
     item23->Add( item25, wxSizerFlags().CenterVertical() );
     item2->Add( item23, wxSizerFlags().Border(wxALL, 4) );
 

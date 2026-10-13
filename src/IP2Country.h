@@ -30,6 +30,7 @@
 #define IP2COUNTRY_H
 
 #include "Types.h" // Needed for uint8, uint16 and uint32
+#include "geoip/UpdateSchedule.h"
 
 #include <functional>
 #include <unordered_map>
@@ -80,6 +81,8 @@ public:
 	// showProgress renders the HTTP progress dialog. Only a local, user-initiated update asks for
 	// it: a background refresh must not pop a window, and a remote trigger would pop it on the core.
 	void Update(bool manualUpdate = false, bool showProgress = false);
+	// Called by the existing core timer; weekly automatic refreshes are silent.
+	void Process();
 	bool IsEnabled();
 	void DownloadFinished(uint32 result);
 
@@ -118,6 +121,7 @@ private:
 	static const size_t kMaxCountryCacheEntries = 8192;
 
 	CMaxMindDBDatabase *m_db;
+	CGeoIPUpdateSchedule m_updateSchedule;
 	wxString m_DataBaseName;
 	wxString m_DataBasePath;
 

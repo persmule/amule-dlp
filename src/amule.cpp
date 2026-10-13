@@ -2266,6 +2266,10 @@ void CamuleApp::OnCoreTimer(CTimerEvent &WXUNUSED(evt))
 	if (msCur - msPrev1 > 1000) { // approximately every second
 		msPrev1 = msCur;
 
+		if (m_IP2Country) {
+			m_IP2Country->Process();
+		}
+
 		// Keep the free-space worker's directories current. The paths can change under the
 		// preferences dialog, and the worker must not read thePrefs itself -- no worker in
 		// the tree does, and a wxString read concurrently with an assignment is a race

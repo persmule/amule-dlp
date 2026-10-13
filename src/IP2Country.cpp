@@ -36,13 +36,21 @@
 
 #include <wx/intl.h>
 
+#include <ctime>
+
 #include "IP2Country.h"
 
 #include "NetworkFunctions.h" // Uint32toStringIP
 #include "geoip/MaxMindDBDatabase.h"
 
+static uint64_t ScheduleNow()
+{
+	return static_cast<uint64_t>(time(nullptr));
+}
+
 CIP2Country::CIP2Country(const wxString &configDir)
 : m_db(new CMaxMindDBDatabase())
+, m_updateSchedule(ScheduleNow())
 , m_TriedPreviousMonth(false)
 , m_ManualUpdate(false)
 {
@@ -108,10 +116,21 @@ void CIP2Country::Update(bool manualUpdate, bool showProgress)
 		m_ManualUpdate = m_ManualUpdate || manualUpdate;
 		return;
 	}
+	m_updateSchedule.RecordAttempt(ScheduleNow());
 	m_TriedPreviousMonth = false;
 	m_ManualUpdate = manualUpdate;
 	m_showProgress = showProgress;
 	StartDownload(0);
+}
+
+void CIP2Country::Process()
+{
+	if (m_updateSchedule.IsDue(ScheduleNow(),
+		    thePrefs::IsGeoIPEnabled(),
+		    thePrefs::IsGeoIPAutoUpdate(),
+		    m_downloading)) {
+		Update(false, false);
+	}
 }
 
 void CIP2Country::StartDownload(int monthOffset)
@@ -175,7 +194,6 @@ void CIP2Country::DownloadFinished(uint32 result)
 	m_downloading = false;
 
 	if (result == HTTP_Success) {
-		Disable();
 		wxString newDat = m_DataBasePath + ".download";
 
 		// MaxMind ships GeoLite2-Country_<date>/GeoLite2-Country.mmdb inside a .tar.gz.
@@ -185,52 +203,33 @@ void CIP2Country::DownloadFinished(uint32 result)
 			const wxString msg =
 				CFormat(_("Download of %s file failed, aborting update.")) % m_DataBaseName;
 			AddLogLineC(msg);
-			if (manual) {
-				NotifyUpdateFailed(msg);
-			}
-			return;
-		}
-
-		if (wxFileExists(m_DataBasePath)) {
-			if (!wxRemoveFile(m_DataBasePath)) {
-				const wxString msg =
-					CFormat(_("Failed to remove %s file, aborting update.")) %
-					m_DataBaseName;
-				AddLogLineC(msg);
-				if (manual) {
-					NotifyUpdateFailed(msg);
-				}
-				return;
-			}
-		}
-
-		if (!wxRenameFile(newDat, m_DataBasePath)) {
-			const wxString msg =
-				CFormat(_("Failed to rename %s file, aborting update.")) % m_DataBaseName;
-			AddLogLineC(msg);
-			if (manual) {
-				NotifyUpdateFailed(msg);
-			}
-			return;
-		}
-
-		Enable(false);
-		if (IsEnabled()) {
-			const wxString msg = CFormat(_("Successfully updated %s")) % m_DataBaseName;
-			AddLogLineN(msg);
 			m_lastResult = msg;
-			// Record which source actually wrote the file, so the prefs status line
-			// attributes it correctly even after the user flips the source dropdown to
-			// a provider they have not downloaded from yet.
-			thePrefs::SetGeoIPLoadedSource(thePrefs::GetGeoIPSource());
-		} else {
+			wxRemoveFile(newDat);
+			if (manual) {
+				NotifyUpdateFailed(msg);
+			}
+			return;
+		}
+
+		if (!m_db->Replace(newDat, m_DataBasePath)) {
 			const wxString msg = CFormat(_("Error updating %s")) % m_DataBaseName;
 			AddLogLineC(msg);
 			m_lastResult = msg;
+			wxRemoveFile(newDat);
 			if (manual) {
 				NotifyUpdateFailed(msg);
 			}
+			return;
 		}
+
+		InvalidateCountryCache();
+		const wxString msg = CFormat(_("Successfully updated %s")) % m_DataBaseName;
+		AddLogLineN(msg);
+		m_lastResult = msg;
+		// Record which source actually wrote the file, so the prefs status line
+		// attributes it correctly even after the user flips the source dropdown to
+		// a provider they have not downloaded from yet.
+		thePrefs::SetGeoIPLoadedSource(thePrefs::GetGeoIPSource());
 	} else if (result == HTTP_Skipped) {
 		const wxString msg =
 			CFormat(_("Skipped download of %s, because requested file is not newer.")) %
@@ -330,6 +329,7 @@ const wxString &CIP2Country::GetCountryCode(uint32)
 	return empty;
 }
 void CIP2Country::Update(bool, bool) {}
+void CIP2Country::Process() {}
 void CIP2Country::DownloadFinished(uint32) {}
 void CIP2Country::StartDownload(int) {}
 void CIP2Country::NotifyUpdateFailed(const wxString &) {}
