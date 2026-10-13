@@ -885,6 +885,20 @@ bool CClientTCPSocket::ProcessPacket(const uint8_t *buffer, uint32 size, uint8 o
 		break;
 	}
 
+#ifdef ENABLE_IPV6
+	case OP_CHANGE_CLIENT_IP: {
+		AddDebugLogLineN(
+			logRemoteClient, "Remote Client: OP_CHANGE_CLIENT_IP from " + m_client->GetFullIP());
+
+		theStats::AddDownOverheadOther(size);
+		const CNetworkAddress address = PeerAddressing::DecodeChangeClientIPv6(buffer, size);
+		if (address.IsPresent()) {
+			m_client->UpdateModIPv6(address);
+		}
+		break;
+	}
+#endif
+
 	case OP_CHANGE_SLOT: { // 0.43b
 		AddDebugLogLineN(
 			logRemoteClient, "Remote Client: OP_CHANGE_SLOT from " + m_client->GetFullIP());

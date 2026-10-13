@@ -2937,6 +2937,18 @@ void CUpDownClient::SetIP(uint32 val)
 	SetUserAddress(CNetworkAddress::FromIPv4NetworkOrderOrAbsent(val));
 }
 
+#ifdef ENABLE_IPV6
+void CUpDownClient::UpdateModIPv6(const CNetworkAddress &address)
+{
+	wxASSERT(address.IsGloballyRoutableIPv6());
+	if (!address.IsGloballyRoutableIPv6()) {
+		return;
+	}
+	md4cpy(m_modIPv6, address.GetOctets().data());
+	m_hasModIPv6 = true;
+}
+#endif
+
 bool CUpDownClient::HasPeerIPv4() const
 {
 	// The user address stays absent until the peer's hello, so an outbound connection has to
