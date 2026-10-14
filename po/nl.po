@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-13 12:58+0000\n"
+"PO-Revision-Date: 2026-10-14 12:17+0000\n"
 "Last-Translator: Marcel Pol <marcel@timelord.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
@@ -1200,19 +1200,19 @@ msgstr "Klaar"
 
 #: src/amule-remote-gui.cpp
 msgid "*** Solve the CAPTCHA and send its text as a message."
-msgstr ""
+msgstr "*** Los de CAPTCHA op en verstuur de tekst als bericht."
 
 #: src/amule-remote-gui.cpp
 msgid "*** CAPTCHA passed; your message was delivered."
-msgstr ""
+msgstr "*** CAPTCHA geslaagd, uw bericht is bezorgd."
 
 #: src/amule-remote-gui.cpp
 msgid "*** CAPTCHA failed; send another message to try again."
-msgstr ""
+msgstr "*** CAPTCHA mislukt, verstuur een ander bericht om het opnieuw te proberen."
 
 #: src/amule-remote-gui.cpp
 msgid "*** CAPTCHA failed; no attempts remain."
-msgstr ""
+msgstr "*** CAPTCHA mislukt, geen verdere pogingen mogelijk."
 
 #: src/amule-remote-gui.cpp src/TransferWnd.cpp
 msgid "All"
@@ -2375,6 +2375,11 @@ msgid "Cannot cancel a finished download: %s"
 msgstr "Annuleren van een voltooide download mislukt: %s"
 
 #: src/ExternalConn.cpp
+#, c-format
+msgid "No such category: %u"
+msgstr "Geen categorie: %u"
+
+#: src/ExternalConn.cpp
 msgid "OOPS! OpCode processing error!"
 msgstr "OEPS! OpCode verwerkingsfout!"
 
@@ -2516,7 +2521,7 @@ msgstr "Leeg chatbericht"
 
 #: src/ExternalConn.cpp
 msgid "CAPTCHA challenge is no longer pending"
-msgstr ""
+msgstr "CAPTCHA-uitdaging is niet langer in afwachting"
 
 #: src/ExternalConn.cpp
 msgid "Unknown chat target"
@@ -2834,6 +2839,11 @@ msgstr "Voorbeeld"
 #, c-format
 msgid "Media-player command '%s' was not run: %s"
 msgstr "Mediaspeler commando '%s' werd niet uitgevoerd: %s"
+
+#: src/FileLaunch.cpp
+#, c-format
+msgid "The configured video player is unavailable inside aMule's Flatpak sandbox: %s. Programs installed on the host are not directly available here. Completed files can still open with the desktop's default application; previewing an unfinished download needs a player the sandbox can run, such as a self-contained player saved in your home folder."
+msgstr ""
 
 #: src/FileLaunch.cpp
 #, c-format
@@ -3902,6 +3912,11 @@ msgstr "FOUT: "
 #: src/Logger.cpp
 msgid "WARNING: "
 msgstr "WAARSCHUWING: "
+
+#: src/MediaProbe.cpp
+#, c-format
+msgid "Media metadata: not using %s, because another user owns it or a folder above it."
+msgstr "Media-metadata: gebruikt %s niet omdat een andere gebruiker dat bezit of een map daarboven bezit."
 
 #: src/MediaProbe.cpp
 msgid "Media metadata: no ffprobe binary found. Install ffmpeg, or set the ffprobe path in preferences; length, bitrate and codec will not be extracted."
@@ -7574,11 +7589,11 @@ msgstr "Harde Bestanden"
 
 #: src/ServerListCtrl.cpp
 msgid "TCP Flags"
-msgstr "TCP-vlaggen"
+msgstr "TCP-Opties"
 
 #: src/ServerListCtrl.cpp
 msgid "UDP Flags"
-msgstr "UDP-vlaggen"
+msgstr "UDP-Opties"
 
 #: src/ServerListCtrl.cpp
 msgid "You are connected to a server you are trying to delete. Please disconnect first. The server was NOT deleted."

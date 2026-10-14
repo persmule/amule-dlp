@@ -2370,6 +2370,11 @@ msgid "Cannot cancel a finished download: %s"
 msgstr "הסתיימה ההורדה של: %s"
 
 #: src/ExternalConn.cpp
+#, fuzzy, c-format
+msgid "No such category: %u"
+msgstr "סגור את הצ'אט הנוכחי."
+
+#: src/ExternalConn.cpp
 msgid "OOPS! OpCode processing error!"
 msgstr "אופס! שגיאה בעיבוד קוד-פעולה!"
 
@@ -2833,6 +2838,11 @@ msgstr "תקדימון לקובץ"
 #: src/FileLaunch.cpp
 #, c-format
 msgid "Media-player command '%s' was not run: %s"
+msgstr ""
+
+#: src/FileLaunch.cpp
+#, c-format
+msgid "The configured video player is unavailable inside aMule's Flatpak sandbox: %s. Programs installed on the host are not directly available here. Completed files can still open with the desktop's default application; previewing an unfinished download needs a player the sandbox can run, such as a self-contained player saved in your home folder."
 msgstr ""
 
 #: src/FileLaunch.cpp
@@ -3913,6 +3923,11 @@ msgstr "שגיאה: "
 #: src/Logger.cpp
 msgid "WARNING: "
 msgstr "אזהרה: "
+
+#: src/MediaProbe.cpp
+#, c-format
+msgid "Media metadata: not using %s, because another user owns it or a folder above it."
+msgstr ""
 
 #: src/MediaProbe.cpp
 msgid "Media metadata: no ffprobe binary found. Install ffmpeg, or set the ffprobe path in preferences; length, bitrate and codec will not be extracted."

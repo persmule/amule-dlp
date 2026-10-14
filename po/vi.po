@@ -2333,6 +2333,11 @@ msgid "Cannot cancel a finished download: %s"
 msgstr "Đã tải xuống xong: %s"
 
 #: src/ExternalConn.cpp
+#, c-format
+msgid "No such category: %u"
+msgstr ""
+
+#: src/ExternalConn.cpp
 msgid "OOPS! OpCode processing error!"
 msgstr "ÔI! Lỗi xử lý OpCode!"
 
@@ -2791,6 +2796,11 @@ msgstr "Xem trước tệp"
 #: src/FileLaunch.cpp
 #, c-format
 msgid "Media-player command '%s' was not run: %s"
+msgstr ""
+
+#: src/FileLaunch.cpp
+#, c-format
+msgid "The configured video player is unavailable inside aMule's Flatpak sandbox: %s. Programs installed on the host are not directly available here. Completed files can still open with the desktop's default application; previewing an unfinished download needs a player the sandbox can run, such as a self-contained player saved in your home folder."
 msgstr ""
 
 #: src/FileLaunch.cpp
@@ -3863,6 +3873,11 @@ msgstr "LỖI: "
 #: src/Logger.cpp
 msgid "WARNING: "
 msgstr "CẢNH BÁO: "
+
+#: src/MediaProbe.cpp
+#, c-format
+msgid "Media metadata: not using %s, because another user owns it or a folder above it."
+msgstr ""
 
 #: src/MediaProbe.cpp
 msgid "Media metadata: no ffprobe binary found. Install ffmpeg, or set the ffprobe path in preferences; length, bitrate and codec will not be extracted."

@@ -20,7 +20,7 @@ msgstr ""
 "Project-Id-Version: aMule 2.3.3\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-13 14:56+0000\n"
+"PO-Revision-Date: 2026-10-14 10:18+0000\n"
 "Last-Translator: got3nks <got3nks@users.noreply.github.com>\n"
 "Language-Team: SebastianoPistore.info@protonmail.ch\n"
 "Language: it\n"
@@ -1211,19 +1211,19 @@ msgstr "Pronto"
 
 #: src/amule-remote-gui.cpp
 msgid "*** Solve the CAPTCHA and send its text as a message."
-msgstr ""
+msgstr "*** Risolvi il CAPTCHA e invia il testo come messaggio."
 
 #: src/amule-remote-gui.cpp
 msgid "*** CAPTCHA passed; your message was delivered."
-msgstr ""
+msgstr "*** CAPTCHA superato; il tuo messaggio è stato consegnato."
 
 #: src/amule-remote-gui.cpp
 msgid "*** CAPTCHA failed; send another message to try again."
-msgstr ""
+msgstr "*** CAPTCHA non superato; invia un altro messaggio per riprovare."
 
 #: src/amule-remote-gui.cpp
 msgid "*** CAPTCHA failed; no attempts remain."
-msgstr ""
+msgstr "*** CAPTCHA non superato; non restano altri tentativi."
 
 #: src/amule-remote-gui.cpp src/TransferWnd.cpp
 msgid "All"
@@ -2385,6 +2385,11 @@ msgid "Cannot cancel a finished download: %s"
 msgstr "Impossibile annullare un download completato: %s"
 
 #: src/ExternalConn.cpp
+#, c-format
+msgid "No such category: %u"
+msgstr "Categoria inesistente: %u"
+
+#: src/ExternalConn.cpp
 msgid "OOPS! OpCode processing error!"
 msgstr "OOPS! errore nel processare l'opcode!"
 
@@ -2526,7 +2531,7 @@ msgstr "Messaggio di chat vuoto"
 
 #: src/ExternalConn.cpp
 msgid "CAPTCHA challenge is no longer pending"
-msgstr ""
+msgstr "Il CAPTCHA non è più in attesa di risposta"
 
 #: src/ExternalConn.cpp
 msgid "Unknown chat target"
@@ -2844,6 +2849,11 @@ msgstr "Anteprima"
 #, c-format
 msgid "Media-player command '%s' was not run: %s"
 msgstr "Il comando del lettore multimediale ‘%s’ non è stato eseguito: %s"
+
+#: src/FileLaunch.cpp
+#, c-format
+msgid "The configured video player is unavailable inside aMule's Flatpak sandbox: %s. Programs installed on the host are not directly available here. Completed files can still open with the desktop's default application; previewing an unfinished download needs a player the sandbox can run, such as a self-contained player saved in your home folder."
+msgstr ""
 
 #: src/FileLaunch.cpp
 #, c-format
@@ -3912,6 +3922,11 @@ msgstr "ERRORE: "
 #: src/Logger.cpp
 msgid "WARNING: "
 msgstr "ATTENZIONE: "
+
+#: src/MediaProbe.cpp
+#, c-format
+msgid "Media metadata: not using %s, because another user owns it or a folder above it."
+msgstr ""
 
 #: src/MediaProbe.cpp
 msgid "Media metadata: no ffprobe binary found. Install ffmpeg, or set the ffprobe path in preferences; length, bitrate and codec will not be extracted."

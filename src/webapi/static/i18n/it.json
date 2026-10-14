@@ -1029,5 +1029,13 @@
   "prefs_field_geoip_db_path": "Percorso del database",
   "prefs_field_geoip_db_loaded": "Database caricato",
   "prefs_field_geoip_download_in_progress": "Download in corso",
-  "prefs_field_geoip_last_update_status": "Ultimo risultato"
+  "prefs_field_geoip_last_update_status": "Ultimo risultato",
+  "common_err_captcha_expired": "Questo CAPTCHA non è più in attesa di risposta. Usa quello più recente.",
+  "messages_captcha_expired": "Questo CAPTCHA non è più in attesa di risposta.",
+  "messages_captcha_retry_message": "Questo CAPTCHA non è più in attesa di risposta. Invia di nuovo il testo come messaggio.",
+  "messages_captcha_challenge": "Risolvi il CAPTCHA qui sotto e invia il testo usando il campo del messaggio.",
+  "messages_captcha_passed": "CAPTCHA superato. Il tuo messaggio è stato consegnato.",
+  "messages_captcha_retry": "CAPTCHA non superato. Invia un altro messaggio per riprovare.",
+  "messages_captcha_exhausted": "CAPTCHA non superato. Non restano altri tentativi.",
+  "messages_captcha_image": "CAPTCHA della chat"
 }

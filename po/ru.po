@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-13 14:07+0000\n"
+"PO-Revision-Date: 2026-10-14 09:36+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -1209,19 +1209,19 @@ msgstr "Готов"
 
 #: src/amule-remote-gui.cpp
 msgid "*** Solve the CAPTCHA and send its text as a message."
-msgstr ""
+msgstr "*** Введите код CAPTCHA и отправьте его текстом в сообщении."
 
 #: src/amule-remote-gui.cpp
 msgid "*** CAPTCHA passed; your message was delivered."
-msgstr ""
+msgstr "*** CAPTCHA пройдена; ваше сообщение доставлено."
 
 #: src/amule-remote-gui.cpp
 msgid "*** CAPTCHA failed; send another message to try again."
-msgstr ""
+msgstr "*** CAPTCHA не пройдена; отправьте новое сообщение, чтобы попробовать снова."
 
 #: src/amule-remote-gui.cpp
 msgid "*** CAPTCHA failed; no attempts remain."
-msgstr ""
+msgstr "*** CAPTCHA не пройдена; попытки исчерпаны."
 
 #: src/amule-remote-gui.cpp src/TransferWnd.cpp
 msgid "All"
@@ -2399,6 +2399,11 @@ msgid "Cannot cancel a finished download: %s"
 msgstr "Невозможно отменить завершённую загрузку: %s"
 
 #: src/ExternalConn.cpp
+#, fuzzy, c-format
+msgid "No such category: %u"
+msgstr "Нет такой категории."
+
+#: src/ExternalConn.cpp
 msgid "OOPS! OpCode processing error!"
 msgstr "Ошибка при выполнении OpCode!"
 
@@ -2541,7 +2546,7 @@ msgstr "Пустое сообщение беседы"
 
 #: src/ExternalConn.cpp
 msgid "CAPTCHA challenge is no longer pending"
-msgstr ""
+msgstr "Запрос CAPTCHA больше не ожидает ответа"
 
 #: src/ExternalConn.cpp
 msgid "Unknown chat target"
@@ -2859,6 +2864,11 @@ msgstr "Предпросмотр файла"
 #, c-format
 msgid "Media-player command '%s' was not run: %s"
 msgstr "Команда проигрывателя медиа «%s» не была выполнена: %s"
+
+#: src/FileLaunch.cpp
+#, c-format
+msgid "The configured video player is unavailable inside aMule's Flatpak sandbox: %s. Programs installed on the host are not directly available here. Completed files can still open with the desktop's default application; previewing an unfinished download needs a player the sandbox can run, such as a self-contained player saved in your home folder."
+msgstr ""
 
 #: src/FileLaunch.cpp
 #, c-format
@@ -3933,6 +3943,11 @@ msgstr "ОШИБКА: "
 #: src/Logger.cpp
 msgid "WARNING: "
 msgstr "ПРЕДУПРЕЖДЕНИЕ: "
+
+#: src/MediaProbe.cpp
+#, c-format
+msgid "Media metadata: not using %s, because another user owns it or a folder above it."
+msgstr ""
 
 #: src/MediaProbe.cpp
 msgid "Media metadata: no ffprobe binary found. Install ffmpeg, or set the ffprobe path in preferences; length, bitrate and codec will not be extracted."

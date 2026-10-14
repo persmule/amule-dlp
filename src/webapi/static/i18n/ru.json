@@ -233,7 +233,7 @@
   "prefs_field_security_obfuscation_requested": "Использовать маскировку исходящих соединений",
   "prefs_group_general": "Основные",
   "prefs_field_connection_upnp_control_point_port": "Порт UPnP TCP (необязательно)",
-  "prefs_field_servers_update_url": "URL обновления списка серверов",
+  "prefs_field_servers_update_url": "Адрес обновления списка серверов",
   "downloads_peer_ident_id_needed": "Требуется ИД",
   "downloads_peer_col_user_hash": "Хеш пользователя",
   "prefs_remote_controls": "Удалённое управление",
@@ -399,7 +399,7 @@
   "stats_tree_client_version_unknown": "Неизвестно",
   "downloads_peer_soft_mldonkey": "MLDonkey",
   "prefs_opt_see_shares_nobody": "Никто",
-  "prefs_shdir_path_ph": "Абсолютный путь к публикуемой папке",
+  "prefs_shdir_path_ph": "Абсолютный путь для публикации",
   "prefs_field_files_new_shared_files_auto_priority_enabled": "Добавлять новые файлы для публикации с авто приоритетом",
   "prefs_group_temp": "Папка для временных файлов",
   "downloads_peer_soft_emule": "eMule",
@@ -1029,5 +1029,13 @@
   "stats_tree_servers_filtered": "Отфильтрованных серверов: %s",
   "stats_tree_servers_users_working": "Пользователей на работающих серверах: %llu",
   "stats_tree_servers_files_working": "Файлов на работающих серверах: %llu",
-  "stats_tree_servers_total_users": "Всего пользователей: %llu"
+  "stats_tree_servers_total_users": "Всего пользователей: %llu",
+  "common_err_captcha_expired": "Эта CAPTCHA больше не ожидает ответа. Используйте последний запрос.",
+  "messages_captcha_expired": "Эта CAPTCHA больше не ожидает ответа.",
+  "messages_captcha_retry_message": "Эта CAPTCHA больше не ожидает ответа. Отправьте текст снова в сообщении.",
+  "messages_captcha_challenge": "Введите код CAPTCHA ниже и отправьте его текст через поле сообщения.",
+  "messages_captcha_passed": "CAPTCHA пройдена. Ваше сообщение доставлено.",
+  "messages_captcha_retry": "CAPTCHA не пройдена. Отправьте новое сообщение, чтобы попробовать снова.",
+  "messages_captcha_exhausted": "CAPTCHA не пройдена. Попытки исчерпаны.",
+  "messages_captcha_image": "CAPTCHA для чата"
 }
