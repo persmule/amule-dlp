@@ -46,6 +46,11 @@ if (BUILD_MONOLITHIC OR BUILD_REMOTEGUI)
 	add_test (NAME IconArtworkTest COMMAND IconArtworkTest)
 	set_tests_properties (IconArtworkTest PROPERTIES SKIP_RETURN_CODE 77 LABELS "gui")
 	if (UNIX AND NOT APPLE)
+		add_test (NAME IconArtworkHeadlessTest
+			COMMAND ${CMAKE_COMMAND}
+				-DICON_ARTWORK_TEST=$<TARGET_FILE:IconArtworkTest>
+				-P ${CMAKE_CURRENT_SOURCE_DIR}/IconArtworkHeadlessTest.cmake
+		)
 		add_test (NAME IconArtworkDarkTest COMMAND IconArtworkTest)
 		add_test (NAME IconArtworkHighContrastTest COMMAND IconArtworkTest)
 		set_tests_properties (IconArtworkDarkTest PROPERTIES

@@ -25,6 +25,7 @@
 // GUI rendering regression test. CI requires a display; local headless runs may skip.
 
 #include <wx/app.h>
+#include <wx/log.h>
 #include <wx/frame.h>
 #include <wx/mstream.h>
 #include <wx/image.h>
@@ -42,6 +43,51 @@
 #include <cstring>
 #include <cstdlib>
 
+// Keep diagnostics visible to CTest without opening modal dialogs. Optional
+// GUI startup may skip; once initialized, every warning or error is fatal.
+class FailingLogStderr : public wxLogStderr
+{
+public:
+	explicit FailingLogStderr(bool failImmediately = true)
+	: m_failImmediately(failImmediately)
+	{
+	}
+
+	void FinishInitialization()
+	{
+		m_failImmediately = true;
+		if (m_failed) {
+			Flush();
+			std::exit(EXIT_FAILURE);
+		}
+	}
+
+protected:
+	void DoLogRecord(wxLogLevel level, const wxString &message, const wxLogRecordInfo &info) override
+	{
+		wxLogStderr::DoLogRecord(level, message, info);
+		if (level == wxLOG_Error || level == wxLOG_Warning) {
+			m_failed = true;
+			if (m_failImmediately) {
+				Flush();
+				std::exit(EXIT_FAILURE);
+			}
+		}
+	}
+
+private:
+	bool m_failImmediately;
+	bool m_failed = false;
+};
+
+static void IconArtworkAssertHandler(
+	const wxString &file, int line, const wxString &func, const wxString &cond, const wxString &msg)
+{
+	std::cerr << file.ToUTF8().data() << ":" << line << ": " << func.ToUTF8().data() << ": assertion "
+		  << cond.ToUTF8().data() << " failed: " << msg.ToUTF8().data() << "\n";
+	std::exit(EXIT_FAILURE);
+}
+
 class CheckApp : public wxApp
 {
 public:
@@ -55,10 +101,16 @@ void require(bool ok, const char *message)
 }
 int main(int argc, char **argv)
 {
+	// Cover startup without turning an optional headless skip into a failure.
+	const bool requireGui = std::getenv("AMULE_ICON_TEST_REQUIRE_GUI") != nullptr;
+	auto *log = new FailingLogStderr(requireGui);
+	delete wxLog::SetActiveTarget(log);
+	wxSetAssertHandler(IconArtworkAssertHandler);
 	if (!wxEntryStart(argc, argv)) {
 		std::cerr << "GUI initialization failed: no native rendering checks ran\n";
-		return std::getenv("AMULE_ICON_TEST_REQUIRE_GUI") ? 1 : 77;
+		return requireGui ? 1 : 77;
 	}
+	log->FinishInitialization();
 	if (!wxTheApp->CallOnInit()) {
 		wxEntryCleanup();
 		return 1;
