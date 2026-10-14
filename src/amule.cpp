@@ -100,6 +100,7 @@
 #include "Preferences.h"                // Needed for CPreferences
 #include "PublicIPv6Corroboration.h"    // Needed for ObservedPublicIPv6
 #include "SearchList.h"                 // Needed for CSearchList
+#include "SharedFileList.h"             // Needed for ClearKadSourcePublishInfo
 #include "Server.h"                     // Needed for GetListName
 #include "ServerList.h"                 // Needed for CServerList
 #include "ServerConnect.h"              // Needed for CServerConnect
@@ -1788,6 +1789,7 @@ bool CamuleApp::RebindP2PSockets(bool tcpPortChanged, bool udpPortChanged, uint1
 #ifdef ENABLE_IPV6
 static std::optional<CNetworkAddress> s_advertisedIPv6Choice;
 static std::optional<CNetworkAddress> s_lastAdvertisedIPv6;
+static std::optional<CNetworkAddress> s_lastKadPublishedIPv6;
 #endif
 
 void RefreshLocalPublicIPv6Addresses()
@@ -1831,6 +1833,12 @@ std::optional<CNetworkAddress> AdvertisedIPv6ForPeers()
 	facts.listenerAcceptsIPv6 = theApp->listensocket && theApp->listensocket->BoundHost() == "[::]";
 
 	const std::optional<CNetworkAddress> advertised = DecideAdvertisedIPv6(facts);
+	if (ShouldRepublishKadSources(s_lastKadPublishedIPv6, facts)) {
+		if (theApp->sharedfiles) {
+			theApp->sharedfiles->ClearKadSourcePublishInfo();
+		}
+		s_lastKadPublishedIPv6 = advertised;
+	}
 	if (advertised != s_lastAdvertisedIPv6) {
 		if (advertised) {
 			AddLogLineN(CFormat("Advertising our IPv6 address %s to peers") %
