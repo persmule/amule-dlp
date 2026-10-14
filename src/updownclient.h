@@ -768,6 +768,9 @@ public:
 	bool HasDisabledSharedFiles() const { return m_fNoViewSharedFiles; }
 
 private:
+	// Sends OP_MESSAGE on the open connection, without SendChatMessage()'s chat bookkeeping.
+	void SendChatPacket(const wxString &message);
+
 	CClientCredits *credits;
 	CFriend *m_Friend;
 
