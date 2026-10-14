@@ -388,7 +388,7 @@ void CServerUDPSocket::OnReceiveError(int errorCode, uint32 ip, uint16 port)
 void CServerUDPSocket::SendPacket(
 	CPacket *packet, CServer *host, bool delPacket, bool rawpacket, uint16 port_offset)
 {
-	ServerUDPPacket item = { NULL, 0, 0, "" };
+	ServerUDPPacket item;
 
 	if (host->HasDynIP()) {
 		item.addr = host->GetDynIP();
@@ -418,7 +418,7 @@ void CServerUDPSocket::SendPacket(
 		item.port = host->GetObfuscationPortUDP();
 
 		CMemFile encryptedpacket(pRawPacket + 2, uRawPacketSize - 2);
-		item.packet = new CPacket(encryptedpacket, pRawPacket[0], pRawPacket[1]);
+		item.packet = std::make_unique<CPacket>(encryptedpacket, pRawPacket[0], pRawPacket[1]);
 		delete[] pRawPacket;
 
 		if (delPacket) {
@@ -431,26 +431,28 @@ void CServerUDPSocket::SendPacket(
 				host->GetListName() % host->GetObfuscationPortUDP() %
 				(rawpacket ? "True" : "False") % packet->GetOpCode());
 		if (delPacket) {
-			item.packet = packet;
+			item.packet.reset(packet);
 		} else {
-			item.packet = new CPacket(*packet);
+			item.packet = std::make_unique<CPacket>(*packet);
 		}
 	}
 
-	m_queue.push_back(item);
+	if (!m_queue.Push(std::move(item))) {
+		AddDebugLogLineN(logServerUDP, "Dropping server UDP packet: pending DNS queue is full.");
+		return;
+	}
 
 	// If there is more than one item in the queue,
 	// then we are already waiting for a dns query.
-	if (m_queue.size() == 1) {
+	if (m_queue.Size() == 1) {
 		SendQueue();
 	}
 }
 
 void CServerUDPSocket::SendQueue()
 {
-	while (!m_queue.empty()) {
-		ServerUDPPacket item = m_queue.front();
-		CPacket *packet = item.packet;
+	while (!m_queue.Empty()) {
+		ServerUDPPacket &item = m_queue.Front();
 
 		// Do we need to do a DNS lookup before sending?
 		wxASSERT(item.ip || !item.addr.IsEmpty());
@@ -501,8 +503,7 @@ void CServerUDPSocket::SendQueue()
 									item.addr);
 							// Let the packet queued, and wait for resolution
 							// Meanwhile, send other packets.
-							m_queue.pop_front();
-							m_queue.push_back(item);
+							m_queue.RotateFront();
 							return;
 						}
 					}
@@ -522,8 +523,14 @@ void CServerUDPSocket::SendQueue()
 			AddDebugLogLineN(
 				logServerUDP, "Sending a UDP packet to a server: " + update->GetAddress());
 			// Don't encrypt, as this is already either encrypted or refused to encrypt.
-			CMuleUDPSocket::SendPacket(packet, item.ip, item.port, false, NULL, false, 0);
-			m_queue.pop_front();
+			ServerUDPPacket outgoing = m_queue.Pop();
+			CMuleUDPSocket::SendPacket(outgoing.packet.release(),
+				outgoing.ip,
+				outgoing.port,
+				false,
+				nullptr,
+				false,
+				0);
 		} else {
 			AddDebugLogLineN(logServerUDP,
 				"Sending a UDP packet to a server no in serverlist: " +
@@ -535,15 +542,14 @@ void CServerUDPSocket::SendQueue()
 
 void CServerUDPSocket::DropQueuedPacket()
 {
-	delete m_queue.front().packet;
-	m_queue.pop_front();
+	m_queue.Pop();
 }
 
 void CServerUDPSocket::OnHostnameResolved(uint32 ip)
 {
-	wxCHECK_RET(m_queue.size(), "DNS query returned, but no packets are queued.");
+	wxCHECK_RET(m_queue.Size(), "DNS query returned, but no packets are queued.");
 
-	ServerUDPPacket item = m_queue.front();
+	const ServerUDPPacket &item = m_queue.Front();
 	wxCHECK_RET(!item.ip && !item.addr.IsEmpty(), "DNS resolution not expected.");
 
 	/* An asynchronous database routine completed. */
@@ -568,9 +574,6 @@ void CServerUDPSocket::OnHostnameResolved(uint32 ip)
 		if (update) {
 			update->SetID(ip);
 		}
-
-		item.addr.Clear();
-		item.ip = ip;
 	}
 
 	SendQueue();

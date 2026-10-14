@@ -27,6 +27,7 @@
 #define SERVERUDPSOCKET_H
 
 #include "MuleUDPSocket.h"
+#include "ServerUDPPacketQueue.h"
 
 class CPacket;
 class CServer;
@@ -49,16 +50,7 @@ private:
 	//! Removes the front item without sending it; the queue owns its packet.
 	void DropQueuedPacket();
 
-	struct ServerUDPPacket
-	{
-		CPacket *packet;
-		uint32 ip;
-		uint16 port;
-		wxString addr;
-	};
-
-	typedef std::list<ServerUDPPacket> PacketList;
-	PacketList m_queue;
+	CServerUDPPacketQueue m_queue;
 };
 
 #endif // SERVERUDPSOCKET_H
