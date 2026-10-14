@@ -485,6 +485,11 @@ msgstr "Węzły startowe Kad (nodes.dat)"
 
 #: src/amule.cpp
 #, c-format
+msgid "Not starting %s: it is neither next to aMule nor on PATH."
+msgstr ""
+
+#: src/amule.cpp
+#, c-format
 msgid "web server running on pid %d"
 msgstr "serwer sieciowy uruchomiony na pid %d"
 

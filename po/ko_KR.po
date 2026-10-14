@@ -482,6 +482,11 @@ msgstr "Kad 부트스트랩 노드 (nodes.dat)"
 
 #: src/amule.cpp
 #, c-format
+msgid "Not starting %s: it is neither next to aMule nor on PATH."
+msgstr ""
+
+#: src/amule.cpp
+#, c-format
 msgid "web server running on pid %d"
 msgstr "웹 서버가 pid %d에서 실행 중입니다"
 

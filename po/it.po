@@ -511,6 +511,11 @@ msgstr "Nodi di bootstrap Kad (nodes.dat)"
 
 #: src/amule.cpp
 #, c-format
+msgid "Not starting %s: it is neither next to aMule nor on PATH."
+msgstr ""
+
+#: src/amule.cpp
+#, c-format
 msgid "web server running on pid %d"
 msgstr "web server in esecuzione su pid %d"
 

@@ -489,6 +489,11 @@ msgstr "Nós de arranque Kad (nodes.dat)"
 
 #: src/amule.cpp
 #, c-format
+msgid "Not starting %s: it is neither next to aMule nor on PATH."
+msgstr ""
+
+#: src/amule.cpp
+#, c-format
 msgid "web server running on pid %d"
 msgstr "servidor web a executar no pid %d"
 
