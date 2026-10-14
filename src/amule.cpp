@@ -2215,6 +2215,12 @@ void CamuleApp::OnCoreTimer(CTimerEvent &WXUNUSED(evt))
 		return;
 	}
 
+	// Search-list changes from local and remote clients are coalesced into a bounded-rate
+	// save, rather than rewriting every stored result set on each close or result packet.
+	if (searchlist) {
+		searchlist->StoreSearchesIfDirty(msCur);
+	}
+
 	// Check if we should terminate the app. OnShutdownSignal only sets the flag; the actual
 	// exit trigger runs from here (normal context) every CORE_TIMER_PERIOD ms.
 	if (g_shutdownSignal) {

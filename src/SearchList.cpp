@@ -270,6 +270,8 @@ CSearchList::CSearchList()
 , m_awaitingServerAnswer(false)
 , m_searchStart(0)
 , m_shuttingDown(false)
+, m_storedSearchesDirty(false)
+, m_lastStoredSearchesAttemptMs(0)
 {
 }
 
@@ -305,6 +307,7 @@ void CSearchList::RemoveResults(wxUIntPtr searchID)
 		return;
 	}
 	StopSearchById(searchID);
+	MarkStoredSearchesDirty(static_cast<uint32_t>(searchID));
 	// A closed search must not be recreated by an already queued server reply.
 	if (m_currentSearch == searchID) {
 		m_currentSearch = wxUIntPtr(-1);
@@ -344,24 +347,25 @@ void CSearchList::RemoveResults(wxUIntPtr searchID)
 		Notify_Search_Removed(searchID);
 	}
 
-	// removed owns the detached results until all notifications have returned.
+	// removed owns the detached results until all notifications have returned. The dirty
+	// state is flushed by the core timer, avoiding a full rewrite for every close/eviction.
 }
 
 const wxChar *const CSearchList::s_storedSearchesFilename = wxT("StoredSearches.met");
 
-void CSearchList::StoreSearches() const
+bool CSearchList::StoreSearches(bool reportTruncation) const
 {
 	// Same contract as the search-terms dropdown this setting already governs (SearchDlg.cpp):
 	// off means "don't remember", and a search's full result set is a stronger form of that
 	// than the query string alone. LoadSearches() is the one that removes a file left over from
 	// when this was still on.
 	if (!thePrefs::RememberSearchHistory()) {
-		return;
+		return true;
 	}
 
 	CFile file(thePrefs::GetConfigDir() + s_storedSearchesFilename, CFile::write_safe);
 	if (!file.IsOpened()) {
-		return;
+		return false;
 	}
 
 	// Oldest-first by start time, so if we have to drop any for the cap
@@ -385,8 +389,10 @@ void CSearchList::StoreSearches() const
 	});
 
 	if (ids.size() > MAX_STORED_SEARCHES) {
-		AddLogLineC(CFormat(_("Only saving the %u most recent of %u open searches to %s.")) %
-			    MAX_STORED_SEARCHES % ids.size() % s_storedSearchesFilename);
+		if (reportTruncation) {
+			AddLogLineC(CFormat(_("Only saving the %u most recent of %u open searches to %s.")) %
+				    MAX_STORED_SEARCHES % ids.size() % s_storedSearchesFilename);
+		}
 		ids.erase(ids.begin(), ids.end() - MAX_STORED_SEARCHES);
 	}
 
@@ -396,9 +402,11 @@ void CSearchList::StoreSearches() const
 	for (uint32_t id : ids) {
 		const CSearchResultList &results = GetSearchResults(id);
 		std::size_t resultCount = results.size();
-		if (resultCount > MAX_STORED_RESULTS_PER_SEARCH) {
+		if (reportTruncation && resultCount > MAX_STORED_RESULTS_PER_SEARCH) {
 			AddLogLineC(CFormat(_("Only saving the first %u of %u results for search \"%s\".")) %
 				    MAX_STORED_RESULTS_PER_SEARCH % resultCount % m_searchStrings.at(id));
+		}
+		if (resultCount > MAX_STORED_RESULTS_PER_SEARCH) {
 			resultCount = MAX_STORED_RESULTS_PER_SEARCH;
 		}
 
@@ -418,7 +426,34 @@ void CSearchList::StoreSearches() const
 	// write_safe writes to a .new sibling; only Close() performs the rename onto the real
 	// filename. Without this call the .new file is left orphaned and StoredSearches.met itself
 	// is never updated.
-	file.Close();
+	return file.Close();
+}
+
+void CSearchList::MarkStoredSearchesDirty(uint32_t searchID)
+{
+	const auto kind = m_searchKinds.find(searchID);
+	if (kind == m_searchKinds.end() || kind->second != BrowseSearch) {
+		m_storedSearchesDirty = true;
+	}
+}
+
+void CSearchList::StoreSearchesIfDirty(uint64_t uptimeMs)
+{
+	static const uint64_t STORE_INTERVAL_MS = 30000;
+	if (!m_storedSearchesDirty || uptimeMs - m_lastStoredSearchesAttemptMs < STORE_INTERVAL_MS) {
+		return;
+	}
+
+	// Rate-limit retries too, so an unwritable config directory does not cause an open/write
+	// attempt on every core-timer tick. Keep the dirty flag set if the safe write fails.
+	m_lastStoredSearchesAttemptMs = uptimeMs;
+	try {
+		if (StoreSearches(false)) {
+			m_storedSearchesDirty = false;
+		}
+	} catch (const CIOFailureException &e) {
+		AddLogLineC(CFormat(_("IO error while saving %s: %s")) % s_storedSearchesFilename % e.what());
+	}
 }
 
 namespace
@@ -723,6 +758,7 @@ wxString CSearchList::StartNewSearch(uint32 *searchID, SearchType type, CSearchP
 	// search's real type regardless of the scalar anchor bookkeeping.
 	m_searchKinds[static_cast<uint32_t>(*searchID)] = type;
 	m_searchStrings[static_cast<uint32_t>(*searchID)] = params.searchString;
+	MarkStoredSearchesDirty(static_cast<uint32_t>(*searchID));
 	// Concurrent Kad searches can have different filters. Apply each query's own
 	// filter rather than whichever type was most recently submitted.
 	if (!params.typeText.IsEmpty() && params.typeText != ED2KFTSTR_PROGRAM &&
@@ -1137,6 +1173,7 @@ bool CSearchList::WasServerAsked(uint32 serverIP) const
 bool CSearchList::AddToList(std::unique_ptr<CSearchFile> owned, bool clientResponse)
 {
 	CSearchFile *toadd = owned.get();
+	const uint32_t searchID = static_cast<uint32_t>(toadd->GetSearchID());
 	const uint64 fileSize = toadd->GetFileSize();
 	// If filesize is 0, or file is too large for the network, drop it
 	if ((fileSize == 0) || (fileSize > MAX_FILE_SIZE)) {
@@ -1189,6 +1226,7 @@ bool CSearchList::AddToList(std::unique_ptr<CSearchFile> owned, bool clientRespo
 				Notify_Search_Add_Result(toadd);
 			}
 			Notify_Search_Update_Sources(item);
+			MarkStoredSearchesDirty(searchID);
 			return true;
 		}
 	}
@@ -1200,6 +1238,7 @@ bool CSearchList::AddToList(std::unique_ptr<CSearchFile> owned, bool clientRespo
 	IndexResult(toadd);
 	owned.release();
 	Notify_Search_Add_Result(toadd);
+	MarkStoredSearchesDirty(searchID);
 
 	return true;
 }
