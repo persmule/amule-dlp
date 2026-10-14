@@ -7187,6 +7187,11 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr ""
 
 #: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "%s 파일을 읽는 중 입출력 오류 발생: %s"
+
+#: src/SearchList.cpp
 #, fuzzy
 msgid "WARNING: Stored search list corrupted, contains invalid header."
 msgstr "경고: 알려진파일 목록이 손상됨, 유효하지 않는 머리말을 포함하고 있습니다."

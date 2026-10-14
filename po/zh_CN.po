@@ -7172,6 +7172,11 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr "仅保存搜索 “%3$s” 获得的前 %1$u 个结果，共 %2$u 个结果。"
 
 #: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "读取 %s 文件时发生 IO 错误：%s"
+
+#: src/SearchList.cpp
 msgid "WARNING: Stored search list corrupted, contains invalid header."
 msgstr "警告: 存储的搜索列表已损坏，含无效头部。"
 

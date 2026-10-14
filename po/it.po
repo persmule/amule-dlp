@@ -7182,6 +7182,11 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr "Verranno salvati solo i primi %u risultati su %u per la ricerca \"%s\"."
 
 #: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "Errore I/O durante la lettura del file %s: %s"
+
+#: src/SearchList.cpp
 msgid "WARNING: Stored search list corrupted, contains invalid header."
 msgstr "ATTENZIONE: la lista delle ricerche salvate è danneggiata, contiene un'intestazione non valida."
 

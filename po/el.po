@@ -7191,6 +7191,11 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr ""
 
 #: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "Σφάλμα εισόδου/εξόδου κατά την ανάγνωση του αρχείου %s: %s"
+
+#: src/SearchList.cpp
 #, fuzzy
 msgid "WARNING: Stored search list corrupted, contains invalid header."
 msgstr "ΠΡΟΕΙΔΟΠΟΙΗΣΗ: η λίστα των γνωστών αρχείων είναι φθαρμένη, περιέχει άκυρη επικεφαλίδα."

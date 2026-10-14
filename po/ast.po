@@ -7196,6 +7196,11 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr ""
 
 #: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "Fallu d'E/S al lleer el ficheru %s: %s"
+
+#: src/SearchList.cpp
 #, fuzzy
 msgid "WARNING: Stored search list corrupted, contains invalid header."
 msgstr "AVISU: Ficheru de llista de compartíos corruptu, tien una testera inválida."

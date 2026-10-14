@@ -7173,6 +7173,11 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr "Sla alleen se eerste %u van %u resultaten van zoekopdracht \"%s\" op."
 
 #: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "IO-fout bij het lezen van bestand %s: %s"
+
+#: src/SearchList.cpp
 msgid "WARNING: Stored search list corrupted, contains invalid header."
 msgstr "WAARSCHUWING: Opgeslagen zoeklijst beschadigd, bevat ongeldige header."
 

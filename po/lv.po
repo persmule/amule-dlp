@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: aMule GIT\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-12 16:51+0000\n"
+"PO-Revision-Date: 2026-10-14 20:19+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: none\n"
 "Language: lv\n"
@@ -1727,7 +1727,7 @@ msgstr "Dalībnieks %s (%u) nosūtīja kopīgoto datņu sarakstu mapei '%s'"
 #: src/ClientTCPSocket.cpp
 #, c-format
 msgid "User %s (%u) finished sending sharedfiles-list"
-msgstr "Dalībnieks %s (%u) pabeidza kopīgoto datņu saraksta sūtīšanu"
+msgstr "Dalībnieks %s (%u) nosūtīja kopīgoto datņu sarakstu"
 
 #: src/ClientTCPSocket.cpp
 #, c-format
@@ -5211,7 +5211,7 @@ msgstr "Noņemt"
 
 #: src/muuli_wdr.cpp
 msgid "(Right click on folder icon for recursive share)"
-msgstr "(Ar peles labo pogu noklikšķiniet uz mapes ikonas, lai kopīgotu rekursīvi)"
+msgstr "(Lai kopīgotu mapi un visas tās apakšmapes, noklikšķiniet uz mapes ikonas ar peles labo pogu)"
 
 #: src/muuli_wdr.cpp
 msgid "Share hidden files"
@@ -7107,7 +7107,7 @@ msgstr "Apstiprināt kopīgotās mapes"
 #: src/PrefsUnifiedDlg.cpp src/SharedFileList.cpp
 #: src/SharedFilesReloadProgress.cpp
 msgid "Reloading shared files..."
-msgstr "Notiek kopīgoto datņu pārlādēšana..."
+msgstr "Pārlādē kopīgotās datnes…"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Scanning for subdirectories..."
@@ -7188,6 +7188,11 @@ msgstr ""
 #, c-format
 msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr ""
+
+#: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "IO kļūda, lasot %s datni: %s"
 
 #: src/SearchList.cpp
 msgid "WARNING: Stored search list corrupted, contains invalid header."
@@ -8436,7 +8441,7 @@ msgstr "Servera noslodze: %.2f%%"
 #: src/Statistics.cpp
 #, c-format
 msgid "Number of Shared Files: %s"
-msgstr "Kopīgoto datņu skaits: %s"
+msgstr "Kopīgoto datņu kopskaits: %s"
 
 #: src/Statistics.cpp
 #, c-format

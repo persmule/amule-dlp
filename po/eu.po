@@ -7192,6 +7192,11 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr ""
 
 #: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "SI errorea %s fitxategia irakurtzean: %s"
+
+#: src/SearchList.cpp
 #, fuzzy
 msgid "WARNING: Stored search list corrupted, contains invalid header."
 msgstr "Abisua: Fitxategi ezagun zerrenda hondaturik dago, buru baliogabeak ditu."

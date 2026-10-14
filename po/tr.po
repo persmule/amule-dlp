@@ -7162,6 +7162,11 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr "Sadece ilk %u sonuç, toplam %u sonuç üzerinden, \"%s\" araması için kaydediliyor."
 
 #: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "%s dosyası okumada IO hatası: %s"
+
+#: src/SearchList.cpp
 msgid "WARNING: Stored search list corrupted, contains invalid header."
 msgstr "UYARI: kaydedilmiş arama listesi bozuk, geçersiz başlık içeriyor."
 

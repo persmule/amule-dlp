@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-07 16:24+0000\n"
+"PO-Revision-Date: 2026-10-14 20:19+0000\n"
 "Last-Translator: Diego Heras <ngosang@hotmail.es>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/amule/amule-application/es/>\n"
 "Language: es\n"
@@ -563,54 +563,54 @@ msgstr ""
 
 #: src/amule.cpp
 msgid "The P2P TCP port conflicts with the External Connections port. No sockets were changed.\n"
-msgstr ""
+msgstr "El puerto TCP P2P entra en conflicto con el puerto de Conexiones Externas. No se modificó ningún socket.\n"
 
 #: src/amule.cpp
 msgid "The P2P TCP port is too high for its associated server UDP port. No sockets were changed.\n"
-msgstr ""
+msgstr "El puerto TCP P2P es demasiado alto para su puerto UDP de servidor asociado. No se modificó ningún socket.\n"
 
 #: src/amule.cpp
 msgid "The client UDP port conflicts with the server UDP port (TCP+3). No sockets were changed.\n"
-msgstr ""
+msgstr "El puerto UDP de cliente entra en conflicto con el puerto UDP de servidor (TCP+3). No se modificó ningún socket.\n"
 
 #: src/amule.cpp
 #, c-format
 msgid "Could not rebind the server UDP port %u; no sockets were changed.\n"
-msgstr ""
+msgstr "No se pudo volver a vincular el puerto UDP de servidor %u; no se modificó ningún socket.\n"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not rebind the P2P TCP port %u. %s"
-msgstr "ERROR: no se puede escuchar en el puerto TCP."
+msgstr "No se pudo volver a vincular el puerto TCP de P2P %u. %s"
 
 #: src/amule.cpp
 msgid "The previous listener and server UDP socket remain active.\n"
-msgstr ""
+msgstr "El listener anterior y el socket UDP de servidor permanecen activos.\n"
 
 #: src/amule.cpp
 msgid "The server UDP socket could not be restored; restart aMule.\n"
-msgstr ""
+msgstr "No se pudo restaurar el socket UDP de servidor; reinicie aMule.\n"
 
 #: src/amule.cpp
 msgid "The previous P2P listeners remain active.\n"
-msgstr ""
+msgstr "Los listeners P2P anteriores permanecen activos.\n"
 
 #: src/amule.cpp
 msgid "The previous client UDP socket remains active.\n"
-msgstr ""
+msgstr "El socket UDP de cliente anterior permanece activo.\n"
 
 #: src/amule.cpp
 msgid "Some previous P2P sockets could not be restored; restart aMule.\n"
-msgstr ""
+msgstr "No se pudieron restaurar algunos sockets P2P anteriores; reinicie aMule.\n"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not rebind the client UDP port %u. %s"
-msgstr "No se pudo eliminar la categoría: %s"
+msgstr "No se pudo volver a vincular el puerto UDP de cliente %u. %s"
 
 #: src/amule.cpp
 msgid "P2P listening sockets rebound; established peer connections were kept."
-msgstr ""
+msgstr "Se volvieron a vincular los sockets de escucha P2P; se mantuvieron las conexiones establecidas con los pares."
 
 #: src/amule.cpp
 msgid "Failed to create OnlineSig File"
@@ -1225,7 +1225,7 @@ msgstr "Todos"
 
 #: src/amule-remote-gui.cpp
 msgid "The daemon could not apply the connection port changes."
-msgstr ""
+msgstr "El demonio no pudo aplicar los cambios en los puertos de conexión."
 
 #: src/amule-remote-gui.cpp
 msgid "not readable"
@@ -1277,7 +1277,7 @@ msgstr "El demonio conectado no admite búsquedas en todas las redes."
 
 #: src/BaseClient.cpp
 msgid "Searching buddy for lowid connection"
-msgstr "Buscando un amigo para conexión con Id Baja"
+msgstr "Buscando un compañero para conexión con Id Baja"
 
 #: src/BaseClient.cpp
 #, c-format
@@ -2374,9 +2374,9 @@ msgid "FileHash not found: %s"
 msgstr "Hash de archivo no encontrado: %s"
 
 #: src/ExternalConn.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot cancel a finished download: %s"
-msgstr "Descarga terminada: %s"
+msgstr "No se puede cancelar una descarga finalizada: %s"
 
 #: src/ExternalConn.cpp
 #, fuzzy, c-format
@@ -2817,27 +2817,27 @@ msgstr "OK"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
-msgstr ""
+msgstr "La orden no contiene ningún ejecutable."
 
 #: src/ExternalCommand.cpp
 msgid "The command template or an argument contains a NUL character."
-msgstr ""
+msgstr "La plantilla de la orden o un argumento contiene un carácter NUL."
 
 #: src/ExternalCommand.cpp
 msgid "An event value cannot select the executable."
-msgstr ""
+msgstr "El valor de un evento no puede seleccionar el ejecutable."
 
 #: src/ExternalCommand.cpp
 msgid "An event value would be used as interpreter code, a script name, or an unsupported launcher argument."
-msgstr ""
+msgstr "El valor de un evento se utilizaría como código del intérprete, nombre de script o un argumento de lanzador no admitido."
 
 #: src/ExternalCommand.cpp
 msgid "A command-shell argument contains a double quote, percent sign, exclamation mark, or line break."
-msgstr ""
+msgstr "Un argumento del intérprete de órdenes contiene una comilla doble, un signo de porcentaje, un signo de exclamación o un salto de línea."
 
 #: src/ExternalCommand.cpp
 msgid "cmd.exe requires a fixed builtin or an explicit .exe, .com, .bat, or .cmd target followed by separate data arguments."
-msgstr ""
+msgstr "cmd.exe requiere una orden interna fija o un destino explícito .exe, .com, .bat o .cmd seguido de argumentos de datos independientes."
 
 #: src/FileLaunch.cpp
 msgid "File preview"
@@ -2846,7 +2846,7 @@ msgstr "Previsualizar el archivo"
 #: src/FileLaunch.cpp
 #, c-format
 msgid "Media-player command '%s' was not run: %s"
-msgstr ""
+msgstr "No se ejecutó la orden del reproductor multimedia '%s': %s"
 
 #: src/FileLaunch.cpp
 #, c-format
@@ -3194,9 +3194,9 @@ msgid "Failed to open MaxMindDB database '%s': %s"
 msgstr "Fallo al abrir la base de datos MaxMindDB '%s': %s"
 
 #: src/geoip/MaxMindDBDatabase.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to replace MaxMindDB database '%s': %s"
-msgstr "Fallo al abrir la base de datos MaxMindDB '%s': %s"
+msgstr "No se pudo reemplazar la base de datos de MaxMindDB '%s': %s"
 
 #: src/HTTPDownload.cpp
 msgid "Downloading..."
@@ -3340,33 +3340,32 @@ msgstr "El filtro de IP está listo"
 
 #: src/KadContactHistogram.h
 msgid "Contacts grouped by the first twelve bits of their KadID. Blue: all contacts; green: verified addresses. The marker shows your own KadID; clustering near it is expected."
-msgstr ""
+msgstr "Contactos agrupados por los primeros doce bits de su KadID. Azul: todos los contactos; verde: direcciones verificadas. El marcador indica su propio KadID; es normal que se concentren cerca de él."
 
 #: src/KadContactHistogram.h
 msgid "Loading contact distribution..."
-msgstr ""
+msgstr "Cargando la distribución de contactos..."
 
 #: src/KadContactHistogram.h
 msgid "This core does not send the contact distribution. Update the core to see the chart."
-msgstr ""
+msgstr "Este núcleo no envía la distribución de contactos. Actualice el núcleo para ver la gráfica."
 
 #: src/KadContactHistogram.h
 msgid "The core sent contact distribution data that could not be read."
-msgstr ""
+msgstr "El núcleo envió datos de distribución de contactos que no se pudieron leer."
 
 #: src/KadContactHistogram.h
 #, c-format
 msgid "Routing-table contacts: %u; verified: %u; distinct /24s: %u"
-msgstr ""
+msgstr "Contactos en la tabla de enrutamiento: %u; verificados: %u; subredes /24 distintas: %u"
 
 #: src/KadDlg.cpp
 msgid "Requesting Kad lookup diagnostics..."
-msgstr ""
+msgstr "Solicitando diagnósticos de búsqueda Kad..."
 
 #: src/KadDlg.cpp
-#, fuzzy
 msgid "The connected core does not support Kad lookup diagnostics."
-msgstr "El demonio conectado no admite búsquedas en todas las redes."
+msgstr "El núcleo conectado no admite diagnósticos de búsqueda Kad."
 
 #: src/KadDlg.cpp src/muuli_wdr.cpp src/StatisticsDlg.cpp
 msgid "Current"
@@ -3415,20 +3414,19 @@ msgstr "¿Quiere continuar?"
 
 #: src/KadLookupView.h
 msgid "Kad lookup diagnostics"
-msgstr ""
+msgstr "Diagnósticos de búsqueda Kad"
 
 #: src/KadLookupView.h
-#, fuzzy
 msgid "The core does not support Kad lookup diagnostics."
-msgstr "El demonio conectado no admite búsquedas en todas las redes."
+msgstr "El núcleo no admite diagnósticos de búsqueda Kad."
 
 #: src/KadLookupView.h
 msgid "Invalid Kad lookup diagnostics reply."
-msgstr ""
+msgstr "Respuesta de diagnósticos de búsqueda Kad no válida."
 
 #: src/KadLookupView.h
 msgid "Connection lost. Reconnect and request lookup diagnostics again."
-msgstr ""
+msgstr "Se ha perdido la conexión. Vuelva a conectarse y solicite los diagnósticos de búsqueda de nuevo."
 
 #: src/kademlia/kademlia/SearchManager.cpp
 msgid "Kademlia: search keyword too short"
@@ -3468,120 +3466,109 @@ msgstr[0] "Escrito %d contacto Kad"
 msgstr[1] "Escritos %d contactos Kad"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
-#, fuzzy
 msgid "Node"
-msgstr "Nodos (0)"
+msgstr "Nodo"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
-#, fuzzy
 msgid "Complete node"
-msgstr "Completado"
+msgstr "Nodo completo"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
-#, fuzzy
 msgid "File"
-msgstr "Archivos"
+msgstr "Archivo"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
 msgid "Keyword"
-msgstr ""
+msgstr "Palabra clave"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
 msgid "Notes"
-msgstr ""
+msgstr "Notas"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
 msgid "Publish file"
-msgstr ""
+msgstr "Publicar archivo"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
 msgid "Publish keyword"
-msgstr ""
+msgstr "Publicar palabra clave"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
 msgid "Publish notes"
-msgstr ""
+msgstr "Publicar notas"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
-#, fuzzy
 msgid "Find buddy"
-msgstr "Sin amigo"
+msgstr "Buscar compañero"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
-#, fuzzy
 msgid "Find source"
-msgstr "Fuentes del archivo:"
+msgstr "Buscar fuente"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
-#, fuzzy
 msgid "Special node"
-msgstr "Nuevo nodo"
+msgstr "Nodo especial"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
-#, fuzzy
 msgid "UDP firewall check"
-msgstr "tras cortafuegos"
+msgstr "Comprobación del cortafuegos UDP"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
 #, c-format
 msgid "type %u"
-msgstr ""
+msgstr "tipo %u"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
 #, c-format
 msgid "Lookup %s (%s, %s): %u peers, %u overdue routing requests, %u omitted peers, %u evicted referrals"
-msgstr ""
+msgstr "Búsqueda %s (%s, %s): %u pares, %u solicitudes de enrutamiento fuera de plazo, %u pares omitidos, %u referencias descartadas"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
 msgid "active lookup"
-msgstr ""
+msgstr "búsqueda activa"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
-#, fuzzy
 msgid "finished lookup"
-msgstr "Finalizado"
+msgstr "búsqueda finalizada"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Keyword: %s"
-msgstr "Filtrados: %s"
+msgstr "Palabra clave: %s"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
 #, c-format
 msgid "%s [%s], distance %s, Kad version %u (%s): %u routing requests, %u replies, last RTT %u ms, %u item requests, %u result packets, %u result records"
-msgstr ""
+msgstr "%s [%s], distancia %s, versión de Kad %u (%s): %u solicitudes de enrutamiento, %u respuestas, último RTT %u ms, %u solicitudes de elementos, %u paquetes de resultados, %u registros de resultados"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
 msgid "awaiting reply"
-msgstr ""
+msgstr "esperando respuesta"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
-#, fuzzy
 msgid "reply received"
-msgstr "No recibido"
+msgstr "respuesta recibida"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
 #, c-format
 msgid "+%u ms: %s referred %s (distance %s, %s)"
-msgstr ""
+msgstr "+%u ms: %s refirió %s (distancia %s, %s)"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
 msgid "closer to target"
-msgstr ""
+msgstr "más cerca del objetivo"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
-#, fuzzy
 msgid "no closer to target"
-msgstr "Objetivo de chat desconocido"
+msgstr "no más cerca del objetivo"
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
 msgid "Overdue means a routing request unanswered for at least 3 seconds; late replies may still arrive. Result records are received records, not unique files. Only bounded recent history is retained."
-msgstr ""
+msgstr "«Fuera de plazo» significa una solicitud de enrutamiento sin respuesta durante al menos 3 segundos; aún pueden llegar respuestas tardías. Los registros de resultados son registros recibidos, no archivos únicos. Solo se conserva un historial reciente limitado."
 
 #: src/kademlia/utils/LookupDiagnostics.cpp
-#, fuzzy
 msgid "No Kad lookup history available."
-msgstr "no hay opciones disponibles"
+msgstr "No hay historial de búsquedas Kad disponible."
 
 #: src/KnownFile.cpp
 msgid "Kad user"
@@ -4982,11 +4969,11 @@ msgstr "Reconectar al perder la conexión"
 
 #: src/muuli_wdr.cpp
 msgid "File repair hashes over Kad"
-msgstr ""
+msgstr "Hashes de reparación de archivos a través de Kad"
 
 #: src/muuli_wdr.cpp
 msgid "Share and use file repair hashes (AICH) over Kad"
-msgstr ""
+msgstr "Compartir y usar hashes de reparación de archivos (AICH) a través de Kad"
 
 #: src/muuli_wdr.cpp
 msgid ""
@@ -4998,10 +4985,17 @@ msgid ""
 "\n"
 "Technical detail: enabling this advertises Kad protocol version 0x0a and adds AICH hashes to keyword publish and search results."
 msgstr ""
+"Comparta hashes de reparación de archivos con otros nodos Kad y apréndalos de las búsquedas Kad. Estos hashes pueden ayudar a aMule a reparar datos de descarga dañados sin volver a descargar una parte entera. aMule usa un hash para la reparación solo cuando suficientes pares independientes notifican el mismo.\n"
+"\n"
+"Los clientes Kad muy antiguos (anteriores a eMule 0.49b) podrían perderse resultados de búsqueda que contengan estos hashes. Si nota que faltan resultados, pruebe a desactivar esta opción.\n"
+"\n"
+"Desactivar esta opción descarta los hashes de reparación almacenados en su índice Kad en el próximo guardado. Volver a activarla inicia de nuevo su recopilación.\n"
+"\n"
+"Detalle técnico: activar esto anuncia la versión 0x0a del protocolo Kad y añade hashes AICH a la publicación de palabras clave y a los resultados de búsqueda."
 
 #: src/muuli_wdr.cpp
 msgid "Ignore repair hashes from Kad nodes too old to support them"
-msgstr ""
+msgstr "Ignorar hashes de reparación de nodos Kad demasiado antiguos para admitirlos"
 
 #: src/muuli_wdr.cpp
 msgid ""
@@ -7181,6 +7175,11 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr "Guardando sólo el primer %u de %u resultados de búsqueda \"%s\"."
 
 #: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "Error de E/S al leer el archivo %s: %s"
+
+#: src/SearchList.cpp
 msgid "WARNING: Stored search list corrupted, contains invalid header."
 msgstr "AVISO: la lista de búsqueda almacenada está dañada, contiene una cabecera inválida."
 
@@ -7834,24 +7833,24 @@ msgstr "Estado tras cortafuegos: "
 
 #: src/ServerWnd.cpp
 msgid "No buddy required - TCP port open"
-msgstr "No se requiere amigo - puerto TCP abierto"
+msgstr "No se requiere compañero - puerto TCP abierto"
 
 #: src/ServerWnd.cpp
 msgid "No buddy required - UDP port open"
-msgstr "No se requiere amigo - puerto UDP abierto"
+msgstr "No se requiere compañero - puerto UDP abierto"
 
 #: src/ServerWnd.cpp
 msgid "No buddy"
-msgstr "Sin amigo"
+msgstr "Sin compañero"
 
 #: src/ServerWnd.cpp
 msgid "Connecting to buddy"
-msgstr "Conectando a amigo"
+msgstr "Conectando a compañero"
 
 #: src/ServerWnd.cpp
 #, c-format
 msgid "Connected to buddy at %s"
-msgstr "Conectando a amigo en %s"
+msgstr "Conectando a compañero en %s"
 
 #: src/ServerWnd.cpp
 msgid "IP address:"
