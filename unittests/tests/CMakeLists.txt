@@ -71,6 +71,12 @@ target_include_directories (IPFilterIPv6Test PRIVATE
 )
 target_link_libraries (IPFilterIPv6Test muleunit mulecommon ${Boost_LIBRARIES})
 
+# EC push delivery resumes after the recursion cap without a socket completion.
+add_executable (ECNotificationDrainTest ECNotificationDrainTest.cpp)
+add_test (NAME ECNotificationDrainTest COMMAND ECNotificationDrainTest)
+target_include_directories (ECNotificationDrainTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries (ECNotificationDrainTest muleunit mulecommon)
+
 # Callback and buddy eligibility without a running Kad instance.
 add_executable (KadCallbackPolicyTest KadCallbackPolicyTest.cpp)
 add_test (NAME KadCallbackPolicyTest COMMAND KadCallbackPolicyTest)
