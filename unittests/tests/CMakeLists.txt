@@ -2323,6 +2323,12 @@ target_link_libraries (HelperBinaryPathTest muleunit mulecommon wxWidgets::BASE)
 # Linux only: the Windows and macOS autostart backends write the user's own registry and
 # LaunchAgents; the XDG one follows $XDG_CONFIG_HOME into a scratch directory.
 if (UNIX AND NOT APPLE)
+	# Unix execvp lookup and the shared Flatpak/host config environment rules.
+	add_executable (PlayerExecutableTest PlayerExecutableTest.cpp)
+	add_test (NAME PlayerExecutableTest COMMAND PlayerExecutableTest)
+	target_include_directories (PlayerExecutableTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_link_libraries (PlayerExecutableTest muleunit mulecommon wxWidgets::BASE)
+
 	add_executable (AutostartManagerTest
 		AutostartManagerTest.cpp
 		${CMAKE_SOURCE_DIR}/src/AutostartManager.cpp

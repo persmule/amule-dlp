@@ -34,6 +34,8 @@
 #include "MacAppHelper.h" // Needed for mac_reveal_in_finder
 #endif
 
+#include "Flatpak.h"
+#include "PlayerExecutable.h"
 #include "ExternalCommand.h" // Needed for template expansion and RunDetached
 #ifdef CLIENT_GUI
 #include "amule.h" // Needed for theApp->glob_prefs (ApplyPathMapping)
@@ -94,13 +96,25 @@ bool LaunchWithPlayer(const wxString &player, const CPath &path, wxWindow *paren
 	// user sees only wx's "execvp ... failed with error 2". That is the normal state of affairs
 	// inside a Flatpak, where a host player is simply not on the sandbox's filesystem.
 	//
-	// A bare command name is left alone: resolving it would mean reimplementing the PATH search
-	// the exec does anyway. Windows paths never match this test and do not need to:
-	// CreateProcess fails synchronously, so the error path below already reports it.
-	if (parts[0].StartsWith("/") && !wxFileName::IsFileExecutable(parts[0])) {
-		Fail(CFormat(_("The configured video player was not found: %s")) % parts[0],
-			parent,
-			reportModally);
+	// In Flatpak, also check bare names so a missing host player gets a useful
+	// explanation before wxExecute forks. Other builds retain their usual PATH lookup.
+	const bool inFlatpak = InFlatpak();
+	const bool unavailable =
+		inFlatpak ? !IsPlayerAvailable(parts[0])
+			  : parts[0].StartsWith("/") && !wxFileName::IsFileExecutable(parts[0]);
+	if (unavailable) {
+		const wxString message =
+			inFlatpak
+				? CFormat(_("The configured video player is unavailable inside aMule's "
+					    "Flatpak sandbox: %s. "
+					    "Programs installed on the host are not directly available "
+					    "here. Completed files can still open with the desktop's default "
+					    "application; previewing an unfinished download needs a "
+					    "player the sandbox can run, such as a self-contained player "
+					    "saved in your home folder.")) %
+					  parts[0]
+				: CFormat(_("The configured video player was not found: %s")) % parts[0];
+		Fail(message, parent, reportModally);
 		return false;
 	}
 

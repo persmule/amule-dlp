@@ -23,6 +23,7 @@
 //
 
 #include "AutostartManager.h"
+#include "Flatpak.h"
 
 #include <wx/app.h>      // Needed for wxTheApp
 #include <wx/filename.h> // Needed for wxFileName
@@ -199,7 +200,7 @@ bool AutostartManager::Disable()
 void AutostartManager::SelfHealOnStartup()
 {
 #if !defined(__WXMSW__) && !defined(__WXMAC__) && !defined(__WXOSX__)
-	if (wxGetEnv(wxT("FLATPAK_ID"), nullptr)) {
+	if (InFlatpak()) {
 		// The portal's entry names a program inside the app, never a path: nothing drifts.
 		return;
 	}
@@ -478,11 +479,6 @@ bool BackendRemove()
 //
 // A Flatpak cannot write the host's autostart directory, so the Background portal writes the entry
 // for it, named after the app id, and the app reads it back from the host's config dir.
-
-static bool InFlatpak()
-{
-	return wxGetEnv(wxT("FLATPAK_ID"), nullptr);
-}
 
 static wxString XdgAutostartDir()
 {

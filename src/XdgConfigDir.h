@@ -25,6 +25,8 @@
 #ifndef XDGCONFIGDIR_H
 #define XDGCONFIGDIR_H
 
+#include "Flatpak.h"
+
 #include <wx/string.h>
 #include <wx/utils.h>
 
@@ -33,9 +35,9 @@
 // value on as $HOST_XDG_CONFIG_HOME.
 inline wxString XdgConfigDir()
 {
-	const bool flatpak = wxGetEnv(wxT("FLATPAK_ID"), nullptr);
 	wxString dir;
-	if (wxGetEnv(flatpak ? wxT("HOST_XDG_CONFIG_HOME") : wxT("XDG_CONFIG_HOME"), &dir) && !dir.empty()) {
+	if (wxGetEnv(InFlatpak() ? wxT("HOST_XDG_CONFIG_HOME") : wxT("XDG_CONFIG_HOME"), &dir) &&
+		!dir.empty()) {
 		return dir;
 	}
 	return wxGetUserHome() + wxT("/.config");
