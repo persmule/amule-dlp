@@ -148,6 +148,38 @@ CAICHHashTree *CAICHHashTree::FindHash(uint64 nStartPos, uint64 nSize, uint8 *nL
 	}
 }
 
+// As FindHash(), but creates nothing, and only finds a node whose path from here holds hashes.
+const CAICHHashTree *CAICHHashTree::FindExistingHash(uint64 nStartPos, uint64 nSize, uint8 *nLevel) const
+{
+	(*nLevel)++;
+
+	wxCHECK(*nLevel <= 22, nullptr);
+	wxCHECK(nStartPos + nSize <= m_nDataSize, nullptr);
+	wxCHECK(nSize <= m_nDataSize, nullptr);
+
+	if (nStartPos == 0 && nSize == m_nDataSize) {
+		return m_bHashValid ? this : nullptr;
+	}
+	wxCHECK(m_nDataSize > m_nBaseSize, nullptr); // already the last level
+
+	uint64 nBlocks = m_nDataSize / m_nBaseSize + ((m_nDataSize % m_nBaseSize != 0) ? 1 : 0);
+	uint64 nLeft = (((m_bIsLeftBranch) ? nBlocks + 1 : nBlocks) / 2) * m_nBaseSize;
+	uint64 nRight = m_nDataSize - nLeft;
+	if (nStartPos < nLeft) {
+		wxCHECK(nStartPos + nSize <= nLeft, nullptr);
+		if (m_pLeftTree == nullptr || !m_pLeftTree->m_bHashValid) {
+			return nullptr;
+		}
+		return m_pLeftTree->FindExistingHash(nStartPos, nSize, nLevel);
+	}
+	nStartPos -= nLeft;
+	wxCHECK(nStartPos + nSize <= nRight, nullptr);
+	if (m_pRightTree == nullptr || !m_pRightTree->m_bHashValid) {
+		return nullptr;
+	}
+	return m_pRightTree->FindExistingHash(nStartPos, nSize, nLevel);
+}
+
 // Recursive: calculates the missing hash from the existing ones, overwriting existing hashes. Fails
 // if no hash is found for any branch.
 bool CAICHHashTree::ReCalculateHash(CAICHHashAlgo *hashalg, bool bDontReplace)
@@ -243,10 +275,24 @@ bool CAICHHashTree::VerifyHashTree(CAICHHashAlgo *hashalg, bool bDeleteBadTrees)
 		}
 		return m_pLeftTree->VerifyHashTree(hashalg, bDeleteBadTrees) &&
 		       m_pRightTree->VerifyHashTree(hashalg, bDeleteBadTrees);
-	} else {
-		// last hash in branch - nothing below to verify
-		return true;
 	}
+
+	// last hash in branch - nothing below to verify
+
+	// As eMule 0.70b: a branch without a hash may still hold hashes further down, which were never
+	// compared with this one. Drop it, or recovery data that leaves out the siblings on a part's
+	// path would keep its unchecked block hashes.
+	if (bDeleteBadTrees) {
+		if (m_pLeftTree && !m_pLeftTree->m_bHashValid) {
+			delete m_pLeftTree;
+			m_pLeftTree = nullptr;
+		}
+		if (m_pRightTree && !m_pRightTree->m_bHashValid) {
+			delete m_pRightTree;
+			m_pRightTree = nullptr;
+		}
+	}
+	return true;
 }
 
 void CAICHHashTree::SetBlockHash(uint64 nSize, uint64 nStartPos, CAICHHashAlgo *pHashAlg)
@@ -539,6 +585,11 @@ bool CAICHHashSet::CreatePartRecoveryData(uint64 nPartStartPos, CFileDataIO *fil
 	return bResult;
 }
 
+wxString CAICHHashSet::OwnerName() const
+{
+	return m_pOwner ? m_pOwner->GetFileName().GetPrintable() : wxString();
+}
+
 bool CAICHHashSet::ReadRecoveryData(uint64 nPartStartPos, CMemFile *fileDataIn)
 {
 	if (/*eMule TODO !m_pOwner->IsPartFile() ||*/ !(
@@ -558,7 +609,8 @@ bool CAICHHashSet::ReadRecoveryData(uint64 nPartStartPos, CMemFile *fileDataIn)
 	// all hash are then taken into the tree, depending on there hashidentifier (except the masterhash)
 
 	uint8 nLevel = 0;
-	uint32 nPartSize = min<uint64>(PARTSIZE, m_pOwner->GetFileSize() - nPartStartPos);
+	// The tree spans the file (CKnownFile::SetFileSize), so no owner is needed here.
+	uint32 nPartSize = min<uint64>(PARTSIZE, m_pHashTree.m_nDataSize - nPartStartPos);
 	m_pHashTree.FindHash(nPartStartPos, nPartSize, &nLevel);
 	uint16 nHashsToRead =
 		(nLevel - 1) + nPartSize / EMBLOCKSIZE + ((nPartSize % EMBLOCKSIZE != 0) ? 1 : 0);
@@ -571,7 +623,7 @@ bool CAICHHashSet::ReadRecoveryData(uint64 nPartStartPos, CMemFile *fileDataIn)
 		AddDebugLogLineN(logSHAHashSet,
 			CFormat("Failed to read RecoveryData for '%s' - Received datasize/amounts of hashs "
 				"was invalid") %
-				m_pOwner->GetFileName());
+				OwnerName());
 		return false;
 	}
 	for (uint32 i = 0; i != nHashsAvailable; i++) {
@@ -581,7 +633,7 @@ bool CAICHHashSet::ReadRecoveryData(uint64 nPartStartPos, CMemFile *fileDataIn)
 			AddDebugLogLineN(logSHAHashSet,
 				CFormat("Failed to read RecoveryData for '%s' - Error when trying to read "
 					"hash into tree") %
-					m_pOwner->GetFileName());
+					OwnerName());
 			VerifyHashTree(true); // remove invalid hashes which we have already written
 			return false;
 		}
@@ -590,13 +642,15 @@ bool CAICHHashSet::ReadRecoveryData(uint64 nPartStartPos, CMemFile *fileDataIn)
 	// read hashs with 32bit identifier
 	if (nHashsAvailable == 0 && fileDataIn->GetLength() - fileDataIn->GetPosition() >= 2) {
 		nHashsAvailable = fileDataIn->ReadUInt16();
+		// No zero count here: there is no further section, and a zero let the loop below
+		// write hashes that the "nothing available" exit then kept unchecked.
 		if (fileDataIn->GetLength() - fileDataIn->GetPosition() < nHashsToRead * (HASHSIZE + 4u) ||
-			(nHashsToRead != nHashsAvailable && nHashsAvailable != 0)) {
+			nHashsToRead != nHashsAvailable) {
 			// this check is redundant, CSafememfile would catch such an error too
 			return false;
 		}
 
-		for (uint32 i = 0; i != nHashsToRead; i++) {
+		for (uint32 i = 0; i != nHashsAvailable; i++) {
 			uint32 wHashIdent = fileDataIn->ReadUInt32();
 			if (wHashIdent == 1 /*never allow masterhash to be overwritten*/
 				|| wHashIdent > 0x400000 ||
@@ -614,13 +668,13 @@ bool CAICHHashSet::ReadRecoveryData(uint64 nPartStartPos, CMemFile *fileDataIn)
 	if (VerifyHashTree(true)) {
 		// some final check if all hashs we wanted are there
 		for (uint32 nPartPos = 0; nPartPos < nPartSize; nPartPos += EMBLOCKSIZE) {
-			CAICHHashTree *phtToCheck = m_pHashTree.FindHash(
+			const CAICHHashTree *phtToCheck = m_pHashTree.FindExistingHash(
 				nPartStartPos + nPartPos, min<uint64>(EMBLOCKSIZE, nPartSize - nPartPos));
 			if (phtToCheck == NULL || !phtToCheck->m_bHashValid) {
 				AddDebugLogLineN(logSHAHashSet,
 					CFormat("Failed to read RecoveryData for '%s' - Error while "
 						"verifying presence of all lowest level hashes") %
-						m_pOwner->GetFileName());
+						OwnerName());
 				return false;
 			}
 		}
@@ -628,7 +682,7 @@ bool CAICHHashSet::ReadRecoveryData(uint64 nPartStartPos, CMemFile *fileDataIn)
 	} else {
 		AddDebugLogLineN(logSHAHashSet,
 			CFormat("Failed to read RecoveryData for '%s' - Verifying received hashtree failed") %
-				m_pOwner->GetFileName());
+				OwnerName());
 		return false;
 	}
 }
@@ -1175,9 +1229,10 @@ bool CAICHHashSet::IsPartDataAvailable(uint64 nPartStartPos)
 		wxFAIL;
 		return false;
 	}
-	uint64 nPartSize = min<uint64>(PARTSIZE, m_pOwner->GetFileSize() - nPartStartPos);
+	uint64 nPartSize = min<uint64>(PARTSIZE, m_pHashTree.m_nDataSize - nPartStartPos);
 	for (uint64 nPartPos = 0; nPartPos < nPartSize; nPartPos += EMBLOCKSIZE) {
-		CAICHHashTree *phtToCheck = m_pHashTree.FindHash(
+		// Only block hashes linked to the trusted root count.
+		const CAICHHashTree *phtToCheck = m_pHashTree.FindExistingHash(
 			nPartStartPos + nPartPos, min<uint64>(EMBLOCKSIZE, nPartSize - nPartPos));
 		if (phtToCheck == NULL || !phtToCheck->m_bHashValid) {
 			return false;

@@ -26,6 +26,7 @@
 #include <SHAHashSet.h>
 #include <SearchFile.h>
 #include <memory>
+#include <vector>
 #include <algorithm>
 #include <numeric>
 #include <random>
@@ -37,6 +38,7 @@
 #include <Preferences.h>
 #include <Logger.h>
 #include <kademlia/kademlia/AICHHashList.h>
+#include <protocol/ed2k/Constants.h>
 
 using namespace muleunit;
 using Kademlia::CKadAICHHashList;
@@ -832,4 +834,175 @@ TEST(AICHSearchResult, RestoredGroupKeepsItsEd2kRoot)
 	ASSERT_TRUE(restored->ApplyAICHEvidence(hashes));
 	ASSERT_EQUALS(AICH_TRUSTED, hashes.GetStatus());
 	ASSERT_TRUE(hashes.GetMasterHash() == root);
+}
+
+DECLARE_SIMPLE(AICHHashTree)
+
+namespace
+{
+// Exposes the recovery-data writer, to build what an honest source sends.
+class RecoveryTree : public CAICHHashTree
+{
+public:
+	explicit RecoveryTree(uint64 size)
+	: CAICHHashTree(size, true, size <= PARTSIZE ? EMBLOCKSIZE : PARTSIZE)
+	{
+	}
+	using CAICHHashTree::CreatePartRecoveryData;
+};
+
+struct RecoveryEntry
+{
+	uint16 ident;
+	CAICHHash hash;
+};
+
+const uint64 kThreeParts = 3 * PARTSIZE;
+
+// A complete tree over `size` bytes, each block hashing its own index.
+void FillTree(RecoveryTree &tree, uint64 size, CAICHHashAlgo *alg)
+{
+	uint64 index = 0;
+	for (uint64 part = 0; part < size; part += PARTSIZE) {
+		const uint64 partSize = std::min<uint64>(PARTSIZE, size - part);
+		for (uint64 pos = 0; pos < partSize; pos += EMBLOCKSIZE, ++index) {
+			alg->Reset();
+			alg->Add(&index, sizeof(index));
+			tree.SetBlockHash(std::min<uint64>(EMBLOCKSIZE, partSize - pos), part + pos, alg);
+		}
+	}
+	ASSERT_TRUE(tree.ReCalculateHash(alg, false));
+}
+
+// Part 0's recovery data as an honest source sends it: the sibling of every node on the path
+// to the root, then the part's block hashes.
+std::vector<RecoveryEntry> PartZeroRecoveryData(RecoveryTree &tree)
+{
+	CMemFile file;
+	ASSERT_TRUE(tree.CreatePartRecoveryData(0, PARTSIZE, &file, 0, false));
+	file.Seek(0, wxFromStart);
+	std::vector<RecoveryEntry> entries;
+	while (file.GetPosition() < file.GetLength()) {
+		RecoveryEntry entry;
+		entry.ident = file.ReadUInt16();
+		entry.hash = CAICHHash(&file);
+		entries.push_back(entry);
+	}
+	return entries;
+}
+
+// The V2 packet with 16-bit identifiers, then an empty 32-bit section.
+void Packet16(CMemFile &packet, const std::vector<RecoveryEntry> &entries)
+{
+	packet.WriteUInt16(static_cast<uint16>(entries.size()));
+	for (const RecoveryEntry &entry : entries) {
+		packet.WriteUInt16(entry.ident);
+		entry.hash.Write(&packet);
+	}
+	packet.WriteUInt16(0);
+}
+
+// Both counts zero, with the 32-bit entries still following.
+void Packet32ZeroCount(CMemFile &packet, const std::vector<RecoveryEntry> &entries)
+{
+	packet.WriteUInt16(0);
+	packet.WriteUInt16(0);
+	for (const RecoveryEntry &entry : entries) {
+		packet.WriteUInt32(entry.ident);
+		entry.hash.Write(&packet);
+	}
+}
+
+// One part's recovery data as CAICHHashSet::CreatePartRecoveryData() sends it for a file over
+// 4 GiB: an empty 16-bit section, then the count and the hashes with 32-bit identifiers.
+void HonestPacket32(CMemFile &packet, RecoveryTree &tree, uint64 start, uint64 partSize)
+{
+	CMemFile body;
+	ASSERT_TRUE(tree.CreatePartRecoveryData(start, partSize, &body, 0, true));
+	std::vector<uint8_t> raw(body.GetLength());
+	body.Seek(0, wxFromStart);
+	body.Read(raw.data(), raw.size());
+	packet.WriteUInt16(0);
+	packet.WriteUInt16(static_cast<uint16>(raw.size() / (CAICHHash::GetHashSize() + 4)));
+	packet.Write(raw.data(), raw.size());
+}
+
+bool Read(CAICHHashSet &set, CMemFile &packet)
+{
+	packet.Seek(0, wxFromStart);
+	return set.ReadRecoveryData(0, &packet);
+}
+
+// A receiver that trusts only the root, as a download with a verified AICH hash does.
+void TrustRoot(CAICHHashSet &set, const RecoveryTree &source)
+{
+	set.SetFileSize(kThreeParts);
+	set.SetMasterHash(source.GetHash(), AICH_VERIFIED);
+}
+} // namespace
+
+// Block hashes are only verified through the path to the root. A source that leaves out the
+// siblings on that path must not get invented block hashes accepted, or kept in the tree for a
+// later recovery attempt to use.
+TEST(AICHHashTree, RecoveryDataMustLinkToTheRoot)
+{
+	std::unique_ptr<CAICHHashAlgo> alg(CAICHHashSet::GetNewHashAlgo());
+	RecoveryTree source(kThreeParts);
+	FillTree(source, kThreeParts, alg.get());
+	const std::vector<RecoveryEntry> honest = PartZeroRecoveryData(source);
+	// Part 0 sits two levels below the root, so two siblings come first.
+	ASSERT_EQUALS(2u + PARTSIZE / EMBLOCKSIZE + 1, honest.size());
+
+	CAICHHashSet trusted(nullptr);
+	TrustRoot(trusted, source);
+	CMemFile honestPacket;
+	Packet16(honestPacket, honest);
+	ASSERT_TRUE(Read(trusted, honestPacket));
+	ASSERT_TRUE(trusted.IsPartDataAvailable(0));
+
+	// Invented block hashes without the siblings, padded to the expected count with a repeat.
+	std::vector<RecoveryEntry> forged(honest.begin() + 2, honest.end());
+	for (RecoveryEntry &entry : forged) {
+		entry.hash.GetRawHash()[0] ^= 0xFF;
+	}
+	forged.push_back(forged.front());
+	forged.push_back(forged.front());
+	CAICHHashSet attacked(nullptr);
+	TrustRoot(attacked, source);
+	CMemFile forged16;
+	Packet16(forged16, forged);
+	ASSERT_FALSE(Read(attacked, forged16));
+	ASSERT_FALSE(attacked.m_pHashTree.FindHash(0, EMBLOCKSIZE)->GetHashValid());
+	ASSERT_FALSE(attacked.IsPartDataAvailable(0));
+
+	// A zero count in the 32-bit section used to write its hashes, then keep them unchecked.
+	CMemFile forged32;
+	Packet32ZeroCount(forged32, forged);
+	ASSERT_FALSE(Read(attacked, forged32));
+	ASSERT_FALSE(attacked.m_pHashTree.FindHash(0, EMBLOCKSIZE)->GetHashValid());
+	ASSERT_FALSE(attacked.IsPartDataAvailable(0));
+
+	honestPacket.Seek(0, wxFromStart);
+	ASSERT_TRUE(Read(attacked, honestPacket));
+}
+
+// Honest data for a file over 4 GiB uses the 32-bit section, whose count must be exact. Checked
+// for the first part, one in the middle and the short last one.
+TEST(AICHHashTree, LargeFileRecoveryDataIsAccepted)
+{
+	const uint64 size = 463 * PARTSIZE + 12345;
+	std::unique_ptr<CAICHHashAlgo> alg(CAICHHashSet::GetNewHashAlgo());
+	RecoveryTree source(size);
+	FillTree(source, size, alg.get());
+	for (uint64 part : { uint64(0), uint64(200), uint64(463) }) {
+		const uint64 start = part * PARTSIZE;
+		CMemFile packet;
+		HonestPacket32(packet, source, start, std::min<uint64>(PARTSIZE, size - start));
+		CAICHHashSet receiver(nullptr);
+		receiver.SetFileSize(size);
+		receiver.SetMasterHash(source.GetHash(), AICH_VERIFIED);
+		packet.Seek(0, wxFromStart);
+		ASSERT_TRUE(receiver.ReadRecoveryData(start, &packet));
+		ASSERT_TRUE(receiver.IsPartDataAvailable(start));
+	}
 }
