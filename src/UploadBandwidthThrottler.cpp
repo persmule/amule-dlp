@@ -36,7 +36,6 @@
 #include "Preferences.h"
 #include "Statistics.h"
 #include "amule.h"
-#include "UploadDiskIOThread.h"
 
 /////////////////////////////////////
 
@@ -459,14 +458,6 @@ void *UploadBandwidthThrottler::Entry()
 				extraSleepTime = std::min<uint32>(extraSleepTime * 5, 1000); // 1s at most
 			} else {
 				extraSleepTime = TIME_BETWEEN_UPLOAD_LOOPS;
-
-				// eMule ref: EMSocket.cpp:602 -- SocketAvailable(). Wake the disk
-				// I/O thread whenever payload bytes were actually sent, so it can
-				// refill the socket queue without waiting for its 100 ms
-				// WaitTimeout.
-				if (spentBytes > spentOverhead && theApp->uploadDiskIOThread != NULL) {
-					theApp->uploadDiskIOThread->SocketNeedsMoreData();
-				}
 			}
 		}
 	}

@@ -460,14 +460,13 @@ uint32 CUpDownClient::SendBlockData()
 			GetUserAddress(),
 			theApp->CryptoAvailable());
 
-		sentBytesPayload = s->GetSentPayloadSinceLastCallAndReset();
-		m_nCurQueueSessionPayloadUp += sentBytesPayload;
-
-		// Wake the disk I/O thread so it re-checks its buffer condition against the freshly
-		// updated m_nCurQueueSessionPayloadUp, rather than waiting out its 100 ms timeout
-		// before noticing curPayload advanced.
-		if (sentBytesPayload > 0 && theApp->uploadDiskIOThread) {
-			theApp->uploadDiskIOThread->SocketNeedsMoreData();
+		{
+			// PrepareRead holds this lock while reading the session total and peeking
+			// at the socket counter. Transfer both together so a refill wake cannot
+			// see the reset counter before the session total includes those bytes.
+			wxMutexLocker lockBlockLists(m_blockListLock);
+			sentBytesPayload = s->GetSentPayloadSinceLastCallAndReset();
+			m_nCurQueueSessionPayloadUp += static_cast<sint64>(sentBytesPayload);
 		}
 
 		if (theApp->uploadqueue->CheckForTimeOver(this)) {

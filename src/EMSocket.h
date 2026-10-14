@@ -31,6 +31,8 @@
 
 #include "EncryptedStreamSocket.h" // Needed for CEncryptedStreamSocket
 
+#include "UploadRefill.h"
+
 #include "ThrottledSocket.h" // Needed for ThrottledFileSocket
 
 class CPacket;
@@ -83,6 +85,7 @@ public:
 	uint64 GetSentBytesControlPacketSinceLastCallAndReset();
 	uint64 GetSentPayloadSinceLastCallAndReset();
 	uint64 PeekSentPayload(); // Non-resetting peek -- for disk I/O thread buffer check
+	void SetUploadBufferTarget(uint32 payload);
 	void TruncateQueues();
 
 	SocketSentBytes SendControlData(uint32 maxNumberOfBytesToSend, uint32 minFragSize) override
@@ -179,6 +182,7 @@ private:
 	bool m_currentPacket_is_controlpacket;
 
 	mutable std::mutex m_sendLocker;
+	UploadRefill m_uploadRefill;
 
 	uint64 m_numberOfSentBytesCompleteFile;
 	uint64 m_numberOfSentBytesPartFile;

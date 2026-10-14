@@ -88,7 +88,7 @@ void CUploadDiskIOThread::NewBlockRequestsAvailable()
 	m_condition.Signal();
 }
 
-// Called by the throttler when it drains a socket and needs more data.
+// Called by a sending socket when queued payload falls below its refill target.
 void CUploadDiskIOThread::SocketNeedsMoreData()
 {
 	wxMutexLocker lock(m_mutex);
@@ -210,6 +210,7 @@ ReadRequest_Struct *CUploadDiskIOThread::PrepareRead(uint32 clientId)
 	// 10 keeps a fast slot fed across moderate WAN RTTs. The cost is a transient ~1.8 MB of
 	// send-queue data per active fast slot, self-bounded by the OS TCP send buffer.
 	const uint32 nBufferLimit = bFastUpload ? ((10 * EMBLOCKSIZE) + 1) : (EMBLOCKSIZE + 1);
+	pSock->SetUploadBufferTarget(nBufferLimit);
 
 	if (client->m_BlockRequests_queue.empty() ||
 		(addedPayloadQueueSession > nCurQueueSessionPayloadUp &&

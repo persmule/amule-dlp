@@ -160,6 +160,12 @@ add_test (NAME ProtocolPeerIdentityTest COMMAND ProtocolPeerIdentityTest)
 target_include_directories (ProtocolPeerIdentityTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries (ProtocolPeerIdentityTest muleunit mulecommon)
 
+# Per-socket refill thresholds use original payload, independent of statistics resets.
+add_executable (UploadRefillTest UploadRefillTest.cpp)
+add_test (NAME UploadRefillTest COMMAND UploadRefillTest)
+target_include_directories (UploadRefillTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries (UploadRefillTest muleunit mulecommon)
+
 # The done-list cap, without live clients.
 add_executable (UploadBlockListsTest UploadBlockListsTest.cpp)
 add_test (NAME UploadBlockListsTest COMMAND UploadBlockListsTest)
@@ -2406,6 +2412,18 @@ if (ENABLE_INTEGRATION_TESTS AND BUILD_DAEMON AND UNIX AND NOT APPLE)
 		add_test (NAME KadDistributionECTest COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/KadDistributionECTest.py $<TARGET_FILE:amuled>)
 		add_test (NAME KadPopulatedDistributionECTest COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/KadDistributionECTest.py $<TARGET_FILE:amuled> --populated)
 		set_tests_properties (KadPopulatedDistributionECTest PROPERTIES SKIP_RETURN_CODE 77)
+		if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+			add_test (NAME UploadRefillIntegrationTest
+				COMMAND ${Python3_EXECUTABLE} -u
+					${CMAKE_CURRENT_SOURCE_DIR}/UploadRefillIntegrationTest.py
+					$<TARGET_FILE:amuled> --seconds 3
+			)
+			add_test (NAME UploadRefillCompressedIntegrationTest
+				COMMAND ${Python3_EXECUTABLE} -u
+					${CMAKE_CURRENT_SOURCE_DIR}/UploadRefillIntegrationTest.py
+					$<TARGET_FILE:amuled> --seconds 3 --compress
+			)
+		endif()
 		add_test (NAME LogfilePathIntegrationTest
 			COMMAND ${Python3_EXECUTABLE}
 				${CMAKE_CURRENT_SOURCE_DIR}/LogfilePathIntegrationTest.py $<TARGET_FILE:amuled>
