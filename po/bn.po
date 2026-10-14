@@ -471,6 +471,11 @@ msgstr "Kad বুটস্ট্র্যাপ নোড (nodes.dat)"
 
 #: src/amule.cpp
 #, c-format
+msgid "Not starting %s: it is neither next to aMule nor on PATH."
+msgstr ""
+
+#: src/amule.cpp
+#, c-format
 msgid "web server running on pid %d"
 msgstr "ওয়েব সার্ভার pid %d-এ চলছে"
 

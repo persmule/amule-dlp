@@ -501,6 +501,11 @@ msgstr "Kad 引导节点 (nodes.dat)"
 
 #: src/amule.cpp
 #, c-format
+msgid "Not starting %s: it is neither next to aMule nor on PATH."
+msgstr ""
+
+#: src/amule.cpp
+#, c-format
 msgid "web server running on pid %d"
 msgstr "web 服务器正在运行，pid 为 %d"
 
