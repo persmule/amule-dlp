@@ -1029,5 +1029,13 @@
   "downloads_confirm_cancel_selected_other": "Voleu cancel·lar {n} baixades seleccionades?",
   "downloads_files_count_one": "{n} fitxer",
   "downloads_files_count_many": "{n} fitxers",
-  "downloads_files_count_other": "{n} fitxers"
+  "downloads_files_count_other": "{n} fitxers",
+  "common_err_captcha_expired": "Aquest CAPTCHA ja no està pendent. Utilitza la prova més recent.",
+  "messages_captcha_expired": "Aquest CAPTCHA ja no està pendent.",
+  "messages_captcha_retry_message": "Aquest CAPTCHA ja no està pendent. Torna a enviar el text com a missatge.",
+  "messages_captcha_challenge": "Resol el CAPTCHA de sota i envia'n el text amb el camp de missatge.",
+  "messages_captcha_passed": "CAPTCHA superat. S'ha lliurat el teu missatge.",
+  "messages_captcha_retry": "CAPTCHA fallit. Envia un altre missatge per tornar-ho a provar.",
+  "messages_captcha_exhausted": "CAPTCHA fallit. No queden més intents.",
+  "messages_captcha_image": "CAPTCHA del xat"
 }

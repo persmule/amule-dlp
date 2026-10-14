@@ -7227,6 +7227,11 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr ""
 
 #: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "Błąd IO podczas odczytu pliku %s: %s"
+
+#: src/SearchList.cpp
 #, fuzzy
 msgid "WARNING: Stored search list corrupted, contains invalid header."
 msgstr "OSTRZEŻENIE: Znana lista plików uszkodzona, zawiera nieprawidłowy nagłówek."

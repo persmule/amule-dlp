@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-14 09:36+0000\n"
+"PO-Revision-Date: 2026-10-14 20:19+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -2399,9 +2399,9 @@ msgid "Cannot cancel a finished download: %s"
 msgstr "Невозможно отменить завершённую загрузку: %s"
 
 #: src/ExternalConn.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "No such category: %u"
-msgstr "Нет такой категории."
+msgstr "Нет такой категории: %u"
 
 #: src/ExternalConn.cpp
 msgid "OOPS! OpCode processing error!"
@@ -2868,7 +2868,7 @@ msgstr "Команда проигрывателя медиа «%s» не был�
 #: src/FileLaunch.cpp
 #, c-format
 msgid "The configured video player is unavailable inside aMule's Flatpak sandbox: %s. Programs installed on the host are not directly available here. Completed files can still open with the desktop's default application; previewing an unfinished download needs a player the sandbox can run, such as a self-contained player saved in your home folder."
-msgstr ""
+msgstr "Настроенный проигрыватель видео недоступен внутри песочницы Flatpak aMule: %s. Программы, установленные в системе, здесь напрямую недоступны. Завершённые файлы всё ещё можно открыть приложением по умолчанию рабочего стола; для предпросмотра незавершённой загрузки нужен проигрыватель, который может запустить песочница, например автономный проигрыватель, сохранённый в вашем домашнем каталоге."
 
 #: src/FileLaunch.cpp
 #, c-format
@@ -3947,7 +3947,7 @@ msgstr "ПРЕДУПРЕЖДЕНИЕ: "
 #: src/MediaProbe.cpp
 #, c-format
 msgid "Media metadata: not using %s, because another user owns it or a folder above it."
-msgstr ""
+msgstr "Метаданные медиафайла: %s не используется, так как им или каталогом выше владеет другой пользователь."
 
 #: src/MediaProbe.cpp
 msgid "Media metadata: no ffprobe binary found. Install ffmpeg, or set the ffprobe path in preferences; length, bitrate and codec will not be extracted."
@@ -7001,7 +7001,7 @@ msgid ""
 "Add here URL's to download server.met files.\n"
 "Only one url on each line."
 msgstr ""
-"Добавьте URL для загрузки файлов server.met.\n"
+"Добавьте адреса для загрузки файлов server.met.\n"
 "По одному на строку."
 
 #: src/PrefsUnifiedDlg.cpp
@@ -7233,6 +7233,11 @@ msgstr "Сохраняются только %u последних из %u отк
 #, c-format
 msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr "Сохраняются только первые %u из %u результатов для поиска «%s»."
+
+#: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "Ошибка ввода/вывода при чтении файла %s: %s"
 
 #: src/SearchList.cpp
 msgid "WARNING: Stored search list corrupted, contains invalid header."
@@ -9342,7 +9347,7 @@ msgstr "Файл для хеширования"
 
 #: src/utils/aLinkCreator/src/alcframe.cpp
 msgid "Add Optional URLs for this file"
-msgstr "Добавьте возможные URL для этого файла"
+msgstr "Добавьте возможные адреса для этого файла"
 
 #: src/utils/aLinkCreator/src/alcframe.cpp
 msgid "Enter here the file you want to compute the eD2k link"
@@ -9350,7 +9355,7 @@ msgstr "Введите здесь файл для которого вы хоти
 
 #: src/utils/aLinkCreator/src/alcframe.cpp
 msgid "Enter here the URL you want to add to the eD2k link: Add / at the end to let aLinkCreator append the current file name"
-msgstr "Введите здесь URL который вы хотите добавить к eD2k ссылке: добавьте / в конце если хотите чтобы aLinkCreator присоеденил текущее имя файла"
+msgstr "Введите здесь адрес, который хотите добавить к ссылке eD2k: добавьте / в конце, чтобы aLinkCreator дописал текущее имя файла"
 
 #: src/utils/aLinkCreator/src/alcframe.cpp
 msgid "Create link with part-hashes"

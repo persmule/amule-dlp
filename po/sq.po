@@ -7189,6 +7189,11 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr ""
 
 #: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "Gabim IO gjatë leximit të skedarit %s: %s"
+
+#: src/SearchList.cpp
 #, fuzzy
 msgid "WARNING: Stored search list corrupted, contains invalid header."
 msgstr "Kujdes: Lista e faileve te njohur eshte e demtuar, permban nje header te pavlere."

@@ -7189,6 +7189,11 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr "Ukládání jen prvních %u z %u výsledků vyhledávání \"%s\"."
 
 #: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "Chyba I/O při čtení souboru %s: %s"
+
+#: src/SearchList.cpp
 msgid "WARNING: Stored search list corrupted, contains invalid header."
 msgstr "VAROVÁNÍ: Uchovávaný seznam vyhledávání je poškozený, obsahuje neplatné záhlaví."
 

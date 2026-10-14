@@ -7205,6 +7205,11 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr ""
 
 #: src/SearchList.cpp
+#, fuzzy, c-format
+msgid "IO error while saving %s: %s"
+msgstr "Erro de E/S ao ler o ficheiro %s: %s"
+
+#: src/SearchList.cpp
 #, fuzzy
 msgid "WARNING: Stored search list corrupted, contains invalid header."
 msgstr "AVISO: A lista de ficheiros coñecidos corrompeuse por mor dunha cabeceira inválida."
