@@ -179,6 +179,9 @@ void CUpDownClient::Init()
 #endif
 	m_bAddNextConnect = false;
 	m_dialingIPv6 = false;
+	m_preserveIPv4IdentityOnHello = false;
+	m_preparedDialAddress = CNetworkAddress::Absent();
+	m_dialledIPv6Address = CNetworkAddress::Absent();
 	m_unansweredIPv6Address = CNetworkAddress::Absent();
 	credits = NULL;
 	m_byChatstate = MS_NONE;
@@ -729,10 +732,10 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile &data)
 			// claimed address's /48, keyed on where the packet came from rather than on a
 			// self-declared user hash. Votes for any of our addresses in one /64 add up, within a
 			// time window. Nothing consumes the result yet.
-			if (temptag.IsHash()) {
+			if (temptag.IsHash() && m_socket != nullptr) {
 				const std::uint8_t *claimed = temptag.GetHash().GetHash();
 				if (ObservedPublicIPv6().AddClaim(
-					    GetConnectAddress(), claimed, ::GetTickCount64())) {
+					    m_socket->GetPeerAddress(), claimed, ::GetTickCount64())) {
 					AddDebugLogLineN(logClient,
 						CFormat("Peers reaching us over IPv6 see us in %s/64") %
 							CNetworkAddress::FromIPv6Bytes(claimed)
@@ -774,7 +777,9 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile &data)
 	}
 
 	if (m_socket) {
-		SetUserAddress(m_socket->GetPeerAddress());
+		if (!m_preserveIPv4IdentityOnHello) {
+			SetUserAddress(m_socket->GetPeerAddress());
+		}
 	} else {
 		throw wxString("Huh, socket failure. Avoided crash this time.");
 	}
@@ -1459,10 +1464,15 @@ bool CUpDownClient::Disconnected(const wxString &DEBUG_ONLY(strReason), bool bFr
 		theApp->uploadqueue->RemoveFromUploadQueue(this);
 	}
 
-	// Nothing verifies that a native IPv6 peer accepts inbound connections: keep its queue place
-	// and let it get its slot through its own next connection, like a LowID.
+	// An advertised IPv6 supplements a known IPv4 peer rather than replacing it. Remember a
+	// failed promoted target so later attempts use IPv4; native IPv6 peers retain their old path.
+	const bool failedPromotedIPv6 =
+		IsPromotedIPv6Dial(m_dialledIPv6Address, GetConnectAddress()) &&
+		(GetUploadState() == US_CONNECTING || GetDownloadState() == DS_CONNECTING);
+	if (failedPromotedIPv6) {
+		m_unansweredIPv6Address = m_dialledIPv6Address;
+	}
 	if (m_dialingIPv6 && GetUploadState() == US_CONNECTING) {
-		m_unansweredIPv6Address = GetConnectAddress();
 		theApp->uploadqueue->RequeueUnreachable(this);
 	}
 
@@ -1525,6 +1535,12 @@ bool CUpDownClient::Disconnected(const wxString &DEBUG_ONLY(strReason), bool bFr
 
 	switch (m_nDownloadState) {
 	case DS_CONNECTING:
+		if (failedPromotedIPv6) {
+			SetDownloadState(DS_ONQUEUE);
+			bDelete = false;
+			break;
+		}
+		/* fall through */
 	case DS_WAITCALLBACK:
 	case DS_ERROR:
 	case DS_BANNED:
@@ -1547,6 +1563,9 @@ bool CUpDownClient::Disconnected(const wxString &DEBUG_ONLY(strReason), bool bFr
 	}
 
 	m_dialingIPv6 = false;
+	m_preserveIPv4IdentityOnHello = false;
+	m_preparedDialAddress = CNetworkAddress::Absent();
+	m_dialledIPv6Address = CNetworkAddress::Absent();
 
 	// Delete socket
 	if (!bFromSocket && m_socket) {
@@ -1590,10 +1609,34 @@ bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon)
 	return result != EContactResult::ClientDeleted && result != EContactResult::ConnectNotStarted;
 }
 
+CNetworkAddress CUpDownClient::GetDialAddress() const
+{
+	if (m_preparedDialAddress.IsPresent()) {
+		return m_preparedDialAddress;
+	}
+#ifdef ENABLE_IPV6
+	const CNetworkAddress peerIPv6 =
+		m_hasModIPv6 ? CNetworkAddress::FromIPv6Bytes(m_modIPv6) : CNetworkAddress::Absent();
+	return PromotePeerIPv6ForDial(GetConnectAddress(),
+		peerIPv6,
+		m_unansweredIPv6Address,
+		AddressFamilyPolicy::Configured() == AddressFamilyPolicy::Families::DualStack,
+		SelectedLocalIPv6().value_or(CNetworkAddress::Absent()),
+		thePrefs::GetProxyData()->m_proxyEnable);
+#else
+	return GetConnectAddress();
+#endif
+}
+
 CNetworkAddress CUpDownClient::ContactAddress() const
 {
+	// A prepared target is the one this attempt will really dial, so filter and ban checks must
+	// see it rather than the IPv4 identity retained for protocol bookkeeping.
+	if (m_preparedDialAddress.IsPresent()) {
+		return m_preparedDialAddress;
+	}
 	return PeerAddressing::ContactCheckAddress(
-		GetUserAddress(), GetConnectAddress(), HasLowID(), wxUINT32_SWAP_ALWAYS(m_nUserIDHybrid));
+		GetUserAddress(), GetDialAddress(), HasLowID(), wxUINT32_SWAP_ALWAYS(m_nUserIDHybrid));
 }
 
 bool CUpDownClient::IsRedialAllowed() const
@@ -1630,17 +1673,12 @@ EContactRoute CUpDownClient::ContactRoute() const
 #endif
 	facts.familyPermitted = AddressFamilyPolicy::Permits(facts.contactAddress);
 	facts.proxyEnabled = thePrefs::GetProxyData()->m_proxyEnable;
-	const EContactRoute route = DecideContactRoute(facts);
-	// Connect() dials GetConnectAddress(), so it must be the address the filter and ban checks saw.
-	if (route == EContactRoute::DialIPv6 && GetConnectAddress() != facts.contactAddress) {
-		return EContactRoute::Refuse;
-	}
-	return route;
+	return DecideContactRoute(facts);
 }
 
 bool CUpDownClient::IsCallableIPv6Contact() const
 {
-	return ContactRoute() == EContactRoute::DialIPv6 && GetConnectAddress() != m_unansweredIPv6Address;
+	return ContactRoute() == EContactRoute::DialIPv6 && GetDialAddress() != m_unansweredIPv6Address;
 }
 
 // Re-check the standing reasons to refuse this peer, disconnecting it on a hit:
@@ -1682,25 +1720,31 @@ EContactResult CUpDownClient::CheckContactPreconditions()
 	// Although all received IPs (server sources, source exchange) and all incoming connection
 	// attempts are filtered, outgoing connection attempts have to be filtered here too, because
 	// the ip filter list may have been updated since.
-	if (theApp->ipfilter->IsFiltered(contactAddress)) {
-		AddDebugLogLineN(
-			logIPFilter, "Filtered ip " + contactAddress.ToWxString() + " on TryToConnect");
-		if (Disconnected("IPFilter")) {
-			Safe_Delete();
-			return EContactResult::ClientDeleted;
+	const std::vector<CNetworkAddress> checkedAddresses =
+		ContactSecurityAddresses(contactAddress, GetConnectAddress());
+	for (const CNetworkAddress &address : checkedAddresses) {
+		if (theApp->ipfilter->IsFiltered(address)) {
+			AddDebugLogLineN(
+				logIPFilter, "Filtered ip " + address.ToWxString() + " on TryToConnect");
+			if (Disconnected("IPFilter")) {
+				Safe_Delete();
+				return EContactResult::ClientDeleted;
+			}
+			return EContactResult::Declined;
 		}
-		return EContactResult::Declined;
 	}
 
 	// for safety: check again whether that IP is banned
-	if (theApp->clientlist->IsBannedClient(contactAddress)) {
-		AddDebugLogLineN(
-			logClient, "Refused to connect to banned client " + contactAddress.ToWxString());
-		if (Disconnected("Banned IP")) {
-			Safe_Delete();
-			return EContactResult::ClientDeleted;
+	for (const CNetworkAddress &address : checkedAddresses) {
+		if (theApp->clientlist->IsBannedClient(address)) {
+			AddDebugLogLineN(
+				logClient, "Refused to connect to banned client " + address.ToWxString());
+			if (Disconnected("Banned IP")) {
+				Safe_Delete();
+				return EContactResult::ClientDeleted;
+			}
+			return EContactResult::Declined;
 		}
-		return EContactResult::Declined;
 	}
 	if (ContactRoute() == EContactRoute::Refuse) {
 		if (Disconnected("Outbound IPv6 connections unavailable")) {
@@ -1725,12 +1769,18 @@ EContactResult CUpDownClient::TryToContact(bool bIgnoreMaxCon)
 		}
 	}
 
+	// Freeze the target before checking it. The security checks, socket constructor and Connect()
+	// must all use this same address, even if a preference changes mid-attempt.
+	m_preparedDialAddress = GetDialAddress();
 	if (const EContactResult refused = CheckContactPreconditions();
 		refused != EContactResult::Contacting) {
 		return refused;
 	}
 	// Every callback route carries IPv4 only, so a native IPv6 contact skips them and is dialled.
 	const bool dialIPv6 = ContactRoute() == EContactRoute::DialIPv6;
+	if (!dialIPv6) {
+		m_preparedDialAddress = CNetworkAddress::Absent();
+	}
 
 	if (GetKadState() == KS_QUEUED_FWCHECK) {
 		SetKadState(KS_CONNECTING_FWCHECK);
@@ -1958,7 +2008,8 @@ EContactResult CUpDownClient::TryToContact(bool bIgnoreMaxCon)
 			obfuscationSatisfied };
 		// Connect() is a no-op on a live socket. Without the same guard the
 		// uTP path would attach a transport over a connection already in use.
-		if (!m_socket->IsOk() && DecideUtpDial(facts) == EUtpDialDecision::TryUtp) {
+		if (!m_socket->IsOk() && ShouldTryIPv4Utp(GetDialAddress()) &&
+			DecideUtpDial(facts) == EUtpDialDecision::TryUtp) {
 			std::unique_ptr<IStreamTransport> transport;
 			if (utp->Dial(GetConnectIP(),
 				    utpPort,
@@ -1999,12 +2050,16 @@ bool CUpDownClient::Connect()
 			m_socket->SetConnectionEncryption(false, NULL, false);
 		}
 #ifdef ENABLE_IPV6
-		const CNetworkAddress &connectAddress = GetConnectAddress();
+		const CNetworkAddress connectAddress = GetDialAddress();
 		if (connectAddress.IsIPv6() && !connectAddress.IsIPv4Mapped()) {
 			AddDebugLogLineN(logClient,
 				CFormat("Trying to connect to [%s]:%u") % connectAddress.ToWxString() %
 					static_cast<unsigned int>(GetUserPort()));
 			m_dialingIPv6 = true;
+			m_preserveIPv4IdentityOnHello =
+				IsPromotedIPv6Dial(connectAddress, GetConnectAddress());
+			m_dialledIPv6Address = connectAddress;
+			m_preparedDialAddress = CNetworkAddress::Absent();
 			m_socket->ConnectIPv6(connectAddress, GetUserPort(), false);
 			return true;
 		}
@@ -2015,6 +2070,9 @@ bool CUpDownClient::Connect()
 		AddDebugLogLineN(logClient,
 			"Trying to connect to " + Uint32_16toStringIP_Port(GetConnectIP(), GetUserPort()));
 		m_dialingIPv6 = false;
+		m_preserveIPv4IdentityOnHello = false;
+		m_preparedDialAddress = CNetworkAddress::Absent();
+		m_dialledIPv6Address = CNetworkAddress::Absent();
 		m_socket->Connect(tmp, false);
 		// We should send hello packets AFTER connecting!
 		// so I moved it to OnConnect
@@ -2066,6 +2124,8 @@ void CUpDownClient::ConnectionEstablished()
 
 	m_hasbeenobfuscatinglately = (m_socket && m_socket->IsConnected() && m_socket->IsObfusicating());
 	m_dialingIPv6 = false;
+	m_preparedDialAddress = CNetworkAddress::Absent();
+	m_dialledIPv6Address = CNetworkAddress::Absent();
 
 #ifdef __DEBUG__
 	if (!connection_reason.IsEmpty()) {
