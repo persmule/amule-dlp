@@ -24,6 +24,7 @@
 //
 
 #include "DownloadQueue.h" // Interface declarations
+#include "DiskSpaceResumeBudget.h"
 
 #include <protocol/Protocols.h>
 #include <protocol/kad/Constants.h>
@@ -1304,6 +1305,25 @@ void CDownloadQueue::CheckDiskspace(const CPath &path)
 		CUserEvents::ProcessEvent(CUserEvents::OutOfDiskSpace, partition.wx_str());
 	}
 
+	CDiskSpaceResumeBudget resumeBudget(free, min);
+	// Reserve the remaining space for active downloads on every check, including
+	// files resumed by an earlier check that have not received any data yet.
+	for (CPartFile *file : m_filelist) {
+		switch (file->GetStatus()) {
+		case PS_PAUSED:
+		case PS_INSUFFICIENT:
+		case PS_ERROR:
+		case PS_COMPLETING:
+		case PS_COMPLETE:
+			continue;
+		}
+
+		const uint64 needed = file->GetNeededSpace();
+		if (file->GetStatus() != PS_ERROR) {
+			resumeBudget.Charge(needed);
+		}
+	}
+
 	for (FileQueue::size_type i = 0; i < m_filelist.size(); ++i) {
 		CPartFile *file = m_filelist[i];
 
@@ -1315,9 +1335,13 @@ void CDownloadQueue::CheckDiskspace(const CPath &path)
 		}
 
 		if (free >= min && file->GetInsufficient()) {
-			// We'll try to resume files if there is enough free space
-			if (free - file->GetNeededSpace() > min) {
+			const uint64 needed = file->GetNeededSpace();
+			// GetNeededSpace can mark the file as erroneous on an I/O failure.
+			if (file->GetStatus() != PS_ERROR && resumeBudget.Fits(needed)) {
 				file->ResumeFile();
+				if (!file->GetInsufficient()) {
+					resumeBudget.Charge(needed);
+				}
 			}
 		} else if (free < min && !file->IsPaused()) {
 			file->PauseFile(true);

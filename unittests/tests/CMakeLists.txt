@@ -9,6 +9,7 @@ function (add_application_test_stubs target)
 endfunction()
 
 find_package (Python3 QUIET COMPONENTS Interpreter)
+
 if (Python3_Interpreter_FOUND)
 	add_test (NAME IntegrationFixtureUnitTest
 		COMMAND ${Python3_EXECUTABLE} -u ${CMAKE_CURRENT_SOURCE_DIR}/IntegrationFixtureUnitTest.py -v
@@ -2659,6 +2660,11 @@ add_executable (RemoteDownloadEventsTest RemoteDownloadEventsTest.cpp)
 add_test (NAME RemoteDownloadEventsTest COMMAND RemoteDownloadEventsTest)
 target_include_directories (RemoteDownloadEventsTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries (RemoteDownloadEventsTest muleunit mulecommon)
+
+add_executable (DiskSpaceResumeBudgetTest DiskSpaceResumeBudgetTest.cpp)
+target_include_directories (DiskSpaceResumeBudgetTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries (DiskSpaceResumeBudgetTest muleunit mulecommon)
+add_test (NAME DiskSpaceResumeBudgetTest COMMAND DiskSpaceResumeBudgetTest)
 
 add_executable (GeoIPUpdateScheduleTest GeoIPUpdateScheduleTest.cpp)
 target_include_directories (GeoIPUpdateScheduleTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
