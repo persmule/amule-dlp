@@ -152,9 +152,9 @@ function draw(cv, g, [xs, ...series], hover) {
   const ticks = [];
   for (let v = 0; v <= yMax; v += step) ticks.push([v, tickLabel(v)]);
 
-  // Left gutter sized to the widest label (+ 6px gap + 6px margin) instead of a
-  // fixed width, so short numeric axes don't waste horizontal space.
-  let labelW = 0;
+  // Include the unit caption as well as tick labels in the left gutter
+  // (+ 6px gap + 6px margin), so even an all-zero speed axis fits its unit.
+  let labelW = axis ? ctx.measureText(axis.unit).width : 0;
   for (const [, label] of ticks) labelW = Math.max(labelW, ctx.measureText(label).width);
   const x0 = Math.ceil(labelW) + 12;
   const x1 = cssW - PAD_RIGHT;

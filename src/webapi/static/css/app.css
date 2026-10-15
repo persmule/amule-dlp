@@ -159,7 +159,7 @@ b { font-weight: 600; }
 /* Keep the right-hand buttons (Add, logout) the same height. */
 .header-tools .btn, .header-tools .input { height: 34px; }
 .ed2k-add { display: flex; gap: 6px; }
-.ed2k-input { width: 180px; max-width: 38vw; }
+.ed2k-input { width: 360px; max-width: 38vw; }
 
 /* --- status bar (bottom, like aMule) --- */
 .statusbar {
@@ -348,6 +348,13 @@ table.data td.name { white-space: normal; word-break: break-word; min-width: 220
 .table-wrap.virtual { overflow-y: auto; overflow-x: auto; }
 table.data.virtual { table-layout: fixed; }
 table.data.virtual td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Let colored labels draw their own ellipsis, using the label's text color. */
+table.data.virtual td > .badge,
+table.data.virtual td > .a4af-badge,
+table.data.virtual td > .rating-badge {
+  display: inline-block; max-width: 100%; vertical-align: middle;
+  overflow: hidden; text-overflow: ellipsis;
+}
 table.data.virtual td.name { white-space: nowrap; word-break: normal; min-width: 0; max-width: none; }
 /* striping is applied by absolute-index class (see table.js), not nth-child,
    because the leading spacer row would flip the parity. */
