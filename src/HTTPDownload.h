@@ -30,7 +30,9 @@
 #include "GuiEvents.h"     // Needed for HTTP_Download_File
 #include <wx/datetime.h>   // Needed for wxDateTime
 #include <wx/event.h>      // Needed for wxEvtHandler
+#include <wx/timer.h>      // Needed for wxTimer
 #include <wx/webrequest.h> // Needed for wxWebRequest
+#include <functional>
 #include <set>
 
 class wxWebRequestEvent;
@@ -44,6 +46,29 @@ wxWebRequest CreateAmuleWebRequest(wxEvtHandler *handler, const wxString &url);
 // Whether HTTP requests follow the bind-to-interface choice: only where libcurl serves them, which
 // excludes Windows (WinHTTP), and macOS or a build without libcurl headers when curl is missing.
 bool CanBindHttpToInterface();
+
+// Cancels a request once its response body passes a size limit. wx stores a body without bound
+// and only its curl backend could enforce one, so the request is polled.
+class CHttpSizeGuard : public wxEvtHandler
+{
+public:
+	CHttpSizeGuard();
+
+	// onExceeded runs right after the cancel.
+	void Start(const wxWebRequest &request, wxFileOffset limit, std::function<void()> onExceeded);
+	void Stop();
+
+	// The announced or received size is over the limit.
+	bool Exceeded() const;
+
+private:
+	void OnTimer(wxTimerEvent &evt);
+
+	wxWebRequest m_request;
+	wxFileOffset m_limit;
+	std::function<void()> m_onExceeded;
+	wxTimer m_timer;
+};
 
 enum HTTPDownloadResult
 {
@@ -95,10 +120,13 @@ public:
 private:
 	void OnStateEvent(wxWebRequestEvent &evt);
 	void FinishAndDestroy(int result);
+	void Finish(int result); // report the result; the object stays alive
+	void ScheduleDelete();
 
 	static wxString FormatDateHTTP(const wxDateTime &date);
 
 	wxWebRequest m_request;
+	CHttpSizeGuard m_sizeGuard;
 	wxString m_url;
 	wxString m_tempfile;
 	wxDateTime m_lastmodified; //! Date on which the file being updated was last modified.
@@ -108,6 +136,7 @@ private:
 	HTTP_Download_File m_file_id;
 	wxEvtHandler *m_companion;
 	bool m_finishPosted; //! Guard against double-posting on terminal state
+	bool m_deleteScheduled;
 
 	typedef std::set<CHTTPDownloadThread *> ThreadSet;
 	static ThreadSet s_allThreads;

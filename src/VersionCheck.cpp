@@ -76,13 +76,18 @@ void CVersionCheck::Start(wxEvtHandler *notify, int notifyId)
 	m_request.SetHeader(wxT("Accept"), wxT("application/vnd.github+json"));
 	Bind(wxEVT_WEBREQUEST_STATE, &CVersionCheck::OnRequestState, this);
 	m_request.Start();
+	// The release JSON is a few KB and is held in memory.
+	m_sizeGuard.Start(m_request, 1024 * 1024, [this] { Finish(Failed); });
 }
 
 void CVersionCheck::OnRequestState(wxWebRequestEvent &evt)
 {
+	if (m_status != Checking) {
+		return; // finished by the size guard
+	}
 	switch (evt.GetState()) {
 	case wxWebRequest::State_Completed:
-		Finish(Evaluate(evt.GetResponse().AsString()));
+		Finish(m_sizeGuard.Exceeded() ? Failed : Evaluate(evt.GetResponse().AsString()));
 		break;
 	case wxWebRequest::State_Failed:
 	case wxWebRequest::State_Unauthorized:
@@ -118,6 +123,7 @@ CVersionCheck::Status CVersionCheck::Evaluate(const wxString &json)
 
 void CVersionCheck::Finish(Status status)
 {
+	m_sizeGuard.Stop();
 	m_status = status;
 	if (m_notify) {
 		wxCommandEvent evt(wxEVT_VERSION_CHECK_DONE, m_notifyId);

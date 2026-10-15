@@ -328,6 +328,53 @@ wxWebRequest CreateAmuleWebRequest(wxEvtHandler *handler, const wxString &url)
 	return request;
 }
 
+// A response body this large is not a list or database aMule fetches; it matches the unpacker's
+// own limit.
+static const wxFileOffset MAX_HTTP_DOWNLOAD_SIZE = 256 * 1024 * 1024;
+static const int HTTP_SIZE_CHECK_MS = 250;
+
+CHttpSizeGuard::CHttpSizeGuard()
+: m_limit(0)
+, m_timer(this)
+{
+	Bind(wxEVT_TIMER, &CHttpSizeGuard::OnTimer, this);
+}
+
+void CHttpSizeGuard::Start(const wxWebRequest &request, wxFileOffset limit, std::function<void()> onExceeded)
+{
+	m_request = request;
+	m_limit = limit;
+	m_onExceeded = std::move(onExceeded);
+	m_timer.Start(HTTP_SIZE_CHECK_MS);
+}
+
+void CHttpSizeGuard::Stop()
+{
+	m_timer.Stop();
+}
+
+bool CHttpSizeGuard::Exceeded() const
+{
+	return m_request.IsOk() && m_limit > 0 &&
+	       (m_request.GetBytesReceived() > m_limit || m_request.GetBytesExpectedToReceive() > m_limit);
+}
+
+void CHttpSizeGuard::OnTimer(wxTimerEvent &WXUNUSED(evt))
+{
+	if (Exceeded()) {
+		m_timer.Stop();
+		m_request.Cancel();
+		// WinHTTP may never report State_Cancelled for this, so the owner finishes now.
+		m_onExceeded();
+	}
+}
+
+static void LogDownloadTooLarge(const wxString &url, wxFileOffset limit)
+{
+	AddLogLineC(CFormat(_("HTTP download of %s stopped: it is larger than %u MiB.")) % url %
+		    (unsigned)(limit / (1024 * 1024)));
+}
+
 CHTTPDownloadThread::CHTTPDownloadThread(const wxString &url,
 	const wxString &filename,
 	const wxString &oldfilename,
@@ -342,6 +389,7 @@ CHTTPDownloadThread::CHTTPDownloadThread(const wxString &url,
 , m_file_id(file_id)
 , m_companion(NULL)
 , m_finishPosted(false)
+, m_deleteScheduled(false)
 {
 	if (showDialog) {
 #ifndef AMULE_DAEMON
@@ -399,6 +447,11 @@ CHTTPDownloadThread::CHTTPDownloadThread(const wxString &url,
 
 	Bind(wxEVT_WEBREQUEST_STATE, &CHTTPDownloadThread::OnStateEvent, this);
 	m_request.Start();
+	m_sizeGuard.Start(m_request, MAX_HTTP_DOWNLOAD_SIZE, [this] {
+		LogDownloadTooLarge(m_url, MAX_HTTP_DOWNLOAD_SIZE);
+		// Not destroyed yet: wx may still post a terminal state to this handler.
+		Finish(HTTP_Error);
+	});
 }
 
 // Format the given date to a RFC-2616 compliant HTTP date.
@@ -418,6 +471,14 @@ wxString CHTTPDownloadThread::FormatDateHTTP(const wxDateTime &date)
 
 void CHTTPDownloadThread::OnStateEvent(wxWebRequestEvent &evt)
 {
+	if (m_finishPosted) {
+		// Already finished by the size guard; free us once wx is done with the request.
+		if (evt.GetState() != wxWebRequest::State_Active) {
+			ScheduleDelete();
+		}
+		return;
+	}
+
 	switch (evt.GetState()) {
 	case wxWebRequest::State_Active: {
 		// Periodic progress notification during the download.
@@ -448,6 +509,10 @@ void CHTTPDownloadThread::OnStateEvent(wxWebRequestEvent &evt)
 			// Not Modified -- nothing to write.
 			AddDebugLogLineN(logHTTP, "Skipped download because requested file is not newer.");
 			FinishAndDestroy(HTTP_Skipped);
+		} else if (m_sizeGuard.Exceeded()) {
+			// Finished between two size checks.
+			LogDownloadTooLarge(m_url, MAX_HTTP_DOWNLOAD_SIZE);
+			FinishAndDestroy(HTTP_Error);
 		} else if (m_response >= 200 && m_response < 300) {
 			// Success. wx wrote the body to its own temp file; move it to the caller-
 			// supplied m_tempfile. A plain rename may fail across filesystems, so fall
@@ -510,11 +575,18 @@ void CHTTPDownloadThread::OnStateEvent(wxWebRequestEvent &evt)
 
 void CHTTPDownloadThread::FinishAndDestroy(int result)
 {
+	Finish(result);
+	ScheduleDelete();
+}
+
+void CHTTPDownloadThread::Finish(int result)
+{
 	if (m_finishPosted) {
 		return;
 	}
 	m_finishPosted = true;
 	m_result = result;
+	m_sizeGuard.Stop();
 
 	// Clean the caller's temp file on failure so we don't leave stale
 	// half-written content around. Legacy path did the same.
@@ -542,7 +614,14 @@ void CHTTPDownloadThread::FinishAndDestroy(int result)
 	}
 
 	AddDebugLogLineN(logHTTP, "HTTP download ended");
+}
 
+void CHTTPDownloadThread::ScheduleDelete()
+{
+	if (m_deleteScheduled) {
+		return;
+	}
+	m_deleteScheduled = true;
 	// Schedule our own destruction after the current event returns to the main loop. Must not
 	// be `delete this` -- wxWebRequest may still be unwinding state after handing us the
 	// terminal event.
