@@ -31,6 +31,8 @@
 #include <wx/intl.h>     // Needed for wxLocale
 #include <wx/timer.h>    // Needed for wxTimer (startup splash poll)
 
+#include "AmuleApiRestart.h"
+
 #include "Types.h"    // Needed for int32, uint16 and uint64
 #include <functional> // Needed for std::function (DeferShutDownToOuterLoop)
 #include <map>
@@ -48,6 +50,7 @@
 #define GEOIP_GUI 1
 #endif
 
+class CTerminationProcessAmuleApi;
 class CAbstractFile;
 class CKnownFile;
 class CSplashScreen;
@@ -592,11 +595,17 @@ protected:
 	// process IDs are 32-bit DWORDs. `long` was right on LLP64 only by accident.
 	int webserver_pid;
 	int amuleapi_pid;
+	CTerminationProcessAmuleApi *m_amuleApiProcess = nullptr;
+	AmuleApiRestart m_amuleApiRestart;
+	bool m_amuleApiStopping = false;
+	void StartAmuleApi(bool startup);
+	void ScheduleAmuleApiRestart();
+	bool ClearAmuleApiToken();
 
 	// Ephemeral EC credential for the amuleapi we spawn. Generated fresh every start, handed
 	// over through a 0600 file in the config dir that the child deletes as soon as it has read
-	// it, and accepted by the EC server alongside the configured password for the rest of this
-	// run.
+	// it, and accepted by the EC server alongside the configured password for the lifetime of
+	// that child.
 	//
 	// The point is that amuleapi never needs the value in amule.conf. That stored value IS the
 	// credential -- the challenge hashes it directly -- so a compromised network-facing daemon
@@ -614,6 +623,8 @@ protected:
 	CTimer *core_timer;
 
 public:
+	void OnAmuleApiTerminated(int pid, int status);
+
 	// The ephemeral EC credential handed to the spawned amuleapi, empty when none was issued.
 	// The EC server's authentication path accepts it alongside the configured password.
 	const wxString &GetEcToken() const { return m_ecToken; }

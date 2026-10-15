@@ -23,19 +23,99 @@
 //
 
 #include "TerminationProcessAmuleApi.h"
+#include "amule.h"
 
-CTerminationProcessAmuleApi::CTerminationProcessAmuleApi(const wxString &cmd, int *amuleapi_pid)
+#include <chrono>
+#include <wx/stream.h>
+
+CTerminationProcessAmuleApi::CTerminationProcessAmuleApi(const wxString &cmd, CamuleApp *app)
 : CTerminationProcess(cmd)
-, m_amuleapi_pid(amuleapi_pid)
+, m_app(app)
 {
 	// Don't open a command window on Windows
 	Redirect();
+	// Create the worker before launching the child: a thread allocation failure
+	// must not leave us supervising a child whose redirected pipes cannot drain.
+	m_outputDrain = std::thread([this]() {
+		std::unique_lock<std::mutex> lock(m_outputMutex);
+		m_outputWake.wait(lock, [this]() { return m_outputReady || m_outputStopped; });
+		while (!m_outputStopped) {
+			lock.unlock();
+			DrainOutput();
+			lock.lock();
+			m_outputWake.wait_for(
+				lock, std::chrono::milliseconds(100), [this]() { return m_outputStopped; });
+		}
+	});
+}
+
+CTerminationProcessAmuleApi::~CTerminationProcessAmuleApi()
+{
+	StopOutputDrain();
+}
+
+void CTerminationProcessAmuleApi::StartOutputDrain()
+{
+	// wxExecute has finished attaching the streams. Publish them to the sole
+	// reader only now, so it never races their initialization.
+	{
+		std::lock_guard<std::mutex> lock(m_outputMutex);
+		m_outputReady = true;
+	}
+	m_outputWake.notify_one();
+}
+
+void CTerminationProcessAmuleApi::ReleaseFromApp()
+{
+	StopOutputDrain();
+	m_app = nullptr;
+	// Keep the wxProcess observer alive until wx reports the child's exit,
+	// but close its pipes now. amuleapi ignores SIGPIPE and treats a closed
+	// console as best effort, so its logfile/teardown can still complete.
+	delete GetInputStream();
+	delete GetErrorStream();
+	CloseOutput();
+	SetPipeStreams(nullptr, nullptr, nullptr);
+}
+
+void CTerminationProcessAmuleApi::StopOutputDrain()
+{
+	{
+		std::lock_guard<std::mutex> lock(m_outputMutex);
+		m_outputStopped = true;
+	}
+	m_outputWake.notify_one();
+	if (m_outputDrain.joinable()) {
+		m_outputDrain.join();
+	}
+}
+
+void CTerminationProcessAmuleApi::DrainOutput()
+{
+	// amuleapi keeps its own logfile. Discard the redirected console copies,
+	// including stderr, rather than letting a full pipe block its logging or
+	// shutdown. This runs independently of a stalled core's event loop.
+	char buffer[4096];
+	for (wxInputStream *stream : { GetInputStream(), GetErrorStream() }) {
+		// Bound each pass so a noisy stream cannot starve the other or shutdown.
+		for (unsigned chunks = 0; stream && chunks < 32 && stream->CanRead(); ++chunks) {
+			stream->Read(buffer, sizeof(buffer));
+			if (!stream->LastRead()) {
+				break;
+			}
+		}
+	}
 }
 
 void CTerminationProcessAmuleApi::OnTerminate(int pid, int status)
 {
+	// Join before wxProcess destroys the streams used by the worker.
+	StopOutputDrain();
+
 	// Tell the application that amuleapi is no longer running
-	*m_amuleapi_pid = 0;
+	if (m_app) {
+		m_app->OnAmuleApiTerminated(pid, status);
+	}
 
 	// Normal termination processing here
 	CTerminationProcess::OnTerminate(pid, status);

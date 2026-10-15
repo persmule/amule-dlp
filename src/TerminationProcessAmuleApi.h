@@ -27,16 +27,32 @@
 
 #include "TerminationProcess.h" // for CTerminationProcess
 
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+
+class CamuleApp;
+
 // This is the handler for process termination events.
 // Used on some calls to wxExecute().
 class CTerminationProcessAmuleApi : public CTerminationProcess
 {
 private:
-	int *m_amuleapi_pid;
+	CamuleApp *m_app;
+	std::mutex m_outputMutex;
+	std::condition_variable m_outputWake;
+	bool m_outputReady = false;
+	bool m_outputStopped = false;
+	std::thread m_outputDrain;
+	void DrainOutput();
+	void StopOutputDrain();
 
 public:
-	CTerminationProcessAmuleApi(const wxString &cmd, int *amuleapi_pid);
-	virtual void OnTerminate(int pid, int status);
+	CTerminationProcessAmuleApi(const wxString &cmd, CamuleApp *app);
+	~CTerminationProcessAmuleApi() override;
+	void StartOutputDrain();
+	void ReleaseFromApp();
+	void OnTerminate(int pid, int status) override;
 };
 
 #endif // TERMINATIONPROCESSAMULEAPI_H

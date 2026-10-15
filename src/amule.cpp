@@ -109,6 +109,7 @@
 #include "AmuleApiCredentials.h"        // Needed for AmuleApiCredentials::RefreshState
 #include <AtomicFile.h>                 // webcommon::WriteFileAtomic0600 for the EC token
 #include <Credentials.h>                // webcommon::EcTokenFilePath / GenerateEcToken
+#include "ExternalCommand.h"            // Windows child-process argument quoting
 #include "TerminationProcessAmuleApi.h" // Needed for CTerminationProcessAmuleApi
 #include "TerminationProcessAmuleweb.h" // Needed for CTerminationProcessAmuleweb
 #include "ThreadTasks.h"
@@ -338,6 +339,11 @@ int CamuleApp::OnExit()
 		return 0;
 	}
 	s_exitDone = true;
+	m_amuleApiStopping = true;
+	m_amuleApiRestart.Cancel();
+	if (!m_ecToken.IsEmpty() || m_ecTokenFileExpiryMs) {
+		ClearAmuleApiToken();
+	}
 
 	if (m_app_state != APP_STATE_STARTING) {
 		AddLogLineNS(_("Now, exiting main app..."));
@@ -383,6 +389,14 @@ int CamuleApp::OnExit()
 				AddLogLineNS(_("Failed"));
 			}
 		}
+	}
+
+	if (m_amuleApiProcess) {
+		// The event loop may already have stopped, so its termination callback
+		// need not run. Release the worker/streams before wx teardown, and
+		// prevent a late callback from reaching this application.
+		m_amuleApiProcess->ReleaseFromApp();
+		m_amuleApiProcess = nullptr;
 	}
 
 	if (m_app_state != APP_STATE_STARTING) {
@@ -1418,98 +1432,190 @@ bool CamuleApp::OnInit()
 
 	// Run amuleapi?
 	if (thePrefs::GetAmuleApiIsEnabled()) {
-		wxString amuleapiPath = ResolveHelperBinary(
-			thePrefs::GetAmuleApiPath(), AutostartManager::GetCanonicalExecutablePath());
-
-#if defined(__WXMAC__) && !defined(AMULE_DAEMON)
-		// For the Mac GUI application, look for amuleapi in the bundle
-		CFURLRef amuleapiUrl =
-			CFBundleCopyAuxiliaryExecutableURL(CFBundleGetMainBundle(), CFSTR("amuleapi"));
-
-		if (amuleapiUrl) {
-			CFURLRef absoluteUrl = CFURLCopyAbsoluteURL(amuleapiUrl);
-			CFRelease(amuleapiUrl);
-
-			if (absoluteUrl) {
-				CFStringRef amuleapiCfstr =
-					CFURLCopyFileSystemPath(absoluteUrl, kCFURLPOSIXPathStyle);
-				CFRelease(absoluteUrl);
-				amuleapiPath = wxCFStringRef(amuleapiCfstr).AsString();
-			}
-		}
-#endif
-
-		bool amuleapi_ok = false;
-		if (amuleapiPath.IsEmpty()) {
-			AddLogLineC(CFormat(_("Not starting %s: it is neither next to aMule nor on PATH.")) %
-				    thePrefs::GetAmuleApiPath());
-		} else {
-			// Hand the child an ephemeral EC credential instead of letting it read the
-			// password-equivalent value out of amule.conf. Written 0600 into the config dir the
-			// child is about to be pointed at, under the one name both sides derive from
-			// webcommon; the child deletes it the moment it has read it, and OnCoreTimer removes
-			// it regardless once the deadline expires. The path is deliberately NOT on the
-			// command line: argv is world-readable via ps.
-			//
-			// A failure here is not fatal -- amuleapi still has its own configured EC password --
-			// but it is worth saying, because that fallback is the credential we are trying to
-			// stop using.
-			m_ecToken = wxString::FromUTF8(webcommon::GenerateEcToken().c_str());
-			const std::string tokenPath =
-				webcommon::EcTokenFilePath(std::string(thePrefs::GetConfigDir().utf8_str()));
-			if (webcommon::WriteFileAtomic0600(
-				    tokenPath, std::string(m_ecToken.utf8_str()) + "\n")) {
-				m_ecTokenFileExpiryMs = theStats::GetUptimeMillis() + EC_TOKEN_FILE_TTL_MS;
-			} else {
-				AddLogLineC(
-					CFormat(_("Could not write the amuleapi EC token to %s; "
-						  "amuleapi will fall back to its configured password.")) %
-					wxString::FromUTF8(tokenPath.c_str()));
-				m_ecToken.Clear();
-			}
-
-			// No --amule-config-file here, unlike amuleweb above: amuleapi takes the ephemeral
-			// token written just now instead of reading the hashed EC password out of amule.conf.
-			// It finds the token through the config dir passed below, which is also where its
-			// admin and guest credentials live. The HTTP bind address and port, and where to
-			// reach our EC listener, are passed explicitly; a non-loopback bind requires an admin
-			// password or amuleapi refuses to start.
-			wxString ecIp;
-			uint16 ecPort = 0;
-			if (ECServerHandler) {
-				ECServerHandler->GetListenEndpoint(ecIp, ecPort);
-			}
-			const wxString cmd = AmuleApiCommand(amuleapiPath,
-				thePrefs::GetConfigDir(),
-				thePrefs::GetAmuleApiBindAddress(),
-				thePrefs::GetAmuleApiPort(),
-				ecIp,
-				ecPort);
-			CTerminationProcessAmuleApi *p = new CTerminationProcessAmuleApi(cmd, &amuleapi_pid);
-			amuleapi_pid = static_cast<int>(wxExecute(cmd, wxEXEC_ASYNC, p));
-			amuleapi_ok = amuleapi_pid > 0;
-			if (amuleapi_ok) {
-				AddLogLineC(CFormat(_("amuleapi running on pid %d")) % amuleapi_pid);
-			} else {
-				delete p;
-			}
-		}
-		if (!amuleapi_ok) {
-			// See the amuleweb branch above for why this is deferred with
-			// CallAfter rather than shown inline during OnInit.
-			CallAfter([this]() {
-				ShowAlert(_("You requested to run amuleapi on startup, "
-					    "but the amuleapi binary cannot be run. Please "
-					    "install the package containing aMule's REST API "
-					    "server, or build aMule from source with "
-					    "-DBUILD_AMULEAPI=YES and install it."),
-					_("ERROR"),
-					wxOK | wxICON_ERROR);
-			});
-		}
+		StartAmuleApi(true);
 	}
 
 	return true;
+}
+
+void CamuleApp::StartAmuleApi(bool startup)
+{
+	if (!IsRunning() || m_amuleApiStopping || g_shutdownSignal || !thePrefs::GetAmuleApiIsEnabled() ||
+		amuleapi_pid) {
+		m_amuleApiRestart.Cancel();
+		return;
+	}
+	if (!ClearAmuleApiToken()) {
+		// A stale unread token would override the child's configured password.
+		// Wait for cleanup to succeed before handing another credential to it.
+		ScheduleAmuleApiRestart();
+		return;
+	}
+	wxString amuleapiPath = ResolveHelperBinary(
+		thePrefs::GetAmuleApiPath(), AutostartManager::GetCanonicalExecutablePath());
+
+#if defined(__WXMAC__) && !defined(AMULE_DAEMON)
+	// For the Mac GUI application, look for amuleapi in the bundle
+	CFURLRef amuleapiUrl = CFBundleCopyAuxiliaryExecutableURL(CFBundleGetMainBundle(), CFSTR("amuleapi"));
+
+	if (amuleapiUrl) {
+		CFURLRef absoluteUrl = CFURLCopyAbsoluteURL(amuleapiUrl);
+		CFRelease(amuleapiUrl);
+
+		if (absoluteUrl) {
+			CFStringRef amuleapiCfstr =
+				CFURLCopyFileSystemPath(absoluteUrl, kCFURLPOSIXPathStyle);
+			CFRelease(absoluteUrl);
+			amuleapiPath = wxCFStringRef(amuleapiCfstr).AsString();
+		}
+	}
+#endif
+
+	CTerminationProcessAmuleApi *p = nullptr;
+	if (amuleapiPath.IsEmpty()) {
+		AddLogLineC(CFormat(_("Not starting %s: it is neither next to aMule nor on PATH.")) %
+			    thePrefs::GetAmuleApiPath());
+	} else {
+		// Hand the child an ephemeral EC credential instead of letting it read the
+		// password-equivalent value out of amule.conf. Written 0600 into the config dir the
+		// child is about to be pointed at, under the one name both sides derive from
+		// webcommon; the child deletes it the moment it has read it, and OnCoreTimer removes
+		// it regardless once the deadline expires. The path is deliberately NOT on the
+		// command line: argv is world-readable via ps.
+		//
+		// A failure here is not fatal -- amuleapi still has its own configured EC password --
+		// but it is worth saying, because that fallback is the credential we are trying to
+		// stop using.
+		m_ecToken = wxString::FromUTF8(webcommon::GenerateEcToken().c_str());
+		const std::string tokenPath =
+			webcommon::EcTokenFilePath(std::string(thePrefs::GetConfigDir().utf8_str()));
+		if (webcommon::WriteFileAtomic0600(tokenPath, std::string(m_ecToken.utf8_str()) + "\n")) {
+			m_ecTokenFileExpiryMs = theStats::GetUptimeMillis() + EC_TOKEN_FILE_TTL_MS;
+		} else {
+			AddLogLineC(CFormat(_("Could not write the amuleapi EC token to %s; "
+					      "amuleapi will fall back to its configured password.")) %
+				    wxString::FromUTF8(tokenPath.c_str()));
+			m_ecToken.Clear();
+		}
+
+		// No --amule-config-file here, unlike amuleweb above: amuleapi takes the ephemeral
+		// token written just now instead of reading the hashed EC password out of amule.conf.
+		// It finds the token through the config dir passed below, which is also where its
+		// admin and guest credentials live. The HTTP bind address and port, and where to reach
+		// our EC listener, are passed explicitly; a non-loopback bind requires an admin password
+		// or amuleapi refuses to start.
+		wxString ecIp;
+		uint16 ecPort = 0;
+		if (ECServerHandler) {
+			ECServerHandler->GetListenEndpoint(ecIp, ecPort);
+		}
+		const wxString cmd = AmuleApiCommand(amuleapiPath,
+			thePrefs::GetConfigDir(),
+			thePrefs::GetAmuleApiBindAddress(),
+			thePrefs::GetAmuleApiPort(),
+			ecIp,
+			ecPort);
+		const wxArrayString args = AmuleApiArguments(amuleapiPath,
+			thePrefs::GetConfigDir(),
+			thePrefs::GetAmuleApiBindAddress(),
+			thePrefs::GetAmuleApiPort(),
+			ecIp,
+			ecPort);
+#ifndef __WINDOWS__
+		std::vector<wxWCharBuffer> buffers;
+		std::vector<const wchar_t *> argv;
+		buffers.reserve(args.size());
+		argv.reserve(args.size() + 1);
+		for (const wxString &arg : args) {
+			buffers.emplace_back(arg.wc_str());
+			argv.push_back(buffers.back().data());
+		}
+		argv.push_back(nullptr);
+#endif
+		amuleapi_pid = 0;
+		try {
+			p = new CTerminationProcessAmuleApi(cmd, this);
+			m_amuleApiProcess = p;
+#ifdef __WINDOWS__
+			// wxWidgets' argv overload does not preserve trailing Windows backslashes.
+			amuleapi_pid = static_cast<int>(
+				wxExecute(ExternalCommand::BuildWindowsCommandLine(args), wxEXEC_ASYNC, p));
+#else
+			amuleapi_pid = static_cast<int>(wxExecute(argv.data(), wxEXEC_ASYNC, p));
+#endif
+			if (amuleapi_pid > 0) {
+				p->StartOutputDrain();
+			}
+		} catch (...) {
+			// wxExecute can throw if its launch environment is unusable. A failed
+			// retry must not unwind out of the core timer and terminate aMule.
+			AddLogLineN(_("An exception occurred while launching amuleapi."));
+		}
+	}
+	bool amuleapi_ok = amuleapi_pid > 0;
+	if (amuleapi_ok) {
+		m_amuleApiRestart.Started(theStats::GetUptimeMillis());
+		AddLogLineC(CFormat(_("amuleapi running on pid %d")) % amuleapi_pid);
+	} else {
+		amuleapi_pid = 0;
+		m_amuleApiProcess = nullptr;
+		delete p;
+		ClearAmuleApiToken();
+		// See the amuleweb branch above for why this is deferred with
+		// CallAfter rather than shown inline during OnInit.
+		if (!startup) {
+			AddLogLineN(_("Could not launch amuleapi during automatic restart."));
+			ScheduleAmuleApiRestart();
+			return;
+		}
+		CallAfter([this]() {
+			ShowAlert(_("You requested to run amuleapi on startup, "
+				    "but the amuleapi binary cannot be run. Please "
+				    "install the package containing aMule's REST API "
+				    "server, or build aMule from source with "
+				    "-DBUILD_AMULEAPI=YES and install it."),
+				_("ERROR"),
+				wxOK | wxICON_ERROR);
+		});
+	}
+}
+
+bool CamuleApp::ClearAmuleApiToken()
+{
+	m_ecToken.Clear();
+	m_ecTokenFileExpiryMs = 0;
+	const wxString tokenPath = wxString::FromUTF8(
+		webcommon::EcTokenFilePath(std::string(thePrefs::GetConfigDir().utf8_str())).c_str());
+	if (wxFileExists(tokenPath) && !wxRemoveFile(tokenPath)) {
+		m_ecTokenFileExpiryMs = theStats::GetUptimeMillis() + EC_TOKEN_FILE_TTL_MS;
+		AddLogLineN(CFormat(_("Could not remove the amuleapi EC token file: %s")) % tokenPath);
+		return false;
+	}
+	return true;
+}
+
+void CamuleApp::ScheduleAmuleApiRestart()
+{
+	const uint64 now = theStats::GetUptimeMillis();
+	m_amuleApiRestart.Failed(now);
+	AddLogLineN(CFormat(_("amuleapi will restart in %u seconds.")) %
+		    static_cast<unsigned>(m_amuleApiRestart.DelayMs() / 1000));
+}
+
+void CamuleApp::OnAmuleApiTerminated(int pid, int status)
+{
+	if (pid != amuleapi_pid) {
+		return;
+	}
+	amuleapi_pid = 0;
+	m_amuleApiProcess = nullptr;
+	ClearAmuleApiToken();
+	if (status != 0 && IsRunning() && !m_amuleApiStopping && !g_shutdownSignal &&
+		thePrefs::GetAmuleApiIsEnabled()) {
+		ScheduleAmuleApiRestart();
+	} else {
+		m_amuleApiRestart.Cancel();
+	}
 }
 
 bool CamuleApp::ReinitializeNetwork(wxString *msg)
@@ -2281,6 +2387,12 @@ void CamuleApp::OnCoreTimer(CTimerEvent &WXUNUSED(evt))
 	}
 	recurse = true;
 
+	if (!thePrefs::GetAmuleApiIsEnabled() || m_amuleApiStopping || g_shutdownSignal) {
+		m_amuleApiRestart.Cancel();
+	} else if (!amuleapi_pid && m_amuleApiRestart.IsDue(msCur)) {
+		StartAmuleApi(false);
+	}
+
 #ifdef AMULE_UTP_TRANSPORT
 	// Unguarded like the queues below: ReinitializeNetwork() always constructs clientudp,
 	// disabled UDP included -- it simply leaves it unopened. A null check here would also
@@ -2412,10 +2524,15 @@ void CamuleApp::OnCoreTimer(CTimerEvent &WXUNUSED(evt))
 		m_ecTokenFileExpiryMs = 0;
 		const wxString tokenPath = wxString::FromUTF8(
 			webcommon::EcTokenFilePath(std::string(thePrefs::GetConfigDir().utf8_str())).c_str());
-		if (wxFileExists(tokenPath) && wxRemoveFile(tokenPath)) {
-			AddDebugLogLineN(logGeneral,
-				CFormat("amuleapi EC token file removed unread after %u ms: %s") %
-					EC_TOKEN_FILE_TTL_MS % tokenPath);
+		if (wxFileExists(tokenPath)) {
+			if (!wxRemoveFile(tokenPath)) {
+				// Retry cleanup after a transient filesystem failure.
+				m_ecTokenFileExpiryMs = msCur + EC_TOKEN_FILE_TTL_MS;
+			} else {
+				AddDebugLogLineN(logGeneral,
+					CFormat("amuleapi EC token file removed unread after %u ms: %s") %
+						EC_TOKEN_FILE_TTL_MS % tokenPath);
+			}
 		}
 	}
 

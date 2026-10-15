@@ -19,6 +19,7 @@
 
 #include <functional>
 
+#include <wx/arrstr.h>
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
 #include <wx/string.h>
@@ -118,8 +119,28 @@ inline wxString ResolveHelperBinary(const wxString &configured, const wxString &
 	return ResolveHelperBinary(configured, selfExePath, CurrentSearchPath(), IsExecutableFile);
 }
 
-// The command that starts amuleapi for this core. `ecIp` and `ecPort`, the EC listener's bound
-// endpoint, tell it where to connect: amuleapi.conf's defaults need not match the core's EC settings.
+// Keep executable and argument boundaries intact, including profile paths with quotes.
+inline wxArrayString AmuleApiArguments(const wxString &path,
+	const wxString &configDir,
+	const wxString &bind,
+	unsigned httpPort,
+	const wxString &ecIp,
+	unsigned ecPort)
+{
+	wxArrayString args{ path,
+		"--config-dir=" + configDir,
+		"--bind=" + bind,
+		wxString::Format("--http-port=%u", httpPort) };
+	if (!ecIp.IsEmpty() && ecPort != 0) {
+		const wxString host = ecIp == "0.0.0.0" ? wxString("127.0.0.1") : ecIp;
+		args.Add("--host=" + host);
+		args.Add(wxString::Format("--port=%u", ecPort));
+	}
+	return args;
+}
+
+// The display command for amuleapi (execution uses AmuleApiArguments). `ecIp` and `ecPort`, the EC listener's
+// bound endpoint, tell it where to connect: amuleapi.conf's defaults need not match the core's EC settings.
 // A wildcard bind is reached over loopback. Without them, amuleapi.conf decides.
 inline wxString AmuleApiCommand(const wxString &path,
 	const wxString &configDir,

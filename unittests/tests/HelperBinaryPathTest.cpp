@@ -218,3 +218,18 @@ TEST(HelperBinaryPath, AmuleApiCommandReachesAWildcardBindOverLoopback)
 	ASSERT_EQUALS(kBase + " " + q + "--host=127.0.0.1" + q + " --port=4712",
 		AmuleApiCommand("amuleapi", "/c/", "0.0.0.0", 4711, "0.0.0.0", 4712));
 }
+
+TEST(HelperBinaryPath, AmuleApiArgumentsPreserveQuotedPaths)
+{
+	const wxString executable = "C:\\aMule with spaces\\amuleapi.exe";
+	const wxString profile = wxString::FromUTF8("/tmp/profile '北' \"quoted\"/");
+	const wxArrayString args = AmuleApiArguments(executable, profile, "127.0.0.1", 4711, "0.0.0.0", 4712);
+	ASSERT_EQUALS(size_t(6), args.size());
+	ASSERT_EQUALS(executable, args[0]);
+	ASSERT_EQUALS("--config-dir=" + profile, args[1]);
+	ASSERT_EQUALS(wxString("--bind=127.0.0.1"), args[2]);
+	ASSERT_EQUALS(wxString("--http-port=4711"), args[3]);
+	ASSERT_EQUALS(wxString("--host=127.0.0.1"), args[4]);
+	ASSERT_EQUALS(wxString("--port=4712"), args[5]);
+	ASSERT_EQUALS(size_t(4), AmuleApiArguments(executable, profile, "127.0.0.1", 4711, "", 0).size());
+}

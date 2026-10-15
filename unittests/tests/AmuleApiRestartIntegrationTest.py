@@ -1,0 +1,191 @@
+#!/usr/bin/env python3
+# Copyright (c) 2026 aMule Team
+# SPDX-License-Identifier: GPL-2.0-or-later
+"""Exercise API child supervision and fresh EC credentials with an offline core."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import shlex
+import socket
+import stat
+import struct
+import subprocess
+import sys
+import tempfile
+import time
+
+from AllSearchIntegrationTest import (C, EC, check_daemon_ports, integer,
+                                      retry_port_collisions, string, tag)
+from LogfilePathIntegrationTest import daemon_env, write_config
+
+
+def authenticate_token(host, port, token):
+    ec = EC.__new__(EC)
+    ec.sock = socket.create_connection((host, port), timeout=10)
+    try:
+        op, tags = ec.call(C['EC_OP_AUTH_REQ'], [
+            string(C['EC_TAG_CLIENT_NAME'], 'API restart regression'),
+            string(C['EC_TAG_CLIENT_VERSION'], '1'),
+            tag(C['EC_TAG_PROTOCOL_VERSION'], struct.pack('!H', C['EC_CURRENT_PROTOCOL_VERSION']), 3),
+        ])
+        assert op == C['EC_OP_AUTH_SALT'], (op, tags)
+        salt_hash = hashlib.md5(f"{tags[C['EC_TAG_PASSWD_SALT']][0]:X}".encode()).hexdigest()
+        proof = hashlib.md5((token.lower() + salt_hash).encode()).digest()
+        return ec.call(C['EC_OP_AUTH_PASSWD'], [tag(C['EC_TAG_PASSWD_HASH'], proof, 9)])[0]
+    finally:
+        ec.sock.close()
+
+
+def helper():
+    args = dict(arg[2:].split('=', 1) for arg in sys.argv[1:] if arg.startswith('--'))
+    root = Path(args['config-dir'])
+    scenario = (root / 'scenario').read_text()
+    token_file = root / 'amuleapi-ec-token'
+    mode = stat.S_IMODE(token_file.stat().st_mode)
+    token = token_file.read_text().strip()
+    journal = root / 'launches.jsonl'
+    count = len(journal.read_text().splitlines()) if journal.exists() else 0
+    unread = scenario == 'unread' and count == 0
+    if not unread:
+        token_file.unlink()
+        assert authenticate_token(args['host'], int(args['port']), token) == C['EC_OP_AUTH_OK']
+    # The private fixture keeps the retired secret to verify revocation after exit.
+    with (root / 'retired-token').open('w') as output:
+        output.write(token)
+    (root / 'retired-token').chmod(0o600)
+    with journal.open('a') as output:
+        output.write(json.dumps({'pid': os.getpid(), 'time': time.monotonic(),
+                                 'token_hash': hashlib.sha256(token.encode()).hexdigest(),
+                                 'mode': mode}) + '\n')
+    if scenario == 'verbose' and count == 0:
+        # Fill both streams beyond pipe capacity before reporting the failed exit.
+        sys.stdout.write('stdout regression ' * 16384 + '\n')
+        sys.stdout.flush()
+        sys.stderr.write('stderr regression ' * 16384 + '\n')
+        sys.stderr.flush()
+    while scenario == 'active-shutdown':
+        time.sleep(1)
+    return 1 if count == 0 else 0
+
+
+def launches(root):
+    journal = root / 'launches.jsonl'
+    # A reader can overlap the helper's append. Wait for a complete JSON line.
+    lines = journal.read_text().splitlines(keepends=True) if journal.exists() else []
+    return [json.loads(line) for line in lines if line.endswith('\n')]
+
+
+def wait_until(proc, root, predicate, timeout=90):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if predicate():
+            return
+        console = (root / 'console.log').read_text(errors='replace')
+        assert proc.poll() is None, console
+        assert 'but the amuleapi binary cannot be run' not in console, 'API launch rejected the profile path'
+        time.sleep(0.1)
+    raise AssertionError((root / 'console.log').read_text(errors='replace'))
+
+
+def run(binary, root, scenario):
+    root.mkdir()
+    (root / 'scenario').write_text(scenario)
+    ec_port, peer_port = write_config(root)
+    helper_path = root / 'api-helper'
+    helper_script = ('#!/bin/sh\nexec ' + shlex.quote(sys.executable) + ' ' +
+                     shlex.quote(str(Path(__file__).resolve())) + ' "$@"\n')
+    helper_path.write_text(helper_script)
+    helper_path.chmod(0o700)
+    with (root / 'amule.conf').open('a') as config:
+        config.write(f'\n[AmuleApi]\nEnabled=1\nPath={helper_path}\nBindAddress=127.0.0.1\n')
+    with (root / 'console.log').open('w') as console:
+        proc = subprocess.Popen([binary, '-c', str(root), '--disable-fatal'],
+                                stdout=console, stderr=console, env=daemon_env(root))
+        try:
+            if scenario == 'active-shutdown':
+                wait_until(proc, root, lambda: len(launches(root)) == 1)
+            else:
+                wait_until(proc, root, lambda: 'amuleapi will restart in 5 seconds.' in
+                           (root / 'logfile').read_text(errors='replace') if (root / 'logfile').exists() else False,
+                           timeout=10 if scenario == 'verbose' else 90)
+            check_daemon_ports(root, ec_port, peer_port)
+            assert len(launches(root)) == 1
+            if scenario == 'unread':
+                assert not (root / 'amuleapi-ec-token').exists(), 'dead child left a live token file'
+                token = (root / 'retired-token').read_text()
+                assert authenticate_token('127.0.0.1', ec_port, token) == C['EC_OP_AUTH_FAIL'], 'dead child token still accepted'
+            if scenario in ('shutdown', 'active-shutdown'):
+                proc.terminate()
+                assert proc.wait(timeout=20) == 0
+                time.sleep(6)
+                assert len(launches(root)) == 1, 'child restarted during shutdown'
+                if scenario == 'active-shutdown':
+                    child = Path('/proc') / str(launches(root)[0]['pid']) / 'stat'
+                    assert not child.exists() or child.read_text().rpartition(')')[2].split()[0] == 'Z', 'API child survived core shutdown'
+            elif scenario == 'disabled':
+                ec = EC(ec_port)
+                try:
+                    assert ec.call(C['EC_OP_SET_PREFERENCES'], [
+                        tag(C['EC_TAG_PREFS_REMOTECTRL'], children=[
+                            integer(C['EC_TAG_AMULEAPI_AUTORUN'], 0)]),
+                    ])[0] == C['EC_OP_NOOP']
+                    time.sleep(6)
+                    assert len(launches(root)) == 1, 'disabled API restarted'
+                    # Re-enabling must not revive an already cancelled retry.
+                    assert ec.call(C['EC_OP_SET_PREFERENCES'], [
+                        tag(C['EC_TAG_PREFS_REMOTECTRL'], children=[
+                            integer(C['EC_TAG_AMULEAPI_AUTORUN'], 1)]),
+                    ])[0] == C['EC_OP_NOOP']
+                    time.sleep(6)
+                    assert len(launches(root)) == 1, 'cancelled retry revived'
+                finally:
+                    ec.sock.close()
+            else:
+                if scenario == 'missing':
+                    helper_path.unlink()
+                    # wxWidgets may report a PID before exec fails, then deliver
+                    # the failure through OnTerminate instead of returning zero.
+                    wait_until(proc, root, lambda: 'amuleapi will restart in 10 seconds.' in
+                               (root / 'logfile').read_text(errors='replace'))
+                    assert not (root / 'amuleapi-ec-token').exists(), 'failed launch left a token file'
+                    assert 'amuleapi will restart in 10 seconds.' in (root / 'logfile').read_text()
+                    helper_path.write_text(helper_script)
+                    helper_path.chmod(0o700)
+                wait_until(proc, root, lambda: len(launches(root)) == 2)
+                records = launches(root)
+                assert records[0]['token_hash'] != records[1]['token_hash'], 'reused EC token'
+                assert all(record['mode'] == 0o600 for record in records)
+                delay = 15 if scenario == 'missing' else 5
+                assert records[1]['time'] - records[0]['time'] >= delay, 'restart skipped delay'
+                assert not (root / 'amuleapi-ec-token').exists()
+                # Second child exits cleanly: waiting past the next backoff must not relaunch it.
+                time.sleep(12)
+                assert proc.poll() is None
+                assert len(launches(root)) == 2, 'clean exit was restarted'
+                token = (root / 'retired-token').read_text()
+                assert authenticate_token('127.0.0.1', ec_port, token) == C['EC_OP_AUTH_FAIL'], 'clean exit token still accepted'
+        finally:
+            if proc.poll() is None:
+                proc.terminate()
+                try:
+                    proc.wait(timeout=20)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    proc.wait()
+
+
+if __name__ == '__main__':
+    if any(arg.startswith('--config-dir=') for arg in sys.argv[1:]):
+        sys.exit(helper())
+    with tempfile.TemporaryDirectory(prefix='amule-api-restart-') as directory:
+        root = Path(directory)
+        scenarios = sys.argv[2:] or ['unread', 'restart', 'quoted', 'missing', 'verbose', 'disabled', 'shutdown', 'active-shutdown']
+        for scenario in scenarios:
+            # Quoted executable and profile paths exercise argument boundaries.
+            name = "profile '北' with spaces" if scenario == 'quoted' else scenario
+            def attempt():
+                with tempfile.TemporaryDirectory(prefix=name + '-', dir=root) as case:
+                    run(str(Path(sys.argv[1]).resolve()), Path(case) / name, scenario)
+            retry_port_collisions(attempt)
+    print('API supervision regression scenarios passed')
