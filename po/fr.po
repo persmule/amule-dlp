@@ -515,13 +515,31 @@ msgid "Could not write the amuleapi EC token to %s; amuleapi will fall back to i
 msgstr "Impossible d’écrire le jeton EC d’amuleapi dans %s ; amuleapi utilisera le mot de passe configuré."
 
 #: src/amule.cpp
+msgid "An exception occurred while launching amuleapi."
+msgstr ""
+
+#: src/amule.cpp
 #, c-format
 msgid "amuleapi running on pid %d"
 msgstr "amuleapi s'exécutant avec le pid %d"
 
 #: src/amule.cpp
+msgid "Could not launch amuleapi during automatic restart."
+msgstr ""
+
+#: src/amule.cpp
 msgid "You requested to run amuleapi on startup, but the amuleapi binary cannot be run. Please install the package containing aMule's REST API server, or build aMule from source with -DBUILD_AMULEAPI=YES and install it."
 msgstr "Vous avez demandé à exécuter amuleapi au démarrage, mais le binaire amuleapi ne peut être exécuté. Veuillez installer le paquet contenant le serveur API RESTd'aMule, ou compilez aMule depuis le code source avec -DBUILD_AMULEAPI=YES et installez-le."
+
+#: src/amule.cpp
+#, fuzzy, c-format
+msgid "Could not remove the amuleapi EC token file: %s"
+msgstr "Impossible d’enregistrer le mot de passe d’amuleapi : %s"
+
+#: src/amule.cpp
+#, c-format
+msgid "amuleapi will restart in %u seconds."
+msgstr ""
 
 #: src/amule.cpp
 #, c-format

@@ -505,13 +505,31 @@ msgid "Could not write the amuleapi EC token to %s; amuleapi will fall back to i
 msgstr ""
 
 #: src/amule.cpp
+msgid "An exception occurred while launching amuleapi."
+msgstr ""
+
+#: src/amule.cpp
 #, c-format
 msgid "amuleapi running on pid %d"
 msgstr "PID %d에서 amuleapi가 실행 중입니다"
 
 #: src/amule.cpp
+msgid "Could not launch amuleapi during automatic restart."
+msgstr ""
+
+#: src/amule.cpp
 msgid "You requested to run amuleapi on startup, but the amuleapi binary cannot be run. Please install the package containing aMule's REST API server, or build aMule from source with -DBUILD_AMULEAPI=YES and install it."
 msgstr "시작 시 amuleapi를 실행하도록 요청하셨지만 amuleapi 바이너리를 실행할 수 없습니다. aMule의 REST API 서버가 포함된 패키지를 설치하거나, -DBUILD_AMULEAPI=YES 옵션으로 aMule을 소스에서 빌드하여 설치하세요."
+
+#: src/amule.cpp
+#, fuzzy, c-format
+msgid "Could not remove the amuleapi EC token file: %s"
+msgstr "amuleapi 암호를 저장할 수 없습니다: %s"
+
+#: src/amule.cpp
+#, c-format
+msgid "amuleapi will restart in %u seconds."
+msgstr ""
 
 #: src/amule.cpp
 #, c-format
