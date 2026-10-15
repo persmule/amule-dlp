@@ -36,6 +36,7 @@
 #include <muleunit/test.h>
 
 #include <PeerCapabilities.h>
+#include <IPv6ChangeNotification.h>
 
 // The unknown-tag-tolerance test below reads a tag stream through exactly the classes
 // CUpDownClient::ProcessHelloTypePacket() uses. CUpDownClient itself cannot be linked here, but the
@@ -247,6 +248,44 @@ TEST(PeerCapabilities, DecodesIPv6HexTag)
 	ASSERT_EQUALS(0xAD, (int)out[13]);
 	ASSERT_EQUALS(0xBE, (int)out[14]);
 	ASSERT_EQUALS(0xEF, (int)out[15]);
+}
+
+TEST(PeerCapabilities, SendsPendingIPv6ChangeOnlyToEligibleConnectedPeer)
+{
+	const uint8_t address[16] = {
+		0x20, 0x01, 0x0d, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0xde, 0xad, 0xbe, 0xef
+	};
+	const std::optional<CNetworkAddress> advertised = CNetworkAddress::FromIPv6Bytes(address);
+
+	ASSERT_TRUE(ShouldSendPendingIPv6Change(true, true, true, true, advertised));
+	ASSERT_FALSE(ShouldSendPendingIPv6Change(false, true, true, true, advertised));
+	ASSERT_FALSE(ShouldSendPendingIPv6Change(true, false, true, true, advertised));
+	ASSERT_FALSE(ShouldSendPendingIPv6Change(true, true, false, true, advertised));
+	ASSERT_FALSE(ShouldSendPendingIPv6Change(true, true, true, false, advertised));
+	ASSERT_FALSE(ShouldSendPendingIPv6Change(true, true, true, true, std::nullopt));
+
+	uint8_t encoded[16];
+	ASSERT_TRUE(EncodeIPv6ChangePayload(*advertised, encoded));
+	for (size_t i = 0; i < 16; ++i) {
+		ASSERT_EQUALS((int)address[i], (int)encoded[i]);
+	}
+}
+
+TEST(PeerCapabilities, OnlyNotifiesPeersWhenTheAdmittedAddressChanges)
+{
+	const uint8_t firstBytes[16] = {
+		0x20, 0x01, 0x0d, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0xde, 0xad, 0xbe, 0xef
+	};
+	const uint8_t secondBytes[16] = {
+		0x20, 0x01, 0x0d, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0xca, 0xfe, 0xba, 0xbe
+	};
+	const std::optional<CNetworkAddress> first = CNetworkAddress::FromIPv6Bytes(firstBytes);
+	const std::optional<CNetworkAddress> second = CNetworkAddress::FromIPv6Bytes(secondBytes);
+
+	ASSERT_TRUE(ShouldMarkIPv6ChangeNotification(std::nullopt, first));
+	ASSERT_FALSE(ShouldMarkIPv6ChangeNotification(first, std::nullopt));
+	ASSERT_FALSE(ShouldMarkIPv6ChangeNotification(first, first));
+	ASSERT_TRUE(ShouldMarkIPv6ChangeNotification(first, second));
 }
 
 TEST(PeerCapabilities, EncodesIPv6HexTagInNetworkByteOrder)

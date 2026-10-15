@@ -610,6 +610,12 @@ public:
 
 	/// Sends a packet. False if there is no socket or the send failed.
 	bool SendPacket(CPacket *packet, bool delpacket = true, bool controlpacket = true);
+#ifdef ENABLE_IPV6
+	//! Queue a deferred OP_CHANGE_CLIENT_IP for this hello-complete IPv6 peer.
+	void MarkIPv6ChangeNotificationPending();
+	//! Allows deferred IPv6 notifications after the current connection's hello exchange.
+	void MarkIPv6ChangeConnectionReady();
+#endif
 
 	/// Per-tick poke from CPartFile::Process. Re-arms this client's socket if it suspended last
 	/// tick because the global CDownloadBandwidthThrottler bucket was empty, and returns the
@@ -672,6 +678,7 @@ public:
 #ifdef ENABLE_IPV6
 	//! Replaces a peer's advertised IPv6 after OP_CHANGE_CLIENT_IP validation.
 	void UpdateModIPv6(const CNetworkAddress &address);
+	void SendPendingIPv6Change();
 #endif
 	//! The peer's serving buddy's IPv6 address from CT_EMULE_SERVINGBUDDYIPV6, big-endian, 16
 	//! bytes. Only meaningful while HasServingBuddyIPv6() is true.
@@ -992,6 +999,10 @@ private:
 	uint8_t m_servingBuddyIPv6[16];
 	bool m_hasModIPv6;
 	bool m_hasServingBuddyIPv6;
+#ifdef ENABLE_IPV6
+	bool m_pendingIPv6Change;
+	bool m_ipv6ChangeHelloComplete;
+#endif
 
 	Kademlia::CBuddyLiveness m_buddyLiveness;
 	uint64_t m_dwDirectCallbackTimeout;
