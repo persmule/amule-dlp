@@ -746,6 +746,9 @@ jobs:
             ${{ matrix.pkg_prefix }}-zlib
             git
             zip
+          # The action's package cache saves on every event, with no way to limit
+          # it to master, and spares only the 10-20 s the ~400 MB download takes.
+          cache: false
       - name: Restore ccache
         if: github.event_name != 'workflow_call'
         uses: actions/cache/restore@v6
@@ -867,6 +870,9 @@ jobs:
           msystem: ${{ matrix.msystem }}
           update: true
           install: git unzip python
+          # The action's package cache saves on every event, with no way to limit
+          # it to master, and these packages are only ~50 MB.
+          cache: false
       - name: Install NSIS
         # NSIS isn't packaged for every MSYS2 environment (e.g. no
         # clangarm64 build), so install the Windows-native NSIS via
