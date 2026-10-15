@@ -86,6 +86,12 @@ add_test (NAME ECNotificationDrainTest COMMAND ECNotificationDrainTest)
 target_include_directories (ECNotificationDrainTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries (ECNotificationDrainTest muleunit mulecommon)
 
+# Source and notes publication traversal without a running Kad instance.
+add_executable (KadPublishCursorTest KadPublishCursorTest.cpp)
+add_test (NAME KadPublishCursorTest COMMAND KadPublishCursorTest)
+target_include_directories (KadPublishCursorTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries (KadPublishCursorTest muleunit mulecommon)
+
 # Callback and buddy eligibility without a running Kad instance.
 add_executable (KadCallbackPolicyTest KadCallbackPolicyTest.cpp)
 add_test (NAME KadCallbackPolicyTest COMMAND KadCallbackPolicyTest)

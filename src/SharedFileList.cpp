@@ -352,8 +352,6 @@ CSharedFileList::CSharedFileList(CKnownFileList *in_filelist)
 	m_lastPublishED2KFlag = true;
 	/* Kad Stuff */
 	m_keywords = new CPublishKeywordList;
-	m_currFileSrc = 0;
-	m_currFileNotes = 0;
 	m_lastPublishKadSrc = 0;
 	m_lastPublishKadNotes = 0;
 	m_currFileKey = 0;
@@ -1336,6 +1334,13 @@ const CKnownFile *CSharedFileList::GetFileByIndex(unsigned int index) const
 	return pos->second;
 }
 
+CKnownFile *CSharedFileList::GetNextKadFile(CKadPublishCursor<CMD4Hash> &cursor)
+{
+	wxMutexLocker lock(list_mut);
+	const auto next = cursor.Next(m_Files_map);
+	return next == m_Files_map.end() ? nullptr : next->second;
+}
+
 CKnownFile *CSharedFileList::GetFileByID(const CMD4Hash &filehash)
 {
 	wxMutexLocker lock(list_mut);
@@ -1710,11 +1715,7 @@ void CSharedFileList::Publish()
 
 		if (Kademlia::CKademlia::GetTotalStoreSrc() < KADEMLIATOTALSTORESRC) {
 			if (tNow >= m_lastPublishKadSrc) {
-				if (m_currFileSrc > GetCount()) {
-					m_currFileSrc = 0;
-				}
-				CKnownFile *pCurKnownFile =
-					const_cast<CKnownFile *>(GetFileByIndex(m_currFileSrc));
+				CKnownFile *pCurKnownFile = GetNextKadFile(m_srcPublishCursor);
 				if (pCurKnownFile) {
 					if (pCurKnownFile->PublishSrc()) {
 						Kademlia::CUInt128 kadFileID;
@@ -1726,7 +1727,6 @@ void CSharedFileList::Publish()
 						}
 					}
 				}
-				m_currFileSrc++;
 
 				// even if we did not publish a source, reset the timer so that this list is
 				// processed only every KADEMLIAPUBLISHTIME seconds.
@@ -1736,11 +1736,7 @@ void CSharedFileList::Publish()
 
 		if (Kademlia::CKademlia::GetTotalStoreNotes() < KADEMLIATOTALSTORENOTES) {
 			if (tNow >= m_lastPublishKadNotes) {
-				if (m_currFileNotes > GetCount()) {
-					m_currFileNotes = 0;
-				}
-				CKnownFile *pCurKnownFile =
-					const_cast<CKnownFile *>(GetFileByIndex(m_currFileNotes));
+				CKnownFile *pCurKnownFile = GetNextKadFile(m_notesPublishCursor);
 				if (pCurKnownFile) {
 					if (pCurKnownFile->PublishNotes()) {
 						Kademlia::CUInt128 kadFileID;
@@ -1751,7 +1747,6 @@ void CSharedFileList::Publish()
 							pCurKnownFile->SetLastPublishTimeKadNotes(0);
 					}
 				}
-				m_currFileNotes++;
 
 				// even if we did not publish a source, reset the timer so that this list is
 				// processed only every KADEMLIAPUBLISHTIME seconds.
