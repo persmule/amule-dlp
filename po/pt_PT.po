@@ -3229,6 +3229,11 @@ msgid "HTTP download cancelled"
 msgstr "Download HTTP cancelado"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "O URL para download não pode estar vazio"
 
@@ -7274,11 +7279,6 @@ msgstr "Pesquisa Kad: solicitados resultados mais alargados a mais um par."
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Pesquisa Kad: não há mais pares para voltar a consultar (limite atingido ou ainda sem respostas)."
 
-#: src/SearchList.cpp
-#, fuzzy, c-format
-msgid "Error %u: %s\n"
-msgstr "Erro ao actualizar o GeoIP.dat"
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "ID do Ficheiro"
@@ -7348,6 +7348,11 @@ msgstr "Religar à rede."
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr ""
+
+#: src/SearchPacket.cpp
+#, fuzzy, c-format
+msgid "Error %u: %s\n"
+msgstr "Erro ao actualizar o GeoIP.dat"
 
 #: src/SearchProgressReport.cpp
 #, fuzzy

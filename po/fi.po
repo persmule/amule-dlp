@@ -3223,6 +3223,11 @@ msgid "HTTP download cancelled"
 msgstr "HTTP-lataus peruutettu"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "Ladattava URL ei voi olla tyhjä"
 
@@ -7268,11 +7273,6 @@ msgstr "Kad-haku: pyydettiin laajempia tuloksia yhdeltä lisävertaiselta."
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad-haku: ei vertaisia jäljellä lisätulosten kysymiseen (yläraja saavutettu tai vastauksia ei vielä ole)."
 
-#: src/SearchList.cpp
-#, fuzzy, c-format
-msgid "Error %u: %s\n"
-msgstr "Virhe päivitettäessä GeoIP.dat-tiedostoa"
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "Tiedostotunniste"
@@ -7342,6 +7342,11 @@ msgstr "Yhdistä verkkoon."
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr ""
+
+#: src/SearchPacket.cpp
+#, fuzzy, c-format
+msgid "Error %u: %s\n"
+msgstr "Virhe päivitettäessä GeoIP.dat-tiedostoa"
 
 #: src/SearchProgressReport.cpp
 #, fuzzy

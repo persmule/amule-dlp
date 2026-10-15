@@ -3221,6 +3221,11 @@ msgid "HTTP download cancelled"
 msgstr "HTTP allalaadimine katkestatud"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "Tõmbamise URL ei saa olla tühi."
 
@@ -7261,11 +7266,6 @@ msgstr "Kad otsing: küsiti laiemaid tulemusi veel ühelt kasutajalt."
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad otsing: rohkem tulemusi küsimiseks pole enam kasutajaid üle (piirmäär saavutatud või vastuseid pole veel tulnud)."
 
-#: src/SearchList.cpp
-#, fuzzy, c-format
-msgid "Error %u: %s\n"
-msgstr "GeoIP.dat uuendamise viga"
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "FailiID"
@@ -7335,6 +7335,11 @@ msgstr "Ühendu võrguga."
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr ""
+
+#: src/SearchPacket.cpp
+#, fuzzy, c-format
+msgid "Error %u: %s\n"
+msgstr "GeoIP.dat uuendamise viga"
 
 #: src/SearchProgressReport.cpp
 #, fuzzy

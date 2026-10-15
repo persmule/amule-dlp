@@ -3224,6 +3224,11 @@ msgid "HTTP download cancelled"
 msgstr "HTTP-nedlasting avbroten"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "URL-en som skal lastast ned kan ikkje vere tom"
 
@@ -7268,11 +7273,6 @@ msgstr "Kad-søk: bad om breiare resultat frå éin node til."
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad-søk: ingen fleire nodar å spørje for fleire resultat (grensa nådd, eller ingen svar enno)."
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr ""
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "FilID"
@@ -7341,6 +7341,11 @@ msgstr "Kople til nettverket."
 
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
+msgstr ""
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
 msgstr ""
 
 #: src/SearchProgressReport.cpp

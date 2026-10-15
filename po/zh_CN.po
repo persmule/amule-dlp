@@ -3222,6 +3222,11 @@ msgid "HTTP download cancelled"
 msgstr "HTTP 下载已经取消"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "要下载的地址不能为空"
 
@@ -7243,11 +7248,6 @@ msgstr "Kad 搜索：从又一个对等方请求了更广泛的结果。"
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad 搜索：没有剩余对等方可重新请求更多结果（已达上限或尚无响应）。"
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr "错误 %u：%s\n"
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "文件 ID"
@@ -7311,6 +7311,11 @@ msgstr "搜索 Kad 网络。"
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr "搜索 eD2k 服务器和 Kad，哪个网络可用就用哪个。"
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
+msgstr "错误 %u：%s\n"
 
 #: src/SearchProgressReport.cpp
 msgid "running"

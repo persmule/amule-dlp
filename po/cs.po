@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-07 16:23+0000\n"
+"PO-Revision-Date: 2026-10-15 19:15+0000\n"
 "Last-Translator: David Watzke <david@watzke.cz>\n"
 "Language-Team: cs <cs@li.org>\n"
 "Language: cs\n"
@@ -536,12 +536,12 @@ msgstr ""
 #: src/amule.cpp
 #, c-format
 msgid "External connection: could not bind to '%s', listening on 127.0.0.1 only."
-msgstr "Externí spojení: není možné přidružit k '%s', naslouchání pouze na 127.0.0.1."
+msgstr "Externí spojení: není možné svázat s '%s', naslouchání pouze na 127.0.0.1."
 
 #: src/amule.cpp
 #, c-format
 msgid "Could not bind ports to the specified address: %s"
-msgstr "Nebylo možné přidružit porty k zadané adrese: %s"
+msgstr "Nebylo možné svázat porty se zadanou adresou: %s"
 
 #: src/amule.cpp
 #, c-format
@@ -3216,6 +3216,11 @@ msgstr "Stahování..."
 #: src/HTTPDownload.cpp
 msgid "HTTP download cancelled"
 msgstr "Stahování přes HTTP bylo zrušeno"
+
+#: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
 
 #: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
@@ -7261,11 +7266,6 @@ msgstr "Hledání Kad: vyžádány rozšířené výsledky od dalšího uzlu."
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad hledání: nezůstal žádný peer, kterého by bylo možné znovu požádat o další výsledky (dosažen limit nebo zatím žádné odpovědi)."
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr "Chyba %u: %s\n"
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "ID souboru"
@@ -7334,6 +7334,11 @@ msgstr "Připojit se k síti."
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr ""
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
+msgstr "Chyba %u: %s\n"
 
 #: src/SearchProgressReport.cpp
 msgid "running"

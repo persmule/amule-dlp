@@ -3216,6 +3216,11 @@ msgid "HTTP download cancelled"
 msgstr "已取消 HTTP 下載"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "要下載的網址不可空白"
 
@@ -7240,11 +7245,6 @@ msgstr "Kad 搜尋：已向另一個節點要求更廣泛的結果。"
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad 搜尋：已無節點可再次詢問更多結果（已達上限或尚無回應）。"
 
-#: src/SearchList.cpp
-#, fuzzy, c-format
-msgid "Error %u: %s\n"
-msgstr "GeoIP.dat 更新錯誤"
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "檔案 ID"
@@ -7314,6 +7314,11 @@ msgstr "連線到網路。"
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr ""
+
+#: src/SearchPacket.cpp
+#, fuzzy, c-format
+msgid "Error %u: %s\n"
+msgstr "GeoIP.dat 更新錯誤"
 
 #: src/SearchProgressReport.cpp
 #, fuzzy

@@ -3221,6 +3221,11 @@ msgid "HTTP download cancelled"
 msgstr "Το κατέβασμα HTTP ακυρώθηκε"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "Το URL για κατέβασμα δεν μπορεί να είναι κενό"
 
@@ -7264,11 +7269,6 @@ msgstr "Αναζήτηση Kad: ζητήθηκαν ευρύτερα αποτελ
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Αναζήτηση Kad: δεν απομένει peer για νέα ερώτηση περισσότερων αποτελεσμάτων (συμπληρώθηκε το όριο ή δεν υπάρχουν ακόμη απαντήσεις)."
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr ""
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "Τιμή ταυτότητας αρχείου"
@@ -7337,6 +7337,11 @@ msgstr "Σύνδεση στο δίκτυο."
 
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
+msgstr ""
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
 msgstr ""
 
 #: src/SearchProgressReport.cpp

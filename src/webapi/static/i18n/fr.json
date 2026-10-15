@@ -1,1 +1,5 @@
-{}
+{
+  "common_network_error": "Erreur réseau : {message}",
+  "common_err_bad_request": "Demande invalide : {message}",
+  "common_err_unauthorized": "Non autorisé."
+}

@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-15 07:34+0000\n"
+"PO-Revision-Date: 2026-10-15 16:07+0000\n"
 "Last-Translator: Marcel Pol <marcel@timelord.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
@@ -102,11 +102,11 @@ msgstr "Een nieuwe versie (%s) is beschikbaar:"
 
 #: src/AboutDialog.cpp
 msgid "Could not check for updates. Please try again later."
-msgstr "Kon niet controleren op updates. Probeer het later opnieuw."
+msgstr "Controleren op updates mislukt. Probeer het later opnieuw."
 
 #: src/AddFriend.cpp
 msgid "Add a Friend"
-msgstr "Voeg een vriend toe"
+msgstr "Voeg een Vriend toe"
 
 #: src/AddFriend.cpp
 msgid "You have to enter a valid IP and port!"
@@ -249,7 +249,7 @@ msgstr "'%s' verwijderd van schijf."
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Could not delete '%s' from disk."
-msgstr "'%s' kon niet verwijderd worden van schijf."
+msgstr "'%s' verwijderen van schijf mislukt."
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -409,7 +409,7 @@ msgstr "WAARSCHUWING: binden aan netwerkinterface '%s' vereist verhoogde rechten
 #: src/amule.cpp src/LibSocketAsio.cpp
 #, c-format
 msgid "WARNING: could not bind to network interface '%s' - traffic may leave via the default route."
-msgstr "WAARSCHUWING: kon niet binden aan netwerkinterface '%s' - verkeer kan via de standaardroute verlopen."
+msgstr "WAARSCHUWING: binden aan netwerkinterface '%s' mislukt - verkeer kan via de standaardroute verlopen."
 
 #: src/amule.cpp
 msgid "Your locale has been changed to System Default due to a configuration change. Sorry."
@@ -520,11 +520,11 @@ msgstr "FOUT"
 #: src/amule.cpp
 #, c-format
 msgid "Could not write the amuleapi EC token to %s; amuleapi will fall back to its configured password."
-msgstr "De amuleapi EC token kon niet naar %s geschreven worden; amuleapi zal terugvallen op het ingestelde wachtwoord."
+msgstr "De amuleapi EC token naar %s schrijven mislukt; amuleapi zal terugvallen op het ingestelde wachtwoord."
 
 #: src/amule.cpp
 msgid "An exception occurred while launching amuleapi."
-msgstr ""
+msgstr "En uitzondering vond plaats tijdens het opstarten van amuleapi."
 
 #: src/amule.cpp
 #, c-format
@@ -533,26 +533,26 @@ msgstr "amuleapi actief met pid %d"
 
 #: src/amule.cpp
 msgid "Could not launch amuleapi during automatic restart."
-msgstr ""
+msgstr "Opstarten van amuleapi tijdens automatisch herstarten mislukt."
 
 #: src/amule.cpp
 msgid "You requested to run amuleapi on startup, but the amuleapi binary cannot be run. Please install the package containing aMule's REST API server, or build aMule from source with -DBUILD_AMULEAPI=YES and install it."
 msgstr "U hebt gevraagd om amuleapi bij het opstarten uit te voeren, maar het programma amuleapi kan niet worden uitgevoerd. Installeer het pakket met de REST API-server van aMule, of bouw aMule vanuit de broncode met -DBUILD_AMULEAPI=YES en installeer het."
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not remove the amuleapi EC token file: %s"
-msgstr "Kon het amuleapi-wachtwoord niet opslaan: %s"
+msgstr "Verwijderen van amuleapi EC-tokenbestand mislukt: %s"
 
 #: src/amule.cpp
 #, c-format
 msgid "amuleapi will restart in %u seconds."
-msgstr ""
+msgstr "amuleapi zal opnieuw opstarten over %u seconden."
 
 #: src/amule.cpp
 #, c-format
 msgid "External connection: could not bind to '%s', listening on 127.0.0.1 only."
-msgstr "Externe verbinding: kon niet binden aan '%s', alleen aan het luisteren naar 127.0.0.1."
+msgstr "Externe verbinding: binden aan '%s' mislukt, alleen aan het luisteren naar 127.0.0.1."
 
 #: src/amule.cpp
 #, c-format
@@ -607,7 +607,7 @@ msgstr "De vorige luisteraar en server-UDP-socket blijven actief.\n"
 
 #: src/amule.cpp
 msgid "The server UDP socket could not be restored; restart aMule.\n"
-msgstr "De server-UDP-socket kon niet hersteld worden; herstart aMule.\n"
+msgstr "Herstellen van server-UDP-socket mislukt; herstart aMule.\n"
 
 #: src/amule.cpp
 msgid "The previous P2P listeners remain active.\n"
@@ -1385,7 +1385,7 @@ msgstr "Fout bij het bewaren van bestand %s: %s"
 
 #: src/CaptchaDialog.cpp
 msgid "Enter Captcha"
-msgstr "Voer captcha in"
+msgstr "Voer Captcha in"
 
 #: src/CatDialog.cpp src/DownloadListCtrl.cpp src/SearchListCtrl.cpp
 #: src/TransferWnd.cpp
@@ -1431,7 +1431,7 @@ msgstr "*** Verbinden maken met Client ***"
 
 #: src/ChatSelector.cpp
 msgid "*** Failed to Connect to client / Connection lost ***"
-msgstr "*** Kon niet Verbinden met client / Verbinding verbroken ***"
+msgstr "*** Verbinden met client mislukt / Verbinding verbroken ***"
 
 #: src/ChatSelector.cpp
 msgid "*** You have passed the captcha check and the user has received your message. ***"
@@ -1471,7 +1471,7 @@ msgstr "Verwijder uit vriendenlijst"
 
 #: src/ClientContextActions.cpp src/FriendListCtrl.cpp
 msgid "Establish Friend Slot"
-msgstr "Maak vriendenslot"
+msgstr "Maak Vriendenslot"
 
 #: src/ClientContextActions.cpp src/FriendListCtrl.cpp
 msgid "View Files"
@@ -2023,7 +2023,7 @@ msgstr "Grootte"
 
 #: src/DownloadListCtrl.cpp src/muuli_wdr.cpp
 msgid "Transferred"
-msgstr "Overgebracht"
+msgstr "Overgedragen"
 
 #: src/DownloadListCtrl.cpp src/muuli_wdr.cpp src/SharedFilesCtrl.cpp
 #: src/SourceListCtrl.cpp
@@ -2544,7 +2544,7 @@ msgstr "Leeg chatbericht"
 
 #: src/ExternalConn.cpp
 msgid "CAPTCHA challenge is no longer pending"
-msgstr "CAPTCHA-uitdaging is niet langer in afwachting"
+msgstr "CAPTCHA-uitdaging loopt niet meer"
 
 #: src/ExternalConn.cpp
 msgid "Unknown chat target"
@@ -2818,7 +2818,7 @@ msgstr "Bestandsdetails"
 #: src/FileDetailDialog.cpp
 #, c-format
 msgid "%.1f%% done"
-msgstr "%.1f%% voltooid"
+msgstr "%.1f%% afgerond"
 
 #: src/FileDetailDialog.cpp src/utils/wxCas/src/wxcasframe.cpp
 #, c-format
@@ -3113,7 +3113,7 @@ msgstr "Kon vriendenlijst-bestand 'emfriends.met' niet lezen!"
 
 #: src/FriendList.cpp
 msgid "Failed to open friend list file 'emfriends.met' for writing!"
-msgstr "Kon niet schrijven naar vriendenlijst-bestand 'emfriends.met'!"
+msgstr "Openen van vriendelijst-bestand 'emfriends.met' om te schrijven mislukt!"
 
 #: src/FriendList.cpp
 #, c-format
@@ -3220,6 +3220,11 @@ msgstr "Downloaden..."
 #: src/HTTPDownload.cpp
 msgid "HTTP download cancelled"
 msgstr "HTTP-download geannuleerd"
+
+#: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
 
 #: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
@@ -3926,7 +3931,7 @@ msgstr "ListenSocket: Ok."
 
 #: src/ListenSocket.cpp
 msgid "ERROR: Could not listen to TCP port."
-msgstr "FOUT: Kon niet luisteren op TCP-poort."
+msgstr "FOUT: Luisteren op TCP-poort mislukt."
 
 #: src/Logger.cpp
 msgid "ERROR: "
@@ -4349,7 +4354,7 @@ msgstr "Uitbreiding"
 
 #: src/muuli_wdr.cpp
 msgid "Min Size"
-msgstr "Min grootte"
+msgstr "Min Grootte"
 
 #: src/muuli_wdr.cpp
 msgid "Bytes"
@@ -4369,7 +4374,7 @@ msgstr "GiB"
 
 #: src/muuli_wdr.cpp
 msgid "Max Size"
-msgstr "Max grootte"
+msgstr "Max Grootte"
 
 #: src/muuli_wdr.cpp
 msgid "Availability"
@@ -4509,7 +4514,7 @@ msgstr "Verloren door beschadiging"
 
 #: src/muuli_wdr.cpp
 msgid "Gained by compression"
-msgstr "Gewonnen door comprimering"
+msgstr "Gewonnen door compressie"
 
 #: src/muuli_wdr.cpp
 msgid "Packages saved by I.C.H."
@@ -4517,7 +4522,7 @@ msgstr "Pakketten gered door I.C.H."
 
 #: src/muuli_wdr.cpp
 msgid "Sharing"
-msgstr "Delen"
+msgstr "Wordt gedeeld"
 
 #: src/muuli_wdr.cpp src/SharedFilesCtrl.cpp
 msgid "Requests"
@@ -5161,7 +5166,7 @@ msgstr "Uitlezen van media-metadata"
 
 #: src/muuli_wdr.cpp
 msgid "Extract length / bitrate / codec from shared audio and video files"
-msgstr "Lengte/bitrate/codec uitlezen uit gedeelde audio- en videobestanden"
+msgstr "Precieze lengte/bitrate/codec uitlezen uit gedeelde audio- en videobestanden"
 
 #: src/muuli_wdr.cpp
 msgid "When enabled, aMule runs ffprobe on each shared media file to fill in the Length / Bitrate / Codec columns other clients see when they find the file in a search. Requires ffmpeg (the ffprobe binary) to be installed."
@@ -5959,11 +5964,11 @@ msgstr "voeg hier de woorden toe die amule moet filteren en berichten daarmee bl
 
 #: src/muuli_wdr.cpp
 msgid "Show received messages in the log"
-msgstr "Toon ontvangen berichten in het logboek"
+msgstr "Toon ontvangen berichten in het logbestand"
 
 #: src/muuli_wdr.cpp
 msgid "Comments"
-msgstr "Commentaren"
+msgstr "Opmerkingen"
 
 #: src/muuli_wdr.cpp
 msgid "Filter comments containing (use ',' as separator):"
@@ -6777,7 +6782,7 @@ msgstr ""
 #: src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "The amuleapi password could not be saved: %s"
-msgstr "Het amuleapi-wachtwoord kon niet worden opgeslagen: %s"
+msgstr "Opslaan van amuleapi-wachtwoord mislukt: %s"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "- Language changed.\n"
@@ -7244,11 +7249,6 @@ msgstr "Kad-zoekopdracht: bredere resultaten opgevraagd bij nog een peer."
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad-zoekopdracht: geen peer meer beschikbaar om opnieuw te bevragen voor meer resultaten (limiet bereikt of nog geen reacties)."
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr "Fout %u: %s\n"
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "Bestands-ID"
@@ -7312,6 +7312,11 @@ msgstr "Doorzoek het Kad-netwerk."
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr "Doorzoek eD2k-servers en Kad door gebruik te maken van welk netwerk beschikbaar is."
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
+msgstr "Fout %u: %s\n"
 
 #: src/SearchProgressReport.cpp
 msgid "running"
@@ -7391,7 +7396,7 @@ msgstr "Kon geen verbinding maken met alle vermelde geobfusceerde statische serv
 
 #: src/ServerConnect.cpp
 msgid "Failed to connect to all obfuscated servers listed. Making another pass without obfuscation."
-msgstr "Kon niet verbinden met alle vermeldde geobfusceerde servers. Nogmaals proberen zonder obfuscatie."
+msgstr "Verbinden met alle vermeldde geobfusceerde servers mislukt. Nogmaals proberen zonder obfuscatie."
 
 #: src/ServerConnect.cpp
 msgid "Failed to connect to all static servers listed."
@@ -8174,7 +8179,7 @@ msgstr "Totale grootte van Gedeelde Bestanden: %s (%s voltooid)"
 #: src/SharedFilesCtrl.cpp src/SharedFilesWnd.cpp src/Statistics.cpp
 #, c-format
 msgid "Total size of Shared Files: %s"
-msgstr "Totale grootte van gedeelde bestanden: %s"
+msgstr "Totale grootte van Gedeelde Bestanden: %s"
 
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -8313,32 +8318,32 @@ msgstr "Hernieuwde verbindingen: %i"
 #: src/Statistics.cpp
 #, c-format
 msgid "Time Since First Transfer: %s"
-msgstr "Tijd sinds eerste overdracht: %s"
+msgstr "Tijd Sinds Eerste Overdracht: %s"
 
 #: src/Statistics.cpp
 #, c-format
 msgid "Connected To Server Since: %s"
-msgstr "Verbonden met server sinds: %s"
+msgstr "Verbonden Met Server Sinds: %s"
 
 #: src/Statistics.cpp
 #, c-format
 msgid "Active Connections (estimate): %i"
-msgstr "Actieve verbindingen (schatting): %i"
+msgstr "Actieve Verbindingen (schatting): %i"
 
 #: src/Statistics.cpp
 #, c-format
 msgid "Max Connection Limit Reached: %s"
-msgstr "Grens bereikt van max verbindingen: %s"
+msgstr "Grens Bereikt van Max Verbindingen: %s"
 
 #: src/Statistics.cpp
 #, c-format
 msgid "Average Connections (estimate): %g"
-msgstr "Gemiddelde verbindingen (schatting): %g"
+msgstr "Gemiddelde Verbindingen (schatting): %g"
 
 #: src/Statistics.cpp
 #, c-format
 msgid "Peak Connections (estimate): %i"
-msgstr "Aantal piekverbindingen (schatting): %i"
+msgstr "Aantal Piekverbindingen (schatting): %i"
 
 #: src/Statistics.cpp
 #, c-format
@@ -9420,7 +9425,7 @@ msgstr "Afgebroken !"
 #: src/utils/aLinkCreator/src/alcframe.cpp
 #, c-format
 msgid "Done in %.2f s"
-msgstr "Gedaan in %.2f s"
+msgstr "Afgerond in %.2f s"
 
 #: src/utils/aLinkCreator/src/alcframe.cpp
 msgid "You have already added this URL !"
@@ -9906,7 +9911,7 @@ msgstr ".emulecollection-bestanden toekennen"
 
 #: packaging/windows/installer_strings.c
 msgid "Uninstall"
-msgstr "Verwijderen"
+msgstr "Deïnstalleren"
 
 #: packaging/windows/installer_strings.c
 msgid "Remove user data (config, ED2K servers, Kad nodes, partfiles)"

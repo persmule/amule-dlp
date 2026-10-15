@@ -3180,6 +3180,11 @@ msgid "HTTP download cancelled"
 msgstr "Đã hủy tải xuống HTTP"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "URL để tải xuống không được để trống"
 
@@ -7174,11 +7179,6 @@ msgstr "Tìm kiếm Kad: đã yêu cầu kết quả rộng hơn từ một peer
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Tìm kiếm Kad: không còn peer nào để yêu cầu thêm kết quả (đã đạt giới hạn hoặc chưa có phản hồi)."
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr ""
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "FileID"
@@ -7246,6 +7246,11 @@ msgstr "Kết nối đến mạng."
 
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
+msgstr ""
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
 msgstr ""
 
 #: src/SearchProgressReport.cpp

@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-12 16:51+0000\n"
+"PO-Revision-Date: 2026-10-15 19:15+0000\n"
 "Last-Translator: Dylan Aïssi <bob.dybian@gmail.com>\n"
 "Language-Team: Français\n"
 "Language: fr\n"
@@ -211,6 +211,11 @@ msgid ""
 "\n"
 "The file is deleted and no longer shared. This cannot be undone."
 msgstr ""
+"Êtes-vous sûr de vouloir supprimer '%s' du disque ?\n"
+"\n"
+"Fichier : %s\n"
+"\n"
+"Le fichier est supprimé et n’est plus partagé. Cette action est irréversible."
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -225,26 +230,29 @@ msgid ""
 "%s\n"
 "The files are deleted and no longer shared. This cannot be undone."
 msgstr ""
+"Êtes-vous sûr de vouloir supprimer les %i fichiers sélectionnés du disque ?\n"
+"\n"
+"%s\n"
+"Les fichiers sont supprimés et ne sont plus partagés. Cette action est irréversible."
 
 #: src/GuiEvents.cpp
-#, fuzzy
 msgid "Delete from disk"
-msgstr "Obtenir depuis Kad"
+msgstr "Supprimer du disque"
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Skipped deleting '%s': the selected file has changed."
-msgstr ""
+msgstr "Suppression de '%s' ignorée : le fichier sélectionné a été modifié."
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Deleted '%s' from disk."
-msgstr ""
+msgstr "'%s' supprimé du disque."
 
 #: src/GuiEvents.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not delete '%s' from disk."
-msgstr "Échec de la suppression de la catégorie : %s"
+msgstr "Impossible de supprimer '%s' du disque."
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -257,6 +265,13 @@ msgid ""
 "Yes: stop sharing and remove the list entries. A later share scan may share the files again.\n"
 "No: keep the files shared and listed."
 msgstr ""
+"Impossible de supprimer ces fichiers du disque :\n"
+"\n"
+"%s\n"
+"Voulez-vous quand même les retirer des fichiers partagés et de la liste des transferts terminés ?\n"
+"\n"
+"Oui : arrêter le partage et supprimer les entrées de la liste. Une analyse ultérieure des fichiers partagés pourrait entraîner leur partage à nouveau.\n"
+"Non : conserver les fichiers dans les partages et dans la liste."
 
 #: src/amuleAppCommon.cpp
 msgid "Failed to open ED2KLinks file."
@@ -375,9 +390,9 @@ msgid "Memory debug results for aMule exit:"
 msgstr "Résultats du débogage de la mémoire pour la sortie d'aMule :"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Binding aMule's peer-to-peer and HTTP traffic to interface: %s"
-msgstr "Rattacher tout le trafic réseau à l'interface : %s"
+msgstr "Liaison du trafic pair-à-pair et HTTP d’aMule à l’interface : %s"
 
 #: src/amule.cpp
 #, c-format
@@ -424,24 +439,21 @@ msgid "WARNING"
 msgstr "AVERTISSEMENT"
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Loading known files"
-msgstr "Chargement des fichiers temporaires"
+msgstr "Chargement des fichiers connus"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Loading known files (%u of %u)"
-msgstr "Chargement des fichiers temporaires (%u sur %u)"
+msgstr "Chargement des fichiers connus (%u sur %u)"
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Loading credits"
-msgstr "Chargement des fichiers partagés"
+msgstr "Chargement des crédits"
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Loading IP filter"
-msgstr "Chargement des fichiers temporaires"
+msgstr "Chargement du filtre IP"
 
 #: src/amule.cpp
 msgid "Initializing network"
@@ -493,7 +505,7 @@ msgstr "Nœuds d'amorçage Kad (nodes.dat)"
 #: src/amule.cpp
 #, c-format
 msgid "Not starting %s: it is neither next to aMule nor on PATH."
-msgstr ""
+msgstr "Impossible de démarrer %s : il ne se trouve ni dans le même répertoire qu’aMule ni dans les répertoires du PATH."
 
 #: src/amule.cpp
 #, c-format
@@ -573,54 +585,54 @@ msgstr ""
 
 #: src/amule.cpp
 msgid "The P2P TCP port conflicts with the External Connections port. No sockets were changed.\n"
-msgstr ""
+msgstr "Le port TCP P2P est en conflit avec le port des connexions externes. Aucun socket n'a été modifié.\n"
 
 #: src/amule.cpp
 msgid "The P2P TCP port is too high for its associated server UDP port. No sockets were changed.\n"
-msgstr ""
+msgstr "Le port TCP P2P est trop élevé pour le port UDP de son serveur associé. Aucun socket n’a été modifié.\n"
 
 #: src/amule.cpp
 msgid "The client UDP port conflicts with the server UDP port (TCP+3). No sockets were changed.\n"
-msgstr ""
+msgstr "Le port UDP du client est en conflit avec le port UDP du serveur (TCP+3). Aucun socket n'a été modifié.\n"
 
 #: src/amule.cpp
 #, c-format
 msgid "Could not rebind the server UDP port %u; no sockets were changed.\n"
-msgstr ""
+msgstr "Impossible de lier à nouveau le port UDP du serveur %u ; aucun socket n'a été modifié.\n"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not rebind the P2P TCP port %u. %s"
-msgstr "ERREUR : Le port TCP n'a pas pu être mis en écoute."
+msgstr "Impossible de lier à nouveau le port TCP P2P %u. %s"
 
 #: src/amule.cpp
 msgid "The previous listener and server UDP socket remain active.\n"
-msgstr ""
+msgstr "Le socket d’écoute précédent et le socket UDP du serveur restent actifs.\n"
 
 #: src/amule.cpp
 msgid "The server UDP socket could not be restored; restart aMule.\n"
-msgstr ""
+msgstr "Le socket UDP du serveur n’a pas pu être rétabli ; redémarrez aMule.\n"
 
 #: src/amule.cpp
 msgid "The previous P2P listeners remain active.\n"
-msgstr ""
+msgstr "Les sockets d’écoute P2P précédents restent actifs.\n"
 
 #: src/amule.cpp
 msgid "The previous client UDP socket remains active.\n"
-msgstr ""
+msgstr "Le socket UDP précédent du client reste actif.\n"
 
 #: src/amule.cpp
 msgid "Some previous P2P sockets could not be restored; restart aMule.\n"
-msgstr ""
+msgstr "Certains sockets P2P précédents n’ont pas pu être rétablis ; redémarrez aMule.\n"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not rebind the client UDP port %u. %s"
-msgstr "Échec de la suppression de la catégorie : %s"
+msgstr "Impossible de lier à nouveau le port UDP du client %u. %s"
 
 #: src/amule.cpp
 msgid "P2P listening sockets rebound; established peer connections were kept."
-msgstr ""
+msgstr "Les sockets d’écoute P2P ont été liés à nouveau ; les connexions établies avec les pairs ont été maintenues."
 
 #: src/amule.cpp
 msgid "Failed to create OnlineSig File"
@@ -683,7 +695,7 @@ msgstr "Métadonnées multimédia : le fichier sondé n'est plus connu, le rés
 #: src/amule.cpp
 #, c-format
 msgid "Verify Local Data: another file named '%s' in your shared folders has the same content as '%s' and may be an intact copy of it."
-msgstr ""
+msgstr "Vérifier les données locales : un autre fichier nommé « %s » dans vos dossiers partagés a le même contenu que « %s » et pourrait en être une copie intacte."
 
 #: src/amule.cpp
 #, c-format
@@ -1215,19 +1227,19 @@ msgstr "Prêt"
 
 #: src/amule-remote-gui.cpp
 msgid "*** Solve the CAPTCHA and send its text as a message."
-msgstr ""
+msgstr "*** Résolvez le CAPTCHA et envoyez son texte sous forme de message."
 
 #: src/amule-remote-gui.cpp
 msgid "*** CAPTCHA passed; your message was delivered."
-msgstr ""
+msgstr "*** CAPTCHA validé ; votre message a été envoyé."
 
 #: src/amule-remote-gui.cpp
 msgid "*** CAPTCHA failed; send another message to try again."
-msgstr ""
+msgstr "*** Échec de la vérification CAPTCHA ; envoyez un autre message pour réessayer."
 
 #: src/amule-remote-gui.cpp
 msgid "*** CAPTCHA failed; no attempts remain."
-msgstr ""
+msgstr "*** Échec de la vérification CAPTCHA ; aucune tentative restante."
 
 #: src/amule-remote-gui.cpp src/TransferWnd.cpp
 msgid "All"
@@ -1235,7 +1247,7 @@ msgstr "Tous"
 
 #: src/amule-remote-gui.cpp
 msgid "The daemon could not apply the connection port changes."
-msgstr ""
+msgstr "Le démon n’a pas pu appliquer les modifications des ports de connexion."
 
 #: src/amule-remote-gui.cpp
 msgid "not readable"
@@ -1283,7 +1295,7 @@ msgstr "Inconnu"
 
 #: src/amule-remote-gui.cpp
 msgid "The connected daemon does not support All searches."
-msgstr ""
+msgstr "Le démon connecté ne prend pas en charge les recherches de type « Tous »."
 
 #: src/BaseClient.cpp
 msgid "Searching buddy for lowid connection"
@@ -1405,9 +1417,9 @@ msgid "Failed to create incoming dir for category. Please specify a valid path!"
 msgstr "Échec de la création du répertoire de réception pour cette catégorie. Veuillez indiquer un chemin valide !"
 
 #: src/ChatSelector.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Chat-Session Started: %s - %s %s"
-msgstr "Début de la session de chat : %s (%s : %u) - %s %s"
+msgstr "Session de discussion démarrée : %s - %s %s"
 
 #: src/ChatSelector.cpp
 msgid "*** Connected to Client ***"
@@ -1415,7 +1427,7 @@ msgstr "*** Connecté au Client ***"
 
 #: src/ChatSelector.cpp
 msgid "*** Chat unavailable: peer identity or route is not available ***"
-msgstr ""
+msgstr "*** Discussion indisponible : l’identité du pair ou la route n’est pas disponible ***"
 
 #: src/ChatSelector.cpp
 msgid "*** Connecting to Client ***"
@@ -1475,12 +1487,11 @@ msgstr "Envoyer un message"
 
 #: src/ClientContextActions.cpp
 msgid "Chat is unavailable until the peer supplies a valid identity."
-msgstr ""
+msgstr "La discussion n’est pas disponible tant que le pair ne fournit pas une identité valide."
 
 #: src/ClientContextActions.cpp
-#, fuzzy
 msgid "Chat unavailable"
-msgstr "Non disponible"
+msgstr "Discussion indisponible"
 
 #: src/ClientContextActions.cpp
 msgid "Send message to user"
@@ -2081,9 +2092,8 @@ msgid "C&lear completed"
 msgstr "E&ffacer terminés"
 
 #: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-#, fuzzy
 msgid "Delete file from &disk"
-msgstr "Fichier supprimé : %s"
+msgstr "Supprimer le fichier du &disque"
 
 #: src/DownloadListCtrl.cpp
 msgid "Swap every A4AF to this file now"
@@ -2386,14 +2396,14 @@ msgid "FileHash not found: %s"
 msgstr "Hachage du fichier non trouvé : %s"
 
 #: src/ExternalConn.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot cancel a finished download: %s"
-msgstr "Téléchargement terminé : %s"
+msgstr "Impossible d’annuler un téléchargement terminé : %s"
 
 #: src/ExternalConn.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "No such category: %u"
-msgstr "La catégorie n'existe pas."
+msgstr "Aucune catégorie correspondante : %u"
 
 #: src/ExternalConn.cpp
 msgid "OOPS! OpCode processing error!"
@@ -2537,7 +2547,7 @@ msgstr "Message de discussion vide"
 
 #: src/ExternalConn.cpp
 msgid "CAPTCHA challenge is no longer pending"
-msgstr ""
+msgstr "La vérification CAPTCHA n’est plus en attente"
 
 #: src/ExternalConn.cpp
 msgid "Unknown chat target"
@@ -2545,7 +2555,7 @@ msgstr "Destinataire de discussion inconnu"
 
 #: src/ExternalConn.cpp
 msgid "Chat unavailable: peer identity or route is not available"
-msgstr ""
+msgstr "Discussion indisponible : l’identité du pair ou la route n’est pas disponible"
 
 #: src/ExternalConn.cpp
 msgid "Kad is disabled in preferences."
@@ -2825,27 +2835,27 @@ msgstr "OK"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
-msgstr ""
+msgstr "La commande ne possède aucun fichier exécutable."
 
 #: src/ExternalCommand.cpp
 msgid "The command template or an argument contains a NUL character."
-msgstr ""
+msgstr "Le modèle de la commande ou un argument contient un caractère NUL."
 
 #: src/ExternalCommand.cpp
 msgid "An event value cannot select the executable."
-msgstr ""
+msgstr "Une valeur d’événement ne peut pas sélectionner le fichier exécutable."
 
 #: src/ExternalCommand.cpp
 msgid "An event value would be used as interpreter code, a script name, or an unsupported launcher argument."
-msgstr ""
+msgstr "Une valeur d’événement serait utilisée comme code d’interpréteur, nom de script ou argument de lancement non pris en charge."
 
 #: src/ExternalCommand.cpp
 msgid "A command-shell argument contains a double quote, percent sign, exclamation mark, or line break."
-msgstr ""
+msgstr "Un argument de l’interpréteur de commandes contient un guillemet double, un signe pourcentage, un point d’exclamation ou un saut de ligne."
 
 #: src/ExternalCommand.cpp
 msgid "cmd.exe requires a fixed builtin or an explicit .exe, .com, .bat, or .cmd target followed by separate data arguments."
-msgstr ""
+msgstr "cmd.exe nécessite une commande intégrée prédéfinie ou un fichier cible explicite avec l’extension .exe, .com, .bat ou .cmd, suivi d’arguments de données distincts."
 
 #: src/FileLaunch.cpp
 msgid "File preview"
@@ -2854,12 +2864,12 @@ msgstr "Aperçu"
 #: src/FileLaunch.cpp
 #, c-format
 msgid "Media-player command '%s' was not run: %s"
-msgstr ""
+msgstr "La commande du lecteur multimédia '%s' n’a pas été exécutée : %s"
 
 #: src/FileLaunch.cpp
 #, c-format
 msgid "The configured video player is unavailable inside aMule's Flatpak sandbox: %s. Programs installed on the host are not directly available here. Completed files can still open with the desktop's default application; previewing an unfinished download needs a player the sandbox can run, such as a self-contained player saved in your home folder."
-msgstr ""
+msgstr "Le lecteur vidéo configuré n’est pas disponible dans l’environnement isolé Flatpak d’aMule : %s. Les programmes installés sur le système hôte ne sont pas directement accessibles depuis cet environnement. Les fichiers dont le téléchargement est terminé peuvent toujours être ouverts avec l’application par défaut du bureau. Pour prévisualiser un téléchargement inachevé, il faut un lecteur pouvant s’exécuter dans cet environnement isolé, par exemple un lecteur autonome enregistré dans votre dossier personnel."
 
 #: src/FileLaunch.cpp
 #, c-format
@@ -3202,9 +3212,9 @@ msgid "Failed to open MaxMindDB database '%s': %s"
 msgstr "Échec de l'ouverture de la base de données MaxMindDB « %s » : %s"
 
 #: src/geoip/MaxMindDBDatabase.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to replace MaxMindDB database '%s': %s"
-msgstr "Échec de l'ouverture de la base de données MaxMindDB « %s » : %s"
+msgstr "Échec du remplacement de la base de données MaxMindDB '%s' : %s"
 
 #: src/HTTPDownload.cpp
 msgid "Downloading..."
@@ -3213,6 +3223,11 @@ msgstr "Téléchargement…"
 #: src/HTTPDownload.cpp
 msgid "HTTP download cancelled"
 msgstr "Téléchargement HTTP annulé"
+
+#: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
 
 #: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
@@ -3348,24 +3363,24 @@ msgstr "IP filter est prêt"
 
 #: src/KadContactHistogram.h
 msgid "Contacts grouped by the first twelve bits of their KadID. Blue: all contacts; green: verified addresses. The marker shows your own KadID; clustering near it is expected."
-msgstr ""
+msgstr "Contacts regroupés selon les douze premiers bits de leur KadID. Bleu : tous les contacts ; vert : adresses vérifiées. Le marqueur indique votre propre KadID ; il est normal que les contacts se concentrent à proximité de celui-ci."
 
 #: src/KadContactHistogram.h
 msgid "Loading contact distribution..."
-msgstr ""
+msgstr "Chargement de la distribution des contacts..."
 
 #: src/KadContactHistogram.h
 msgid "This core does not send the contact distribution. Update the core to see the chart."
-msgstr ""
+msgstr "Ce noyau n’envoie pas la distribution des contacts. Mettez à jour le noyau pour afficher le graphique."
 
 #: src/KadContactHistogram.h
 msgid "The core sent contact distribution data that could not be read."
-msgstr ""
+msgstr "Le noyau a envoyé des données de distribution des contacts qui n’ont pas pu être lues."
 
 #: src/KadContactHistogram.h
 #, c-format
 msgid "Routing-table contacts: %u; verified: %u; distinct /24s: %u"
-msgstr ""
+msgstr "Contacts de la table de routage : %u ; vérifiés : %u ; sous-réseaux /24 distincts : %u"
 
 #: src/KadDlg.cpp
 msgid "Requesting Kad lookup diagnostics..."
@@ -7241,11 +7256,6 @@ msgstr "Recherche Kad : résultats étendus demandés à un pair supplémentair
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Recherche Kad : plus aucun pair à recontacter pour plus de résultats (limite atteinte ou aucune réponse pour l'instant)."
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr "Erreur %u : %s\n"
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "ID du fichier"
@@ -7314,6 +7324,11 @@ msgstr "Se connecter au réseau."
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr ""
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
+msgstr "Erreur %u : %s\n"
 
 #: src/SearchProgressReport.cpp
 msgid "running"

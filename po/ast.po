@@ -3223,6 +3223,11 @@ msgid "HTTP download cancelled"
 msgstr "Descarga HTTP encaboxada"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "La URL pa descargar nun pue tar balera"
 
@@ -7269,11 +7274,6 @@ msgstr "Gueta Kad: solicitáronse resultaos más amplios a un veceru más."
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Gueta Kad: nun queden veceros a los que preguntar por más resultaos (algamóse'l llímite o entá nun hai rempuestes)."
 
-#: src/SearchList.cpp
-#, fuzzy, c-format
-msgid "Error %u: %s\n"
-msgstr "Fallu actualizando GeoIP.dat"
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "ID Ficheru"
@@ -7343,6 +7343,11 @@ msgstr "Coneutáu a la rede."
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr ""
+
+#: src/SearchPacket.cpp
+#, fuzzy, c-format
+msgid "Error %u: %s\n"
+msgstr "Fallu actualizando GeoIP.dat"
 
 #: src/SearchProgressReport.cpp
 #, fuzzy

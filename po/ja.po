@@ -3205,6 +3205,11 @@ msgid "HTTP download cancelled"
 msgstr "HTTPダウンロードがキャンセルされました"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "ダウンロードするURLを空にすることはできません"
 
@@ -7227,11 +7232,6 @@ msgstr "Kad 検索：さらに 1 つのピアに広範な結果を要求しま�
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad 検索：追加の結果を再要求できるピアが残っていません（上限に達したか、まだ応答がありません）。"
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr ""
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "ファイルID"
@@ -7300,6 +7300,11 @@ msgstr "ネットワークへ接続します。"
 
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
+msgstr ""
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
 msgstr ""
 
 #: src/SearchProgressReport.cpp

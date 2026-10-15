@@ -3236,6 +3236,11 @@ msgid "HTTP download cancelled"
 msgstr "HTTP atsiuntimas atšauktas"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "Atsiuntimo URL negali būti tuščias"
 
@@ -7301,11 +7306,6 @@ msgstr "Kad paieška: paprašyta platesnių rezultatų iš dar vieno mazgo."
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad paieška: nebeliko mazgų, kurių būtų galima paklausti daugiau rezultatų (pasiekta riba arba atsakymų dar nėra)."
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr ""
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "Failo ID"
@@ -7374,6 +7374,11 @@ msgstr "Prisijungti prie tinklo."
 
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
+msgstr ""
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
 msgstr ""
 
 #: src/SearchProgressReport.cpp

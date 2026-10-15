@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: aMule GIT\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-14 20:19+0000\n"
+"PO-Revision-Date: 2026-10-15 19:15+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: none\n"
 "Language: lv\n"
@@ -3215,6 +3215,11 @@ msgid "HTTP download cancelled"
 msgstr "HTTP lejupielāde atcelta"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "Lejupielādes URL nevar būt tukšs"
 
@@ -3591,7 +3596,7 @@ msgstr "nav pieejamu opciju"
 
 #: src/KnownFile.cpp
 msgid "Kad user"
-msgstr "Kad lietotājs"
+msgstr "Kad dalībnieks"
 
 #: src/KnownFile.cpp
 #, c-format
@@ -7262,11 +7267,6 @@ msgstr "Kad meklēšana: pieprasīti plašāki rezultāti no vēl viena dalībni
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad meklēšana: nav vairs dalībnieku, kuriem pieprasīt papildu rezultātus (sasniegts limits vai vēl nav atbilžu)."
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr "Kļūda %u: %s\n"
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "Datnes ID"
@@ -7335,6 +7335,11 @@ msgstr "Pieslēgties tīklam."
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr ""
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
+msgstr "Kļūda %u: %s\n"
 
 #: src/SearchProgressReport.cpp
 msgid "running"
@@ -7925,7 +7930,7 @@ msgstr "Indeksēšanas slodze:"
 
 #: src/ServerWnd.cpp
 msgid "Average Users:"
-msgstr "Vidējais dalībnieku skaits:"
+msgstr "Vid. dalībnieku skaits:"
 
 #: src/ServerWnd.cpp
 msgid "Average Files:"
@@ -8449,7 +8454,7 @@ msgstr "Datnes strādājošajos serveros: %llu"
 #: src/Statistics.cpp
 #, c-format
 msgid "Total Users: %llu"
-msgstr "Dalībnieki kopā: %llu"
+msgstr "Dalībnieku kopskaits: %llu"
 
 #: src/Statistics.cpp
 #, c-format
