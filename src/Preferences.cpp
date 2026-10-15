@@ -447,18 +447,25 @@ class Cfg_Path : public Cfg_Str
 {
 public:
 	/** Constructor. */
-	Cfg_Path(const wxString &keyname, CPath &value, const wxString &defaultVal = EmptyString)
+	Cfg_Path(const wxString &keyname,
+		CPath &value,
+		const wxString &defaultVal = EmptyString,
+		bool defaultIfEmpty = false)
 	: Cfg_Str(keyname, m_temp_path, defaultVal)
 	, m_real_path(value)
+	, m_defaultIfEmpty(defaultIfEmpty)
 	{
 	}
 
 	/** @see Cfg_Str::LoadFromFile. */
 	virtual void LoadFromFile(wxConfigBase *cfg)
 	{
-		Cfg_Str::LoadFromFile(cfg);
-
-		m_real_path = CPath::FromUniv(m_temp_path);
+		// Only saved values use ToUniv() encoding; defaults are display strings.
+		if (!cfg->Read(GetKey(), &m_temp_path) || (m_defaultIfEmpty && m_temp_path.IsEmpty())) {
+			m_real_path = CPath(m_default);
+		} else {
+			m_real_path = CPath::FromUniv(m_temp_path);
+		}
 	}
 
 	/** @see Cfg_Str::SaveToFile. */
@@ -491,6 +498,7 @@ public:
 private:
 	wxString m_temp_path;
 	CPath &m_real_path;
+	const bool m_defaultIfEmpty;
 };
 
 /**
@@ -1082,7 +1090,7 @@ void CPreferences::BuildItemList(const wxString &appdir)
 		(new Cfg_Bool("/eMule/KadStrictAichPublishers", s_KadStrictAichPublishers, false)));
 
 	/** Files */
-	NewCfgItem(IDC_TEMPFILES, (new Cfg_Path("/eMule/TempDir", s_tempdir, appdir + "Temp")));
+	NewCfgItem(IDC_TEMPFILES, (new Cfg_Path("/eMule/TempDir", s_tempdir, appdir + "Temp", true)));
 	NewCfgItem(IDC_ENDGAME, (new Cfg_Bool("/eMule/Endgame", s_Endgame, true)));
 
 #if defined(__WXMAC__) || defined(__WINDOWS__)
@@ -1097,7 +1105,7 @@ void CPreferences::BuildItemList(const wxString &appdir)
 #else
 	wxString incpath = appdir + "Incoming";
 #endif
-	NewCfgItem(IDC_INCFILES, (new Cfg_Path("/eMule/IncomingDir", s_incomingdir, incpath)));
+	NewCfgItem(IDC_INCFILES, (new Cfg_Path("/eMule/IncomingDir", s_incomingdir, incpath, true)));
 
 	NewCfgItem(IDC_ICH, (new Cfg_Bool("/eMule/ICH", s_ICH, true)));
 	NewCfgItem(IDC_AICHTRUST, (new Cfg_Bool("/eMule/AICHTrust", s_AICHTrustEveryHash, false)));

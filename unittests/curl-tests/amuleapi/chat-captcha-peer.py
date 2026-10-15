@@ -80,6 +80,7 @@ def run(build, work, daemon_override=None, api_override=None):
     # Set the mode at creation so permissive CI umasks cannot expose them.
     (daemon_dir / "amule.conf").touch(mode=0o600, exist_ok=False)
     (api_dir / "amuleapi.conf").touch(mode=0o600, exist_ok=False)
+    # Keep this loopback-only test independent of GeoIP downloads at startup.
     (daemon_dir / "amule.conf").write_text(f"""[eMule]
 Nick=CAPTCHA test
 Port={tcp_port}
@@ -88,6 +89,7 @@ ConnectToKad=0
 ConnectToED2K=0
 FilterLanIPs=0
 IPFilterAutoLoad=0
+GeoIPEnabled=0
 IncomingDir={daemon_dir / 'incoming'}
 TempDir={daemon_dir / 'temp'}
 [ExternalConnect]
