@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-14 09:36+0000\n"
+"PO-Revision-Date: 2026-10-15 07:34+0000\n"
 "Last-Translator: Mike Akiba <mike2718@gmail.com>\n"
 "Language-Team: Chinese Simplified <kde-i18n-doc@kde.org>\n"
 "Language: zh_CN\n"
@@ -502,7 +502,7 @@ msgstr "Kad 引导节点 (nodes.dat)"
 #: src/amule.cpp
 #, c-format
 msgid "Not starting %s: it is neither next to aMule nor on PATH."
-msgstr ""
+msgstr "没有在启动 %s：它不在 aMule 边上也不在 PATH 上。"
 
 #: src/amule.cpp
 #, c-format
@@ -524,13 +524,31 @@ msgid "Could not write the amuleapi EC token to %s; amuleapi will fall back to i
 msgstr "无法写入 amuleapi EC 令牌到 %s； amuleapi 将退回到其配置的密码。"
 
 #: src/amule.cpp
+msgid "An exception occurred while launching amuleapi."
+msgstr ""
+
+#: src/amule.cpp
 #, c-format
 msgid "amuleapi running on pid %d"
 msgstr "amuleapi 正在运行，pid 为 %d"
 
 #: src/amule.cpp
+msgid "Could not launch amuleapi during automatic restart."
+msgstr ""
+
+#: src/amule.cpp
 msgid "You requested to run amuleapi on startup, but the amuleapi binary cannot be run. Please install the package containing aMule's REST API server, or build aMule from source with -DBUILD_AMULEAPI=YES and install it."
 msgstr "您要求启动时运行 amuleapi，但 amuleapi 程序无法运行， 请先安装包含 amule REST API 服务器的 包，或者使用 -DBUILD_AMULEAPI=YES 选项从源码构建 aMule 并安装它。"
+
+#: src/amule.cpp
+#, fuzzy, c-format
+msgid "Could not remove the amuleapi EC token file: %s"
+msgstr "无法保存 amuleapi 密码：%s"
+
+#: src/amule.cpp
+#, c-format
+msgid "amuleapi will restart in %u seconds."
+msgstr ""
 
 #: src/amule.cpp
 #, c-format
@@ -2380,9 +2398,9 @@ msgid "Cannot cancel a finished download: %s"
 msgstr "无法取消已完成的下载：%s"
 
 #: src/ExternalConn.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "No such category: %u"
-msgstr "没有这样的分类。"
+msgstr "没有这样的分类：%u"
 
 #: src/ExternalConn.cpp
 msgid "OOPS! OpCode processing error!"
@@ -2848,7 +2866,7 @@ msgstr "媒体播放器命令 “%s” 未运行：%s"
 #: src/FileLaunch.cpp
 #, c-format
 msgid "The configured video player is unavailable inside aMule's Flatpak sandbox: %s. Programs installed on the host are not directly available here. Completed files can still open with the desktop's default application; previewing an unfinished download needs a player the sandbox can run, such as a self-contained player saved in your home folder."
-msgstr ""
+msgstr "已配置的视频播放器在 aMule 的 Flatpak 沙箱中不可用：%s。安装在主机上的程序在此处不是直接可用。已完成的文件仍用桌面的默认程序打开；预览未完成的下载需要沙箱可以运行的播放器， 比如保存在 home 文件夹中的自包含播放器。"
 
 #: src/FileLaunch.cpp
 #, c-format
@@ -3921,7 +3939,7 @@ msgstr "警告: "
 #: src/MediaProbe.cpp
 #, c-format
 msgid "Media metadata: not using %s, because another user owns it or a folder above it."
-msgstr ""
+msgstr "媒体元数据：没在使用 %s，因为别的用户拥有它或和它上一级的文件夹。"
 
 #: src/MediaProbe.cpp
 msgid "Media metadata: no ffprobe binary found. Install ffmpeg, or set the ffprobe path in preferences; length, bitrate and codec will not be extracted."
@@ -7177,9 +7195,9 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr "仅保存搜索 “%3$s” 获得的前 %1$u 个结果，共 %2$u 个结果。"
 
 #: src/SearchList.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "IO error while saving %s: %s"
-msgstr "读取 %s 文件时发生 IO 错误：%s"
+msgstr "保存 %s 时发生 IO 错误：%s"
 
 #: src/SearchList.cpp
 msgid "WARNING: Stored search list corrupted, contains invalid header."

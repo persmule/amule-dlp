@@ -507,13 +507,31 @@ msgid "Could not write the amuleapi EC token to %s; amuleapi will fall back to i
 msgstr "Nebylo možné zapsat token amuleapi EC do %s; amuleapi se tedy vrátí k použití nastaveného hesla."
 
 #: src/amule.cpp
+msgid "An exception occurred while launching amuleapi."
+msgstr ""
+
+#: src/amule.cpp
 #, c-format
 msgid "amuleapi running on pid %d"
 msgstr "amuleapi běží s PID %d"
 
 #: src/amule.cpp
+msgid "Could not launch amuleapi during automatic restart."
+msgstr ""
+
+#: src/amule.cpp
 msgid "You requested to run amuleapi on startup, but the amuleapi binary cannot be run. Please install the package containing aMule's REST API server, or build aMule from source with -DBUILD_AMULEAPI=YES and install it."
 msgstr "Požádali jste o spuštění amuleapi po startu, avšak binární soubor amuleapi nelze spustit. Nainstalujte balíček obsahující REST API server aMule, nebo sestavte aMule ze zdrojového kódu pomocí přepínače -DBUILD_AMULEAPI=YES a pak jej nainstalujte."
+
+#: src/amule.cpp
+#, fuzzy, c-format
+msgid "Could not remove the amuleapi EC token file: %s"
+msgstr "Nepodařilo se uložit heslo amuleapi: %s"
+
+#: src/amule.cpp
+#, c-format
+msgid "amuleapi will restart in %u seconds."
+msgstr ""
 
 #: src/amule.cpp
 #, c-format

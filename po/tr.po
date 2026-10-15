@@ -508,13 +508,31 @@ msgid "Could not write the amuleapi EC token to %s; amuleapi will fall back to i
 msgstr "amuleapi Harici Bağlantı jetonu %s konumuna yazılamadı; amuleapi yapılandırılmış parolasına dönüş yapacaktır."
 
 #: src/amule.cpp
+msgid "An exception occurred while launching amuleapi."
+msgstr ""
+
+#: src/amule.cpp
 #, c-format
 msgid "amuleapi running on pid %d"
 msgstr "amuleapi pid %d üzerinde çalışıyor"
 
 #: src/amule.cpp
+msgid "Could not launch amuleapi during automatic restart."
+msgstr ""
+
+#: src/amule.cpp
 msgid "You requested to run amuleapi on startup, but the amuleapi binary cannot be run. Please install the package containing aMule's REST API server, or build aMule from source with -DBUILD_AMULEAPI=YES and install it."
 msgstr "amuleapi'nın başlangıçta çalışmasını istediniz, fakat amuleapi ikilisi çalıştırılamıyor. Lütfen aMule REST API sunucusunu içeren paketi yükleyin veya aMule' yi -DBUILD_AMULEAPI=YES seçeneği ile derleyin ve kurun."
+
+#: src/amule.cpp
+#, fuzzy, c-format
+msgid "Could not remove the amuleapi EC token file: %s"
+msgstr "amuleapi parolası kaydedilemedi: %s"
+
+#: src/amule.cpp
+#, c-format
+msgid "amuleapi will restart in %u seconds."
+msgstr ""
 
 #: src/amule.cpp
 #, c-format
