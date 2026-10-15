@@ -44,9 +44,9 @@ public:
 	CPacket(uint8 protocol);
 	CPacket(uint8_t *header, uint8_t *buf); // only used for receiving packets
 	CPacket(const CMemFile &datafile, uint8 protocol, uint8 ucOpcode);
-	CPacket(int8 in_opcode, uint32 in_size, uint8 protocol, bool bFromPF = true);
+	CPacket(int8 in_opcode, uint64 in_size, uint8 protocol, bool bFromPF = true);
 	CPacket(uint8_t *pPacketPart,
-		uint32 nSize,
+		uint64 nSize,
 		bool bLast,
 		bool bFromPF = true); // only used for splitted packets!
 
@@ -57,6 +57,8 @@ public:
 	uint8_t *GetPacket();
 	uint8_t *DetachPacket();
 	uint32 GetRealPacketSize() const { return size + 6; }
+	// Invalid headers are distinct from a valid empty payload (length 1).
+	static constexpr uint32 InvalidPacketSize = 0xffffffffu;
 	static uint32 GetPacketSizeFromHeader(const uint8_t *rawHeader);
 	bool IsSplitted() { return m_bSplitted; }
 	bool IsLastSplitted() { return m_bLastSplitted; }

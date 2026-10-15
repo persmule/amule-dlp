@@ -223,6 +223,11 @@ void CEMSocket::OnReceive(int nErrorCode)
 		} else if (pendingPacket == NULL) {
 			pendingPacketSize = 0;
 			readMax = CPacket::GetPacketSizeFromHeader(pendingHeader);
+			if (readMax == CPacket::InvalidPacketSize) {
+				pendingHeaderSize = 0;
+				OnError(ERR_WRONGHEADER);
+				return;
+			}
 			if (readMax > MAX_PACKET_SIZE) {
 				pendingHeaderSize = 0;
 				OnError(ERR_TOOBIG);

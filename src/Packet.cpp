@@ -33,6 +33,21 @@
 #include "MemFile.h"      // Needed for CMemFile
 #include "OtherStructs.h" // Needed for Header_Struct
 #include "ArchSpecific.h" // Needed for ENDIAN_*
+#include <common/MuleDebug.h>
+#include <algorithm>
+#include <memory>
+
+namespace
+{
+// Match the legacy receive-header limit, leaving room for allocation overhead.
+constexpr uint32 MaxPacketPayload = 0x7fffffeeu;
+
+uint32 CheckedPayloadSize(uint64 bytes)
+{
+	MULE_VALIDATE_PARAMS(bytes <= MaxPacketPayload, "Packet payload is too large.");
+	return static_cast<uint32>(bytes);
+}
+} // namespace
 
 // Copy constructor
 CPacket::CPacket(CPacket &p)
@@ -47,8 +62,7 @@ CPacket::CPacket(CPacket &p)
 	memcpy(head, p.head, sizeof head);
 	tempbuffer = NULL;
 	if (p.completebuffer) {
-		completebuffer = new uint8_t[size + 10];
-		;
+		completebuffer = new uint8_t[static_cast<size_t>(size) + 10];
 		pBuffer = completebuffer + sizeof(Header_Struct);
 	} else {
 		completebuffer = NULL;
@@ -82,7 +96,10 @@ CPacket::CPacket(uint8_t *rawHeader, uint8_t *buf)
 {
 	memset(head, 0, sizeof head);
 	Header_Struct *header = reinterpret_cast<Header_Struct *>(rawHeader);
-	size = ENDIAN_SWAP_32(header->packetlength) - 1;
+	const uint32 length = ENDIAN_SWAP_32(header->packetlength);
+	MULE_CHECK_THROW(
+		length >= 1 && length - 1 <= MaxPacketPayload, CInvalidPacket, "Invalid packet length.");
+	size = length - 1;
 	opcode = header->command;
 	prot = header->eDonkeyID;
 	m_bSplitted = false;
@@ -96,7 +113,7 @@ CPacket::CPacket(uint8_t *rawHeader, uint8_t *buf)
 
 CPacket::CPacket(const CMemFile &datafile, uint8 protocol, uint8 ucOpcode)
 {
-	size = datafile.GetLength();
+	size = CheckedPayloadSize(datafile.GetLength());
 	opcode = ucOpcode;
 	prot = protocol;
 	m_bSplitted = false;
@@ -109,15 +126,15 @@ CPacket::CPacket(const CMemFile &datafile, uint8 protocol, uint8 ucOpcode)
 	pBuffer = completebuffer + sizeof(Header_Struct);
 
 	// Write contents of MemFile to buffer (while keeping original position in file)
-	off_t position = datafile.GetPosition();
+	const uint64 position = datafile.GetPosition();
 	datafile.Seek(0, wxFromStart);
 	datafile.Read(pBuffer, size);
 	datafile.Seek(position, wxFromStart);
 }
 
-CPacket::CPacket(int8 in_opcode, uint32 in_size, uint8 protocol, bool bFromPF)
+CPacket::CPacket(int8 in_opcode, uint64 in_size, uint8 protocol, bool bFromPF)
 {
-	size = in_size;
+	size = CheckedPayloadSize(in_size);
 	opcode = in_opcode;
 	prot = protocol;
 	m_bSplitted = false;
@@ -126,10 +143,10 @@ CPacket::CPacket(int8 in_opcode, uint32 in_size, uint8 protocol, bool bFromPF)
 	m_bFromPF = bFromPF;
 	memset(head, 0, sizeof head);
 	tempbuffer = NULL;
-	if (in_size) {
-		completebuffer = new uint8_t[in_size + sizeof(Header_Struct) + 4 /*Why this 4?*/];
+	if (size) {
+		completebuffer = new uint8_t[static_cast<size_t>(size) + sizeof(Header_Struct) + 4];
 		pBuffer = completebuffer + sizeof(Header_Struct);
-		memset(completebuffer, 0, in_size + sizeof(Header_Struct) + 4 /*Why this 4?*/);
+		memset(completebuffer, 0, static_cast<size_t>(size) + sizeof(Header_Struct) + 4);
 	} else {
 		completebuffer = NULL;
 		pBuffer = NULL;
@@ -137,9 +154,11 @@ CPacket::CPacket(int8 in_opcode, uint32 in_size, uint8 protocol, bool bFromPF)
 }
 
 // only used for splitted packets!
-CPacket::CPacket(uint8_t *pPacketPart, uint32 nSize, bool bLast, bool bFromPF)
+CPacket::CPacket(uint8_t *pPacketPart, uint64 nSize, bool bLast, bool bFromPF)
 {
-	size = nSize - sizeof(Header_Struct);
+	std::unique_ptr<uint8_t[]> ownedPacketPart(pPacketPart);
+	MULE_VALIDATE_PARAMS(nSize >= sizeof(Header_Struct), "Split packet is shorter than its header.");
+	size = CheckedPayloadSize(nSize - sizeof(Header_Struct));
 	opcode = 0;
 	prot = 0;
 	m_bSplitted = true;
@@ -148,7 +167,7 @@ CPacket::CPacket(uint8_t *pPacketPart, uint32 nSize, bool bLast, bool bFromPF)
 	m_bFromPF = bFromPF;
 	memset(head, 0, sizeof head);
 	tempbuffer = NULL;
-	completebuffer = pPacketPart;
+	completebuffer = ownedPacketPart.release();
 	pBuffer = NULL;
 }
 
@@ -172,15 +191,18 @@ uint32 CPacket::GetPacketSizeFromHeader(const uint8_t *rawHeader)
 {
 	const Header_Struct *header = reinterpret_cast<const Header_Struct *>(rawHeader);
 	uint32 size = ENDIAN_SWAP_32(header->packetlength);
-	if (size < 1 || size >= 0x7ffffff0u)
-		return 0;
+	if (size < 1 || size - 1 > MaxPacketPayload)
+		return InvalidPacketSize;
 	return size - 1;
 }
 
 void CPacket::CopyToDataBuffer(unsigned int offset, const uint8_t *data, unsigned int n)
 {
-	wxASSERT(offset + n <= size + 1);
-	memcpy(pBuffer + offset, data, n);
+	wxCHECK_RET(offset <= size && n <= size - offset, "Bad span in CopyToDataBuffer.");
+	if (n) {
+		wxCHECK_RET(data && pBuffer, "Invalid buffer in CopyToDataBuffer.");
+		memcpy(pBuffer + offset, data, n);
+	}
 }
 
 uint8_t *CPacket::GetPacket()
@@ -253,7 +275,7 @@ void CPacket::PackPacket()
 {
 	wxASSERT(!m_bSplitted);
 
-	uLongf newsize = size + 300;
+	uLongf newsize = static_cast<uLongf>(size) + 300;
 	uint8_t *output = new uint8_t[newsize];
 
 	uint16 result = compress2(output, &newsize, pBuffer, size, Z_BEST_COMPRESSION);
@@ -285,11 +307,8 @@ bool CPacket::UnPackPacket(uint32 uMaxDecompressedSize)
 		AddDebugLogLineN(logPacketErrors, "Received OP_ED2KV2PACKEDPROT.");
 	}
 
-	uint32 nNewSize = size * 10 + 300;
-
-	if (nNewSize > uMaxDecompressedSize) {
-		nNewSize = uMaxDecompressedSize;
-	}
+	const uint64 estimate = static_cast<uint64>(size) * 10 + 300;
+	uint32 nNewSize = static_cast<uint32>(std::min<uint64>(estimate, uMaxDecompressedSize));
 
 	uint8_t *unpack = new uint8_t[nNewSize];
 	uLongf unpackedsize = nNewSize;
@@ -320,12 +339,13 @@ bool CPacket::UnPackPacket(uint32 uMaxDecompressedSize)
 
 void CPacket::Copy16ToDataBuffer(const void *data)
 {
-	md4cpy(pBuffer, data);
+	CopyToDataBuffer(0, static_cast<const uint8_t *>(data), 16);
 }
 
 void CPacket::CopyUInt32ToDataBuffer(uint32 data, unsigned int offset)
 {
-	wxCHECK_RET(offset <= size - sizeof(uint32), "Bad offset in CopyUInt32ToDataBuffer.");
+	wxCHECK_RET(pBuffer && size >= sizeof(uint32) && offset <= size - sizeof(uint32),
+		"Bad offset in CopyUInt32ToDataBuffer.");
 	PokeUInt32(pBuffer + offset, data);
 }
 // File_checked_for_headers
