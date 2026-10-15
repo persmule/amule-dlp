@@ -63,3 +63,25 @@ TEST(AmuleApiRestart, CancellationRemovesPendingRetryAndBackoff)
 	restart.Failed(100001);
 	ASSERT_EQUALS(uint64_t(5000), restart.DelayMs());
 }
+
+TEST(AmuleApiRestart, ScaledClockPreservesBackoffAndStableReset)
+{
+	AmuleApiRestart restart(100);
+	uint64_t now = 1;
+	for (uint64_t delay : { 500, 1000, 2000, 4000, 6000, 6000 }) {
+		restart.Started(now);
+		restart.Failed(++now);
+		ASSERT_EQUALS(delay, restart.DelayMs());
+		ASSERT_FALSE(restart.IsDue(now + delay - 1));
+		ASSERT_TRUE(restart.IsDue(now + delay));
+		now += delay;
+	}
+	restart.Started(now);
+	restart.Failed(now + 5999);
+	ASSERT_EQUALS(uint64_t(6000), restart.DelayMs());
+	restart.Started(now + 6000);
+	restart.Failed(now + 12000);
+	ASSERT_EQUALS(uint64_t(500), restart.DelayMs());
+	restart.Cancel();
+	ASSERT_FALSE(restart.IsDue(now + 20000));
+}

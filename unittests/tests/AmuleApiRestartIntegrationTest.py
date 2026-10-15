@@ -20,6 +20,12 @@ from AllSearchIntegrationTest import (C, EC, check_daemon_ports, integer,
 from LogfilePathIntegrationTest import daemon_env, write_config
 
 
+# Matches the opt-in integration-build clock in CamuleApp::OnInit().
+FIRST_RETRY = 0.5
+SECOND_RETRY = 1.0
+POLL_INTERVAL = 0.05
+
+
 def authenticate_token(host, port, token):
     ec = EC.__new__(EC)
     ec.sock = socket.create_connection((host, port), timeout=10)
@@ -58,6 +64,13 @@ def helper():
         output.write(json.dumps({'pid': os.getpid(), 'time': time.monotonic(),
                                  'token_hash': hashlib.sha256(token.encode()).hexdigest(),
                                  'mode': mode}) + '\n')
+    if count == 0 and scenario != 'active-shutdown':
+        # Let the parent inspect startup and arrange a missing executable before
+        # starting the short retry clock, even on a heavily loaded runner.
+        deadline = time.monotonic() + 90
+        while not (root / 'allow-exit').exists():
+            assert time.monotonic() < deadline, 'parent did not release helper'
+            time.sleep(POLL_INTERVAL)
     if scenario == 'verbose' and count == 0:
         # Fill both streams beyond pipe capacity before reporting the failed exit.
         sys.stdout.write('stdout regression ' * 16384 + '\n')
@@ -76,16 +89,36 @@ def launches(root):
     return [json.loads(line) for line in lines if line.endswith('\n')]
 
 
-def wait_until(proc, root, predicate, timeout=90):
+def wait_until(proc, root, predicate, timeout=90, *, daemon_stopped=False):
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         if predicate():
             return
         console = (root / 'console.log').read_text(errors='replace')
-        assert proc.poll() is None, console
+        assert daemon_stopped or proc.poll() is None, console
         assert 'but the amuleapi binary cannot be run' not in console, 'API launch rejected the profile path'
-        time.sleep(0.1)
+        time.sleep(POLL_INTERVAL)
     raise AssertionError((root / 'console.log').read_text(errors='replace'))
+
+
+def assert_no_restart(proc, root, count, duration):
+    # Absence is not an event: observe beyond the pending backoff plus timer
+    # slack, checking throughout rather than sleeping for production seconds.
+    deadline = time.monotonic() + duration
+
+    def observed():
+        assert proc.poll() is None, (root / 'console.log').read_text(errors='replace')
+        assert len(launches(root)) == count, 'unexpected API restart'
+        return time.monotonic() >= deadline
+
+    wait_until(proc, root, observed, timeout=duration + 10)
+
+
+def child_exited(pid):
+    try:
+        return (Path('/proc') / str(pid) / 'stat').read_text().rpartition(')')[2].split()[0] == 'Z'
+    except FileNotFoundError:
+        return True
 
 
 def run(binary, root, scenario):
@@ -101,16 +134,18 @@ def run(binary, root, scenario):
         config.write(f'\n[AmuleApi]\nEnabled=1\nPath={helper_path}\nBindAddress=127.0.0.1\n')
     with (root / 'console.log').open('w') as console:
         proc = subprocess.Popen([binary, '-c', str(root), '--disable-fatal'],
-                                stdout=console, stderr=console, env=daemon_env(root))
+                                stdout=console, stderr=console, env=dict(daemon_env(root), AMULE_TEST_FAST_API_RESTART='1'))
         try:
-            if scenario == 'active-shutdown':
-                wait_until(proc, root, lambda: len(launches(root)) == 1)
-            else:
-                wait_until(proc, root, lambda: 'amuleapi will restart in 5 seconds.' in
-                           (root / 'logfile').read_text(errors='replace') if (root / 'logfile').exists() else False,
-                           timeout=10 if scenario == 'verbose' else 90)
+            wait_until(proc, root, lambda: len(launches(root)) == 1)
             check_daemon_ports(root, ec_port, peer_port)
-            assert len(launches(root)) == 1
+            if scenario == 'missing':
+                helper_path.unlink()
+            if scenario != 'active-shutdown':
+                released_at = time.monotonic()
+                (root / 'allow-exit').touch()
+                wait_until(proc, root, lambda: 'amuleapi will restart in 0 seconds.' in
+                           (root / 'logfile').read_text(errors='replace'),
+                           timeout=10 if scenario == 'verbose' else 90)
             if scenario == 'unread':
                 assert not (root / 'amuleapi-ec-token').exists(), 'dead child left a live token file'
                 token = (root / 'retired-token').read_text()
@@ -118,11 +153,10 @@ def run(binary, root, scenario):
             if scenario in ('shutdown', 'active-shutdown'):
                 proc.terminate()
                 assert proc.wait(timeout=20) == 0
-                time.sleep(6)
                 assert len(launches(root)) == 1, 'child restarted during shutdown'
                 if scenario == 'active-shutdown':
-                    child = Path('/proc') / str(launches(root)[0]['pid']) / 'stat'
-                    assert not child.exists() or child.read_text().rpartition(')')[2].split()[0] == 'Z', 'API child survived core shutdown'
+                    wait_until(proc, root, lambda: child_exited(launches(root)[0]['pid']),
+                               timeout=20, daemon_stopped=True)
             elif scenario == 'disabled':
                 ec = EC(ec_port)
                 try:
@@ -130,41 +164,41 @@ def run(binary, root, scenario):
                         tag(C['EC_TAG_PREFS_REMOTECTRL'], children=[
                             integer(C['EC_TAG_AMULEAPI_AUTORUN'], 0)]),
                     ])[0] == C['EC_OP_NOOP']
-                    time.sleep(6)
+                    assert_no_restart(proc, root, 1, FIRST_RETRY + 0.5)
                     assert len(launches(root)) == 1, 'disabled API restarted'
                     # Re-enabling must not revive an already cancelled retry.
                     assert ec.call(C['EC_OP_SET_PREFERENCES'], [
                         tag(C['EC_TAG_PREFS_REMOTECTRL'], children=[
                             integer(C['EC_TAG_AMULEAPI_AUTORUN'], 1)]),
                     ])[0] == C['EC_OP_NOOP']
-                    time.sleep(6)
+                    assert_no_restart(proc, root, 1, SECOND_RETRY + 0.5)
                     assert len(launches(root)) == 1, 'cancelled retry revived'
                 finally:
                     ec.sock.close()
             else:
                 if scenario == 'missing':
-                    helper_path.unlink()
                     # wxWidgets may report a PID before exec fails, then deliver
                     # the failure through OnTerminate instead of returning zero.
-                    wait_until(proc, root, lambda: 'amuleapi will restart in 10 seconds.' in
+                    wait_until(proc, root, lambda: 'amuleapi will restart in 1 seconds.' in
                                (root / 'logfile').read_text(errors='replace'))
                     assert not (root / 'amuleapi-ec-token').exists(), 'failed launch left a token file'
-                    assert 'amuleapi will restart in 10 seconds.' in (root / 'logfile').read_text()
+                    assert 'amuleapi will restart in 1 seconds.' in (root / 'logfile').read_text()
                     helper_path.write_text(helper_script)
                     helper_path.chmod(0o700)
                 wait_until(proc, root, lambda: len(launches(root)) == 2)
                 records = launches(root)
                 assert records[0]['token_hash'] != records[1]['token_hash'], 'reused EC token'
                 assert all(record['mode'] == 0o600 for record in records)
-                delay = 15 if scenario == 'missing' else 5
-                assert records[1]['time'] - records[0]['time'] >= delay, 'restart skipped delay'
+                delay = FIRST_RETRY + SECOND_RETRY if scenario == 'missing' else FIRST_RETRY
+                assert records[1]['time'] - released_at >= delay, 'restart skipped delay'
                 assert not (root / 'amuleapi-ec-token').exists()
-                # Second child exits cleanly: waiting past the next backoff must not relaunch it.
-                time.sleep(12)
-                assert proc.poll() is None
-                assert len(launches(root)) == 2, 'clean exit was restarted'
+                # Token revocation confirms the core processed the clean exit.
                 token = (root / 'retired-token').read_text()
-                assert authenticate_token('127.0.0.1', ec_port, token) == C['EC_OP_AUTH_FAIL'], 'clean exit token still accepted'
+                wait_until(proc, root, lambda: authenticate_token('127.0.0.1', ec_port, token) == C['EC_OP_AUTH_FAIL'])
+                # If clean exit incorrectly armed a retry it would fire by the
+                # next backoff (2 s after the missing-executable failure).
+                next_retry = 2 * SECOND_RETRY if scenario == 'missing' else SECOND_RETRY
+                assert_no_restart(proc, root, 2, next_retry + 0.5)
         finally:
             if proc.poll() is None:
                 proc.terminate()

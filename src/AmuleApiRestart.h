@@ -12,6 +12,12 @@
 class AmuleApiRestart
 {
 public:
+	// Integration tests can use a shorter second without changing the policy.
+	explicit AmuleApiRestart(uint64_t millisecondsPerSecond = 1000)
+	: m_second(millisecondsPerSecond)
+	{
+	}
+
 	void Started(uint64_t now)
 	{
 		m_started = now;
@@ -22,11 +28,12 @@ public:
 	void Failed(uint64_t now)
 	{
 		// A minute of stable operation ends the previous crash loop.
-		if (m_running && now - m_started >= 60000) {
+		if (m_running && now - m_started >= 60 * m_second) {
 			m_delay = 0;
 		}
 		m_running = false;
-		m_delay = m_delay == 0 ? 5000 : (m_delay < 30000 ? m_delay * 2 : 60000);
+		m_delay =
+			m_delay == 0 ? 5 * m_second : (m_delay < 30 * m_second ? m_delay * 2 : 60 * m_second);
 		m_due = now + m_delay;
 	}
 
@@ -41,6 +48,7 @@ public:
 	uint64_t DelayMs() const { return m_delay; }
 
 private:
+	uint64_t m_second;
 	uint64_t m_started = 0;
 	uint64_t m_due = 0;
 	uint64_t m_delay = 0;

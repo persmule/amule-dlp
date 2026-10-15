@@ -43,6 +43,7 @@ Address=127.0.0.1
 ConnectToKad=0
 ConnectToED2K=0
 NewVersionCheck=0
+GeoIPEnabled=0
 Reconnect=0
 Serverlist=0
 Ed2kServersUrl=

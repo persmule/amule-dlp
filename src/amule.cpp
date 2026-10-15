@@ -640,6 +640,14 @@ static void LogAddressFamilies(const wxString &listenerHost)
 // Application initialization
 bool CamuleApp::OnInit()
 {
+#ifdef AMULE_API_RESTART_TEST_HOOK
+	// Compiled only for the daemon in integration-test builds; opt-in per process.
+	wxString fastApiRestart;
+	if (wxGetEnv("AMULE_TEST_FAST_API_RESTART", &fastApiRestart) && fastApiRestart == "1") {
+		m_amuleApiRestart = AmuleApiRestart(100);
+	}
+#endif
+
 #ifdef AMULE_SHOW_SPLASH
 	// Everything until the splash is up runs with nothing on screen; the Startup phases line
 	// reports it as "to splash".
