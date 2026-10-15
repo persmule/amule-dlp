@@ -38,6 +38,7 @@ if (BUILD_MONOLITHIC OR BUILD_DAEMON)
 		MuleUDPSocket.cpp
 		SearchFile.cpp
 		SearchList.cpp
+		SearchPacket.cpp
 		ServerConnect.cpp
 		ServerList.cpp
 		ServerMet.cpp

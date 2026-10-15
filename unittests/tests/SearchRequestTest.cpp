@@ -197,3 +197,19 @@ TEST(SearchRequest, PendingRequestStillRequiresEveryFilterToMatch)
 	params.extension = "iso";
 	ASSERT_EQUALS(pages.size(), FindReusableSearch(pages, CSearchRequest(KadSearch, params)));
 }
+
+TEST(SearchRequest, MinimumBitrateDistinguishesRequests)
+{
+	for (const auto type : { LocalSearch, GlobalSearch, KadSearch, AllSearch }) {
+		CSearchList::CSearchParams params;
+		params.searchString = "song";
+		const CSearchRequest unfiltered(type, params);
+		params.minBitrateKbps = 320;
+		const CSearchRequest filtered(type, params);
+		ASSERT_TRUE(filtered.CanReuse(CSearchRequest(type, params), 25));
+		ASSERT_TRUE(!filtered.CanReuse(unfiltered, 25));
+		ASSERT_TRUE(!unfiltered.CanReuse(filtered, 25));
+		params.minBitrateKbps = 256;
+		ASSERT_TRUE(!filtered.CanReuse(CSearchRequest(type, params), 25));
+	}
+}

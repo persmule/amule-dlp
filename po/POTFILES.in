@@ -81,6 +81,7 @@ src/SearchDlg.cpp
 src/SearchList.cpp
 src/SearchListCtrl.cpp
 src/SearchModeIcons.h
+src/SearchPacket.cpp
 src/SearchProgressReport.cpp
 src/SearchSourceFormat.h
 src/ServerConnect.cpp

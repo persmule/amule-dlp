@@ -50,6 +50,7 @@ public:
 	, m_minSize(params.minSize)
 	, m_maxSize(params.maxSize)
 	, m_availability(params.availability)
+	, m_minBitrateKbps(params.minBitrateKbps)
 	{
 	}
 
@@ -61,7 +62,8 @@ public:
 		return IsRunningSearchStatus(progress) && m_type == other.m_type &&
 		       m_query == other.m_query && m_fileType == other.m_fileType &&
 		       m_extension == other.m_extension && m_minSize == other.m_minSize &&
-		       m_maxSize == other.m_maxSize && m_availability == other.m_availability;
+		       m_maxSize == other.m_maxSize && m_availability == other.m_availability &&
+		       m_minBitrateKbps == other.m_minBitrateKbps;
 	}
 
 private:
@@ -72,6 +74,7 @@ private:
 	uint64_t m_minSize;
 	uint64_t m_maxSize;
 	uint32_t m_availability;
+	uint32_t m_minBitrateKbps;
 };
 
 // A null request denotes a restored/discovered/browse tab or a locally stopped search.

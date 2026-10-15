@@ -2692,6 +2692,31 @@ if (ENABLE_IP2COUNTRY)
 	add_test (NAME MaxMindDBUpdateTest COMMAND MaxMindDBUpdateTest)
 endif()
 
+# Run the production query parser and packet writer without starting the application.
+# Link only the packet writer so no network/application stubs or linker stripping is needed.
+add_executable (SearchPacketTest
+	SearchPacketTest.cpp
+	${CMAKE_SOURCE_DIR}/src/SearchPacket.cpp
+	${CMAKE_SOURCE_DIR}/src/Parser.cpp
+	${CMAKE_SOURCE_DIR}/src/Scanner.cpp
+	${CMAKE_SOURCE_DIR}/src/MemFile.cpp
+	${CMAKE_SOURCE_DIR}/src/SafeFile.cpp
+	${CMAKE_SOURCE_DIR}/src/Tag.cpp
+	${CMAKE_SOURCE_DIR}/src/LoggerConsole.cpp
+)
+target_compile_definitions (SearchPacketTest PRIVATE AMULE_DAEMON)
+target_include_directories (SearchPacketTest PRIVATE
+	${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/include
+	${CMAKE_SOURCE_DIR}/src/libs ${CMAKE_BINARY_DIR}/src/libs
+	${CMAKE_BINARY_DIR}/src/libs/ec/cpp
+)
+target_link_libraries (SearchPacketTest PRIVATE muleunit mulecommon)
+if (ENABLE_NLS AND Intl_FOUND)
+	target_include_directories (SearchPacketTest PRIVATE ${Intl_INCLUDE_DIRS})
+	target_link_libraries (SearchPacketTest PRIVATE ${Intl_LIBRARIES})
+endif()
+add_test (NAME SearchPacketTest COMMAND SearchPacketTest)
+
 # Retry scheduling for the core-supervised API child.
 add_executable (AmuleApiRestartTest AmuleApiRestartTest.cpp)
 add_test (NAME AmuleApiRestartTest COMMAND AmuleApiRestartTest)
