@@ -3207,6 +3207,11 @@ msgid "HTTP download cancelled"
 msgstr "HTTP letöltés megszakítva"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "A letöltendő URL nem lehet üres"
 
@@ -7230,11 +7235,6 @@ msgstr "Kad keresés: szélesebb körű eredményeket kértünk egy további par
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad keresés: nincs több megkérdezhető partner további eredményekért (elérte a korlátot, vagy még nem érkezett válasz)."
 
-#: src/SearchList.cpp
-#, fuzzy, c-format
-msgid "Error %u: %s\n"
-msgstr "Hiba %s frissítésekor"
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "Fájl ID"
@@ -7304,6 +7304,11 @@ msgstr "Kapcsolódás a hálózathoz."
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr ""
+
+#: src/SearchPacket.cpp
+#, fuzzy, c-format
+msgid "Error %u: %s\n"
+msgstr "Hiba %s frissítésekor"
 
 #: src/SearchProgressReport.cpp
 #, fuzzy

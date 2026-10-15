@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-07 16:22+0000\n"
+"PO-Revision-Date: 2026-10-15 19:15+0000\n"
 "Last-Translator: saleh alhathal <hathalsal@hotmail.com>\n"
 "Language-Team: \n"
 "Language: ar\n"
@@ -206,11 +206,16 @@ msgid ""
 "\n"
 "The file is deleted and no longer shared. This cannot be undone."
 msgstr ""
+"هل أنت متأكد من حذف '%s' من قرص التخزين؟\n"
+"\n"
+"الملف: %s\n"
+"\n"
+"سيُحذف الملف ولن تتم مشاركته بعد ذلك. لا يمكن التراجع عن هذا الإجراء."
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "... and %i more"
-msgstr ""
+msgstr "...و %i غيرها"
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -220,26 +225,29 @@ msgid ""
 "%s\n"
 "The files are deleted and no longer shared. This cannot be undone."
 msgstr ""
+"هل أنت متأكد من حذف الملفات المحددة (%i) من قرص التخزين؟\n"
+"\n"
+"%s\n"
+"ستُحذف الملفات ولن تتم مشاركتها بعد ذلك. لا يمكن التراجع عن هذا الإجراء."
 
 #: src/GuiEvents.cpp
-#, fuzzy
 msgid "Delete from disk"
-msgstr "الحصول من Kad"
+msgstr "حذف من قرص التخزين"
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Skipped deleting '%s': the selected file has changed."
-msgstr ""
+msgstr "تم تخطي حذف '%s': لقد تغير الملف المختار."
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Deleted '%s' from disk."
-msgstr ""
+msgstr "تم حذف '%s' من قرص التخزين."
 
 #: src/GuiEvents.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not delete '%s' from disk."
-msgstr "لا يمكن حذف الفئة: %s"
+msgstr "لا يمكن حذف '%s' من قرص التخزين."
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -252,6 +260,13 @@ msgid ""
 "Yes: stop sharing and remove the list entries. A later share scan may share the files again.\n"
 "No: keep the files shared and listed."
 msgstr ""
+"تعذر حذف هذه الملفات من قرص التخزين:\n"
+"\n"
+"%s\n"
+"هل تريد إزالتها من المشاركات ومن قائمة عمليات النقل المكتملة على أي حال؟\n"
+"\n"
+"نعم: إيقاف المشاركة وحذف إدخالات القائمة. قد يؤدي فحص لاحق للمشاركات إلى مشاركة الملفات مجددًا.\n"
+"لا: إبقاء الملفات مشتركة ومدرجة."
 
 #: src/amuleAppCommon.cpp
 msgid "Failed to open ED2KLinks file."
@@ -564,54 +579,54 @@ msgstr ""
 
 #: src/amule.cpp
 msgid "The P2P TCP port conflicts with the External Connections port. No sockets were changed.\n"
-msgstr ""
+msgstr "يتعارض منفذ P2P TCP مع منفذ الاتصالات الخارجية. لم يتم تغيير أي مقابس.\n"
 
 #: src/amule.cpp
 msgid "The P2P TCP port is too high for its associated server UDP port. No sockets were changed.\n"
-msgstr ""
+msgstr "منفذ P2P TCP مرتفع جدًا بالنسبة لمنفذ UDP الخاص بالخادم المرتبط به. لم يتم تغيير أي مقابس.\n"
 
 #: src/amule.cpp
 msgid "The client UDP port conflicts with the server UDP port (TCP+3). No sockets were changed.\n"
-msgstr ""
+msgstr "يتعارض منفذ UDP الخاص بالعميل مع منفذ UDP الخاص بالخادم (TCP+3). لم يتم تغيير أي مقابس.\n"
 
 #: src/amule.cpp
 #, c-format
 msgid "Could not rebind the server UDP port %u; no sockets were changed.\n"
-msgstr ""
+msgstr "تعذرت إعادة ربط منفذ UDP الخاص بالخادم %u؛ لم يتم تغيير أي مقابس.\n"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not rebind the P2P TCP port %u. %s"
-msgstr "خطأ: تعذر الاستماع إلى منفذ TCP."
+msgstr "تعذرت إعادة ربط منفذ P2P TCP %u. %s"
 
 #: src/amule.cpp
 msgid "The previous listener and server UDP socket remain active.\n"
-msgstr ""
+msgstr "لا يزال المستمع السابق ومقبس UDP الخاص بالخادم نشطين.\n"
 
 #: src/amule.cpp
 msgid "The server UDP socket could not be restored; restart aMule.\n"
-msgstr ""
+msgstr "تعذرت استعادة مقبس UDP الخاص بالخادم؛ أعد تشغيل aMule.\n"
 
 #: src/amule.cpp
 msgid "The previous P2P listeners remain active.\n"
-msgstr ""
+msgstr "لا تزال مستمعات P2P السابقة نشطة.\n"
 
 #: src/amule.cpp
 msgid "The previous client UDP socket remains active.\n"
-msgstr ""
+msgstr "لا يزال مقبس UDP السابق الخاص بالعميل نشطًا.\n"
 
 #: src/amule.cpp
 msgid "Some previous P2P sockets could not be restored; restart aMule.\n"
-msgstr ""
+msgstr "تعذرت استعادة بعض مقابس P2P السابقة؛ أعد تشغيل aMule.\n"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not rebind the client UDP port %u. %s"
-msgstr "لا يمكن حذف الفئة: %s"
+msgstr "تعذر إعادة ربط منفذ UDP الخاص بالعميل %u. %s"
 
 #: src/amule.cpp
 msgid "P2P listening sockets rebound; established peer connections were kept."
-msgstr ""
+msgstr "أُعيد ربط مقابس الاستماع لـ P2P؛ وتم الإبقاء على اتصالات النظراء القائمة."
 
 #: src/amule.cpp
 msgid "Failed to create OnlineSig File"
@@ -674,7 +689,7 @@ msgstr "معلومات الوسائط: الملف المفحوص لم يعد م�
 #: src/amule.cpp
 #, c-format
 msgid "Verify Local Data: another file named '%s' in your shared folders has the same content as '%s' and may be an intact copy of it."
-msgstr ""
+msgstr "التحقق من البيانات المحلية: يوجد ملف آخر باسم '%s' في مجلداتك المشتركة له نفس محتوى '%s' وقد يكون نسخة سليمة منه."
 
 #: src/amule.cpp
 #, c-format
@@ -972,9 +987,8 @@ msgid "Encryption"
 msgstr "التشفير"
 
 #: src/amuleDlg.cpp
-#, fuzzy
 msgid "aMuleGUI"
-msgstr "سجل aMule"
+msgstr "aMuleGUI"
 
 #: src/amuleDlg.cpp
 #, c-format
@@ -983,11 +997,11 @@ msgstr "رفع: %.1f%s (%.1f) | تحميل: %.1f%s (%.1f)"
 
 #: src/amuleDlg.cpp src/MuleTrayIcon.cpp
 msgid " MiB/s"
-msgstr ""
+msgstr " MiB/s"
 
 #: src/amuleDlg.cpp src/MuleTrayIcon.cpp src/utils/wxCas/src/wxcasframe.cpp
 msgid " KiB/s"
-msgstr ""
+msgstr " KiB/s"
 
 #: src/amuleDlg.cpp
 #, c-format
@@ -1227,7 +1241,7 @@ msgstr "الكل"
 
 #: src/amule-remote-gui.cpp
 msgid "The daemon could not apply the connection port changes."
-msgstr ""
+msgstr "تعذر على برنامج الخلفية تطبيق تغييرات منفذ الاتصال."
 
 #: src/amule-remote-gui.cpp
 msgid "not readable"
@@ -1263,7 +1277,7 @@ msgstr "تعذّر إنشاء المجلد '%s' للفئة '%s'، سيتم ال�
 #: src/amule-remote-gui.cpp
 #, c-format
 msgid "The remote core sent inconsistent data for \"%s\" (part status %d, expected %d). The file list may be showing the wrong information; reconnect to clear it."
-msgstr ""
+msgstr "أرسلت النواة البعيدة بيانات غير متسقة لـ \"%s\" (حالة الجزء %d، والمتوقع %d). قد تعرض قائمة الملفات معلومات خاطئة؛ أعد الاتصال لمسحها."
 
 #: src/amule-remote-gui.cpp src/BaseClient.cpp src/ClientDetailDialog.cpp
 #: src/DataToText.cpp src/DownloadListCtrl.cpp src/ExternalConn.cpp
@@ -1275,7 +1289,7 @@ msgstr "غير معرف"
 
 #: src/amule-remote-gui.cpp
 msgid "The connected daemon does not support All searches."
-msgstr ""
+msgstr "لا يدعم برنامج الخلفية المتصل عمليات البحث من نوع «الكل»."
 
 #: src/BaseClient.cpp
 msgid "Searching buddy for lowid connection"
@@ -1399,7 +1413,7 @@ msgstr "فشل إنشاء مجلد الوارد للفئة. الرجاء تحد�
 #: src/ChatSelector.cpp
 #, c-format
 msgid "Chat-Session Started: %s - %s %s"
-msgstr ""
+msgstr "بدأت جلسة الدردشة: %s - %s %s"
 
 #: src/ChatSelector.cpp
 msgid "*** Connected to Client ***"
@@ -1407,7 +1421,7 @@ msgstr "*** تم الاتصال بالعميل ***"
 
 #: src/ChatSelector.cpp
 msgid "*** Chat unavailable: peer identity or route is not available ***"
-msgstr ""
+msgstr "*** الدردشة غير متاحة: هوية النظير أو المسار غير متاح ***"
 
 #: src/ChatSelector.cpp
 msgid "*** Connecting to Client ***"
@@ -1467,12 +1481,11 @@ msgstr "إرسال رسالة"
 
 #: src/ClientContextActions.cpp
 msgid "Chat is unavailable until the peer supplies a valid identity."
-msgstr ""
+msgstr "الدردشة غير متاحة حتى يقدم النظير هوية صالحة."
 
 #: src/ClientContextActions.cpp
-#, fuzzy
 msgid "Chat unavailable"
-msgstr "غير متوفر"
+msgstr "الدردشة غير متاحة"
 
 #: src/ClientContextActions.cpp
 msgid "Send message to user"
@@ -1498,33 +1511,33 @@ msgstr "تحديد متعدد"
 #, c-format
 msgid "Add %u client to your friend list?"
 msgid_plural "Add %u clients to your friend list?"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "هل تريد إضافة %u عميل إلى قائمة أصدقائك؟"
+msgstr[1] "هل تريد إضافة %u من العملاء إلى قائمة أصدقائك؟"
 
 #: src/ClientContextActions.cpp
 #, c-format
 msgid "Remove %u client from your friend list?"
 msgid_plural "Remove %u clients from your friend list?"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "هل تريد إزالة %u عميل من قائمة أصدقائك؟"
+msgstr[1] "هل تريد إزالة %u من العملاء من قائمة أصدقائك؟"
 
 #: src/ClientContextActions.cpp
 #, c-format
 msgid "Could not add %u selected client to your friend list: no address is known for it."
 msgid_plural "Could not add %u selected clients to your friend list: no address is known for them."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "تعذرت إضافة %u عميل محدد إلى قائمة أصدقائك: لا يوجد عنوان معروف له."
+msgstr[1] "تعذرت إضافة %u من العملاء المحددين إلى قائمة أصدقائك: لا توجد عناوين معروفة لهم."
 
 #: src/ClientContextActions.cpp
 #, c-format
 msgid "Request the shared files of %u client?"
 msgid_plural "Request the shared files of %u clients?"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "هل تريد طلب الملفات المشتركة لـ %u عميل؟"
+msgstr[1] "هل تريد طلب الملفات المشتركة لـ %u من العملاء؟"
 
 #: src/ClientContextActions.cpp
 msgid "A connection is opened to each of them."
-msgstr ""
+msgstr "يتم فتح اتصال بكل منهم."
 
 #: src/ClientCreditsList.cpp
 #, c-format
@@ -1583,7 +1596,7 @@ msgstr "فصل الإتصال"
 #: src/GenericClientListCtrl.cpp src/SharedFilesCtrl.cpp
 #, c-format
 msgid "%.1f KiB/s"
-msgstr ""
+msgstr "%.1f KiB/s"
 
 #: src/ClientHistoryListCtrl.cpp src/ClientsListCtrl.cpp src/muuli_wdr.cpp
 #, fuzzy
@@ -3214,6 +3227,11 @@ msgstr "تحميل ..."
 #: src/HTTPDownload.cpp
 msgid "HTTP download cancelled"
 msgstr "تم إلغاء تحميل HTTP"
+
+#: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
 
 #: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
@@ -7252,11 +7270,6 @@ msgstr "بحث Kad: تم طلب نتائج أوسع من نظير إضافي و�
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "بحث Kad: لم يتبقَّ أي نظير لإعادة الطلب للمزيد من النتائج (تم بلوغ الحد الأقصى أو لم تصل ردود بعد)."
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr ""
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "تعريف ملف"
@@ -7324,6 +7337,11 @@ msgstr "الاتصال بالشبكة."
 
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
+msgstr ""
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
 msgstr ""
 
 #: src/SearchProgressReport.cpp

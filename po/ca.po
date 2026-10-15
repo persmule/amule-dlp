@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-14 20:19+0000\n"
+"PO-Revision-Date: 2026-10-15 19:15+0000\n"
 "Last-Translator: minterior <minterior@gmail.com>\n"
 "Language-Team: Català\n"
 "Language: ca\n"
@@ -503,7 +503,7 @@ msgstr "Nodes d'arrencada de Kad (nodes.dat)"
 #: src/amule.cpp
 #, c-format
 msgid "Not starting %s: it is neither next to aMule nor on PATH."
-msgstr ""
+msgstr "No s'inicia %s: no es troba ni a la mateixa carpeta que aMule ni al PATH."
 
 #: src/amule.cpp
 #, c-format
@@ -526,7 +526,7 @@ msgstr "No s'ha pogut escriure el testimoni EC d'amuleapi a %s; amuleapi recorre
 
 #: src/amule.cpp
 msgid "An exception occurred while launching amuleapi."
-msgstr ""
+msgstr "S'ha produït una excepció en executar amuleapi."
 
 #: src/amule.cpp
 #, c-format
@@ -535,21 +535,21 @@ msgstr "amuleapi s'està executant amb pid %d"
 
 #: src/amule.cpp
 msgid "Could not launch amuleapi during automatic restart."
-msgstr ""
+msgstr "No s'ha pogut executar amuleapi durant el reinici automàtic."
 
 #: src/amule.cpp
 msgid "You requested to run amuleapi on startup, but the amuleapi binary cannot be run. Please install the package containing aMule's REST API server, or build aMule from source with -DBUILD_AMULEAPI=YES and install it."
 msgstr "Heu demanat que s'executi amuleapi a l'inici, però el fitxer binari d'amuleapi no es pot executar. Instal·leu el paquet que conté el servidor de l'API REST de l'aMule, o compileu l'aMule des del codi font amb -DBUILD_AMULEAPI=YES i instal·leu-lo."
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not remove the amuleapi EC token file: %s"
-msgstr "No s'ha pogut desar la contrasenya d'amuleapi: %s"
+msgstr "No s'ha pogut eliminar el fitxer del testimoni EC d'amuleapi: %s"
 
 #: src/amule.cpp
 #, c-format
 msgid "amuleapi will restart in %u seconds."
-msgstr ""
+msgstr "amuleapi es reiniciarà d'aquí a %u segons."
 
 #: src/amule.cpp
 #, c-format
@@ -1378,7 +1378,7 @@ msgstr "AVÍS: %s pot ser corrupte (%i)"
 #: src/HashListFile.cpp src/KnownFileList.cpp src/SearchList.cpp
 #, c-format
 msgid "IO error while reading %s file: %s"
-msgstr "Error d'E/S metre es llegia el fitxer %s: %s"
+msgstr "Error d'E/S mentre es llegia el fitxer %s: %s"
 
 #: src/HashListFile.cpp src/KnownFileList.cpp
 #, c-format
@@ -1441,7 +1441,7 @@ msgstr "*** Has superat el procés de comprovació del captcha i l'usuari ha reb
 
 #: src/ChatSelector.cpp
 msgid "*** Your response to the captcha was wrong and your message has been ignored. You can request a new captcha by sending a new message. ***"
-msgstr "*** La teva resposta al captcha he estat errònea i el teu missatge ha estatignorat. Pots demanar un nou captcha enviant un nou missatge. ***"
+msgstr "*** La teva resposta al captcha ha estat errònea i el teu missatge ha estat ignorat. Pots demanar un nou captcha enviant un nou missatge. ***"
 
 #: src/ChatWnd.cpp
 msgid "Chat"
@@ -3221,6 +3221,11 @@ msgstr "S'està baixant..."
 #: src/HTTPDownload.cpp
 msgid "HTTP download cancelled"
 msgstr "Descàrrega HTTP cancel·lada"
+
+#: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
 
 #: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
@@ -7196,9 +7201,9 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr "Només es desen els primers %u resultats de %u de la cerca «%s»."
 
 #: src/SearchList.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "IO error while saving %s: %s"
-msgstr "Error d'E/S metre es llegia el fitxer %s: %s"
+msgstr "Error d'E/S en desar %s: %s"
 
 #: src/SearchList.cpp
 msgid "WARNING: Stored search list corrupted, contains invalid header."
@@ -7243,11 +7248,6 @@ msgstr "Cerca a Kad: s'han demanat més resultats a un parell més."
 #: src/SearchList.cpp
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Cerca a Kad: no queda cap parell a qui tornar a demanar més resultats (s'ha arribat al límit o encara no hi ha respostes)."
-
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr "Error %u: %s\n"
 
 #: src/SearchListCtrl.cpp
 msgid "FileID"
@@ -7312,6 +7312,11 @@ msgstr "Cerca a la xarxa Kad."
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr "Cerca als servidors eD2k i a Kad, amb les xarxes que estiguin disponibles."
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
+msgstr "Error %u: %s\n"
 
 #: src/SearchProgressReport.cpp
 msgid "running"

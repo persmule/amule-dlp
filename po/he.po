@@ -3222,6 +3222,11 @@ msgid "HTTP download cancelled"
 msgstr "הורדת HTTP בוטלה"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "כתובת ה-URL להורדה לא יכולה להיות ריקה"
 
@@ -7259,11 +7264,6 @@ msgstr "חיפוש Kad: התבקשו תוצאות רחבות יותר מעמית
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "חיפוש Kad: לא נותרו עמיתים לבקש מהם תוצאות נוספות (הגבלה הושגה או שאין עדיין תגובות)."
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr ""
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "מ\"ז של קובץ"
@@ -7331,6 +7331,11 @@ msgstr "התחבר לרשת."
 
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
+msgstr ""
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
 msgstr ""
 
 #: src/SearchProgressReport.cpp

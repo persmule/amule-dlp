@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-07 16:23+0000\n"
+"PO-Revision-Date: 2026-10-15 19:15+0000\n"
 "Last-Translator: Werner Mahr <werner@vollstreckernet.de>\n"
 "Language-Team: German <>\n"
 "Language: de\n"
@@ -81,32 +81,29 @@ msgid "Issues:"
 msgstr "Probleme:"
 
 #: src/AboutDialog.cpp
-#, fuzzy
 msgid "Click to check for a newer version."
-msgstr "Beim Start auf neue Version prüfen"
+msgstr "Klicken, um nach einer neueren Version zu suchen."
 
 #: src/AboutDialog.cpp
 msgid "Check for updates"
-msgstr ""
+msgstr "Nach Updates suchen"
 
 #: src/AboutDialog.cpp
-#, fuzzy
 msgid "Checking for updates..."
-msgstr "Verbinde mit Kad..."
+msgstr "Suche nach Updates..."
 
 #: src/AboutDialog.cpp
-#, fuzzy
 msgid "You are running the latest version."
-msgstr "Du benutzt eine veraltete aMule-Version!"
+msgstr "Sie verwenden die neueste Version."
 
 #: src/AboutDialog.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "A new version (%s) is available:"
-msgstr "Nicht verfügbar"
+msgstr "Eine neue Version (%s) ist verfügbar:"
 
 #: src/AboutDialog.cpp
 msgid "Could not check for updates. Please try again later."
-msgstr ""
+msgstr "Suche nach Updates fehlgeschlagen. Bitte später erneut versuchen."
 
 #: src/AddFriend.cpp
 msgid "Add a Friend"
@@ -215,7 +212,7 @@ msgstr ""
 #: src/GuiEvents.cpp
 #, c-format
 msgid "... and %i more"
-msgstr ""
+msgstr "... und %i weitere"
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -225,6 +222,10 @@ msgid ""
 "%s\n"
 "The files are deleted and no longer shared. This cannot be undone."
 msgstr ""
+"Sind Sie sicher, dass Sie die ausgewählten %i Dateien von der Festplatte löschen möchten?\n"
+"\n"
+"%s\n"
+"Die Dateien werden gelöscht und nicht mehr geteilt. Dies kann nicht rückgängig gemacht werden."
 
 #: src/GuiEvents.cpp
 #, fuzzy
@@ -239,7 +240,7 @@ msgstr ""
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Deleted '%s' from disk."
-msgstr ""
+msgstr "'%s' wurde von der Festplatte gelöscht."
 
 #: src/GuiEvents.cpp
 #, fuzzy, c-format
@@ -3214,6 +3215,11 @@ msgstr "Lädt herunter..."
 #: src/HTTPDownload.cpp
 msgid "HTTP download cancelled"
 msgstr "HTTP-Download abgebrochen"
+
+#: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
 
 #: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
@@ -7289,11 +7295,6 @@ msgstr "Kad-Suche: weitere Ergebnisse von einem zusätzlichen Peer angefordert."
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad-Suche: kein Peer mehr verfügbar, um weitere Ergebnisse abzufragen (Limit erreicht oder noch keine Antworten)."
 
-#: src/SearchList.cpp
-#, fuzzy, c-format
-msgid "Error %u: %s\n"
-msgstr "Fehler beim Aktualisieren von %s"
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "Datei-ID"
@@ -7364,6 +7365,11 @@ msgstr "Mit Netzwerk verbinden."
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr ""
+
+#: src/SearchPacket.cpp
+#, fuzzy, c-format
+msgid "Error %u: %s\n"
+msgstr "Fehler beim Aktualisieren von %s"
 
 #: src/SearchProgressReport.cpp
 #, fuzzy

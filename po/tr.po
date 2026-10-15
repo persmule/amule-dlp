@@ -3208,6 +3208,11 @@ msgid "HTTP download cancelled"
 msgstr "HTTP aktarımı iptal edildi"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "İndirme bağlantısı boş olamaz."
 
@@ -7234,11 +7239,6 @@ msgstr "Kad araması: bir eşten daha, daha geniş sonuçlar talep edildi."
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad araması: daha fazla sonucu tekrar talep edecek eş kalmadı (sınıra ulaşıldı veya henüz cevap alınamadı)."
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr "Hata %u: %s\n"
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "Dosya Adresi"
@@ -7307,6 +7307,11 @@ msgstr "Ağa bağlan."
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr ""
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
+msgstr "Hata %u: %s\n"
 
 #: src/SearchProgressReport.cpp
 msgid "running"

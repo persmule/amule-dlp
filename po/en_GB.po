@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-07 16:24+0000\n"
+"PO-Revision-Date: 2026-10-15 19:15+0000\n"
 "Last-Translator: Dévai Tamás <devait@vnet.hu>\n"
 "Language-Team: aMule Team <https://github.com/amule-org/amule>\n"
 "Language: en_GB\n"
@@ -20,11 +20,11 @@ msgstr ""
 
 #: src/AboutDialog.cpp
 msgid "About aMule"
-msgstr ""
+msgstr "About aMule"
 
 #: src/AboutDialog.cpp
 msgid "aMule remote control "
-msgstr ""
+msgstr "aMule remote control "
 
 #: src/AboutDialog.cpp
 msgid "Snapshot:"
@@ -3188,6 +3188,11 @@ msgstr "Downloading..."
 #: src/HTTPDownload.cpp
 msgid "HTTP download cancelled"
 msgstr "HTTP download cancelled"
+
+#: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
 
 #: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
@@ -7204,11 +7209,6 @@ msgstr "Kad search: requested wider results from one more peer."
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr ""
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "FileID"
@@ -7276,6 +7276,11 @@ msgstr "Connect to the network."
 
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
+msgstr ""
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
 msgstr ""
 
 #: src/SearchProgressReport.cpp

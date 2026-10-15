@@ -109,7 +109,7 @@
   "client_detail_friend_slot": "Слот для друга",
   "stats_tree_client_os_unknown": "Не получено",
   "prefs_creds_admin": "Новый пароль администратора (оставьте пустым, чтобы сохранить текущий)",
-  "prefs_field_files_mmap_enabled": "Включить MMAP: доступ с отображением файлов в память (экономит память)",
+  "prefs_field_files_mmap_enabled": "Использовать MMAP: доступ к файлам с отображением в память (экономит память)",
   "prefs_field_directories_follow_symlinks": "Переходить по символическим ссылкам в общих папках",
   "client_detail_os": "ОС",
   "prefs_action_servers_update": "Загрузить список серверов по этому URL сейчас и заменить текущий",

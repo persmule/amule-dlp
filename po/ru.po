@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-14 20:19+0000\n"
+"PO-Revision-Date: 2026-10-15 19:15+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -506,7 +506,7 @@ msgstr "Узлы начальной загрузки Kad (nodes.dat)"
 #: src/amule.cpp
 #, c-format
 msgid "Not starting %s: it is neither next to aMule nor on PATH."
-msgstr ""
+msgstr "Запуск %s не выполняется: его нет ни рядом с aMule, ни в PATH."
 
 #: src/amule.cpp
 #, c-format
@@ -529,7 +529,7 @@ msgstr "Не удалось записать токен EC amuleapi в %s; amule
 
 #: src/amule.cpp
 msgid "An exception occurred while launching amuleapi."
-msgstr ""
+msgstr "При запуске amuleapi возникло исключение."
 
 #: src/amule.cpp
 #, c-format
@@ -538,21 +538,21 @@ msgstr "amuleapi запущен с pid %d"
 
 #: src/amule.cpp
 msgid "Could not launch amuleapi during automatic restart."
-msgstr ""
+msgstr "Не удалось запустить amuleapi при автоматическом перезапуске."
 
 #: src/amule.cpp
 msgid "You requested to run amuleapi on startup, but the amuleapi binary cannot be run. Please install the package containing aMule's REST API server, or build aMule from source with -DBUILD_AMULEAPI=YES and install it."
 msgstr "Вы запросили запуск amuleapi при старте, но исполняемый файл amuleapi не может быть запущен. Установите пакет, содержащий REST API-сервер aMule, либо соберите aMule из исходного кода с параметром -DBUILD_AMULEAPI=YES и установите его."
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not remove the amuleapi EC token file: %s"
-msgstr "Не удалось сохранить пароль amuleapi: %s"
+msgstr "Не удалось удалить файл токена внешнего соединения amuleapi: %s"
 
 #: src/amule.cpp
 #, c-format
 msgid "amuleapi will restart in %u seconds."
-msgstr ""
+msgstr "amuleapi перезапустится через %u с."
 
 #: src/amule.cpp
 #, c-format
@@ -3245,6 +3245,11 @@ msgstr "Загружается…"
 #: src/HTTPDownload.cpp
 msgid "HTTP download cancelled"
 msgstr "Загрузка по HTTP отменена"
+
+#: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
 
 #: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
@@ -7258,9 +7263,9 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr "Сохраняются только первые %u из %u результатов для поиска «%s»."
 
 #: src/SearchList.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "IO error while saving %s: %s"
-msgstr "Ошибка ввода/вывода при чтении файла %s: %s"
+msgstr "Ошибка ввода-вывода при сохранении %s: %s"
 
 #: src/SearchList.cpp
 msgid "WARNING: Stored search list corrupted, contains invalid header."
@@ -7306,11 +7311,6 @@ msgstr "Поиск Kad: запрошено расширение результа
 #: src/SearchList.cpp
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Поиск Kad: не осталось пиров для повторного запроса результатов (достигнут предел или ответов пока нет)."
-
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr "Ошибка %u: %s\n"
 
 #: src/SearchListCtrl.cpp
 msgid "FileID"
@@ -7375,6 +7375,11 @@ msgstr "Искать в сети Kad."
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr "Искать на серверах eD2k и в сети Kad, используя те сети, что доступны."
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
+msgstr "Ошибка %u: %s\n"
 
 #: src/SearchProgressReport.cpp
 msgid "running"

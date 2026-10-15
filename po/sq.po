@@ -3218,6 +3218,11 @@ msgid "HTTP download cancelled"
 msgstr "Shkarkimi HTTP u anulua"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "URL-ja për shkarkim nuk mund të jetë bosh"
 
@@ -7262,11 +7267,6 @@ msgstr "Kërkim Kad: u kërkuan rezultate më të gjera nga një peer tjetër."
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kërkim Kad: nuk ka mbetur peer për t'u pyetur përsëri për më shumë rezultate (u arrit kufiri ose ende nuk ka përgjigje)."
 
-#: src/SearchList.cpp
-#, c-format
-msgid "Error %u: %s\n"
-msgstr ""
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "FailiID"
@@ -7335,6 +7335,11 @@ msgstr "Lidhu me rrjetin."
 
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
+msgstr ""
+
+#: src/SearchPacket.cpp
+#, c-format
+msgid "Error %u: %s\n"
 msgstr ""
 
 #: src/SearchProgressReport.cpp

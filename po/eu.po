@@ -3222,6 +3222,11 @@ msgid "HTTP download cancelled"
 msgstr "HTTP deskarga utzia"
 
 #: src/HTTPDownload.cpp
+#, c-format
+msgid "HTTP download of %s stopped: it is larger than %u MiB."
+msgstr ""
+
+#: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
 msgstr "Deskargatzeko URLa ezin da hutsik egon"
 
@@ -7266,11 +7271,6 @@ msgstr "Kad bilaketa: emaitza zabalagoak eskatu zaizkio beste pare bati."
 msgid "Kad search: no peer left to reask for more results (cap reached or no responses yet)."
 msgstr "Kad bilaketa: ez dago pare gehiagorik emaitza gehiago eskatzeko (muga iritsi da edo oraindik ez dago erantzunik)."
 
-#: src/SearchList.cpp
-#, fuzzy, c-format
-msgid "Error %u: %s\n"
-msgstr "Huts GeoIP.dat deskargatzean"
-
 #: src/SearchListCtrl.cpp
 msgid "FileID"
 msgstr "FitxategiID"
@@ -7340,6 +7340,11 @@ msgstr "Sarera konektatu."
 #: src/SearchModeIcons.h
 msgid "Search eD2k servers and Kad, using whichever networks are available."
 msgstr ""
+
+#: src/SearchPacket.cpp
+#, fuzzy, c-format
+msgid "Error %u: %s\n"
+msgstr "Huts GeoIP.dat deskargatzean"
 
 #: src/SearchProgressReport.cpp
 #, fuzzy
