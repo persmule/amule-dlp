@@ -5292,6 +5292,26 @@ msgid "Disable computer's timed standby mode"
 msgstr ""
 
 #: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
+
+#: src/muuli_wdr.cpp
 msgid "Skin to use: "
 msgstr ""
 

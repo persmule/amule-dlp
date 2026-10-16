@@ -567,11 +567,6 @@ bool CamuleRemoteGuiApp::OnInit()
 	// takes ownership of the pointer; wx tears the providers down at app exit.
 	wxArtProvider::Push(new CamuleArtProvider());
 
-	// Must happen before any window exists; the connect dialog below is the first one
-	// amulegui creates. Without this amulegui stayed light on Windows while the
-	// monolithic amule, which has always asked, went dark.
-	FollowSystemAppearance();
-
 	// Get theApp
 	theApp = &wxGetApp();
 

@@ -947,6 +947,10 @@ bool CamuleAppCommon::InitCommon(int argc, wxChar **argv)
 		wxConfig::Set(new CamuleFileConfig("", "", thePrefs::GetConfigDir() + m_configFile));
 	}
 
+#ifndef AMULE_DAEMON
+	CamuleGuiBase::ApplyConfiguredAppearance();
+#endif
+
 	// The config holds the EC password, which is the credential itself rather than a verifier
 	// -- anything that can read this file can drive the daemon. It is created with whatever the
 	// umask allows, group-writable by default on Debian and Ubuntu. Tightened here rather than

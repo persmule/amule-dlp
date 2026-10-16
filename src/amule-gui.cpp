@@ -28,6 +28,7 @@
 #include <common/EventIDs.h>
 #include <common/ClientVersion.h>
 
+#include <wx/config.h>
 #include <wx/clipbrd.h> // Needed for wxClipBoard
 #include <wx/sizer.h>
 #include <wx/tokenzr.h> // Needed for wxStringTokenizer
@@ -146,15 +147,32 @@ int CamuleGuiBase::ShowAlert(wxString msg, wxString title, int flags)
 	return wxMessageBox(msg, title, flags);
 }
 
-void CamuleGuiBase::FollowSystemAppearance()
+void CamuleGuiBase::ApplyConfiguredAppearance()
 {
-#if wxCHECK_VERSION(3, 3, 0) && defined(__WXMSW__)
-	// Only MSW has to be asked; GTK and macOS follow the desktop by themselves. Not a no-op
-	// elsewhere: wxOSX turns System into the appearance current at startup, so a later
-	// light/dark switch would no longer reach aMule.
-	const wxApp::AppearanceResult appearance = wxTheApp->SetAppearance(wxApp::Appearance::System);
-	if (appearance == wxApp::AppearanceResult::Failure) {
-		AddDebugLogLineN(logStandard, "Could not follow the system light/dark appearance");
+#if wxCHECK_VERSION(3, 3, 0)
+	const auto choice = static_cast<AppearanceChoice>(wxConfigBase::Get()->ReadLong(
+		"/GUI/Appearance", static_cast<long>(AppearanceChoice::System)));
+	wxApp::Appearance appearance = wxApp::Appearance::System;
+	switch (choice) {
+	case AppearanceChoice::Light:
+		appearance = wxApp::Appearance::Light;
+		break;
+	case AppearanceChoice::Dark:
+		appearance = wxApp::Appearance::Dark;
+		break;
+	case AppearanceChoice::System:
+	default:
+		break;
+	}
+#ifndef __WXMSW__
+	// GTK/macOS already follow the desktop. Explicitly setting System on macOS
+	// pins the current appearance instead of following subsequent desktop changes.
+	if (appearance == wxApp::Appearance::System) {
+		return;
+	}
+#endif
+	if (wxTheApp->SetAppearance(appearance) != wxApp::AppearanceResult::Ok) {
+		AddDebugLogLineN(logGeneral, "Could not apply the configured light/dark appearance");
 	}
 #endif
 }
@@ -417,10 +435,6 @@ bool CamuleGuiApp::OnInit()
 	// shaped. wxArtProvider::Push takes ownership of the pointer; wx tears the providers down
 	// at app exit.
 	wxArtProvider::Push(new CamuleArtProvider());
-
-	// Must happen before any window exists, and the startup splash is created
-	// inside CamuleApp::OnInit() below.
-	FollowSystemAppearance();
 
 	if (!CamuleApp::OnInit()) {
 		return false;

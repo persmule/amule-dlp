@@ -689,10 +689,17 @@ public:
 	bool CopyTextToClipboard(wxString strText);
 	void ResetTitle();
 
-	/// Asks MSW to follow the desktop's light/dark setting; other platforms already do. Must be
-	/// called from OnInit() before the first window is created: wx answers CannotChange once one
-	/// exists, so anywhere later silently does nothing.
-	static void FollowSystemAppearance();
+	// Values persisted in /GUI/Appearance. Keep these stable for existing configs.
+	enum class AppearanceChoice
+	{
+		System = 0,
+		Light = 1,
+		Dark = 2
+	};
+
+	/// Apply the GUI-local appearance preference after opening the configuration and
+	/// before creating any windows (required by wxMSW).
+	static void ApplyConfiguredAppearance();
 
 	/// Applies the stored tooltip delay, which wx keeps process-wide.
 	static void ApplyToolTipDelay();

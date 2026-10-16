@@ -34,6 +34,7 @@
 
 #include <wx/artprov.h> // wxArtProvider::GetBitmapBundle for the page icons
 #include <wx/bmpbndl.h> // wxBitmapBundle for DPI-aware page icons
+#include <wx/config.h>
 #include <wx/colordlg.h>
 #include <wx/combobox.h> // network-interface drop-down (bind-to-interface)
 #include <wx/dataview.h> // the page sidebar (m_PrefsIcons)
@@ -772,6 +773,16 @@ bool PrefsUnifiedDlg::TransferToWindow()
 	m_ShareSelector->SetRecursiveSharedDirectories(&theApp->glob_prefs->shareddir_recursive_list);
 #endif
 
+	if (auto *appearance = wxDynamicCast(FindWindow(IDC_APPEARANCE), wxChoice)) {
+		const long choice = wxConfigBase::Get()->ReadLong(
+			"/GUI/Appearance", static_cast<long>(CamuleGuiBase::AppearanceChoice::System));
+		const long first = static_cast<long>(CamuleGuiBase::AppearanceChoice::System);
+		const long last = static_cast<long>(CamuleGuiBase::AppearanceChoice::Dark);
+		appearance->SetSelection(choice >= first && choice <= last
+						 ? static_cast<int>(choice)
+						 : static_cast<int>(CamuleGuiBase::AppearanceChoice::System));
+	}
+
 	// Autostart checkbox: state lives in the OS, never aMule.conf, so read live
 	// each time the dialog opens. The thePrefs Cfg machinery does not know it.
 	wxCheckBox *autostartCb = static_cast<wxCheckBox *>(FindWindow(IDC_AUTOSTART_LOGIN));
@@ -1324,6 +1335,15 @@ void PrefsUnifiedDlg::OnOk(wxCommandEvent &WXUNUSED(event))
 	// commit above, so this ends up persisted alongside the rest.
 	HarvestPathMappingList();
 #endif
+
+	// This belongs to the local GUI, including amulegui's remote.conf. It must
+	// never be sent to the daemon with the EC preferences.
+	if (auto *appearance = wxDynamicCast(FindWindow(IDC_APPEARANCE), wxChoice)) {
+		if (appearance->GetSelection() != wxNOT_FOUND) {
+			wxConfigBase::Get()->Write(
+				"/GUI/Appearance", static_cast<long>(appearance->GetSelection()));
+		}
+	}
 
 	// save the preferences on ok
 	theApp->glob_prefs->Save();

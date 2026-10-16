@@ -433,6 +433,7 @@ wxSizer *PreferencesaMuleTweaksTab(wxWindow *parent, bool call_fit = TRUE, bool 
 #define IDC_SKIN 10199
 #define IDC_FED2KLH 10200
 #define IDC_EXTCATINFO 10201
+#define IDC_APPEARANCE 10520
 #define IDC_SHOWVERSIONONTITLE 10202
 #define IDC_SHOWRATEONTITLE 10203
 #define IDC_RATESBEFORETITLE 10204
