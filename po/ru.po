@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-15 19:15+0000\n"
+"PO-Revision-Date: 2026-10-16 08:33+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -1288,7 +1288,7 @@ msgstr "Не удаётся создать каталог «%s» для кате
 #: src/amule-remote-gui.cpp
 #, c-format
 msgid "The remote core sent inconsistent data for \"%s\" (part status %d, expected %d). The file list may be showing the wrong information; reconnect to clear it."
-msgstr "Удалённое ядро отправило противоречивые данные для «%s» (состояние части %d, ожидалось %d). Список файлов может отображать неверную информацию; переподключитесь для очистки."
+msgstr "Удалённое ядро отправило противоречивые данные для «%s» (статус части %d, ожидалось %d). Список файлов может отображать неверную информацию; переподключитесь для очистки."
 
 #: src/amule-remote-gui.cpp src/BaseClient.cpp src/ClientDetailDialog.cpp
 #: src/DataToText.cpp src/DownloadListCtrl.cpp src/ExternalConn.cpp
@@ -2070,7 +2070,7 @@ msgstr "Приоритет"
 #: src/DownloadListCtrl.cpp src/muuli_wdr.cpp src/PartFile.cpp
 #: src/SearchListCtrl.cpp
 msgid "Status"
-msgstr "Состояние"
+msgstr "Статус"
 
 #: src/DownloadListCtrl.cpp
 msgid "Time Remaining"
@@ -3249,7 +3249,7 @@ msgstr "Загрузка по HTTP отменена"
 #: src/HTTPDownload.cpp
 #, c-format
 msgid "HTTP download of %s stopped: it is larger than %u MiB."
-msgstr ""
+msgstr "Загрузка по HTTP файла %s остановлена: он больше %u МиБ."
 
 #: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-15 19:15+0000\n"
+"PO-Revision-Date: 2026-10-16 08:33+0000\n"
 "Last-Translator: David Watzke <david@watzke.cz>\n"
 "Language-Team: cs <cs@li.org>\n"
 "Language: cs\n"
@@ -206,11 +206,16 @@ msgid ""
 "\n"
 "The file is deleted and no longer shared. This cannot be undone."
 msgstr ""
+"Opravdu chcete smazat '%s' z disku?\n"
+"\n"
+"Soubor: %s\n"
+"\n"
+"Soubor bude smazán a nebude sdílen. Nelze to vzít zpět."
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "... and %i more"
-msgstr ""
+msgstr "... a %i dalších"
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -220,26 +225,29 @@ msgid ""
 "%s\n"
 "The files are deleted and no longer shared. This cannot be undone."
 msgstr ""
+"Opravdu chcete smazat vybraných %i souborů z disku?\n"
+"\n"
+"%s\n"
+"Soubory budou smazány a nebudou sdíleny. Nelze to vzít zpět."
 
 #: src/GuiEvents.cpp
-#, fuzzy
 msgid "Delete from disk"
-msgstr "Získat ze sítě Kad"
+msgstr "Smazat z disku"
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Skipped deleting '%s': the selected file has changed."
-msgstr ""
+msgstr "Vynecháno smazání '%s': vybraný soubor byl změněn."
 
 #: src/GuiEvents.cpp
 #, c-format
 msgid "Deleted '%s' from disk."
-msgstr ""
+msgstr "Smazán '%s' z disku."
 
 #: src/GuiEvents.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not delete '%s' from disk."
-msgstr "Nešlo smazat kategorii: %s"
+msgstr "Nešlo smazat '%s' z disku."
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -252,6 +260,13 @@ msgid ""
 "Yes: stop sharing and remove the list entries. A later share scan may share the files again.\n"
 "No: keep the files shared and listed."
 msgstr ""
+"Nelze smazat tyto soubory z disku:\n"
+"\n"
+"%s\n"
+"Mají být přesto odebrány ze sdílení a seznamu dokončených přenosů?\n"
+"\n"
+"Ano: přestat sdílet a odebrat ze seznamu. Další skenování sdílení může znovu sdílet soubory.\n"
+"Ne: pokračovat ve sdílení a zanechat na seznamu."
 
 #: src/amuleAppCommon.cpp
 msgid "Failed to open ED2KLinks file."
