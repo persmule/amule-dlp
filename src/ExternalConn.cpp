@@ -413,6 +413,12 @@ public:
 
 	void ResetLog() { m_LoggerAccess.Reset(); }
 
+	void CancelNotifications()
+	{
+		m_notificationDrain.Cancel();
+		m_notificationTimer.Cancel();
+	}
+
 	// True once this connection advertised EC_TAG_CAN_CHAT -- it speaks the
 	// chat session ops and may be sent EC_OP_CHAT_SESSIONS replies.
 	bool ChatActive() const { return m_chatActive; }
@@ -839,8 +845,7 @@ const CECPacket *CECServerSocket::OnPacketReceived(const CECPacket *packet, uint
 
 void CECServerSocket::OnLost()
 {
-	m_notificationDrain.Cancel();
-	m_notificationTimer.Cancel();
+	CancelNotifications();
 	AddLogLineN(_("External connection closed."));
 	theApp->ECServerHandler->m_ec_notifier->Remove_EC_Client(this);
 	DestroySocket();
@@ -975,6 +980,13 @@ void ExternalConn::RemoveSocket(CECServerSocket *s)
 	socket_list.erase(s);
 }
 
+void ExternalConn::CancelNotificationDrains()
+{
+	for (auto *socket : socket_list) {
+		socket->CancelNotifications();
+	}
+}
+
 void ExternalConn::KillAllSockets()
 {
 	AddDebugLogLineN(logGeneral,
@@ -982,6 +994,7 @@ void ExternalConn::KillAllSockets()
 	SocketSet::iterator it = socket_list.begin();
 	while (it != socket_list.end()) {
 		CECServerSocket *s = *(it++);
+		s->CancelNotifications();
 		s->Close();
 		s->Destroy();
 	}

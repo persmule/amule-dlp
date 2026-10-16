@@ -350,12 +350,11 @@ int CamuleApp::OnExit()
 		AddLogLineNS(_("Now, exiting main app..."));
 	}
 
-	// Flush wx's pending-delete queue before tearing down wxConfig: CamuleGuiApp::ShutDown
-	// calls amuledlg->Destroy(), which is lazy. On the CMD+Q path the event loop drains
-	// that queue naturally before OnExit runs; on the macOS Dock right-click -> Quit path
-	// CamuleGuiApp::OnEndSession reaches OnExit directly, so without an explicit drain here
-	// the CamuleDlg destructor chain never runs against a live wxConfig, and whatever it
-	// still persists from there is silently lost.
+	ReportShutdownStatus(_("Saving window settings..."));
+
+	// CamuleGuiApp::ShutDown calls OnExit directly with amuledlg->Destroy()
+	// still pending. Run the dialog destructor while wxConfig is still alive,
+	// before deleting the core objects that its controls may reference.
 	DeletePendingObjects();
 
 	// From the wxConfigBase docs: this object must be deleted, usually in wxApp::OnExit,
@@ -363,8 +362,12 @@ int CamuleApp::OnExit()
 	// DontCreateOnDemand() was called.
 	delete wxConfigBase::Set((wxConfigBase *)NULL);
 
+	ReportShutdownStatus(_("Saving client credits..."));
+
 	// Save credits
 	clientcredits->SaveList();
+
+	ReportShutdownStatus(_("Stopping helper applications..."));
 
 	// Kill amuleweb if running
 	if (webserver_pid) {
@@ -407,6 +410,8 @@ int CamuleApp::OnExit()
 	delete serverlist;
 	serverlist = NULL;
 
+	ReportShutdownStatus(_("Saving search results..."));
+
 	// Persist search results for the next startup, while downloadqueue / knownfiles /
 	// canceledfiles -- needed to recompute download status on the next load -- and
 	// searchlist itself are all still alive. Must run before the delete below.
@@ -424,6 +429,8 @@ int CamuleApp::OnExit()
 
 	delete chatsessions;
 	chatsessions = nullptr;
+
+	ReportShutdownStatus(_("Saving downloads and shared files..."));
 
 	// Destroying CDownloadQueue calls destructor for CPartFile
 	// calling CSharedFileList::SafeAddKFile occasionally.
@@ -504,6 +511,7 @@ int CamuleApp::OnExit()
 	delete partMetWriter;
 	partMetWriter = nullptr;
 
+	ReportShutdownStatus(_("Flushing download buffers..."));
 	delete downloadqueue;
 	downloadqueue = NULL;
 
@@ -556,6 +564,8 @@ int CamuleApp::OnExit()
 	delete wxLog::SetActiveTarget(oldLog);
 #endif
 
+	ReportShutdownStatus(_("Finishing shutdown..."));
+
 	StopTickTimer();
 
 	// wxWebSession's destructor is unsafe to run at wx module cleanup time on every
@@ -574,6 +584,12 @@ int CamuleApp::OnExit()
 	//
 	//   Windows (wxWebSessionWinHTTP): not observed to crash, but the same class of
 	//     cleanup-time race is plausible.
+
+#ifndef AMULE_DAEMON
+	// The monolithic GUI calls OnExit before leaving the main loop so the
+	// splash survives wx's top-level-window cleanup until persistence finishes.
+	theApp->FinishShutdownStatus();
+#endif
 	ReleaseSingleInstance();
 	std::_Exit(0);
 
@@ -3069,6 +3085,14 @@ void CamuleApp::OnNotifyEvent(CMuleGUIEvent &evt)
 #endif
 }
 
+void CamuleApp::ReportShutdownStatus(const wxString &status)
+{
+	AddDebugLogLineN(logGeneral, status);
+#ifndef AMULE_DAEMON
+	theApp->UpdateShutdownStatus(status);
+#endif
+}
+
 void CamuleApp::ShutDown()
 {
 	// Just in case
@@ -3080,11 +3104,18 @@ void CamuleApp::ShutDown()
 	// Signal the hashing thread to terminate
 	m_app_state = APP_STATE_SHUTTINGDOWN;
 
+	// Native timers overriding Notify() bypass the splash event filter on GTK.
+	// Stop EC continuations before the first restricted repaint can dispatch them.
+	ECServerHandler->CancelNotificationDrains();
+
+	ReportShutdownStatus(_("Stopping network services..."));
+
 	// Stop ASIO thread
-	AddDebugLogLineN(logGeneral, "Terminate ASIO thread.");
 	m_AsioService->Stop();
 
 	StopKad();
+
+	ReportShutdownStatus(_("Saving source seeds..."));
 
 	// Kry - Save the sources seeds on app exit
 	if (thePrefs::GetSrcSeedsOn()) {
@@ -3092,6 +3123,8 @@ void CamuleApp::ShutDown()
 	}
 
 	OnlineSig(true); // Added By Bouc7
+
+	ReportShutdownStatus(_("Stopping background downloads and workers..."));
 
 	// Exit HTTP downloads
 	CHTTPDownloadThread::StopAll();
@@ -3101,6 +3134,8 @@ void CamuleApp::ShutDown()
 
 	AddDebugLogLineN(logGeneral, "Terminate upload thread.");
 	uploadBandwidthThrottler->EndThread();
+
+	ReportShutdownStatus(_("Closing connections..."));
 
 	// Close sockets to avoid new clients coming in
 	if (listensocket) {
@@ -3121,6 +3156,8 @@ void CamuleApp::ShutDown()
 		}
 	}
 #endif
+
+	ReportShutdownStatus(_("Saving known files and statistics..."));
 
 	// saving data & stuff
 	if (knownfiles) {

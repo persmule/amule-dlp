@@ -2594,6 +2594,26 @@ if (TARGET wxWidgets::CORE)
 	set_tests_properties (BandwidthLimitSliderTest PROPERTIES SKIP_RETURN_CODE 77)
 endif()
 
+# Shutdown repainting must not dispatch callbacks against partially destroyed core objects.
+if (TARGET wxWidgets::CORE)
+	add_executable (ShutdownStatusTest
+		ShutdownStatusTest.cpp
+		${CMAKE_SOURCE_DIR}/src/SplashScreen.cpp
+		${CMAKE_SOURCE_DIR}/src/CamuleArtProvider.cpp
+		${CMAKE_SOURCE_DIR}/src/icons/icon_data.c
+		${CMAKE_SOURCE_DIR}/src/LoggerConsole.cpp
+	)
+	if (WIN32)
+		target_sources (ShutdownStatusTest PRIVATE DialogLayoutTest.rc)
+	endif()
+	target_include_directories (ShutdownStatusTest PRIVATE
+		${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/libs ${CMAKE_BINARY_DIR}/src/libs
+		${CMAKE_SOURCE_DIR}/src/include ${CMAKE_BINARY_DIR})
+	target_link_libraries (ShutdownStatusTest PRIVATE wxWidgets::CORE mulecommon)
+	add_test (NAME ShutdownStatusTest COMMAND ShutdownStatusTest)
+	set_tests_properties (ShutdownStatusTest PROPERTIES SKIP_RETURN_CODE 77)
+endif()
+
 # Exercise production consensus with explicit, fail-fast application stubs.
 add_executable (AICHSearchResultTest
 	AICHSearchResultTest.cpp

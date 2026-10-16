@@ -121,6 +121,8 @@ public:
 	void AddSocket(CECServerSocket *s);
 	void RemoveSocket(CECServerSocket *s);
 	void KillAllSockets();
+	// Cancel native timer continuations before shutdown starts yielding for repaint.
+	void CancelNotificationDrains();
 	// Drop the incremental-update cache entry for an object that no longer exists.
 	void ForgetObject(uint32 ecid);
 	void ResetAllLogs();

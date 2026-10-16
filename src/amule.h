@@ -475,6 +475,7 @@ public:
 	wxLocale m_locale;
 
 	void ShutDown();
+	void ReportShutdownStatus(const wxString &status);
 
 	wxString GetLog(bool reset = false);
 	wxString GetServerLog(bool reset = false);
@@ -671,6 +672,8 @@ private:
 
 #ifndef AMULE_DAEMON
 
+class CShutdownStatus;
+
 class CamuleGuiBase
 {
 public:
@@ -756,7 +759,13 @@ class CamuleGuiApp : public CamuleApp, public CamuleGuiBase
 	virtual void MacOpenURL(const wxString &url);
 #endif
 
+	void BeginShutdownStatus();
+	CShutdownStatus *m_shutdownStatus = nullptr;
+
 public:
+	void UpdateShutdownStatus(const wxString &status);
+	void FinishShutdownStatus();
+
 	virtual int ShowAlert(wxString msg, wxString title, int flags);
 
 	void ShutDown(wxCloseEvent &evt);

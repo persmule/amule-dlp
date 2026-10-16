@@ -107,13 +107,14 @@ wxBEGIN_EVENT_TABLE(CSplashScreen, wxFrame)
 	EVT_CLOSE(CSplashScreen::OnClose)
 wxEND_EVENT_TABLE()
 
-CSplashScreen::CSplashScreen(wxWindow *parent)
+CSplashScreen::CSplashScreen(wxWindow *parent, Phase phase)
 : wxFrame(parent,
 	  wxID_ANY,
 	  wxEmptyString,
 	  wxDefaultPosition,
 	  wxDefaultSize,
 	  wxFRAME_NO_TASKBAR | wxBORDER_NONE)
+, m_phase(phase)
 , m_percent(0)
 , m_shownAt(0)
 , m_lastPaint(0)
@@ -128,6 +129,9 @@ CSplashScreen::CSplashScreen(wxWindow *parent)
 	// centre on a main window that is not on screen yet, and its saved geometry can put the
 	// splash anywhere or off-screen entirely.
 	CentreOnScreen();
+	if (m_phase == Phase::Shutdown) {
+		SetTitle(_("Closing aMule"));
+	}
 }
 
 bool CSplashScreen::Show(bool show)
@@ -199,19 +203,30 @@ void CSplashScreen::OnPaint(wxPaintEvent &WXUNUSED(evt))
 	const int barHeight = FromDIP(10);
 	const int barWidth = size.x - 2 * margin;
 	const int barTop = size.y - FromDIP(64);
+	if (m_phase == Phase::Shutdown) {
+		wxSize extent;
+		dc.SetTextForeground(wxColour(232, 138, 40));
+		DrawFittedText(dc,
+			_("Closing aMule"),
+			GetFont(),
+			barWidth,
+			size.x / 2,
+			barTop - FromDIP(18),
+			extent);
+	} else {
+		// Trough, then fill. Drawn rather than delegated to wxGauge so the bar
+		// keeps these colours on a dark panel instead of the theme's.
+		dc.SetPen(wxPen(wxColour(90, 90, 95)));
+		dc.SetBrush(wxBrush(wxColour(30, 30, 33)));
+		dc.DrawRoundedRectangle(margin, barTop, barWidth, barHeight, barHeight / 2.0);
 
-	// Trough, then fill. Drawn rather than delegated to wxGauge so the bar
-	// keeps these colours on a dark panel instead of the theme's.
-	dc.SetPen(wxPen(wxColour(90, 90, 95)));
-	dc.SetBrush(wxBrush(wxColour(30, 30, 33)));
-	dc.DrawRoundedRectangle(margin, barTop, barWidth, barHeight, barHeight / 2.0);
-
-	const int clamped = std::min(100, std::max(0, m_percent));
-	const int fill = (barWidth * clamped) / 100;
-	if (fill > 0) {
-		dc.SetPen(*wxTRANSPARENT_PEN);
-		dc.SetBrush(wxBrush(wxColour(232, 138, 40))); // the mule's orange
-		dc.DrawRoundedRectangle(margin, barTop, fill, barHeight, barHeight / 2.0);
+		const int clamped = std::min(100, std::max(0, m_percent));
+		const int fill = (barWidth * clamped) / 100;
+		if (fill > 0) {
+			dc.SetPen(*wxTRANSPARENT_PEN);
+			dc.SetBrush(wxBrush(wxColour(232, 138, 40))); // the mule's orange
+			dc.DrawRoundedRectangle(margin, barTop, fill, barHeight, barHeight / 2.0);
+		}
 	}
 
 	dc.SetFont(GetFont());
@@ -235,6 +250,11 @@ void CSplashScreen::SetProgress(const wxString &status, int percent, bool immedi
 	m_lastPaint = now;
 
 	Refresh(false);
+	if (m_phase == Phase::Shutdown) {
+		// The shutdown owner supplies its restricted repaint loop. Startup's
+		// wxSafeYield would dispatch callbacks against partially destroyed core objects.
+		return;
+	}
 
 	// The event loop has to run for the invalidation to reach the screen: under GTK3, Update()
 	// cannot force a synchronous repaint the way it does elsewhere, since drawing is driven by
@@ -295,8 +315,14 @@ void CSplashScreen::AwaitFirstPaint()
 	}
 }
 
-void CSplashScreen::OnClose(wxCloseEvent &WXUNUSED(evt))
+void CSplashScreen::OnClose(wxCloseEvent &evt)
 {
+	if (m_phase == Phase::Shutdown) {
+		if (evt.CanVeto()) {
+			evt.Veto();
+		}
+		return;
+	}
 	// wxFrame's default handler destroys the window, and the yields in SetProgress() run the
 	// idle processing that frees it -- so a user closing the splash mid-startup left every
 	// later progress call writing into freed memory (issue #1522).

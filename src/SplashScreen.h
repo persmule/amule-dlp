@@ -29,7 +29,7 @@
 #include <wx/frame.h>
 #include <wx/timer.h>
 
-// Startup splash for the monolithic GUI.
+// Shared startup and shutdown splash for the GUI.
 //
 // Exists because startup is slow and silent: the main window is created before the shared-file scan
 // runs, but the scan holds the main thread, so nothing paints until it finishes. On a large share
@@ -43,10 +43,15 @@
 class CSplashScreen : public wxFrame
 {
 public:
+	enum class Phase
+	{
+		Startup,
+		Shutdown
+	};
 	// Startup creates it before the main window exists, so without a parent. Deliberately not
 	// wxSTAY_ON_TOP: a parentless stay-on-top frame sits at a desktop-global level, covering every
 	// other application with no taskbar button to raise over it or dismiss it with.
-	explicit CSplashScreen(wxWindow *parent);
+	explicit CSplashScreen(wxWindow *parent, Phase phase = Phase::Startup);
 
 	// Run the event loop until the splash has been painted once, for at most about a second.
 	// Whatever follows blocks the main thread, and under Wayland one yield is not enough: the
@@ -55,6 +60,8 @@ public:
 
 	// Update the phase text and the bar. Cheap to call often: repainting is rate-limited
 	// internally, so callers can report every file scanned.
+	// Shutdown uses the same backdrop with phase text only; its owner pumps a
+	// restricted repaint loop after this call instead of using startup's yield.
 	//
 	// Set @a immediate when the update marks a change of phase rather than progress within one,
 	// to paint it without waiting out the rate limit. It cannot be inferred from the text
@@ -91,6 +98,7 @@ private:
 	void RenderBackdrop();
 
 	wxBitmap m_backdrop;
+	const Phase m_phase;
 	wxString m_status;
 	int m_percent;
 

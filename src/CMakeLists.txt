@@ -357,9 +357,8 @@ if (BUILD_MONOLITHIC)
 		CaptchaGenerator.cpp
 		PartFileConvert.cpp
 		PartFileConvertDlg.cpp
-		# Not in GUI_SOURCES: amulegui shares that list, and the startup
-		# splash covers local work (part-file load, shared-file scan,
-		# hashing) that only the monolithic build does.
+		# Not in GUI_SOURCES: amulegui shares that list; startup and
+		# shutdown stages report local work only the monolithic build does.
 		SplashScreen.cpp
 	)
 

@@ -214,6 +214,13 @@ enum TrayAction
 // AppIndicatorClass::activate_event and are not needed here.
 void on_indicator_activate(AppIndicator *, gint, gint, gpointer user_data)
 {
+#ifndef CLIENT_GUI
+	// Native GTK signals bypass the shutdown repaint event filter.
+	if (theApp->IsOnShutDown()) {
+		return;
+	}
+#endif
+
 	CMuleTrayIcon *tray = static_cast<CMuleTrayIcon *>(user_data);
 	// Toggle rather than always-show, matching the Windows tray, where a
 	// single left click has flipped show/hide since 3.0.1.
@@ -222,6 +229,13 @@ void on_indicator_activate(AppIndicator *, gint, gint, gpointer user_data)
 
 void on_menu_item_activated(GtkMenuItem *item, gpointer user_data)
 {
+#ifndef CLIENT_GUI
+	// Native GTK signals bypass the shutdown repaint event filter.
+	if (theApp->IsOnShutDown()) {
+		return;
+	}
+#endif
+
 	CMuleTrayIcon *tray = static_cast<CMuleTrayIcon *>(user_data);
 	intptr_t action = reinterpret_cast<intptr_t>(g_object_get_data(G_OBJECT(item), "action"));
 	intptr_t arg = reinterpret_cast<intptr_t>(g_object_get_data(G_OBJECT(item), "arg"));
