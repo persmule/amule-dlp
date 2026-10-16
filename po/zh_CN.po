@@ -4044,7 +4044,7 @@ msgstr "全选"
 msgid "KiB/s"
 msgstr "KiB/s"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "无限制"
 
@@ -4115,11 +4115,11 @@ msgstr "UDP 端口: 未就绪"
 msgid "Client Information"
 msgstr "客户端信息"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "上传限制"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "下载限制"
 
@@ -4916,12 +4916,26 @@ msgid "Video Player"
 msgstr "视频播放器"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "带宽限制"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "上传"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "带宽限制"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "下载限制"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "上传限制"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5300,14 +5314,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "连接图表尺寸: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "下载图表尺寸："
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "上传图表尺寸："
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "颜色： "
 
@@ -5418,6 +5424,26 @@ msgstr "服务器连接刷新周期：禁用"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "停用电脑自动进入待命模式功能"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6592,6 +6618,15 @@ msgstr "TCP端口不可高于65532，因为服务器UDP端口值为TCP端口值+
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "缺省端口将被使用（%d）"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, fuzzy, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr "%.1f MiB/s"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -9986,6 +10021,12 @@ msgstr "Kad 无法加载其已保存的索引。现有的索引文件被保留�
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr "Kad 无法保存索引。该文件之前的副本被保留。"
+
+#~ msgid "Download graph scale:"
+#~ msgstr "下载图表尺寸："
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "上传图表尺寸："
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

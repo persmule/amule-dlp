@@ -4032,7 +4032,7 @@ msgstr "Mindent kijelöl"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Korlátlan"
 
@@ -4103,11 +4103,11 @@ msgstr "UDP port: Nem áll készen"
 msgid "Client Information"
 msgstr "Kliens információk"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Feltöltési korlát"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Letöltési korlát"
 
@@ -4911,12 +4911,26 @@ msgid "Video Player"
 msgstr "Videólejátszó"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Sávszélesség korlátok"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Feltöltés"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Sávszélesség korlátok"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Letöltési korlát"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Feltöltési korlát"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5287,14 +5301,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Kapcsolatok grafikon skálája: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Letöltési grafikon méretaránya:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Feltöltési grafikon méretaránya:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "Színek: "
 
@@ -5405,6 +5411,26 @@ msgstr "Kiszolgáló kapcsolat frissítési gyakorisága: Tiltva"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Számítógép időzített készenléti állapotának hatástalanítása"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6587,6 +6613,15 @@ msgstr "A TCP port nem lehet magasabb 65532-nél, mert a kiszolgáló UDP port =
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Alapértelmezett port lesz használva (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -9971,6 +10006,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Letöltési grafikon méretaránya:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Feltöltési grafikon méretaránya:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

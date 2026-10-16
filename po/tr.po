@@ -4041,7 +4041,7 @@ msgstr "Tümünü Seç"
 msgid "KiB/s"
 msgstr "KiB/s"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Sınırsız"
 
@@ -4112,11 +4112,11 @@ msgstr "UDP port: Hazır değil"
 msgid "Client Information"
 msgstr "Yazılım Bilgisi"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Gönderim sınırı"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Aktarım sınırı"
 
@@ -4914,12 +4914,26 @@ msgid "Video Player"
 msgstr "Ortam Çalıcısı"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Bağlantı sınırları"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Gönderme"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Bağlantı sınırları"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Aktarım sınırı"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Gönderim sınırı"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5291,14 +5305,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Bağlantı Grafik Ölçüsü: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "İndirme grafik ölçüsü:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Gönderme grafik ölçüsü:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "Renkler: "
 
@@ -5409,6 +5415,26 @@ msgstr "Sunucu bağlantısı yenileme sıklığı: devre dışı"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Bilgisayarın devre dışı kalma kipini etkisiz hale getir"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6584,6 +6610,15 @@ msgstr "TCP portu numarası, UDP soketi TCP+3 olduğundan 65532' den yüksek ola
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Varsayılan port kullanılacak (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, fuzzy, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr "%.1f MiB/s"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -9985,6 +10020,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "İndirme grafik ölçüsü:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Gönderme grafik ölçüsü:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

@@ -4101,7 +4101,7 @@ msgstr "Izberi vse"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Neomejeno"
 
@@ -4172,11 +4172,11 @@ msgstr "Vrata UDP: niso pripravljena"
 msgid "Client Information"
 msgstr "Podatki o odjemalcu"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Omejitev pošiljanja"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Omejitev prejemanja"
 
@@ -4980,12 +4980,26 @@ msgid "Video Player"
 msgstr "Video predvajalnik"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Omejitve povezave"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Pošlji"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Omejitve povezave"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Omejitev prejemanja"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Omejitev pošiljanja"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5356,14 +5370,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Merilo za graf povezav: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Merilo za graf prejemanj:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Merilo za graf pošiljanj:"
-
-#: src/muuli_wdr.cpp
 #, fuzzy
 msgid "Colors: "
 msgstr "Barve: "
@@ -5475,6 +5481,26 @@ msgstr "Čas med osvežitvama povezave na strežnik: onemogoči"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Onemogoči prehod računalnika v pripravljenost"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6672,6 +6698,15 @@ msgstr "Vrata TCP ne smejo biti večja od 65532, ker so vrata UDP TCP+3"
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Uporabljena bodo privzeta vrata (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10125,6 +10160,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Merilo za graf prejemanj:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Merilo za graf pošiljanj:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

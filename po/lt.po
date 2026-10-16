@@ -4079,7 +4079,7 @@ msgstr "Pažymėti viską"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Neribojama"
 
@@ -4150,11 +4150,11 @@ msgstr "UDP prievadas: neparuošta"
 msgid "Client Information"
 msgstr "Kliento informacija"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Išsiuntimo apribojimas"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Atsiuntimo apribojimas"
 
@@ -4959,12 +4959,26 @@ msgid "Video Player"
 msgstr "Vaizdo grotuvas"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Spartos apribojimai"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Išsiuntimas"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Spartos apribojimai"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Atsiuntimo apribojimas"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Išsiuntimo apribojimas"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5334,14 +5348,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Ryšių grafiko skalė: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Atsiuntimo grafiko mastelis:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Išsiuntimo grafiko mastelis:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "Spalvos: "
 
@@ -5452,6 +5458,26 @@ msgstr "Serverio ryšio atnaujinimo intervalas: išjungta"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Išjungti kompiuterio automatinį budėjimo režimą"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6646,6 +6672,15 @@ msgstr "TCP prievadas negali būti didesnis nei 65532, nes serverio UDP prievada
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Bus naudojamas numatytas prievadas (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10076,6 +10111,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Atsiuntimo grafiko mastelis:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Išsiuntimo grafiko mastelis:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."
