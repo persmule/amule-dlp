@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-15 07:34+0000\n"
+"PO-Revision-Date: 2026-10-16 02:24+0000\n"
 "Last-Translator: Mike Akiba <mike2718@gmail.com>\n"
 "Language-Team: Chinese Simplified <kde-i18n-doc@kde.org>\n"
 "Language: zh_CN\n"
@@ -525,7 +525,7 @@ msgstr "无法写入 amuleapi EC 令牌到 %s； amuleapi 将退回到其配置�
 
 #: src/amule.cpp
 msgid "An exception occurred while launching amuleapi."
-msgstr ""
+msgstr "启动 amuleapi 时发生异常。"
 
 #: src/amule.cpp
 #, c-format
@@ -534,21 +534,21 @@ msgstr "amuleapi 正在运行，pid 为 %d"
 
 #: src/amule.cpp
 msgid "Could not launch amuleapi during automatic restart."
-msgstr ""
+msgstr "自动重启期间无法启动 amuleapi。"
 
 #: src/amule.cpp
 msgid "You requested to run amuleapi on startup, but the amuleapi binary cannot be run. Please install the package containing aMule's REST API server, or build aMule from source with -DBUILD_AMULEAPI=YES and install it."
 msgstr "您要求启动时运行 amuleapi，但 amuleapi 程序无法运行， 请先安装包含 amule REST API 服务器的 包，或者使用 -DBUILD_AMULEAPI=YES 选项从源码构建 aMule 并安装它。"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not remove the amuleapi EC token file: %s"
-msgstr "无法保存 amuleapi 密码：%s"
+msgstr "无法删除 amuleapi EC 令牌文件：%s"
 
 #: src/amule.cpp
 #, c-format
 msgid "amuleapi will restart in %u seconds."
-msgstr ""
+msgstr "amuleapi 将在 %u 秒内重启。"
 
 #: src/amule.cpp
 #, c-format
@@ -3224,7 +3224,7 @@ msgstr "HTTP 下载已经取消"
 #: src/HTTPDownload.cpp
 #, c-format
 msgid "HTTP download of %s stopped: it is larger than %u MiB."
-msgstr ""
+msgstr "%s 的 HTTP 下载已停止：文件超过 %u MiB。"
 
 #: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"

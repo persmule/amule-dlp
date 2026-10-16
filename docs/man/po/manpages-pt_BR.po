@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aMule man pages\n"
 "POT-Creation-Date: 2026-10-07 10:08-0400\n"
-"PO-Revision-Date: 2026-10-07 16:31+0000\n"
+"PO-Revision-Date: 2026-10-16 02:24+0000\n"
 "Last-Translator: \n"
 "Language-Team: Marcelo Roberto Jimenez <mroberto@users.sourceforge.net>\n"
 "Language: pt_BR\n"
@@ -106,15 +106,14 @@ msgstr "Ler configuração de I<E<lt>pathE<gt>> ao invés de home"
 
 #. type: TP
 #: amule.1.in amuled.1.in amulegui.1.in
-#, fuzzy, no-wrap
-#| msgid "B<[ --amule-config-file>=I<E<lt>pathE<gt>> B<]>"
+#, no-wrap
 msgid "B<[ --log-file>=I<E<lt>fileE<gt>> B<]>"
-msgstr "B<[ --amule-config-file>=I<E<lt>caminhoE<gt>> B<]>"
+msgstr "B<[ --log-file>=I<E<lt>arquivoE<gt>> B<]>"
 
 #. type: Plain text
 #: amule.1.in amuled.1.in
 msgid "Write logs to the specified filename instead of the default log file.  Overrides the B<LogFilePath> setting under B<[eMule]> in I<amule.conf> for this run only.  Relative paths are resolved against the configuration directory.  The parent directory must already exist and be writable; it is not created automatically.  An empty or absent configuration setting uses I<logfile> in the configuration directory.  On startup, the previous log is backed up to the same path with I<.bak> appended.  If the backup cannot be created, a warning is logged and the current session is appended to the existing log.  Configuration changes take effect after restart."
-msgstr ""
+msgstr "Grava os logs no arquivo especificado em vez do arquivo de log padrão.  Sobrepõe a configuração B<LogFilePath> da seção B<[eMule]> do I<amule.conf> somente nesta execução.  Caminhos relativos são resolvidos a partir do diretório de configuração.  O diretório pai já deve existir e permitir escrita; ele não é criado automaticamente.  Se a configuração estiver vazia ou ausente, é usado o I<logfile> no diretório de configuração.  Ao iniciar, é feita uma cópia de segurança do log anterior no mesmo caminho, com I<.bak> acrescentado ao nome.  Se a cópia de segurança não puder ser criada, um aviso é registrado no log e a sessão atual é acrescentada ao log existente.  Alterações na configuração entram em vigor após reiniciar."
 
 #. type: TP
 #: amule.1.in amulegui.1.in
@@ -948,7 +947,7 @@ msgstr "B<amulegui> é um programa cliente, e pode ser conectado ao aMule via EC
 #. type: Plain text
 #: amulegui.1.in
 msgid "Write logs to the specified filename instead of the default log file.  Overrides the B<LogFilePath> setting under B<[eMule]> in I<remote.conf> for this run only.  Relative paths are resolved against the configuration directory.  The parent directory must already exist and be writable; it is not created automatically.  An empty or absent configuration setting uses I<remotelogfile> in the configuration directory.  On startup, the previous log is backed up to the same path with I<.bak> appended.  If the backup cannot be created, a warning is logged and the current session is appended to the existing log.  Configuration changes take effect after restart."
-msgstr ""
+msgstr "Grava os logs no arquivo especificado em vez do arquivo de log padrão.  Sobrepõe a configuração B<LogFilePath> da seção B<[eMule]> do I<remote.conf> somente nesta execução.  Caminhos relativos são resolvidos a partir do diretório de configuração.  O diretório pai já deve existir e permitir escrita; ele não é criado automaticamente.  Se a configuração estiver vazia ou ausente, é usado o I<remotelogfile> no diretório de configuração.  Ao iniciar, é feita uma cópia de segurança do log anterior no mesmo caminho, com I<.bak> acrescentado ao nome.  Se a cópia de segurança não puder ser criada, um aviso é registrado no log e a sessão atual é acrescentada ao log existente.  Alterações na configuração entram em vigor após reiniciar."
 
 #. type: Plain text
 #: amulegui.1.in
