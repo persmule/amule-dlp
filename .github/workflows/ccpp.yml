@@ -598,10 +598,28 @@ jobs:
         with:
           msystem: CLANG64
           update: true
-          install: ${{ env.cmake_mingw_w64_deps }}
           # The action's package cache saves on every event, with no way to limit
           # it to master, and spares only the 10-20 s the ~400 MB download takes.
           cache: false
+      - name: install mingw-w64 dependencies
+        id: windows-deps
+        run: |
+          set -euo pipefail
+          mapfile -t packages < <(printf '%s' "$cmake_mingw_w64_deps")
+          # Mirrors can rate-limit this large transaction. Keep downloaded
+          # packages and retry after a delay instead of aborting on HTTP 429.
+          for attempt in 1 2 3; do
+            if pacman --noconfirm -S --needed --overwrite '*' "${packages[@]}"; then
+              exit 0
+            fi
+            if (( attempt == 3 )); then
+              echo '::error::MSYS2 dependency installation failed after 3 attempts.'
+              exit 1
+            fi
+            delay=$((attempt * 30))
+            echo "::warning::MSYS2 dependency installation failed; retrying in ${delay}s."
+            sleep "$delay"
+          done
       # MSYS2 only packages pupnp 1.14.x; build the pinned 22.x from source so
       # Windows gets the UPnP fixes released in 22.0.4 (issue #242). Installed
       # into $MINGW_PREFIX so find_package(UPNP CONFIG) picks it up and the DLL
@@ -638,7 +656,7 @@ jobs:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ runner.os }}-${{ matrix.build_type }}-ccache-${{ github.run_id }}
       - name: ccache stats
-        if: always()
+        if: always() && steps.windows-deps.outcome == 'success'
         run: ccache --show-stats
       - name: run tests
         run: |
