@@ -4001,7 +4001,7 @@ msgstr "Chọn tất cả"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Không giới hạn"
 
@@ -4072,11 +4072,11 @@ msgstr "Cổng UDP: Chưa sẵn sàng"
 msgid "Client Information"
 msgstr "Thông tin Client"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Giới hạn tải lên"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Giới hạn tải xuống"
 
@@ -4874,12 +4874,26 @@ msgid "Video Player"
 msgstr "Trình phát video"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Giới hạn băng thông"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Tải lên"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Giới hạn băng thông"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Giới hạn tải xuống"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Giới hạn tải lên"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5247,14 +5261,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Tỷ lệ đồ thị kết nối: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Tỷ lệ đồ thị tải xuống:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Tỷ lệ đồ thị tải lên:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "Màu sắc: "
 
@@ -5365,6 +5371,26 @@ msgstr "Khoảng thời gian làm mới kết nối máy chủ: Tắt"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Vô hiệu hóa chế độ chờ theo giờ của máy tính"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6536,6 +6562,15 @@ msgstr "Cổng TCP không thể lớn hơn 65532 vì socket UDP của máy chủ
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Cổng mặc định sẽ được sử dụng (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -9901,6 +9936,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Tỷ lệ đồ thị tải xuống:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Tỷ lệ đồ thị tải lên:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

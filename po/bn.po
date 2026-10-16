@@ -4023,7 +4023,7 @@ msgstr "সব নির্বাচন করুন"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "সীমাহীন"
 
@@ -4094,11 +4094,11 @@ msgstr "UDP পোর্ট: প্রস্তুত নয়"
 msgid "Client Information"
 msgstr "ক্লায়েন্ট তথ্য"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "আপলোড সীমা"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "ডাউনলোড সীমা"
 
@@ -4896,12 +4896,26 @@ msgid "Video Player"
 msgstr "ভিডিও প্লেয়ার"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "ব্যান্ডউইথ সীমা"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "আপলোড"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "ব্যান্ডউইথ সীমা"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "ডাউনলোড সীমা"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "আপলোড সীমা"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5269,14 +5283,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "সংযোগ গ্রাফ স্কেল: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "ডাউনলোড গ্রাফ স্কেল:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "আপলোড গ্রাফ স্কেল:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "রং: "
 
@@ -5387,6 +5393,26 @@ msgstr "সার্ভার সংযোগ রিফ্রেশ ব্যব
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "কম্পিউটারের সময়সূচীযুক্ত স্ট্যান্ডবাই মোড নিষ্ক্রিয় করুন"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6562,6 +6588,15 @@ msgstr "সার্ভার UDP সকেট TCP+3 হওয়ার কা�
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "ডিফল্ট পোর্ট ব্যবহার করা হবে (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -9952,6 +9987,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "ডাউনলোড গ্রাফ স্কেল:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "আপলোড গ্রাফ স্কেল:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

@@ -4056,7 +4056,7 @@ msgstr "Hautatu dena"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Mugarik gabea"
 
@@ -4127,11 +4127,11 @@ msgstr "UDP ataka: Ez dago prest"
 msgid "Client Information"
 msgstr "Bezero argibidea"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Igoera muga"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Deskarga muga"
 
@@ -4935,12 +4935,26 @@ msgid "Video Player"
 msgstr "Bideo-erreproduzigailua"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Konexio mugak"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Igo"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Konexio mugak"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Deskarga muga"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Igoera muga"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5311,14 +5325,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Konexio graf eskala: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Deskarga grafiko eskala:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Igoera grafiko eskala:"
-
-#: src/muuli_wdr.cpp
 #, fuzzy
 msgid "Colors: "
 msgstr "Koloreak: "
@@ -5430,6 +5436,26 @@ msgstr "Zerbitzari konexio berritze aldia: Ezgaiturik"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Ezgaitu ordenagailu ordulariaren bigarren planoko modua"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6616,6 +6642,15 @@ msgstr "TCP ataka ezin da 65532 baino altuagoa izan UDP socket-a TCP+3 bait da"
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Lehenetsiriko ataka erabiliko da (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10023,6 +10058,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Deskarga grafiko eskala:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Igoera grafiko eskala:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

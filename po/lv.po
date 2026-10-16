@@ -4052,7 +4052,7 @@ msgstr "Atlasīt visas"
 msgid "KiB/s"
 msgstr "KiB/s"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Bez ierobežojuma"
 
@@ -4123,11 +4123,11 @@ msgstr "UDP ports: Nav gatavs"
 msgid "Client Information"
 msgstr "Informācija par klientu"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "↑ Augšupielādes ātruma ierob."
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "↓ Lejupielādes ātruma ierob."
 
@@ -4941,12 +4941,26 @@ msgid "Video Player"
 msgstr "Video atskaņotājs"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Datu pārraides ierobežojumi"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Augšupielādes (Izejošais)"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Datu pārraides ierobežojumi"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "↓ Lejupielādes ātruma ierob."
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "↑ Augšupielādes ātruma ierob."
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5315,14 +5329,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Savienojumu grafika mērogs: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Lejupielādes grafika mērogs:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Augšupielādes grafika mērogs:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "Krāsas: "
 
@@ -5433,6 +5439,26 @@ msgstr "Servera savienojuma atsvaidzināšanas intervāls: atspējots"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Atspējot datora ieplānoto gaidstāves režīmu"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6613,6 +6639,15 @@ msgstr "TCP ports nevar būt lielāks par 65532, jo servera UDP ligzda ir TCP+3"
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Tiks izmantots noklusējuma ports (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, fuzzy, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr "%.1f MiB/s"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10035,6 +10070,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Lejupielādes grafika mērogs:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Augšupielādes grafika mērogs:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

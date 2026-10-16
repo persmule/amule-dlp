@@ -4055,7 +4055,7 @@ msgstr "בחר הכל"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "ללא הגבלה"
 
@@ -4126,11 +4126,11 @@ msgstr "מבואת UDP: לא מוכנה"
 msgid "Client Information"
 msgstr "מידע על הלקוח"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "מגבלת העלאה"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "מגבלת הורדה"
 
@@ -4936,12 +4936,26 @@ msgid "Video Player"
 msgstr "נגן וידאו"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "מגבלות רוחב פס"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "העלאה"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "מגבלות רוחב פס"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "מגבלת הורדה"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "מגבלת העלאה"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5311,14 +5325,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "קנה מידה של גרף חיבורים: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "קנה מידה של גרף הורדות:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "קנה מידה של גרף העלאות:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "צבעים: "
 
@@ -5429,6 +5435,26 @@ msgstr "מרווח רענון חיבור שרת: מנוטרל"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "נטרל מצב המתנה מתוזמן של המחשב"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6611,6 +6637,15 @@ msgstr "מבואת ה TCP אינה יכולה להיות גבוהה יותר מ 
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "נשתמש במבואה שבברירת מחדך (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10015,6 +10050,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "קנה מידה של גרף הורדות:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "קנה מידה של גרף העלאות:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

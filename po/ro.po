@@ -4074,7 +4074,7 @@ msgstr "Selectează tot"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Nelimitat"
 
@@ -4148,11 +4148,11 @@ msgstr "port UDP: Nu este pregătit"
 msgid "Client Information"
 msgstr "Informație client"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Limită încărcare"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Limită descărcare"
 
@@ -4963,12 +4963,26 @@ msgid "Video Player"
 msgstr "Player video"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Limite lățime de bandă"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Încărcare"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Limite lățime de bandă"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Limită descărcare"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Limită încărcare"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5339,14 +5353,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Scală grafic conexiuni: 100"
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Scală grafic descărcare:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Scală grafic încărcare:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "Culori: "
 
@@ -5457,6 +5463,26 @@ msgstr "Interval reîmprospătare conexiune server: Dezactivat"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Dezactivează temporizarea modului de st-by al computerului"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6648,6 +6674,15 @@ msgstr "Portul TCP nu poate fi mai mare decât 65532 fiindcă soclul UDP al serv
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Va fi folosit portul implicit (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10079,6 +10114,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Scală grafic descărcare:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Scală grafic încărcare:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

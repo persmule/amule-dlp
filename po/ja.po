@@ -4030,7 +4030,7 @@ msgstr "全ての選択"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "無制限"
 
@@ -4101,11 +4101,11 @@ msgstr "UDPポート：準備未完了"
 msgid "Client Information"
 msgstr "クライアント情報"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "アップロード制限"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "ダウンロード制限"
 
@@ -4910,12 +4910,26 @@ msgid "Video Player"
 msgstr "ビデオ・プレイヤー"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "帯域幅制限"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "アップロード"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "帯域幅制限"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "ダウンロード制限"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "アップロード制限"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5285,14 +5299,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "接続数のグラフスケール：１００"
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "ダウンロードグラフの縮尺："
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "アップロードグラフの縮尺："
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "色： "
 
@@ -5403,6 +5409,26 @@ msgstr "サーバ接続のリフレッシュ空間：無効にする"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "コンピューターの自動スタンバイモードを無効にする"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6587,6 +6613,15 @@ msgstr "サーバのUDPソケトがTCP+3であるためTCPポートを65532以�
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "デフォルトポートを使用します (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -9967,6 +10002,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "ダウンロードグラフの縮尺："
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "アップロードグラフの縮尺："
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

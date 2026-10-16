@@ -4057,7 +4057,7 @@ msgstr "Valitse kaikki"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Rajoittamaton"
 
@@ -4128,11 +4128,11 @@ msgstr "UPD-portti: Ei valmis"
 msgid "Client Information"
 msgstr "Asiakkaan tiedot"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Lähetysraja"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Latausraja"
 
@@ -4936,12 +4936,26 @@ msgid "Video Player"
 msgstr "Videotoistin"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Kaistankäytön rajoitukset"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Lähetys"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Kaistankäytön rajoitukset"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Latausraja"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Lähetysraja"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5312,14 +5326,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Yhteyskuvaajan Skaala: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Latauskuvaajan skaala:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Lähetyskuvaajan skaala:"
-
-#: src/muuli_wdr.cpp
 #, fuzzy
 msgid "Colors: "
 msgstr "Värit: "
@@ -5432,6 +5438,26 @@ msgstr "Palvelinyhteyden päivitysväli: Poissa käytöstä"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Poista käytöstä tietokoneen ajastettu siirtyminen valmiustilaan"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6618,6 +6644,15 @@ msgstr "TCP-portti ei voi olla korkeampi kuin 65532 koska serverin käyttämä U
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Käytetään oletusporttia (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10025,6 +10060,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Latauskuvaajan skaala:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Lähetyskuvaajan skaala:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

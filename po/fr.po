@@ -4058,7 +4058,7 @@ msgstr "Tout sélectionner"
 msgid "KiB/s"
 msgstr "Kio/s"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Pas de limite"
 
@@ -4129,11 +4129,11 @@ msgstr "Port UDP : Non prêt"
 msgid "Client Information"
 msgstr "Informations Client"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Limite d'émission"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Limite de téléchargement"
 
@@ -4931,12 +4931,26 @@ msgid "Video Player"
 msgstr "Lecteur vidéo"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Limites de la bande passante"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Émission"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Limites de la bande passante"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Limite de téléchargement"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Limite d'émission"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5308,14 +5322,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Échelle du graphique des connexions : 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Échelle des graphiques de réception :"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Échelle des graphiques d'envoi :"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "Couleurs : "
 
@@ -5426,6 +5432,26 @@ msgstr "Intervalle de rafraîchissement de la connexion serveur : Désactivé"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Désactiver la mise en veille programmé de l'ordinateur"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6601,6 +6627,15 @@ msgstr "Le port TCP ne peut pas dépasser 65532 car le socket UDP du serveur ser
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Le port par défaut sera utilisé (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, fuzzy, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr "%.1f Mio/s"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10002,6 +10037,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Échelle des graphiques de réception :"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Échelle des graphiques d'envoi :"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

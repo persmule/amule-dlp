@@ -4056,7 +4056,7 @@ msgstr "모두 선택"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "무제한"
 
@@ -4127,11 +4127,11 @@ msgstr "UDP 포트: 준비되지 않음"
 msgid "Client Information"
 msgstr "클라이언트 정보"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "올려주기 제한"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "내려받기 제한"
 
@@ -4935,12 +4935,26 @@ msgid "Video Player"
 msgstr "비디오 재생기"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "대역폭 제한"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "올려주기"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "대역폭 제한"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "내려받기 제한"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "올려주기 제한"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5310,14 +5324,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "연결 그래프 크기 : 100"
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "내려받기 그래프 배율:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "올려주기 그래프 배율:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "색상: "
 
@@ -5428,6 +5434,26 @@ msgstr "서버 연결 갱신 간격: 사용않함"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "컴퓨터의 자동 절전 모드 비활성화"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6611,6 +6637,15 @@ msgstr "서버 UDP 소켓이 TCP+3이 되기위해서 TCP 포트가 65532보다 
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "기본 포트가 사용될 것입니다.(%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10017,6 +10052,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "내려받기 그래프 배율:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "올려주기 그래프 배율:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

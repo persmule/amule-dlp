@@ -4020,7 +4020,7 @@ msgstr "Select All"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Unlimited"
 
@@ -4091,11 +4091,11 @@ msgstr "UDP port: Not ready"
 msgid "Client Information"
 msgstr "Client Information"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Upload limit"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Download limit"
 
@@ -4893,12 +4893,26 @@ msgid "Video Player"
 msgstr "Video Player"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Bandwidth limits"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Upload"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Bandwidth limits"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Download limit"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Upload limit"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5266,14 +5280,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Connections Graph Scale: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Download graph scale:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Upload graph scale:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "Colours: "
 
@@ -5384,6 +5390,26 @@ msgstr "Server connection refresh interval: Disable"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Disable computer's timed standby mode"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6559,6 +6585,15 @@ msgstr "TCP port can't be higher than 65532 due to server UDP socket being TCP+3
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Default port will be used (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -9949,6 +9984,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Download graph scale:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Upload graph scale:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

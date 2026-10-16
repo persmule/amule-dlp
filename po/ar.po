@@ -4060,7 +4060,7 @@ msgstr "تحديد الكل"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "بلا حدود"
 
@@ -4131,11 +4131,11 @@ msgstr "منفذ UDP: غير جاهز"
 msgid "Client Information"
 msgstr "معلومات العميل"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "حد الرفع"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "حد التحميل"
 
@@ -4952,12 +4952,26 @@ msgid "Video Player"
 msgstr "مشغل الفيديو"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "حدود النطاق الترددي"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "الرفع"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "حدود النطاق الترددي"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "حد التحميل"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "حد الرفع"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5326,14 +5340,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "مقياس الرسم البياني للاتصالات: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "مقياس الرسم البياني للتحميل:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "مقياس الرسم البياني للرفع:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "الألوان: "
 
@@ -5444,6 +5450,26 @@ msgstr "فاصل تحديث اتصال الخادم: تعطيل"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "تعطيل وضع الاستعداد المؤقت للكمبيوتر"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6619,6 +6645,15 @@ msgstr "لا يمكن أن يكون منفذ TCP أعلى من 65532 لأن مق
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "سيتم استخدام المنفذ الافتراضي (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10019,6 +10054,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "مقياس الرسم البياني للتحميل:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "مقياس الرسم البياني للرفع:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

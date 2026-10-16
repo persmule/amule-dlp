@@ -4084,7 +4084,7 @@ msgstr "Вибрати всі"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Безмежно"
 
@@ -4155,11 +4155,11 @@ msgstr "Порт UDP: не готовий"
 msgid "Client Information"
 msgstr "Інформація клієнта"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Обмеження вивантаження"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Обмеження звантаження"
 
@@ -4964,12 +4964,26 @@ msgid "Video Player"
 msgstr "Відеопрогравач"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Обмеження ширини смуги"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Вивантаження"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Обмеження ширини смуги"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Обмеження звантаження"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Обмеження вивантаження"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5340,14 +5354,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Шкала графіку з'єднань: 100"
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Шкала графіку звантаження"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Шкала графіку вивантаження"
-
-#: src/muuli_wdr.cpp
 #, fuzzy
 msgid "Colors: "
 msgstr "Кольори: "
@@ -5459,6 +5465,26 @@ msgstr "Час оновлення з'єднання з сервером: вим�
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Вимкнути режим очікування комп’ютера за таймером"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6652,6 +6678,15 @@ msgstr "Порт TCP не може бути більшим ніж 65532, оск�
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Буде використовуватися порт за замовчуванням (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10092,6 +10127,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Шкала графіку звантаження"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Шкала графіку вивантаження"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

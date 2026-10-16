@@ -4055,7 +4055,7 @@ msgstr "Vali kõik"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Piiramatu"
 
@@ -4126,11 +4126,11 @@ msgstr "UDP port: Pole valmis"
 msgid "Client Information"
 msgstr "Kliendi informatsioon"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Saatmise limiit"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Tõmbamise limiit"
 
@@ -4932,12 +4932,26 @@ msgid "Video Player"
 msgstr "Video mängija"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Ribalaiuse piirid"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Saatmine"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Ribalaiuse piirid"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Tõmbamise limiit"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Saatmise limiit"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5308,14 +5322,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Ühenduse graafiku skaala: 100"
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Tõmbamise graafiku skaala:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Saatmise graafiku skaala:"
-
-#: src/muuli_wdr.cpp
 #, fuzzy
 msgid "Colors: "
 msgstr "Värvid: "
@@ -5427,6 +5433,26 @@ msgstr "Serveriühenduse värskenadamise intervall: Ei kasuta"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Keela arvuti ajastatud uinumine"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6611,6 +6637,15 @@ msgstr "TCP port ei saa olla suuerm kui 65532, sest serveri UDP soket on TCP+3"
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Kasutan vaikimisi porti (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10013,6 +10048,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Tõmbamise graafiku skaala:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Saatmise graafiku skaala:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

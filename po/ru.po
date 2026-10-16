@@ -4079,7 +4079,7 @@ msgstr "Выделить все"
 msgid "KiB/s"
 msgstr "КиБ/с"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Неограниченно"
 
@@ -4150,11 +4150,11 @@ msgstr "Порт UDP: не готов"
 msgid "Client Information"
 msgstr "Сведения о клиенте"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Предел отдачи"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Предел загрузки"
 
@@ -4957,12 +4957,26 @@ msgid "Video Player"
 msgstr "Проигрыватель видео"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Ограничения скорости передачи"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Отдача"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Ограничения скорости передачи"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Предел загрузки"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Предел отдачи"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5342,14 +5356,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Масштаб графика соединений: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Масштаб графика загрузки:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Масштаб графика отдачи:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "Цвета: "
 
@@ -5460,6 +5466,26 @@ msgstr "Интервал обновления соединения с серве
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Отключить таймер перехода компьютера в режим ожидания"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 # в LA помнится так и перевели - "шкурка", но по-моему глупо.
 #: src/muuli_wdr.cpp
@@ -6646,6 +6672,15 @@ msgstr "Порт TCP не может быть выше 65532, так как UDP-
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Используется порт по умолчанию (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, fuzzy, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr "%.1f МиБ/с"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10079,6 +10114,12 @@ msgstr "Kad не смогла подгрузить сохранённый инд
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr "Kad не смогла сохранить индекс. Предыдущая копия этого файла сохранена."
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Масштаб графика загрузки:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Масштаб графика отдачи:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

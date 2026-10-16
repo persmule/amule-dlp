@@ -4075,7 +4075,7 @@ msgstr "Vybrat vše"
 msgid "KiB/s"
 msgstr "KiB/s"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Neomezený"
 
@@ -4146,11 +4146,11 @@ msgstr "Port UDP: nepřipraven"
 msgid "Client Information"
 msgstr "Informace o klientovi"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Limit odesílání"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Limit stahování"
 
@@ -4948,12 +4948,26 @@ msgid "Video Player"
 msgstr "Přehrávač videa"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Limity šířky pásma"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Odesílání"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Limity šířky pásma"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Limit stahování"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Limit odesílání"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5322,14 +5336,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Měřítko grafu připojení: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Měřítko grafu stahování:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Měřítko grafu odesílání:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "Barvy: "
 
@@ -5440,6 +5446,26 @@ msgstr "Interval obnovení připojení k serveru: Zakázat"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Zakázat časovaný úsporný režim počítače"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6619,6 +6645,15 @@ msgstr "Port TCP nemůže být vyšší než 65532, protože port UDP serverové
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Bude použit výchozí port (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, fuzzy, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr "%.1f MiB/s"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10044,6 +10079,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Měřítko grafu stahování:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Měřítko grafu odesílání:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

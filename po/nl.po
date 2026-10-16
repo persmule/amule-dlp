@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-16 09:30+0000\n"
+"PO-Revision-Date: 2026-10-16 13:01+0000\n"
 "Last-Translator: Marcel Pol <marcel@timelord.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
@@ -384,7 +384,7 @@ msgstr "aMule is afgesloten."
 
 #: src/amule.cpp
 msgid "Memory debug results for aMule exit:"
-msgstr "Geheugen debug resultaten voor het afsluiten van aMule:"
+msgstr "Geheugen-foutopsoringsresultaten voor het afsluiten van aMule:"
 
 #: src/amule.cpp
 #, c-format
@@ -1168,7 +1168,7 @@ msgstr "Verbinding mislukt. Controleer het hostadres, de poort en het wachtwoord
 
 #: src/amule-remote-gui.cpp
 msgid "Remote GUI EC event handler"
-msgstr "GUI EV gebeurtenisafhandelaar op afstand"
+msgstr "Externe GUI EV gebeurtenisafhandelaar"
 
 #: src/amule-remote-gui.cpp src/ExternalConnector.cpp
 #, c-format
@@ -1623,7 +1623,7 @@ msgstr "Eerst gezien"
 
 #: src/ClientHistoryListCtrl.cpp
 msgid "Last seen"
-msgstr "Voor het laatst gezien"
+msgstr "Laatst gezien"
 
 #: src/ClientHistoryListCtrl.cpp
 msgid "Sessions"
@@ -1649,7 +1649,7 @@ msgstr "Totaal Gedownload"
 
 #: src/ClientHistoryListCtrl.cpp src/ClientsListCtrl.cpp src/muuli_wdr.cpp
 msgid "DL/UP modifier"
-msgstr "DL/UP modificator"
+msgstr "DL/UP modifier"
 
 #: src/ClientHistoryListCtrl.cpp
 msgid "Online now"
@@ -1916,7 +1916,7 @@ msgstr "Verbindingsfout"
 
 #: src/DataToText.cpp
 msgid "Remote Queue Full"
-msgstr "Wachtrij op Afstand is vol"
+msgstr "Externe Wachtrij Vol"
 
 #: src/DataToText.cpp
 msgid "Old MLDonkey"
@@ -1928,15 +1928,15 @@ msgstr "Nieuwe MLDonkey"
 
 #: src/DataToText.cpp
 msgid "eMule Compatible"
-msgstr "eMule-compatible"
+msgstr "Compatibel met eMule"
 
 #: src/DataToText.cpp
 msgid "Local Server"
-msgstr "Lokale server"
+msgstr "Lokale Server"
 
 #: src/DataToText.cpp
 msgid "Remote Server"
-msgstr "Server op Afstand"
+msgstr "Externe Server"
 
 #: src/DataToText.cpp src/KadDlg.cpp src/muuli_wdr.cpp src/SearchModeIcons.h
 #: src/TextClient.cpp
@@ -1945,7 +1945,7 @@ msgstr "Kad"
 
 #: src/DataToText.cpp
 msgid "Source Exchange"
-msgstr "Bron uitwisseling"
+msgstr "Uitwisseling van Bronnen"
 
 #: src/DataToText.cpp
 msgid "Passive"
@@ -1957,7 +1957,7 @@ msgstr "Link"
 
 #: src/DataToText.cpp
 msgid "Source Seeds"
-msgstr "Bron seeds"
+msgstr "Bron Seeds"
 
 #: src/DataToText.cpp
 msgid "Search Result"
@@ -3189,7 +3189,7 @@ msgstr "In wachtrij: %u"
 
 #: src/GenericClientListCtrl.cpp src/muuli_wdr.cpp
 msgid "Uploading"
-msgstr "Aan het uploaden"
+msgstr "Uploaden"
 
 #: src/GenericClientListCtrl.cpp
 msgid "None"
@@ -4044,7 +4044,7 @@ msgstr "Alles selecteren"
 msgid "KiB/s"
 msgstr "KiB/s"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Onbegrensd"
 
@@ -4115,11 +4115,11 @@ msgstr "UDP-poort: Niet gereed"
 msgid "Client Information"
 msgstr "Client informatie"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Uploadgrens"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Downloadgrens"
 
@@ -4310,7 +4310,7 @@ msgstr "Uitgebreide parameters"
 
 #: src/muuli_wdr.cpp
 msgid "Filtering"
-msgstr "Filters"
+msgstr "Filteren"
 
 #: src/muuli_wdr.cpp
 msgid "File Type"
@@ -4917,12 +4917,26 @@ msgid "Video Player"
 msgstr "Videospeler"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Bandbreedtegrenzen"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Upload"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Bandbreedtegrenzen"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Downloadgrens"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Uploadgrens"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5222,7 +5236,7 @@ msgstr "Deel elke submap onder deze map, inclusief later aangemaakte submappen."
 
 #: src/muuli_wdr.cpp src/utils/aLinkCreator/src/alcframe.cpp
 msgid "Remove"
-msgstr "Verwijder"
+msgstr "Verwijderen"
 
 #: src/muuli_wdr.cpp
 msgid "(Right click on folder icon for recursive share)"
@@ -5299,14 +5313,6 @@ msgstr "Tijd voor gemiddeldengrafiek: 100 minuten"
 #: src/muuli_wdr.cpp
 msgid "Connections Graph Scale: 100 "
 msgstr "Schaal verbindingengrafiek: 100 "
-
-#: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Schaal downloadgrafiek:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Schaal uploadgrafiek:"
 
 #: src/muuli_wdr.cpp
 msgid "Colors: "
@@ -5419,6 +5425,26 @@ msgstr "Server-verbinding verversingsinterval: Uitschakelen"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Schakel standby-modus van computer uit"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -5762,7 +5788,7 @@ msgstr "Selecteer wie een lijst van uw gedeelde bestanden kan opvragen."
 
 #: src/muuli_wdr.cpp
 msgid "IP-Filtering"
-msgstr "IP-filteren"
+msgstr "IP-Filteren"
 
 #: src/muuli_wdr.cpp
 msgid "Filter clients"
@@ -5826,7 +5852,7 @@ msgstr "Als er geen lokaal ipfilter.dat wordt gevonden, gebruik van een systeemb
 
 #: src/muuli_wdr.cpp
 msgid "Enable Online-Signature"
-msgstr "Schakel online handtekening in"
+msgstr "Schakel Online Handtekening in"
 
 #: src/muuli_wdr.cpp
 msgid "Enables the writing of the OS file, which can be used by external apps to create signatures and the like."
@@ -6040,7 +6066,7 @@ msgstr "ZLIB-compressie forceren"
 
 #: src/muuli_wdr.cpp
 msgid "Enable Verbose Debug-Logging."
-msgstr "Schakel uitgebreide foutopsporing en logboek in."
+msgstr "Schakel Loggen van Uitgebreide Foutopsporing in."
 
 #: src/muuli_wdr.cpp
 msgid "Only to Logfile"
@@ -6076,7 +6102,7 @@ msgstr "Statistieken en clients in wachtrij voor geselecteerd(e) bestand(en) : S
 
 #: src/muuli_wdr.cpp
 msgid "Active Uploads"
-msgstr "Actieve uploads"
+msgstr "Actieve Uploads"
 
 #: src/muuli_wdr.cpp
 msgid "Show Clients for"
@@ -6350,7 +6376,7 @@ msgstr "Importeer deelbestanden"
 
 #: src/PartFileConvertDlg.cpp
 msgid "State"
-msgstr "Status"
+msgstr "Staat"
 
 #: src/PartFileConvertDlg.cpp
 msgid "Filehash"
@@ -6594,6 +6620,15 @@ msgstr "TCP-poort kan niet hoger zijn dan 65532 omdat de server UDP socket gelij
 msgid "Default port will be used (%d)"
 msgstr "Standaard poort zal worden gebruikt (%d)"
 
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, fuzzy, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr "%.1f MiB/s"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Interface"
@@ -6632,7 +6667,7 @@ msgstr "Besturing op afstand"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Online Signature"
-msgstr "Online handtekening"
+msgstr "Online Handtekening"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "IP2Country"
@@ -8024,7 +8059,7 @@ msgstr "Lokale bestandsnaam"
 
 #: src/SharedFilePeersListCtrl.cpp src/SourceListCtrl.cpp
 msgid "Shares File List"
-msgstr "Deelt bestandenlijst"
+msgstr "Deelt Bestandenlijst"
 
 #: src/SharedFilesCtrl.cpp
 msgid "Source Availability"
@@ -8204,7 +8239,7 @@ msgstr "Deelstatus"
 
 #: src/SourceListCtrl.cpp
 msgid "Remote File Name"
-msgstr "Bestandsnaam op afstand"
+msgstr "Externe Bestandsnaam"
 
 #: src/SourceListCtrl.cpp
 msgid "A4AF"
@@ -8378,7 +8413,7 @@ msgstr "Werkende servers: %i"
 #: src/Statistics.cpp
 #, c-format
 msgid "Failed Servers: %i"
-msgstr "Mislukte servers: %i"
+msgstr "Mislukte Servers: %i"
 
 #: src/Statistics.cpp
 #, c-format
@@ -8393,7 +8428,7 @@ msgstr "Verwijderde servers: %s"
 #: src/Statistics.cpp
 #, c-format
 msgid "Filtered Servers: %s"
-msgstr "Gefilterde servers: %s"
+msgstr "Gefilterde Servers: %s"
 
 #: src/Statistics.cpp
 #, c-format
@@ -8408,12 +8443,12 @@ msgstr "Bestanden op werkende servers: %llu"
 #: src/Statistics.cpp
 #, c-format
 msgid "Total Users: %llu"
-msgstr "Totaal gebruikers: %llu"
+msgstr "Totaal Gebruikers: %llu"
 
 #: src/Statistics.cpp
 #, c-format
 msgid "Total Files: %llu"
-msgstr "Totaal bestanden: %llu"
+msgstr "Totaal Bestanden: %llu"
 
 #: src/Statistics.cpp
 #, c-format
@@ -9798,7 +9833,7 @@ msgstr "Weiger gasttoegang"
 
 #: src/webserver/src/WebInterface.cpp
 msgid "Load/save web server settings from/to remote aMule"
-msgstr "Laad/bewaar webserverinstellingen van/naar aMule op afstand"
+msgstr "Laad/bewaar webserverinstellingen van/naar externe aMule"
 
 #: src/webserver/src/WebInterface.cpp
 msgid "aMule config file path. DO NOT USE DIRECTLY!"
@@ -9994,6 +10029,12 @@ msgstr "Kad kon de opgeslagen index niet laden. Bestaande indexbestanden zijn be
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr "Kad kon een index niet opslaan. De vorige kopie van dat bestand is bewaard."
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Schaal downloadgrafiek:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Schaal uploadgrafiek:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

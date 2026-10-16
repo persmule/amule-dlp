@@ -4049,7 +4049,7 @@ msgstr "Vælg alle"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "Ubegrænset"
 
@@ -4120,11 +4120,11 @@ msgstr "UDP-port: Ikke klar"
 msgid "Client Information"
 msgstr "Klientoplysninger"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Uploadgrænse"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Downloadgrænse"
 
@@ -4943,12 +4943,26 @@ msgid "Video Player"
 msgstr "Video Afspiller"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Båndbreddegrænser"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Upload"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Båndbreddegrænser"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Downloadgrænse"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Uploadgrænse"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5317,14 +5331,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Forbindelsesgrafskala: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Downloadgrafskala:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Uploadgrafskala:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "Farver: "
 
@@ -5435,6 +5441,26 @@ msgstr "Interval for genopfriskning af serverforbindelse: Deaktiver"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Deaktiver computerens tidsstyrede dvaletilstand"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6611,6 +6637,15 @@ msgstr "TCP-porten kan ikke være højere end 65532, fordi serverens UDP-socket 
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Standardporten vil blive brugt (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10011,6 +10046,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Downloadgrafskala:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Uploadgrafskala:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

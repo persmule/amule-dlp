@@ -4048,7 +4048,7 @@ msgstr "Избиране на всичко"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "неограничен"
 
@@ -4119,11 +4119,11 @@ msgstr "UDP порт: Не е готов"
 msgid "Client Information"
 msgstr "Информация за клиента"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Ограничение за качване"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Ограничение за изтегляне"
 
@@ -4953,12 +4953,26 @@ msgid "Video Player"
 msgstr "Видео плеър"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Ограничения на честотната лента"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Качване"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Ограничения на честотната лента"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Ограничение за изтегляне"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Ограничение за качване"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5327,14 +5341,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Мащаб на графиката на връзките: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Мащаб на графиката за изтегляне:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Мащаб на графиката за качване:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "Цветове: "
 
@@ -5445,6 +5451,26 @@ msgstr "Интервал на обновяване на връзката със 
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Забраняване на автоматичния режим на готовност на компютъра"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6620,6 +6646,15 @@ msgstr "TCP портът не може да бъде по-голям от 65532,
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Ще бъде използван портът по подразбиране (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10019,6 +10054,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Мащаб на графиката за изтегляне:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Мащаб на графиката за качване:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."

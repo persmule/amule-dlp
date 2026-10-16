@@ -4052,7 +4052,7 @@ msgstr "Zgjidhi te gjitha"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr "E pakufijshme"
 
@@ -4123,11 +4123,11 @@ msgstr "Porta UDP: Jo gati"
 msgid "Client Information"
 msgstr "Informacion mbi klientin"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr "Kufiri i ngarkimit"
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr "Kufiri i shkarkimit"
 
@@ -4933,12 +4933,26 @@ msgid "Video Player"
 msgstr "Video Player"
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
-msgstr "Kufijtë e brezit"
+msgid "Line capacities"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
 msgstr "Ngarkim"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr "Kufijtë e brezit"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable download limit"
+msgstr "Kufiri i shkarkimit"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Enable upload limit"
+msgstr "Kufiri i ngarkimit"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5308,14 +5322,6 @@ msgid "Connections Graph Scale: 100 "
 msgstr "Shkalla grafike e lidhjeve: 100 "
 
 #: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr "Shkalla e grafikut të shkarkimit:"
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
-msgstr "Shkalla e grafikut të ngarkimit:"
-
-#: src/muuli_wdr.cpp
 msgid "Colors: "
 msgstr "Ngjyrat: "
 
@@ -5426,6 +5432,26 @@ msgstr "Interval i azhornimit te lidhjes se serverit: C'aktivizuar"
 #: src/muuli_wdr.cpp
 msgid "Disable computer's timed standby mode"
 msgstr "Çaktivizo modalitetin e gatishmërisë të kompjuterit"
+
+#: src/muuli_wdr.cpp
+msgid "Appearance: "
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Follow system"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Light mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Dark mode"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Appearance changes take effect after restarting aMule."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6613,6 +6639,15 @@ msgstr "Porta TCP nuk mund te jene me te medha se 65532  sepse socket i UDP esht
 #, c-format
 msgid "Default port will be used (%d)"
 msgstr "Do te perdoret porta e vendosur (%d)"
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
+msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -10018,6 +10053,12 @@ msgstr ""
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr ""
+
+#~ msgid "Download graph scale:"
+#~ msgstr "Shkalla e grafikut të shkarkimit:"
+
+#~ msgid "Upload graph scale:"
+#~ msgstr "Shkalla e grafikut të ngarkimit:"
 
 #, c-format
 #~ msgid "Failed to rename %s file, aborting update."
