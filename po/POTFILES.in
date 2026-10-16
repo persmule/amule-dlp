@@ -76,6 +76,7 @@ src/PartFileConvertDlg.cpp
 src/PartFile.cpp
 src/PeerCapabilities.h
 src/Preferences.cpp
+src/BandwidthLimitSlider.h
 src/PrefsUnifiedDlg.cpp
 src/SearchDlg.cpp
 src/SearchList.cpp

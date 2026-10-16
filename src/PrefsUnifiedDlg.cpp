@@ -25,6 +25,7 @@
 
 #include "PrefsUnifiedDlg.h"
 #include "DialogLayout.h"
+#include "BandwidthLimitSlider.h"
 #include "PrefsPageRows.h"
 
 #include <common/Constants.h>
@@ -730,6 +731,8 @@ bool PrefsUnifiedDlg::TransferToWindow()
 				     it->first % it->second->GetKey());
 		}
 	}
+
+	InitializeBandwidthLimitSliders(this);
 
 #ifdef CLIENT_GUI
 	// Cfg transfer can re-enable command fields from saved checkbox values.
@@ -2634,6 +2637,7 @@ void PrefsUnifiedDlg::OnRateLimitChanged(wxSpinEvent &event)
 			}
 		}
 	}
+	SyncBandwidthLimitSliders(this);
 }
 
 void PrefsUnifiedDlg::OnTCPClientPortChange(wxSpinEvent &WXUNUSED(event))

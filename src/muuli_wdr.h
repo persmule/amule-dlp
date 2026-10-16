@@ -273,6 +273,10 @@ wxSizer *clientDetails(wxWindow *parent, bool call_fit = TRUE, bool set_sizer = 
 #define IDC_ASSOC_COLLECTION 10337
 wxSizer *PreferencesGeneralTab(wxWindow *parent, bool call_fit = TRUE, bool set_sizer = TRUE);
 
+#define IDC_DOWNLOAD_LIMIT_SLIDER 10516
+#define IDC_UPLOAD_LIMIT_SLIDER 10517
+#define IDC_DOWNLOAD_LIMIT_ENABLED 10518
+#define IDC_UPLOAD_LIMIT_ENABLED 10519
 #define IDC_MAXDOWN 10129
 #define IDC_MAXUP 10130
 #define IDC_SLOTALLOC 10131

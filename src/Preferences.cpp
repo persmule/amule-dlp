@@ -1242,7 +1242,7 @@ void CPreferences::BuildItemList(const wxString &appdir)
 	//
 	// 100/20 Mbit, converted at 1024. Asymmetric because consumer lines mostly are, and
 	// because upload is the side people actually throttle. A user whose line differs sets
-	// this on the Statistics page, or answers the first-run wizard, which computes it from
+	// this on the Connection page, or answers the first-run wizard, which computes it from
 	// the speeds they enter.
 	//
 	// Only new configurations see this. aMule writes every key on save, so an existing

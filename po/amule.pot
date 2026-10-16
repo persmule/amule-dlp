@@ -3932,7 +3932,7 @@ msgstr ""
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Unlimited"
 msgstr ""
 
@@ -4003,11 +4003,11 @@ msgstr ""
 msgid "Client Information"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Upload limit"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
 msgid "Download limit"
 msgstr ""
 
@@ -4802,11 +4802,23 @@ msgid "Video Player"
 msgstr ""
 
 #: src/muuli_wdr.cpp
-msgid "Bandwidth limits"
+msgid "Line capacities"
 msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth limits"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Enable download limit"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Enable upload limit"
 msgstr ""
 
 #: src/muuli_wdr.cpp
@@ -5169,14 +5181,6 @@ msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Connections Graph Scale: 100 "
-msgstr ""
-
-#: src/muuli_wdr.cpp
-msgid "Download graph scale:"
-msgstr ""
-
-#: src/muuli_wdr.cpp
-msgid "Upload graph scale:"
 msgstr ""
 
 #: src/muuli_wdr.cpp
@@ -6468,6 +6472,15 @@ msgstr ""
 #: src/Preferences.cpp
 #, c-format
 msgid "Default port will be used (%d)"
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
+msgstr ""
+
+#: src/BandwidthLimitSlider.h
+#, c-format
+msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
