@@ -6560,37 +6560,37 @@ msgstr "TCP port can't be higher than 65532 due to server UDP socket being TCP+3
 msgid "Default port will be used (%d)"
 msgstr "Default port will be used (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Connection"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Directories"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Servers"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Security"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Interface"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Connection"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Proxy"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Servers"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Directories"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Events"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Filters"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Security"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6601,12 +6601,12 @@ msgid "Online Signature"
 msgstr "Online Signature"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Advanced"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Events"
+msgid "Advanced"
+msgstr "Advanced"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

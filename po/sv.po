@@ -6584,37 +6584,37 @@ msgstr "TCP-port kan inte vara högre än 65532 på grund av server UDP-socket �
 msgid "Default port will be used (%d)"
 msgstr "Standardporten kommer att användas ( %d )"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Anslutning"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Kataloger"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Servrar"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Säkerhet"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Gränssnitt"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Anslutning"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Proxy"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Servrar"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Kataloger"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Händelser"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Filter"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Säkerhet"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6625,12 +6625,12 @@ msgid "Online Signature"
 msgstr "Onlinesignatur"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Avancerad"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Händelser"
+msgid "Advanced"
+msgstr "Avancerad"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

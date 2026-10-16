@@ -6588,37 +6588,37 @@ msgstr "サーバのUDPソケトがTCP+3であるためTCPポートを65532以�
 msgid "Default port will be used (%d)"
 msgstr "デフォルトポートを使用します (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "接続"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "ディレクトリ"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "サーバ数"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "セキュリティ"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "インターフェイス"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "接続"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "プロクシ"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "サーバ数"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "ディレクトリ"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "イベント"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "フィルタ"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "セキュリティ"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6629,12 +6629,12 @@ msgid "Online Signature"
 msgstr "オンライン署名"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "詳細"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "イベント"
+msgid "Advanced"
+msgstr "詳細"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

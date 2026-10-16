@@ -6612,37 +6612,37 @@ msgstr "TCP port ei saa olla suuerm kui 65532, sest serveri UDP soket on TCP+3"
 msgid "Default port will be used (%d)"
 msgstr "Kasutan vaikimisi porti (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Ühendus"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Kataloogid"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Serverid"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Turvalisus"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Liides"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Ühendus"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Puhverserver"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Serverid"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Kataloogid"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Sündmused"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Filtrid"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Turvalisus"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6653,12 +6653,12 @@ msgid "Online Signature"
 msgstr "Online Allkiri"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Muud"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Sündmused"
+msgid "Advanced"
+msgstr "Muud"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

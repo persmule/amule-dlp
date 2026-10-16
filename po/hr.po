@@ -6601,37 +6601,37 @@ msgstr ""
 msgid "Default port will be used (%d)"
 msgstr ""
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Veza"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Direktoriji"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Serveri"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Sigurnost"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Sučelje"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Veza"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Proxy"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Serveri"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Direktoriji"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Događaji"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Sigurnost"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6642,12 +6642,12 @@ msgid "Online Signature"
 msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Napredno"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Događaji"
+msgid "Advanced"
+msgstr "Napredno"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

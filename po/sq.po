@@ -6614,37 +6614,37 @@ msgstr "Porta TCP nuk mund te jene me te medha se 65532  sepse socket i UDP esht
 msgid "Default port will be used (%d)"
 msgstr "Do te perdoret porta e vendosur (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Lidhje"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Direktorite"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Servera"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Sigurimi"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Ndërfaqja"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Lidhje"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Proksi"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Servera"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Direktorite"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Ngjarje"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Filtrat"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Sigurimi"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6655,12 +6655,12 @@ msgid "Online Signature"
 msgstr "Firma online"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Të avancuara"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Ngjarje"
+msgid "Advanced"
+msgstr "Të avancuara"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

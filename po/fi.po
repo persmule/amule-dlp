@@ -6619,37 +6619,37 @@ msgstr "TCP-portti ei voi olla korkeampi kuin 65532 koska serverin käyttämä U
 msgid "Default port will be used (%d)"
 msgstr "Käytetään oletusporttia (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Yhteys"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Kansiot"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Palvelimet"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Turvallisuus"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Käyttöliittymä"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Yhteys"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Välityspalvelin"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Palvelimet"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Kansiot"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Tapahtumat"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Suodattimet"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Turvallisuus"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6660,12 +6660,12 @@ msgid "Online Signature"
 msgstr "Online-Signeeraus"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Laajennetut"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Tapahtumat"
+msgid "Advanced"
+msgstr "Laajennetut"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

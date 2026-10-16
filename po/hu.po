@@ -6588,37 +6588,37 @@ msgstr "A TCP port nem lehet magasabb 65532-nél, mert a kiszolgáló UDP port =
 msgid "Default port will be used (%d)"
 msgstr "Alapértelmezett port lesz használva (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Csatlakozás"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Mappák"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Kiszolgálók"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Biztonság"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Felület"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Csatlakozás"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Proxy"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Kiszolgálók"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Mappák"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Események"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Szűrők"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Biztonság"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6629,12 +6629,12 @@ msgid "Online Signature"
 msgstr "Online aláírás"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Haladó"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Események"
+msgid "Advanced"
+msgstr "Haladó"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

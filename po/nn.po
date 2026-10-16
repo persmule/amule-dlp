@@ -6620,37 +6620,37 @@ msgstr "TCP port kan ikkje vere høgare enn 65532 fordi tenaren si UDPkopling er
 msgid "Default port will be used (%d)"
 msgstr "Standardport vert nytta (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Kopling"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Katalogar"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Tenarar"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Tryggleik"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Grensesnitt"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Kopling"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Proxy"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Tenarar"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Katalogar"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Hendingar"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Filter"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Tryggleik"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6661,12 +6661,12 @@ msgid "Online Signature"
 msgstr "Nettsignatur"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Avansert"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Hendingar"
+msgid "Advanced"
+msgstr "Avansert"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

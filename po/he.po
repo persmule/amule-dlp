@@ -6612,37 +6612,37 @@ msgstr "מבואת ה TCP אינה יכולה להיות גבוהה יותר מ 
 msgid "Default port will be used (%d)"
 msgstr "נשתמש במבואה שבברירת מחדך (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "חיבור"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "מלונים"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "שרתים"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "אבטחה"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "ממשק"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "חיבור"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "פרוקסי"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "שרתים"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "מלונים"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "ארועים"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "מסננים"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "אבטחה"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6653,12 +6653,12 @@ msgid "Online Signature"
 msgstr "חתימה מקוונת"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "מתקדם"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "ארועים"
+msgid "Advanced"
+msgstr "מתקדם"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

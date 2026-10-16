@@ -6593,37 +6593,37 @@ msgstr "TCP端口不可高于65532，因为服务器UDP端口值为TCP端口值+
 msgid "Default port will be used (%d)"
 msgstr "缺省端口将被使用（%d）"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "连接"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "目录"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "服务器"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "安全"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "界面"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "连接"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "代理"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "服务器"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "目录"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "事件"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "过滤"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "安全"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6634,12 +6634,12 @@ msgid "Online Signature"
 msgstr "在线签名"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "高级"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "事件"
+msgid "Advanced"
+msgstr "高级"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

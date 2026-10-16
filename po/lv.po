@@ -6614,37 +6614,37 @@ msgstr "TCP ports nevar būt lielāks par 65532, jo servera UDP ligzda ir TCP+3"
 msgid "Default port will be used (%d)"
 msgstr "Tiks izmantots noklusējuma ports (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Savienojums"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Mapes"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Serveri"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Drošība"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Saskarne"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Savienojums"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Starpniekserveris"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Serveri"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Mapes"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Notikumi"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Filtri"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Drošība"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6655,12 +6655,12 @@ msgid "Online Signature"
 msgstr "Tiešsaistes paraksts"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Papildu"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Notikumi"
+msgid "Advanced"
+msgstr "Papildu"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

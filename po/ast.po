@@ -6621,37 +6621,37 @@ msgstr "Puertu TCP nun pue ser más altu de 65532 darréu que'l socket del sirvi
 msgid "Default port will be used (%d)"
 msgstr "Puertu por defeutu que s'usará (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Conexón"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Direutorios"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Sirvidores"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Seguridá"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Interface"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Conexón"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Proxy"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Sirvidores"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Direutorios"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Eventos"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Fieltros"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Seguridá"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6662,12 +6662,12 @@ msgid "Online Signature"
 msgstr "Robla online"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Avanzáu"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Eventos"
+msgid "Advanced"
+msgstr "Avanzáu"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

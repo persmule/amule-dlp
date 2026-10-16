@@ -6612,37 +6612,37 @@ msgstr "서버 UDP 소켓이 TCP+3이 되기위해서 TCP 포트가 65532보다 
 msgid "Default port will be used (%d)"
 msgstr "기본 포트가 사용될 것입니다.(%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "연결"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "폴더"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "서버"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "보안"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "인터페이스"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "연결"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "프록시"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "서버"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "폴더"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "사건들"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "필터"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "보안"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6653,12 +6653,12 @@ msgid "Online Signature"
 msgstr "온라인 서명"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "고급"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "사건들"
+msgid "Advanced"
+msgstr "고급"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"
