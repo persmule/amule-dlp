@@ -6617,37 +6617,37 @@ msgstr "TCP ataka ezin da 65532 baino altuagoa izan UDP socket-a TCP+3 bait da"
 msgid "Default port will be used (%d)"
 msgstr "Lehenetsiriko ataka erabiliko da (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Konexioa"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Direktorioak"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Zerbitzariak"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Segurtasuna"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Interfazea"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Konexioa"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Proxy-a"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Zerbitzariak"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Direktorioak"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Gertaerak"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Iragazkiak"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Segurtasuna"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6658,12 +6658,12 @@ msgid "Online Signature"
 msgstr "Sinadura linean"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Aurreratua"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Gertaerak"
+msgid "Advanced"
+msgstr "Aurreratua"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

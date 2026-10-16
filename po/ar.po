@@ -6620,37 +6620,37 @@ msgstr "لا يمكن أن يكون منفذ TCP أعلى من 65532 لأن مق
 msgid "Default port will be used (%d)"
 msgstr "سيتم استخدام المنفذ الافتراضي (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "اتصال"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "مجلدات"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "الخادمات"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "الأمان"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "الواجهة"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "اتصال"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "الخادم الوكيل"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "الخادمات"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "مجلدات"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "الأحداث"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "المرشحات"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "الأمان"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6661,12 +6661,12 @@ msgid "Online Signature"
 msgstr "التوقيع عبر الإنترنت"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "متقدم"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "الأحداث"
+msgid "Advanced"
+msgstr "متقدم"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

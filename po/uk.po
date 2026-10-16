@@ -6653,37 +6653,37 @@ msgstr "Порт TCP не може бути більшим ніж 65532, оск�
 msgid "Default port will be used (%d)"
 msgstr "Буде використовуватися порт за замовчуванням (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "З'єднання"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Теки"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Сервери"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Безпека"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Зовнішній вигляд"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "З'єднання"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Проксі"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Сервери"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Теки"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Події"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Фільтри"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Безпека"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6694,12 +6694,12 @@ msgid "Online Signature"
 msgstr "Онлайн-підпис"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Розширені"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Події"
+msgid "Advanced"
+msgstr "Розширені"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

@@ -6673,37 +6673,37 @@ msgstr "Vrata TCP ne smejo biti večja od 65532, ker so vrata UDP TCP+3"
 msgid "Default port will be used (%d)"
 msgstr "Uporabljena bodo privzeta vrata (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Povezava"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Mape"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Strežniki"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Varnost"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Vmesnik"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Povezava"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Posrednik"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Strežniki"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Mape"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Dogodki"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Filtri"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Varnost"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6714,12 +6714,12 @@ msgid "Online Signature"
 msgstr "Spletni podpis"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Napredno"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Dogodki"
+msgid "Advanced"
+msgstr "Napredno"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

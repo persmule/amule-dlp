@@ -6563,37 +6563,37 @@ msgstr "সার্ভার UDP সকেট TCP+3 হওয়ার কা�
 msgid "Default port will be used (%d)"
 msgstr "ডিফল্ট পোর্ট ব্যবহার করা হবে (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "সংযোগ"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "ডিরেক্টরি"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "সার্ভার"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "নিরাপত্তা"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "ইন্টারফেস"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "সংযোগ"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "প্রক্সি"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "সার্ভার"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "ডিরেক্টরি"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "ইভেন্ট"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "ফিল্টার"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "নিরাপত্তা"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6604,12 +6604,12 @@ msgid "Online Signature"
 msgstr "অনলাইন স্বাক্ষর"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "উন্নত"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "ইভেন্ট"
+msgid "Advanced"
+msgstr "উন্নত"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

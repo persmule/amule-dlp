@@ -6612,37 +6612,37 @@ msgstr "TCP-porten kan ikke være højere end 65532, fordi serverens UDP-socket 
 msgid "Default port will be used (%d)"
 msgstr "Standardporten vil blive brugt (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Forbindelse"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Mapper"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Servere"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Sikkerhed"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Grænseflade"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Forbindelse"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Proxy"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Servere"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Mapper"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Hændelser"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Filtre"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Sikkerhed"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6653,12 +6653,12 @@ msgid "Online Signature"
 msgstr "Onlinesignatur"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Avanceret"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Hændelser"
+msgid "Advanced"
+msgstr "Avanceret"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

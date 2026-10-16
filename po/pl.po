@@ -6647,37 +6647,37 @@ msgstr "Port TCP nie może być większy niż 65532, gdyż gniazdo UDP serwera b
 msgid "Default port will be used (%d)"
 msgstr "Zostanie użyty domyślny port (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Połączenie"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Katalogi"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Serwery"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Bezpieczeństwo"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Interfejs"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Połączenie"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Proxy"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Serwery"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Katalogi"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Zdarzenia"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Filtry"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Bezpieczeństwo"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6688,12 +6688,12 @@ msgid "Online Signature"
 msgstr "Sygnatura Online"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Zawansowane"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Zdarzenia"
+msgid "Advanced"
+msgstr "Zawansowane"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

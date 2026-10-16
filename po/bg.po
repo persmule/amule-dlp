@@ -6621,37 +6621,37 @@ msgstr "TCP портът не може да бъде по-голям от 65532,
 msgid "Default port will be used (%d)"
 msgstr "Ще бъде използван портът по подразбиране (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Връзка"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Директории"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Сървъри"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Сигурност"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Интерфейс"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Връзка"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Прокси"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Сървъри"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Директории"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Събития"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Филтри"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Сигурност"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6662,12 +6662,12 @@ msgid "Online Signature"
 msgstr "Онлайн подпис"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "напреднал"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Събития"
+msgid "Advanced"
+msgstr "напреднал"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

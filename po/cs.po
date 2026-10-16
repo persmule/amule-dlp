@@ -6620,37 +6620,37 @@ msgstr "Port TCP nemůže být vyšší než 65532, protože port UDP serverové
 msgid "Default port will be used (%d)"
 msgstr "Bude použit výchozí port (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Připojení"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Adresáře"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Servery"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Bezpečnost"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Rozhraní"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Připojení"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Proxy"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Servery"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Adresáře"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Události"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Filtry"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Bezpečnost"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6661,12 +6661,12 @@ msgid "Online Signature"
 msgstr "Online podpis"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Pokročilé"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Události"
+msgid "Advanced"
+msgstr "Pokročilé"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

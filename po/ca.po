@@ -6594,37 +6594,37 @@ msgstr "El port TCP no pot ser més gran que 65532 puix el sòcol UDP del servid
 msgid "Default port will be used (%d)"
 msgstr "S'usarà el port per defecte (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Connexió"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Directoris"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Servidors"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Seguretat"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Interfície"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Connexió"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Servidor intermediari"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Servidors"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Directoris"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Esdeveniments"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Filtres"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Seguretat"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6635,12 +6635,12 @@ msgid "Online Signature"
 msgstr "Signatura en línia"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Avançat"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Esdeveniments"
+msgid "Advanced"
+msgstr "Avançat"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

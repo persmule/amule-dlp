@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-16 08:39+0000\n"
+"PO-Revision-Date: 2026-10-16 09:30+0000\n"
 "Last-Translator: Marcel Pol <marcel@timelord.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
@@ -1279,7 +1279,7 @@ msgstr "Kan map '%s' niet aanmaken voor categorie '%s', map '%s' wordt behouden.
 #: src/amule-remote-gui.cpp
 #, c-format
 msgid "The remote core sent inconsistent data for \"%s\" (part status %d, expected %d). The file list may be showing the wrong information; reconnect to clear it."
-msgstr "De externe kern stuurde inconsistente data voor \"%s\" (deel status %d, verwacht %d). De bestandslijst laat mogelijk de verkeerdeinformatie zien; herverbindt om die te legen."
+msgstr "De externe kern stuurde inconsistente gegevens voor \"%s\" (deel status %d, verwacht %d). De bestandslijst laat mogelijk de verkeerdeinformatie zien; herverbindt om die te legen."
 
 #: src/amule-remote-gui.cpp src/BaseClient.cpp src/ClientDetailDialog.cpp
 #: src/DataToText.cpp src/DownloadListCtrl.cpp src/ExternalConn.cpp
@@ -1475,7 +1475,7 @@ msgstr "Maak Vriendenslot"
 
 #: src/ClientContextActions.cpp src/FriendListCtrl.cpp
 msgid "View Files"
-msgstr "Bekijk bestanden"
+msgstr "Bekijk Bestanden"
 
 #: src/ClientContextActions.cpp
 msgid "Send message"
@@ -1619,7 +1619,7 @@ msgstr "Oorsprong"
 
 #: src/ClientHistoryListCtrl.cpp
 msgid "First seen"
-msgstr "Voor het eerst gezien"
+msgstr "Eerst gezien"
 
 #: src/ClientHistoryListCtrl.cpp
 msgid "Last seen"
@@ -1673,7 +1673,7 @@ msgstr "N/B"
 
 #: src/ClientRef.cpp
 msgid "Not Available"
-msgstr "Niet beschikbaar"
+msgstr "Niet Beschikbaar"
 
 #: src/ClientRowListCtrl.cpp
 #, c-format
@@ -1875,7 +1875,7 @@ msgstr "Wachtrij vol"
 #: src/DataToText.cpp src/GenericClientListCtrl.cpp src/KnownFile.cpp
 #: src/muuli_wdr.cpp
 msgid "On Queue"
-msgstr "In wachtrij"
+msgstr "In Wachtrij"
 
 #: src/DataToText.cpp src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp
 #: src/PartFile.cpp src/TransferWnd.cpp
@@ -6594,37 +6594,37 @@ msgstr "TCP-poort kan niet hoger zijn dan 65532 omdat de server UDP socket gelij
 msgid "Default port will be used (%d)"
 msgstr "Standaard poort zal worden gebruikt (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Verbinding"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Mappen"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Servers"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Beveiliging"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Interface"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Verbinding"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Proxy"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Servers"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Mappen"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Gebeurtenissen"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Filters"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Beveiliging"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6635,12 +6635,12 @@ msgid "Online Signature"
 msgstr "Online handtekening"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Geavanceerd"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Gebeurtenissen"
+msgid "Advanced"
+msgstr "Geavanceerd"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"
@@ -6688,7 +6688,7 @@ msgstr "Kon Cfg niet verbinden met widget met ID %d en sleutel %s"
 #: src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "Failed to transfer data from Cfg to Widget with the ID %d and key %s"
-msgstr "Kon data niet overdragen van Cfg naar widget met ID %d en sleutel %s"
+msgstr "Kon gegevens niet overdragen van Cfg naar widget met ID %d en sleutel %s"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "The type of proxy you are connecting to"
@@ -6697,7 +6697,7 @@ msgstr "Het type proxy waarmee u verbinding maakt"
 #: src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "Failed to transfer data from Widget to Cfg with the ID %d and key %s"
-msgstr "Kon data niet overdragen van Widget naar Cfg met ID %d en sleutel %s"
+msgstr "Kon gegevens niet overdragen van Widget naar Cfg met ID %d en sleutel %s"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "No password set."
@@ -8213,12 +8213,12 @@ msgstr "A4AF"
 #: src/Statistics.cpp
 #, c-format
 msgid "Uploaded Data (Session (Total)): %s"
-msgstr "Geuploade data (sessie (totaal)): %s"
+msgstr "Geuploadde Gegevens (Sessie (Totaal)): %s"
 
 #: src/Statistics.cpp
 #, c-format
 msgid "Total Overhead (Packets): %s"
-msgstr "Totale overhead (pakketten): %s"
+msgstr "Totale Overhead (pakketten): %s"
 
 #: src/Statistics.cpp
 #, c-format
@@ -8228,17 +8228,17 @@ msgstr "Overhead van bestandsaanvraag (Pakketten): %s"
 #: src/Statistics.cpp
 #, c-format
 msgid "Source Exchange Overhead (Packets): %s"
-msgstr "Overhead van bron uitwisseling (Pakketten): %s"
+msgstr "Overhead van Bronuitwisseling (Pakketten): %s"
 
 #: src/Statistics.cpp
 #, c-format
 msgid "Server Overhead (Packets): %s"
-msgstr "Server overhead (Pakketten): %s"
+msgstr "Server Overhead (Pakketten): %s"
 
 #: src/Statistics.cpp
 #, c-format
 msgid "Kad Overhead (Packets): %s"
-msgstr "Kad overhead (pakketten): %s"
+msgstr "Kad Overhead (pakketten): %s"
 
 #: src/Statistics.cpp
 #, c-format
@@ -8273,22 +8273,22 @@ msgstr "Gemiddelde uploadtijd: %s"
 #: src/Statistics.cpp
 #, c-format
 msgid "Downloaded Data (Session (Total)): %s"
-msgstr "Gedownloade data (sessie (totaal)): %s"
+msgstr "Gedownloadde Gegevens (sessie (totaal)): %s"
 
 #: src/Statistics.cpp
 #, c-format
 msgid "Found Sources: %s"
-msgstr "Gevonden bronnen: %s"
+msgstr "Gevonden Bronnen: %s"
 
 #: src/Statistics.cpp
 #, c-format
 msgid "Active Downloads (chunks): %s"
-msgstr "Actieve downloads (blokken): %s"
+msgstr "Actieve Downloads (blokken): %s"
 
 #: src/Statistics.cpp
 #, c-format
 msgid "Session UL:DL Ratio (Total): %s"
-msgstr "Sessie UL:DL verhouding (totaal): %s"
+msgstr "Sessie UL:DL Verhouding (totaal): %s"
 
 #: src/Statistics.cpp
 #, c-format
@@ -8313,7 +8313,7 @@ msgstr "Max uploadsnelheid (Sessie): %s"
 #: src/Statistics.cpp
 #, c-format
 msgid "Reconnects: %i"
-msgstr "Hernieuwde verbindingen: %i"
+msgstr "Herverbindingen: %i"
 
 #: src/Statistics.cpp
 #, c-format
@@ -8423,7 +8423,7 @@ msgstr "Server-bezetting: %.2f%%"
 #: src/Statistics.cpp
 #, c-format
 msgid "Number of Shared Files: %s"
-msgstr "Aantal gedeelde bestanden: %s"
+msgstr "Aantal Gedeelde Bestanden: %s"
 
 #: src/Statistics.cpp
 #, c-format

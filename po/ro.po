@@ -6649,37 +6649,37 @@ msgstr "Portul TCP nu poate fi mai mare decât 65532 fiindcă soclul UDP al serv
 msgid "Default port will be used (%d)"
 msgstr "Va fi folosit portul implicit (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Conexiune"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Directoare"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Servere"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Securitate"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Interfaţă"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Conexiune"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Proxy"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Servere"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Directoare"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Evenimente"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Filtre"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Securitate"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6690,12 +6690,12 @@ msgid "Online Signature"
 msgstr "Semnătură online"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Avansat"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Evenimente"
+msgid "Advanced"
+msgstr "Avansat"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

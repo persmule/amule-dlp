@@ -6647,37 +6647,37 @@ msgstr "TCP prievadas negali būti didesnis nei 65532, nes serverio UDP prievada
 msgid "Default port will be used (%d)"
 msgstr "Bus naudojamas numatytas prievadas (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Kanalas"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Aplankai"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Serveriai"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Saugumas"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Sąsaja"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Kanalas"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Atstovaujantis serveris"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Serveriai"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Aplankai"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Įvykiai"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Filtrai"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Saugumas"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6688,12 +6688,12 @@ msgid "Online Signature"
 msgstr "Keičiamas parašas"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Išplėstiniai"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Įvykiai"
+msgid "Advanced"
+msgstr "Išplėstiniai"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

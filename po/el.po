@@ -6617,37 +6617,37 @@ msgstr "Η θύρα TCP δεν μπορεί να είναι μεγαλύτερη
 msgid "Default port will be used (%d)"
 msgstr "Θα χρησιμοποιηθεί η στάνταρ θύρα (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Σύνδεση"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Κατάλογοι Αρχείων"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Διακομιστές"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Ασφάλεια"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Περιβάλλον"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Σύνδεση"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Διακομιστής διαμεσολάβησης"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Διακομιστές"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Κατάλογοι Αρχείων"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "Γεγονότα"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Φίλτρα"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Ασφάλεια"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6658,12 +6658,12 @@ msgid "Online Signature"
 msgstr "Διασυνδεδεμένη υπογραφή"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Προχωρημένες"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "Γεγονότα"
+msgid "Advanced"
+msgstr "Προχωρημένες"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

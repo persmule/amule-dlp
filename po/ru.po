@@ -6647,37 +6647,37 @@ msgstr "Порт TCP не может быть выше 65532, так как UDP-
 msgid "Default port will be used (%d)"
 msgstr "Используется порт по умолчанию (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "Соединение"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "Каталоги"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "Серверы"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "Безопасность"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "Интерфейс"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "Страна по IP"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "Соединение"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "Прокси"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "Серверы"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "Каталоги"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "События"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "Фильтры"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "Безопасность"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6688,12 +6688,12 @@ msgid "Online Signature"
 msgstr "Сетевая подпись"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "Дополнительно"
+msgid "IP2Country"
+msgstr "Страна по IP"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "События"
+msgid "Advanced"
+msgstr "Дополнительно"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"

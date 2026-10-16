@@ -6597,37 +6597,37 @@ msgstr "TCP 埠不可大於 65532，因爲伺服器 UDP 連接端點值爲 TCP �
 msgid "Default port will be used (%d)"
 msgstr "使用預設通訊埠 (%d)"
 
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Connection"
-msgstr "連線"
-
-#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
-msgid "Directories"
-msgstr "目錄"
-
-#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
-msgid "Servers"
-msgstr "伺服器"
-
-#: src/PrefsUnifiedDlg.cpp
-msgid "Security"
-msgstr "安全"
-
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
 msgstr "介面"
 
-#: src/PrefsUnifiedDlg.cpp
-msgid "IP2Country"
-msgstr "IP2Country"
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Connection"
+msgstr "連線"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Proxy"
 msgstr "代理伺服器"
 
+#: src/PrefsUnifiedDlg.cpp src/Statistics.cpp
+msgid "Servers"
+msgstr "伺服器"
+
+#: src/PrefsUnifiedDlg.cpp src/SearchListCtrl.cpp
+msgid "Directories"
+msgstr "目錄"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Events"
+msgstr "事件"
+
 #: src/PrefsUnifiedDlg.cpp
 msgid "Filters"
 msgstr "過濾"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Security"
+msgstr "安全"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Remote Controls"
@@ -6638,12 +6638,12 @@ msgid "Online Signature"
 msgstr "線上簽名識別"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Advanced"
-msgstr "進階"
+msgid "IP2Country"
+msgstr "IP2Country"
 
 #: src/PrefsUnifiedDlg.cpp
-msgid "Events"
-msgstr "事件"
+msgid "Advanced"
+msgstr "進階"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Debugging"
