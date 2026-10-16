@@ -254,7 +254,10 @@ struct PrefsPage
 };
 
 PrefsPage pages[] = { { wxTRANSLATE("General"), PreferencesGeneralTab, 13, "prefs_general" },
+	{ wxTRANSLATE("Interface"), PreferencesGuiTweaksTab, 19, "prefs_interface" },
 	{ wxTRANSLATE("Connection"), PreferencesConnectionTab, 14, "prefs_connection" },
+	{ wxTRANSLATE("Proxy"), PreferencesProxyTab, 24, "prefs_proxy" },
+	{ wxTRANSLATE("Servers"), PreferencesServerTab, 15, "prefs_servers" },
 	{ wxTRANSLATE("Directories"), PreferencesDirectoriesTab, 17, "prefs_directories" },
 #ifdef CLIENT_GUI
 	// Remote-only (issue #843): mapping a daemon's path space onto this machine's has no
@@ -262,24 +265,18 @@ PrefsPage pages[] = { { wxTRANSLATE("General"), PreferencesGeneralTab, 13, "pref
 	// Directories, the other page about paths.
 	{ wxTRANSLATE("Path Mappings"), PreferencesPathMappingTab, 17, "prefs_pathmapping" },
 #endif
-	{ wxTRANSLATE("Servers"), PreferencesServerTab, 15, "prefs_servers" },
 	{ wxTRANSLATE("Files"), PreferencesFilesTab, 16, "prefs_files" },
-	{ wxTRANSLATE("Security"), PreferencesSecurityTab, 22, "prefs_security" },
-	{ wxTRANSLATE("Interface"), PreferencesGuiTweaksTab, 19, "prefs_interface" },
-#ifdef GEOIP_GUI
-	// Inserted between Interface and Statistics so the GeoIP / country-flag settings sit
-	// next to the related display option. Hidden from the page list when ENABLE_IP2COUNTRY
-	// is off, so users who built without libmaxminddb do not see a panel that cannot
-	// function.
-	{ wxTRANSLATE("IP2Country"), PreferencesIP2CountryTab, 13, "prefs_ip2country" },
-#endif
+	{ wxTRANSLATE("Events"), PreferencesEventsTab, 5, "prefs_events" },
 	{ wxTRANSLATE("Statistics"), PreferencesStatisticsTab, 10, "prefs_statistics" },
-	{ wxTRANSLATE("Proxy"), PreferencesProxyTab, 24, "prefs_proxy" },
 	{ wxTRANSLATE("Filters"), PreferencesFilteringTab, 23, "prefs_filters" },
+	{ wxTRANSLATE("Security"), PreferencesSecurityTab, 22, "prefs_security" },
 	{ wxTRANSLATE("Remote Controls"), PreferencesRemoteControlsTab, 11, "prefs_remote" },
 	{ wxTRANSLATE("Online Signature"), PreferencesOnlineSigTab, 21, "prefs_onlinesig" },
-	{ wxTRANSLATE("Advanced"), PreferencesaMuleTweaksTab, 12, "prefs_advanced" },
-	{ wxTRANSLATE("Events"), PreferencesEventsTab, 5, "prefs_events" }
+#ifdef GEOIP_GUI
+	// Hidden when ENABLE_IP2COUNTRY is off: builds without libmaxminddb cannot use it.
+	{ wxTRANSLATE("IP2Country"), PreferencesIP2CountryTab, 13, "prefs_ip2country" },
+#endif
+	{ wxTRANSLATE("Advanced"), PreferencesaMuleTweaksTab, 12, "prefs_advanced" }
 #ifdef __DEBUG__
 	,
 	{ wxTRANSLATE("Debugging"), PreferencesDebug, 25, "prefs_debug" }
