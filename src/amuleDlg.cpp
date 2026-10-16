@@ -1605,7 +1605,17 @@ bool CamuleDlg::LoadGUIPrefs(bool override_pos, bool override_size)
 		if (x2 > 0 && y2 > 0) {
 			SetSize(x2, y2);
 		} else {
-#ifndef __WXGTK__
+#ifdef __WXGTK__
+			// A first-run window should use the available desktop even when the window
+			// manager does not implement Maximize() (for example, a bare Xephyr display).
+			// Otherwise the default constructor size clips the Downloads header.
+			if (!override_pos) {
+				const wxRect display = wxGetClientDisplayRect();
+				if (!display.IsEmpty()) {
+					SetSize(display.GetSize());
+				}
+			}
+#else
 			// Probably first run.
 			Maximize();
 #endif
