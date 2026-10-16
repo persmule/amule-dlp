@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aMule man pages\n"
 "POT-Creation-Date: 2026-10-07 10:08-0400\n"
-"PO-Revision-Date: 2026-10-16 02:24+0000\n"
+"PO-Revision-Date: 2026-10-16 08:33+0000\n"
 "Last-Translator: \n"
 "Language-Team: Marcelo Roberto Jimenez <mroberto@users.sourceforge.net>\n"
 "Language: pt_BR\n"
@@ -418,12 +418,12 @@ msgstr "Use o arquivo de configuração dado. O arquivo de configuração padrã
 #. type: Plain text
 #: amulecmd.1.in amuleweb.1.in
 msgid "Do not print any output to stdout."
-msgstr "Não imprima mensagens em stdout."
+msgstr "Não imprimir nenhuma saída em stdout."
 
 #. type: Plain text
 #: amulecmd.1.in amuleweb.1.in
 msgid "Be verbose - show also debug messages."
-msgstr "Seja verborrágico - mostre até as mensagens de debug."
+msgstr "Ser detalhado - mostrar também as mensagens de depuração."
 
 #. type: TP
 #: amulecmd.1.in amuleweb.1.in
@@ -637,7 +637,7 @@ msgstr "Apaga o log."
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Shows you the results of a search. Optionally takes a search I<E<lt>idE<gt>> (as printed by B<search>); with no id, shows the most recently started search.  Several searches can be kept on the daemon at once and addressed by id."
-msgstr "Mostra os resultados de uma pesquisa. Opcionalmente, aceita um I<E<lt>idE<gt>> de pesquisa (conforme exibido por B<search>); sem um id, mostra a pesquisa iniciada mais recentemente. Várias pesquisas podem ser mantidas no daemon ao mesmo tempo e acessadas por id."
+msgstr "Mostra os resultados de uma busca. Opcionalmente, aceita um I<E<lt>idE<gt>> de busca (conforme exibido por B<search>); sem um id, mostra a busca iniciada mais recentemente. Várias buscas podem ser mantidas no daemon ao mesmo tempo e acessadas por id."
 
 #. type: Plain text
 #: amulecmd.1.in
@@ -647,7 +647,7 @@ msgstr "Retoma o download especificado por I<E<lt>hashE<gt>> ou I<E<lt>numeroE<g
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Makes a search for the given I<E<lt>keywordE<gt>>. A search type and a keyword to search is mandatory to do this.  Example: 'search kad amule' performs a kad search for 'amule'.  Prints a search id; pass it to B<results> or B<progress> to address this search. Several searches can run at once, each with its own id."
-msgstr "Realiza uma pesquisa pela I<E<lt>palavra-chaveE<gt>> fornecida. Um tipo de pesquisa e uma palavra-chave são obrigatórios para realizar esta operação. Exemplo: 'search kad amule' realiza uma pesquisa na rede kad por 'amule'. Exibe um id de pesquisa; passe-o para B<results> ou B<progress> para acessar essa pesquisa. Várias pesquisas podem ser executadas ao mesmo tempo, cada uma com seu próprio id."
+msgstr "Realiza uma busca pela I<E<lt>palavra-chaveE<gt>> fornecida. Um tipo de busca e uma palavra-chave são obrigatórios para realizar esta operação. Exemplo: 'search kad amule' realiza uma busca na rede kad por 'amule'. Exibe um id de busca; passe-o para B<results> ou B<progress> para acessar essa busca. Várias buscas podem ser executadas ao mesmo tempo, cada uma com seu próprio id."
 
 #. type: Plain text
 #: amulecmd.1.in
@@ -687,7 +687,7 @@ msgstr "Restringir os resultados ao tipo de arquivo dado."
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Restrict results to a specific file extension (e.g.\\ I<iso>, I<mp3>)."
-msgstr "Restringir os resultados ao tipo específico de extensão. (e.g. \\ I<iso>, I<mp3>)."
+msgstr "Restringe os resultados a uma extensão de arquivo específica (p.ex.\\ I<iso>, I<mp3>)."
 
 #. type: Plain text
 #: amulecmd.1.in
@@ -717,7 +717,7 @@ msgstr "Configura um dado valor de preferência."
 #. type: Plain text
 #: amulecmd.1.in
 msgid "Set bandwidth limits."
-msgstr "Ajusta a limitação de largura de banda."
+msgstr "Definir os limites de largura de banda."
 
 #. type: Plain text
 #: amulecmd.1.in
@@ -1052,7 +1052,7 @@ msgstr "[B<--amule-config-file>=I<E<lt>caminhoE<gt>>]"
 #. type: Plain text
 #: amuleweb.1.in
 msgid "B<DEPRECATED:> amuleweb is deprecated and may be removed in aMule 3.2 or later.  It is not being removed yet; consider migrating to amuleapi, the REST/SSE API."
-msgstr "B<DEPRECATED:> amuleweb está deprecado e pode ser removido no aMule 3.2 ou posterior. Não está removido ainda; considere migrar para amuleapi, que é a  API REST/SSE."
+msgstr "B<OBSOLETO:> o amuleweb está obsoleto e pode ser removido no aMule 3.2 ou posterior.  Ele ainda não está sendo removido; considere migrar para o amuleapi, a API REST/SSE."
 
 #. type: Plain text
 #: amuleweb.1.in

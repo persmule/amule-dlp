@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-15 19:15+0000\n"
+"PO-Revision-Date: 2026-10-16 08:33+0000\n"
 "Last-Translator: Diego Heras <ngosang@hotmail.es>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/amule/amule-application/es/>\n"
 "Language: es\n"
@@ -7878,7 +7878,7 @@ msgstr "Conectando a compañero"
 #: src/ServerWnd.cpp
 #, c-format
 msgid "Connected to buddy at %s"
-msgstr "Conectando a compañero en %s"
+msgstr "Conectado a compañero en %s"
 
 #: src/ServerWnd.cpp
 msgid "IP address:"

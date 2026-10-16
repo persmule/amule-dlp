@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-15 16:07+0000\n"
+"PO-Revision-Date: 2026-10-16 08:39+0000\n"
 "Last-Translator: Marcel Pol <marcel@timelord.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
@@ -3224,7 +3224,7 @@ msgstr "HTTP-download geannuleerd"
 #: src/HTTPDownload.cpp
 #, c-format
 msgid "HTTP download of %s stopped: it is larger than %u MiB."
-msgstr ""
+msgstr "HTTP-download van %s is gestopt: het is groter dan %u MiB."
 
 #: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
