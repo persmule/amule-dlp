@@ -51,6 +51,11 @@ public:
 	, m_maxSize(params.maxSize)
 	, m_availability(params.availability)
 	, m_minBitrateKbps(params.minBitrateKbps)
+	, m_minLength(params.minLength)
+	, m_codec(params.codec)
+	, m_title(params.title)
+	, m_album(params.album)
+	, m_artist(params.artist)
 	{
 	}
 
@@ -63,7 +68,9 @@ public:
 		       m_query == other.m_query && m_fileType == other.m_fileType &&
 		       m_extension == other.m_extension && m_minSize == other.m_minSize &&
 		       m_maxSize == other.m_maxSize && m_availability == other.m_availability &&
-		       m_minBitrateKbps == other.m_minBitrateKbps;
+		       m_minBitrateKbps == other.m_minBitrateKbps && m_minLength == other.m_minLength &&
+		       m_codec == other.m_codec && m_title == other.m_title && m_album == other.m_album &&
+		       m_artist == other.m_artist;
 	}
 
 private:
@@ -75,6 +82,8 @@ private:
 	uint64_t m_maxSize;
 	uint32_t m_availability;
 	uint32_t m_minBitrateKbps;
+	uint32_t m_minLength;
+	wxString m_codec, m_title, m_album, m_artist;
 };
 
 // A null request denotes a restored/discovered/browse tab or a locally stopped search.

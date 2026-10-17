@@ -2783,6 +2783,7 @@ endif()
 # Link only the packet writer so no network/application stubs or linker stripping is needed.
 add_executable (SearchPacketTest
 	SearchPacketTest.cpp
+	SearchMetadataPacketTest.cpp
 	${CMAKE_SOURCE_DIR}/src/SearchPacket.cpp
 	${CMAKE_SOURCE_DIR}/src/Parser.cpp
 	${CMAKE_SOURCE_DIR}/src/Scanner.cpp

@@ -82,7 +82,7 @@ public:
 	struct CSearchParams
 	{
 		/** Prevents accidental use of uninitialized variables. */
-		CSearchParams() { minSize = maxSize = availability = minBitrateKbps = 0; }
+		CSearchParams() { minSize = maxSize = availability = minBitrateKbps = minLength = 0; }
 
 		//! The actual string to search for.
 		wxString searchString;
@@ -101,6 +101,13 @@ public:
 		//! The minimum media bitrate in kilobits per second, zero for any.
 		//! Kad applies this filter; eD2k servers may ignore it.
 		uint32_t minBitrateKbps;
+		//! Minimum media duration in seconds, zero for any.
+		uint32_t minLength;
+		//! Optional media metadata filters.
+		wxString codec;
+		wxString title;
+		wxString album;
+		wxString artist;
 	};
 
 	/** Constructor. */

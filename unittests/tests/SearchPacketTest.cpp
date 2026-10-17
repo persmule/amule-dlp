@@ -303,3 +303,30 @@ TEST(SearchPacket, RejectedQueryDoesNotLeakParserStateIntoNextSearch)
 	ASSERT_TRUE(CSearchPacketTestFixture::Packet(params, KadSearch) == Bitrate(256));
 	ASSERT_TRUE(_astrParserErrors.IsEmpty());
 }
+
+TEST(SearchPacket, RemainingMetadataFiltersReachBothNetworks)
+{
+	CSearchList::CSearchParams params;
+	params.searchString = "song";
+	params.strKeyword = "song";
+	params.minBitrateKbps = 128;
+	params.minLength = 60;
+	params.codec = "mp3";
+	params.title = "title";
+	params.album = "album";
+	params.artist = "artist";
+	const Bytes filters = Join({ And,
+		Bitrate(128),
+		And,
+		Number(60, 3, 0xD3),
+		And,
+		{ 2, 3, 0, 'm', 'p', '3', 1, 0, 0xD5 },
+		And,
+		{ 2, 5, 0, 't', 'i', 't', 'l', 'e', 1, 0, 0xD2 },
+		And,
+		{ 2, 5, 0, 'a', 'l', 'b', 'u', 'm', 1, 0, 0xD1 },
+		{ 2, 6, 0, 'a', 'r', 't', 'i', 's', 't', 1, 0, 0xD0 } });
+	ASSERT_TRUE(CSearchPacketTestFixture::Packet(params, KadSearch) == filters);
+	ASSERT_TRUE(CSearchPacketTestFixture::Packet(params, GlobalSearch) ==
+		    Join({ And, Text("song"), filters }));
+}
