@@ -26,6 +26,7 @@ on:
     paths:
       - 'packaging/**'
       - '.github/workflows/packaging.yml'
+      - '.github/workflows/flatpak-smoke.yml'
       - 'src/**'
       - 'CMakeLists.txt'
       - 'cmake/**'
@@ -37,6 +38,16 @@ on:
           Default empty = run all. Useful during iteration to focus
           on the failing tracks without paying for the green ones.
           Valid: appimage, flatpak, macos, windows, linux-static.
+        required: false
+        type: string
+        default: ''
+      flatpak_smoke:
+        description: Run X11 and GNOME/KDE Wayland GUI smoke tests (select only=flatpak).
+        required: false
+        type: boolean
+        default: false
+      flatpak_smoke_run_id:
+        description: Optional Packaging run ID to reuse its x86_64 bundle instead of rebuilding.
         required: false
         type: string
         default: ''
@@ -194,9 +205,10 @@ jobs:
   flatpak:
     name: Flatpak (${{ matrix.arch }})
     if: >-
-      github.event_name != 'workflow_dispatch' ||
+      (github.event_name != 'workflow_dispatch' ||
       inputs.only == '' ||
-      contains(inputs.only, 'flatpak')
+      contains(inputs.only, 'flatpak')) &&
+      !(github.event_name == 'workflow_dispatch' && inputs.flatpak_smoke && inputs.flatpak_smoke_run_id != '')
     strategy:
       fail-fast: false
       matrix:
@@ -209,9 +221,7 @@ jobs:
         # Host glibc doesn't matter for Flatpak builds (output runs
         # inside the GNOME Platform sandbox), so bumping the runner
         # has no compat downside, unlike the AppImage matrix.
-        include:
-          - { arch: x86_64,  runs-on: ubuntu-24.04 }
-          - { arch: aarch64, runs-on: ubuntu-24.04-arm }
+        include: ${{ fromJSON(inputs.flatpak_smoke && '[{"arch":"x86_64","runs-on":"ubuntu-24.04"}]' || '[{"arch":"x86_64","runs-on":"ubuntu-24.04"},{"arch":"aarch64","runs-on":"ubuntu-24.04-arm"}]') }}
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v7
@@ -265,6 +275,22 @@ jobs:
           name: flatpak-${{ matrix.arch }}
           path: dist/aMule-*-Linux-*.flatpak
           if-no-files-found: error
+
+  flatpak-smoke:
+    needs: flatpak
+    if: >-
+      !cancelled() &&
+      ((github.event_name == 'push' && github.ref == 'refs/heads/master') ||
+       (github.event_name == 'workflow_dispatch' && inputs.flatpak_smoke &&
+        (inputs.only == '' || contains(inputs.only, 'flatpak')))) &&
+      (needs.flatpak.result == 'success' ||
+       (needs.flatpak.result == 'skipped' && inputs.flatpak_smoke_run_id != ''))
+    uses: ./.github/workflows/flatpak-smoke.yml
+    with:
+      build_run_id: ${{ inputs.flatpak_smoke_run_id || format('{0}', github.run_id) }}
+    permissions:
+      contents: read
+      actions: read
 
   # ------------------------------------------------------------------
   # macOS — native arm64 + x86_64 builds, then lipo-merge to Universal2

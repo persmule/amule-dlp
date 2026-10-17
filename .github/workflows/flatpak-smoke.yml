@@ -1,0 +1,95 @@
+name: Flatpak GUI smoke
+
+# Run on Packaging master pushes, or manually with only=flatpak and flatpak_smoke=true.
+# All three sessions install the same x86_64 bundle built by that workflow.
+on:
+  workflow_call:
+    inputs:
+      build_run_id:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  desktop:
+    name: ${{ matrix.session }} (software rendering)
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        session: [x11, gnome-wayland, kde-wayland]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Record bundle provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_RUN_ID: ${{ inputs.build_run_id }}
+        run: |
+          [[ "$BUILD_RUN_ID" =~ ^[0-9]+$ ]]
+          mkdir -p "$RUNNER_TEMP/flatpak-smoke"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN_ID" \
+            --jq '{html_url, head_sha, head_branch}' \
+            | tee "$RUNNER_TEMP/flatpak-smoke/build.json"
+      - uses: actions/download-artifact@v8
+        with:
+          name: flatpak-x86_64
+          path: dist
+          run-id: ${{ inputs.build_run_id }}
+          github-token: ${{ github.token }}
+      - name: Install desktop test tools
+        env:
+          SESSION: ${{ matrix.session }}
+        run: |
+          sudo apt-get update
+          packages=(flatpak dbus-x11 xvfb xauth xdotool openbox x11-utils
+                    python3-gi python3-pil imagemagick mesa-utils)
+          case "$SESSION" in
+            gnome-wayland) packages+=(gnome-shell) ;;
+            kde-wayland) packages+=(kwin-wayland) ;;
+          esac
+          sudo apt-get install -y "${packages[@]}"
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user --noninteractive dist/*.flatpak
+      - name: Check drawing failure policy
+        run: python3 -m unittest discover -s packaging/linux/flatpak -p 'test_*.py' -v
+      - name: Exercise the sandboxed GUI
+        env:
+          SESSION: ${{ matrix.session }}
+          RESULTS: ${{ runner.temp }}/flatpak-smoke
+        run: |
+          mkdir -p "$RESULTS"
+          dpkg-query -W flatpak gnome-shell kwin-wayland xvfb > "$RESULTS/packages.txt" 2>&1 || true
+          timeout 180s dbus-run-session -- python3 packaging/linux/flatpak/smoke.py \
+            "$SESSION" "$RESULTS" 2>&1 | tee "$RESULTS/driver.log"
+          test -s "$RESULTS/result.txt"
+      - name: Upload screenshots and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: flatpak-smoke-${{ matrix.session }}
+          path: |
+            ${{ runner.temp }}/flatpak-smoke/*.png
+            ${{ runner.temp }}/flatpak-smoke/*.log
+            ${{ runner.temp }}/flatpak-smoke/*.txt
+            ${{ runner.temp }}/flatpak-smoke/*.ini
+            ${{ runner.temp }}/flatpak-smoke/*.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Record coverage
+        if: always()
+        env:
+          SESSION: ${{ matrix.session }}
+        run: |
+          {
+            echo "### Flatpak GUI smoke: $SESSION"
+            echo 'Virtual display / software rendering. Inspect the uploaded screenshots for rendering defects.'
+            echo 'This does not measure scrolling smoothness or cover hardware GPU drivers.'
+          } >> "$GITHUB_STEP_SUMMARY"
