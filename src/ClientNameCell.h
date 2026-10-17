@@ -64,7 +64,8 @@ struct ClientNameCell
 	bool remoteQueueFull = false;
 	bool isFriend = false;
 	bool identified = false;
-	bool badGuy = false;
+	//! Failed signature verification or an identity bound to a different peer address.
+	bool identWarning = false;
 	bool extProtocol = true;
 	//! Score ratio above 1, i.e. we owe this peer.
 	bool highCredits = false;
@@ -84,7 +85,7 @@ struct ClientNameCell
 		       obfuscation == other.obfuscation && a4af == other.a4af &&
 		       showState == other.showState && knownSoftware == other.knownSoftware &&
 		       remoteQueueFull == other.remoteQueueFull && isFriend == other.isFriend &&
-		       identified == other.identified && badGuy == other.badGuy &&
+		       identified == other.identified && identWarning == other.identWarning &&
 		       extProtocol == other.extProtocol && highCredits == other.highCredits;
 	}
 	bool operator!=(const ClientNameCell &other) const { return !(*this == other); }

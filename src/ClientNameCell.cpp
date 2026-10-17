@@ -59,7 +59,7 @@ ClientNameCell MakeClientNameCell(const CUpDownClient *client, bool a4af)
 	cell.remoteQueueFull = client->IsRemoteQueueFull();
 	cell.isFriend = client->IsFriend();
 	cell.identified = client->IsIdentified();
-	cell.badGuy = client->IsBadGuy();
+	cell.identWarning = client->IsBadGuy() || client->SUIFailed();
 	cell.extProtocol = client->ExtProtocolAvailable();
 	cell.highCredits = client->GetCreditRatio() > 1;
 
@@ -180,7 +180,7 @@ void DrawClientNameCell(const ClientNameCell &cell, const wxRect &rect, wxDC *dc
 
 	if (cell.identified) {
 		imageList.Draw(Client_SecIdent_Smiley, *dc, point.x, realY, wxIMAGELIST_DRAW_TRANSPARENT);
-	} else if (cell.badGuy) {
+	} else if (cell.identWarning) {
 		imageList.Draw(Client_BadGuy_Smiley, *dc, point.x, realY, wxIMAGELIST_DRAW_TRANSPARENT);
 	}
 
