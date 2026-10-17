@@ -2255,6 +2255,48 @@ void CSharedFilesRem::Reload(bool, bool)
 	m_conn->SendPacket(&req);
 }
 
+class CDeleteCompleteHandler : public CECPacketHandlerBase
+{
+	void HandlePacket(const CECPacket *packet) override
+	{
+		if (packet->GetOpCode() != EC_OP_NOOP) {
+			const CECTag *message = packet->GetTagByName(EC_TAG_STRING);
+			const wxString error = message && message->IsString()
+						       ? message->GetStringData()
+						       : _("The core did not confirm deleting the file. "
+							   "Refresh and try again.");
+			AddLogLineC(error);
+			wxTheApp->CallAfter([error]() {
+				wxMessageBox(error, _("Delete from disk"), wxOK | wxICON_ERROR);
+			});
+		}
+		delete this;
+	}
+	void AbortPendingRequest() override { delete this; }
+};
+
+bool CSharedFilesRem::CanDeleteFileFromDisk() const
+{
+	return m_conn->ServerSupportsDeleteComplete();
+}
+
+void CSharedFilesRem::DeleteFileFromDisk(
+	const CMD4Hash &hash, uint32 ecid, const wxString &directory, const wxString &name)
+{
+	if (!CanDeleteFileFromDisk()) {
+		wxMessageBox(_("The connected core does not support deleting complete files from disk."),
+			_("Delete from disk"),
+			wxOK | wxICON_ERROR);
+		return;
+	}
+	CECPacket request(EC_OP_KNOWNFILE_DELETE);
+	request.AddTag(CECTag(EC_TAG_KNOWNFILE, hash));
+	request.AddTag(CECTag(EC_TAG_ECID, ecid));
+	request.AddTag(CECTag(EC_TAG_KNOWNFILE_PATH, directory));
+	request.AddTag(CECTag(EC_TAG_PARTFILE_NAME, name));
+	m_conn->SendRequest(new CDeleteCompleteHandler(), &request);
+}
+
 bool CSharedFilesRem::RenameFile(CKnownFile *file, const CPath &newName)
 {
 	// We use the printable name, as the filename originated from user input,

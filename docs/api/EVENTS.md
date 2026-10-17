@@ -334,7 +334,7 @@ Downloads only, but it rides the `comments` channel, not `downloads` -- `?channe
 
 #### `shared_added` / `shared_updated`
 
-Identical to the REST [`/api/v1/shared`](REFERENCE.md#get-apiv1shared) list-item shape. `_updated` fires on any field-level change including `priority`, `priority_auto`, `uploaded_bytes_session`, `uploaded_bytes_total`, `request_count_*`, `accepted_request_count_*` and `hashed_part_count` — clients see live upload counters (and priority changes, and a running hash) without polling.
+Identical to the REST [`/api/v1/shared`](REFERENCE.md#get-apiv1shared) list-item shape. `_updated` fires on any field-level change including `priority`, `priority_auto`, `incomplete`, `uploaded_bytes_session`, `uploaded_bytes_total`, `request_count_*`, `accepted_request_count_*` and `hashed_part_count` — clients see live upload counters (and priority changes, and a running hash) without polling.
 
 ```json
 {
@@ -344,6 +344,7 @@ Identical to the REST [`/api/v1/shared`](REFERENCE.md#get-apiv1shared) list-item
   "size_bytes":       3217,
   "priority":         "normal",
   "priority_auto":    false,
+  "incomplete":       false,
   "sources":          { "complete": 12 },
   "uploaded_bytes_session":         5242880,
   "uploaded_bytes_total":           314572800,
@@ -359,6 +360,8 @@ Identical to the REST [`/api/v1/shared`](REFERENCE.md#get-apiv1shared) list-item
   "media": { "duration_seconds": 5400, "bitrate_kilobits_per_second": 1500, "codec": "H.264", "artist": "", "album": "", "title": "" }
 }
 ```
+
+`incomplete` is `true` for an active or completing partfile and `false` once complete. Completion emits `shared_updated` even when the shared statistics stay unchanged, so complete-file actions can become enabled without reloading the view. Download progress or status changes that leave `incomplete` unchanged do not themselves emit a shared update.
 
 `media` is always present, and `null` on a file with no probed metadata -- the same object [`GET /shared`](REFERENCE.md#get-apiv1shared) carries, so the byte-for-byte parity promised above holds for it too. A metadata re-extraction changes it and therefore fires a `shared_updated`, which is the only way a subscriber learns a probe landed: the refresh endpoint answers `202` with no result.
 

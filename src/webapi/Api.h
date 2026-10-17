@@ -178,7 +178,9 @@ private:
 	CHttpServer::Response HandleGeoipUpdate(const CHttpServer::Request &);
 	// single shared-file detail (GET / HEAD). `key` = 32-char MD4 hash.
 	CHttpServer::Response HandleSharedDetail(const CHttpServer::Request &, const std::string &key);
-	// shared file priority PATCH. `key` = hash OR ECID.
+	// Delete a complete shared file with a required confirmed_target. `key` = hash.
+	CHttpServer::Response HandleSharedDelete(const CHttpServer::Request &, const std::string &key);
+	// shared file priority PATCH. `key` = hash.
 	CHttpServer::Response HandleSharedPatch(const CHttpServer::Request &, const std::string &key);
 	// bulk shared-priority PATCH over a `hashes` array (#358).
 	CHttpServer::Response HandleSharedBulkPatch(const CHttpServer::Request &);

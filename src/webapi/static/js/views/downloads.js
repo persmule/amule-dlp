@@ -4,6 +4,7 @@
 // bulk actions, clear-completed, live totals, and an ed2k adder for mobile.
 
 import { api, bulkFailures } from "../api.js";
+import { prepareDownloadDeletion, selectionAfterDeletion } from "../download-delete.js";
 import { data } from "../events.js";
 import { html, useState, useEffect, useStore } from "../dom.js";
 import { ProgressBar, Badge, checkCell, listPlaceholder, Tabs, toast, confirmDialog, PRIORITIES, prioValue, prioLabel } from "../components.js";
@@ -85,22 +86,32 @@ export default function Downloads({ isGuest }) {
   const setCategory = (h, c) => mutate(() => api.patch("downloads/" + h, { category_index: c }));
 
   const del = async (d) => {
-    if (!(await confirmDialog(t("downloads_confirm_cancel_download", { name: d.name })))) return;
-    const next = new Set(selection); next.delete(d.hash); setSelection(next);
-    mutate(() => api.del("downloads/" + d.hash));
+    try {
+      // Always refresh, including an active row which may have just completed.
+      const prepared = await prepareDownloadDeletion([d.hash], (h) => api.get("downloads/" + h));
+      const file = prepared.files[0];
+      const question = file.status === "completed"
+        ? t("downloads_confirm_delete_disk", { name: file.name, directory: file.directory })
+        : t("downloads_confirm_cancel_download", { name: file.name });
+      if (!(await confirmDialog(question))) return;
+      await api.del("downloads/" + file.hash, { confirmed_target: prepared.confirmed_target[file.hash] });
+      setSelection((current) => selectionAfterDeletion(current, prepared.hashes));
+      data.refresh("downloads");
+    } catch (e) { toast(terr(e) || t("downloads_error"), "error"); }
   };
 
   // Run one collection-level bulk mutation and report per-item failures (207).
-  const runBulk = async (fn, { clearSelection = false } = {}) => {
-    const hashes = Array.from(selection);
+  const runBulk = async (fn, { clearSelection = false, hashes = Array.from(selection) } = {}) => {
     if (!hashes.length) { toast(t("downloads_toast_no_files_selected"), "warn"); return; }
     try {
-      const failed = bulkFailures(await fn(hashes));
+      const response = await fn(hashes);
+      const failed = bulkFailures(response);
       if (failed.length)
         toast(t("common_bulk_partial", { failed: failed.length, total: hashes.length,
                 message: terr(failed[0].error) }), "warn");
       else toast(t("downloads_toast_done"), "success");
-      if (clearSelection) setSelection(new Set());
+      if (clearSelection)
+        setSelection((current) => selectionAfterDeletion(current, hashes, response.results));
     } catch (e) { toast(terr(e) || t("downloads_error"), "error"); }
     data.refresh("downloads");
   };
@@ -109,8 +120,18 @@ export default function Downloads({ isGuest }) {
     if (action === "delete") {
       const hashes = Array.from(selection);
       if (!hashes.length) { toast(t("downloads_toast_no_files_selected"), "warn"); return; }
-      if (!(await confirmDialog(tn("downloads_confirm_cancel_selected", hashes.length)))) return;
-      return runBulk((h) => api.del("downloads", { hashes: h }), { clearSelection: true });
+      let prepared;
+      try {
+        prepared = await prepareDownloadDeletion(hashes, (h) => api.get("downloads/" + h));
+      } catch (e) { toast(terr(e) || t("downloads_error"), "error"); return; }
+      const shown = prepared.files.slice(0, 10);
+      let listing = shown.map((d) => d.status === "completed"
+        ? d.name + "\n" + d.directory : d.name).join("\n\n");
+      if (prepared.files.length > shown.length)
+        listing += "\n\n" + t("downloads_delete_more", { n: prepared.files.length - shown.length });
+      if (!(await confirmDialog(tn("downloads_confirm_delete_selected", prepared.hashes.length) + "\n\n" + listing))) return;
+      return runBulk((h) => api.del("downloads", { hashes: h, confirmed_target: prepared.confirmed_target }),
+        { clearSelection: true, hashes: prepared.hashes });
     }
     return runBulk((h) => api.patch("downloads", { hashes: h, action }));
   };
@@ -190,14 +211,13 @@ export default function Downloads({ isGuest }) {
               ${categoryOptions(categories)}
             </select>` },
     { key: "actions", label: t("downloads_actions"), cls: "row-actions admin-only", width: "90px", cell: (d) => {
-        // A completed download awaiting clear has no partfile to pause or cancel
-        // (DELETE /downloads/{hash} returns 409). Offer Clear instead, like the
-        // detail panel: it drops the entry from the completed list without
-        // touching the finished file in Incoming.
         if (d.status === "completed")
           return html`
-            <button class="btn btn-icon btn-sm" title=${t("downloads_clear_this")} onClick=${() => clearRow(d)}>
+            <button class="btn btn-icon btn-sm btn-danger" title=${t("downloads_delete_disk")} onClick=${() => del(d)}>
               <${Icon} name="trash" />
+            </button>
+            <button class="btn btn-icon btn-sm" title=${t("downloads_clear_this")} onClick=${() => clearRow(d)}>
+              <${Icon} name="remove" />
             </button>`;
         const inactive = d.status === "paused" || d.status === "stopped";
         return html`
@@ -254,7 +274,7 @@ export default function Downloads({ isGuest }) {
         <div class="toolbar admin-only">
           <button class="btn btn-sm" onClick=${() => bulk("resume")}><${Icon} name="play" /> ${t("downloads_resume")}</button>
           <button class="btn btn-sm" onClick=${() => bulk("pause")}><${Icon} name="pause" /> ${t("downloads_pause")}</button>
-          <button class="btn btn-sm btn-danger" onClick=${() => bulk("delete")}><${Icon} name="cancel" /> ${t("downloads_cancel")}</button>
+          <button class="btn btn-sm btn-danger" onClick=${() => bulk("delete")}><${Icon} name="trash" /> ${t("downloads_delete_disk")}</button>
           <select class="input input-sm" name="bulk_priority" value=""
                   onChange=${(e) => { const v = e.target.value; e.target.value = ""; if (v) bulkPatch({ priority: v }); }}>
             <option value="">${t("downloads_priority")}…</option>

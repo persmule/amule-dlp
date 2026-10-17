@@ -210,8 +210,8 @@ std::string ToJsonSharedEvent(const FileSnapshot &f)
 	  << ",\"name\":\"" << EscJson(f.name) << "\""
 	  << ",\"ed2k_link\":\"" << EscJson(f.ed2k_link) << "\""
 	  << ",\"size_bytes\":" << f.size << ",\"priority\":\"" << EscJson(f.shared.priority) << "\""
-	  << ",\"priority_auto\":"
-	  << (f.shared.priority_auto ? "true" : "false")
+	  << ",\"priority_auto\":" << (f.shared.priority_auto ? "true" : "false") << ",\"incomplete\":"
+	  << (f.IsIncompletePartfile() ? "true" : "false")
 	  // Nested to match the REST row: a stated exception to R11, so `sources.complete` is one
 	  // access path across every endpoint that has the concept. The range is detail-only and does
 	  // not ride the event.
@@ -423,8 +423,9 @@ std::string ToJsonStatusEvent(const StatusSnapshot &s, const KadSnapshot &k, boo
 // full new snapshot. If one set drifts from the other, clients see stale values until the next
 // compared field changes.
 //
-// The download side ignores shared.* and is_shared, the shared side ignores download.* and
-// is_downloading, so a tick that flips one role does not fire the other role's _updated. ecid is in
+// The download side ignores shared.* and is_shared. The shared side compares only the
+// incomplete predicate across download state, so progress/status changes that keep the
+// same completeness do not emit shared_updated. ecid is in
 // both shapes: an amuled restart under a running amuleapi resurfaces the same hash with a fresh
 // ECID, and clients keyed on ECID need the _updated to invalidate their cached id.
 bool EqualDownload(const FileSnapshot &a, const FileSnapshot &b)
@@ -471,9 +472,9 @@ bool EqualComments(const FileSnapshot &a, const FileSnapshot &b)
 }
 bool EqualShared(const FileSnapshot &a, const FileSnapshot &b)
 {
-	return a.ecid == b.ecid && a.hash == b.hash && a.name == b.name && a.ed2k_link == b.ed2k_link &&
-	       a.size == b.size && a.shared.priority == b.shared.priority &&
-	       a.shared.priority_auto == b.shared.priority_auto &&
+	return a.IsIncompletePartfile() == b.IsIncompletePartfile() && a.ecid == b.ecid && a.hash == b.hash &&
+	       a.name == b.name && a.ed2k_link == b.ed2k_link && a.size == b.size &&
+	       a.shared.priority == b.shared.priority && a.shared.priority_auto == b.shared.priority_auto &&
 	       a.shared.complete_sources == b.shared.complete_sources &&
 	       a.shared.uploaded_bytes_session == b.shared.uploaded_bytes_session &&
 	       a.shared.uploaded_bytes_total == b.shared.uploaded_bytes_total &&

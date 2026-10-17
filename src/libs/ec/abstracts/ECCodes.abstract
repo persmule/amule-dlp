@@ -213,6 +213,12 @@ EC_OP_PARTFILE_SET_A4AF_AUTO        0x68
 ## Send only after the server echoes EC_TAG_CAN_KAD_LOOKUPS at login: older
 ## cores assert on unknown opcodes.
 EC_OP_GET_KAD_LOOKUPS               0x69
+
+## Delete a complete shared file or completed transfer from disk. Requires
+## KNOWNFILE (MD4), ECID, KNOWNFILE_PATH (directory), PARTFILE_NAME (basename).
+## Identity/path are checked before unlink. NOOP on success; FAILED + STRING
+## on failure, leaving the file shared/listed. Never calls CPartFile::Delete.
+EC_OP_KNOWNFILE_DELETE              0x6A
 [/Section]
 
 [Section Content]
@@ -276,6 +282,8 @@ EC_TAG_CAN_CHAT_SESSIONS                  0x0027
 ## GUI_ID. Deliberately distinct from EC_TAG_CAN_CHAT_SESSIONS: a client that
 ## predates the hash tag would merge two such sessions under one legacy id.
 EC_TAG_CAN_CHAT_PEER_HASH                 0x0028
+## Server supports EC_OP_KNOWNFILE_DELETE. Advertised unconditionally in AUTH_OK.
+EC_TAG_CAN_DELETE_COMPLETE                0x002B
 
 
 EC_TAG_CLIENT_NAME                        0x0100

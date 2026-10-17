@@ -184,6 +184,7 @@ public:
 #endif
 
 	EC_IPv4_t GetIPv4Data() const;
+	bool IsMD4() const { return m_dataType == EC_TAGTYPE_HASH16 && m_dataLen == 16; }
 	CMD4Hash GetMD4Data() const;
 	CUInt128 GetInt128Data() const;
 

@@ -513,6 +513,9 @@ public:
 	// Actions
 	void Reload(bool sendtoserver = true, bool firstload = false);
 	bool RenameFile(CKnownFile *file, const CPath &newName);
+	bool CanDeleteFileFromDisk() const;
+	void DeleteFileFromDisk(
+		const CMD4Hash &hash, uint32 ecid, const wxString &directory, const wxString &name);
 	void SetFileCommentRating(CKnownFile *file, const wxString &newComment, int8 newRating);
 	void VerifyLocalData(const CKnownFile *file) const;
 

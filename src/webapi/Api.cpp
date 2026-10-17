@@ -1314,9 +1314,11 @@ CHttpServer::Response CApiDispatcher::DispatchToHandler(const CHttpServer::Reque
 			if (req.method == "GET" || req.method == "HEAD") {
 				return HandleSharedDetail(req, caps["hash"]);
 			}
+			if (req.method == "DELETE")
+				return HandleSharedDelete(req, caps["hash"]);
 			if (req.method != "PATCH") {
-				return MethodNotAllowed(
-					"GET, HEAD, PATCH", "only GET / HEAD / PATCH on /shared/{hash}");
+				return MethodNotAllowed("GET, HEAD, PATCH, DELETE",
+					"only GET / HEAD / PATCH / DELETE on /shared/{hash}");
 			}
 			return HandleSharedPatch(req, caps["hash"]);
 		}
@@ -2566,6 +2568,10 @@ void WriteDownloadObject(
 	CJsonWriter &w, const webapi::FileSnapshot &f, bool include_parts = false, bool detail = false)
 {
 	w.BeginObject();
+	if (detail) {
+		w.Key("ecid");
+		w.ValueInt(f.ecid);
+	}
 	w.Key("hash");
 	w.ValueString(wxString::FromUTF8(f.hash.c_str()));
 	w.Key("name");
@@ -2968,6 +2974,8 @@ void WriteSharedBaseFields(CJsonWriter &w, const webapi::FileSnapshot &f, bool d
 	w.ValueString(wxString::FromUTF8(f.shared.priority.c_str()));
 	w.Key("priority_auto");
 	w.ValueBool(f.shared.priority_auto);
+	w.Key("incomplete");
+	w.ValueBool(f.IsIncompletePartfile());
 	// A stated exception to R11: this wraps a single quantity. The identical figure is
 	// `sources.complete` on a search result, so one access path works on every endpoint
 	// that has the concept.
@@ -3040,6 +3048,8 @@ void WriteSharedDetailObject(CJsonWriter &w, const webapi::FileSnapshot &f)
 {
 	w.BeginObject();
 	WriteSharedBaseFields(w, f, /*detail=*/true);
+	w.Key("ecid");
+	w.ValueInt(f.ecid);
 	w.Key("file_type");
 	w.ValueString(wxString::FromUTF8(webapi::FileTypeToken(f.name).c_str()));
 	w.Key("upload_ratio");
@@ -3049,12 +3059,8 @@ void WriteSharedDetailObject(CJsonWriter &w, const webapi::FileSnapshot &f)
 	w.Key("directory");
 	// The on-disk directory (Temp while downloading, destination once completed), the
 	// same value /downloads/{hash} reports. Reported directly rather than masked with a
-	// placeholder while incomplete; `incomplete` below carries that state explicitly.
+	// placeholder while incomplete; the base fields carry that state explicitly.
 	w.ValueString(wxString::FromUTF8(f.on_disk_dir.c_str()));
-	w.Key("incomplete");
-	// Always present, so clients test it rather than probe for absence.
-	// Detail-only, like `path`, so the SSE event rate is unaffected.
-	w.ValueBool(f.IsIncompletePartfile());
 	WriteStringOrNull(w, "aich_hash", !f.aich_hash.empty(), f.aich_hash);
 	w.Key("total_part_count");
 	w.ValueInt(static_cast<int64_t>(webapi::PartCountForSize(f.size)));
@@ -5173,6 +5179,56 @@ CHttpServer::Response CApiDispatcher::HandleDownloadPatch(
 	return r;
 }
 
+namespace
+{
+// Confirmation preconditions guard the identity shown to the operator.
+// Active cancellation remains compatible with clients that omit a target.
+bool ValidDeleteTarget(const picojson::value &value, bool shared = false)
+{
+	if (!value.is<picojson::object>())
+		return false;
+	const auto &obj = value.get<picojson::object>();
+	for (const char *key : { "name", "directory" }) {
+		auto it = obj.find(key);
+		if (it == obj.end() || !it->second.is<std::string>())
+			return false;
+	}
+	const auto state = obj.find(shared ? "incomplete" : "status");
+	if (state == obj.end() || (shared ? !state->second.is<bool>() : !state->second.is<std::string>()))
+		return false;
+	const auto id = obj.find("ecid");
+	if (id == obj.end() || !id->second.is<double>())
+		return false;
+	const double n = id->second.get<double>();
+	return n >= 1 && n <= UINT32_MAX && n == static_cast<uint32>(n);
+}
+
+bool MatchesDeleteTarget(const picojson::value &value, const webapi::FileSnapshot &file, bool shared = false)
+{
+	const auto &obj = value.get<picojson::object>();
+	return obj.at("ecid").get<double>() == file.ecid && obj.at("name").get<std::string>() == file.name &&
+	       obj.at("directory").get<std::string>() == file.on_disk_dir &&
+	       (shared ? obj.at("incomplete").get<bool>() == file.IsIncompletePartfile()
+		       : obj.at("status").get<std::string>() == file.download.status);
+}
+
+std::unique_ptr<CECPacket> FileDeleteRequest(
+	const webapi::FileSnapshot &file, const CMD4Hash &hash, bool shared = false)
+{
+	const bool complete = shared || file.download.status == "completed";
+	auto request = std::make_unique<CECPacket>(complete ? EC_OP_KNOWNFILE_DELETE : EC_OP_PARTFILE_DELETE);
+	CECTag target(complete ? EC_TAG_KNOWNFILE : EC_TAG_PARTFILE, hash);
+	// The complete-file op uses top-level identity tags; legacy partfile commands
+	// put their per-file preconditions on the hash tag, so multi-file EC still works.
+	CECTag *identity = complete ? static_cast<CECTag *>(request.get()) : &target;
+	identity->AddTag(CECTag(EC_TAG_ECID, file.ecid));
+	identity->AddTag(CECTag(EC_TAG_KNOWNFILE_PATH, wxString::FromUTF8(file.on_disk_dir.c_str())));
+	identity->AddTag(CECTag(EC_TAG_PARTFILE_NAME, wxString::FromUTF8(file.name.c_str())));
+	request->AddTag(target);
+	return request;
+}
+} // namespace
+
 CHttpServer::Response CApiDispatcher::HandleDownloadDelete(
 	const CHttpServer::Request &req, const std::string &key)
 {
@@ -5193,29 +5249,47 @@ CHttpServer::Response CApiDispatcher::HandleDownloadDelete(
 		return ErrorResponse(404, "not_found", "no download with that hash");
 	}
 
-	// DELETE handles ACTIVE downloads only. Completed entries live in amuled's
-	// m_completedDownloads staging list, and the only EC op that touches it is
-	// EC_OP_CLEAR_COMPLETED, which acks the notification rather than deleting the file
-	// from Incoming. Conflating the two under one verb confused operators who expected
-	// DELETE to remove a file from disk, so the completed case goes through
-	// POST /downloads_clear_completed. A "completing" file is being moved to Incoming and
-	// gets the same answer.
-	if (d.download.status == "completed" || d.download.status == "completing") {
+	bool hasConfirmedTarget = false;
+	if (!req.body.empty()) {
+		picojson::value body;
+		std::string error;
+		if (!ParseJsonObjectBody(req.body, body, error))
+			return ErrorResponse(400, "bad_request", error.c_str());
+		const auto &obj = body.get<picojson::object>();
+		const auto confirmed = obj.find("confirmed_target");
+		hasConfirmedTarget = confirmed != obj.end();
+		if (confirmed != obj.end() && !ValidDeleteTarget(confirmed->second))
+			return ErrorResponse(400,
+				"bad_request",
+				"confirmed_target must contain ecid, name, directory, and status");
+		if (confirmed != obj.end() && !MatchesDeleteTarget(confirmed->second, d))
+			return ErrorResponse(409,
+				"selection_changed",
+				"The confirmed download has changed. Refresh and confirm again.");
+	}
+
+	if (d.download.status == "completed" && !hasConfirmedTarget) {
 		return ErrorResponse(409,
 			"download_completed",
-			"DELETE only removes active downloads (deletes .part/.met "
-			"files from disk). Use POST /downloads_clear_completed "
-			"with optional {\"hash\":\"...\"} body to clear a completed "
-			"entry's post-completion notification; the file in the "
-			"Incoming directory is NEVER removed via this API.");
+			"Deleting a completed file requires confirmed_target. Use clear completed to keep "
+			"the file.");
+	}
+	if (d.download.status == "completing") {
+		return ErrorResponse(409,
+			"download_completed",
+			"The download is completing. Wait for completion and confirm again.");
+	}
+	if (d.download.status == "completed" && !m_app.IsServerDeleteCompleteActive()) {
+		return ErrorResponse(503,
+			"ec_unsupported",
+			"The connected core does not support deleting complete files from disk.");
 	}
 
 	CMD4Hash file_hash;
 	if (!HashFromHex(d.hash, file_hash)) {
 		return ErrorResponse(500, "internal_error", "failed to decode partfile hash");
 	}
-	std::unique_ptr<CECPacket> ec_req(new CECPacket(EC_OP_PARTFILE_DELETE));
-	ec_req->AddTag(CECTag(EC_TAG_PARTFILE, file_hash));
+	auto ec_req = FileDeleteRequest(d, file_hash);
 
 	const CECPacket *ec_resp = m_app.SendRecvSerialized(ec_req.get());
 	if (!ec_resp) {
@@ -5226,10 +5300,90 @@ CHttpServer::Response CApiDispatcher::HandleDownloadDelete(
 		delete ec_resp;
 		return ErrorResponse(400, "amuled_rejected", ec_err_msg.c_str());
 	}
+	if (ec_resp->GetOpCode() != EC_OP_NOOP) {
+		delete ec_resp;
+		return ErrorResponse(502, "ec_protocol_error", "The core did not confirm deleting the file.");
+	}
 	delete ec_resp;
 
 	// Inline refresh: the next GET /downloads must not show the deleted entry.
 	// Eviction happens via FILE_REMOVED in the GET_UPDATE response.
+	(void)RefresherTick(m_app, m_state);
+
+	CHttpServer::Response r;
+	// 204 with no body: any echo would only repeat the request URL,
+	// and `ok` would restate the status code.
+	r.status = 204;
+	r.content_type.clear();
+	return r;
+}
+
+CHttpServer::Response CApiDispatcher::HandleSharedDelete(
+	const CHttpServer::Request &req, const std::string &key)
+{
+	auto a = Authenticate(req);
+	if (!a.ok)
+		return a.rejection;
+
+	if (auto rej = RequireAdmin(a))
+		return *rej;
+	if (auto r = RequireHashPath(key))
+		return *r;
+
+	if (auto r = RequireSnapshot(m_state))
+		return *r;
+
+	webapi::FileSnapshot d;
+	if (!FindSharedByKey(m_state, key, d)) {
+		return ErrorResponse(404, "not_found", "no shared file with that hash");
+	}
+
+	picojson::value body;
+	std::string error;
+	if (!ParseJsonObjectBody(req.body, body, error))
+		return ErrorResponse(400, "bad_request", error.c_str());
+	const auto &obj = body.get<picojson::object>();
+	const auto confirmed = obj.find("confirmed_target");
+	if (confirmed == obj.end() || !ValidDeleteTarget(confirmed->second, true))
+		return ErrorResponse(400,
+			"bad_request",
+			"confirmed_target must contain ecid, name, directory, and incomplete");
+	if (!MatchesDeleteTarget(confirmed->second, d, true))
+		return ErrorResponse(409,
+			"selection_changed",
+			"The confirmed shared file has changed. Refresh and confirm again.");
+	if (d.IsIncompletePartfile())
+		return ErrorResponse(
+			409, "partfile_unsupported", "Use downloads to cancel an incomplete shared file.");
+
+	if (!m_app.IsServerDeleteCompleteActive()) {
+		return ErrorResponse(503,
+			"ec_unsupported",
+			"The connected core does not support deleting complete files from disk.");
+	}
+
+	CMD4Hash file_hash;
+	if (!HashFromHex(d.hash, file_hash)) {
+		return ErrorResponse(500, "internal_error", "failed to decode shared file hash");
+	}
+	auto ec_req = FileDeleteRequest(d, file_hash, true);
+
+	const CECPacket *ec_resp = m_app.SendRecvSerialized(ec_req.get());
+	if (!ec_resp) {
+		return ErrorResponse(503, "ec_unavailable", "EC roundtrip failed for DELETE");
+	}
+	std::string ec_err_msg;
+	if (IsEcFailedResponse(ec_resp, ec_err_msg)) {
+		delete ec_resp;
+		return ErrorResponse(400, "amuled_rejected", ec_err_msg.c_str());
+	}
+	if (ec_resp->GetOpCode() != EC_OP_NOOP) {
+		delete ec_resp;
+		return ErrorResponse(502, "ec_protocol_error", "The core did not confirm deleting the file.");
+	}
+	delete ec_resp;
+
+	// Refresh both shared files and any matching completed download row.
 	(void)RefresherTick(m_app, m_state);
 
 	CHttpServer::Response r;
@@ -8981,6 +9135,32 @@ CHttpServer::Response CApiDispatcher::HandleDownloadsBulkDelete(const CHttpServe
 	if (!ParseBulkHashes(obj, hashes, bad))
 		return bad;
 
+	picojson::object normalizedTargets;
+	const picojson::object *confirmedTargets = nullptr;
+	if (const auto it = obj.find("confirmed_target"); it != obj.end()) {
+		if (!it->second.is<picojson::object>())
+			return ErrorResponse(
+				400, "bad_request", "confirmed_target must be an object keyed by hash");
+		for (const auto &target : it->second.get<picojson::object>()) {
+			CMD4Hash hash;
+			if (!HashFromHex(target.first, hash) || !ValidDeleteTarget(target.second))
+				return ErrorResponse(400,
+					"bad_request",
+					"confirmed_target contains an invalid hash or target");
+			if (!normalizedTargets.emplace(LowerHexKey(target.first), target.second).second)
+				return ErrorResponse(
+					400, "bad_request", "confirmed_target contains duplicate hash keys");
+		}
+		confirmedTargets = &normalizedTargets;
+		for (const auto &hash : hashes) {
+			const auto target = confirmedTargets->find(LowerHexKey(hash));
+			if (target == confirmedTargets->end() || !ValidDeleteTarget(target->second))
+				return ErrorResponse(400,
+					"bad_request",
+					"confirmed_target must contain a valid target for every hash");
+		}
+	}
+
 	std::vector<BulkItem> results;
 	results.reserve(hashes.size());
 	for (const std::string &raw : hashes) {
@@ -8990,14 +9170,33 @@ CHttpServer::Response CApiDispatcher::HandleDownloadsBulkDelete(const CHttpServe
 			results.push_back(BulkErr(raw, 404, "not_found", "no download with that hash"));
 			continue;
 		}
-		// Same guard as the single-item DELETE: completed entries are not
-		// removable here (use POST /downloads_clear_completed).
-		if (d.download.status == "completed" || d.download.status == "completing") {
+		if (confirmedTargets && !MatchesDeleteTarget(confirmedTargets->at(needle), d)) {
+			results.push_back(BulkErr(raw,
+				409,
+				"selection_changed",
+				"The confirmed download has changed. Refresh and confirm again."));
+			continue;
+		}
+		if (d.download.status == "completed" && !confirmedTargets) {
 			results.push_back(BulkErr(raw,
 				409,
 				"download_completed",
-				"DELETE only removes active downloads; use POST "
-				"/downloads_clear_completed to clear a completed entry"));
+				"Deleting a completed file requires confirmed_target. Use clear completed to "
+				"keep the file."));
+			continue;
+		}
+		if (d.download.status == "completing") {
+			results.push_back(BulkErr(raw,
+				409,
+				"download_completed",
+				"The download is completing. Wait for completion and confirm again."));
+			continue;
+		}
+		if (d.download.status == "completed" && !m_app.IsServerDeleteCompleteActive()) {
+			results.push_back(BulkErr(raw,
+				503,
+				"ec_unsupported",
+				"The connected core does not support deleting complete files from disk."));
 			continue;
 		}
 		CMD4Hash file_hash;
@@ -9006,8 +9205,7 @@ CHttpServer::Response CApiDispatcher::HandleDownloadsBulkDelete(const CHttpServe
 				BulkErr(raw, 500, "internal_error", "failed to decode partfile hash"));
 			continue;
 		}
-		std::unique_ptr<CECPacket> ec_req(new CECPacket(EC_OP_PARTFILE_DELETE));
-		ec_req->AddTag(CECTag(EC_TAG_PARTFILE, file_hash));
+		auto ec_req = FileDeleteRequest(d, file_hash);
 		const CECPacket *ec_resp = m_app.SendRecvSerialized(ec_req.get());
 		if (!ec_resp) {
 			results.push_back(
@@ -9018,6 +9216,14 @@ CHttpServer::Response CApiDispatcher::HandleDownloadsBulkDelete(const CHttpServe
 		if (IsEcFailedResponse(ec_resp, ec_err)) {
 			delete ec_resp;
 			results.push_back(BulkErr(raw, 400, "amuled_rejected", ec_err));
+			continue;
+		}
+		if (ec_resp->GetOpCode() != EC_OP_NOOP) {
+			delete ec_resp;
+			results.push_back(BulkErr(raw,
+				502,
+				"ec_protocol_error",
+				"The core did not confirm deleting the file."));
 			continue;
 		}
 		delete ec_resp;

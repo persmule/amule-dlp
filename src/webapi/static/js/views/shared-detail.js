@@ -10,6 +10,7 @@
 // for this file has landed. While a re-hash runs the hashing bar replaces it,
 // the same precedence CSharedFilesCtrl::GetItemBarFill applies.
 
+import { deleteSharedFile } from "../shared-delete.js";
 import { api } from "../api.js";
 import { html, useState, useEffect, useStore } from "../dom.js";
 import { Placeholder, PiecesBar, PiecesLegend, toast, confirmDialog, Section, statRow, IdentityLine, copyText, Tabs, CommentEditor, RenameForm, DownloadLink } from "../components.js";
@@ -42,7 +43,7 @@ function completeSources(s) {
   return formatInt(r.low) + " – " + formatInt(r.high);
 }
 
-export function SharedDetail({ hash }) {
+export function SharedDetail({ hash, isGuest }) {
   const shared = useStore("shared") || []; // live tick source (SSE)
   const [detail, setDetail] = useState(null);
   const [gone, setGone] = useState(false);
@@ -148,6 +149,9 @@ export function SharedDetail({ hash }) {
           statRow("shared_detail_file_type", fileTypeLabel(s.file_type), "shared_detail_tip_file_type"),
         ], "shared_detail_group_file", html`
           <${DownloadLink} hash=${s.hash} incomplete=${!!s.incomplete} />
+          ${!isGuest ? html`
+          <button class="btn btn-sm btn-danger admin-only" type="button" disabled=${!!s.incomplete}
+                  onClick=${() => deleteSharedFile(s.hash)}>${t("downloads_delete_disk")}</button>` : null}
           <button class="btn btn-sm admin-only" type="button" disabled=${!!s.incomplete}
                   title=${t(s.incomplete ? "shared_verify_tip_partfile" : "shared_verify_tip")}
                   onClick=${verify}>

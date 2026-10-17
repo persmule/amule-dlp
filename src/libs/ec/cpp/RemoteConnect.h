@@ -265,6 +265,7 @@ private:
 	// include one with no unique GUI_ID. Distinct from m_serverChatSessions: a client
 	// that predates the hash tag would merge two such sessions under one legacy id.
 	bool m_serverChatPeerHash;
+	bool m_serverDeleteComplete;
 
 	void WriteDoneAndQueueEmpty();
 
@@ -327,6 +328,7 @@ public:
 	//! See m_serverChatPeerHash. False means: address and list chat sessions by
 	//! GUI_ID only, exactly as a build that predates the hash tag would.
 	bool ServerSupportsChatPeerHash() const { return m_serverChatPeerHash; }
+	bool ServerSupportsDeleteComplete() const { return m_serverDeleteComplete; }
 
 	bool ServerSupportsSharedDirsConfig() const { return m_serverSharedDirsConfig; }
 

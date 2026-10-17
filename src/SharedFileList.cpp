@@ -26,6 +26,7 @@
 #include "SharedFileList.h" // Interface declarations  // Do_not_auto_remove
 #include "SharedDirWatcher.h"
 
+#include "CompletedFileDeletion.h"
 #include <map>
 #include <unordered_set>
 
@@ -44,11 +45,12 @@
 #include "OtherFunctions.h"   // Needed for GetED2KFileTypeID / ED2KFT_* (MaybeScheduleMediaProbe)
 #include "ThreadScheduler.h"  // Needed for CThreadScheduler::GetPendingCount (bulk probe logging)
 #include "Preferences.h"      // Needed for thePrefs
-#include "DownloadQueue.h"    // Needed for CDownloadQueue
-#include "amule.h"            // Needed for theApp
-#include "PartFile.h"         // Needed for PartFile
-#include "Server.h"           // Needed for CServer
-#include "Statistics.h"       // Needed for theStats
+#include "UploadQueue.h"
+#include "DownloadQueue.h" // Needed for CDownloadQueue
+#include "amule.h"         // Needed for theApp
+#include "PartFile.h"      // Needed for PartFile
+#include "Server.h"        // Needed for CServer
+#include "Statistics.h"    // Needed for theStats
 #include "Logger.h"
 #include <common/Format.h>
 #include <common/FileFunctions.h>
@@ -995,6 +997,78 @@ void CSharedFileList::RefreshPathIndex(CKnownFile *file)
 		AddDebugLogLineN(
 			logKnownFiles, CFormat("Path index re-keyed to '%s' (file moved/completed)") % key);
 	}
+}
+
+CSharedFileList::DeleteFileResult CSharedFileList::DeleteFileFromDisk(const CMD4Hash &hash,
+	uint32 ecid,
+	const wxString &directory,
+	const wxString &name,
+	wxString &error,
+	bool removeOnly)
+{
+	CKnownFile *shared = GetFileByID(hash);
+	CKnownFile *file = shared;
+	if (!file || file->ECID() != ecid) {
+		file = theApp->downloadqueue->GetFileByID(hash);
+	}
+	if (!file || file->IsPartFile() || file->ECID() != ecid ||
+		file->GetFilePath().GetPrintable() != directory ||
+		file->GetFileName().GetPrintable() != name) {
+		error = _("The selected file has changed or is not a complete file.");
+		AddLogLineC(error);
+		return DeleteFileResult::Changed;
+	}
+	const CPath fullpath = file->GetFilePath().JoinPaths(file->GetFileName());
+	// A completed row can survive removal of its shared record. Its name/path
+	// still match the confirmation even after another file has been hashed at
+	// that path, so check the live path owner before unlinking any bytes.
+	bool replaced = false;
+	{
+		wxMutexLocker lock(list_mut);
+		const auto current = m_pathIndex.find(NormalizePathKey(fullpath.GetRaw()));
+		replaced = current != m_pathIndex.end() && current->second->GetFileHash() != hash;
+	}
+	if (replaced) {
+		error = _("The selected file has changed or is not a complete file.");
+		AddLogLineC(error);
+		return DeleteFileResult::Changed;
+	}
+	ListOfUInts32 completedIds(1, ecid);
+	const CPartFile *completed = theApp->downloadqueue->GetFileByID(hash);
+	if (completed && completed->IsCompleted() && completed->ECID() != ecid &&
+		completed->GetFilePath().JoinPaths(completed->GetFileName()) == fullpath) {
+		// A rehash can replace the shared record without replacing its completed
+		// transfer row. Both records describe the bytes being deleted.
+		completedIds.push_back(completed->ECID());
+	}
+	if (!removeOnly && !CPath::RemoveFile(fullpath)) {
+		// A failed FileExists() is not proof that the path is absent.
+		if (!CompletedFilePathIsMissing(fullpath)) {
+			error = CFormat(_("Could not delete '%s' from disk.")) % fullpath.GetPrintable();
+			AddLogLineC(error);
+			return DeleteFileResult::Failed;
+		}
+	}
+	// Snapshot hash too: callers may have passed a reference into file, which can
+	// be retired by known-file pruning once it is detached from the live lists.
+	const CMD4Hash detachedHash = hash;
+	// A completed row can outlive its canonical shared record. RemoveFile erases
+	// by hash, so detach the canonical pointer only when it names the deleted path.
+	// Another same-hash copy at a different path must remain shared and uploading.
+	const bool detachShared =
+		shared && shared->GetFilePath().JoinPaths(shared->GetFileName()) == fullpath;
+	if (detachShared) {
+		RemoveFile(shared);
+	}
+	// Neither pointer may be dereferenced after detaching/clearing it.
+	if (!shared || detachShared) {
+		theApp->uploadqueue->SuspendUpload(detachedHash, true);
+	}
+	theApp->downloadqueue->ClearCompleted(completedIds);
+	if (!removeOnly) {
+		AddLogLineN(CFormat(_("Deleted '%s' from disk.")) % fullpath.GetPrintable());
+	}
+	return DeleteFileResult::Deleted;
 }
 
 // removes first occurrence of 'toremove' in 'list'

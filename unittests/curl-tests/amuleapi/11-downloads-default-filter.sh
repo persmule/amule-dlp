@@ -23,9 +23,9 @@
 # The clear-completed mutations:
 #   `POST /downloads_clear_completed`              (bulk-clear, no body)
 #   `POST /downloads_clear_completed {"hash":...}` (single-entry clear)
-# Both wire to EC_OP_CLEAR_COMPLETED. `DELETE /downloads/{hash}` is
-# active-only and 409s on completed entries — see 13-downloads-delete-clear for the
-# 409 + per-entry clear assertions.
+# Both wire to EC_OP_CLEAR_COMPLETED. `DELETE /downloads/{hash}` deletes
+# bytes for active and completed entries. See 13-downloads-delete-clear for
+# per-entry clear assertions and CompletedFileDeleteIntegrationTest.py for deletion.
 
 set -u
 set -o pipefail

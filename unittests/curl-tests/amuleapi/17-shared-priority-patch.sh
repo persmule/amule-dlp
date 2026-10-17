@@ -266,10 +266,10 @@ _curl -X PATCH -H "Authorization: Bearer $ADMIN_TOKEN" \
 	"$API/shared/baadbaadbaadbaadbaadbaadbaadbaad"
 _assert_status 404 "PATCH unknown hash → 404"
 
-# --- 5. Method gate (POST/DELETE not allowed). --------------------
-_curl -X DELETE -H "Authorization: Bearer $ADMIN_TOKEN" \
+# --- 5. Method gate (POST/PUT not allowed). --------------------
+_curl -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" \
 	"$API/shared/$TEST_HASH"
-_assert_status 405 "DELETE /shared/{hash} → 405"
+_assert_status 405 "PUT /shared/{hash} → 405"
 
 # --- 5b. Both-file priority independence. --------------------------
 # A partfile that is BOTH downloading and shared carries two independent

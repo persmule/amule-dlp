@@ -20,6 +20,7 @@ if (BUILD_MONOLITHIC OR BUILD_DAEMON)
 		ClientTCPSocket.cpp
 		ClientUDPSocket.cpp
 		CorruptionBlackBox.cpp
+		CompletedFileDeletion.cpp
 		DownloadBandwidthThrottler.cpp
 		DownloadClient.cpp
 		DownloadQueue.cpp

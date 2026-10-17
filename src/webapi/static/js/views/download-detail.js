@@ -176,9 +176,7 @@ export function DownloadDetail({ hash, isGuest, categories = [], onPatch, onDele
 function DetailActions({ d, isGuest, categories, onPatch, onDelete, onClear }) {
   const inactive = d.status === "paused" || d.status === "stopped";
   const canStop = d.status !== "stopped" && d.status !== "completed" && d.status !== "completing";
-  // Completed rejects DELETE (409 download_completed): offer Clear. `done` also
-  // gates the download link — only a completed file is in Incoming (shared), so
-  // only then does its hash resolve under shared/{hash}/content.
+  // Only completed files have disk deletion and a shared-content download link.
   const done = d.status === "completed";
 
   const clear = async () => {
@@ -200,8 +198,11 @@ function DetailActions({ d, isGuest, categories, onPatch, onDelete, onClear }) {
         </button>` : null}
       ${done ? html`
         <${DownloadLink} hash=${d.hash} tipKey="downloads_download_tip" />
+        <button class="btn btn-sm btn-danger admin-only" type="button" onClick=${() => onDelete(d)}>
+          <${Icon} name="trash" /> ${t("downloads_delete_disk")}
+        </button>
         <button class="btn btn-sm admin-only" type="button" onClick=${clear}>
-          <${Icon} name="trash" /> ${t("downloads_clear_this")}
+          <${Icon} name="remove" /> ${t("downloads_clear_this")}
         </button>` : html`
         <button class="btn btn-sm btn-danger admin-only" type="button" onClick=${() => onDelete(d)}>
           <${Icon} name="cancel" /> ${t("downloads_cancel")}

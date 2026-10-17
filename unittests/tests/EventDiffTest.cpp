@@ -2210,3 +2210,68 @@ TEST(EventDiff, ChatCaptchaExpiryEmitsSessionUpdateWithoutMessage)
 	ASSERT_TRUE(events[0].data.find("\"pending_captcha_id\":null") != std::string::npos);
 	ASSERT_TRUE(events[0].data.find(change.peer_hash) != std::string::npos);
 }
+
+TEST(EventDiff, SharedCompletenessUpdatesWithoutUploadChanges)
+{
+	CState state;
+	state.MutateShared([](FileMap &files) {
+		FileSnapshot f;
+		f.ecid = 41;
+		f.hash = "11111111111111111111111111111111";
+		f.is_shared = true;
+		f.is_downloading = true;
+		f.download.status = "paused";
+		files.emplace(f.ecid, f);
+	});
+	CEventBus bus;
+	LastSeenState prev;
+	EmitDiffsAndUpdate(bus, prev, state);
+	std::uint64_t cursor = 0;
+	bool added = false;
+	for (const auto &e : DrainAll(bus)) {
+		cursor = e.id;
+		if (e.name == "shared_added") {
+			added = true;
+			ASSERT_TRUE(e.data.find("\"incomplete\":true") != std::string::npos);
+		}
+	}
+	ASSERT_TRUE(added);
+
+	// Remaining incomplete must not add noisy shared updates for download-only changes.
+	for (const std::string status : { "downloading", "completing", "completed" }) {
+		state.MutateShared(
+			[&status](FileMap &files) { files.find(41)->second.download.status = status; });
+		EmitDiffsAndUpdate(bus, prev, state);
+		int updated = 0;
+		for (const auto &e : DrainSince(bus, cursor)) {
+			cursor = e.id;
+			if (e.name == "shared_updated") {
+				++updated;
+				ASSERT_TRUE(e.data.find("\"incomplete\":false") != std::string::npos);
+			}
+		}
+		ASSERT_EQUALS(status == "completed" ? 1 : 0, updated);
+	}
+	// Clear completed keeps the file complete and must not disable deletion again.
+	state.MutateShared([](FileMap &files) { files.SetDownloading(files.find(41), false); });
+	EmitDiffsAndUpdate(bus, prev, state);
+	for (const auto &e : DrainSince(bus, cursor)) {
+		cursor = e.id;
+		ASSERT_TRUE(e.name != "shared_updated");
+	}
+	// A shared-only record gaining a downloading role must disable complete-file actions.
+	state.MutateShared([](FileMap &files) {
+		auto it = files.find(41);
+		files.SetDownloading(it, true);
+		it->second.download.status = "paused";
+	});
+	EmitDiffsAndUpdate(bus, prev, state);
+	int updated = 0;
+	for (const auto &e : DrainSince(bus, cursor)) {
+		if (e.name == "shared_updated") {
+			++updated;
+			ASSERT_TRUE(e.data.find("\"incomplete\":true") != std::string::npos);
+		}
+	}
+	ASSERT_EQUALS(1, updated);
+}

@@ -59,6 +59,7 @@ The API is versioned in the path. **`/api/v1/` is frozen**: anything that could 
 - [`PUT /api/v1/share_directories`](#put-apiv1share_directories) — replace the configured share roots
 - [`POST /api/v1/share_directories`](#post-apiv1share_directories) — add one share root
 - [`DELETE /api/v1/share_directories`](#delete-apiv1share_directories) — remove one share root
+- [`DELETE /api/v1/shared/{hash}`](#delete-apiv1sharedhash) — delete a complete shared file from disk with explicit confirmation
 - [`POST /api/v1/shared/{hash}/verify`](#post-apiv1sharedhashverify) — re-hash a shared file against its on-disk data
 - [`PATCH /api/v1/shared`](#patch-apiv1shared) — bulk change upload priority
 - [`PATCH /api/v1/shared/{hash}`](#patch-apiv1sharedhash) — change upload priority
@@ -1139,11 +1140,18 @@ curl -s -X PATCH -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application
 
 **Auth:** `ADMIN`
 
-Bulk cancel + remove of active downloads (deletes each `.part`/`.met` from disk). A completed or completing entry is rejected per-item with `download_completed` — clear those via `POST /downloads_clear_completed`.
+Bulk cancel + remove of active downloads (deletes each `.part`/`.met` from disk). Completed entries are deleted from disk through `EC_OP_KNOWNFILE_DELETE` only when `confirmed_target` is supplied. Without it they report `409 download_completed` and their Incoming files are preserved, including when a v1 client submits every hash from `GET /downloads`. Use `POST /downloads_clear_completed` to clear entries while keeping the files.
+
+Entries still completing also report `download_completed`; wait for completion and confirm again.
 
 **Body:** `{ "hashes": ["<md4>", …] }` (non-empty, max 500).
 
-**Response:** the [bulk `results` envelope](#bulk-mutations-and-the-results-envelope), keyed by hash. Per-item `error.code` is `not_found`, `download_completed`, `amuled_rejected`, or `ec_unavailable`.
+An optional `confirmed_target` object maps each hash to the same confirmation precondition
+accepted by single-file DELETE. All supplied preconditions are validated before any
+file is mutated; stale entries report `selection_changed` per item. The Web UI freezes
+this map and the selected hashes while its confirmation dialog is open.
+
+**Response:** the [bulk `results` envelope](#bulk-mutations-and-the-results-envelope), keyed by hash. Per-item `error.code` is `not_found`, `download_completed`, `selection_changed`, `ec_unsupported`, `amuled_rejected`, `ec_protocol_error`, or `ec_unavailable`.
 
 **Errors:** `400 bad_request` (missing/empty `hashes`), `503 ec_unavailable`.
 
@@ -1177,16 +1185,22 @@ curl -s -X PATCH -H "Authorization: Bearer $TOKEN" \
 
 **Auth:** `ADMIN`
 
-Cancels an **active** partfile and deletes its on-disk data. `{hash}` is the 32-char MD4 hex hash (case-insensitive). amuled runs `EC_OP_PARTFILE_DELETE` → `CPartFile::Delete()`, which removes the `.part`, `.part.met`, and `.met.bak` files and adds the hash to its `canceledfiles` list (so re-adding the same ed2k link is silently refused until the operator clears that list out-of-band). Completed and completing entries are out of scope and return `409 download_completed`; use [`POST /downloads_clear_completed`](#post-apiv1downloads_clear_completed) once the download has completed. The file in the Incoming directory is never deleted.
+Cancels an **active** partfile and deletes its on-disk data. `{hash}` is the 32-char MD4 hex hash (case-insensitive). amuled runs `EC_OP_PARTFILE_DELETE` → `CPartFile::Delete()`, which removes the `.part`, `.part.met`, and `.met.bak` files and adds the hash to its `canceledfiles` list (so re-adding the same ed2k link is silently refused until the operator clears that list out-of-band). For completed entries, deletes the finished file from disk only with `confirmed_target`, stops sharing/uploads, and clears the completed row. The known-file record is retained and the hash is not marked cancelled. If unlink fails, the file stays shared and listed and the API returns `amuled_rejected`. Older cores return `503 ec_unsupported`. To keep the file, use [`POST /downloads_clear_completed`](#post-apiv1downloads_clear_completed) instead.
 
 ```sh
 curl -s -X DELETE -H "Authorization: Bearer $TOKEN" \
   "http://$HOST/api/v1/downloads/8b54a3c2..."
 ```
 
+**Body (required for completed entries, optional for active downloads):** `{ "confirmed_target": { "ecid": 123, "name": "file.ext", "directory": "/Incoming", "status": "completed" } }`.
+Copy these values from the detail GET (`ecid` is the current daemon record ID).
+A changed target returns `409 selection_changed` without deletion; malformed targets
+return `400 bad_request`. The Web UI always sends this precondition after confirmation.
+Requests without `confirmed_target` retain the existing v1 behavior: active downloads are cancelled, while completed entries return `409 download_completed` and keep their Incoming files. Unrecognized body fields do not opt into deletion.
+
 **Response:** `204 No Content`.
 
-**Errors:** `400 bad_request` (`{hash}` is not 32 hex characters), `400 amuled_rejected`, `404 not_found`, `409 download_completed`, `503 ec_unavailable`.
+**Errors:** `400 bad_request` (`{hash}` is not 32 hex characters), `400 amuled_rejected`, `404 not_found`, `409 download_completed` (still completing, or completed without `confirmed_target`), `409 selection_changed`, `502 ec_protocol_error` (unexpected core acknowledgment), `503 ec_unsupported`, `503 ec_unavailable`.
 
 #### `POST /api/v1/downloads_clear_completed`
 
@@ -1536,6 +1550,7 @@ curl -s -H "Authorization: Bearer $TOKEN" "http://$HOST/api/v1/shared"
       "size_bytes":       3217,
       "priority":         "normal",
       "priority_auto":    false,
+      "incomplete":       false,
       "sources":          { "complete": 12 },
       "uploaded_bytes_session":         5242880,
       "uploaded_bytes_total":           314572800,
@@ -1567,6 +1582,8 @@ curl -s -H "Authorization: Bearer $TOKEN" "http://$HOST/api/v1/shared"
 
 `priority` is the upload priority — `"very_low"` / `"low"` / `"normal"` / `"high"` / `"release"` — and `priority_auto` is `true` when amuled is deriving that level automatically from the upload queue. This mirrors the `/downloads` shape (base `priority` + separate `priority_auto` flag); on an auto file `priority` reports the current derived level, not the literal string `"auto"`. For a file that is both downloading and shared this upload priority is independent of the download priority reported by [`GET /api/v1/downloads`](#get-apiv1downloads).
 
+`incomplete` is a boolean on shared list rows, detail objects, and `shared_added` / `shared_updated` events. It is `true` for an active or completing partfile and `false` for a complete file, including a completed download awaiting Clear. It lets clients disable complete-file actions; a completion emits `shared_updated` even when upload statistics are unchanged.
+
 `hashed_part_count` is the number of parts hashed so far by a pass running over the file — a [`POST /shared/{hash}/verify`](#post-apiv1sharedhashverify) run, or an AICH hashset rebuild — and `0` when nothing is hashing. It is a count of completed parts, not the index of the part in flight, so it runs `0` → `total_part_count`, which is on this row.
 
 A file that is both downloading and shared reports its progress here as well: amuled describes such a file as a partfile, so the value is read across from the download side and the two agree. That makes `hashed_part_count` usable from either list without checking which one owns the file.
@@ -1581,7 +1598,7 @@ The SSE `shared_added` / `shared_updated` event payload matches this object byte
 
 **Auth:** `GUEST`
 
-Detail view for a single shared file. `{hash}` is the 32-char MD4 hex hash (case-insensitive). Returns every field of the [`GET /shared`](#get-apiv1shared) list item plus the detail-only fields below — one call for everything about a shared file. The list endpoint is unchanged.
+Detail view for a single shared file. `{hash}` is the 32-char MD4 hex hash (case-insensitive). Returns every field of the [`GET /shared`](#get-apiv1shared) list item plus the detail-only fields below — one call for everything about a shared file.
 
 ```sh
 curl -s -H "Authorization: Bearer $TOKEN" \
@@ -1590,10 +1607,10 @@ curl -s -H "Authorization: Bearer $TOKEN" \
 
 | Field | Type | Meaning |
 |---|---|---|
+| `ecid` | uint32 | Current daemon record ID, used with name, directory, and state in the `confirmed_target` deletion precondition. |
 | `file_type` | string | Category token derived from the extension: `"audio"`, `"video"`, `"archive"`, `"disc_image"`, `"picture"`, `"text"`, `"program"`, or `"unknown"`. |
 | `upload_ratio` | number | `xfer.total / size`; `0` when `size == 0`. |
 | `directory` | string | Directory path of the on-disk file — the temp directory while the file is still an incomplete partfile, the destination directory once it has completed. Identical to `directory` on `/downloads/{hash}` for the same file. |
-| `incomplete` | bool | `true` while the file is still an incomplete partfile, `false` once complete. Always present. A download that has finished but has not been cleared yet reports `false`, since its data already sits in the destination directory. |
 | `sources.complete_min` / `sources.complete_max` | int | The low and high ends of the estimated full-copy source range behind `sources.complete`. Two scalars, not a nested object. |
 | `aich_hash` | string\|null | AICH master hash (hex), or `null` until the hashset exists. |
 | `total_part_count` | int | Total parts, `ceil(size / 9.28 MiB)`. |
@@ -1832,6 +1849,28 @@ Removing a path that is not configured is a `404` rather than a silent success, 
 **Errors:** `400 bad_request` (no `path` parameter), `404 not_found` (path not configured), `502 amuled_rejected`, `503 ec_unavailable`.
 
 > Concurrency: `POST` and `DELETE` are read-modify-write against amuled's whole-list operation, serialised inside amuleapi so two API clients cannot lose each other's change. Nothing can make them atomic against a *simultaneous* edit from amuleGUI — the protocol has no compare-and-set — so that case is last-write-wins.
+
+#### `DELETE /api/v1/shared/{hash}`
+
+**Auth:** `ADMIN`
+
+Permanently deletes a complete shared file from disk through `EC_OP_KNOWNFILE_DELETE`, including files that were never downloaded or whose completed notification was cleared. Stops sharing/uploads and removes matching completed rows; known-file history is retained and the hash is not marked cancelled. An unlink failure leaves the file shared and listed.
+
+**Required body:** `{ "confirmed_target": { "ecid": 123, "name": "file.ext", "directory": "/Incoming", "incomplete": false } }`.
+Copy all four fields from `GET /shared/{hash}` (`ecid` is the current core record ID, exposed on detail GET). The shared representation uses `incomplete` for its state precondition, while downloads use `status`. The server checks the confirmed identity against its snapshot and the core revalidates it immediately before unlinking. The core also rejects a stale completed-row target if a different shared file now owns its path. A changed identity returns `409 selection_changed`; missing or malformed confirmation returns `400 bad_request`.
+
+```sh
+curl -s -H "Authorization: Bearer $TOKEN" "http://$HOST/api/v1/shared/$HASH" > shared-target.json
+jq '{confirmed_target: {ecid, name, directory, incomplete}}' shared-target.json > shared-delete.json
+# Review the name and directory in shared-delete.json before deleting.
+curl -s -X DELETE -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' --data-binary @shared-delete.json \
+  "http://$HOST/api/v1/shared/$HASH"
+```
+
+**Response:** `204 No Content`.
+
+**Errors:** `400 bad_request`, `400 amuled_rejected`, `404 not_found`, `409 selection_changed`, `409 partfile_unsupported` (use Downloads to cancel an incomplete file), `502 ec_protocol_error`, `503 ec_unsupported` (older core), `503 ec_unavailable`.
 
 #### `POST /api/v1/shared/{hash}/verify`
 
@@ -3362,10 +3401,12 @@ Every error code emitted by `/api/v1/*`, sorted by what triggered it. Two codes 
 | `method_not_allowed` | 405 | Wrong HTTP verb for the route. The response carries an `Allow` header listing the methods this resource does support. |
 | `option_not_supported` | 409 | `PATCH /preferences` set an option the connected daemon was built without, or is too old to support. |
 | `not_a4af_source` | 409 | The client named on a `POST /downloads/{hash}/a4af` request is not an A4AF source of that download. |
-| `partfile_unsupported` | 409 | Verify Local Data, or a content download, requested on a file that is still an incomplete partfile. |
+| `partfile_unsupported` | 409 | Verify Local Data, a content download, or shared-file deletion requested on a file that is still an incomplete partfile. |
 | `not_shared` | 409 | A comment or rating was posted against a file that is not shared. |
 | `not_completed` | 409 | `clear_completed` named a `hash` that is not a completed download. |
-| `download_completed` | 409 | A `DELETE /downloads` matched a completed or completing download; use `clear_completed` for those. |
+| `download_completed` | 409 | DELETE matched a download still completing, or a completed entry without `confirmed_target`; wait for completion and explicitly confirm disk deletion, or clear the completed row to keep its file. |
+| `selection_changed` | 409 | The confirmed deletion target changed; refresh and confirm again. |
+| `ec_protocol_error` | 502 | The core returned an unexpected deletion acknowledgment; success could not be confirmed. |
 | `kad_more_exhausted` | 409 | `POST /search/{id}/more` on a Kad search that can no longer be widened — its 4-reask budget is spent, or it has entered the stopping window Kad begins 20 s before a keyword search ends. Terminal for that search; re-run the query for more. |
 | `version_check_unavailable` | 409 | `POST /version/check` cannot run - the daemon has no update-check capability. |
 | `payload_too_large` | 413 | Request body exceeds the 1 MiB limit. The connection closes after the response. |

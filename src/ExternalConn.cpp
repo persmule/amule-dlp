@@ -1342,6 +1342,7 @@ const CECPacket *CECServerSocket::Authenticate(const CECPacket *request)
 				// that does not see the echo must not send the request -- against a daemon
 				// that predates it the unknown opcode asserts.
 				response->AddTag(CECEmptyTag(EC_TAG_CAN_CLIENT_HISTORY));
+				response->AddTag(CECEmptyTag(EC_TAG_CAN_DELETE_COMPLETE));
 				if (m_chatActive) {
 					// Confirm the chat session ops so the client starts
 					// polling EC_OP_GET_CHAT_SESSIONS.
@@ -2250,7 +2251,13 @@ static CECPacket *Get_EC_Response_PartFile_Cmd(const CECPacket *request)
 	for (CECPacket::const_iterator it1 = request->begin(); it1 != request->end(); ++it1) {
 		const CECTag &hashtag = *it1;
 
-		wxASSERT(hashtag.GetTagName() == EC_TAG_PARTFILE);
+		if (hashtag.GetTagName() != EC_TAG_PARTFILE || !hashtag.IsMD4()) {
+			delete response;
+			response = new CECPacket(EC_OP_FAILED);
+			response->AddTag(
+				CECTag(EC_TAG_STRING, wxTRANSLATE("Invalid partfile command target.")));
+			break;
+		}
 
 		CMD4Hash hash = hashtag.GetMD4Data();
 		CPartFile *pfile = theApp->downloadqueue->GetFileByID(hash);
@@ -2303,10 +2310,10 @@ static CECPacket *Get_EC_Response_PartFile_Cmd(const CECPacket *request)
 				pfile->SetDownPriority(prio);
 			}
 		} break;
-		case EC_OP_PARTFILE_DELETE:
-			// Finished downloads stay in the queue until cleared, so "cancel all" and a
-			// category cancel reach them too. Skip them and cancel the rest.
-			if (pfile->GetStatus() == PS_COMPLETE || pfile->GetStatus() == PS_COMPLETING) {
+		case EC_OP_PARTFILE_DELETE: {
+			// Legacy multi-file cancel skips finished entries and still cancels
+			// active entries later in the same packet.
+			if (pfile->IsCompleted() || pfile->GetStatus() == PS_COMPLETING) {
 				if (!response) {
 					response = new CECPacket(EC_OP_FAILED);
 					response->AddTag(CECTag(EC_TAG_STRING,
@@ -2316,11 +2323,29 @@ static CECPacket *Get_EC_Response_PartFile_Cmd(const CECPacket *request)
 				}
 				break;
 			}
+			const CECTag *expectedId = hashtag.GetTagByName(EC_TAG_ECID);
+			const CECTag *expectedName = hashtag.GetTagByName(EC_TAG_PARTFILE_NAME);
+			const CECTag *expectedDir = hashtag.GetTagByName(EC_TAG_KNOWNFILE_PATH);
+			if ((expectedId && (!expectedId->IsInt() || expectedId->GetInt() != pfile->ECID())) ||
+				(expectedName && (!expectedName->IsString() ||
+							 expectedName->GetStringData() !=
+								 pfile->GetFileName().GetPrintable())) ||
+				(expectedDir && (!expectedDir->IsString() ||
+							expectedDir->GetStringData() !=
+								pfile->GetFilePath().GetPrintable()))) {
+				delete response;
+				response = new CECPacket(EC_OP_FAILED);
+				response->AddTag(CECTag(EC_TAG_STRING,
+					wxTRANSLATE("The selected download has changed or is completing. "
+						    "Refresh and try again.")));
+				return response;
+			}
 			if (thePrefs::StartNextFile() && (pfile->GetStatus() != PS_PAUSED)) {
 				theApp->downloadqueue->StartNextFile(pfile);
 			}
 			pfile->Delete();
 			break;
+		}
 
 		case EC_OP_PARTFILE_SET_CAT: {
 			// A completing download reads its category's path, so an index past the list
@@ -3753,6 +3778,30 @@ CECPacket *CECServerSocket::ProcessRequest2(const CECPacket *request)
 	case EC_OP_SHARED_SET_PRIO:
 		response = Get_EC_Response_Set_SharedFile_Prio(request);
 		break;
+	case EC_OP_KNOWNFILE_DELETE: {
+		const CECTag *hash = request->GetTagByName(EC_TAG_KNOWNFILE);
+		const CECTag *ecid = request->GetTagByName(EC_TAG_ECID);
+		const CECTag *directory = request->GetTagByName(EC_TAG_KNOWNFILE_PATH);
+		const CECTag *name = request->GetTagByName(EC_TAG_PARTFILE_NAME);
+		wxString error;
+		bool ok = false;
+		if (!hash || !hash->IsMD4() || !ecid || !ecid->IsInt() || !ecid->GetInt() ||
+			ecid->GetInt() > UINT32_MAX || !directory || !directory->IsString() || !name ||
+			!name->IsString()) {
+			error = _("Invalid complete-file deletion target.");
+		} else {
+			ok = theApp->sharedfiles->DeleteFileFromDisk(hash->GetMD4Data(),
+				     ecid->GetInt(),
+				     directory->GetStringData(),
+				     name->GetStringData(),
+				     error) == CSharedFileList::DeleteFileResult::Deleted;
+		}
+		response = new CECPacket(ok ? EC_OP_NOOP : EC_OP_FAILED);
+		if (!ok) {
+			response->AddTag(CECTag(EC_TAG_STRING, error));
+		}
+		break;
+	}
 	case EC_OP_RENAME_FILE: {
 		CMD4Hash fileHash = request->GetTagByNameSafe(EC_TAG_KNOWNFILE)->GetMD4Data();
 		wxString newName = request->GetTagByNameSafe(EC_TAG_PARTFILE_NAME)->GetStringData();

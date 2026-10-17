@@ -107,7 +107,8 @@ async function request(method, path, { body, useEtag = false, noGate = false } =
   }
 
   if (!resp.ok) {
-    const err = payload && payload.error ? payload.error : {};
+    const err = (payload && payload.error) ||
+      (Array.isArray(payload?.results) && payload.results.find((r) => r && !r.ok && r.error)?.error) || {};
     // 401 (cookie gone / expired / revoked) and the auth limiter's own 429
     // are terminal for this session. Match 429 on the code, not the status:
     // other endpoints answer 429 for their own throttles and must not log the

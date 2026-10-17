@@ -180,6 +180,14 @@ msgstr ""
 msgid "Later"
 msgstr ""
 
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "The connected core does not support deleting complete files from disk."
+msgstr ""
+
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "Delete from disk"
+msgstr ""
+
 #: src/GuiEvents.cpp
 #, c-format
 msgid ""
@@ -202,25 +210,6 @@ msgid ""
 "\n"
 "%s\n"
 "The files are deleted and no longer shared. This cannot be undone."
-msgstr ""
-
-#: src/GuiEvents.cpp
-msgid "Delete from disk"
-msgstr ""
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Skipped deleting '%s': the selected file has changed."
-msgstr ""
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Deleted '%s' from disk."
-msgstr ""
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Could not delete '%s' from disk."
 msgstr ""
 
 #: src/GuiEvents.cpp
@@ -1257,6 +1246,10 @@ msgstr ""
 #: src/amule-remote-gui.cpp
 #, c-format
 msgid "Can't create directory '%s' for category '%s', keeping directory '%s'."
+msgstr ""
+
+#: src/amule-remote-gui.cpp
+msgid "The core did not confirm deleting the file. Refresh and try again."
 msgstr ""
 
 #: src/amule-remote-gui.cpp
@@ -2361,6 +2354,10 @@ msgid "Unauthorized access attempt from %s. Connection closed."
 msgstr ""
 
 #: src/ExternalConn.cpp
+msgid "Invalid partfile command target."
+msgstr ""
+
+#: src/ExternalConn.cpp
 #, c-format
 msgid "Remote PartFile command failed: FileHash not found: %s"
 msgstr ""
@@ -2373,6 +2370,10 @@ msgstr ""
 #: src/ExternalConn.cpp
 #, c-format
 msgid "Cannot cancel a finished download: %s"
+msgstr ""
+
+#: src/ExternalConn.cpp
+msgid "The selected download has changed or is completing. Refresh and try again."
 msgstr ""
 
 #: src/ExternalConn.cpp
@@ -2465,6 +2466,10 @@ msgstr ""
 
 #: src/ExternalConn.cpp
 msgid "Version check is not available on this daemon."
+msgstr ""
+
+#: src/ExternalConn.cpp
+msgid "Invalid complete-file deletion target."
 msgstr ""
 
 #: src/ExternalConn.cpp
@@ -7870,6 +7875,20 @@ msgid "Re-extracting media metadata for %u shared file"
 msgid_plural "Re-extracting media metadata for %u shared files"
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/SharedFileList.cpp
+msgid "The selected file has changed or is not a complete file."
+msgstr ""
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Could not delete '%s' from disk."
+msgstr ""
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Deleted '%s' from disk."
+msgstr ""
 
 #: src/SharedFileList.cpp
 #, c-format

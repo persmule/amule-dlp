@@ -219,6 +219,10 @@ public:
 	// True when amuled serves the chat session ops. Same load-bearing null check: a daemon
 	// predating them asserts on the unknown opcode instead of answering EC_OP_FAILED, so every
 	// chat request must be gated on this.
+	bool IsServerDeleteCompleteActive() const
+	{
+		return m_ECClient && m_ECClient->ServerSupportsDeleteComplete();
+	}
 	bool IsServerChatActive() const { return m_ECClient && m_ECClient->ServerSupportsChatSessions(); }
 	bool IsServerChatPeerHashActive() const
 	{

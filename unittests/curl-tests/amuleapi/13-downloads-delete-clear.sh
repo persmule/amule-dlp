@@ -6,11 +6,9 @@
 #   DELETE /api/v1/downloads/{hash}             — drop a single entry
 #   POST   /api/v1/downloads_clear_completed    — drop all completed
 #
-# Routing by current state:
-#   * status == "completed" → EC_OP_CLEAR_COMPLETED (by ECID; targets
-#                            amuled's m_completedDownloads list)
-#   * any other status      → EC_OP_PARTFILE_DELETE (by hash; targets
-#                            active partfiles in m_filelist)
+# Completed deletion is exercised with disposable fixtures by
+# CompletedFileDeleteIntegrationTest.py. This script only clears existing
+# completed notifications, preserving their files.
 #
 # The status decode is load-bearing here: a finished
 # partfile that the prior decoder reported as "paused" would never
@@ -266,21 +264,12 @@ _curl -X DELETE -H "Authorization: Bearer $ADMIN_TOKEN" \
 	"$API/downloads/$TEST_HASH"
 _assert_status 204 "Cleanup: DELETE /downloads/{Ubuntu ISO hash} (2nd) → 204"
 
-# --- 9. DELETE / clear_completed against any naturally-completed
-#         entry — covers the by-hash success path AND the 409 from
-#         DELETE on a completed entry. SKIP if the daemon has none.
+# --- 9. Clear an existing completed entry without deleting its file.
 _curl -H "Authorization: Bearer $ADMIN_TOKEN" \
 	"$API/downloads?status=all"
 COMPLETED_HASH=$(printf '%s' "$CURL_BODY" \
 	| jq -r '[.downloads[] | select(.status == "completed") | .hash][0] // empty')
 if [ -n "$COMPLETED_HASH" ]; then
-	# DELETE must refuse with 409 + actionable error code.
-	_curl -X DELETE -H "Authorization: Bearer $ADMIN_TOKEN" \
-		"$API/downloads/$COMPLETED_HASH"
-	_assert_status 409 "DELETE /downloads/{completed} → 409"
-	_assert_json_eq '.error.code' download_completed \
-		'DELETE on completed .error.code == download_completed'
-
 	# clear_completed {hash:completed} → 200, exactly 1 cleared.
 	_curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" \
 		-H "Content-Type: application/json" \
@@ -299,7 +288,6 @@ if [ -n "$COMPLETED_HASH" ]; then
 		"$API/downloads_clear_completed"
 	_assert_status 404 "POST clear_completed {hash:already-cleared} → 404"
 else
-	_skip "DELETE on completed → 409 (no completed entry in test daemon)"
 	_skip "POST clear_completed {hash:completed} → 200 (no completed entry)"
 fi
 

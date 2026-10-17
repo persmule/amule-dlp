@@ -2831,6 +2831,30 @@ target_include_directories (AmuleApiProcessTest PRIVATE
 target_link_libraries (AmuleApiProcessTest muleunit mulecommon wxWidgets::BASE)
 add_test (NAME AmuleApiProcessTest COMMAND AmuleApiProcessTest)
 
+# Disposable files, offline daemon, and real EC/REST deletion including unlink failure.
+if (ENABLE_INTEGRATION_TESTS AND BUILD_DAEMON AND BUILD_AMULEAPI AND UNIX AND NOT APPLE)
+	find_package (Python3 QUIET COMPONENTS Interpreter)
+	if (Python3_Interpreter_FOUND)
+		add_test (NAME CompletedFileDeleteIntegrationTest
+			COMMAND ${Python3_EXECUTABLE}
+				${CMAKE_CURRENT_SOURCE_DIR}/CompletedFileDeleteIntegrationTest.py
+				$<TARGET_FILE:amuled> $<TARGET_FILE:amuleapi>
+		)
+		set_tests_properties (CompletedFileDeleteIntegrationTest PROPERTIES SKIP_RETURN_CODE 77)
+		add_test (NAME CompletedFileDeleteCapabilityTest
+			COMMAND ${Python3_EXECUTABLE}
+				${CMAKE_CURRENT_SOURCE_DIR}/CompletedFileDeleteCapabilityTest.py
+				$<TARGET_FILE:amuleapi>
+		)
+	endif ()
+endif ()
+
+find_program (AMULE_TEST_NODE_EXECUTABLE NAMES node nodejs)
+if (AMULE_TEST_NODE_EXECUTABLE)
+	add_test (NAME DownloadDeleteTest
+		COMMAND ${AMULE_TEST_NODE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/DownloadDeleteTest.mjs)
+endif ()
+
 # Obfuscation cipher wire compatibility, using the production buffer and cipher.
 add_executable (RC4Test
 	RC4Test.cpp

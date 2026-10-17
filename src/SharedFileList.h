@@ -93,6 +93,22 @@ public:
 	bool IsReloadPending() const { return m_reloadLatch.IsPending(); }
 	void SafeAddKFile(CKnownFile *toadd, bool bOnlyAdd = false);
 	void RemoveFile(CKnownFile *toremove);
+	// Core event thread only. Revalidate the confirmed identity and path before unlinking.
+	// On failure leave lists/uploads intact. removeOnly is the desktop's explicit
+	// fallback after a failed unlink; EC never requests it.
+	bool CanDeleteFileFromDisk() const { return true; }
+	enum class DeleteFileResult
+	{
+		Deleted,
+		Changed,
+		Failed
+	};
+	DeleteFileResult DeleteFileFromDisk(const CMD4Hash &hash,
+		uint32 ecid,
+		const wxString &directory,
+		const wxString &name,
+		wxString &error,
+		bool removeOnly = false);
 	CKnownFile *GetFileByID(const CMD4Hash &filehash);
 	short GetFilePriorityByID(const CMD4Hash &filehash);
 	const CKnownFile *GetFileByIndex(unsigned int index) const;

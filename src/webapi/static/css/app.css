@@ -498,7 +498,7 @@ table.data.virtual td.name .name-select { width: 100%; max-width: 100%; }
 /* Inline categories panel header (title + Add category button). */
 .cat-panel-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
 .cat-panel-header h3 { margin: 0; font-size: 15px; }
-.modal-msg { margin: 0 0 16px; }
+.modal-msg { margin: 0 0 16px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 60vh; overflow-y: auto; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 
 /* --- transfers / shared extras --- */
