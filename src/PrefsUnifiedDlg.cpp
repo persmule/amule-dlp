@@ -203,6 +203,9 @@ wxBEGIN_EVENT_TABLE(PrefsUnifiedDlg, wxDialog)
 	EVT_BUTTON(IDC_GEOIP_UPDATE_NOW, PrefsUnifiedDlg::OnGeoIPUpdateNow)
 	EVT_CHECKBOX(IDC_SHOW_COUNTRY_FLAGS, PrefsUnifiedDlg::OnGeoIPMasterToggle)
 #endif
+#ifdef ENABLE_IPV6
+	EVT_CHOICE(IDC_ADDRESSFAMILIES, PrefsUnifiedDlg::OnAddressFamiliesChange)
+#endif
 	EVT_CHOICE(IDC_COLORSELECTOR, PrefsUnifiedDlg::OnColorCategorySelected)
 	EVT_DATAVIEW_SELECTION_CHANGED(ID_PREFSLISTCTRL, PrefsUnifiedDlg::OnPrefsPageChange)
 
@@ -1028,6 +1031,21 @@ bool PrefsUnifiedDlg::TransferToWindow()
 #endif
 #endif
 
+#ifdef ENABLE_IPV6
+#ifdef CLIENT_GUI
+	// A daemon that sent no address-families tag is old or lacks ENABLE_IPV6: nothing to edit.
+	if (wxWindow *box = FindWindow(IDC_ADDRESSFAMILIESBOX)) {
+		// A wxStaticBox's containing sizer is its own wxStaticBoxSizer, which ShowItems() hides
+		// together with the box.
+		if (wxSizer *boxSizer = box->GetContainingSizer()) {
+			boxSizer->ShowItems(thePrefs::GetAddressFamiliesTagSupported());
+			RefreshPreferencesPage(box);
+		}
+	}
+#endif
+	UpdateAddressFamiliesControls();
+#endif
+
 #ifdef __DEBUG__
 	// Set debugging toggles
 	int count = theLogger.GetDebugCategoryCount();
@@ -1146,6 +1164,19 @@ void PrefsUnifiedDlg::UpdateMessageFilterControls()
 	FindWindow(IDC_MSGFILTER_WORD)->Enable(selective);
 	FindWindow(IDC_MSGWORD)->Enable(selective && CastChild(IDC_MSGFILTER_WORD, wxCheckBox)->IsChecked());
 }
+
+#ifdef ENABLE_IPV6
+void PrefsUnifiedDlg::OnAddressFamiliesChange(wxCommandEvent &WXUNUSED(event))
+{
+	UpdateAddressFamiliesControls();
+}
+
+void PrefsUnifiedDlg::UpdateAddressFamiliesControls()
+{
+	const bool dualStack = CastChild(IDC_ADDRESSFAMILIES, wxChoice)->GetSelection() == 1;
+	FindWindow(IDC_ADVERTISEIPV6)->Enable(dualStack);
+}
+#endif
 
 void PrefsUnifiedDlg::SetCredentialStateLabel(int id, bool isSet)
 {
@@ -1266,6 +1297,12 @@ void PrefsUnifiedDlg::OnOk(wxCommandEvent &WXUNUSED(event))
 		restart_needed = true;
 		restart_needed_msg += _("- External connect port changed.\n");
 	}
+#ifdef ENABLE_IPV6
+	if (CfgChanged(IDC_ADDRESSFAMILIES)) {
+		restart_needed = true;
+		restart_needed_msg += _("- Address families changed.\n");
+	}
+#endif
 	if (CfgChanged(IDC_EXT_CONN_ACCEPT)) {
 		restart_needed = true;
 		restart_needed_msg += _("- External connect acceptance changed.\n");

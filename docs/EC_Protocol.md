@@ -811,6 +811,8 @@ itself only once no route holds messages.
 | `EC_TAG_CONN_SLOT_ALLOCATION`      | `0x1305` | `uint32` | Upload slot allocation |
 | `EC_TAG_CONN_MAX_FILE_SOURCES`     | `0x1309` | `uint16` | Max sources per file |
 | `EC_TAG_CONN_MAX_CONN`             | `0x130A` | `uint16` | Max connections |
+| `EC_TAG_CONN_ADDRESS_FAMILIES`     | `0x131A` | `uint32` | `AddressFamilies` setting: `0` = IPv4 only, `1` = IPv4 and IPv6 |
+| `EC_TAG_CONN_ADVERTISE_IPV6`       | `0x131B` | `bool`   | `AdvertiseIPv6` setting |
 
 > **Note**: `EC_TAG_CONN_MAX_DL`, `EC_TAG_CONN_MAX_UL`, and
 > `EC_TAG_CONN_SLOT_ALLOCATION` were widened from `uint16` to `uint32`
@@ -818,6 +820,12 @@ itself only once no route holds messages.
 > gigabit connections. EC clients reading these tags should use
 > `GetInt()` (which handles any integer width); clients sending them
 > should encode them as 32-bit values.
+
+> **Note** (#1177): only a core built with `ENABLE_IPV6` emits these two
+> tags. An absent `EC_TAG_CONN_ADDRESS_FAMILIES` therefore means an old
+> daemon or one without `ENABLE_IPV6`, a third state distinct from `0`.
+> amulegui then hides both controls and does not send either tag on
+> `EC_OP_SET_PREFERENCES`.
 
 ### Peer vendor capabilities (`EC_TAG_CLIENT_MOD_CAPABILITIES = 0x0633`)
 
