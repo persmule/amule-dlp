@@ -60,26 +60,36 @@ void CRC4EncryptableBuffer::RC4Crypt(const uint8 *pachIn, uint8 *pachOut, uint32
 	wxASSERT(m_hasKey && nLen > 0);
 
 	if (m_hasKey) {
-		uint8 byX = m_key.byX;
-		;
-		uint8 byY = m_key.byY;
-		uint8 *pabyState = &m_key.abyState[0];
-		;
+		uint32 byX = m_key.byX;
+		uint32 byY = m_key.byY;
+		uint8 *pabyState = m_key.abyState;
 
-		for (uint32 i = 0; i < nLen; ++i) {
-			uint8 byXorIndex;
-			byX = (byX + 1) % 256;
-			byY = (pabyState[byX] + byY) % 256;
-			std::swap(pabyState[byX], pabyState[byY]);
-			byXorIndex = (pabyState[byX] + pabyState[byY]) % 256;
+		// Keep the swapped values in locals: the output index needs their
+		// sum, without reading the state entries again after the stores.
+		auto advance = [&]() {
+			byX = (byX + 1) & 0xff;
+			const uint32 a = pabyState[byX];
+			byY = (byY + a) & 0xff;
+			const uint32 b = pabyState[byY];
+			pabyState[byX] = static_cast<uint8>(b);
+			pabyState[byY] = static_cast<uint8>(a);
+			return (a + b) & 0xff;
+		};
 
-			if (pachIn != NULL) {
-				pachOut[i] = pachIn[i] ^ pabyState[byXorIndex];
+		if (pachIn != nullptr) {
+			for (uint32 i = 0; i < nLen; ++i) {
+				const uint32 index = advance();
+				pachOut[i] = pachIn[i] ^ pabyState[index];
+			}
+		} else {
+			// Discard advances the permutation without loading keystream.
+			for (uint32 i = 0; i < nLen; ++i) {
+				advance();
 			}
 		}
 
-		m_key.byX = byX;
-		m_key.byY = byY;
+		m_key.byX = static_cast<uint8>(byX);
+		m_key.byY = static_cast<uint8>(byY);
 	} else {
 		throw std::runtime_error("(CRC4EncryptableBuffer::RC4Crypt): "
 					 "Encrypt() has been called without a previous call"

@@ -2830,3 +2830,16 @@ target_include_directories (AmuleApiProcessTest PRIVATE
 )
 target_link_libraries (AmuleApiProcessTest muleunit mulecommon wxWidgets::BASE)
 add_test (NAME AmuleApiProcessTest COMMAND AmuleApiProcessTest)
+
+# Obfuscation cipher wire compatibility, using the production buffer and cipher.
+add_executable (RC4Test
+	RC4Test.cpp
+	${CMAKE_SOURCE_DIR}/src/RC4Encrypt.cpp
+	${CMAKE_SOURCE_DIR}/src/MemFile.cpp
+	${CMAKE_SOURCE_DIR}/src/SafeFile.cpp
+	${CMAKE_SOURCE_DIR}/src/Tag.cpp
+)
+target_include_directories (RC4Test PRIVATE
+	${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/include)
+target_link_libraries (RC4Test muleunit mulecommon CRYPTOPP::CRYPTOPP)
+add_test (NAME RC4Test COMMAND RC4Test)
