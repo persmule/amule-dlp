@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-16 08:33+0000\n"
+"PO-Revision-Date: 2026-10-18 13:15+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -203,6 +203,14 @@ msgstr "Перезапустить сейчас"
 msgid "Later"
 msgstr "Позже"
 
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "The connected core does not support deleting complete files from disk."
+msgstr "Подключённое ядро не поддерживает удаление завершённых файлов с диска."
+
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "Delete from disk"
+msgstr "Удалить с диска"
+
 #: src/GuiEvents.cpp
 #, c-format
 msgid ""
@@ -235,25 +243,6 @@ msgstr ""
 "\n"
 "%s\n"
 "Файлы будут удалены и больше не публикуются. Это действие необратимо."
-
-#: src/GuiEvents.cpp
-msgid "Delete from disk"
-msgstr "Удалить с диска"
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Skipped deleting '%s': the selected file has changed."
-msgstr "Удаление «%s» пропущено: выбранный файл был изменён."
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Deleted '%s' from disk."
-msgstr "«%s» удалён с диска."
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Could not delete '%s' from disk."
-msgstr "Не удалось удалить «%s» с диска."
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -352,7 +341,19 @@ msgstr "Неверная ссылка eD2k «%s» — ОШИБКА: %s"
 
 #: src/amule.cpp
 msgid "Now, exiting main app..."
-msgstr "Выходим из основного приложения..."
+msgstr "Завершение основного приложения…"
+
+#: src/amule.cpp
+msgid "Saving window settings..."
+msgstr "Сохранение настроек окна…"
+
+#: src/amule.cpp
+msgid "Saving client credits..."
+msgstr "Сохранение кредитов клиентов…"
+
+#: src/amule.cpp
+msgid "Stopping helper applications..."
+msgstr "Остановка вспомогательных приложений…"
 
 #: src/amule.cpp
 #, c-format
@@ -381,15 +382,31 @@ msgstr "Принудительное завершение экземпляра a
 
 #: src/amule.cpp
 msgid "aMule OnExit: Terminating core."
-msgstr "aMule OnExit: Прекращаем работу ядра."
+msgstr "aMule завершается: прекращение работы ядра."
+
+#: src/amule.cpp
+msgid "Saving search results..."
+msgstr "Сохранение результатов поиска…"
+
+#: src/amule.cpp
+msgid "Saving downloads and shared files..."
+msgstr "Сохранение загрузок и общих файлов…"
+
+#: src/amule.cpp
+msgid "Flushing download buffers..."
+msgstr "Сброс буферов загрузки…"
 
 #: src/amule.cpp
 msgid "aMule shutdown completed."
-msgstr "выключение aMule завершено."
+msgstr "Работа aMule завершена."
 
 #: src/amule.cpp
 msgid "Memory debug results for aMule exit:"
 msgstr "Результаты дебага памяти при выходе из aMule:"
+
+#: src/amule.cpp
+msgid "Finishing shutdown..."
+msgstr "Завершение выключения…"
 
 #: src/amule.cpp
 #, c-format
@@ -702,6 +719,26 @@ msgstr "Проверка локальных данных: в ваших общи
 #, c-format
 msgid "Disk space preallocation for file '%s' failed: %s"
 msgstr "Не удалось выделить место на диске для файла «%s»: %s"
+
+#: src/amule.cpp
+msgid "Stopping network services..."
+msgstr "Остановка сетевых служб…"
+
+#: src/amule.cpp
+msgid "Saving source seeds..."
+msgstr "Сохранение источников сидов…"
+
+#: src/amule.cpp
+msgid "Stopping background downloads and workers..."
+msgstr "Остановка фоновых загрузок и обработчиков…"
+
+#: src/amule.cpp
+msgid "Closing connections..."
+msgstr "Закрытие соединений…"
+
+#: src/amule.cpp
+msgid "Saving known files and statistics..."
+msgstr "Сохранение известных файлов и статистики…"
 
 #: src/amule.cpp
 msgid "ERROR: can't open logfile"
@@ -1284,6 +1321,10 @@ msgstr "Не удалось удалить категорию: %s"
 #, c-format
 msgid "Can't create directory '%s' for category '%s', keeping directory '%s'."
 msgstr "Не удаётся создать каталог «%s» для категории «%s», сохраняется каталог «%s»."
+
+#: src/amule-remote-gui.cpp
+msgid "The core did not confirm deleting the file. Refresh and try again."
+msgstr "Ядро не подтвердило удаление файла. Обновите список и повторите попытку."
 
 #: src/amule-remote-gui.cpp
 #, c-format
@@ -2407,6 +2448,10 @@ msgid "Unauthorized access attempt from %s. Connection closed."
 msgstr "Попытка неавторизированного доступа с %s. Соединение разорвано."
 
 #: src/ExternalConn.cpp
+msgid "Invalid partfile command target."
+msgstr "Неверная цель команды для частичного файла."
+
+#: src/ExternalConn.cpp
 #, c-format
 msgid "Remote PartFile command failed: FileHash not found: %s"
 msgstr "Удалённая команда PartFile не удалась: хеш файла не найден: %s"
@@ -2420,6 +2465,10 @@ msgstr "Хеш файла не найден: %s"
 #, c-format
 msgid "Cannot cancel a finished download: %s"
 msgstr "Невозможно отменить завершённую загрузку: %s"
+
+#: src/ExternalConn.cpp
+msgid "The selected download has changed or is completing. Refresh and try again."
+msgstr "Выбранная загрузка изменилась или завершается. Обновите список и повторите попытку."
 
 #: src/ExternalConn.cpp
 #, c-format
@@ -2513,6 +2562,10 @@ msgstr "Проверка версии временно ограничена; п�
 #: src/ExternalConn.cpp
 msgid "Version check is not available on this daemon."
 msgstr "Проверка версии недоступна для этого демона."
+
+#: src/ExternalConn.cpp
+msgid "Invalid complete-file deletion target."
+msgstr "Неверная цель удаления завершённого файла."
 
 #: src/ExternalConn.cpp
 msgid "File not found."
@@ -4452,7 +4505,7 @@ msgstr "Остановить"
 
 #: src/muuli_wdr.cpp src/SearchListCtrl.cpp
 msgid "Download"
-msgstr "Загрузить"
+msgstr "Загрузка"
 
 #: src/muuli_wdr.cpp src/SearchListCtrl.cpp
 msgid "Download in category"
@@ -4958,7 +5011,7 @@ msgstr "Проигрыватель видео"
 
 #: src/muuli_wdr.cpp
 msgid "Line capacities"
-msgstr ""
+msgstr "Пропускная способность канала"
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
@@ -4969,14 +5022,12 @@ msgid "Bandwidth limits"
 msgstr "Ограничения скорости передачи"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Enable download limit"
-msgstr "Предел загрузки"
+msgstr "Включить ограничение загрузки"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Enable upload limit"
-msgstr "Предел отдачи"
+msgstr "Включить ограничение отдачи"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5085,6 +5136,30 @@ msgstr ""
 "Сообщаемая узлом версия может быть устаревшей или неточной, поэтому это может отбрасывать действительные хеши и не делает принятые хеши надёжными. Узлы с неизвестной версией по-прежнему принимаются.\n"
 "\n"
 "Техническое описание: отклоняет теги публикации AICH от узлов, объявляющих версию протокола Kad ниже 0x09."
+
+#: src/muuli_wdr.cpp src/PeerCapabilities.h
+msgid "IPv6"
+msgstr "IPv6"
+
+#: src/muuli_wdr.cpp
+msgid "Address families:"
+msgstr "Семейства адресов:"
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 only"
+msgstr "Только IPv4"
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 and IPv6"
+msgstr "IPv4 и IPv6"
+
+#: src/muuli_wdr.cpp
+msgid "Takes effect after restarting aMule."
+msgstr "Вступает в силу после перезапуска aMule."
+
+#: src/muuli_wdr.cpp
+msgid "Advertise my IPv6 address to other peers"
+msgstr "Сообщать другим пирам мой IPv6-адрес"
 
 #: src/muuli_wdr.cpp
 msgid "Remove dead server after"
@@ -5469,23 +5544,23 @@ msgstr "Отключить таймер перехода компьютера в
 
 #: src/muuli_wdr.cpp
 msgid "Appearance: "
-msgstr ""
+msgstr "Оформление: "
 
 #: src/muuli_wdr.cpp
 msgid "Follow system"
-msgstr ""
+msgstr "Как в системе"
 
 #: src/muuli_wdr.cpp
 msgid "Light mode"
-msgstr ""
+msgstr "Светлая тема"
 
 #: src/muuli_wdr.cpp
 msgid "Dark mode"
-msgstr ""
+msgstr "Тёмная тема"
 
 #: src/muuli_wdr.cpp
 msgid "Appearance changes take effect after restarting aMule."
-msgstr ""
+msgstr "Изменения оформления вступят в силу после перезапуска aMule."
 
 # в LA помнится так и перевели - "шкурка", но по-моему глупо.
 #: src/muuli_wdr.cpp
@@ -6641,10 +6716,6 @@ msgid "NAT traversal (uTP)"
 msgstr "Обход NAT (uTP)"
 
 #: src/PeerCapabilities.h
-msgid "IPv6"
-msgstr "IPv6"
-
-#: src/PeerCapabilities.h
 msgid "Buddy info pull"
 msgstr "Запрос информации о друге"
 
@@ -6675,12 +6746,12 @@ msgstr "Используется порт по умолчанию (%d)"
 
 #: src/BandwidthLimitSlider.h
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
-msgstr ""
+msgstr "Регулировка включённого ограничения от 1 КиБ/с до пропускной способности канала."
 
 #: src/BandwidthLimitSlider.h
-#, fuzzy, c-format
+#, c-format
 msgid "KiB/s (%.2f MiB/s)"
-msgstr "%.1f МиБ/с"
+msgstr "КиБ/с (%.2f МиБ/с)"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -6838,6 +6909,10 @@ msgstr "- изменён порт UDP.\n"
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect port changed.\n"
 msgstr "- Порт для внешних соединений изменён.\n"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "- Address families changed.\n"
+msgstr "— Изменены семейства адресов.\n"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect acceptance changed.\n"
@@ -7924,7 +7999,7 @@ msgstr "Статус Kademlia:"
 
 #: src/ServerWnd.cpp
 msgid "Running in LAN mode"
-msgstr "Работает в режиме LAN"
+msgstr "Работает в режиме локальной сети"
 
 #: src/ServerWnd.cpp
 msgid "Running"
@@ -8078,6 +8153,20 @@ msgid_plural "Re-extracting media metadata for %u shared files"
 msgstr[0] "Повторное извлечение метаданных медиафайлов для %u общего файла"
 msgstr[1] "Повторное извлечение метаданных медиафайлов для %u общих файлов"
 msgstr[2] "Повторное извлечение метаданных медиафайлов для %u общих файлов"
+
+#: src/SharedFileList.cpp
+msgid "The selected file has changed or is not a complete file."
+msgstr "Выбранный файл изменился или не является завершённым."
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Could not delete '%s' from disk."
+msgstr "Не удалось удалить «%s» с диска."
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Deleted '%s' from disk."
+msgstr "«%s» удалён с диска."
 
 #: src/SharedFileList.cpp
 #, c-format
@@ -8329,6 +8418,10 @@ msgstr "Удалённое имя файла"
 #: src/SourceListCtrl.cpp
 msgid "A4AF"
 msgstr "A4AF"
+
+#: src/SplashScreen.cpp
+msgid "Closing aMule"
+msgstr "Закрытие aMule"
 
 #: src/Statistics.cpp
 #, c-format
@@ -10114,6 +10207,10 @@ msgstr "Kad не смогла подгрузить сохранённый инд
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr "Kad не смогла сохранить индекс. Предыдущая копия этого файла сохранена."
+
+#, c-format
+#~ msgid "Skipped deleting '%s': the selected file has changed."
+#~ msgstr "Удаление «%s» пропущено: выбранный файл был изменён."
 
 #~ msgid "Download graph scale:"
 #~ msgstr "Масштаб графика загрузки:"

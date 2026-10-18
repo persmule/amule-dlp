@@ -51,7 +51,7 @@
   "downloads_peer_col_origin": "Origen",
   "downloads_a4af_swap_this": "Intercanvia totes les fonts A4AF cap a aquest fitxer",
   "prefs_action_kad_update_toast": "S'està actualitzant la llista de nodes Kad…",
-  "common_err_partfile_unsupported": "La verificació de dades locals no es pot fer mentre el fitxer encara s'està baixant.",
+  "common_err_partfile_unsupported": "Aquesta operació no es pot fer mentre el fitxer encara s'està baixant.",
   "stats_tree_active_downloads": "Baixades actives (trossos): %s",
   "stats_download_speed": "Velocitat de baixada",
   "shared_detail_upload_speed": "Velocitat de pujada",
@@ -1037,5 +1037,12 @@
   "messages_captcha_passed": "CAPTCHA superat. S'ha lliurat el teu missatge.",
   "messages_captcha_retry": "CAPTCHA fallit. Envia un altre missatge per tornar-ho a provar.",
   "messages_captcha_exhausted": "CAPTCHA fallit. No queden més intents.",
-  "messages_captcha_image": "CAPTCHA del xat"
+  "messages_captcha_image": "CAPTCHA del xat",
+  "downloads_delete_more": "... i {n} més",
+  "downloads_delete_disk": "Esborra del disc",
+  "shared_delete_incomplete": "Aquest fitxer encara s'està baixant. Cancel·leu-lo des de «Baixades».",
+  "downloads_confirm_delete_disk": "Voleu esborrar permanentment «{name}» del disc?\n\nDirectori: {directory}\n\nEl fitxer deixarà de compartir-se. Això no es pot desfer.",
+  "downloads_confirm_delete_selected_one": "Voleu esborrar del disc el fitxer seleccionat? Els fitxers completats s'esborraran permanentment; les baixades actives es cancel·laran i s'eliminaran. Això no es pot desfer.",
+  "downloads_confirm_delete_selected_many": "Voleu esborrar del disc els {n} fitxers seleccionats? Els fitxers completats s'esborraran permanentment; les baixades actives es cancel·laran i s'eliminaran. Això no es pot desfer.",
+  "downloads_confirm_delete_selected_other": "Voleu esborrar del disc els {n} fitxers seleccionats? Els fitxers completats s'esborraran permanentment; les baixades actives es cancel·laran i s'eliminaran. Això no es pot desfer."
 }

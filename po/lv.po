@@ -193,6 +193,15 @@ msgstr "Palaist no jauna tagad"
 msgid "Later"
 msgstr "Vēlāk"
 
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "The connected core does not support deleting complete files from disk."
+msgstr ""
+
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+#, fuzzy
+msgid "Delete from disk"
+msgstr "Iegūt no Kad tīkla"
+
 #: src/GuiEvents.cpp
 #, c-format
 msgid ""
@@ -216,26 +225,6 @@ msgid ""
 "%s\n"
 "The files are deleted and no longer shared. This cannot be undone."
 msgstr ""
-
-#: src/GuiEvents.cpp
-#, fuzzy
-msgid "Delete from disk"
-msgstr "Iegūt no Kad tīkla"
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Skipped deleting '%s': the selected file has changed."
-msgstr ""
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Deleted '%s' from disk."
-msgstr ""
-
-#: src/GuiEvents.cpp
-#, fuzzy, c-format
-msgid "Could not delete '%s' from disk."
-msgstr "Nevarēja izdzēst kategoriju: %s"
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -323,6 +312,22 @@ msgid "Now, exiting main app..."
 msgstr "Pašlaik aizver galveno programmu…"
 
 #: src/amule.cpp
+msgid "Saving window settings..."
+msgstr ""
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Saving client credits..."
+msgstr ""
+"\n"
+"Veido klientu...\n"
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Stopping helper applications..."
+msgstr "Iziet no programmas."
+
+#: src/amule.cpp
 #, c-format
 msgid "Terminating amuleweb instance with pid '%d' ... "
 msgstr "Pārtrauc amuleweb procesu ar pid '%d' … "
@@ -352,12 +357,31 @@ msgid "aMule OnExit: Terminating core."
 msgstr "aMule OnExit: pārtrauc kodola darbību."
 
 #: src/amule.cpp
+#, fuzzy
+msgid "Saving search results..."
+msgstr "Meklēšanas rezultāts"
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Saving downloads and shared files..."
+msgstr "Pārlādē kopīgotās datnes…"
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Flushing download buffers..."
+msgstr "Dzēš datni: %s"
+
+#: src/amule.cpp
 msgid "aMule shutdown completed."
 msgstr "aMule izslēgšana pabeigta."
 
 #: src/amule.cpp
 msgid "Memory debug results for aMule exit:"
 msgstr "Atmiņas atkļūdošanas rezultāti aMule aizvēršanai:"
+
+#: src/amule.cpp
+msgid "Finishing shutdown..."
+msgstr ""
 
 #: src/amule.cpp
 #, c-format
@@ -673,6 +697,28 @@ msgstr ""
 #, c-format
 msgid "Disk space preallocation for file '%s' failed: %s"
 msgstr "Diska vietas iepriekšēja piešķiršana datnei '%s' neizdevās: %s"
+
+#: src/amule.cpp
+msgid "Stopping network services..."
+msgstr ""
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Saving source seeds..."
+msgstr "Avotu sēklas"
+
+#: src/amule.cpp
+msgid "Stopping background downloads and workers..."
+msgstr ""
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Closing connections..."
+msgstr " pieslēdzas…"
+
+#: src/amule.cpp
+msgid "Saving known files and statistics..."
+msgstr ""
 
 #: src/amule.cpp
 msgid "ERROR: can't open logfile"
@@ -1252,6 +1298,10 @@ msgstr "Nevarēja izdzēst kategoriju: %s"
 #, c-format
 msgid "Can't create directory '%s' for category '%s', keeping directory '%s'."
 msgstr "Nevar izveidot '%s' mapi '%s' kategorijai, turpinam izmantot '%s' mapi."
+
+#: src/amule-remote-gui.cpp
+msgid "The core did not confirm deleting the file. Refresh and try again."
+msgstr ""
 
 #: src/amule-remote-gui.cpp
 #, c-format
@@ -2376,6 +2426,11 @@ msgid "Unauthorized access attempt from %s. Connection closed."
 msgstr "Nesankcionēts piekļuves mēģinājums no %s. Savienojums slēgts."
 
 #: src/ExternalConn.cpp
+#, fuzzy
+msgid "Invalid partfile command target."
+msgstr "Nederīgs datnes nosaukums."
+
+#: src/ExternalConn.cpp
 #, c-format
 msgid "Remote PartFile command failed: FileHash not found: %s"
 msgstr "Attālinātā daļējās datnes komanda neizdevās: FileHash nav atrasts: %s"
@@ -2389,6 +2444,10 @@ msgstr "FileHash nav atrasts: %s"
 #, fuzzy, c-format
 msgid "Cannot cancel a finished download: %s"
 msgstr "Pabeigta lejupielāde: %s"
+
+#: src/ExternalConn.cpp
+msgid "The selected download has changed or is completing. Refresh and try again."
+msgstr ""
 
 #: src/ExternalConn.cpp
 #, fuzzy, c-format
@@ -2481,6 +2540,11 @@ msgstr "Versijas pārbaude ir ierobežota; mēģiniet vēlreiz pēc brīža."
 #: src/ExternalConn.cpp
 msgid "Version check is not available on this daemon."
 msgstr "Versijas pārbaude nav pieejama šim dēmonam."
+
+#: src/ExternalConn.cpp
+#, fuzzy
+msgid "Invalid complete-file deletion target."
+msgstr "Nederīgs datnes nosaukums."
 
 #: src/ExternalConn.cpp
 msgid "File not found."
@@ -5058,6 +5122,30 @@ msgid ""
 "Technical detail: rejects AICH publish tags from nodes advertising Kad protocol versions below 0x09."
 msgstr ""
 
+#: src/muuli_wdr.cpp src/PeerCapabilities.h
+msgid "IPv6"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Address families:"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 only"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 and IPv6"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Takes effect after restarting aMule."
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Advertise my IPv6 address to other peers"
+msgstr ""
+
 #: src/muuli_wdr.cpp
 msgid "Remove dead server after"
 msgstr "Noņemt mirušo serveri pēc"
@@ -6608,10 +6696,6 @@ msgid "NAT traversal (uTP)"
 msgstr ""
 
 #: src/PeerCapabilities.h
-msgid "IPv6"
-msgstr ""
-
-#: src/PeerCapabilities.h
 msgid "Buddy info pull"
 msgstr ""
 
@@ -6806,6 +6890,11 @@ msgstr "- UDP ports mainīts.\n"
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect port changed.\n"
 msgstr "- Mainīts ārējā savienojuma ports.\n"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "- Address families changed.\n"
+msgstr "- Tīkla saskarnes piesaiste mainīta.\n"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect acceptance changed.\n"
@@ -8041,6 +8130,20 @@ msgstr[1] ""
 msgstr[2] ""
 
 #: src/SharedFileList.cpp
+msgid "The selected file has changed or is not a complete file."
+msgstr ""
+
+#: src/SharedFileList.cpp
+#, fuzzy, c-format
+msgid "Could not delete '%s' from disk."
+msgstr "Nevarēja izdzēst kategoriju: %s"
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Deleted '%s' from disk."
+msgstr ""
+
+#: src/SharedFileList.cpp
 #, c-format
 msgid "Now sharing file: %s"
 msgstr "Pašlaik kopīgo datni: %s"
@@ -8290,6 +8393,11 @@ msgstr "Attālinātās datnes nosaukums"
 #: src/SourceListCtrl.cpp
 msgid "A4AF"
 msgstr "A4AF"
+
+#: src/SplashScreen.cpp
+#, fuzzy
+msgid "Closing aMule"
+msgstr "Rādīt aMule"
 
 #: src/Statistics.cpp
 #, c-format

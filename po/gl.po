@@ -212,6 +212,15 @@ msgstr "Reiniciar agora"
 msgid "Later"
 msgstr "Máis tarde"
 
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "The connected core does not support deleting complete files from disk."
+msgstr ""
+
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+#, fuzzy
+msgid "Delete from disk"
+msgstr "Obter de Kad"
+
 #: src/GuiEvents.cpp
 #, c-format
 msgid ""
@@ -235,26 +244,6 @@ msgid ""
 "%s\n"
 "The files are deleted and no longer shared. This cannot be undone."
 msgstr ""
-
-#: src/GuiEvents.cpp
-#, fuzzy
-msgid "Delete from disk"
-msgstr "Obter de Kad"
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Skipped deleting '%s': the selected file has changed."
-msgstr ""
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Deleted '%s' from disk."
-msgstr ""
-
-#: src/GuiEvents.cpp
-#, fuzzy, c-format
-msgid "Could not delete '%s' from disk."
-msgstr "Non se puido mover o ficheiro descargado a %s"
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -341,6 +330,22 @@ msgid "Now, exiting main app..."
 msgstr "Saíndo da aplicación principal..."
 
 #: src/amule.cpp
+msgid "Saving window settings..."
+msgstr ""
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Saving client credits..."
+msgstr ""
+"\n"
+"Creando cliente...\n"
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Stopping helper applications..."
+msgstr "Sae da aplicación."
+
+#: src/amule.cpp
 #, c-format
 msgid "Terminating amuleweb instance with pid '%d' ... "
 msgstr "Rematando o proceso de amuleweb co pid «%d» ... "
@@ -370,12 +375,31 @@ msgid "aMule OnExit: Terminating core."
 msgstr "aMule Ao Sairen(OnExit): Apagando o núcleo."
 
 #: src/amule.cpp
+#, fuzzy
+msgid "Saving search results..."
+msgstr "Resultados da busca"
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Saving downloads and shared files..."
+msgstr "Recargando os ficheiros compartidos..."
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Flushing download buffers..."
+msgstr "Eliminando ficheiro: %s"
+
+#: src/amule.cpp
 msgid "aMule shutdown completed."
 msgstr "Apagado completado."
 
 #: src/amule.cpp
 msgid "Memory debug results for aMule exit:"
 msgstr "Resultados da depuración da memoria ao sair de aMule:"
+
+#: src/amule.cpp
+msgid "Finishing shutdown..."
+msgstr ""
 
 #: src/amule.cpp
 #, fuzzy, c-format
@@ -694,6 +718,28 @@ msgstr ""
 #, c-format
 msgid "Disk space preallocation for file '%s' failed: %s"
 msgstr "Fallou a reserva do espazo no disco duro para o ficheiro «%s»: %s"
+
+#: src/amule.cpp
+msgid "Stopping network services..."
+msgstr ""
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Saving source seeds..."
+msgstr "Sementes da fonte"
+
+#: src/amule.cpp
+msgid "Stopping background downloads and workers..."
+msgstr ""
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Closing connections..."
+msgstr " está conectandose..."
+
+#: src/amule.cpp
+msgid "Saving known files and statistics..."
+msgstr ""
 
 #: src/amule.cpp
 msgid "ERROR: can't open logfile"
@@ -1275,6 +1321,10 @@ msgstr "Non se puido mover o ficheiro descargado a %s"
 #, c-format
 msgid "Can't create directory '%s' for category '%s', keeping directory '%s'."
 msgstr "Non se puido crear o directorio «%s» para a categoría «%s», mantendo o directorio «%s»."
+
+#: src/amule-remote-gui.cpp
+msgid "The core did not confirm deleting the file. Refresh and try again."
+msgstr ""
 
 #: src/amule-remote-gui.cpp
 #, c-format
@@ -2392,6 +2442,11 @@ msgid "Unauthorized access attempt from %s. Connection closed."
 msgstr "Intento de acceso non autorizado dende %s. Conexión pechada."
 
 #: src/ExternalConn.cpp
+#, fuzzy
+msgid "Invalid partfile command target."
+msgstr "Nome de ficheiro inválido."
+
+#: src/ExternalConn.cpp
 #, c-format
 msgid "Remote PartFile command failed: FileHash not found: %s"
 msgstr "Fallou a orde PartFile remota: FileHash non atopado: %s"
@@ -2405,6 +2460,10 @@ msgstr "FileHash non atopado: %s"
 #, fuzzy, c-format
 msgid "Cannot cancel a finished download: %s"
 msgstr "Rematouse a descarga: %s"
+
+#: src/ExternalConn.cpp
+msgid "The selected download has changed or is completing. Refresh and try again."
+msgstr ""
 
 #: src/ExternalConn.cpp
 #, fuzzy, c-format
@@ -2497,6 +2556,11 @@ msgstr "A comprobación de versión está limitada; ténteo de novo en breve."
 #: src/ExternalConn.cpp
 msgid "Version check is not available on this daemon."
 msgstr "A comprobación de versión non está dispoñíbel neste daemon."
+
+#: src/ExternalConn.cpp
+#, fuzzy
+msgid "Invalid complete-file deletion target."
+msgstr "Nome de ficheiro inválido."
 
 #: src/ExternalConn.cpp
 msgid "File not found."
@@ -5067,6 +5131,30 @@ msgid ""
 "Technical detail: rejects AICH publish tags from nodes advertising Kad protocol versions below 0x09."
 msgstr ""
 
+#: src/muuli_wdr.cpp src/PeerCapabilities.h
+msgid "IPv6"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Address families:"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 only"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 and IPv6"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Takes effect after restarting aMule."
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Advertise my IPv6 address to other peers"
+msgstr ""
+
 #: src/muuli_wdr.cpp
 msgid "Remove dead server after"
 msgstr "Eliminar servidores caídos tras"
@@ -6623,10 +6711,6 @@ msgid "NAT traversal (uTP)"
 msgstr ""
 
 #: src/PeerCapabilities.h
-msgid "IPv6"
-msgstr ""
-
-#: src/PeerCapabilities.h
 msgid "Buddy info pull"
 msgstr ""
 
@@ -6822,6 +6906,11 @@ msgstr "- Porto UDP cambiado.\n"
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect port changed.\n"
 msgstr "- Cambiado o porto da conexión externa.\n"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "- Address families changed.\n"
+msgstr "- Cambiouse a vinculación da interface de rede.\n"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect acceptance changed.\n"
@@ -8057,6 +8146,20 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/SharedFileList.cpp
+msgid "The selected file has changed or is not a complete file."
+msgstr ""
+
+#: src/SharedFileList.cpp
+#, fuzzy, c-format
+msgid "Could not delete '%s' from disk."
+msgstr "Non se puido mover o ficheiro descargado a %s"
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Deleted '%s' from disk."
+msgstr ""
+
+#: src/SharedFileList.cpp
 #, fuzzy, c-format
 msgid "Now sharing file: %s"
 msgstr "Non se puido gardar o ficheiro %s: %s"
@@ -8297,6 +8400,11 @@ msgstr "Nome remoto do ficheiro"
 #: src/SourceListCtrl.cpp
 msgid "A4AF"
 msgstr "A4AF"
+
+#: src/SplashScreen.cpp
+#, fuzzy
+msgid "Closing aMule"
+msgstr "Mostrar aMule"
 
 #: src/Statistics.cpp
 #, c-format
