@@ -32,7 +32,8 @@ bool FreeSpaceAllows(sint64 free, uint64 needed, bool checkEnabled, uint64 minFr
 	}
 	// Sparse files mean a write within the file can still allocate new blocks, so the only
 	// safe rule is to stop the moment the limit would be crossed.
-	return !checkEnabled || static_cast<uint64>(free) >= needed + minFree;
+	const uint64 freeBytes = static_cast<uint64>(free);
+	return !checkEnabled || (freeBytes >= minFree && needed <= freeBytes - minFree);
 }
 
 void CFreeSpaceSamples::Publish(const CPath &dir, sint64 free, uint64 tick)
@@ -45,8 +46,9 @@ sint64 CFreeSpaceSamples::Get(const CPath &dir, uint64 now, uint64 maxAgeMs, uin
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 	const auto it = m_samples.find(dir.GetRaw());
-	if (it == m_samples.end() || it->second.free < 0 || now - it->second.tick > maxAgeMs ||
-		it->second.tick < notBefore) {
+	// A probe can publish after the reader captures now; treat that sample as age zero.
+	if (it == m_samples.end() || it->second.free < 0 ||
+		(now > it->second.tick && now - it->second.tick > maxAgeMs) || it->second.tick < notBefore) {
 		return -1;
 	}
 	return it->second.free;

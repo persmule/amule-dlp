@@ -21,6 +21,7 @@
 #include <muleunit/test.h>
 #include "FreeSpaceSamples.h"
 #include <protocol/ed2k/Constants.h>
+#include <limits>
 
 using namespace muleunit;
 
@@ -95,4 +96,39 @@ TEST(CFreeSpaceSamples, RetainDropsOtherDirectories)
 	samples.Retain({ kept });
 	ASSERT_EQUALS((sint64)(10 * kMB), samples.Get(kept, 1000, 30000));
 	ASSERT_EQUALS(-1, samples.Get(old, 1000, 30000));
+}
+
+TEST(FreeSpaceAllows, OverflowCannotMakeAnImpossibleWriteFit)
+{
+	const uint64 maximum = std::numeric_limits<uint64>::max();
+	ASSERT_FALSE(FreeSpaceAllows(PARTSIZE, maximum, true, PARTSIZE));
+	ASSERT_FALSE(FreeSpaceAllows(PARTSIZE, 1, true, maximum));
+	ASSERT_FALSE(FreeSpaceAllows(PARTSIZE, maximum, true, maximum));
+	ASSERT_FALSE(FreeSpaceAllows(std::numeric_limits<sint64>::max(), maximum, true, 1));
+	ASSERT_TRUE(FreeSpaceAllows(std::numeric_limits<sint64>::max(),
+		static_cast<uint64>(std::numeric_limits<sint64>::max()) - PARTSIZE,
+		true,
+		PARTSIZE));
+}
+
+TEST(FreeSpaceAllows, ZeroDemandStillRequiresTheFloor)
+{
+	ASSERT_FALSE(FreeSpaceAllows(PARTSIZE, 0, true, PARTSIZE + 1));
+	ASSERT_TRUE(FreeSpaceAllows(PARTSIZE, 0, true, PARTSIZE));
+	ASSERT_TRUE(FreeSpaceAllows(PARTSIZE, 0, true, 0));
+}
+
+TEST(CFreeSpaceSamples, SamplesPublishedAfterReaderTimeHaveAgeZero)
+{
+	CFreeSpaceSamples samples;
+	const CPath dir("/some/temp");
+	samples.Publish(dir, PARTSIZE, 2000);
+	ASSERT_EQUALS(static_cast<sint64>(PARTSIZE), samples.Get(dir, 1000, 30000));
+	ASSERT_EQUALS(static_cast<sint64>(PARTSIZE), samples.Get(dir, 1000, 0));
+	ASSERT_EQUALS(
+		static_cast<sint64>(PARTSIZE), samples.Get(dir, 1000, std::numeric_limits<uint64>::max()));
+	ASSERT_EQUALS(static_cast<sint64>(PARTSIZE), samples.Get(dir, 1000, 0, 2000));
+	ASSERT_EQUALS(-1, samples.Get(dir, 1000, 0, 2001));
+	ASSERT_EQUALS(static_cast<sint64>(PARTSIZE), samples.Get(dir, 2000, 0));
+	ASSERT_EQUALS(-1, samples.Get(dir, 2001, 0));
 }
