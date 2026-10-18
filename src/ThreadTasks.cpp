@@ -792,7 +792,7 @@ void CCompletionTask::Entry()
 		}
 	}
 
-	const char *otherMetExt[] = { "", PARTMET_BAK_EXT, ".seeds", NULL };
+	const char *otherMetExt[] = { "", PARTMET_BAK_EXT, ".seeds", ".tmp", ".bak.tmp", nullptr };
 	for (size_t i = 0; otherMetExt[i]; ++i) {
 		CPath toRemove = m_metPath.AppendExt(otherMetExt[i]);
 

@@ -41,7 +41,6 @@ struct CPartMetSaveRequest
 	std::vector<uint8> content;
 	CPath metPath;
 	CPath tmpPath;
-	CPath bakPath;
 	CPath partPath;
 	//! Where the free space is checked.
 	CPath dir;
@@ -66,11 +65,21 @@ struct CPartMetSaveResult
 };
 
 /**
- * Writes the .part.met the way SavePartFile always did: into .part.met.tmp, then the old
- * .part.met becomes .part.met.bak and the .tmp is renamed over it. Patches the .part's mtime into
- * @a req's content first.
+ * Writes into .part.met.tmp, copies the old .part.met to .part.met.bak, and renames the
+ * .tmp over the live metadata. Patches the .part's mtime into @a req's content first.
  */
 CPartMetSaveResult WritePartMet(CPartMetSaveRequest &req);
+
+//! File operations used to commit a completed temporary metadata file.
+struct CPartMetFileOps
+{
+	std::function<bool(const CPath &, const wxString &)> backup;
+	std::function<bool(const CPath &, const CPath &)> replace;
+};
+
+//! Backs up the old metadata without removing its live name, then installs the new file.
+//! On failure the live metadata stays in place and the temporary file remains for recovery.
+CPartMetSaveResult InstallPartMet(const CPartMetSaveRequest &req, const CPartMetFileOps &ops);
 
 //! The change counts a save was serialised at. CPartFile counts changes to the .part.met's
 //! state and to its upload statistics apart, so a save clears only what it carried.

@@ -1088,7 +1088,6 @@ bool CPartFile::SavePartFile(bool now)
 	req.content.assign(file.GetRawBuffer(), file.GetRawBuffer() + file.GetLength());
 	req.metPath = m_fullname;
 	req.tmpPath = m_fullname.AppendExt(".tmp");
-	req.bakPath = m_fullname.AppendExt(PARTMET_BAK_EXT);
 	req.partPath = m_PartPath;
 	req.dir = GetFilePath();
 
@@ -2711,6 +2710,14 @@ void CPartFile::Delete()
 			AddDebugLogLineN(logPartFile, "\tRemoved .seeds");
 		} else {
 			AddDebugLogLineC(logPartFile, CFormat("Failed to delete '%s'") % SEEDSName);
+		}
+	}
+
+	// WaitForMetSave above ensures the writer cannot recreate these after cleanup.
+	for (const char *ext : { ".tmp", ".bak.tmp" }) {
+		const CPath temporary = m_fullname.AppendExt(ext);
+		if (temporary.FileExists() && !CPath::RemoveFile(temporary)) {
+			AddDebugLogLineC(logPartFile, CFormat("Failed to delete '%s'") % temporary);
 		}
 	}
 

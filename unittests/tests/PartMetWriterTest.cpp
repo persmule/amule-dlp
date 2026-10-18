@@ -23,6 +23,7 @@
 #include "CFile.h"
 
 #include <chrono>
+#include <filesystem>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -52,7 +53,7 @@ CPath Bak()
 
 void RemoveAll()
 {
-	for (const CPath &path : { Part(), Met(), Tmp(), Bak() }) {
+	for (const CPath &path : { Part(), Met(), Tmp(), Bak(), Bak().AppendExt(".tmp") }) {
 		if (path.FileExists()) {
 			CPath::RemoveFile(path);
 		}
@@ -65,7 +66,6 @@ CPartMetSaveRequest Request(uint8 marker)
 	req.content = { marker, 0, 0, 0, 0, 0xAB };
 	req.metPath = Met();
 	req.tmpPath = Tmp();
-	req.bakPath = Bak();
 	req.partPath = Part();
 	req.dir = CPath(".");
 	return req;
@@ -176,6 +176,257 @@ TEST(WritePartMet, WritesNothingWithoutThePart)
 	ASSERT_EQUALS(CPartMetSaveResult::Failed, result.status);
 	ASSERT_FALSE(Met().FileExists());
 	ASSERT_FALSE(Tmp().FileExists());
+}
+
+TEST(WritePartMet, RejectsAnIncompleteHeader)
+{
+	RemoveAll();
+	{
+		CFile part(Part(), CFile::write);
+	}
+	auto req = Request(1);
+	req.content.resize(4);
+	ASSERT_EQUALS(CPartMetSaveResult::Failed, WritePartMet(req).status);
+	ASSERT_FALSE(Tmp().FileExists());
+	ASSERT_FALSE(Met().FileExists());
+	RemoveAll();
+}
+
+// Exercise the production install sequence with real files, injecting only operation failures.
+TEST(WritePartMet, BackupFailurePreservesLiveMetadata)
+{
+	RemoveAll();
+	{
+		CFile part(Part(), CFile::write);
+	}
+	auto first = Request(1);
+	ASSERT_EQUALS(CPartMetSaveResult::Saved, WritePartMet(first).status);
+	{
+		CFile tmp(Tmp(), CFile::write);
+		tmp.WriteUInt8(2);
+	}
+	unsigned calls = 0;
+	const CPartMetFileOps ops = { [](const CPath &, const wxString &) { return false; },
+		[&calls](const CPath &, const CPath &) {
+			++calls;
+			return false;
+		} };
+	const auto result = InstallPartMet(first, ops);
+	ASSERT_EQUALS(CPartMetSaveResult::Failed, result.status);
+	ASSERT_EQUALS(0u, calls);
+	ASSERT_EQUALS(1, ReadAll(Met())[0]);
+	ASSERT_EQUALS(2, ReadAll(Tmp())[0]);
+	RemoveAll();
+}
+
+TEST(WritePartMet, FailedInstallPreservesLiveMetadataAndCanRetry)
+{
+	RemoveAll();
+	{
+		CFile part(Part(), CFile::write);
+	}
+	auto req = Request(1);
+	ASSERT_EQUALS(CPartMetSaveResult::Saved, WritePartMet(req).status);
+	{
+		CFile tmp(Tmp(), CFile::write);
+		tmp.WriteUInt8(2);
+	}
+	const CPartMetFileOps failing = { CPath::BackupFile, [&req](const CPath &src, const CPath &dst) {
+						 return dst.GetRaw() != req.metPath.GetRaw() &&
+							CPath::ReplaceEntry(src, dst);
+					 } };
+	ASSERT_EQUALS(CPartMetSaveResult::Failed, InstallPartMet(req, failing).status);
+	ASSERT_EQUALS(1, ReadAll(Met())[0]);
+	ASSERT_EQUALS(1, ReadAll(Bak())[0]);
+	ASSERT_EQUALS(2, ReadAll(Tmp())[0]);
+	const CPartMetFileOps working = { CPath::BackupFile, CPath::ReplaceEntry };
+	ASSERT_EQUALS(CPartMetSaveResult::Saved, InstallPartMet(req, working).status);
+	ASSERT_EQUALS(2, ReadAll(Met())[0]);
+	ASSERT_EQUALS(1, ReadAll(Bak())[0]);
+	RemoveAll();
+}
+
+TEST(WritePartMet, LiveMetadataRemainsDiscoverableBetweenBackupAndInstall)
+{
+	RemoveAll();
+	{
+		CFile part(Part(), CFile::write);
+	}
+	auto req = Request(1);
+	ASSERT_EQUALS(CPartMetSaveResult::Saved, WritePartMet(req).status);
+	{
+		CFile tmp(Tmp(), CFile::write);
+		tmp.WriteUInt8(2);
+	}
+	bool livePresent = false;
+	const CPartMetFileOps ops = { CPath::BackupFile,
+		[&livePresent, &req](const CPath &src, const CPath &dst) {
+			if (dst.GetRaw() == req.metPath.GetRaw()) {
+				livePresent = Met().FileExists() && ReadAll(Met())[0] == 1 &&
+					      ReadAll(Bak())[0] == 1;
+			}
+			return CPath::ReplaceEntry(src, dst);
+		} };
+	ASSERT_EQUALS(CPartMetSaveResult::Saved, InstallPartMet(req, ops).status);
+	ASSERT_TRUE(livePresent);
+	ASSERT_EQUALS(2, ReadAll(Met())[0]);
+	RemoveAll();
+}
+
+TEST(WritePartMet, FirstInstallFailureDoesNotReportSaved)
+{
+	RemoveAll();
+	{
+		CFile tmp(Tmp(), CFile::write);
+		tmp.WriteUInt8(2);
+	}
+	auto req = Request(2);
+	const CPartMetFileOps ops = { CPath::BackupFile, [](const CPath &, const CPath &) { return false; } };
+	ASSERT_EQUALS(CPartMetSaveResult::Failed, InstallPartMet(req, ops).status);
+	ASSERT_FALSE(Met().FileExists());
+	ASSERT_EQUALS(2, ReadAll(Tmp())[0]);
+	RemoveAll();
+}
+
+TEST(WritePartMet, FailedNativeReplacementCannotTruncateTheDestination)
+{
+	RemoveAll();
+	{
+		CFile file(Met(), CFile::write);
+		file.WriteUInt8(7);
+	}
+	// Directory sources must be rejected, including on Windows where MoveFileExW can
+	// replace a regular file with a directory. A copy/delete fallback can also destroy it.
+	ASSERT_TRUE(CPath::MakeDir(Tmp()));
+	const bool replaced = CPath::ReplaceEntry(Tmp(), Met());
+	const auto data = ReadAll(Met());
+	CPath::RemoveDir(Tmp());
+	RemoveAll();
+	ASSERT_FALSE(replaced);
+	ASSERT_EQUALS(1u, data.size());
+	ASSERT_EQUALS(7, data[0]);
+}
+
+TEST(WritePartMet, MissingReplacementSourcePreservesTheDestination)
+{
+	RemoveAll();
+	{
+		CFile file(Met(), CFile::write);
+		file.WriteUInt8(7);
+	}
+	ASSERT_FALSE(CPath::ReplaceEntry(Tmp(), Met()));
+	ASSERT_EQUALS(7, ReadAll(Met())[0]);
+	RemoveAll();
+}
+
+TEST(WritePartMet, FailedBackupInstallPreservesBothPreviousVersions)
+{
+	RemoveAll();
+	{
+		CFile part(Part(), CFile::write);
+	}
+	auto first = Request(1);
+	auto second = Request(2);
+	ASSERT_EQUALS(CPartMetSaveResult::Saved, WritePartMet(first).status);
+	ASSERT_EQUALS(CPartMetSaveResult::Saved, WritePartMet(second).status);
+	{
+		CFile tmp(Tmp(), CFile::write);
+		tmp.WriteUInt8(3);
+	}
+	const CPartMetFileOps ops = { CPath::BackupFile, [](const CPath &, const CPath &) { return false; } };
+	ASSERT_EQUALS(CPartMetSaveResult::Failed, InstallPartMet(second, ops).status);
+	ASSERT_EQUALS(2, ReadAll(Met())[0]);
+	ASSERT_EQUALS(1, ReadAll(Bak())[0]);
+	ASSERT_EQUALS(3, ReadAll(Tmp())[0]);
+	ASSERT_FALSE(Bak().AppendExt(".tmp").FileExists());
+	RemoveAll();
+}
+
+#ifndef _WIN32
+TEST(WritePartMet, BackupSymlinkCannotTruncateTheLiveMetadata)
+{
+	RemoveAll();
+	{
+		CFile part(Part(), CFile::write);
+	}
+	auto first = Request(1);
+	ASSERT_EQUALS(CPartMetSaveResult::Saved, WritePartMet(first).status);
+	std::filesystem::create_symlink(Met().GetRaw().ToStdString(), Bak().GetRaw().ToStdString());
+	auto second = Request(2);
+	ASSERT_EQUALS(CPartMetSaveResult::Saved, WritePartMet(second).status);
+	ASSERT_EQUALS(2, ReadAll(Met())[0]);
+	ASSERT_EQUALS(1, ReadAll(Bak())[0]);
+	ASSERT_FALSE(std::filesystem::is_symlink(Bak().GetRaw().ToStdString()));
+	RemoveAll();
+}
+TEST(WritePartMet, TemporaryLinkCannotOverwriteItsTarget)
+{
+	for (bool dangling : { false, true }) {
+		RemoveAll();
+		{
+			CFile part(Part(), CFile::write);
+		}
+		auto first = Request(1);
+		ASSERT_EQUALS(CPartMetSaveResult::Saved, WritePartMet(first).status);
+		const CPath target = dangling ? Bak() : Met();
+		std::filesystem::create_symlink(target.GetRaw().ToStdString(), Tmp().GetRaw().ToStdString());
+		auto second = Request(2);
+		ASSERT_EQUALS(CPartMetSaveResult::Saved, WritePartMet(second).status);
+		ASSERT_EQUALS(2, ReadAll(Met())[0]);
+		ASSERT_EQUALS(1, ReadAll(Bak())[0]);
+		ASSERT_FALSE(std::filesystem::is_symlink(Met().GetRaw().ToStdString()));
+		RemoveAll();
+	}
+}
+
+TEST(WritePartMet, StagedBackupLinkCannotOverwriteItsTarget)
+{
+	// Check both a live target and a dangling link: BackupFile must receive a
+	// fresh staging path instead of following a left-over link from an earlier run.
+	for (bool dangling : { false, true }) {
+		RemoveAll();
+		{
+			CFile part(Part(), CFile::write);
+		}
+		auto first = Request(1);
+		ASSERT_EQUALS(CPartMetSaveResult::Saved, WritePartMet(first).status);
+		const CPath target = dangling ? Bak() : Met();
+		std::filesystem::create_symlink(
+			target.GetRaw().ToStdString(), Bak().AppendExt(".tmp").GetRaw().ToStdString());
+		auto second = Request(2);
+		ASSERT_EQUALS(CPartMetSaveResult::Saved, WritePartMet(second).status);
+		ASSERT_EQUALS(2, ReadAll(Met())[0]);
+		ASSERT_EQUALS(1, ReadAll(Bak())[0]);
+		ASSERT_FALSE(std::filesystem::is_symlink(Bak().GetRaw().ToStdString()));
+		ASSERT_FALSE(std::filesystem::exists(Bak().AppendExt(".tmp").GetRaw().ToStdString()));
+		RemoveAll();
+	}
+}
+#endif
+
+TEST(WritePartMet, RealBackupFailurePropagatesThroughTheWriter)
+{
+	RemoveAll();
+	{
+		CFile part(Part(), CFile::write);
+	}
+	auto first = Request(1);
+	ASSERT_EQUALS(CPartMetSaveResult::Saved, WritePartMet(first).status);
+	auto second = Request(2);
+	// A directory in the staging location must fail without damaging either file.
+	ASSERT_TRUE(CPath::MakeDir(Bak().AppendExt(".tmp")));
+	CPartMetWriter writer;
+	auto slot = std::make_shared<CPartMetSaveSlot>();
+	writer.Queue(slot, second, Gen(2));
+	slot->WaitIdle();
+	writer.EndThread();
+	const auto results = slot->TakeResults();
+	ASSERT_EQUALS(1u, results.size());
+	ASSERT_EQUALS(CPartMetSaveResult::Failed, results[0].second.status);
+	ASSERT_EQUALS(1, ReadAll(Met())[0]);
+	ASSERT_EQUALS(2, ReadAll(Tmp())[0]);
+	ASSERT_TRUE(CPath::RemoveDir(Bak().AppendExt(".tmp")));
+	RemoveAll();
 }
 
 DECLARE_SIMPLE(CPartMetWriter);

@@ -23,6 +23,7 @@ DONE_NAME = 'done.bin'
 DONE_DATA = bytes(range(256)) * 64
 ACTIVE_HASH = bytes(range(16, 32))
 ACTIVE_SIZE = 1 << 20
+MET_SIDECARS = ('.bak', '.seeds', '.tmp', '.bak.tmp')
 
 
 def md4(data):
@@ -85,6 +86,11 @@ def run(binary, root):
     (root / 'Temp/002.part.met').write_bytes(
         part_met(ACTIVE_HASH, 'active.bin', ACTIVE_SIZE, [(0, ACTIVE_SIZE)]))
 
+    # A previous interrupted save can leave either temporary file behind.
+    for number in ('001', '002'):
+        for extension in MET_SIDECARS:
+            (root / 'Temp' / f'{number}.part.met{extension}').write_bytes(b'stale metadata')
+
     env = dict(os.environ, HOME=str(root), XDG_CONFIG_HOME=str(root / 'xdg'), LC_ALL='C.UTF-8')
     env.pop('LD_PRELOAD', None)
     snapshot = log_snapshot(root / 'logfile')
@@ -96,6 +102,10 @@ def run(binary, root):
         wait_for(proc, 'the gapless part file to complete',
                  lambda: f'Finished downloading: {DONE_NAME}' in (root / 'logfile').read_text(errors='replace'))
         assert done.read_bytes() == DONE_DATA
+        assert not list((root / 'Temp').glob('001.part*')), 'completion left metadata behind'
+        # Recreate the interrupted-save artifacts immediately before cancellation.
+        for extension in MET_SIDECARS:
+            (root / 'Temp' / f'002.part.met{extension}').write_bytes(b'stale metadata')
 
         # One packet for both files, as `amulecmd cancel all` sends it.
         op, tags = ec.call(C['EC_OP_PARTFILE_DELETE'],
@@ -103,12 +113,13 @@ def run(binary, root):
         assert op == C['EC_OP_FAILED'], (op, tags)
         assert DONE_NAME in tags[C['EC_TAG_STRING']][0].decode(), tags
         assert done.exists() and done.read_bytes() == DONE_DATA, 'the finished download was deleted'
-        assert not (root / 'Temp/002.part.met').exists(), 'the active download was not cancelled'
+        assert not list((root / 'Temp').glob('002.part*')), 'cancellation left part files behind'
         ec.sock.close()
     finally:
         # Checks the exit code: deleting a finished file left it freed in the known list,
         # and the shutdown save then crashed.
         stop_daemon(proc)
+    assert not list((root / 'Temp').glob('00[12].part*')), 'shutdown recreated removed metadata'
 
 
 def main():
