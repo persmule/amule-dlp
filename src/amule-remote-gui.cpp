@@ -2640,7 +2640,10 @@ void CKnownFilesRem::ProcessItemUpdate(const CEC_SharedFile_Tag *tag, CKnownFile
 	// showed N/A for anything not downloading.
 	DecodeMediaTags(tag, file);
 
-	if (file->IsPartFile()) {
+	// Completed transfer rows still arrive as PARTFILE tags. IsPartFile() becomes
+	// false at completion and would skip later shared-role updates for those rows.
+	// Check both the tag and the object: each cast below relies on one of them.
+	if (tag->GetTagName() == EC_TAG_PARTFILE && file->IsCPartFile()) {
 		ProcessItemUpdatePartfile(
 			static_cast<const CEC_PartFile_Tag *>(tag), static_cast<CPartFile *>(file));
 	}
@@ -3472,6 +3475,13 @@ void CKnownFilesRem::ProcessItemUpdatePartfile(const CEC_PartFile_Tag *tag, CPar
 		if (theApp->amuledlg) {
 			theApp->amuledlg->m_sharedfileswnd->sharedfilesctrl->ShowFile(file);
 		}
+	} else if (!file->IsShared() && theApp->sharedfiles->count(file->ECID())) {
+		// Losing the shared role does not remove the completed transfer row or its
+		// proxy object. Only detach it from the shared list and view.
+		if (theApp->amuledlg) {
+			theApp->amuledlg->m_sharedfileswnd->sharedfilesctrl->RemoveFile(file);
+		}
+		theApp->sharedfiles->erase(file->ECID());
 	}
 	// An incremental tag can omit status. Do not let the proxy's default PS_EMPTY
 	// establish a baseline before the daemon has sent a real status. All metadata,

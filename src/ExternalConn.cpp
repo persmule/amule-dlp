@@ -86,11 +86,14 @@ class CKnownFile_Encoder
 	// whose file is still listed. Encoders left carrying an older stamp have lost their
 	// file and are swept.
 	uint64 m_seenEpoch;
+	// Shared membership is independent of presence in the completed-download list.
+	uint64 m_sharedEpoch;
 
 	// Whether `Get_EC_Response_GetUpdate` has already sent this file to the client
 	// carrying its identifying fields. False on a freshly-built encoder, which is what
 	// makes a re-created encoder re-send full detail without the caller having to erase
-	// anything.
+	// anything. Also cleared when encoder-local shared membership changes, which need
+	// not advance the file's own EC generation.
 	//
 	// Deliberately specific to that one response path rather than a general "the client
 	// has this file": a path that has never sent the identity must not take the
@@ -105,6 +108,7 @@ protected:
 public:
 	CKnownFile_Encoder(const CKnownFile *file = nullptr)
 	: m_seenEpoch(0)
+	, m_sharedEpoch(0)
 	, m_sentOnUpdatePath(false)
 	{
 		m_file = file;
@@ -116,16 +120,19 @@ public:
 
 	virtual void ResetEncoder() { m_enc_data.ResetEncoder(); }
 
-	virtual void SetShared() {}
+	virtual void SetShared(bool) {}
 	virtual bool IsShared() { return true; }
 	virtual bool IsPartFile_Encoder() { return false; }
 	const CKnownFile *GetFile() { return m_file; }
 
 	uint64 GetSeenEpoch() const { return m_seenEpoch; }
 	void SetSeenEpoch(uint64 epoch) { m_seenEpoch = epoch; }
+	uint64 GetSharedEpoch() const { return m_sharedEpoch; }
+	void SetSharedEpoch(uint64 epoch) { m_sharedEpoch = epoch; }
 
 	bool WasSentOnUpdatePath() const { return m_sentOnUpdatePath; }
 	void MarkSentOnUpdatePath() { m_sentOnUpdatePath = true; }
+	void InvalidateUpdatePath() { m_sentOnUpdatePath = false; }
 };
 
 /*!
@@ -171,7 +178,14 @@ public:
 	// Encoder may reset history if full info requested
 	virtual void ResetEncoder();
 
-	virtual void SetShared() { m_shared = true; }
+	virtual void SetShared(bool shared)
+	{
+		if (m_shared != shared) {
+			m_shared = shared;
+			// List membership can change without changing the file's EC generation.
+			InvalidateUpdatePath();
+		}
+	}
 	virtual bool IsShared() { return m_shared; }
 	virtual bool IsPartFile_Encoder() { return true; }
 };
@@ -331,10 +345,9 @@ void CFileEncoderMap::UpdateEncoders(IDSet *freshEcids)
 			it->second->SetSeenEpoch(epoch);
 		}
 	}
-	// Merge before the shares pass, not after both. A partfile appears in both lists,
-	// and the check below asks whether this reconcile has already reached it -- which it
-	// answers with find(). Leaving the new entries unmerged would hide them from that
-	// lookup and build a second encoder for the same ECID.
+	// Merge before the shares pass, not after both. A partfile appears in both lists.
+	// Leaving the new entries unmerged would hide them from find() below and build a
+	// second encoder for the same ECID.
 	FlushPending();
 	// Shares
 	std::vector<CKnownFile *> shares;
@@ -342,22 +355,17 @@ void CFileEncoderMap::UpdateEncoders(IDSet *freshEcids)
 	for (uint32 i = shares.size(); i--;) {
 		uint32 id = shares[i]->ECID();
 		iterator it = find(id);
-		// Check if it is already there. Carrying this epoch means the downloads loop
-		// above already reached it, which is what the old `curr_files.count(id)`
-		// tested; the IsCPartFile() is just a speedup.
-		if (shares[i]->IsCPartFile() && it != end() && it->second->GetSeenEpoch() == epoch) {
-			it->second->SetShared();
-			continue;
-		}
 		if (it == end()) {
 			CKnownFile_Encoder *enc = new CKnownFile_Encoder(shares[i]);
 			enc->SetSeenEpoch(epoch);
+			enc->SetSharedEpoch(epoch);
 			m_pending.emplace_back(id, enc);
 			if (freshEcids) {
 				freshEcids->insert(id);
 			}
 		} else {
 			it->second->SetSeenEpoch(epoch);
+			it->second->SetSharedEpoch(epoch);
 		}
 	}
 	FlushPending();
@@ -371,6 +379,9 @@ void CFileEncoderMap::UpdateEncoders(IDSet *freshEcids)
 			delete it->second;
 			continue;
 		}
+		// Compare final membership once, after both passes. Clearing then setting the
+		// flag would invalidate unchanged shared downloads on every reconciliation.
+		it->second->SetShared(it->second->GetSharedEpoch() == epoch);
 		if (out != it) {
 			*out = *it;
 		}

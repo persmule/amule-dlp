@@ -2898,6 +2898,11 @@ add_test (NAME AmuleApiProcessTest COMMAND AmuleApiProcessTest)
 if (ENABLE_INTEGRATION_TESTS AND BUILD_DAEMON AND BUILD_AMULEAPI AND UNIX AND NOT APPLE)
 	find_package (Python3 QUIET COMPONENTS Interpreter)
 	if (Python3_Interpreter_FOUND)
+		add_test (NAME SharedMembershipIntegrationTest
+			COMMAND ${Python3_EXECUTABLE}
+				${CMAKE_CURRENT_SOURCE_DIR}/SharedMembershipIntegrationTest.py
+				$<TARGET_FILE:amuled> $<TARGET_FILE:amuleapi>
+		)
 		add_test (NAME CompletedFileDeleteIntegrationTest
 			COMMAND ${Python3_EXECUTABLE}
 				${CMAKE_CURRENT_SOURCE_DIR}/CompletedFileDeleteIntegrationTest.py
