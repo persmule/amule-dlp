@@ -3772,6 +3772,15 @@ msgid "Hashing"
 msgstr ""
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr ""
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr ""
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr ""
 
@@ -3787,6 +3796,10 @@ msgstr ""
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
 msgid "Erroneous"
+msgstr ""
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
 msgstr ""
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
@@ -6174,10 +6187,6 @@ msgstr ""
 msgid "Incomplete"
 msgstr ""
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr ""
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr ""
@@ -6495,14 +6504,6 @@ msgstr ""
 #: src/PartFile.cpp
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
-msgstr ""
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr ""
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
 msgstr ""
 
 #: src/PartFile.cpp

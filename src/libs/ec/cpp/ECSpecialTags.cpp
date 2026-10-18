@@ -33,28 +33,37 @@
 
 wxString CEC_PartFile_Tag::GetFileStatusString() const
 {
-	uint8 nFileStatus = FileStatus();
+	const uint8 nFileStatus = FileStatus();
 
 	if ((nFileStatus == PS_HASHING) || (nFileStatus == PS_WAITING_FOR_HASH)) {
 		return _("Hashing");
-	} else {
-		switch (nFileStatus) {
-		case PS_COMPLETING:
-			return _("Completing");
-		case PS_COMPLETE:
-			return _("Complete");
-		case PS_PAUSED:
-			return _("Paused");
-		case PS_ERROR:
-			return _("Erroneous");
-		default:
-			if (SourceXferCount() > 0) {
-				return _("Downloading");
-			} else {
-				return _("Waiting");
-			}
+	}
+	if (nFileStatus == PS_ALLOCATING) {
+		return _("Allocating");
+	}
+	// Match the core's display precedence: hashing and allocation take priority,
+	// and completed files can retain the stopped flag.
+	if (Stopped() && nFileStatus != PS_COMPLETE) {
+		return _("Stopped");
+	}
+
+	switch (nFileStatus) {
+	case PS_COMPLETING:
+		return _("Completing");
+	case PS_COMPLETE:
+		return _("Complete");
+	case PS_PAUSED:
+		return _("Paused");
+	case PS_ERROR:
+		return _("Erroneous");
+	case PS_INSUFFICIENT:
+		return _("Insufficient disk space");
+	default:
+		if (SourceXferCount() > 0) {
+			return _("Downloading");
+		} else {
+			return _("Waiting");
 		}
-		// if stopped
 	}
 }
 

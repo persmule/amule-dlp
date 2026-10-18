@@ -675,6 +675,25 @@ target_link_libraries (ECPrefsDiffTest
 	mulecommon
 )
 
+# amulecmd download status text, using synthetic EC tags without a live core.
+add_executable (ECPartFileStatusTest
+	ECPartFileStatusTest.cpp
+	# ECSpecialTags.cpp also contains the statistics-tree text formatter.
+	${CMAKE_SOURCE_DIR}/src/OtherFunctions.cpp
+	${CMAKE_SOURCE_DIR}/src/kademlia/utils/UInt128.cpp
+	${CMAKE_SOURCE_DIR}/src/LoggerConsole.cpp
+)
+add_test (NAME ECPartFileStatusTest COMMAND ECPartFileStatusTest)
+target_include_directories (ECPartFileStatusTest PRIVATE
+	${CMAKE_BINARY_DIR}
+	${CMAKE_SOURCE_DIR}/src
+	${CMAKE_SOURCE_DIR}/src/include
+	${CMAKE_SOURCE_DIR}/src/libs
+	${CMAKE_BINARY_DIR}/src/libs
+	${CMAKE_BINARY_DIR}/src/libs/ec/cpp
+)
+target_link_libraries (ECPartFileStatusTest muleunit ec mulecommon mulesocket)
+
 add_executable (ECIdDiffTest
 	ECIdDiffTest.cpp
 	# See the note on CValueMapTest below: libec.a references DoECLogLine /
