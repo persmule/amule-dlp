@@ -852,6 +852,9 @@ bool CUpDownClient::ProcessHelloTypePacket(const CMemFile &data)
 
 	ReGetClientSoft();
 
+	// ConnectionEstablished() refreshes this only after the hello, too late for the history.
+	RefreshObfuscationState();
+
 	// Everything worth remembering about this peer is populated by now: the name came out of
 	// the hello tags above, the address from the connection, and ReGetClientSoft() has just
 	// resolved the software and version. The credit record is the only thing that outlives the
@@ -2144,12 +2147,17 @@ void CUpDownClient::SendSharedFilesRequest()
 #endif
 }
 
+void CUpDownClient::RefreshObfuscationState()
+{
+	m_hasbeenobfuscatinglately = m_socket && m_socket->IsConnected() && m_socket->IsObfusicating();
+}
+
 void CUpDownClient::ConnectionEstablished()
 {
 	// Kry - First thing, check if this client was just used to retrieve info. That is some
 	// debug thing for myself -- check the connection_reason definition.
 
-	m_hasbeenobfuscatinglately = (m_socket && m_socket->IsConnected() && m_socket->IsObfusicating());
+	RefreshObfuscationState();
 	m_dialingIPv6 = false;
 	m_preparedDialAddress = CNetworkAddress::Absent();
 	m_dialledIPv6Address = CNetworkAddress::Absent();
