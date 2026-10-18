@@ -3905,6 +3905,15 @@ msgid "Hashing"
 msgstr "Räsin"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "Eraldamine"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "Peatatud"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Lõpetatud"
 
@@ -3921,6 +3930,10 @@ msgstr "Peatatud"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "Vigane"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "Ebapiisav kettaruum"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4091,6 +4104,14 @@ msgstr[1] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Sulge"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6339,10 +6360,6 @@ msgstr "kõik teised"
 msgid "Incomplete"
 msgstr "Poolik"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "Peatatud"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Film"
@@ -6669,14 +6686,6 @@ msgstr "Tõmmatud osa %i on failis %s vigane"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: Taastatud riknenud osa %i %s jaoks -> Päästsin: %s baiti"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "Eraldamine"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "Ebapiisav kettaruum"
 
 #: src/PartFile.cpp
 #, c-format

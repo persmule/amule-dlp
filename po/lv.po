@@ -3899,6 +3899,15 @@ msgid "Hashing"
 msgstr "Skaitļo kontrolsummu"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "Piešķir vietu"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "Apturēts"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Pabeidz"
 
@@ -3915,6 +3924,10 @@ msgstr "Apturēts"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "Kļūdains"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "Nepietiek diska vietas"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4088,6 +4101,14 @@ msgstr[2] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Aizvērt"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6347,10 +6368,6 @@ msgstr "visi pārējie"
 msgid "Incomplete"
 msgstr "Nepabeigts"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "Apturēts"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Video"
@@ -6673,14 +6690,6 @@ msgstr "Lejupielādētā daļa %i ir bojāta datnē: %s"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: atgūta bojāta daļa %i priekš %s -> ietaupīti baiti: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "Piešķir vietu"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "Nepietiek diska vietas"
 
 #: src/PartFile.cpp
 #, c-format

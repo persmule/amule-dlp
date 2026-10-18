@@ -3859,6 +3859,15 @@ msgid "Hashing"
 msgstr "Hashing"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr ""
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "Stopirano"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Zavrsavanje"
 
@@ -3875,6 +3884,10 @@ msgstr "Pausirano"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "Sa greskom"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr ""
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4050,6 +4063,14 @@ msgstr[2] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Zatvori"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6330,10 +6351,6 @@ msgstr "svi drugi"
 msgid "Incomplete"
 msgstr "Nedovrseno"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "Stopirano"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Video"
@@ -6655,14 +6672,6 @@ msgstr ""
 #: src/PartFile.cpp
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
-msgstr ""
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr ""
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
 msgstr ""
 
 #: src/PartFile.cpp

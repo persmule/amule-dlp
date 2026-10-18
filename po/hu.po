@@ -3886,6 +3886,15 @@ msgid "Hashing"
 msgstr "Tördelőalgoritmizálás"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "Helyfoglalás"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "Megállítva"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Befejezés"
 
@@ -3902,6 +3911,10 @@ msgstr "Szüneteltetve"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "Hibás"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "Elégtelen lemezterület"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4068,6 +4081,14 @@ msgstr[0] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Bezár"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6317,10 +6338,6 @@ msgstr "összes egyéb"
 msgid "Incomplete"
 msgstr "Befejezetlen"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "Megállítva"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Film"
@@ -6645,14 +6662,6 @@ msgstr "A %i. letöltött fájlrész sérült a %s fájlban"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: %i. sérült rész helyreállítva a '%s'-hez -> megmentett bájtok: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "Helyfoglalás"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "Elégtelen lemezterület"
 
 #: src/PartFile.cpp
 #, c-format

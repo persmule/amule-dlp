@@ -3884,6 +3884,15 @@ msgid "Hashing"
 msgstr "ハッシュ中"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "領域確保中"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "中断しています"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "完了中"
 
@@ -3900,6 +3909,10 @@ msgstr "停止"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "エラーあり"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "ディスク容量不足"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4066,6 +4079,14 @@ msgstr[0] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "閉じる"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6318,10 +6339,6 @@ msgstr "他の全て"
 msgid "Incomplete"
 msgstr "未完成"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "中断しています"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "ビデオ"
@@ -6646,14 +6663,6 @@ msgstr "ダウンロードした部分%i（ファイル：%s）は破損され�
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH：破損された部分%i（%sのため）を回復しました→：%s バイトを保存しました"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "領域確保中"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "ディスク容量不足"
 
 #: src/PartFile.cpp
 #, c-format

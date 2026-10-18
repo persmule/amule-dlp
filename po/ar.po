@@ -3912,6 +3912,15 @@ msgid "Hashing"
 msgstr "جارٍ التجزئة"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "جارٍ التخصيص"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "إيقاف"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "اكتمال"
 
@@ -3928,6 +3937,10 @@ msgstr "ايقاف مؤقت"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "خاطئ"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "مساحة القرص غير كافية"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4097,6 +4110,14 @@ msgstr[1] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "اغلق"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6356,10 +6377,6 @@ msgstr "الكل ماعدا"
 msgid "Incomplete"
 msgstr "غير مكتمل"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "إيقاف"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "فيديو"
@@ -6680,14 +6697,6 @@ msgstr "الجزء الذي تم تحميله %i تالف في الملف: %s"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: تم استرداد الجزء التالف %i لـ %s -> البايتات الموفَّرة: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "جارٍ التخصيص"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "مساحة القرص غير كافية"
 
 #: src/PartFile.cpp
 #, c-format

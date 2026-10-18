@@ -3908,6 +3908,15 @@ msgid "Hashing"
 msgstr "Hashar"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "Hentar plass"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "Stogga"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Ferdigstiller"
 
@@ -3924,6 +3933,10 @@ msgstr "Pausa"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "Feilaktig"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "Ikkje nok diskplass"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4094,6 +4107,14 @@ msgstr[1] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Stengje"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6348,10 +6369,6 @@ msgstr "alle andre"
 msgid "Incomplete"
 msgstr "Uferdig"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "Stogga"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Video"
@@ -6678,14 +6695,6 @@ msgstr "Nedlasta del %i er korrupt i fila: %s"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: Attskapte korrupt del %i·for·%s·->·Lagra bytes:·%s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "Hentar plass"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "Ikkje nok diskplass"
 
 #: src/PartFile.cpp
 #, c-format

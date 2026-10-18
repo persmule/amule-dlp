@@ -3902,6 +3902,15 @@ msgid "Hashing"
 msgstr "Hashing"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "Duke ndarë hapësirë"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "E ndalur"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Duke perfunduar"
 
@@ -3918,6 +3927,10 @@ msgstr "Ne pritje"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "E gabuar"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "Hapësirë e pamjaftueshme në disk"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4088,6 +4101,14 @@ msgstr[1] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Mbylle"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6342,10 +6363,6 @@ msgstr "te gjithe te tjeret"
 msgid "Incomplete"
 msgstr "E pakompletuar"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "E ndalur"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Video"
@@ -6672,14 +6689,6 @@ msgstr "Pjesa e shkarkuar %i eshte e prishur ne failin: %s"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: Rekuperohet pjesa e demtuar %i per %s -> Bytes te kursyera: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "Duke ndarë hapësirë"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "Hapësirë e pamjaftueshme në disk"
 
 #: src/PartFile.cpp
 #, c-format

@@ -3943,6 +3943,15 @@ msgid "Hashing"
 msgstr "Ustvarjanje kode"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "Dodeljevanje"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "Ustavljeno"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Zaključevanje"
 
@@ -3959,6 +3968,10 @@ msgstr "Prekinjeno"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "Vsebuje napake"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "Premalo prostora na disku"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4137,6 +4150,14 @@ msgstr[3] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Zapri"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6395,10 +6416,6 @@ msgstr "vse ostalo"
 msgid "Incomplete"
 msgstr "Nezaključeno"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "Ustavljeno"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Video"
@@ -6730,14 +6747,6 @@ msgstr "Prejet del %i v datoteki je pokvarjen: %s"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "IRP: rešen pokvarjen del %i za %s → Rešenih bajtov: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "Dodeljevanje"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "Premalo prostora na disku"
 
 #: src/PartFile.cpp
 #, c-format

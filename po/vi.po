@@ -3855,6 +3855,15 @@ msgid "Hashing"
 msgstr "Đang băm"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "Đang cấp phát"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "Đã dừng"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Đang hoàn tất"
 
@@ -3871,6 +3880,10 @@ msgstr "Tạm dừng"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "Lỗi"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "Không đủ dung lượng đĩa"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4036,6 +4049,14 @@ msgstr[0] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Đóng"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6273,10 +6294,6 @@ msgstr "tất cả còn lại"
 msgid "Incomplete"
 msgstr "Chưa hoàn tất"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "Đã dừng"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Video"
@@ -6595,14 +6612,6 @@ msgstr "Phần đã tải xuống %i bị hỏng trong tệp: %s"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: Đã khôi phục phần bị hỏng %i cho %s -> Byte đã tiết kiệm: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "Đang cấp phát"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "Không đủ dung lượng đĩa"
 
 #: src/PartFile.cpp
 #, c-format

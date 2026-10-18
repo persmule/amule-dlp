@@ -3884,6 +3884,15 @@ msgid "Hashing"
 msgstr "正在计算哈希"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "正在分配"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "已停止"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "即将完成"
 
@@ -3900,6 +3909,10 @@ msgstr "已暂停"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "已出错"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "磁盘空间不足"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4069,6 +4082,14 @@ msgstr[1] "找不到另外 %u 个共享文件（未逐个列出）"
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "关闭"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6315,10 +6336,6 @@ msgstr "其它"
 msgid "Incomplete"
 msgstr "未完成"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "已停止"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "视频"
@@ -6639,14 +6656,6 @@ msgstr "下载的数据段 %i 已损坏 文件： (%s)"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH：修复了损坏的数据段 %i（%s），挽救数据（字节）： %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "正在分配"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "磁盘空间不足"
 
 #: src/PartFile.cpp
 #, c-format
