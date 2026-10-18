@@ -2778,13 +2778,14 @@ TEST(Refresher, PrefsSchemaIrregularitiesStayContained)
 			++admin_read;
 			const std::string id = std::string(f.category) + "." + f.key;
 			ASSERT_TRUE(id == "connection.proxy_user" || id == "geoip.custom_update_url" ||
-				    id == "geoip.maxmind_license");
+				    id == "geoip.maxmind_license" || id == "servers.update_url" ||
+				    id == "security.ipfilter_update_url" || id == "kad.update_url");
 		}
 	}
 	ASSERT_EQUALS(static_cast<std::size_t>(2), inverted);
 	ASSERT_EQUALS(static_cast<std::size_t>(1), foreign_group);
 	ASSERT_EQUALS(static_cast<std::size_t>(1), bespoke);
-	ASSERT_EQUALS(static_cast<std::size_t>(3), admin_read);
+	ASSERT_EQUALS(static_cast<std::size_t>(6), admin_read);
 
 	// One category is gated on a tag proving the daemon has it. That tag must be one of the
 	// category's own value-encoded rows: a presence-encoded one is absent whenever it is false,

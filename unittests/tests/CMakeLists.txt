@@ -2941,3 +2941,18 @@ target_include_directories (RC4Test PRIVATE
 	${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/include)
 target_link_libraries (RC4Test muleunit mulecommon CRYPTOPP::CRYPTOPP)
 add_test (NAME RC4Test COMMAND RC4Test)
+
+# Download diagnostics must never expose URL credentials to log/status readers.
+add_executable (DownloadUrlTest DownloadUrlTest.cpp)
+target_include_directories (DownloadUrlTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries (DownloadUrlTest muleunit mulecommon)
+add_test (NAME DownloadUrlTest COMMAND DownloadUrlTest)
+
+if (ENABLE_INTEGRATION_TESTS AND ENABLE_IP2COUNTRY AND BUILD_DAEMON AND BUILD_AMULEAPI AND UNIX AND NOT APPLE)
+	find_package (Python3 QUIET COMPONENTS Interpreter)
+	if (Python3_Interpreter_FOUND)
+		add_test (NAME UpdateUrlPrivacyTest
+			COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/UpdateUrlPrivacyTest.py
+				$<TARGET_FILE:amuled> $<TARGET_FILE:amuleapi>)
+	endif ()
+endif ()

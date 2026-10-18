@@ -199,7 +199,7 @@ const PrefField kSchema[] = {
 	PREF_BOOL("servers", "smart_lowid_check_enabled", EC_TAG_SERVERS_SMART_ID_CHECK, PrefEnc::Presence, false, PrefAccess::ReadWrite, servers.smart_lowid_check_enabled),
 	PREF_BOOL("servers", "update_list_from_client", EC_TAG_SERVERS_ADD_FROM_CLIENT, PrefEnc::Presence, false, PrefAccess::ReadWrite, servers.update_list_from_client),
 	PREF_BOOL("servers", "update_list_from_server", EC_TAG_SERVERS_ADD_FROM_SERVER, PrefEnc::Presence, false, PrefAccess::ReadWrite, servers.update_list_from_server),
-	PREF_STR("servers", "update_url", EC_TAG_SERVERS_UPDATE_URL, PrefAccess::ReadWrite, servers.update_url),
+	PREF_STR("servers", "update_url", EC_TAG_SERVERS_UPDATE_URL, PrefAccess::AdminRead, servers.update_url),
 	PREF_BOOL("servers", "server_priority_system_enabled", EC_TAG_SERVERS_USE_SCORE_SYSTEM, PrefEnc::Presence, false, PrefAccess::ReadWrite, servers.server_priority_system_enabled),
 
 	// [security]
@@ -208,7 +208,7 @@ const PrefField kSchema[] = {
 	PREF_BOOL("security", "ipfilter_clients_enabled", EC_TAG_IPFILTER_CLIENTS, PrefEnc::Presence, false, PrefAccess::ReadWrite, security.ipfilter_clients_enabled),
 	PREF_BOOL("security", "ipfilter_include_lan_ips", EC_TAG_IPFILTER_FILTER_LAN, PrefEnc::Presence, false, PrefAccess::ReadWrite, security.ipfilter_include_lan_ips),
 	PREF_BOOL("security", "ipfilter_servers_enabled", EC_TAG_IPFILTER_SERVERS, PrefEnc::Presence, false, PrefAccess::ReadWrite, security.ipfilter_servers_enabled),
-	PREF_STR("security", "ipfilter_update_url", EC_TAG_IPFILTER_UPDATE_URL, PrefAccess::ReadWrite, security.ipfilter_update_url),
+	PREF_STR("security", "ipfilter_update_url", EC_TAG_IPFILTER_UPDATE_URL, PrefAccess::AdminRead, security.ipfilter_update_url),
 	PREF_BOOL("security", "protocol_obfuscation_enabled", EC_TAG_SECURITY_OBFUSCATION_SUPPORTED, PrefEnc::Presence, false, PrefAccess::ReadWrite, security.protocol_obfuscation_enabled),
 	PREF_BOOL("security", "obfuscation_requested", EC_TAG_SECURITY_OBFUSCATION_REQUESTED, PrefEnc::Presence, false, PrefAccess::ReadWrite, security.obfuscation_requested),
 	PREF_BOOL("security", "obfuscation_required", EC_TAG_SECURITY_OBFUSCATION_REQUIRED, PrefEnc::Presence, false, PrefAccess::ReadWrite, security.obfuscation_required),
@@ -286,7 +286,7 @@ const PrefField kSchema[] = {
 	PREF_BOOL("advanced", "verbose_logging", EC_TAG_CORETW_VERBOSE, PrefEnc::Presence, false, PrefAccess::ReadWrite, advanced.verbose_logging),
 
 	// [kad] (EC group: KADEMLIA)
-	PREF_STR("kad", "update_url", EC_TAG_KADEMLIA_UPDATE_URL, PrefAccess::ReadWrite, kad.update_url),
+	PREF_STR("kad", "update_url", EC_TAG_KADEMLIA_UPDATE_URL, PrefAccess::AdminRead, kad.update_url),
 	// A 3.2+ core always sends PROTOCOL10 as a value tag, so its presence is the capability: a
 	// pre-3.2 core neither sends nor applies the two options below.
 	PREF_BOOL("kad", "protocol10_supported", EC_TAG_KADEMLIA_PROTOCOL10, PrefEnc::Presence, false, PrefAccess::ReadOnly, kad.protocol10_supported),

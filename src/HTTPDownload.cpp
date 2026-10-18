@@ -31,6 +31,7 @@
 #endif
 
 #include "HTTPDownload.h"           // Interface declarations
+#include "DownloadUrl.h"            // Needed for DownloadUrlForLog, DownloadErrorForLog
 #include <common/StringFunctions.h> // Needed for unicode2char
 #include "OtherFunctions.h"         // Needed for CastChild
 #include "Logger.h"                 // Needed for AddLogLine*
@@ -371,8 +372,8 @@ void CHttpSizeGuard::OnTimer(wxTimerEvent &WXUNUSED(evt))
 
 static void LogDownloadTooLarge(const wxString &url, wxFileOffset limit)
 {
-	AddLogLineC(CFormat(_("HTTP download of %s stopped: it is larger than %u MiB.")) % url %
-		    (unsigned)(limit / (1024 * 1024)));
+	AddLogLineC(CFormat(_("HTTP download of %s stopped: it is larger than %u MiB.")) %
+		    DownloadUrlForLog(url) % (unsigned)(limit / (1024 * 1024)));
 }
 
 CHTTPDownloadThread::CHTTPDownloadThread(const wxString &url,
@@ -405,8 +406,8 @@ CHTTPDownloadThread::CHTTPDownloadThread(const wxString &url,
 		wxFileName origFile(oldfilename);
 		if (origFile.FileExists()) {
 			AddDebugLogLineN(logHTTP,
-				CFormat("URL %s matches and file %s exists, only download if newer") % url %
-					oldfilename);
+				CFormat("URL %s matches and file %s exists, only download if newer") %
+					DownloadUrlForLog(url) % oldfilename);
 			m_lastmodified = origFile.GetModificationTime();
 		}
 	}
@@ -416,7 +417,7 @@ CHTTPDownloadThread::CHTTPDownloadThread(const wxString &url,
 		s_allThreads.insert(this);
 	}
 
-	AddDebugLogLineN(logHTTP, CFormat("HTTP download started: %s") % m_url);
+	AddDebugLogLineN(logHTTP, CFormat("HTTP download started: %s") % DownloadUrlForLog(m_url));
 
 	if (m_url.IsEmpty()) {
 		AddLogLineC(_("The URL to download can't be empty"));
@@ -429,7 +430,7 @@ CHTTPDownloadThread::CHTTPDownloadThread(const wxString &url,
 	// Failed fires, but not the cleanup-time pthread_join on libcurl's threaded resolver.
 	m_request = CreateAmuleWebRequest(this, m_url);
 	if (!m_request.IsOk()) {
-		AddLogLineC(CFormat(_("Failed to create HTTP request for %s")) % m_url);
+		AddLogLineC(CFormat(_("Failed to create HTTP request for %s")) % DownloadUrlForLog(m_url));
 		FinishAndDestroy(HTTP_Error);
 		return;
 	}
@@ -503,7 +504,8 @@ void CHTTPDownloadThread::OnStateEvent(wxWebRequestEvent &evt)
 		m_response = response.IsOk() ? response.GetStatus() : 0;
 		m_error = 0;
 
-		AddDebugLogLineN(logHTTP, CFormat("HTTP response %d for %s") % m_response % m_url);
+		AddDebugLogLineN(
+			logHTTP, CFormat("HTTP response %d for %s") % m_response % DownloadUrlForLog(m_url));
 
 		if (m_response == 304) {
 			// Not Modified -- nothing to write.
@@ -519,7 +521,8 @@ void CHTTPDownloadThread::OnStateEvent(wxWebRequestEvent &evt)
 			// back to copy + delete.
 			const wxString wxTmp = response.GetDataFile();
 			if (wxTmp.IsEmpty() || !wxFileExists(wxTmp)) {
-				AddLogLineC(CFormat(_("HTTP download: empty response body for %s")) % m_url);
+				AddLogLineC(CFormat(_("HTTP download: empty response body for %s")) %
+					    DownloadUrlForLog(m_url));
 				FinishAndDestroy(HTTP_Error);
 				break;
 			}
@@ -535,26 +538,28 @@ void CHTTPDownloadThread::OnStateEvent(wxWebRequestEvent &evt)
 				FinishAndDestroy(HTTP_Error);
 				break;
 			}
-			AddLogLineN(CFormat(_("Downloaded %s (%llu bytes)")) % m_url %
+			AddLogLineN(CFormat(_("Downloaded %s (%llu bytes)")) % DownloadUrlForLog(m_url) %
 				    (unsigned long long)m_request.GetBytesReceived());
 			thePrefs::SetLastHTTPDownloadURL(m_file_id, m_url);
 			FinishAndDestroy(HTTP_Success);
 		} else {
-			AddLogLineC(CFormat(_("The URL %s returned: %i")) % m_url % m_response);
+			AddLogLineC(CFormat(_("The URL %s returned: %i")) % DownloadUrlForLog(m_url) %
+				    m_response);
 			FinishAndDestroy(HTTP_Error);
 		}
 		break;
 	}
 
+	// Keep the backend reason while hiding request and redirect URL credentials.
 	case wxWebRequest::State_Failed: {
-		AddLogLineC(
-			CFormat(_("HTTP download failed for %s: %s")) % m_url % evt.GetErrorDescription());
+		AddLogLineC(CFormat(_("HTTP download failed for %s: %s")) % DownloadUrlForLog(m_url) %
+			    DownloadErrorForLog(evt.GetErrorDescription()));
 		FinishAndDestroy(HTTP_Error);
 		break;
 	}
 
 	case wxWebRequest::State_Cancelled: {
-		AddDebugLogLineN(logHTTP, CFormat("HTTP download cancelled: %s") % m_url);
+		AddDebugLogLineN(logHTTP, CFormat("HTTP download cancelled: %s") % DownloadUrlForLog(m_url));
 		FinishAndDestroy(HTTP_Error);
 		break;
 	}
@@ -562,7 +567,7 @@ void CHTTPDownloadThread::OnStateEvent(wxWebRequestEvent &evt)
 	case wxWebRequest::State_Unauthorized:
 		// We have no credentials to provide interactively; treat as
 		// a failure so the dispatcher reports an error to the user.
-		AddLogLineC(CFormat(_("HTTP 401 Unauthorized for %s")) % m_url);
+		AddLogLineC(CFormat(_("HTTP 401 Unauthorized for %s")) % DownloadUrlForLog(m_url));
 		m_request.Cancel();
 		FinishAndDestroy(HTTP_Error);
 		break;

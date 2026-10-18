@@ -29,6 +29,7 @@
 
 #include "Preferences.h" // For thePrefs
 #include "CFile.h"       // For CPath
+#include "DownloadUrl.h" // Needed for DownloadUrlForLog
 #include "HTTPDownload.h"
 #include "Logger.h"               // For AddLogLineM()
 #include <common/Format.h>        // For CFormat()
@@ -162,7 +163,7 @@ void CIP2Country::StartDownload(int monthOffset)
 		m_lastResult = msg;
 		return;
 	}
-	AddLogLineN(CFormat(_("Download new %s from %s")) % m_DataBaseName % url);
+	AddLogLineN(CFormat(_("Download new %s from %s")) % m_DataBaseName % DownloadUrlForLog(url));
 	m_downloading = true;
 	// Scheduled updates honour If-Modified-Since. "Update now" always downloads, so it can
 	// replace a bad file the server reports as unchanged.
@@ -252,7 +253,8 @@ void CIP2Country::DownloadFinished(uint32 result)
 			return;
 		}
 		const wxString msg = CFormat(_("Failed to download %s from %s")) % m_DataBaseName %
-				     thePrefs::GetGeoIPResolvedDownloadUrl(m_TriedPreviousMonth ? -1 : 0);
+				     DownloadUrlForLog(thePrefs::GetGeoIPResolvedDownloadUrl(
+					     m_TriedPreviousMonth ? -1 : 0));
 		AddLogLineC(msg);
 		m_lastResult = msg;
 		if (manual) {

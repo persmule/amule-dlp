@@ -25,6 +25,8 @@
 
 #include <wx/wx.h>
 
+#include "DownloadUrl.h" // Needed for DownloadUrlForLog
+
 #include "ServerList.h" // Interface declarations.
 
 #include <protocol/Protocols.h>
@@ -830,14 +832,16 @@ bool CServerList::DownloadFinished(uint32 result)
 		SaveServerMet();
 
 		CPath::RemoveFile(tempFilename);
-		AddLogLineN(CFormat(_("Finished downloading the server list from %s")) % m_URLUpdate);
+		AddLogLineN(CFormat(_("Finished downloading the server list from %s")) %
+			    DownloadUrlForLog(m_URLUpdate));
 		ret = true;
 		// cppcheck-suppress duplicateBranch
 	} else if (result == HTTP_Skipped) {
 		AddLogLineN(CFormat(_("Skipped download of %s, because requested file is not newer.")) %
 			    "server.met");
 	} else {
-		AddLogLineC(CFormat(_("Failed to download %s from %s")) % "server.met" % m_URLUpdate);
+		AddLogLineC(CFormat(_("Failed to download %s from %s")) % "server.met" %
+			    DownloadUrlForLog(m_URLUpdate));
 	}
 	return ret;
 }
@@ -864,7 +868,8 @@ void CServerList::AutoUpdate()
 		if (uri.HasServer() && (scheme == "http" || scheme == "https")) {
 			m_URLUpdate = URI;
 			wxString strTempFilename = thePrefs::GetConfigDir() + "server_auto.met";
-			AddLogLineC(CFormat(_("Start downloading server list from %s")) % URI);
+			AddLogLineC(
+				CFormat(_("Start downloading server list from %s")) % DownloadUrlForLog(URI));
 			CHTTPDownloadThread *downloader = new CHTTPDownloadThread(URI,
 				strTempFilename,
 				thePrefs::GetConfigDir() + "server.met",
@@ -896,7 +901,8 @@ void CServerList::AutoDownloadFinished(uint32 result)
 
 		CPath::RemoveFile(tempFilename);
 	} else {
-		AddLogLineC(CFormat(_("Failed to download the server list from %s")) % m_URLUpdate);
+		AddLogLineC(CFormat(_("Failed to download the server list from %s")) %
+			    DownloadUrlForLog(m_URLUpdate));
 	}
 
 	++current_url_index;

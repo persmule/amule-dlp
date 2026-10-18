@@ -26,6 +26,8 @@
 #include <wx/stdpaths.h> // Needed for GetDataDir
 #include <wx/ffile.h>
 
+#include "DownloadUrl.h" // Needed for DownloadUrlForLog
+
 #include "IPFilter.h"               // Interface declarations.
 #include "IPFilterScanner.h"        // Interface for flexer
 #include "Preferences.h"            // Needed for thePrefs
@@ -546,7 +548,7 @@ void CIPFilter::DownloadFinished(uint32 result)
 		AddLogLineN(
 			CFormat(_("Skipped download of %s, because requested file is not newer.")) % datName);
 	} else {
-		AddLogLineC(CFormat(_("Failed to download %s from %s")) % datName % m_URL);
+		AddLogLineC(CFormat(_("Failed to download %s from %s")) % datName % DownloadUrlForLog(m_URL));
 	}
 
 	if (result == HTTP_Success) {
