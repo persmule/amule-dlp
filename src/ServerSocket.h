@@ -30,6 +30,9 @@
 
 #include "EMSocket.h" // Needed for CEMSocket
 #include "ServerConnect.h"
+#ifdef ENABLE_IPV6
+#include "NetworkAddress.h" // Needed for CNetworkAddress
+#endif
 
 // CServerSocket
 
@@ -70,6 +73,13 @@ public:
 	// aux port rather than the advertised one.
 	uint16 GetConnectPort() const { return m_connectPort; }
 
+#ifdef ENABLE_IPV6
+	// The IPv6 our login to this server advertised, Absent if none; only then can sentinel records
+	// arrive.
+	void SetLoginIPv6(const CNetworkAddress &address) { m_loginIPv6 = address; }
+	const CNetworkAddress &GetLoginIPv6() const { return m_loginIPv6; }
+#endif
+
 private:
 	bool ProcessPacket(const uint8_t *packet, uint32 size, int8 opcode);
 	void SetConnectionState(sint8 newstate);
@@ -87,6 +97,9 @@ private:
 
 	bool m_IsSolving;
 	uint16 m_connectPort = 0;
+#ifdef ENABLE_IPV6
+	CNetworkAddress m_loginIPv6;
+#endif
 };
 
 #endif // SERVERSOCKET_H

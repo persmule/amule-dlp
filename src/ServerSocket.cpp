@@ -289,6 +289,12 @@ bool CServerSocket::ProcessPacket(const uint8_t *packet, uint32 size, int8 opcod
 				} else {
 					cur_server->SetTCPFlags(0);
 				}
+#ifdef ENABLE_IPV6
+				if (cur_server->SupportsIPv6Sources()) {
+					AddDebugLogLineN(logServer,
+						"OP_IDCHANGE: server speaks the IPv6 source extension");
+				}
+#endif
 				// copy TCP flags into the server in the server list
 				if (pServer) {
 					pServer->SetTCPFlags(cur_server->GetTCPFlags());
@@ -428,11 +434,18 @@ bool CServerSocket::ProcessPacket(const uint8_t *packet, uint32 size, int8 opcod
 			CMemFile sources(packet, size);
 			CMD4Hash fileid = sources.ReadHash();
 			if (CPartFile *file = theApp->downloadqueue->GetFileByID(fileid)) {
+				const CNetworkAddress *loginIPv6 = nullptr;
+#ifdef ENABLE_IPV6
+				if (GetLoginIPv6().IsPresent()) {
+					loginIPv6 = &GetLoginIPv6();
+				}
+#endif
 				file->AddSources(sources,
 					cur_server->GetIP(),
 					cur_server->GetPort(),
 					SF_LOCAL_SERVER,
-					(opcode == OP_FOUNDSOURCES_OBFU));
+					(opcode == OP_FOUNDSOURCES_OBFU),
+					loginIPv6);
 			} else {
 				AddDebugLogLineN(
 					logServer, "Sources received for unknown file: " + fileid.Encode());
