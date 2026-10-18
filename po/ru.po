@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-18 13:15+0000\n"
+"PO-Revision-Date: 2026-10-18 19:22+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -4120,11 +4120,11 @@ msgstr "Закрыть"
 
 #: src/MuleDataViewCtrl.cpp
 msgid "Fit column to contents"
-msgstr ""
+msgstr "Подогнать столбец по содержимому"
 
 #: src/MuleDataViewCtrl.cpp
 msgid "Fit visible columns to contents"
-msgstr ""
+msgstr "Подогнать видимые столбцы по содержимому"
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
