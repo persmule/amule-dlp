@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-15 19:15+0000\n"
+"PO-Revision-Date: 2026-10-18 13:15+0000\n"
 "Last-Translator: minterior <minterior@gmail.com>\n"
 "Language-Team: Català\n"
 "Language: ca\n"
@@ -201,6 +201,14 @@ msgstr "Reinicia ara"
 msgid "Later"
 msgstr "Més tard"
 
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "The connected core does not support deleting complete files from disk."
+msgstr "El nucli connectat no admet esborrar del disc fitxers completats."
+
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "Delete from disk"
+msgstr "Esborra del disc"
+
 #: src/GuiEvents.cpp
 #, c-format
 msgid ""
@@ -233,25 +241,6 @@ msgstr ""
 "\n"
 "%s\n"
 "Els fitxers s'esborraran i deixaran de compartir-se. Això no es pot desfer."
-
-#: src/GuiEvents.cpp
-msgid "Delete from disk"
-msgstr "Esborra del disc"
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Skipped deleting '%s': the selected file has changed."
-msgstr "S'ha omès l'esborrat de «%s»: el fitxer seleccionat ha canviat."
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Deleted '%s' from disk."
-msgstr "S'ha esborrat «%s» del disc."
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Could not delete '%s' from disk."
-msgstr "No s'ha pogut esborrar «%s» del disc."
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -352,6 +341,18 @@ msgid "Now, exiting main app..."
 msgstr "Sortint del programa..."
 
 #: src/amule.cpp
+msgid "Saving window settings..."
+msgstr "Desant la configuració de la finestra..."
+
+#: src/amule.cpp
+msgid "Saving client credits..."
+msgstr "S'estan desant els crèdits dels clients..."
+
+#: src/amule.cpp
+msgid "Stopping helper applications..."
+msgstr "S'estan aturant les aplicacions auxiliars..."
+
+#: src/amule.cpp
 #, c-format
 msgid "Terminating amuleweb instance with pid '%d' ... "
 msgstr "S'està aturant el procés amuleweb amb pid '%d' ... "
@@ -381,12 +382,28 @@ msgid "aMule OnExit: Terminating core."
 msgstr "aMule Sortida: Finalitzant nucli."
 
 #: src/amule.cpp
+msgid "Saving search results..."
+msgstr "S'estan desant els resultats de la cerca..."
+
+#: src/amule.cpp
+msgid "Saving downloads and shared files..."
+msgstr "S'estan desant les baixades i els fitxers compartits..."
+
+#: src/amule.cpp
+msgid "Flushing download buffers..."
+msgstr "S'estan buidant les memòries intermèdies de baixada..."
+
+#: src/amule.cpp
 msgid "aMule shutdown completed."
 msgstr "Aturada aMule completada."
 
 #: src/amule.cpp
 msgid "Memory debug results for aMule exit:"
 msgstr "Resultat de la depuració de la memòria a la sortida de l'aMule:"
+
+#: src/amule.cpp
+msgid "Finishing shutdown..."
+msgstr "S'està acabant l'aturada..."
 
 #: src/amule.cpp
 #, c-format
@@ -699,6 +716,26 @@ msgstr "Verificació de dades locals: un altre fitxer anomenat «%s» de les vos
 #, c-format
 msgid "Disk space preallocation for file '%s' failed: %s"
 msgstr "La preassignació d'espai per al fitxer '%s' ha fallat: %s"
+
+#: src/amule.cpp
+msgid "Stopping network services..."
+msgstr "S'estan aturant els serveis de xarxa..."
+
+#: src/amule.cpp
+msgid "Saving source seeds..."
+msgstr "S'estan desant les llavors font..."
+
+#: src/amule.cpp
+msgid "Stopping background downloads and workers..."
+msgstr "S'estan aturant les baixades en segon pla i els processos de treball..."
+
+#: src/amule.cpp
+msgid "Closing connections..."
+msgstr "S'estan tancant les connexions..."
+
+#: src/amule.cpp
+msgid "Saving known files and statistics..."
+msgstr "S'estan desant els fitxers coneguts i les estadístiques..."
 
 #: src/amule.cpp
 msgid "ERROR: can't open logfile"
@@ -1277,6 +1314,10 @@ msgstr "No s'ha pogut suprimir la categoria: %s"
 #, c-format
 msgid "Can't create directory '%s' for category '%s', keeping directory '%s'."
 msgstr "No s'ha pogut crear el directori '%s' per a la categoria '%s', es mantindrà el directori '%s'."
+
+#: src/amule-remote-gui.cpp
+msgid "The core did not confirm deleting the file. Refresh and try again."
+msgstr "El nucli no ha confirmat que s'hagi esborrat el fitxer. Refresqueu i torneu-ho a provar."
 
 #: src/amule-remote-gui.cpp
 #, c-format
@@ -2384,6 +2425,10 @@ msgid "Unauthorized access attempt from %s. Connection closed."
 msgstr "Intent d'accés no autoritzat de %s. Connexió tancada."
 
 #: src/ExternalConn.cpp
+msgid "Invalid partfile command target."
+msgstr "Destinació no vàlida per a l'ordre del fitxer de parts."
+
+#: src/ExternalConn.cpp
 #, c-format
 msgid "Remote PartFile command failed: FileHash not found: %s"
 msgstr "Ha fallat una ordre remota de fitxer de parts: No s'ha trobat el resum del fitxer: %s"
@@ -2397,6 +2442,10 @@ msgstr "No s'ha trobat el resum del fitxer: %s"
 #, c-format
 msgid "Cannot cancel a finished download: %s"
 msgstr "No es pot cancel·lar una baixada acabada: %s"
+
+#: src/ExternalConn.cpp
+msgid "The selected download has changed or is completing. Refresh and try again."
+msgstr "La baixada seleccionada ha canviat o s'està completant. Refresqueu i torneu-ho a provar."
 
 #: src/ExternalConn.cpp
 #, c-format
@@ -2489,6 +2538,10 @@ msgstr "Comprovació de versió limitada; torneu-ho a provar d'aquí a poc."
 #: src/ExternalConn.cpp
 msgid "Version check is not available on this daemon."
 msgstr "La comprovació de versió no està disponible en aquest dimoni."
+
+#: src/ExternalConn.cpp
+msgid "Invalid complete-file deletion target."
+msgstr "Destinació no vàlida per a l'esborrat d'un fitxer complet."
 
 #: src/ExternalConn.cpp
 msgid "File not found."
@@ -3225,7 +3278,7 @@ msgstr "Descàrrega HTTP cancel·lada"
 #: src/HTTPDownload.cpp
 #, c-format
 msgid "HTTP download of %s stopped: it is larger than %u MiB."
-msgstr ""
+msgstr "S'ha aturat la baixada HTTP de %s: supera els %u MiB."
 
 #: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
@@ -4918,7 +4971,7 @@ msgstr "Reproductor de vídeo"
 
 #: src/muuli_wdr.cpp
 msgid "Line capacities"
-msgstr ""
+msgstr "Capacitats de la línia"
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
@@ -4929,14 +4982,12 @@ msgid "Bandwidth limits"
 msgstr "Límits d'ample de banda"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Enable download limit"
-msgstr "Límit de baixada"
+msgstr "Activa el límit de baixada"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Enable upload limit"
-msgstr "Límit de pujada"
+msgstr "Activa el límit de pujada"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5045,6 +5096,30 @@ msgstr ""
 "La versió que declara un node pot estar desactualitzada o ser inexacta, de manera que això pot descartar hashes vàlids i no fa que els hashes acceptats siguin fiables. Els nodes amb una versió desconeguda s'accepten igualment.\n"
 "\n"
 "Detall tècnic: rebutja les etiquetes de publicació AICH dels nodes que anuncien versions del protocol Kad inferiors a 0x09."
+
+#: src/muuli_wdr.cpp src/PeerCapabilities.h
+msgid "IPv6"
+msgstr "IPv6"
+
+#: src/muuli_wdr.cpp
+msgid "Address families:"
+msgstr "Famílies d'adreces:"
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 only"
+msgstr "Només IPv4"
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 and IPv6"
+msgstr "IPv4 i IPv6"
+
+#: src/muuli_wdr.cpp
+msgid "Takes effect after restarting aMule."
+msgstr "S'aplica després de reiniciar l'aMule."
+
+#: src/muuli_wdr.cpp
+msgid "Advertise my IPv6 address to other peers"
+msgstr "Anuncia la meva adreça IPv6 als altres parells"
 
 #: src/muuli_wdr.cpp
 msgid "Remove dead server after"
@@ -5428,23 +5503,23 @@ msgstr "Inhabilita el mode d'espera programat de l'ordinador"
 
 #: src/muuli_wdr.cpp
 msgid "Appearance: "
-msgstr ""
+msgstr "Aparença: "
 
 #: src/muuli_wdr.cpp
 msgid "Follow system"
-msgstr ""
+msgstr "Segons el sistema"
 
 #: src/muuli_wdr.cpp
 msgid "Light mode"
-msgstr ""
+msgstr "Mode clar"
 
 #: src/muuli_wdr.cpp
 msgid "Dark mode"
-msgstr ""
+msgstr "Mode fosc"
 
 #: src/muuli_wdr.cpp
 msgid "Appearance changes take effect after restarting aMule."
-msgstr ""
+msgstr "Els canvis d'aparença s'apliquen després de reiniciar aMule."
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6588,10 +6663,6 @@ msgid "NAT traversal (uTP)"
 msgstr "Travessia de NAT (uTP)"
 
 #: src/PeerCapabilities.h
-msgid "IPv6"
-msgstr "IPv6"
-
-#: src/PeerCapabilities.h
 msgid "Buddy info pull"
 msgstr "Consulta d'informació de company"
 
@@ -6622,12 +6693,12 @@ msgstr "S'usarà el port per defecte (%d)"
 
 #: src/BandwidthLimitSlider.h
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
-msgstr ""
+msgstr "Ajusta el límit activat entre 1 KiB/s i la capacitat de la línia."
 
 #: src/BandwidthLimitSlider.h
-#, fuzzy, c-format
+#, c-format
 msgid "KiB/s (%.2f MiB/s)"
-msgstr "%.1f MiB/s"
+msgstr "KiB/s (%.2f MiB/s)"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -6785,6 +6856,10 @@ msgstr "- El port UDP ha canviat.\n"
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect port changed.\n"
 msgstr "- S'ha canviat el port de connexió externa.\n"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "- Address families changed.\n"
+msgstr "- S'han canviat les famílies d'adreces.\n"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect acceptance changed.\n"
@@ -8007,6 +8082,20 @@ msgstr[0] "S'estan tornant a extreure les metadades multimèdia de %u fitxer com
 msgstr[1] "S'estan tornant a extreure les metadades multimèdia de %u fitxers compartits"
 
 #: src/SharedFileList.cpp
+msgid "The selected file has changed or is not a complete file."
+msgstr "El fitxer seleccionat ha canviat o no és un fitxer complet."
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Could not delete '%s' from disk."
+msgstr "No s'ha pogut esborrar «%s» del disc."
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Deleted '%s' from disk."
+msgstr "S'ha esborrat «%s» del disc."
+
+#: src/SharedFileList.cpp
 #, c-format
 msgid "Now sharing file: %s"
 msgstr "Ara es comparteix el fitxer: %s"
@@ -8244,6 +8333,10 @@ msgstr "Nom de fitxer remot"
 #: src/SourceListCtrl.cpp
 msgid "A4AF"
 msgstr "A4AF"
+
+#: src/SplashScreen.cpp
+msgid "Closing aMule"
+msgstr "S'està tancant l'aMule"
 
 #: src/Statistics.cpp
 #, c-format
@@ -10025,6 +10118,10 @@ msgstr "Kad no ha pogut carregar l'índex desat. S'han conservat els fitxers d'�
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr "Kad no ha pogut desar un índex. S'ha conservat la còpia anterior d'aquest fitxer."
+
+#, c-format
+#~ msgid "Skipped deleting '%s': the selected file has changed."
+#~ msgstr "S'ha omès l'esborrat de «%s»: el fitxer seleccionat ha canviat."
 
 #~ msgid "Download graph scale:"
 #~ msgstr "Escala del gràfic de descàrrega:"

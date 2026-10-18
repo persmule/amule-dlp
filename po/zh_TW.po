@@ -202,6 +202,15 @@ msgstr "立即重新啟動"
 msgid "Later"
 msgstr "稍後"
 
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "The connected core does not support deleting complete files from disk."
+msgstr ""
+
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+#, fuzzy
+msgid "Delete from disk"
+msgstr "從 Kad 取得"
+
 #: src/GuiEvents.cpp
 #, c-format
 msgid ""
@@ -225,26 +234,6 @@ msgid ""
 "%s\n"
 "The files are deleted and no longer shared. This cannot be undone."
 msgstr ""
-
-#: src/GuiEvents.cpp
-#, fuzzy
-msgid "Delete from disk"
-msgstr "從 Kad 取得"
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Skipped deleting '%s': the selected file has changed."
-msgstr ""
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Deleted '%s' from disk."
-msgstr ""
-
-#: src/GuiEvents.cpp
-#, fuzzy, c-format
-msgid "Could not delete '%s' from disk."
-msgstr "暫存資料夾"
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -330,6 +319,22 @@ msgid "Now, exiting main app..."
 msgstr "正在離開主程式..."
 
 #: src/amule.cpp
+msgid "Saving window settings..."
+msgstr ""
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Saving client credits..."
+msgstr ""
+"\n"
+"正在建立客戶端...\n"
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Stopping helper applications..."
+msgstr "離開程式。"
+
+#: src/amule.cpp
 #, c-format
 msgid "Terminating amuleweb instance with pid '%d' ... "
 msgstr "正在終止 pid %d 的 amuleweb 執行緒... "
@@ -359,12 +364,31 @@ msgid "aMule OnExit: Terminating core."
 msgstr "aMule 離開中：正在終止主程式。"
 
 #: src/amule.cpp
+#, fuzzy
+msgid "Saving search results..."
+msgstr "搜尋結果"
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Saving downloads and shared files..."
+msgstr "正在重新載入分享的檔案……"
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Flushing download buffers..."
+msgstr "正刪除檔案：%s "
+
+#: src/amule.cpp
 msgid "aMule shutdown completed."
 msgstr "已關閉 aMule 。"
 
 #: src/amule.cpp
 msgid "Memory debug results for aMule exit:"
 msgstr "離開 aMule 時記憶體除錯結果："
+
+#: src/amule.cpp
+msgid "Finishing shutdown..."
+msgstr ""
 
 #: src/amule.cpp
 #, fuzzy, c-format
@@ -683,6 +707,28 @@ msgstr ""
 #, c-format
 msgid "Disk space preallocation for file '%s' failed: %s"
 msgstr "無法為檔案 %s 預先分配磁碟空間：%s"
+
+#: src/amule.cpp
+msgid "Stopping network services..."
+msgstr ""
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Saving source seeds..."
+msgstr "來源種子"
+
+#: src/amule.cpp
+msgid "Stopping background downloads and workers..."
+msgstr ""
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Closing connections..."
+msgstr " 正在連線..."
+
+#: src/amule.cpp
+msgid "Saving known files and statistics..."
+msgstr ""
 
 #: src/amule.cpp
 msgid "ERROR: can't open logfile"
@@ -1264,6 +1310,10 @@ msgstr "暫存資料夾"
 #, c-format
 msgid "Can't create directory '%s' for category '%s', keeping directory '%s'."
 msgstr "無法建立 %s 目錄 ( %s 分類用)，繼續使用 %s 目錄。"
+
+#: src/amule-remote-gui.cpp
+msgid "The core did not confirm deleting the file. Refresh and try again."
+msgstr ""
 
 #: src/amule-remote-gui.cpp
 #, c-format
@@ -2372,6 +2422,11 @@ msgid "Unauthorized access attempt from %s. Connection closed."
 msgstr "%s 試圖非法登入，已關閉連線。"
 
 #: src/ExternalConn.cpp
+#, fuzzy
+msgid "Invalid partfile command target."
+msgstr "無效的檔名。"
+
+#: src/ExternalConn.cpp
 #, c-format
 msgid "Remote PartFile command failed: FileHash not found: %s"
 msgstr "無法執行對遠端暫存檔的指令：找不到檔案 hash 值：%s "
@@ -2385,6 +2440,10 @@ msgstr "找不到檔案 hash 值：%s "
 #, fuzzy, c-format
 msgid "Cannot cancel a finished download: %s"
 msgstr "下載完成：%s"
+
+#: src/ExternalConn.cpp
+msgid "The selected download has changed or is completing. Refresh and try again."
+msgstr ""
 
 #: src/ExternalConn.cpp
 #, fuzzy, c-format
@@ -2477,6 +2536,11 @@ msgstr "版本檢查已受限速；請稍後再試。"
 #: src/ExternalConn.cpp
 msgid "Version check is not available on this daemon."
 msgstr "此背景服務程式不支援版本檢查。"
+
+#: src/ExternalConn.cpp
+#, fuzzy
+msgid "Invalid complete-file deletion target."
+msgstr "無效的檔名。"
 
 #: src/ExternalConn.cpp
 msgid "File not found."
@@ -5037,6 +5101,30 @@ msgid ""
 "Technical detail: rejects AICH publish tags from nodes advertising Kad protocol versions below 0x09."
 msgstr ""
 
+#: src/muuli_wdr.cpp src/PeerCapabilities.h
+msgid "IPv6"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Address families:"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 only"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 and IPv6"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Takes effect after restarting aMule."
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Advertise my IPv6 address to other peers"
+msgstr ""
+
 #: src/muuli_wdr.cpp
 msgid "Remove dead server after"
 msgstr "移除無法連線伺服器：如果"
@@ -6590,10 +6678,6 @@ msgid "NAT traversal (uTP)"
 msgstr ""
 
 #: src/PeerCapabilities.h
-msgid "IPv6"
-msgstr ""
-
-#: src/PeerCapabilities.h
 msgid "Buddy info pull"
 msgstr ""
 
@@ -6788,6 +6872,11 @@ msgstr "- UDP 埠已變更。\n"
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect port changed.\n"
 msgstr "- 已變更外部連線埠設定。\n"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "- Address families changed.\n"
+msgstr "- 網路介面繫結已變更。\n"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect acceptance changed.\n"
@@ -8010,6 +8099,20 @@ msgid_plural "Re-extracting media metadata for %u shared files"
 msgstr[0] ""
 
 #: src/SharedFileList.cpp
+msgid "The selected file has changed or is not a complete file."
+msgstr ""
+
+#: src/SharedFileList.cpp
+#, fuzzy, c-format
+msgid "Could not delete '%s' from disk."
+msgstr "暫存資料夾"
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Deleted '%s' from disk."
+msgstr ""
+
+#: src/SharedFileList.cpp
 #, fuzzy, c-format
 msgid "Now sharing file: %s"
 msgstr "儲存 %s 時發生錯誤：%s"
@@ -8240,6 +8343,11 @@ msgstr "遠端檔案名稱"
 #: src/SourceListCtrl.cpp
 msgid "A4AF"
 msgstr "A4AF"
+
+#: src/SplashScreen.cpp
+#, fuzzy
+msgid "Closing aMule"
+msgstr "顯示 aMule"
 
 #: src/Statistics.cpp
 #, c-format

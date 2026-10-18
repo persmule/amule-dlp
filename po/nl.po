@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-16 13:01+0000\n"
+"PO-Revision-Date: 2026-10-16 23:24+0000\n"
 "Last-Translator: Marcel Pol <marcel@timelord.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
@@ -199,6 +199,15 @@ msgstr "Nu opnieuw starten"
 msgid "Later"
 msgstr "Later"
 
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+#, fuzzy
+msgid "The connected core does not support deleting complete files from disk."
+msgstr "De verbonden kern ondersteunt Kad opzoekingsdiagnostiek niet."
+
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "Delete from disk"
+msgstr "Verwijderen van schijf"
+
 #: src/GuiEvents.cpp
 #, c-format
 msgid ""
@@ -231,25 +240,6 @@ msgstr ""
 "\n"
 "%s\n"
 "De bestanden zijn verwijderd en worden niet langer gedeeld. Dit kan niet ongedaan worden."
-
-#: src/GuiEvents.cpp
-msgid "Delete from disk"
-msgstr "Verwijderen van schijf"
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Skipped deleting '%s': the selected file has changed."
-msgstr "Verwijderen van '%s' overgeslagen: het geselecteerde bestand is veranderd."
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Deleted '%s' from disk."
-msgstr "'%s' verwijderd van schijf."
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Could not delete '%s' from disk."
-msgstr "'%s' verwijderen van schijf mislukt."
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -350,6 +340,22 @@ msgid "Now, exiting main app..."
 msgstr "Hoofdapp wordt nu afgesloten..."
 
 #: src/amule.cpp
+msgid "Saving window settings..."
+msgstr ""
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Saving client credits..."
+msgstr ""
+"\n"
+"Aanmaken van client...\n"
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Stopping helper applications..."
+msgstr "Sluit het programma af."
+
+#: src/amule.cpp
 #, c-format
 msgid "Terminating amuleweb instance with pid '%d' ... "
 msgstr "Amuleweb-instantie met pid '%d' wordt afgesloten ... "
@@ -379,12 +385,31 @@ msgid "aMule OnExit: Terminating core."
 msgstr "aMule OnExit: Kern wordt afgesloten."
 
 #: src/amule.cpp
+#, fuzzy
+msgid "Saving search results..."
+msgstr "Zoekresultaat"
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Saving downloads and shared files..."
+msgstr "Gedeelde bestanden opnieuw laden..."
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Flushing download buffers..."
+msgstr "Gedownload bestand wordt gehashed: %s"
+
+#: src/amule.cpp
 msgid "aMule shutdown completed."
 msgstr "aMule is afgesloten."
 
 #: src/amule.cpp
 msgid "Memory debug results for aMule exit:"
 msgstr "Geheugen-foutopsoringsresultaten voor het afsluiten van aMule:"
+
+#: src/amule.cpp
+msgid "Finishing shutdown..."
+msgstr ""
 
 #: src/amule.cpp
 #, c-format
@@ -697,6 +722,28 @@ msgstr "Lokale gegevens verifiëren: een ander bestand genaamd '%s' in uw gedeel
 #, c-format
 msgid "Disk space preallocation for file '%s' failed: %s"
 msgstr "Toewijzen schijfruimte voor bestand '%s' mislukt: %s"
+
+#: src/amule.cpp
+msgid "Stopping network services..."
+msgstr ""
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Saving source seeds..."
+msgstr "Bron Seeds"
+
+#: src/amule.cpp
+msgid "Stopping background downloads and workers..."
+msgstr ""
+
+#: src/amule.cpp
+#, fuzzy
+msgid "Closing connections..."
+msgstr " is aan het verbinden..."
+
+#: src/amule.cpp
+msgid "Saving known files and statistics..."
+msgstr ""
 
 #: src/amule.cpp
 msgid "ERROR: can't open logfile"
@@ -1275,6 +1322,10 @@ msgstr "Kon de categorie niet verwijderen: %s"
 #, c-format
 msgid "Can't create directory '%s' for category '%s', keeping directory '%s'."
 msgstr "Kan map '%s' niet aanmaken voor categorie '%s', map '%s' wordt behouden."
+
+#: src/amule-remote-gui.cpp
+msgid "The core did not confirm deleting the file. Refresh and try again."
+msgstr ""
 
 #: src/amule-remote-gui.cpp
 #, c-format
@@ -2383,6 +2434,11 @@ msgid "Unauthorized access attempt from %s. Connection closed."
 msgstr "Poging tot ongeautoriseerde toegang van %s. Verbinding gesloten."
 
 #: src/ExternalConn.cpp
+#, fuzzy
+msgid "Invalid partfile command target."
+msgstr "Ongeldige bestandsnaam."
+
+#: src/ExternalConn.cpp
 #, c-format
 msgid "Remote PartFile command failed: FileHash not found: %s"
 msgstr "Deelbestand-commando op afstand mislukt: Bestands-hash niet gevonden: %s"
@@ -2396,6 +2452,10 @@ msgstr "Bestandshash niet gevonden: %s"
 #, c-format
 msgid "Cannot cancel a finished download: %s"
 msgstr "Annuleren van een voltooide download mislukt: %s"
+
+#: src/ExternalConn.cpp
+msgid "The selected download has changed or is completing. Refresh and try again."
+msgstr ""
 
 #: src/ExternalConn.cpp
 #, c-format
@@ -2488,6 +2548,11 @@ msgstr "Versiecontrole beperkt; probeer het binnenkort opnieuw."
 #: src/ExternalConn.cpp
 msgid "Version check is not available on this daemon."
 msgstr "Versiecontrole is niet beschikbaar op deze daemon."
+
+#: src/ExternalConn.cpp
+#, fuzzy
+msgid "Invalid complete-file deletion target."
+msgstr "Ongeldige bestandsnaam."
 
 #: src/ExternalConn.cpp
 msgid "File not found."
@@ -4918,7 +4983,7 @@ msgstr "Videospeler"
 
 #: src/muuli_wdr.cpp
 msgid "Line capacities"
-msgstr ""
+msgstr "Kabelcapaciteit"
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
@@ -4929,14 +4994,12 @@ msgid "Bandwidth limits"
 msgstr "Bandbreedtegrenzen"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Enable download limit"
-msgstr "Downloadgrens"
+msgstr "Schakel downloadlimiet in"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Enable upload limit"
-msgstr "Uploadgrens"
+msgstr "Schakel uploadlimiet in"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5045,6 +5108,31 @@ msgstr ""
 "De gerapporteerde versie van een node kan verouderd of incorrect zijn dus dit kan ook geldige hashes negeren, en maakt geaccepteerde hashes ook niet betrouwbaar. Nodes waarvan de versie onbekend is worden nog wel geaccepteerd.\n"
 "\n"
 "Technisch detail: verwerpt AICH-publicatielabels van nodes die adverteren met Kad-protocolversies voor 0x09."
+
+#: src/muuli_wdr.cpp src/PeerCapabilities.h
+msgid "IPv6"
+msgstr "IPv6"
+
+#: src/muuli_wdr.cpp
+msgid "Address families:"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 only"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 and IPv6"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Takes effect after restarting aMule."
+msgstr "Uiterlijke veranderingen hebbne effect nadat aMule herstart is."
+
+#: src/muuli_wdr.cpp
+msgid "Advertise my IPv6 address to other peers"
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Remove dead server after"
@@ -5428,23 +5516,23 @@ msgstr "Schakel standby-modus van computer uit"
 
 #: src/muuli_wdr.cpp
 msgid "Appearance: "
-msgstr ""
+msgstr "Uiterlijk: "
 
 #: src/muuli_wdr.cpp
 msgid "Follow system"
-msgstr ""
+msgstr "Volg systeem"
 
 #: src/muuli_wdr.cpp
 msgid "Light mode"
-msgstr ""
+msgstr "Lichte modus"
 
 #: src/muuli_wdr.cpp
 msgid "Dark mode"
-msgstr ""
+msgstr "Donkere modus"
 
 #: src/muuli_wdr.cpp
 msgid "Appearance changes take effect after restarting aMule."
-msgstr ""
+msgstr "Uiterlijke veranderingen hebbne effect nadat aMule herstart is."
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6588,10 +6676,6 @@ msgid "NAT traversal (uTP)"
 msgstr "NAT traversal (uTP)"
 
 #: src/PeerCapabilities.h
-msgid "IPv6"
-msgstr "IPv6"
-
-#: src/PeerCapabilities.h
 msgid "Buddy info pull"
 msgstr "Buddygegevensopvraag"
 
@@ -6622,12 +6706,12 @@ msgstr "Standaard poort zal worden gebruikt (%d)"
 
 #: src/BandwidthLimitSlider.h
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
-msgstr ""
+msgstr "Pas de ingeschakelde limiet aan van 1 KiB/s tot aan de kabelcapaciteit."
 
 #: src/BandwidthLimitSlider.h
-#, fuzzy, c-format
+#, c-format
 msgid "KiB/s (%.2f MiB/s)"
-msgstr "%.1f MiB/s"
+msgstr "KiB/s (%.2f MiB/s)"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -6785,6 +6869,11 @@ msgstr "- UDP-poort veranderd.\n"
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect port changed.\n"
 msgstr "- Poort voor externe verbinding is veranderd.\n"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "- Address families changed.\n"
+msgstr "- Lokale adresbinding veranderd.\n"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect acceptance changed.\n"
@@ -8007,6 +8096,20 @@ msgstr[0] "Opnieuw media-metadata aan het uitlezen voor %u gedeeld bestand"
 msgstr[1] "Opnieuw media-metadata aan het uitlezen voor %u gedeelde bestanden"
 
 #: src/SharedFileList.cpp
+msgid "The selected file has changed or is not a complete file."
+msgstr ""
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Could not delete '%s' from disk."
+msgstr "'%s' verwijderen van schijf mislukt."
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Deleted '%s' from disk."
+msgstr "'%s' verwijderd van schijf."
+
+#: src/SharedFileList.cpp
 #, c-format
 msgid "Now sharing file: %s"
 msgstr "Dit bestand wordt nu gedeeld: %s"
@@ -8244,6 +8347,11 @@ msgstr "Externe Bestandsnaam"
 #: src/SourceListCtrl.cpp
 msgid "A4AF"
 msgstr "A4AF"
+
+#: src/SplashScreen.cpp
+#, fuzzy
+msgid "Closing aMule"
+msgstr "Toon aMule"
 
 #: src/Statistics.cpp
 #, c-format
@@ -10029,6 +10137,10 @@ msgstr "Kad kon de opgeslagen index niet laden. Bestaande indexbestanden zijn be
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr "Kad kon een index niet opslaan. De vorige kopie van dat bestand is bewaard."
+
+#, c-format
+#~ msgid "Skipped deleting '%s': the selected file has changed."
+#~ msgstr "Verwijderen van '%s' overgeslagen: het geselecteerde bestand is veranderd."
 
 #~ msgid "Download graph scale:"
 #~ msgstr "Schaal downloadgrafiek:"

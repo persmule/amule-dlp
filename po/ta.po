@@ -179,6 +179,14 @@ msgstr ""
 msgid "Later"
 msgstr ""
 
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "The connected core does not support deleting complete files from disk."
+msgstr ""
+
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "Delete from disk"
+msgstr ""
+
 #: src/GuiEvents.cpp
 #, c-format
 msgid ""
@@ -201,25 +209,6 @@ msgid ""
 "\n"
 "%s\n"
 "The files are deleted and no longer shared. This cannot be undone."
-msgstr ""
-
-#: src/GuiEvents.cpp
-msgid "Delete from disk"
-msgstr ""
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Skipped deleting '%s': the selected file has changed."
-msgstr ""
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Deleted '%s' from disk."
-msgstr ""
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Could not delete '%s' from disk."
 msgstr ""
 
 #: src/GuiEvents.cpp
@@ -306,6 +295,18 @@ msgid "Now, exiting main app..."
 msgstr ""
 
 #: src/amule.cpp
+msgid "Saving window settings..."
+msgstr ""
+
+#: src/amule.cpp
+msgid "Saving client credits..."
+msgstr ""
+
+#: src/amule.cpp
+msgid "Stopping helper applications..."
+msgstr ""
+
+#: src/amule.cpp
 #, c-format
 msgid "Terminating amuleweb instance with pid '%d' ... "
 msgstr ""
@@ -335,11 +336,27 @@ msgid "aMule OnExit: Terminating core."
 msgstr ""
 
 #: src/amule.cpp
+msgid "Saving search results..."
+msgstr ""
+
+#: src/amule.cpp
+msgid "Saving downloads and shared files..."
+msgstr ""
+
+#: src/amule.cpp
+msgid "Flushing download buffers..."
+msgstr ""
+
+#: src/amule.cpp
 msgid "aMule shutdown completed."
 msgstr ""
 
 #: src/amule.cpp
 msgid "Memory debug results for aMule exit:"
+msgstr ""
+
+#: src/amule.cpp
+msgid "Finishing shutdown..."
 msgstr ""
 
 #: src/amule.cpp
@@ -641,6 +658,26 @@ msgstr ""
 #: src/amule.cpp
 #, c-format
 msgid "Disk space preallocation for file '%s' failed: %s"
+msgstr ""
+
+#: src/amule.cpp
+msgid "Stopping network services..."
+msgstr ""
+
+#: src/amule.cpp
+msgid "Saving source seeds..."
+msgstr ""
+
+#: src/amule.cpp
+msgid "Stopping background downloads and workers..."
+msgstr ""
+
+#: src/amule.cpp
+msgid "Closing connections..."
+msgstr ""
+
+#: src/amule.cpp
+msgid "Saving known files and statistics..."
 msgstr ""
 
 #: src/amule.cpp
@@ -1208,6 +1245,10 @@ msgstr ""
 #: src/amule-remote-gui.cpp
 #, c-format
 msgid "Can't create directory '%s' for category '%s', keeping directory '%s'."
+msgstr ""
+
+#: src/amule-remote-gui.cpp
+msgid "The core did not confirm deleting the file. Refresh and try again."
 msgstr ""
 
 #: src/amule-remote-gui.cpp
@@ -2312,6 +2353,10 @@ msgid "Unauthorized access attempt from %s. Connection closed."
 msgstr ""
 
 #: src/ExternalConn.cpp
+msgid "Invalid partfile command target."
+msgstr ""
+
+#: src/ExternalConn.cpp
 #, c-format
 msgid "Remote PartFile command failed: FileHash not found: %s"
 msgstr ""
@@ -2324,6 +2369,10 @@ msgstr ""
 #: src/ExternalConn.cpp
 #, c-format
 msgid "Cannot cancel a finished download: %s"
+msgstr ""
+
+#: src/ExternalConn.cpp
+msgid "The selected download has changed or is completing. Refresh and try again."
 msgstr ""
 
 #: src/ExternalConn.cpp
@@ -2416,6 +2465,10 @@ msgstr ""
 
 #: src/ExternalConn.cpp
 msgid "Version check is not available on this daemon."
+msgstr ""
+
+#: src/ExternalConn.cpp
+msgid "Invalid complete-file deletion target."
 msgstr ""
 
 #: src/ExternalConn.cpp
@@ -4916,6 +4969,30 @@ msgid ""
 "Technical detail: rejects AICH publish tags from nodes advertising Kad protocol versions below 0x09."
 msgstr ""
 
+#: src/muuli_wdr.cpp src/PeerCapabilities.h
+msgid "IPv6"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Address families:"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 only"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 and IPv6"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Takes effect after restarting aMule."
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Advertise my IPv6 address to other peers"
+msgstr ""
+
 #: src/muuli_wdr.cpp
 msgid "Remove dead server after"
 msgstr ""
@@ -6441,10 +6518,6 @@ msgid "NAT traversal (uTP)"
 msgstr ""
 
 #: src/PeerCapabilities.h
-msgid "IPv6"
-msgstr ""
-
-#: src/PeerCapabilities.h
 msgid "Buddy info pull"
 msgstr ""
 
@@ -6624,6 +6697,10 @@ msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect port changed.\n"
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "- Address families changed.\n"
 msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp
@@ -7823,6 +7900,20 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/SharedFileList.cpp
+msgid "The selected file has changed or is not a complete file."
+msgstr ""
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Could not delete '%s' from disk."
+msgstr ""
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Deleted '%s' from disk."
+msgstr ""
+
+#: src/SharedFileList.cpp
 #, c-format
 msgid "Now sharing file: %s"
 msgstr ""
@@ -8060,6 +8151,11 @@ msgstr ""
 #: src/SourceListCtrl.cpp
 msgid "A4AF"
 msgstr ""
+
+#: src/SplashScreen.cpp
+#, fuzzy
+msgid "Closing aMule"
+msgstr "அகோவேறுகழுதையை மறை"
 
 #: src/Statistics.cpp
 #, c-format

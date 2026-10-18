@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-16 02:24+0000\n"
+"PO-Revision-Date: 2026-10-18 13:15+0000\n"
 "Last-Translator: Mike Akiba <mike2718@gmail.com>\n"
 "Language-Team: Chinese Simplified <kde-i18n-doc@kde.org>\n"
 "Language: zh_CN\n"
@@ -200,6 +200,14 @@ msgstr "立即重启"
 msgid "Later"
 msgstr "稍后重启"
 
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "The connected core does not support deleting complete files from disk."
+msgstr "已连接的核心不支持从磁盘删除完整文件。"
+
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "Delete from disk"
+msgstr "从磁盘中删除"
+
 #: src/GuiEvents.cpp
 #, c-format
 msgid ""
@@ -232,25 +240,6 @@ msgstr ""
 "\n"
 "%s\n"
 "文件将被删除，不再共享。无法撤销此操作。"
-
-#: src/GuiEvents.cpp
-msgid "Delete from disk"
-msgstr "从磁盘中删除"
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Skipped deleting '%s': the selected file has changed."
-msgstr "跳过了删除 “%s”：所选文件已改变。"
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Deleted '%s' from disk."
-msgstr "已从磁盘上删除“%s”。"
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Could not delete '%s' from disk."
-msgstr "无法删除磁盘上的“%s”。"
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -351,6 +340,18 @@ msgid "Now, exiting main app..."
 msgstr "现在，正在退出主程序..."
 
 #: src/amule.cpp
+msgid "Saving window settings..."
+msgstr "正在保存窗口设置…"
+
+#: src/amule.cpp
+msgid "Saving client credits..."
+msgstr "正在保存客户端积分..."
+
+#: src/amule.cpp
+msgid "Stopping helper applications..."
+msgstr "正在停止助手程序…"
+
+#: src/amule.cpp
 #, c-format
 msgid "Terminating amuleweb instance with pid '%d' ... "
 msgstr "正在终止 pid 为“%d”的 amuleweb 实例 ... "
@@ -380,12 +381,28 @@ msgid "aMule OnExit: Terminating core."
 msgstr "aMule 正在退出：中止内核。"
 
 #: src/amule.cpp
+msgid "Saving search results..."
+msgstr "保存搜索结果…"
+
+#: src/amule.cpp
+msgid "Saving downloads and shared files..."
+msgstr "正在保存下载的和共享的文件..."
+
+#: src/amule.cpp
+msgid "Flushing download buffers..."
+msgstr "正在冲洗下载缓冲…"
+
+#: src/amule.cpp
 msgid "aMule shutdown completed."
 msgstr "aMule 已经关闭。"
 
 #: src/amule.cpp
 msgid "Memory debug results for aMule exit:"
 msgstr "对 aMule 退出的内存 Debug 结果："
+
+#: src/amule.cpp
+msgid "Finishing shutdown..."
+msgstr "正在完成关闭…"
 
 #: src/amule.cpp
 #, c-format
@@ -698,6 +715,26 @@ msgstr "验证本地数据：共享文件夹中另一名为 '%s' 的文件和 '%
 #, c-format
 msgid "Disk space preallocation for file '%s' failed: %s"
 msgstr "为文件 '%s' 预分配磁盘空间失败：%s"
+
+#: src/amule.cpp
+msgid "Stopping network services..."
+msgstr "正在停止网络服务…"
+
+#: src/amule.cpp
+msgid "Saving source seeds..."
+msgstr "正在保存资源种子…"
+
+#: src/amule.cpp
+msgid "Stopping background downloads and workers..."
+msgstr "正在停止后台下载和 workers…"
+
+#: src/amule.cpp
+msgid "Closing connections..."
+msgstr "正在关闭连接..."
+
+#: src/amule.cpp
+msgid "Saving known files and statistics..."
+msgstr "正在保存已知文件和统计数字…"
 
 #: src/amule.cpp
 msgid "ERROR: can't open logfile"
@@ -1276,6 +1313,10 @@ msgstr "无法删除分类：%s"
 #, c-format
 msgid "Can't create directory '%s' for category '%s', keeping directory '%s'."
 msgstr "无法创建 “%s” 目录用于 “%s” 分类，保留 “%s” 目录。"
+
+#: src/amule-remote-gui.cpp
+msgid "The core did not confirm deleting the file. Refresh and try again."
+msgstr "核心未确认删除该文件。刷新并重试。"
 
 #: src/amule-remote-gui.cpp
 #, c-format
@@ -2383,6 +2424,10 @@ msgid "Unauthorized access attempt from %s. Connection closed."
 msgstr "来自%s的非法登录尝试，已关闭连接。"
 
 #: src/ExternalConn.cpp
+msgid "Invalid partfile command target."
+msgstr "无效的 part 文件命令目标。"
+
+#: src/ExternalConn.cpp
 #, c-format
 msgid "Remote PartFile command failed: FileHash not found: %s"
 msgstr "远程 Part 文件命令失败：文件校验码不存在：%s"
@@ -2396,6 +2441,10 @@ msgstr "文件校验码不存在：%s"
 #, c-format
 msgid "Cannot cancel a finished download: %s"
 msgstr "无法取消已完成的下载：%s"
+
+#: src/ExternalConn.cpp
+msgid "The selected download has changed or is completing. Refresh and try again."
+msgstr "所选下载已更改或正在完成。刷新并重试。"
 
 #: src/ExternalConn.cpp
 #, c-format
@@ -2488,6 +2537,10 @@ msgstr "版本检查受限；请稍后再试。"
 #: src/ExternalConn.cpp
 msgid "Version check is not available on this daemon."
 msgstr "版本检查在此 daemon 上不可用。"
+
+#: src/ExternalConn.cpp
+msgid "Invalid complete-file deletion target."
+msgstr "无效的完整文件的删除目标。"
 
 #: src/ExternalConn.cpp
 msgid "File not found."
@@ -4429,7 +4482,7 @@ msgstr "重置表单"
 
 #: src/muuli_wdr.cpp
 msgid "Results"
-msgstr "搜索结果"
+msgstr "结果"
 
 #: src/muuli_wdr.cpp
 msgid "Clears completed downloads"
@@ -4917,7 +4970,7 @@ msgstr "视频播放器"
 
 #: src/muuli_wdr.cpp
 msgid "Line capacities"
-msgstr ""
+msgstr "线路容量"
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
@@ -4928,14 +4981,12 @@ msgid "Bandwidth limits"
 msgstr "带宽限制"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Enable download limit"
-msgstr "下载限制"
+msgstr "启用下载限制"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Enable upload limit"
-msgstr "上传限制"
+msgstr "启用上传限制"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5044,6 +5095,30 @@ msgstr ""
 "节点报告的版本可能过时或不准确， 因此这可能丢弃有效哈希并使得被接受的哈希不可信。版本未知的节点仍被接受。\n"
 "\n"
 "技术细节：拒绝来自通告的 Kad 协议版本低于 0x09 的节点的 AICH 发布哈希。"
+
+#: src/muuli_wdr.cpp src/PeerCapabilities.h
+msgid "IPv6"
+msgstr "IPv6"
+
+#: src/muuli_wdr.cpp
+msgid "Address families:"
+msgstr "地址族："
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 only"
+msgstr "仅 IPv4"
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 and IPv6"
+msgstr "IPv4 和 IPv6"
+
+#: src/muuli_wdr.cpp
+msgid "Takes effect after restarting aMule."
+msgstr "在重启 aMule 后生效。"
+
+#: src/muuli_wdr.cpp
+msgid "Advertise my IPv6 address to other peers"
+msgstr "将我的 IPv6 地址通告给其他对等方"
 
 #: src/muuli_wdr.cpp
 msgid "Remove dead server after"
@@ -5427,23 +5502,23 @@ msgstr "停用电脑自动进入待命模式功能"
 
 #: src/muuli_wdr.cpp
 msgid "Appearance: "
-msgstr ""
+msgstr "外观： "
 
 #: src/muuli_wdr.cpp
 msgid "Follow system"
-msgstr ""
+msgstr "跟随系统"
 
 #: src/muuli_wdr.cpp
 msgid "Light mode"
-msgstr ""
+msgstr "浅色模式"
 
 #: src/muuli_wdr.cpp
 msgid "Dark mode"
-msgstr ""
+msgstr "深色模式"
 
 #: src/muuli_wdr.cpp
 msgid "Appearance changes take effect after restarting aMule."
-msgstr ""
+msgstr "外观更改在重启 aMule 后生效。"
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6587,10 +6662,6 @@ msgid "NAT traversal (uTP)"
 msgstr "NAT穿透（uTP）"
 
 #: src/PeerCapabilities.h
-msgid "IPv6"
-msgstr "IPv6"
-
-#: src/PeerCapabilities.h
 msgid "Buddy info pull"
 msgstr "好友信息拉取"
 
@@ -6621,12 +6692,12 @@ msgstr "缺省端口将被使用（%d）"
 
 #: src/BandwidthLimitSlider.h
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
-msgstr ""
+msgstr "将启用的限制从 1 KiB/s 调整成线路容量。"
 
 #: src/BandwidthLimitSlider.h
-#, fuzzy, c-format
+#, c-format
 msgid "KiB/s (%.2f MiB/s)"
-msgstr "%.1f MiB/s"
+msgstr "KiB/s (%.2f MiB/s)"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -6784,6 +6855,10 @@ msgstr "- UDP端口已更改。\n"
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect port changed.\n"
 msgstr "- 外部连接端口已更改。\n"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "- Address families changed.\n"
+msgstr "- 更改了地址族。\n"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect acceptance changed.\n"
@@ -8006,6 +8081,20 @@ msgstr[0] "重新提取 %u 个共享文件的媒体元数据"
 msgstr[1] "重新提取 %u 个共享文件的媒体元数据"
 
 #: src/SharedFileList.cpp
+msgid "The selected file has changed or is not a complete file."
+msgstr "所选文件已更改或者不是完整文件。"
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Could not delete '%s' from disk."
+msgstr "无法删除磁盘上的“%s”。"
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Deleted '%s' from disk."
+msgstr "已从磁盘上删除“%s”。"
+
+#: src/SharedFileList.cpp
 #, c-format
 msgid "Now sharing file: %s"
 msgstr "正在分享文件：%s"
@@ -8243,6 +8332,10 @@ msgstr "远程文件名"
 #: src/SourceListCtrl.cpp
 msgid "A4AF"
 msgstr "A4AF"
+
+#: src/SplashScreen.cpp
+msgid "Closing aMule"
+msgstr "正在关闭 aMule"
 
 #: src/Statistics.cpp
 #, c-format
@@ -10021,6 +10114,10 @@ msgstr "Kad 无法加载其已保存的索引。现有的索引文件被保留�
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr "Kad 无法保存索引。该文件之前的副本被保留。"
+
+#, c-format
+#~ msgid "Skipped deleting '%s': the selected file has changed."
+#~ msgstr "跳过了删除 “%s”：所选文件已改变。"
 
 #~ msgid "Download graph scale:"
 #~ msgstr "下载图表尺寸："

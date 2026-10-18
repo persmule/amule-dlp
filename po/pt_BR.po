@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-16 08:33+0000\n"
+"PO-Revision-Date: 2026-10-18 13:15+0000\n"
 "Last-Translator: Marcelo Jimenez <mroberto@users.sourceforge.com>\n"
 "Language-Team: Português (Brasileiro) <pt@li.org>\n"
 "Language: pt_BR\n"
@@ -203,6 +203,14 @@ msgstr "Reiniciar agora"
 msgid "Later"
 msgstr "Mais tarde"
 
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "The connected core does not support deleting complete files from disk."
+msgstr "O núcleo conectado não suporta apagar arquivos completos do disco."
+
+#: src/GuiEvents.cpp src/amule-remote-gui.cpp
+msgid "Delete from disk"
+msgstr "Apagar do disco"
+
 #: src/GuiEvents.cpp
 #, c-format
 msgid ""
@@ -235,25 +243,6 @@ msgstr ""
 "\n"
 "%s\n"
 "Os arquivos serão apagados e não mais compartilhados. Isto não poderá ser desfeito."
-
-#: src/GuiEvents.cpp
-msgid "Delete from disk"
-msgstr "Apagar do disco"
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Skipped deleting '%s': the selected file has changed."
-msgstr "Exclusão de '%s' ignorada: o arquivo selecionado foi alterado."
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Deleted '%s' from disk."
-msgstr "'%s' foi apagado do disco."
-
-#: src/GuiEvents.cpp
-#, c-format
-msgid "Could not delete '%s' from disk."
-msgstr "Não foi possível apagar '%s' do disco."
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -354,6 +343,18 @@ msgid "Now, exiting main app..."
 msgstr "Saindo do aplicativo principal..."
 
 #: src/amule.cpp
+msgid "Saving window settings..."
+msgstr "Salvando as configurações da janela..."
+
+#: src/amule.cpp
+msgid "Saving client credits..."
+msgstr "Salvando os créditos dos clientes..."
+
+#: src/amule.cpp
+msgid "Stopping helper applications..."
+msgstr "Encerrando os aplicativos auxiliares..."
+
+#: src/amule.cpp
 #, c-format
 msgid "Terminating amuleweb instance with pid '%d' ... "
 msgstr "Terminando a instância do amuleweb com o pid '%d'... "
@@ -383,12 +384,28 @@ msgid "aMule OnExit: Terminating core."
 msgstr "aMule OnExit: Finalizando o núcleo."
 
 #: src/amule.cpp
+msgid "Saving search results..."
+msgstr "Salvando os resultados das buscas..."
+
+#: src/amule.cpp
+msgid "Saving downloads and shared files..."
+msgstr "Salvando os downloads e os arquivos compartilhados..."
+
+#: src/amule.cpp
+msgid "Flushing download buffers..."
+msgstr "Gravando os buffers de download..."
+
+#: src/amule.cpp
 msgid "aMule shutdown completed."
 msgstr "Encerramento do aMule completo."
 
 #: src/amule.cpp
 msgid "Memory debug results for aMule exit:"
 msgstr "Resultados da depuração da memória para a saída do aMule:"
+
+#: src/amule.cpp
+msgid "Finishing shutdown..."
+msgstr "Concluindo o encerramento..."
 
 #: src/amule.cpp
 #, c-format
@@ -702,6 +719,26 @@ msgstr "Verificar Dados Locais: outro arquivo chamado '%s' nas suas pastas compa
 #, c-format
 msgid "Disk space preallocation for file '%s' failed: %s"
 msgstr "Pré-alocação de espaço em disco para arquivo '%s' falhou: %s"
+
+#: src/amule.cpp
+msgid "Stopping network services..."
+msgstr "Parando os serviços de rede..."
+
+#: src/amule.cpp
+msgid "Saving source seeds..."
+msgstr "Salvando as fontes dos downloads..."
+
+#: src/amule.cpp
+msgid "Stopping background downloads and workers..."
+msgstr "Parando os downloads e as tarefas em segundo plano..."
+
+#: src/amule.cpp
+msgid "Closing connections..."
+msgstr "Fechando as conexões..."
+
+#: src/amule.cpp
+msgid "Saving known files and statistics..."
+msgstr "Salvando os arquivos conhecidos e as estatísticas..."
 
 #: src/amule.cpp
 msgid "ERROR: can't open logfile"
@@ -1280,6 +1317,10 @@ msgstr "Não foi possível excluir a categoria: %s"
 #, c-format
 msgid "Can't create directory '%s' for category '%s', keeping directory '%s'."
 msgstr "Não foi possível criar o diretório '%s' para a categoria '%s'; mantendo o diretório '%s'."
+
+#: src/amule-remote-gui.cpp
+msgid "The core did not confirm deleting the file. Refresh and try again."
+msgstr "O núcleo não confirmou que o arquivo foi apagado. Atualize e tente novamente."
 
 #: src/amule-remote-gui.cpp
 #, c-format
@@ -2387,6 +2428,10 @@ msgid "Unauthorized access attempt from %s. Connection closed."
 msgstr "Tentativa de acesso não autorizado de %s. Conexão encerrada."
 
 #: src/ExternalConn.cpp
+msgid "Invalid partfile command target."
+msgstr "Alvo inválido para o comando de arquivo parcial."
+
+#: src/ExternalConn.cpp
 #, c-format
 msgid "Remote PartFile command failed: FileHash not found: %s"
 msgstr "Comando de PartFile remoto falhou: hash do arquivo não encontrado: %s"
@@ -2400,6 +2445,10 @@ msgstr "Hash do arquivo não encontrado: %s"
 #, c-format
 msgid "Cannot cancel a finished download: %s"
 msgstr "Não é possível cancelar um download concluído: %s"
+
+#: src/ExternalConn.cpp
+msgid "The selected download has changed or is completing. Refresh and try again."
+msgstr "O download selecionado mudou ou está sendo concluído. Atualize e tente novamente."
 
 #: src/ExternalConn.cpp
 #, c-format
@@ -2492,6 +2541,10 @@ msgstr "A verificação de versão foi limitada; tente novamente em breve."
 #: src/ExternalConn.cpp
 msgid "Version check is not available on this daemon."
 msgstr "A checagem de versão não está disponível neste daemon."
+
+#: src/ExternalConn.cpp
+msgid "Invalid complete-file deletion target."
+msgstr "Alvo inválido para apagar um arquivo completo."
 
 #: src/ExternalConn.cpp
 msgid "File not found."
@@ -2781,7 +2834,7 @@ msgstr "Não imprimir nenhuma saída em stdout."
 
 #: src/ExternalConnector.cpp
 msgid "Be verbose - show also debug messages."
-msgstr "Ser detalhado - mostrar também as mensagens de depuração."
+msgstr "Modo detalhado - mostra também as mensagens de depuração."
 
 #: src/ExternalConnector.cpp
 msgid "Sets program locale (language)."
@@ -4921,7 +4974,7 @@ msgstr "Tocador de vídeo"
 
 #: src/muuli_wdr.cpp
 msgid "Line capacities"
-msgstr ""
+msgstr "Capacidades da linha"
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
@@ -4932,14 +4985,12 @@ msgid "Bandwidth limits"
 msgstr "Limites de banda"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Enable download limit"
-msgstr "Limite de download"
+msgstr "Habilitar limite de download"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Enable upload limit"
-msgstr "Limite de envio"
+msgstr "Habilitar limite de upload"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
@@ -5048,6 +5099,30 @@ msgstr ""
 "A versão informada por um nó pode estar desatualizada ou incorreta; por isso, esta opção pode descartar hashes válidos e não torna confiáveis os hashes aceitos. Nós com versão desconhecida continuam sendo aceitos.\n"
 "\n"
 "Detalhe técnico: rejeita tags de publicação AICH de nós que anunciam versões do protocolo Kad inferiores a 0x09."
+
+#: src/muuli_wdr.cpp src/PeerCapabilities.h
+msgid "IPv6"
+msgstr "IPv6"
+
+#: src/muuli_wdr.cpp
+msgid "Address families:"
+msgstr "Famílias de endereços:"
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 only"
+msgstr "Somente IPv4"
+
+#: src/muuli_wdr.cpp
+msgid "IPv4 and IPv6"
+msgstr "IPv4 e IPv6"
+
+#: src/muuli_wdr.cpp
+msgid "Takes effect after restarting aMule."
+msgstr "Só tem efeito após reiniciar o aMule."
+
+#: src/muuli_wdr.cpp
+msgid "Advertise my IPv6 address to other peers"
+msgstr "Anunciar meu endereço IPv6 aos outros pares"
 
 #: src/muuli_wdr.cpp
 msgid "Remove dead server after"
@@ -5431,23 +5506,23 @@ msgstr "Desabilitar o modo de espera programado do computador"
 
 #: src/muuli_wdr.cpp
 msgid "Appearance: "
-msgstr ""
+msgstr "Aparência: "
 
 #: src/muuli_wdr.cpp
 msgid "Follow system"
-msgstr ""
+msgstr "Seguir o sistema"
 
 #: src/muuli_wdr.cpp
 msgid "Light mode"
-msgstr ""
+msgstr "Modo claro"
 
 #: src/muuli_wdr.cpp
 msgid "Dark mode"
-msgstr ""
+msgstr "Modo escuro"
 
 #: src/muuli_wdr.cpp
 msgid "Appearance changes take effect after restarting aMule."
-msgstr ""
+msgstr "Mudanças de aparência só têm efeito após reiniciar o aMule."
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6591,10 +6666,6 @@ msgid "NAT traversal (uTP)"
 msgstr "Travessia de NAT (uTP)"
 
 #: src/PeerCapabilities.h
-msgid "IPv6"
-msgstr "IPv6"
-
-#: src/PeerCapabilities.h
 msgid "Buddy info pull"
 msgstr "Obtenção de informações do amigo"
 
@@ -6625,12 +6696,12 @@ msgstr "Porta padrão será utilizada (%d)"
 
 #: src/BandwidthLimitSlider.h
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
-msgstr ""
+msgstr "Ajuste o limite habilitado de 1 KiB/s até a capacidade da linha."
 
 #: src/BandwidthLimitSlider.h
-#, fuzzy, c-format
+#, c-format
 msgid "KiB/s (%.2f MiB/s)"
-msgstr "%.1f MiB/s"
+msgstr "KiB/s (%.2f MiB/s)"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -6788,6 +6859,10 @@ msgstr "- Porta UDP alterada.\n"
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect port changed.\n"
 msgstr "- Porta de conexão externa modificada.\n"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "- Address families changed.\n"
+msgstr "- Famílias de endereços modificadas.\n"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect acceptance changed.\n"
@@ -8010,6 +8085,20 @@ msgstr[0] "Re-extraindo metadados de mídia para %u arquivo compartilhado"
 msgstr[1] "Re-extraindo metadados de mídia para %u arquivos compartilhados"
 
 #: src/SharedFileList.cpp
+msgid "The selected file has changed or is not a complete file."
+msgstr "O arquivo selecionado mudou ou não é um arquivo completo."
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Could not delete '%s' from disk."
+msgstr "Não foi possível apagar '%s' do disco."
+
+#: src/SharedFileList.cpp
+#, c-format
+msgid "Deleted '%s' from disk."
+msgstr "'%s' foi apagado do disco."
+
+#: src/SharedFileList.cpp
 #, c-format
 msgid "Now sharing file: %s"
 msgstr "Compartilhando o arquivo: %s"
@@ -8247,6 +8336,10 @@ msgstr "Nome do arquivo remoto"
 #: src/SourceListCtrl.cpp
 msgid "A4AF"
 msgstr "A4AF"
+
+#: src/SplashScreen.cpp
+msgid "Closing aMule"
+msgstr "Fechando o aMule"
 
 #: src/Statistics.cpp
 #, c-format
@@ -8895,7 +8988,7 @@ msgstr "O Valor informado deve ser 1/ON (ligado) ou 0/OFF (desligado).\n"
 
 #: src/TextClient.cpp
 msgid "Get and display a preference value."
-msgstr "Obter e mostrar o valor da preferência selecionada."
+msgstr "Obtém e mostra o valor de uma preferência."
 
 #: src/TextClient.cpp
 msgid "Get IP filtering preferences."
@@ -10028,6 +10121,10 @@ msgstr "O Kad não conseguiu carregar seu índice salvo. Os arquivos de índice 
 #: src/kademlia/kademlia/Indexed.cpp
 msgid "Kad could not save an index. The previous copy of that file was preserved."
 msgstr "O Kad não conseguiu salvar um índice. A cópia anterior desse arquivo foi preservada."
+
+#, c-format
+#~ msgid "Skipped deleting '%s': the selected file has changed."
+#~ msgstr "Exclusão de '%s' ignorada: o arquivo selecionado foi alterado."
 
 #~ msgid "Download graph scale:"
 #~ msgstr "Escala do gráfico de download:"
