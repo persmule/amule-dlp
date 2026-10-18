@@ -24,7 +24,8 @@
 
 #include "MuleDataViewCtrl.h" // Interface declarations
 
-#include <wx/menu.h> // Needed for wxMenu (header show/hide menu)
+#include <wx/dcclient.h> // Needed for wxClientDC
+#include <wx/menu.h>     // Needed for wxMenu (header show/hide menu)
 
 #include <algorithm> // Needed for std::find, std::sort, std::min, std::max
 #include <vector>    // Needed for std::vector
@@ -107,6 +108,15 @@ void CMuleDataViewCtrl::AppendBarColumn(
 	AppendColumn(column);
 }
 
+int CMuleDataViewCtrl::GetDefaultColumnWidth(const wxString &label, int width) const
+{
+	// Preserve wx's special auto-size values. Saved pixel widths are restored later.
+	if (width < 0) {
+		return width;
+	}
+	return std::max(FromDIP(width), GetTextExtent(label).x + FromDIP(28));
+}
+
 void CMuleDataViewCtrl::AddTextColumn(const wxString &label,
 	unsigned modelColumn,
 	const wxString &key,
@@ -115,6 +125,7 @@ void CMuleDataViewCtrl::AddTextColumn(const wxString &label,
 	int flags,
 	wxDataViewCellMode mode)
 {
+	width = GetDefaultColumnWidth(label, width);
 	AppendTextColumn(label, modelColumn, mode, width, align, flags);
 	m_columnStore.RegisterColumn(static_cast<int>(modelColumn), width, key);
 }
@@ -127,6 +138,7 @@ void CMuleDataViewCtrl::AddIconTextColumn(const wxString &label,
 	int flags,
 	wxDataViewCellMode mode)
 {
+	width = GetDefaultColumnWidth(label, width);
 	// CMuleIconTextRenderer rather than wx's, which reserves the icon slot on
 	// every row whether or not that row has an icon -- see the class comment.
 	CMuleIconTextRenderer *renderer = new CMuleIconTextRenderer();
@@ -149,6 +161,7 @@ void CMuleDataViewCtrl::AddBarColumn(const wxString &label,
 	int flags,
 	CMuleBarRenderer *renderer)
 {
+	width = GetDefaultColumnWidth(label, width);
 	AppendBarColumn(label, modelColumn, width, flags, renderer);
 	m_columnStore.RegisterColumn(static_cast<int>(modelColumn), width, key);
 }
@@ -453,8 +466,101 @@ void CMuleDataViewCtrl::OnColumnHeaderRightClick(wxDataViewEvent &event)
 		menu.Check(static_cast<int>(i) + MP_LISTCOL_1, !IsColumnHidden(static_cast<int>(i)));
 	}
 
+	menu.AppendSeparator();
+	const wxWindowIDRef fitColumn = wxWindow::NewControlId();
+	const wxDataViewColumn *clicked = event.GetDataViewColumn();
+	if (clicked && clicked->GetModelColumn() < RealColumnCount()) {
+		menu.Append(fitColumn, _("Fit column to contents"));
+		menu.Bind(
+			wxEVT_MENU,
+			[this, clicked](wxCommandEvent &) {
+				FitColumnWidths(static_cast<int>(clicked->GetModelColumn()));
+			},
+			fitColumn);
+	}
+	const wxWindowIDRef fitAll = wxWindow::NewControlId();
+	menu.Append(fitAll, _("Fit visible columns to contents"));
+	menu.Bind(wxEVT_MENU, [this](wxCommandEvent &) { FitColumnWidths(-1); }, fitAll);
+
 	PopupMenu(&menu);
 	event.Skip();
+}
+
+void CMuleDataViewCtrl::FitColumnWidths(int column)
+{
+	wxDataViewModel *model = GetModel();
+	if (!model) {
+		return;
+	}
+	wxDataViewItemArray rows;
+	GetDisplayOrder(rows);
+	// Bound text measurement work on large search/download lists. Sample across the list,
+	// including both ends, so fitting is not biased towards its current sort order.
+	const size_t samples = std::min<size_t>(rows.size(), 512);
+	wxClientDC dc(this);
+	dc.SetFont(GetFont());
+	const int padding = FromDIP(16);
+	const int contentLimit = std::max(FromDIP(160), std::min(FromDIP(600), GetClientSize().x * 2 / 3));
+
+	Freeze();
+	for (unsigned i = 0; i < RealColumnCount(); ++i) {
+		const int columnIndex = static_cast<int>(i);
+		if ((column >= 0 && columnIndex != column) || IsColumnHidden(columnIndex)) {
+			continue;
+		}
+		wxDataViewColumn *col = GetColumn(i);
+		const int headerWidth = GetTextExtent(col->GetTitle()).x + FromDIP(28);
+		int width = rows.empty()
+				    ? std::max(headerWidth, m_columnStore.GetColumnDefaultWidth(columnIndex))
+				    : headerWidth;
+		// Bars (and custom client cells using bar specs) have no textual natural width.
+		// Keep their useful default rather than feeding their current width back into a fit.
+		if (dynamic_cast<CMuleBarRenderer *>(col->GetRenderer())) {
+			width = std::max(width, m_columnStore.GetColumnDefaultWidth(columnIndex));
+		} else {
+			for (size_t sample = 0; sample < samples; ++sample) {
+				const size_t row =
+					samples > 1 ? sample * (rows.size() - 1) / (samples - 1) : 0;
+				if (!model->HasValue(rows[row], col->GetModelColumn())) {
+					continue;
+				}
+				wxVariant value;
+				model->GetValue(value, rows[row], col->GetModelColumn());
+				wxString text;
+				int iconWidth = 0;
+				if (value.GetType() == "string") {
+					text = value.GetString();
+				} else if (value.GetType() == "wxDataViewIconText") {
+					wxDataViewIconText cell;
+					cell << value;
+					text = cell.GetText();
+					if (cell.GetIcon().IsOk()) {
+						iconWidth = cell.GetIcon().GetWidth() + FromDIP(4);
+					}
+				}
+				wxDataViewItemAttr attr;
+				dc.SetFont(model->GetAttr(rows[row], col->GetModelColumn(), attr)
+						   ? attr.GetEffectiveFont(GetFont())
+						   : GetFont());
+				int cellWidth = dc.GetTextExtent(text).x + iconWidth + padding;
+				if (col == GetExpanderColumn() && !model->IsListModel()) {
+					cellWidth += FromDIP(20);
+					for (wxDataViewItem parent = model->GetParent(rows[row]);
+						parent.IsOk();
+						parent = model->GetParent(parent)) {
+						cellWidth += std::max(GetIndent(), FromDIP(16));
+					}
+				}
+				width = std::max(width, std::min(cellWidth, contentLimit));
+			}
+		}
+		col->SetWidth(width);
+	}
+	Thaw();
+	ResetKnownWidths();
+	// Use the normal notification so search tabs receive the new layout too.
+	OnColumnWidthsChanged();
+	Refresh();
 }
 
 void CMuleDataViewCtrl::OnColumnMenuSelected(wxCommandEvent &evt)

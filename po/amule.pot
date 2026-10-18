@@ -3971,6 +3971,14 @@ msgstr[1] ""
 msgid "Close"
 msgstr ""
 
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
+
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
 msgstr ""

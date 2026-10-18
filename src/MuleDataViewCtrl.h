@@ -329,6 +329,12 @@ protected:
 	void ResetKnownWidths();
 
 private:
+	//! Default width in device pixels, wide enough for the translated heading and sort caret.
+	int GetDefaultColumnWidth(const wxString &label, int width) const;
+
+	//! Explicit header-menu fit; a negative index fits every visible column.
+	void FitColumnWidths(int column);
+
 	//! Per-column hidden state, indexed like the control's columns.
 	std::vector<bool> m_columnHidden;
 

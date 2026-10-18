@@ -64,6 +64,7 @@ src/Logger.cpp
 src/MediaProbe.cpp
 src/MediaProbeThread.cpp
 src/MuleNotebook.cpp
+src/MuleDataViewCtrl.cpp
 src/MuleTextCtrl.cpp
 src/MuleTrayIcon.cpp
 src/MuleUDPSocket.cpp
