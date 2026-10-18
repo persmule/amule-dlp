@@ -25,6 +25,7 @@
 #ifndef MULETHREAD_H
 #define MULETHREAD_H
 
+#include <atomic>
 #include <wx/thread.h>
 
 class CMuleThread : public wxThread
@@ -66,7 +67,7 @@ public:
 
 private:
 	//! Is set if Stop is called.
-	bool m_stop;
+	std::atomic<bool> m_stop;
 };
 
 #endif

@@ -146,7 +146,13 @@ private:
 class CVerifyLocalDataTask : public CThreadTask
 {
 public:
-	explicit CVerifyLocalDataTask(const CKnownFile *file);
+	enum class Mode
+	{
+		Manual,
+		Automatic
+	};
+
+	explicit CVerifyLocalDataTask(const CKnownFile *file, Mode mode = Mode::Manual);
 
 protected:
 	/** See CThreadTask::Entry */
@@ -158,9 +164,11 @@ protected:
 
 private:
 	void PrintReport(const CPath &fullPath, const bool checkedAICH, const CVerifyLocalDataResult &result);
+	void PublishResult(bool checkedAICH);
 	// m_owner is only dereferenced after this confirms it is still shared.
 	bool OwnerStillShared() const;
 
+	const Mode m_mode;
 	const CKnownFile *m_owner;
 	CPath m_fullPath;
 	uint64 m_fileSize;

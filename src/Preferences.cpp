@@ -125,6 +125,7 @@ bool CPreferences::s_deadserver;
 CPath CPreferences::s_incomingdir;
 CPath CPreferences::s_tempdir;
 bool CPreferences::s_ICH;
+uint32 CPreferences::s_sharedFileReverifyDays;
 uint8 CPreferences::s_depth3D;
 bool CPreferences::s_scorsystem;
 bool CPreferences::s_hideonclose;
@@ -1202,6 +1203,8 @@ void CPreferences::BuildItemList(const wxString &appdir)
 	NewCfgItem(IDC_INCFILES, (new Cfg_Path("/eMule/IncomingDir", s_incomingdir, incpath, true)));
 
 	NewCfgItem(IDC_ICH, (new Cfg_Bool("/eMule/ICH", s_ICH, true)));
+	NewCfgItem(IDC_SHAREDFILEREVERIFYDAYS,
+		MkCfg_Int("/eMule/SharedFileReverifyDays", s_sharedFileReverifyDays, 0));
 	NewCfgItem(IDC_AICHTRUST, (new Cfg_Bool("/eMule/AICHTrust", s_AICHTrustEveryHash, false)));
 	NewCfgItem(IDC_CHECKDISKSPACE, (new Cfg_Bool("/eMule/CheckDiskspace", s_checkDiskspace, true)));
 	NewCfgItem(IDC_MINDISKSPACE, (MkCfg_Int("/eMule/MinFreeDiskSpace", s_uMinFreeDiskSpace, 500)));
@@ -1629,6 +1632,13 @@ void CPreferences::LoadAllItems(wxConfigBase *cfg)
 	for (; it_b != s_MiscList.end(); ++it_b) {
 		(*it_b)->LoadFromFile(cfg);
 	}
+
+	// Validate before unsigned narrowing: a negative or oversized hand-edited interval
+	// must not wrap into a valid enabled value. Invalid configuration defaults to off.
+	long reverifyDays = 0;
+	cfg->Read("/eMule/SharedFileReverifyDays", &reverifyDays, 0);
+	s_sharedFileReverifyDays =
+		reverifyDays >= 0 && reverifyDays <= 3650 ? static_cast<uint32>(reverifyDays) : 0;
 
 	// Drop the amuleapi credential digests an early 3.1.0 development build wrote here.
 	// They are no longer read -- amuleapi-passwords is the only store -- and an unsalted MD5

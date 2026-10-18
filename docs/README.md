@@ -155,6 +155,44 @@ sources have it. Switching servers, joining Kad, or simply waiting often
 turns red into blue/black over hours.
 
 
+## Verify local data of requested shared files
+
+In aMule or amulegui, open **Preferences → Files → Uploads** and set
+**Verify local data of requested shared files every N days (0 = off)**. The same setting
+is available under **Files → Uploads** in the WebUI, or through the amuleapi
+`files.shared_file_reverify_days` preference. The default is `0` (off) in all
+interfaces. The interval is stored as an unsigned 32-bit number, with a supported
+range of 0–3650 days. Invalid hand-edited values default to off.
+For offline configuration, it is stored as `SharedFileReverifyDays` under
+`[eMule]` in `amule.conf`.
+
+A valid block request for a completed file triggers a background Verify Local
+Data check when its last completed check is at least N days old, or it has never
+been checked. Files nobody requests and incomplete downloads are not checked.
+At most one automatic check is queued or running. Queued checks have low
+priority, so hashing newly shared files takes precedence. Hashing cannot preempt
+a check already running and may wait for one full check to finish. Requests
+arriving while verification is busy can trigger their check on a later request.
+
+Uploads continue while a check runs or if it cannot run. The existing verifier
+checks MD4 part hashes and, when available, AICH block hashes. Its result and date
+are saved in `known.met`; parts found corrupt are withheld from peers, including
+after restart. Healthy parts remain available. Original hashes and file contents
+are preserved; verification does not repair files. Already queued network
+packets cannot be recalled. Successful automatic checks update file details
+without printing a success message; failures are logged for both automatic and
+manual checks. Manual checks also log successful results.
+
+To avoid repeated disk reads and log messages on every request, an automatic
+attempt is retried no sooner than N days later during the same session, even
+if it could not finish. Restarting permits another attempt when no recent
+completed result exists. Manual Verify Local Data remains available at any time
+and replaces an automatic check of the same file at high priority, with manual
+result reporting. A running automatic check stops between parts and restarts as
+a manual check. Repeating a manual request keeps the existing manual check and
+its progress.
+
+
 ## Common file types
 
 | Group     | Extensions |

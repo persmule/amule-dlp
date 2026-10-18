@@ -36,6 +36,7 @@ permissions:
   pull-requests: write
 
 env:
+  ctest_shared_file_reverify: '^SharedFileReverifyIntegrationTest$'
   # Do not count a skipped artwork test as native GUI coverage.
   AMULE_ICON_TEST_REQUIRE_GUI: "1"
   CCACHE_DIR: ${{ github.workspace }}/.ccache
@@ -211,10 +212,12 @@ jobs:
         run: ccache --show-stats
       - name: run tests
         run: |
-          xvfb-run -a ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_fast_exclude }}' &&
+          xvfb-run -a ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_fast_exclude }}|${{ env.ctest_shared_file_reverify }}' &&
           xvfb-run -a ctest ${{ env.ctest_flags }} --timeout 60 -R '${{ env.ctest_slow_unit_tests }}'
       - name: run integration tests
         run: ctest ${{ env.ctest_flags }} --timeout 300 --no-tests=error -R '^(AmuleApiRestartIntegration|AllSearch(Integration|ClientCapability)|ChatCaptchaIntegration|PathDefaultsIntegration|LogfilePathIntegration|KadIndexLifecycleEC|ShareWatcherMoveIntegration|UploadRefill(Compressed)?Integration|KnownHistoryIntegration|KadDistributionEC|KadPopulatedDistributionEC|Kad(Populated)?LookupEC|CompletedFileDelete(Integration|Capability)|SharedMembershipIntegration)Test$'
+      - name: run shared-file reverify integration test
+        run: ctest ${{ env.ctest_flags }} --timeout 300 --no-tests=error -R '${{ env.ctest_shared_file_reverify }}'
       # amuleapi_curl_smoke drives these two against a live daemon rather than
       # compiling its own copy. Release only: the smoke times SSE windows, and
       # a Debug daemon makes those flaky.
@@ -302,10 +305,12 @@ jobs:
         run: ccache --show-stats
       - name: run tests
         run: |
-          xvfb-run -a ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_fast_exclude }}' &&
+          xvfb-run -a ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_fast_exclude }}|${{ env.ctest_shared_file_reverify }}' &&
           xvfb-run -a ctest ${{ env.ctest_flags }} --timeout 60 -R '${{ env.ctest_slow_unit_tests }}'
       - name: run integration tests
         run: ctest ${{ env.ctest_flags }} --timeout 300 --no-tests=error -R '^(AmuleApiRestartIntegration|AllSearch(Integration|ClientCapability)|ChatCaptchaIntegration|PathDefaultsIntegration|LogfilePathIntegration|KadIndexLifecycleEC|ShareWatcherMoveIntegration|UploadRefill(Compressed)?Integration|KnownHistoryIntegration|KadDistributionEC|KadPopulatedDistributionEC|Kad(Populated)?LookupEC|CompletedFileDelete(Integration|Capability)|SharedMembershipIntegration)Test$'
+      - name: run shared-file reverify integration test
+        run: ctest ${{ env.ctest_flags }} --timeout 300 --no-tests=error -R '${{ env.ctest_shared_file_reverify }}'
 
   # Configures with the oldest CMake that CMakeLists.txt declares, so the floor stays
   # true. Configure only: the build itself does not depend on the CMake version.
@@ -557,7 +562,7 @@ jobs:
         run: ccache --show-stats
       - name: run tests
         run: |
-          ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_fast_exclude }}' &&
+          ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_fast_exclude }}|${{ env.ctest_shared_file_reverify }}' &&
           ctest ${{ env.ctest_flags }} --timeout 60 -R '${{ env.ctest_slow_unit_tests }}'
 
   build_cmake_windows_mingw_w64:
@@ -664,7 +669,7 @@ jobs:
           # IconArtworkTest's watchdog writes a minidump here if the test hangs.
           mkdir -p build/hang-dumps
           export AMULE_ICON_TEST_DUMP_DIR="$(cygpath -w "$PWD/build/hang-dumps")"
-          ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_fast_exclude }}' &&
+          ctest ${{ env.ctest_flags }} --timeout 10 -E '${{ env.ctest_fast_exclude }}|${{ env.ctest_shared_file_reverify }}' &&
           ctest ${{ env.ctest_flags }} --timeout 60 -R '${{ env.ctest_slow_unit_tests }}'
       # The test binary is needed to symbolize the dump.
       - uses: actions/upload-artifact@v7

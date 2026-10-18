@@ -1086,6 +1086,7 @@ struct PreferencesSnapshot
 		bool mmap_enabled = false;
 		bool stop_on_low_disk_space = false;
 		std::uint32_t min_free_space_mebibytes = 0;
+		std::uint32_t shared_file_reverify_days = 0;
 		// Positive sense: true = part files are created sparse. The core stores exactly this
 		// (s_createFilesSparse, default on); only the EC layer carries the negation, as
 		// EC_TAG_FILES_CREATE_NORMAL present == "not sparse", which the schema's `invert`

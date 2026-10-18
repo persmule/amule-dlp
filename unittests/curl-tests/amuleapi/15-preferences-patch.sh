@@ -673,6 +673,10 @@ SAVED_MAXDL=$(printf '%s' "$CURL_BODY" | jq -r '.connection.max_download_kibibyt
 #
 # reject: the value, and what the daemon used to turn it into.
 for CASE in \
+	"files shared_file_reverify_days -1 invalid_unsigned" \
+	"files shared_file_reverify_days 3651 exceeds_supported_interval" \
+	"files shared_file_reverify_days 4294967296 uint32_overflow" \
+	"files shared_file_reverify_days 1.5 fractional_days" \
 	"advanced file_buffer_bytes 4000000 150000_uint8_wrap" \
 	"advanced file_buffer_bytes 14999 0_divided_away" \
 	"advanced file_buffer_bytes 20000 15000_truncated_to_the_step" \
@@ -727,6 +731,9 @@ done
 # accept: the domain's own endpoints, which must round-trip untouched. A bound
 # that rejects its own boundary is the failure mode this half guards.
 for CASE in \
+	"files shared_file_reverify_days 7" \
+	"files shared_file_reverify_days 3650" \
+	"files shared_file_reverify_days 0" \
 	"advanced file_buffer_bytes 3825000" \
 	"advanced file_buffer_bytes 15000" \
 	"advanced file_buffer_bytes 0" \

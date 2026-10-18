@@ -95,7 +95,27 @@ void CThreadScheduler::Terminate()
 	AddDebugLogLineN(logThreads, "Scheduler terminated");
 }
 
-bool CThreadScheduler::AddTask(CThreadTask *task, bool overwrite)
+bool CThreadScheduler::AddTask(CThreadTask *task, Overwrite overwrite)
+{
+	return AddTaskInternal(task, overwrite, false);
+}
+
+bool CThreadScheduler::AddTaskIfNoneOfType(CThreadTask *task)
+{
+	return AddTaskInternal(task, Overwrite::Never, true);
+}
+
+bool CThreadScheduler::HasTaskOfType(const wxString &type)
+{
+	wxMutexLocker lock(s_lock);
+	if (!s_scheduler) {
+		return false;
+	}
+	const auto existing = s_scheduler->m_taskDescs.find(type);
+	return existing != s_scheduler->m_taskDescs.end() && !existing->second.empty();
+}
+
+bool CThreadScheduler::AddTaskInternal(CThreadTask *task, Overwrite overwrite, bool uniqueType)
 {
 	wxMutexLocker lock(s_lock);
 
@@ -109,6 +129,13 @@ bool CThreadScheduler::AddTask(CThreadTask *task, bool overwrite)
 		AddDebugLogLineN(logThreads, "Scheduler created.");
 	}
 
+	if (uniqueType) {
+		const auto existing = s_scheduler->m_taskDescs.find(task->GetType());
+		if (existing != s_scheduler->m_taskDescs.end() && !existing->second.empty()) {
+			delete task;
+			return false;
+		}
+	}
 	return s_scheduler->DoAddTask(task, overwrite);
 }
 
@@ -198,6 +225,10 @@ CThreadScheduler::~CThreadScheduler()
 		m_thread->Stop();
 		delete m_thread;
 	}
+	// The worker owns only its current task; queued snapshots are still ours on shutdown.
+	for (const CEntryPair &entry : m_tasks) {
+		delete entry.first;
+	}
 }
 
 size_t CThreadScheduler::GetTaskCount() const
@@ -232,7 +263,7 @@ size_t CThreadScheduler::GetPendingCount(const wxString &type)
 	return count;
 }
 
-bool CThreadScheduler::DoAddTask(CThreadTask *task, bool overwrite)
+bool CThreadScheduler::DoAddTask(CThreadTask *task, Overwrite overwrite)
 {
 	// GetTick is too lowres, so we just use a counter to ensure that
 	// the sorted order will match the order in which the tasks were added.
@@ -246,7 +277,9 @@ bool CThreadScheduler::DoAddTask(CThreadTask *task, bool overwrite)
 		AddDebugLogLineN(logThreads, "Task scheduled: " + task->GetType() + " - " + task->GetDesc());
 		m_tasks.push_back(CEntryPair(task, taskAge++));
 		m_tasksDirty = true;
-	} else if (overwrite) {
+	} else if (overwrite == Overwrite::Always ||
+		   (overwrite == Overwrite::LowerPriority &&
+			   task->GetPriority() > map[task->GetDesc()]->GetPriority())) {
 		AddDebugLogLineN(
 			logThreads, "Task overwritten: " + task->GetType() + " - " + task->GetDesc());
 

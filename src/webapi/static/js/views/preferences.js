@@ -163,6 +163,7 @@ const TABS = [
     ] },
     { legendKey: "prefs_group_uploads", fields: [
       { key: "new_shared_files_auto_priority_enabled", type: "bool" },
+      { key: "shared_file_reverify_days", type: "int", min: 0, max: 3650 },
     ] },
     { legendKey: "prefs_group_ich", fields: [
       { key: "ich_enabled", type: "bool" },

@@ -1836,6 +1836,15 @@ wxSizer *PreferencesFilesTab( wxWindow *parent, bool call_fit, bool set_sizer )
 
     wxCheckBox *item21 = new wxCheckBox( item20, IDC_UAP, _("Add new shared files with auto priority"), wxDefaultPosition, wxDefaultSize, 0 );
     item19->Add( item21, wxSizerFlags().CenterVertical().Border(wxRIGHT, 0) );
+    // Same layout as the free-space row: the spin control is right-aligned before its unit.
+    wxFlexGridSizer *reverifySizer = new wxFlexGridSizer( 3, 0, 0 );
+    reverifySizer->AddGrowableCol( 0 );
+    reverifySizer->Add( new wxStaticText( item20, -1, _("Verify local data of requested shared files every") ), 0, wxALIGN_CENTER_VERTICAL, 0 );
+    wxSpinCtrl *reverifyDays = new wxSpinCtrl( item20, IDC_SHAREDFILEREVERIFYDAYS, "0", wxDefaultPosition, wxDefaultSize, 0, 0, 3650, 0 );
+    reverifyDays->SetToolTip( _("Re-read requested complete files in the background and compare them with their stored MD4/AICH hashes, as Verify Local Data does. Corrupt parts stop being shared. Uploads continue during the check.") );
+    reverifySizer->Add( reverifyDays, 0, wxALIGN_CENTER_VERTICAL, 0 );
+    reverifySizer->Add( new wxStaticText( item20, -1, _("days (0 = off)") ), wxSizerFlags().Center().Border(wxLEFT, 5) );
+    item19->Add( reverifySizer, wxSizerFlags().Expand().CenterVertical() );
     item0->Add( item19, wxSizerFlags().Expand().CenterVertical().Border(wxLEFT|wxRIGHT|wxBOTTOM, 0) );
 
     // Intelligent Corruption Handling -- an advanced option, placed after the

@@ -329,6 +329,7 @@ wxSizer *PreferencesServerTab(wxWindow *parent, bool call_fit = TRUE, bool set_s
 #define IDC_MMAP_ENABLE 10484
 #define IDC_CHECKDISKSPACE 10167
 #define IDC_MINDISKSPACE 10168
+#define IDC_SHAREDFILEREVERIFYDAYS 10524
 #define IDC_SRCSEEDS 10169
 #define IDC_UAP 10170
 // Media metadata extraction (issue #140). In the high band (>= 10420) to clear an eventual

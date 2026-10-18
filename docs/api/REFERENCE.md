@@ -2377,6 +2377,7 @@ Returns every preference category amuled carries over EC. The `general` and `con
     "save_sources_for_rare_files": true, "preallocate_full_file_size": false,
     "mmap_supported": true, "mmap_enabled": false,
     "stop_on_low_disk_space": true, "min_free_space_mebibytes": 1, "create_sparse_files": true,
+    "shared_file_reverify_days": 0,
     "on_finished_start_next_alphabetically": false, "endgame_mode_enabled": false,
     "media_metadata_enabled": true, "ffprobe_path": ""
   },
@@ -2430,6 +2431,12 @@ Returns every preference category amuled carries over EC. The `general` and `con
   }
 }
 ```
+
+`files.shared_file_reverify_days` is a read/write unsigned 32-bit interval in days
+(0–3650), default `0` (off). A valid block request for an overdue completed
+shared file queues background verification. Unrequested files and incomplete
+downloads are skipped; uploads continue while a check runs.
+
 
 Booleans are plain JSON `true`/`false` regardless of how amuled encodes them on the wire. **Passwords are never returned** — the webserver admin/guest and amuleapi passwords are write-only (see PATCH). `general.user_hash` is the node's own identity hash, not a password.
 

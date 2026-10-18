@@ -402,6 +402,8 @@ CEC_Prefs_Packet::CEC_Prefs_Packet(
 			filePrefs.AddTag(CECEmptyTag(EC_TAG_FILES_CHECK_FREE_SPACE));
 		}
 		filePrefs.AddTag(CECTag(EC_TAG_FILES_MIN_FREE_SPACE, thePrefs::GetMinFreeDiskSpaceMB()));
+		filePrefs.AddTag(
+			CECTag(EC_TAG_FILES_SHARED_REVERIFY_DAYS, thePrefs::GetSharedFileReverifyDays()));
 		if (!thePrefs::CreateFilesSparse()) {
 			filePrefs.AddTag(CECEmptyTag(EC_TAG_FILES_CREATE_NORMAL));
 		}
@@ -841,6 +843,12 @@ void CEC_Prefs_Packet::Apply() const
 		ApplyBoolean(use_tag, thisTab, thePrefs::SetAllocFullFile, EC_TAG_FILES_ALLOC_FULL_SIZE);
 		ApplyBoolean(
 			use_tag, thisTab, thePrefs::SetCheckDiskspaceEnabled, EC_TAG_FILES_CHECK_FREE_SPACE);
+		if ((oneTag = thisTab->GetTagByName(EC_TAG_FILES_SHARED_REVERIFY_DAYS)) != nullptr) {
+			const uint64 days = oneTag->GetInt();
+			if (days <= 3650) {
+				thePrefs::SetSharedFileReverifyDays(static_cast<uint32>(days));
+			}
+		}
 		if ((oneTag = thisTab->GetTagByName(EC_TAG_FILES_MIN_FREE_SPACE)) != NULL) {
 			thePrefs::SetMinFreeDiskSpaceMB(oneTag->GetInt());
 		}

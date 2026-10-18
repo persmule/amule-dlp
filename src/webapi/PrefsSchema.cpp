@@ -176,6 +176,7 @@ const PrefField kSchema[] = {
 	PREF_STR("files", "ffprobe_path", EC_TAG_FILES_MEDIA_FFPROBE_PATH, PrefAccess::ReadWrite, files.ffprobe_path),
 	PREF_BOOL("files", "ich_enabled", EC_TAG_FILES_ICH_ENABLED, PrefEnc::Presence, false, PrefAccess::ReadWrite, files.ich_enabled),
 	PREF_BOOL("files", "media_metadata_enabled", EC_TAG_FILES_MEDIA_METADATA_ENABLED, PrefEnc::Presence, false, PrefAccess::ReadWrite, files.media_metadata_enabled),
+	PREF_U32("files", "shared_file_reverify_days", EC_TAG_FILES_SHARED_REVERIFY_DAYS, 3650, PrefAccess::ReadWrite, files.shared_file_reverify_days),
 	PREF_U32("files", "min_free_space_mebibytes", EC_TAG_FILES_MIN_FREE_SPACE, 0xFFFFFFFFu, PrefAccess::ReadWrite, files.min_free_space_mebibytes),
 	PREF_BOOL_GATED("files", "mmap_enabled", EC_TAG_FILES_MMAP_ENABLED, PrefEnc::Presence, false, PrefAccess::ReadWrite, files.mmap_enabled, "mmap_supported"),
 	PREF_BOOL("files", "mmap_supported", EC_TAG_FILES_MMAP_SUPPORTED, PrefEnc::Presence, false, PrefAccess::ReadOnly, files.mmap_supported),
