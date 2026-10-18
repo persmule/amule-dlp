@@ -227,14 +227,22 @@ static void AmuledDaemonizeEarly()
 
 #endif // !__WINDOWS__
 
+#ifdef __WINDOWS__
+int main()
+#else
 int main(int argc, char **argv)
+#endif
 {
-#ifndef __WINDOWS__
+#ifdef __WINDOWS__
+	// Read the wide process command line: the CRT's narrow argv has already lost characters
+	// outside the ANSI code page (#1910). wxWidgets handles parsing and argument lifetime.
+	const int rc = wxEntry();
+#else
 	if (AmuledWantsDaemonFork(argc, argv)) {
 		AmuledDaemonizeEarly();
 	}
-#endif
 	const int rc = wxEntry(argc, argv);
+#endif
 	// Startup stopped before InitCommon reported, for example because another instance holds
 	// the config. Nothing reached a log file, so hand the launcher what was logged: it is what
 	// a foreground run prints, reason included. A no-op once InitCommon has reported.
