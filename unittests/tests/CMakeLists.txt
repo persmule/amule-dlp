@@ -2824,6 +2824,12 @@ add_test (NAME RemoteDownloadEventsTest COMMAND RemoteDownloadEventsTest)
 target_include_directories (RemoteDownloadEventsTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries (RemoteDownloadEventsTest muleunit mulecommon)
 
+# Download block reservations: no peer objects or network state.
+add_executable (BlockReservationTest BlockReservationTest.cpp)
+target_include_directories (BlockReservationTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries (BlockReservationTest muleunit mulecommon)
+add_test (NAME BlockReservationTest COMMAND BlockReservationTest)
+
 add_executable (DiskSpaceResumeBudgetTest DiskSpaceResumeBudgetTest.cpp)
 target_include_directories (DiskSpaceResumeBudgetTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries (DiskSpaceResumeBudgetTest muleunit mulecommon)
