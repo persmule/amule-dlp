@@ -3892,6 +3892,15 @@ msgid "Hashing"
 msgstr "Hashing"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "Allokera"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "Stoppad"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Färdigställer"
 
@@ -3908,6 +3917,10 @@ msgstr "Pausad"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "Felaktig"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "Otillräckligt diskutrymme"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4077,6 +4090,14 @@ msgstr[1] "%u ytterligare delade filer är borta (listas inte var för sig)"
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Stäng"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6319,10 +6340,6 @@ msgstr "alla andra"
 msgid "Incomplete"
 msgstr "Ofullständig"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "Stoppad"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Video"
@@ -6643,14 +6660,6 @@ msgstr "Nedladdade del %i är skadad i fil: %s"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: Återvunnen skadad del %i för %s -> Sparade bytes: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "Allokera"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "Otillräckligt diskutrymme"
 
 #: src/PartFile.cpp
 #, c-format

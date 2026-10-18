@@ -3907,6 +3907,15 @@ msgid "Hashing"
 msgstr "Luo tarkistetta"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "Allokoidaan"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "Pysäytetty"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Viimeistelee"
 
@@ -3923,6 +3932,10 @@ msgstr "Tauotettu"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "Virheellinen"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "Riittämätön levytila"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4093,6 +4106,14 @@ msgstr[1] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Sulje"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6346,10 +6367,6 @@ msgstr "kaikki muut"
 msgid "Incomplete"
 msgstr "Keskeneräinen"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "Pysäytetty"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Video"
@@ -6676,14 +6693,6 @@ msgstr "Ladattu osa %i on turmeltunut tiedostossa: %s"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: Ennallistettu turmeltunut osa %i kohteessa %s -> Säästetyt tavut: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "Allokoidaan"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "Riittämätön levytila"
 
 #: src/PartFile.cpp
 #, c-format

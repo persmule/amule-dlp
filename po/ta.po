@@ -3771,6 +3771,15 @@ msgid "Hashing"
 msgstr ""
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr ""
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr ""
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr ""
 
@@ -3786,6 +3795,10 @@ msgstr ""
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
 msgid "Erroneous"
+msgstr ""
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
 msgstr ""
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
@@ -3955,6 +3968,14 @@ msgstr[1] ""
 
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
 msgstr ""
 
 #: src/MuleTextCtrl.cpp
@@ -6173,10 +6194,6 @@ msgstr ""
 msgid "Incomplete"
 msgstr ""
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr ""
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr ""
@@ -6495,14 +6512,6 @@ msgstr ""
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: சிதைந்த பகுதி %i %s க்காக மீட்கப்பட்டது -> சேமிக்கப்பட்ட பைட்டுகள்: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr ""
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr ""
 
 #: src/PartFile.cpp
 #, c-format

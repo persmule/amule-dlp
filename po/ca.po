@@ -3885,6 +3885,15 @@ msgid "Hashing"
 msgstr "Resumint"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "Assignant"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "Aturat"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Completant"
 
@@ -3901,6 +3910,10 @@ msgstr "Pausat"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "Erroni"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "Espai en disc insuficient"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4070,6 +4083,14 @@ msgstr[1] "%u fitxers compartits més han desaparegut (no es llisten individualm
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Tanca"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6316,10 +6337,6 @@ msgstr "tota la resta"
 msgid "Incomplete"
 msgstr "Incomplet"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "Aturat"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Vídeos"
@@ -6640,14 +6657,6 @@ msgstr "Corrupció a la part baixada %i del fitxer: %s"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: S'ha recuperat la part corrupta %i de %s -> Bytes desats: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "Assignant"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "Espai en disc insuficient"
 
 #: src/PartFile.cpp
 #, c-format

@@ -3929,6 +3929,15 @@ msgid "Hashing"
 msgstr "Обчислюється хеш"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "Виділяється"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "Зупинені"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Завершується"
 
@@ -3945,6 +3954,10 @@ msgstr "Призупинений"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "Помилковий"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "Не вистачає місця на диску"
 
 # файл
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
@@ -4120,6 +4133,14 @@ msgstr[2] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Закрити"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6378,10 +6399,6 @@ msgstr "всі інші"
 msgid "Incomplete"
 msgstr "Незавершені"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "Зупинені"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Відео"
@@ -6710,14 +6727,6 @@ msgstr "Звантажена частина %i зіпсована в файлі:
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "Р.О.П.: відновлено зіпсовану частину %i для %s -> Збережено байт: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "Виділяється"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "Не вистачає місця на диску"
 
 #: src/PartFile.cpp
 #, c-format

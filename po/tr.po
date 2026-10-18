@@ -3892,6 +3892,15 @@ msgid "Hashing"
 msgstr "Adresleniyor"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "Ayrılıyor"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "Durduruldu"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Tamamlanıyor"
 
@@ -3908,6 +3917,10 @@ msgstr "Duraklatıldı"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "Hatalı"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "Yetersiz disk alanı"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4077,6 +4090,14 @@ msgstr[1] "%u başka paylaşılan dosya artık mevcut değil (tek tek listelenme
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Kapat"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6320,10 +6341,6 @@ msgstr "diğerleri"
 msgid "Incomplete"
 msgstr "Tamamlanmamış"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "Durduruldu"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Görüntü"
@@ -6644,14 +6661,6 @@ msgstr "İndirilen %i parçası %s dosyasındaydı ve bozuk."
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: Bozulan %i parçası %s dosyasındaydı ve kurtarıldı -> Kaydedilen miktar: %s bayt"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "Ayrılıyor"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "Yetersiz disk alanı"
 
 #: src/PartFile.cpp
 #, c-format

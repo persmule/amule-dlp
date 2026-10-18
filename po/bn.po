@@ -3873,6 +3873,15 @@ msgid "Hashing"
 msgstr "হ্যাশ করা হচ্ছে"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "বরাদ্দ করা হচ্ছে"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "বন্ধ"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "সম্পন্ন হচ্ছে"
 
@@ -3889,6 +3898,10 @@ msgstr "বিরতি দেওয়া"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "ত্রুটিপূর্ণ"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "অপর্যাপ্ত ডিস্ক স্থান"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4058,6 +4071,14 @@ msgstr[1] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "বন্ধ করুন"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6297,10 +6318,6 @@ msgstr "অন্য সব"
 msgid "Incomplete"
 msgstr "অসম্পূর্ণ"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "বন্ধ"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "ভিডিও"
@@ -6621,14 +6638,6 @@ msgstr "ডাউনলোড করা অংশ %i ফাইলে ক্ষ�
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: ক্ষতিগ্রস্ত অংশ %i, %s-এর জন্য পুনরুদ্ধার করা হয়েছে -> সংরক্ষিত বাইট: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "বরাদ্দ করা হচ্ছে"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "অপর্যাপ্ত ডিস্ক স্থান"
 
 #: src/PartFile.cpp
 #, c-format

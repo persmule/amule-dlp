@@ -3896,6 +3896,15 @@ msgid "Hashing"
 msgstr "Aan het hashen"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "Toewijzen"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "Gestopt"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Voltooien"
 
@@ -3912,6 +3921,10 @@ msgstr "Gepauzeerd"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "Foutief"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "Onvoldoende schijfruimte"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4081,6 +4094,14 @@ msgstr[1] "Nog %u gedeelde bestanden zijn verdwenen (niet individueel vermeld)"
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Sluiten"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6329,10 +6350,6 @@ msgstr "alle anderen"
 msgid "Incomplete"
 msgstr "Incompleet"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "Gestopt"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Video"
@@ -6653,14 +6670,6 @@ msgstr "Gedownload deel %i is beschadigd in bestand: %s"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: beschadigd deel %i van %s hersteld -> Bespaarde bytes: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "Toewijzen"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "Onvoldoende schijfruimte"
 
 #: src/PartFile.cpp
 #, c-format

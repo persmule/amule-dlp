@@ -3906,6 +3906,15 @@ msgid "Hashing"
 msgstr "해시중"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "할당 중"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "멈춤"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "완료중"
 
@@ -3922,6 +3931,10 @@ msgstr "중지됨"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "오류투성이"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "디스크 공간 부족"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4092,6 +4105,14 @@ msgstr[1] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "닫기"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6340,10 +6361,6 @@ msgstr "다른 모두"
 msgid "Incomplete"
 msgstr "내려받음"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "멈춤"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "비디오"
@@ -6670,14 +6687,6 @@ msgstr "%i 부분 내려받기는 파일이 손상되었습니다: %s"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: 손상된 부분 %i를 복구했습니다. (%s의) -> 저장된 바이트: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "할당 중"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "디스크 공간 부족"
 
 #: src/PartFile.cpp
 #, c-format

@@ -3903,6 +3903,15 @@ msgid "Hashing"
 msgstr "Prüfsumme erstellen"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Allocating"
+msgstr "Reserviere"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
+#: src/TransferWnd.cpp
+msgid "Stopped"
+msgstr "Angehalten"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
 msgid "Completing"
 msgstr "Wird abgeschlossen"
 
@@ -3919,6 +3928,10 @@ msgstr "Pausiert"
 #: src/TransferWnd.cpp
 msgid "Erroneous"
 msgstr "Fehlerhaft"
+
+#: src/libs/ec/cpp/ECSpecialTags.cpp src/PartFile.cpp
+msgid "Insufficient disk space"
+msgstr "Zu wenig Festplattenplatz"
 
 #: src/libs/ec/cpp/ECSpecialTags.cpp src/OtherFunctions.cpp src/PartFile.cpp
 #: src/TransferWnd.cpp
@@ -4090,6 +4103,14 @@ msgstr[1] ""
 #: src/MuleNotebook.cpp src/muuli_wdr.cpp
 msgid "Close"
 msgstr "Schließen"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit column to contents"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Fit visible columns to contents"
+msgstr ""
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -6355,10 +6376,6 @@ msgstr "alle anderen"
 msgid "Incomplete"
 msgstr "Unvollständig"
 
-#: src/OtherFunctions.cpp src/PartFile.cpp src/TransferWnd.cpp
-msgid "Stopped"
-msgstr "Angehalten"
-
 #: src/OtherFunctions.cpp src/TransferWnd.cpp
 msgid "Video"
 msgstr "Video"
@@ -6685,14 +6702,6 @@ msgstr "Heruntergeladener Teil %i in Datei '%s' ist defekt"
 #, c-format
 msgid "ICH: Recovered corrupted part %i for %s -> Saved bytes: %s"
 msgstr "ICH: Defekter Teil %i in %s wiederhergestellt -> Gesparte Bytes: %s"
-
-#: src/PartFile.cpp
-msgid "Allocating"
-msgstr "Reserviere"
-
-#: src/PartFile.cpp
-msgid "Insufficient disk space"
-msgstr "Zu wenig Festplattenplatz"
 
 #: src/PartFile.cpp
 #, c-format
