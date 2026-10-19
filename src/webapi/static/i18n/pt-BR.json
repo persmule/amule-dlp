@@ -1044,5 +1044,6 @@
   "downloads_confirm_delete_disk": "Apagar “{name}” permanentemente do disco?\n\nDiretório: {directory}\n\nO arquivo deixará de ser compartilhado. Isto não pode ser desfeito.",
   "downloads_confirm_delete_selected_one": "Apagar do disco o arquivo selecionado? Arquivos completos serão apagados permanentemente; downloads ativos serão cancelados e removidos. Isto não pode ser desfeito.",
   "downloads_confirm_delete_selected_many": "Apagar do disco os {n} arquivos selecionados? Arquivos completos serão apagados permanentemente; downloads ativos serão cancelados e removidos. Isto não pode ser desfeito.",
-  "downloads_confirm_delete_selected_other": "Apagar do disco os {n} arquivos selecionados? Arquivos completos serão apagados permanentemente; downloads ativos serão cancelados e removidos. Isto não pode ser desfeito."
+  "downloads_confirm_delete_selected_other": "Apagar do disco os {n} arquivos selecionados? Arquivos completos serão apagados permanentemente; downloads ativos serão cancelados e removidos. Isto não pode ser desfeito.",
+  "prefs_field_files_shared_file_reverify_days": "Verificar dados locais dos arquivos compartilhados solicitados a cada N dias (0 = desativado)"
 }

@@ -1044,5 +1044,6 @@
   "downloads_confirm_delete_disk": "Voleu esborrar permanentment «{name}» del disc?\n\nDirectori: {directory}\n\nEl fitxer deixarà de compartir-se. Això no es pot desfer.",
   "downloads_confirm_delete_selected_one": "Voleu esborrar del disc el fitxer seleccionat? Els fitxers completats s'esborraran permanentment; les baixades actives es cancel·laran i s'eliminaran. Això no es pot desfer.",
   "downloads_confirm_delete_selected_many": "Voleu esborrar del disc els {n} fitxers seleccionats? Els fitxers completats s'esborraran permanentment; les baixades actives es cancel·laran i s'eliminaran. Això no es pot desfer.",
-  "downloads_confirm_delete_selected_other": "Voleu esborrar del disc els {n} fitxers seleccionats? Els fitxers completats s'esborraran permanentment; les baixades actives es cancel·laran i s'eliminaran. Això no es pot desfer."
+  "downloads_confirm_delete_selected_other": "Voleu esborrar del disc els {n} fitxers seleccionats? Els fitxers completats s'esborraran permanentment; les baixades actives es cancel·laran i s'eliminaran. Això no es pot desfer.",
+  "prefs_field_files_shared_file_reverify_days": "Verifica les dades locals dels fitxers compartits sol·licitats cada N dies (0 = desactivat)"
 }

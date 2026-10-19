@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-18 21:24+0000\n"
+"PO-Revision-Date: 2026-10-19 09:22+0000\n"
 "Last-Translator: Marcelo Jimenez <mroberto@users.sourceforge.com>\n"
 "Language-Team: Português (Brasileiro) <pt@li.org>\n"
 "Language: pt_BR\n"
@@ -5263,15 +5263,15 @@ msgstr "Adicionar novos compartilhamentos com prioridade automática"
 
 #: src/muuli_wdr.cpp
 msgid "Verify local data of requested shared files every"
-msgstr ""
+msgstr "Verificar dados locais dos arquivos compartilhados solicitados a cada"
 
 #: src/muuli_wdr.cpp
 msgid "Re-read requested complete files in the background and compare them with their stored MD4/AICH hashes, as Verify Local Data does. Corrupt parts stop being shared. Uploads continue during the check."
-msgstr ""
+msgstr "Relê em segundo plano os arquivos completos solicitados e os compara com seus hashes MD4/AICH armazenados, como faz o Verificar Dados Locais. Partes corrompidas deixam de ser compartilhadas. Os uploads continuam durante a verificação."
 
 #: src/muuli_wdr.cpp
 msgid "days (0 = off)"
-msgstr ""
+msgstr "dias (0 = desativado)"
 
 #: src/muuli_wdr.cpp
 msgid "Intelligent Corruption Handling (I.C.H.)"
@@ -9275,9 +9275,9 @@ msgid "Verify Local Data: %s is empty, so there is nothing to check."
 msgstr "Verificar Dados Locais: %s está vazio, então não há nada para verificar."
 
 #: src/ThreadTasks.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Verify Local Data: missing MD4 hashes for %s, so it was not checked."
-msgstr "Verificar Dados Locais: não foi possível ler %s, portanto não foi verificado."
+msgstr "Verificar Dados Locais: faltam os hashes MD4 de %s, portanto não foi verificado."
 
 #: src/ThreadTasks.cpp
 #, c-format

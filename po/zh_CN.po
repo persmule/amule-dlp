@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-18 13:15+0000\n"
+"PO-Revision-Date: 2026-10-19 09:22+0000\n"
 "Last-Translator: Mike Akiba <mike2718@gmail.com>\n"
 "Language-Team: Chinese Simplified <kde-i18n-doc@kde.org>\n"
 "Language: zh_CN\n"
@@ -4085,11 +4085,11 @@ msgstr "关闭"
 
 #: src/MuleDataViewCtrl.cpp
 msgid "Fit column to contents"
-msgstr ""
+msgstr "使列适应内容"
 
 #: src/MuleDataViewCtrl.cpp
 msgid "Fit visible columns to contents"
-msgstr ""
+msgstr "使可见列适应内容"
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -5259,15 +5259,15 @@ msgstr "添加新共享文件时设优先级为自动"
 
 #: src/muuli_wdr.cpp
 msgid "Verify local data of requested shared files every"
-msgstr ""
+msgstr "间隔几天验证已请求的共享文件的本地数据"
 
 #: src/muuli_wdr.cpp
 msgid "Re-read requested complete files in the background and compare them with their stored MD4/AICH hashes, as Verify Local Data does. Corrupt parts stop being shared. Uploads continue during the check."
-msgstr ""
+msgstr "在后台重新读取请求的完整文件，并将其与存储的 MD4/AICH 哈希值进行比较，就像“验证本地数据”功能所做的那样。损坏的部分将停止共享。检查期间上传将继续进行。"
 
 #: src/muuli_wdr.cpp
 msgid "days (0 = off)"
-msgstr ""
+msgstr "天数 (0 表示关闭)"
 
 #: src/muuli_wdr.cpp
 msgid "Intelligent Corruption Handling (I.C.H.)"
@@ -9268,9 +9268,9 @@ msgid "Verify Local Data: %s is empty, so there is nothing to check."
 msgstr "验证本地数据：%s 为空，因此没什么可检查的。"
 
 #: src/ThreadTasks.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Verify Local Data: missing MD4 hashes for %s, so it was not checked."
-msgstr "验证本地数据：无法读取 %s，因此未检查它。"
+msgstr "验证本地数据：%s 的 MD4 哈希缺失，因此未检查它。"
 
 #: src/ThreadTasks.cpp
 #, c-format
