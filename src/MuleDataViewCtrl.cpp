@@ -47,6 +47,7 @@ wxBEGIN_EVENT_TABLE(CMuleDataViewCtrl, wxDataViewCtrl)
 	EVT_DATAVIEW_COLUMN_HEADER_CLICK(wxID_ANY, CMuleDataViewCtrl::OnColumnHeaderClick)
 	EVT_DATAVIEW_COLUMN_HEADER_RIGHT_CLICK(wxID_ANY, CMuleDataViewCtrl::OnColumnHeaderRightClick)
 	EVT_MENU_RANGE(MP_LISTCOL_1, MP_LISTCOL_25, CMuleDataViewCtrl::OnColumnMenuSelected)
+	EVT_DPI_CHANGED(CMuleDataViewCtrl::OnDPIChanged)
 	EVT_IDLE(CMuleDataViewCtrl::OnIdle)
 	EVT_CHAR(CMuleDataViewCtrl::OnChar)
 	EVT_KEY_DOWN(CMuleDataViewCtrl::OnKeyDown)
@@ -68,6 +69,16 @@ CMuleDataViewCtrl::CMuleDataViewCtrl(wxWindow *parent,
 }
 
 CMuleDataViewCtrl::~CMuleDataViewCtrl() = default;
+
+double CMuleDataViewCtrl::ColumnWidthAdapter::GetWidthScale() const
+{
+#ifdef wxHAS_DPI_INDEPENDENT_PIXELS
+	// GTK3 and macOS column widths already use logical coordinates.
+	return 1.0;
+#else
+	return m_ctrl->GetDPIScaleFactor();
+#endif
+}
 
 int CMuleDataViewCtrl::ColumnWidthAdapter::GetColumnWidth(int col) const
 {
@@ -691,6 +702,21 @@ void CMuleDataViewCtrl::OnColumnMenuSelected(wxCommandEvent &evt)
 	ResetKnownWidths();
 	OnColumnVisibilityChanged();
 	SaveColumnSettings();
+}
+
+void CMuleDataViewCtrl::OnDPIChanged(wxDPIChangedEvent &event)
+{
+#ifndef wxHAS_DPI_INDEPENDENT_PIXELS
+	// wx rescales the native columns, but hidden columns restore their widths from this
+	// cache. Keep every cached width in the same units before idle can persist the layout.
+	for (int col = 0; col < static_cast<int>(RealColumnCount()); ++col) {
+		const int width = m_columnStore.GetCachedWidth(col);
+		if (width > 0) {
+			m_columnStore.SetCachedWidth(col, event.ScaleX(width));
+		}
+	}
+#endif
+	event.Skip();
 }
 
 void CMuleDataViewCtrl::OnIdle(wxIdleEvent &event)

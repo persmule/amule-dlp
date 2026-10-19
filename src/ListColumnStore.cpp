@@ -24,6 +24,10 @@
 
 #include "ListColumnStore.h"
 
+#include <algorithm>
+#include <cmath>
+#include <limits>
+
 #include <wx/config.h>
 #include <wx/tokenzr.h>
 
@@ -40,6 +44,12 @@ namespace
 const unsigned long kLegacySortDescending = 0x1000;
 const unsigned long kLegacySortAlternate = 0x2000;
 const unsigned long kLegacySortMask = kLegacySortDescending | kLegacySortAlternate;
+// Treat an unavailable/invalid display scale as identity, including for legacy providers.
+double WidthScale(const IColumnWidthProvider &widget)
+{
+	const double scale = widget.GetWidthScale();
+	return std::isfinite(scale) && scale > 0.0 ? scale : 1.0;
+}
 } // namespace
 
 void CListColumnStore::RegisterColumn(int index, int defaultWidth, const wxString &name)
@@ -176,10 +186,39 @@ void CListColumnStore::SaveSettings(const IColumnWidthProvider &widget, const CS
 			int savedsize = (m_column_sizes.size() && (i < (int)m_column_sizes.size()))
 						? m_column_sizes[i]
 						: 0;
-			buffer << columnName << ":" << ((currentwidth > 0) ? currentwidth : (-1 * savedsize));
+			const int width = currentwidth > 0 ? currentwidth : savedsize;
+			const int sign = currentwidth > 0 ? 1 : -1;
+			buffer << columnName << ":" << sign * width;
 		}
 	}
 	cfg->Write("/eMule/TableWidths" + m_name, buffer);
+	cfg->Write("/eMule/TableWidthsScale" + m_name, WidthScale(widget));
+	// Remove companions written by earlier versions of this change.
+	cfg->DeleteEntry("/eMule/TableWidthsDIP" + m_name);
+	cfg->DeleteEntry("/eMule/TableWidthsDIPSource" + m_name);
+}
+
+bool CListColumnStore::RestoreWidth(IColumnWidthProvider &widget, int column, long width, double savedScale)
+{
+	if (column < 0 || column >= widget.GetColumnCount()) {
+		return false;
+	}
+	// Validate in floating point before negating or narrowing: even LONG_MIN
+	// must be harmless. Bound both the logical width and the final widget value.
+	const double magnitude = std::abs(static_cast<double>(width));
+	if (magnitude > std::numeric_limits<int>::max() || magnitude / savedScale > 4096.0) {
+		return false;
+	}
+	const double currentScale = WidthScale(widget);
+	// Same-scale restarts must preserve pixels exactly, including odd widths.
+	const double scaled = savedScale == currentScale ? magnitude : magnitude / savedScale * currentScale;
+	if (!std::isfinite(scaled) || scaled > std::numeric_limits<int>::max() - 0.5) {
+		return false;
+	}
+	const int pixels = static_cast<int>(std::round(scaled));
+	SetCachedWidth(column, pixels > COL_SIZE_MIN ? pixels : GetColumnDefaultWidth(column));
+	widget.SetColumnWidth(column, width > 0 ? std::max(COL_SIZE_MIN + 1, pixels) : 0);
+	return true;
 }
 
 bool CListColumnStore::ParseOldConfigEntries(const wxString &sortOrders,
@@ -220,10 +259,11 @@ bool CListColumnStore::ParseOldConfigEntries(const wxString &sortOrders,
 	wxStringTokenizer tokenizer(columnWidths, ",");
 	while (tokenizer.HasMoreTokens()) {
 		long idx = GetNewColumnIndex(counter++, oldColumnOrder);
-		long width = StrToLong(tokenizer.GetNextToken());
-		if (idx >= 0) {
-			widget.SetColumnWidth(static_cast<int>(idx), static_cast<int>(width));
-			restoredWidth = true;
+		long width = 0;
+		if (tokenizer.GetNextToken().ToLong(&width) && idx >= 0) {
+			restoredWidth =
+				RestoreWidth(widget, static_cast<int>(idx), width, WidthScale(widget)) ||
+				restoredWidth;
 		}
 	}
 
@@ -266,20 +306,21 @@ bool CListColumnStore::LoadSettings(
 		}
 	}
 
-	// Column widths
+	// An absent or invalid scale leaves legacy pixels unchanged: their original
+	// display scale is unknown. The next save records the current scale.
+	double savedScale = 0.0;
+	if (!cfg->Read("/eMule/TableWidthsScale" + m_name, &savedScale) || !std::isfinite(savedScale) ||
+		savedScale <= 0.0) {
+		savedScale = WidthScale(widget);
+	}
 	wxStringTokenizer tkz(columnWidths, ",");
 	while (tkz.HasMoreTokens()) {
 		wxString token = tkz.GetNextToken();
 		wxString name = token.BeforeFirst(':');
-		long width = StrToLong(token.AfterFirst(':'));
-		int col = GetColumnIndex(name);
-		if (col >= 0) {
-			if (col >= (int)m_column_sizes.size()) {
-				m_column_sizes.resize(col + 1, 0);
-			}
-			m_column_sizes[col] = static_cast<int>(abs(width));
-			widget.SetColumnWidth(col, static_cast<int>((width > 0) ? width : 0));
-			restoredWidth = true;
+		long width = 0;
+		const int col = GetColumnIndex(name);
+		if (token.AfterFirst(':').ToLong(&width)) {
+			restoredWidth = RestoreWidth(widget, col, width, savedScale) || restoredWidth;
 		}
 	}
 
