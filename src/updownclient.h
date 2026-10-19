@@ -989,6 +989,10 @@ private:
 	/* Kad Stuff */
 	uint8_t m_achBuddyID[16];
 	bool m_bBuddyIDValid;
+	// KADEMLIA_CALLBACK_REQ reads the published buddy hash as a pre-fix aMule wrote it (#1835).
+	bool m_bBuddyIdUseAmuleLayout = false;
+	// A KADEMLIA_CALLBACK_REQ was sent and the source has not called back since.
+	bool m_bBuddyCallbackUnanswered = false;
 	uint32 m_nBuddyIP;
 	uint16 m_nBuddyPort;
 
