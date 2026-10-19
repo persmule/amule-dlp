@@ -3978,6 +3978,14 @@ msgstr ""
 msgid "Fit visible columns to contents"
 msgstr ""
 
+#: src/MuleDataViewCtrl.cpp
+msgid "Show all columns (keep widths)"
+msgstr ""
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Restore default columns and widths"
+msgstr ""
+
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
 msgstr ""

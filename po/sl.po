@@ -4159,6 +4159,15 @@ msgstr ""
 msgid "Fit visible columns to contents"
 msgstr ""
 
+#: src/MuleDataViewCtrl.cpp
+#, fuzzy
+msgid "Show all columns (keep widths)"
+msgstr "Prikaži vse komentarje"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Restore default columns and widths"
+msgstr ""
+
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
 msgstr "Izreži"

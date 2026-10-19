@@ -4126,6 +4126,15 @@ msgstr "Подогнать столбец по содержимому"
 msgid "Fit visible columns to contents"
 msgstr "Подогнать видимые столбцы по содержимому"
 
+#: src/MuleDataViewCtrl.cpp
+#, fuzzy
+msgid "Show all columns (keep widths)"
+msgstr "Показать все комментарии"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Restore default columns and widths"
+msgstr ""
+
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
 msgstr "Вырезать"
