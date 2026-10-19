@@ -26,6 +26,8 @@
 #ifndef AMULEDLG_H
 #define AMULEDLG_H
 
+#include "WindowGeometry.h"
+
 #include "config.h" // for ENABLE_VERSION_CHECK (gates the startup version-check members)
 
 #include <wx/archive.h>
@@ -292,13 +294,7 @@ public:
 
 	int m_srv_split_pos;
 
-	// Last frame geometry seen while NOT iconized. SaveGUIPrefs uses it as the fallback when
-	// the user exits from a minimized state, where the iconized GetPosition() returns sentinel
-	// values like -32000,-32000 on Windows.
-	wxPoint m_lastShownPos;
-	wxSize m_lastShownSize;
-	bool m_lastShownMaximized;
-	bool m_lastShownValid;
+	CWindowGeometry m_windowGeometry;
 
 	wxImageList m_imagelist;
 	// Toolbar icons as resolution-aware bundles (the 32x32 art plus a smooth 2x upscale). The
@@ -316,7 +312,8 @@ protected:
 	void OnBnClickedFast(wxCommandEvent &evt);
 	void OnGUITimer(wxTimerEvent &evt);
 	void OnMainGUISizeChange(wxSizeEvent &evt);
-	void OnMainGUIMove(wxMoveEvent &evt);
+	void OnMainGUIIdle(wxIdleEvent &evt);
+	void OnMainGUIMaximize(wxMaximizeEvent &evt);
 	// Stash the current (non-iconized) pos / size / maximized state so SaveGUIPrefs can fall
 	// back to the last good geometry if the user exits from a minimized window.
 	void CacheLastShownGeometry();

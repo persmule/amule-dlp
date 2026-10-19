@@ -26,6 +26,7 @@
 #include <wx/app.h>
 
 #include <wx/archive.h>
+#include <wx/display.h>
 #include <wx/config.h>   // Do_not_auto_remove (MacOS 10.3, wx 2.7)
 #include <wx/confbase.h> // Do_not_auto_remove (MacOS 10.3, wx 2.7)
 #include <wx/html/htmlwin.h>
@@ -141,7 +142,8 @@ wxBEGIN_EVENT_TABLE(CamuleDlg, wxFrame)
 	EVT_TIMER(ID_GUI_TIMER_EVENT, CamuleDlg::OnGUITimer)
 
 	EVT_SIZE(CamuleDlg::OnMainGUISizeChange)
-	EVT_MOVE(CamuleDlg::OnMainGUIMove)
+	EVT_IDLE(CamuleDlg::OnMainGUIIdle)
+	EVT_MAXIMIZE(CamuleDlg::OnMainGUIMaximize)
 
 	EVT_KEY_UP(CamuleDlg::OnKeyPressed)
 
@@ -172,10 +174,6 @@ CamuleDlg::CamuleDlg(wxWindow *pParent, const wxString &title, wxPoint where, wx
 , m_kademliawnd(NULL)
 , m_prefsDialog(NULL)
 , m_srv_split_pos(0)
-, m_lastShownPos(wxDefaultPosition)
-, m_lastShownSize(wxDefaultSize)
-, m_lastShownMaximized(false)
-, m_lastShownValid(false)
 , m_imagelist(16, 16)
 , m_prefsVisible(false)
 , m_wndToolbar(NULL)
@@ -219,6 +217,7 @@ CamuleDlg::CamuleDlg(wxWindow *pParent, const wxString &title, wxPoint where, wx
 
 	// wxWidgets send idle events to ALL WINDOWS by default... *SIGH*
 	wxIdleEvent::SetMode(wxIDLE_PROCESS_SPECIFIED);
+	SetExtraStyle(GetExtraStyle() | wxWS_EX_PROCESS_IDLE);
 	wxUpdateUIEvent::SetMode(wxUPDATE_UI_PROCESS_SPECIFIED);
 	wxInitAllImageHandlers();
 	Apply_Clients_Skin();
@@ -1592,8 +1591,10 @@ bool CamuleDlg::LoadGUIPrefs(bool override_pos, bool override_size)
 	wxString section = "/Razor_Preferences/";
 
 	// Get window size and position
-	int x1 = config->Read(section + "MAIN_X_POS", -1);
-	int y1 = config->Read(section + "MAIN_Y_POS", -1);
+	int x1 = 0;
+	int y1 = 0;
+	const bool hasX = config->Read(section + "MAIN_X_POS", &x1);
+	const bool hasY = config->Read(section + "MAIN_Y_POS", &y1);
 	int x2 = config->Read(section + "MAIN_X_SIZE", -1);
 	int y2 = config->Read(section + "MAIN_Y_SIZE", -1);
 
@@ -1601,38 +1602,38 @@ bool CamuleDlg::LoadGUIPrefs(bool override_pos, bool override_size)
 
 	// Kry - Random usable pos for m_srv_split_pos
 	m_srv_split_pos = config->Read(section + "SRV_SPLITTER_POS", 463l);
-	if (!override_size) {
-		if (x2 > 0 && y2 > 0) {
-			SetSize(x2, y2);
-		} else {
+	std::vector<wxRect> workAreas;
+	size_t primaryDisplay = 0;
+	for (unsigned i = 0; i < wxDisplay::GetCount(); ++i) {
+		const wxDisplay display(i);
+		workAreas.push_back(display.GetClientArea());
+		if (display.IsPrimary()) {
+			primaryDisplay = i;
+		}
+	}
+	CWindowRestoreOptions options;
+	options.hasSavedPosition = hasX && hasY;
+	options.overridePosition = override_pos;
+	options.overrideSize = override_size;
 #ifdef __WXGTK__
-			// A first-run window should use the available desktop even when the window
-			// manager does not implement Maximize() (for example, a bare Xephyr display).
-			// Otherwise the default constructor size clips the Downloads header.
-			if (!override_pos) {
-				const wxRect display = wxGetClientDisplayRect();
-				if (!display.IsEmpty()) {
-					SetSize(display.GetSize());
-				}
-			}
-#else
-			// Probably first run.
-			Maximize();
+	// Preserve the first-run fallback for window managers without Maximize().
+	options.useWorkAreaForMissingSize = true;
 #endif
-		}
+	const wxRect restored = RestoreWindowRect(GetRect(),
+		wxRect(x1, y1, x2, y2),
+		workAreas,
+		FromDIP(wxSize(320, 240)),
+		FromDIP(50),
+		primaryDisplay,
+		options);
+	// -1 is a real coordinate on desktops extending left or above the primary display.
+	SetSize(restored, wxSIZE_ALLOW_MINUS_ONE);
+	m_windowGeometry.Remember(GetRect(), false, false);
+#ifndef __WXGTK__
+	if (!override_size && (x2 <= 0 || y2 <= 0)) {
+		Maximize();
 	}
-
-	if (!override_pos) {
-		// If x1 and y1 != -1 Redefine location
-		if (x1 != -1 && y1 != -1) {
-			wxRect display = wxGetClientDisplayRect();
-			if (x1 <= display.GetRightTop().x && y1 <= display.GetRightBottom().y) {
-				Move(x1, y1);
-			} else {
-				// It's offscreen... so let's not.
-			}
-		}
-	}
+#endif
 
 	if (!override_size && !override_pos && maximized) {
 		Maximize();
@@ -1655,30 +1656,14 @@ bool CamuleDlg::SaveGUIPrefs()
 	// The section where to save in in file
 	wxString section = "/Razor_Preferences/";
 
-	// Prefer the live frame geometry; fall back to the last cached non-iconized snapshot when
-	// the user exits from a minimized window (iconized GetPosition() returns sentinel values
-	// on Windows that are not safe to round-trip).
-	wxPoint pos;
-	wxSize size;
-	bool maximized;
-	bool haveGeom = false;
-	if (!IsIconized()) {
-		pos = GetPosition();
-		size = GetSize();
-		maximized = IsMaximized();
-		haveGeom = true;
-	} else if (m_lastShownValid) {
-		pos = m_lastShownPos;
-		size = m_lastShownSize;
-		maximized = m_lastShownMaximized;
-		haveGeom = true;
-	}
-	if (haveGeom) {
-		config->Write(section + "MAIN_X_POS", (long)pos.x);
-		config->Write(section + "MAIN_Y_POS", (long)pos.y);
-		config->Write(section + "MAIN_X_SIZE", (long)size.x);
-		config->Write(section + "MAIN_Y_SIZE", (long)size.y);
-		config->Write(section + "Maximized", (long)(maximized ? 1 : 0));
+	CacheLastShownGeometry();
+	if (m_windowGeometry.IsValid()) {
+		const wxRect &normal = m_windowGeometry.GetNormalRect();
+		config->Write(section + "MAIN_X_POS", (long)normal.x);
+		config->Write(section + "MAIN_Y_POS", (long)normal.y);
+		config->Write(section + "MAIN_X_SIZE", (long)normal.width);
+		config->Write(section + "MAIN_Y_SIZE", (long)normal.height);
+		config->Write(section + "Maximized", (long)(m_windowGeometry.IsMaximized() ? 1 : 0));
 	}
 
 	// Saving sash position of splitter in server window
@@ -2215,27 +2200,29 @@ void CamuleDlg::Create_Toolbar(bool orientation)
 
 void CamuleDlg::CacheLastShownGeometry()
 {
-	// Iconized frames report sentinel positions (e.g. -32000,-32000 on Windows) and
-	// meaningless sizes; only snapshot real geometry. The snapshot lets SaveGUIPrefs persist a
-	// usable layout even when the user quits straight from the taskbar without restoring.
-	if (IsIconized()) {
-		return;
-	}
-	m_lastShownPos = GetPosition();
-	m_lastShownSize = GetSize();
-	m_lastShownMaximized = IsMaximized();
-	m_lastShownValid = true;
+	// wxGTK may deliver the iconize event before IsIconized() reflects it.
+	m_windowGeometry.Remember(GetRect(), IsMaximized(), IsIconized() || m_iconized_logical);
 }
 
-void CamuleDlg::OnMainGUIMove(wxMoveEvent &evt)
+void CamuleDlg::OnMainGUIMaximize(wxMaximizeEvent &evt)
 {
+	// Idle events may stop while the frame is inactive or minimized. Remember
+	// the restore state as soon as the native maximize notification arrives.
+	m_windowGeometry.Remember(GetRect(), true, false);
+	evt.Skip();
+}
+
+void CamuleDlg::OnMainGUIIdle(wxIdleEvent &evt)
+{
+	// Window managers can move a frame before its maximized state is delivered.
+	// Sampling at idle lets those events settle so transitional bounds cannot
+	// replace the normal restore position.
 	CacheLastShownGeometry();
 	evt.Skip();
 }
 
 void CamuleDlg::OnMainGUISizeChange(wxSizeEvent &evt)
 {
-	CacheLastShownGeometry();
 	wxFrame::OnSize(evt);
 	if (m_transferwnd && m_transferwnd->clientlistctrl) {
 		// Transfer window's splitter set again if it's hidden.

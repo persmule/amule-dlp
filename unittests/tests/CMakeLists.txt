@@ -3010,3 +3010,8 @@ if (ENABLE_INTEGRATION_TESTS AND ENABLE_IP2COUNTRY AND BUILD_DAEMON AND BUILD_AM
 				$<TARGET_FILE:amuled> $<TARGET_FILE:amuleapi>)
 	endif ()
 endif ()
+
+add_executable (WindowGeometryTest WindowGeometryTest.cpp)
+target_include_directories (WindowGeometryTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries (WindowGeometryTest muleunit mulecommon)
+add_test (NAME WindowGeometryTest COMMAND WindowGeometryTest)
