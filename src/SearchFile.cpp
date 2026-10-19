@@ -29,6 +29,7 @@
 #include "SearchFile.h" // Interface declarations.
 
 #include <tags/FileTags.h>
+#include <common/StringFunctions.h>
 
 #include "amule.h" // Needed for theApp
 #include "HashListFile.h"
@@ -86,7 +87,7 @@ CSearchFile::CSearchFile(const CMemFile &data,
 		CTag tag(data, optUTF8);
 		switch (tag.GetNameID()) {
 		case FT_FILENAME:
-			SetFileName(CPath(tag.GetStr()));
+			SetFileName(CPath(RepairSearchResultFilename(tag.GetStr())));
 			break;
 		case FT_FILESIZE:
 			SetFileSize(tag.GetInt());

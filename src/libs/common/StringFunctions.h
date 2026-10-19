@@ -237,6 +237,13 @@ wxString UnescapeHTML(const wxString &str);
  */
 wxString RestoreEncodedPipes(const wxString &link);
 
+/** Repairs up to four strict UTF-8/Latin-1 encoding layers, preserving the last valid text.
+ * Optionally discards an incomplete tail after a valid non-ASCII UTF-8 prefix. */
+wxString RepairDoubleEncodedUTF8(const wxString &name, bool allowTruncatedTail = false);
+
+/** Repairs search-result filenames using strict decoding with incomplete tails discarded. */
+wxString RepairSearchResultFilename(const wxString &name);
+
 /**
  * Escapes the chars needed to make the url valid.
  */
