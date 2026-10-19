@@ -4099,6 +4099,15 @@ msgstr ""
 msgid "Fit visible columns to contents"
 msgstr ""
 
+#: src/MuleDataViewCtrl.cpp
+#, fuzzy
+msgid "Show all columns (keep widths)"
+msgstr "顯示所有註解"
+
+#: src/MuleDataViewCtrl.cpp
+msgid "Restore default columns and widths"
+msgstr ""
+
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
 msgstr "剪下"
