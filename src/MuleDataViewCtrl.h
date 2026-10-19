@@ -268,6 +268,16 @@ protected:
 	/// through the width adapter.
 	void InitColumnState();
 
+	//! Snapshot constructor defaults before restoring or synchronizing a saved layout.
+	void CaptureDefaultColumnState();
+	//! Show every column, optionally restoring constructor widths and visibility.
+	void RestoreColumnLayout(bool defaults);
+	//! Copy visibility and both visible/hidden widths without generating a resize echo.
+	void CopyColumnLayoutFrom(const CMuleDataViewCtrl &source);
+	void ShowColumnMenu(wxDataViewColumn *clicked = nullptr);
+	//! Number of visible user columns, excluding the platform spacer.
+	unsigned VisibleColumnCount() const;
+
 	/// Adapts this control to IColumnWidthProvider for CListColumnStore. A separate object
 	/// rather than multiple inheritance: wxDataViewCtrl's own GetColumnCount() is virtual and
 	/// returns unsigned, which is not override-compatible with the interface's int.
@@ -337,6 +347,9 @@ private:
 
 	//! Per-column hidden state, indexed like the control's columns.
 	std::vector<bool> m_columnHidden;
+	std::vector<bool> m_defaultColumnHidden;
+	//! Use requested restore widths while notifying and saving, before native layout catches up.
+	bool m_useCachedColumnWidths = false;
 
 	//! Last-seen widths, for detecting a drag-resize (no portable event).
 	std::vector<int> m_lastKnownWidths;

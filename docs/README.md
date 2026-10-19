@@ -25,6 +25,22 @@ under `~/.aMule/`:
 Pick `amule` if you're not sure which to use — it's the all-in-one.
 
 
+## Table columns
+
+Right-click a table heading to show or hide columns, fit their contents, or
+recover the layout. With the table focused, **Ctrl+Shift+L** opens the same menu
+(**Command+Shift+L** on macOS), including when the table has no rows.
+
+- **Show all columns (keep widths)** reveals hidden columns without changing
+  widths you have adjusted.
+- **Restore default columns and widths** restores the table's initial visibility
+  and widths. Sorting stays unchanged.
+
+At least one column remains visible. Older profiles with every column hidden
+recover a default visible column when the table opens. Search tabs share column
+changes, including recovery actions.
+
+
 ## Log file location
 
 By default, `amule` and `amuled` write `logfile` in the configuration directory.

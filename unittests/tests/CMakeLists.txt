@@ -2256,6 +2256,30 @@ target_link_libraries (ListColumnStoreTest
 	mulecommon
 )
 
+if (TARGET wxWidgets::CORE)
+    add_executable (ColumnLayoutTest
+        ColumnLayoutTest.cpp
+        ${CMAKE_SOURCE_DIR}/src/MuleDataViewCtrl.cpp
+        ${CMAKE_SOURCE_DIR}/src/MuleVirtualDataViewCtrl.cpp
+        ${CMAKE_SOURCE_DIR}/src/MuleBarRenderer.cpp
+        ${CMAKE_SOURCE_DIR}/src/MuleIconTextRenderer.cpp
+        ${CMAKE_SOURCE_DIR}/src/ListColumnStore.cpp
+        ${CMAKE_SOURCE_DIR}/src/BarShader.cpp
+        ${CMAKE_SOURCE_DIR}/src/MuleColour.cpp
+        ${CMAKE_SOURCE_DIR}/src/GetTickCount.cpp
+    )
+    if (WIN32)
+        target_sources (ColumnLayoutTest PRIVATE DialogLayoutTest.rc)
+    endif()
+    target_include_directories (ColumnLayoutTest PRIVATE
+        ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/include
+        ${CMAKE_SOURCE_DIR}/src/libs
+    )
+    target_link_libraries (ColumnLayoutTest PRIVATE wxWidgets::CORE mulecommon)
+    add_test (NAME ColumnLayoutTest COMMAND ColumnLayoutTest)
+    set_tests_properties (ColumnLayoutTest PROPERTIES SKIP_RETURN_CODE 77)
+endif()
+
 # RangeFileBody is the Boost.Beast Body amuleapi serves shared content with: a
 # bounded [first, last] window read through a fixed 64 KiB buffer. Header-only
 # and free of wx and of the rest of the webapi tree, so the test compiles on

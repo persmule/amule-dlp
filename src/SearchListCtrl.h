@@ -208,6 +208,7 @@ protected:
 	wxString GetOldColumnOrder() const override;
 	void OnIdleHook() override;
 	void OnColumnWidthsChanged() override;
+	void OnColumnVisibilityChanged() override;
 	void OnSortingChanged() override;
 
 	/// True if the filename passes the filter and the row should be shown. @see PassesFilter(),
