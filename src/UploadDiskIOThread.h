@@ -99,7 +99,7 @@ private:
 	};
 
 	// StartCreateNextBlockPackage runs each block through PrepareRead, ReadBlock, CommitRead.
-	void StartCreateNextBlockPackage(uint32 clientId); // eMule ref: line 185
+	bool StartCreateNextBlockPackage(uint32 clientId); // eMule ref: line 185
 	ReadRequest_Struct *PrepareRead(uint32 clientId);
 	static ReadResult ReadBlock(ReadRequest_Struct *req);
 	bool CommitRead(ReadRequest_Struct *req, ReadResult result);

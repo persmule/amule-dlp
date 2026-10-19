@@ -126,8 +126,9 @@ void *CUploadDiskIOThread::Entry()
 				}
 			}
 		}
+		bool moreWork = false;
 		for (uint32 clientId : clientIds) {
-			StartCreateNextBlockPackage(clientId);
+			moreWork = StartCreateNextBlockPackage(clientId) || moreWork;
 		}
 
 		// Reads are synchronous, so there is no m_listPendingIO: every completed
@@ -158,7 +159,7 @@ void *CUploadDiskIOThread::Entry()
 		// under m_mutex and we check them before sleeping.
 		{
 			wxMutexLocker lock(m_mutex);
-			if (m_bRun && !m_bNewBlocksPending && !m_bSocketNeedsPending) {
+			if (m_bRun && !moreWork && !m_bNewBlocksPending && !m_bSocketNeedsPending) {
 				m_condition.WaitTimeout(500);
 			}
 			m_bNewBlocksPending = false;
@@ -190,13 +191,27 @@ void *CUploadDiskIOThread::Entry()
 // m_blockListLock for every block request a client sends, so neither is held across the disk
 // read. Each block is prepared under both locks, read with none, then committed under both
 // again, after checking the client and its request are still there.
-void CUploadDiskIOThread::StartCreateNextBlockPackage(uint32 clientId)
+bool CUploadDiskIOThread::StartCreateNextBlockPackage(uint32 clientId)
 {
-	while (ReadRequest_Struct *req = PrepareRead(clientId)) {
+	// The fast-slot target is just over ten full blocks. Limit smaller requests to
+	// eleven reads so they cannot monopolize a sweep. Full blocks still refill to the
+	// socket target, since concurrent sends can consume queued data while we read.
+	unsigned smallReadsLeft = 11;
+	while (m_bRun && smallReadsLeft != 0) {
+		ReadRequest_Struct *req = PrepareRead(clientId);
+		if (req == nullptr) {
+			break;
+		}
+		const uint64 bytes = req->uEndOffset - req->uStartOffset;
 		if (!CommitRead(req, ReadBlock(req))) {
-			return;
+			break;
+		}
+		if (bytes < EMBLOCKSIZE) {
+			--smallReadsLeft;
 		}
 	}
+	// Visit the other clients and package this sweep before continuing small reads.
+	return m_bRun && smallReadsLeft == 0;
 }
 
 // Returns the next block to read for this client, or nullptr if there is none or it is enough
