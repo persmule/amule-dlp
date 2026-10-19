@@ -49,6 +49,9 @@
 #include "IPFilter.h"
 #include "NetworkFunctions.h" // Needed for IsGoodIP
 #include "GuiEvents.h"        // Needed for Notify_*
+#ifdef ENABLE_NATT_SERVER_COORDINATION
+#include "LugdunumNatTraversal.h" // Needed for ParseIdChangeFields
+#endif
 #ifdef ENABLE_IPV6
 #include "AdvertisedIPv6.h" // Needed for AdvertisedIPv6ForPeers
 #endif
@@ -298,6 +301,13 @@ bool CServerSocket::ProcessPacket(const uint8_t *packet, uint32 size, int8 opcod
 						"OP_IDCHANGE: server speaks the IPv6 source extension");
 				}
 #endif
+#ifdef ENABLE_NATT_SERVER_COORDINATION
+				if (cur_server->SupportsLugdunumNatCallback()) {
+					AddDebugLogLineN(logServer,
+						"OP_IDCHANGE: server flags include Lugdunum's NAT callback "
+						"bit");
+				}
+#endif
 				// copy TCP flags into the server in the server list
 				if (pServer) {
 					pServer->SetTCPFlags(cur_server->GetTCPFlags());
@@ -341,6 +351,21 @@ bool CServerSocket::ProcessPacket(const uint8_t *packet, uint32 size, int8 opcod
 					}
 				}
 			}
+
+#ifdef ENABLE_NATT_SERVER_COORDINATION
+			if (cur_server != nullptr) {
+				const LugdunumNatTraversal::IdChangeFields idChange =
+					LugdunumNatTraversal::ParseIdChangeFields(packet, size);
+				const uint16 seenTcpPort =
+					idChange.hasYourPort ? static_cast<uint16>(idChange.yourPort) : 0;
+				cur_server->SetSeenTcpPort(seenTcpPort);
+				if (idChange.hasYourPort) {
+					AddDebugLogLineN(logServer,
+						CFormat("OP_IDCHANGE: server sees our TCP port as %u") %
+							seenTcpPort);
+				}
+			}
+#endif
 
 			if (new_id == 0) {
 				uint8 state = thePrefs::GetSmartIdState();
