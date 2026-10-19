@@ -170,8 +170,8 @@ public:
 
 	/* Warning: Special Kad functions, needs documentation */
 
-	CTag *ReadTag(bool bOptACP = false) const;
-	void ReadTagPtrList(TagPtrList *taglist, bool bOptACP = false) const;
+	CTag *ReadTag(bool bOptUTF8) const;
+	void ReadTagPtrList(TagPtrList *taglist, bool bOptUTF8) const;
 
 	void WriteTag(const CTag &tag);
 	void WriteTagPtrList(const TagPtrList &tagList);

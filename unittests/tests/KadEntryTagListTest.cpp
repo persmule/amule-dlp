@@ -113,7 +113,7 @@ static uint8_t WriteAnswerWithSentinel(CTestKeyEntry &entry, CMemFile &file)
 // Reads the tag list back and checks the stream lands exactly on the sentinel afterwards.
 static void ReadBackAndCheckAlignment(CMemFile &file, TagPtrList *tags)
 {
-	file.ReadTagPtrList(tags, false /*bOptACP*/);
+	file.ReadTagPtrList(tags, true /*bOptUTF8*/);
 	ASSERT_EQUALS(SENTINEL, file.ReadUInt32());
 	ASSERT_EQUALS(file.GetLength(), file.GetPosition());
 }

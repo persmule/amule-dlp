@@ -380,7 +380,7 @@ void CFileDataIO::WriteStringCore(const char *s, EUtf8Str eEncode, uint8 SizeLen
 	}
 }
 
-CTag *CFileDataIO::ReadTag(bool bOptACP) const
+CTag *CFileDataIO::ReadTag(bool bOptUTF8) const
 {
 	CTag *retVal = NULL;
 	wxString name;
@@ -402,7 +402,7 @@ CTag *CFileDataIO::ReadTag(bool bOptACP) const
 		}
 
 		case TAGTYPE_STRING:
-			retVal = new CTagString(name, ReadString(bOptACP));
+			retVal = new CTagString(name, ReadString(bOptUTF8));
 			break;
 
 		case TAGTYPE_UINT64:
@@ -466,13 +466,13 @@ CTag *CFileDataIO::ReadTag(bool bOptACP) const
 	return retVal;
 }
 
-void CFileDataIO::ReadTagPtrList(TagPtrList *taglist, bool bOptACP) const
+void CFileDataIO::ReadTagPtrList(TagPtrList *taglist, bool bOptUTF8) const
 {
 	MULE_VALIDATE_PARAMS(taglist, "NULL pointer argument in ReadTagPtrList");
 
 	uint32 count = ReadUInt8();
 	for (uint32 i = 0; i < count; i++) {
-		CTag *tag = ReadTag(bOptACP);
+		CTag *tag = ReadTag(bOptUTF8);
 		taglist->push_back(tag);
 	}
 }

@@ -285,7 +285,7 @@ void CIndexed::ReadKeywordEntry(CFile &file,
 		entry->ReadPublishTrackingDataFromFile(&file, version >= 4, &cancel);
 	}
 	for (uint32_t tagList = file.ReadUInt8(); tagList; tagList--) {
-		auto tag = std::unique_ptr<CTag>(file.ReadTag());
+		auto tag = std::unique_ptr<CTag>(file.ReadTag(true));
 		if (!tag) {
 			continue;
 		}
@@ -354,7 +354,7 @@ void CIndexed::ReadSourceEntry(CFile &file, const CUInt128 &keyID, const CUInt12
 	entry->m_bSource = true;
 	entry->m_tLifeTime = file.ReadUInt32();
 	for (uint32_t tagList = file.ReadUInt8(); tagList; tagList--) {
-		auto tag = std::unique_ptr<CTag>(file.ReadTag());
+		auto tag = std::unique_ptr<CTag>(file.ReadTag(true));
 		if (tag) {
 			ReadAddressTag(*entry, *tag);
 			entry->AddTag(tag.get(), 0);

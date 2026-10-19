@@ -33,7 +33,7 @@ def wait_adopted(ec, proc, count):
 def keyword_round_trip(udp_port, key_id, publish):
     """Publish over the real UDP listener and request the stored keyword result."""
     file_id = bytes(12) + struct.pack('<I', 0x12345678)
-    name = b'recovered-index-fixture.bin'
+    name = 'Клим café 東京 서울 中国.bin'.encode('utf-8')
     tags = (b'\x02\x01\x00\x01' + struct.pack('<H', len(name)) + name
             + b'\x03\x01\x00\x02' + struct.pack('<I', 4096)
             + b'\x02\x01\x00\x03\x07\x00Program')

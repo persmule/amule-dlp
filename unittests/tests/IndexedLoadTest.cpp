@@ -9,6 +9,7 @@
 #include <wx/file.h>
 #include <thread>
 #include <chrono>
+#include <string>
 #include <tags/FileTags.h>
 #include <protocol/kad/Constants.h>
 #ifdef __linux__
@@ -59,11 +60,11 @@ static bool WaitForLoad(CIndexed &index)
 class DiskEntry : public CKeyEntry
 {
 public:
-	DiskEntry()
+	explicit DiskEntry(const wxString &name = "fixture.bin")
 	: CKeyEntry(std::make_shared<PublishTracking>())
 	{
 		m_uSize = 123;
-		SetFileName("fixture.bin");
+		SetFileName(name);
 		AddTag(new CTagString(TAG_FILETYPE, "Program"), 0);
 		m_publishingIPs = new PublishingIPList;
 		m_publishingIPs->push_back({ 0x01020304, time(nullptr), CKadAICHHashList::INVALID_INDEX });
@@ -87,7 +88,8 @@ TEST(IndexedLoad, KeywordVersionsThreeAndFourRoundTrip)
 			file.WriteUInt128(CUInt128(3u));
 			file.WriteUInt32(1);
 			file.WriteUInt32(time(nullptr) + 3600);
-			DiskEntry entry;
+			DiskEntry entry(wxString::FromUTF8("Клим café 東京.bin"));
+			entry.AddTag(new CTagString("artist", wxString::FromUTF8("Ñandú 서울 中国")), 0);
 			entry.WritePublishTrackingDataToFile(&file, version == 4);
 			entry.WriteTagList(&file);
 		}
@@ -99,7 +101,15 @@ TEST(IndexedLoad, KeywordVersionsThreeAndFourRoundTrip)
 			ASSERT_EQUALS(1u, index.m_totalIndexKeyword);
 			ASSERT_EQUALS(size_t(1), index.GetFileKeyCount());
 		}
-		{
+		for (unsigned cycle = 0; cycle < 3; ++cycle) {
+			// Check the saved bytes as well as the entry count: a Latin-1 read
+			// preserves the entry but encodes its strings again on every save.
+			CFile saved(temp.path + "key_index.dat");
+			std::string bytes(saved.GetLength(), '\0');
+			saved.Read(bytes.data(), bytes.size());
+			ASSERT_TRUE(bytes.find("Клим café 東京.bin") != std::string::npos);
+			ASSERT_TRUE(bytes.find("Ñandú 서울 中国") != std::string::npos);
+			saved.Close();
 			CIndexed reloaded(temp.path, CUInt128(1u));
 			ASSERT_TRUE(WaitForLoad(reloaded));
 			ASSERT_EQUALS(1u, reloaded.m_totalIndexKeyword);

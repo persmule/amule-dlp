@@ -15,12 +15,17 @@ from AllSearchIntegrationTest import C, connect_daemon, free_ports, retry_port_c
 from DaemonConfig import write_amule_conf
 
 KADEMLIA2_SEARCH_SOURCE_REQ = 0x34
+KADEMLIA2_SEARCH_NOTES_REQ = 0x35
 KADEMLIA2_SEARCH_RES = 0x3B
 KADEMLIA2_PUBLISH_SOURCE_REQ = 0x44
+KADEMLIA2_PUBLISH_NOTES_REQ = 0x45
 KADEMLIA2_PUBLISH_RES = 0x4B
 TAG_SOURCETYPE, TAG_SOURCEPORT, TAG_FILESIZE = b'\xff', b'\xfd', b'\x02'
 TAG_SERVERIP, TAG_SERVERPORT, TAG_BUDDYHASH, TAG_ENCRYPTION = b'\xfb', b'\xfa', b'\xf8', b'\xf3'
+TAG_FILENAME, TAG_DESCRIPTION = b'\x01', b'\x0b'
 FILE_SIZE = 9728000
+UNICODE_NAME = 'Клим café 東京 서울 中国.bin'.encode('utf-8')
+UNICODE_COMMENT = '¡Maldita! Ñandú — アニメ'.encode('utf-8')
 
 
 def tag(name, kind, value):
@@ -73,22 +78,24 @@ def http_cache_tags():
     return tags
 
 
-def publish(udp_port, file_id, source_id, tags):
+def publish(udp_port, file_id, source_id, tags, opcode=KADEMLIA2_PUBLISH_SOURCE_REQ):
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as peer:
         peer.bind(('127.0.0.1', 0))
         peer.settimeout(10)
-        peer.sendto(bytes([0xE4, KADEMLIA2_PUBLISH_SOURCE_REQ]) + file_id + source_id
+        peer.sendto(bytes([0xE4, opcode]) + file_id + source_id
                     + bytes([len(tags)]) + b''.join(tags), ('127.0.0.1', udp_port))
         response, _ = peer.recvfrom(65535)
         assert response[:2] == bytes([0xE4, KADEMLIA2_PUBLISH_RES]), ('publish', response)
 
 
-def search(udp_port, file_id):
+def search(udp_port, file_id, notes=False):
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as peer:
         peer.bind(('127.0.0.1', 0))
         peer.settimeout(10)
-        peer.sendto(bytes([0xE4, KADEMLIA2_SEARCH_SOURCE_REQ]) + file_id
-                    + struct.pack('<HQ', 0, FILE_SIZE), ('127.0.0.1', udp_port))
+        request = (bytes([0xE4, KADEMLIA2_SEARCH_NOTES_REQ]) + file_id + struct.pack('<Q', FILE_SIZE) if notes
+                   else bytes([0xE4, KADEMLIA2_SEARCH_SOURCE_REQ]) + file_id
+                   + struct.pack('<HQ', 0, FILE_SIZE))
+        peer.sendto(request, ('127.0.0.1', udp_port))
         response, _ = peer.recvfrom(65535)
     if response[0] == 0xE5:
         # OP_KADEMLIAPACKEDPROT: the payload after the opcode is zlib-compressed.
@@ -132,7 +139,8 @@ def run(binary):
                 wait_ready(ec, proc)
 
                 cache_source, big_source = b'\x11' * 16, b'\x22' * 16
-                publish(udp_port, file_id, cache_source, core_tags(4001) + http_cache_tags())
+                publish(udp_port, file_id, cache_source, core_tags(4001) + http_cache_tags()
+                        + [tag(TAG_FILENAME, 0x02, UNICODE_NAME)])
                 oversized = [tag(b'xa', 0x02, b'a' * 1500), tag(b'xb', 0x02, b'b' * 1500),
                              tag(b'xc', 0x09, 1), tag(TAG_ENCRYPTION, 0x09, 1)]
                 # Same core tags, but an over-long buddy hash and the encryption tag last.
@@ -142,6 +150,7 @@ def run(binary):
 
                 results = search(udp_port, file_id)
                 cached = results[cache_source]
+                assert cached[TAG_FILENAME] == UNICODE_NAME, 'source filename changed on publication'
                 for name in (b'ip6', b'bi6', TAG_BUDDYHASH, TAG_SERVERIP, TAG_ENCRYPTION):
                     assert name in cached, ('known tag dropped', name)
                 for i in range(3):
@@ -156,9 +165,27 @@ def run(binary):
                 assert big[b'xa'] == b'a' * 1500, 'first extra tag within budget dropped'
                 assert b'xb' not in big and b'xc' not in big, 'extra tags past the budget kept'
                 assert TAG_ENCRYPTION in big, 'known tag after the budget dropped'
+
+                # Notes use a separate publish handler; both the name and comment are UTF-8.
+                note_source = b'\x33' * 16
+                publish(udp_port, file_id, note_source,
+                        [tag(TAG_FILENAME, 0x02, UNICODE_NAME), tag(TAG_FILESIZE, 0x03, FILE_SIZE),
+                         tag(TAG_DESCRIPTION, 0x02, UNICODE_COMMENT)], opcode=KADEMLIA2_PUBLISH_NOTES_REQ)
+                note = search(udp_port, file_id, notes=True)[note_source]
+                assert note[TAG_FILENAME] == UNICODE_NAME, 'note filename changed on publication'
+                assert note[TAG_DESCRIPTION] == UNICODE_COMMENT, 'note comment changed on publication'
+
+                # Source tags must survive disk loading without adding an encoding layer.
+                for _ in range(3):
+                    assert ec.call(C['EC_OP_KAD_STOP'])[0] == C['EC_OP_NOOP']
+                    assert ec.call(C['EC_OP_KAD_START'])[0] == C['EC_OP_NOOP']
+                    wait_ready(ec, proc)
+                    cached = search(udp_port, file_id)[cache_source]
+                    assert cached[TAG_FILENAME] == UNICODE_NAME, 'source filename changed on reload'
                 ec.sock.close()
                 print('PASS: emule-qt cache tags, eMuleAI buddy and IPv6 tags kept; '
-                      'extra tags past the per-source budget dropped, the source kept')
+                      'extra tags past the per-source budget dropped, the source kept; '
+                      'UTF-8 source names and notes preserved, including three source index reloads')
             except BaseException:
                 log.flush()
                 print((root / 'stdout.log').read_text(), file=sys.stderr)
