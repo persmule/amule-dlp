@@ -60,6 +60,7 @@ struct ClientCtrlItem_Struct
 	CKnownFile *GetOwner() const { return m_owner; }
 
 	CClientRef &GetSource() { return m_sourceValue; }
+	const CClientRef &GetSource() const { return m_sourceValue; }
 
 	void SetContents(CKnownFile *owner, const CClientRef &source, SourceItemType type)
 	{
@@ -158,6 +159,8 @@ protected:
 	/// Per-row/per-column display attributes: the queue-rank-diff and
 	/// filename-mismatch colour cues DrawClientItem used to set on the wxDC.
 	bool GetItemAttr(wxUIntPtr item, unsigned column, wxDataViewItemAttr &attr) const override;
+
+	int GetCustomFitWidth(const wxDataViewItem &item, unsigned column, wxDC &dc) const override;
 
 	/// Fill data for the Name column's composite icon+text renderer (see
 	/// CClientNameRenderer) and for a leaf's own bar column.

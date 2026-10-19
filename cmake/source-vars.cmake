@@ -106,6 +106,7 @@ if (BUILD_MONOLITHIC OR BUILD_REMOTEGUI)
 		ClientDetailDialog.cpp
 		ClientHistoryListCtrl.cpp
 		ClientNameCell.cpp
+		ClientNameCellDrawing.cpp
 		ClientRowListCtrl.cpp
 		ClientContextActions.cpp
 		ClientsListCtrl.cpp
@@ -129,6 +130,7 @@ if (BUILD_MONOLITHIC OR BUILD_REMOTEGUI)
 		SearchDlg.cpp
 			SearchHistory.cpp
 		SearchListCtrl.cpp
+		SearchColumnFit.cpp
 		SearchListModel.cpp
 		ServerListCtrl.cpp
 		ServerWnd.cpp

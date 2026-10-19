@@ -85,6 +85,8 @@ protected:
 	//! The peers behind the current selection, in display order.
 	std::vector<PeerIdentity> SelectedPeers() const;
 
+	int GetCustomFitWidth(const wxDataViewItem &item, unsigned column, wxDC &dc) const override;
+
 	void GetItemBarFill(wxUIntPtr data, unsigned column, CBarFillSpec &out) const override;
 
 	wxDECLARE_EVENT_TABLE();

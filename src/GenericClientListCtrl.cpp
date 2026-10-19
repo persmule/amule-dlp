@@ -882,6 +882,19 @@ bool CGenericClientListCtrl::GetItemAttr(wxUIntPtr data, unsigned column, wxData
 	}
 }
 
+int CGenericClientListCtrl::GetCustomFitWidth(const wxDataViewItem &item, unsigned column, wxDC &dc) const
+{
+	if (column >= static_cast<unsigned>(m_columndata.n_columns) ||
+		m_columndata.columns[column].cid != ColumnUserName) {
+		return -1;
+	}
+	const auto *source = reinterpret_cast<const ClientCtrlItem_Struct *>(ItemAt(GetModelRow(item)));
+	return source ? MeasureClientNameCell(MakeClientNameCell(source->GetSource().GetClient(),
+						      source->GetType() == A4AF_SOURCE),
+				dc)
+		      : -1;
+}
+
 void CGenericClientListCtrl::GetItemBarFill(wxUIntPtr data, unsigned column, CBarFillSpec &out) const
 {
 	if (column >= static_cast<unsigned>(m_columndata.n_columns)) {

@@ -50,6 +50,15 @@ CClientRowListCtrl::CClientRowListCtrl(wxWindow *parent, int id, const wxPoint &
 {
 }
 
+int CClientRowListCtrl::GetCustomFitWidth(const wxDataViewItem &item, unsigned column, wxDC &dc) const
+{
+	if (column != NameColumn()) {
+		return -1;
+	}
+	const ClientNameCell *cell = NameCellFor(ItemAt(GetModelRow(item)));
+	return cell ? MeasureClientNameCell(*cell, dc) : -1;
+}
+
 void CClientRowListCtrl::GetItemBarFill(wxUIntPtr data, unsigned column, CBarFillSpec &out) const
 {
 	if (column != NameColumn()) {

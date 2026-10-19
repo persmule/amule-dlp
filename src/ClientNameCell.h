@@ -32,6 +32,8 @@
 
 class CUpDownClient;
 class wxDC;
+class wxImageList;
+class wxBitmap;
 
 /**
  * Everything the User Name cell draws, as values.
@@ -94,6 +96,9 @@ struct ClientNameCell
 //! Snapshot a live peer. Safe to call only while `client` is known alive.
 ClientNameCell MakeClientNameCell(const CUpDownClient *client, bool a4af = false);
 
+//! Width of the same badge cluster, flag and text, in the DC's logical coordinates.
+int MeasureClientNameCell(const ClientNameCell &cell, wxDC &dc);
+
 /**
  * Draw the badge cluster, the optional country flag and the name.
  *
@@ -102,6 +107,13 @@ ClientNameCell MakeClientNameCell(const CUpDownClient *client, bool a4af = false
  * DrawClientItem() did and what the column widths are still sized for.
  */
 void DrawClientNameCell(const ClientNameCell &cell, const wxRect &rect, wxDC *dc);
+
+// Resource-explicit forms share the production layout and drawing without
+// needing a running application or live client. Flag is already DPI-scaled.
+int MeasureClientNameCell(
+	const ClientNameCell &cell, wxDC &dc, const wxImageList &images, const wxBitmap &flag);
+void DrawClientNameCell(
+	const ClientNameCell &cell, const wxRect &rect, wxDC &dc, wxImageList &images, const wxBitmap &flag);
 
 #endif // CLIENTNAMECELL_H
 // File_checked_for_headers

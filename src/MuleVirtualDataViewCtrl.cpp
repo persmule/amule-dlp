@@ -559,6 +559,17 @@ void CMuleVirtualDataViewCtrl::GetDisplayOrder(wxDataViewItemArray &ordered) con
 	}
 }
 
+void CMuleVirtualDataViewCtrl::GetColumnFitRows(wxDataViewItemArray &rows, size_t limit) const
+{
+	rows.Clear();
+	const size_t count = std::min(limit, m_items.size());
+	rows.Alloc(count);
+	for (size_t i = 0; i < count; ++i) {
+		const size_t index = count > 1 ? i * (m_items.size() - 1) / (count - 1) : 0;
+		rows.Add(m_virtualModel->GetItem(static_cast<unsigned>(index)));
+	}
+}
+
 wxString CMuleVirtualDataViewCtrl::GetRowLabel(const wxDataViewItem &item) const
 {
 	const unsigned row = m_virtualModel->GetRow(item);
