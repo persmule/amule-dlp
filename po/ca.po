@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-18 13:15+0000\n"
+"PO-Revision-Date: 2026-10-19 09:22+0000\n"
 "Last-Translator: minterior <minterior@gmail.com>\n"
 "Language-Team: Català\n"
 "Language: ca\n"
@@ -4086,11 +4086,11 @@ msgstr "Tanca"
 
 #: src/MuleDataViewCtrl.cpp
 msgid "Fit column to contents"
-msgstr ""
+msgstr "Ajusta la columna al contingut"
 
 #: src/MuleDataViewCtrl.cpp
 msgid "Fit visible columns to contents"
-msgstr ""
+msgstr "Ajusta les columnes visibles al contingut"
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -5260,15 +5260,15 @@ msgstr "Afegeix els nous fitxer compartits amb prioritat automàtica"
 
 #: src/muuli_wdr.cpp
 msgid "Verify local data of requested shared files every"
-msgstr ""
+msgstr "Verifica les dades locals dels fitxers compartits sol·licitats cada"
 
 #: src/muuli_wdr.cpp
 msgid "Re-read requested complete files in the background and compare them with their stored MD4/AICH hashes, as Verify Local Data does. Corrupt parts stop being shared. Uploads continue during the check."
-msgstr ""
+msgstr "Es tornen a llegir en segon pla els fitxers complets sol·licitats i es comparen amb els hash MD4/AICH desats, tal com fa la verificació de dades locals. Les parts malmeses deixen de compartir-se. Les pujades continuen durant la comprovació."
 
 #: src/muuli_wdr.cpp
 msgid "days (0 = off)"
-msgstr ""
+msgstr "dies (0 = desactivat)"
 
 #: src/muuli_wdr.cpp
 msgid "Intelligent Corruption Handling (I.C.H.)"
@@ -9272,9 +9272,9 @@ msgid "Verify Local Data: %s is empty, so there is nothing to check."
 msgstr "Verificació de dades locals: %s és buit, per tant no hi ha res a comprovar."
 
 #: src/ThreadTasks.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Verify Local Data: missing MD4 hashes for %s, so it was not checked."
-msgstr "Verificació de dades locals: no s'ha pogut llegir %s, per tant no s'ha comprovat."
+msgstr "Verificació de dades locals: falten els hash MD4 de %s, per tant no s'ha comprovat."
 
 #: src/ThreadTasks.cpp
 #, c-format

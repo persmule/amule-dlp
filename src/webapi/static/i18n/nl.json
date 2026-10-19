@@ -8,7 +8,7 @@
   "common_err_bad_request": "Ongeldig verzoek: {message}",
   "common_err_unauthorized": "Niet bevoegd.",
   "common_err_method_not_allowed": "Methode niet toegestaan.",
-  "common_err_partfile_unsupported": "Verifiëer Lokale Gegevens wordt niet ondersteund terwijl het bestand nog gedownload wordt.",
+  "common_err_partfile_unsupported": "Deze bewerking wordt niet ondersteund terwijl het bestand nog gedownload wordt.",
   "common_err_internal_error": "Serverfout: {message}",
   "common_err_ec_unavailable": "Geen verbinding met de aMule kern ({message})",
   "common_bulk_partial": "{failed} van de {total} mislukt: {message}",
@@ -1028,5 +1028,12 @@
   "prefs_field_geoip_db_loaded": "Database geladen",
   "stats_tree_upload_avg_time": "Gemiddelde uploadtijd: %s",
   "downloads_files_count_one": "{n} bestand",
-  "downloads_files_count_other": "{n} bestanden"
+  "downloads_files_count_other": "{n} bestanden",
+  "shared_delete_incomplete": "Dit bestand wordt nog gedownload. Annuleer dit vanuit Downloads.",
+  "downloads_confirm_delete_disk": "Verwijder “{name}” permanent van de schijf?\n\nMap: {directory}\n\nHet bestand zal niet meer worden gedeeld. Dit kan niet ongedaan worden gemaakt.",
+  "downloads_delete_disk": "Verwijderen van schijf",
+  "downloads_delete_more": "... en nog {n}",
+  "downloads_confirm_delete_selected_one": "Verwijder het geselecteerde bestand van de schijf? Voltooide bestanden zullen permanent verwijderd worden, actieve downloads worden geannuleerd en verwijderd. Dit kan niet ongedaan worden gemaakt.",
+  "downloads_confirm_delete_selected_other": "Verwijder de {n} geselecteerde bestanden van de schijf? Voltooide bestanden zullen permanent verwijderd worden, actieve downloads worden geannuleerd en verwijderd. Dit kan niet ongedaan worden gemaakt.",
+  "prefs_field_files_shared_file_reverify_days": "Verifiëer Lokale Gegevens van aangevraagde gedeelde bestanden elke N dagen (0 = uitgeschakeld)"
 }
