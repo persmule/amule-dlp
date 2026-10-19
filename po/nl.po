@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-16 23:24+0000\n"
+"PO-Revision-Date: 2026-10-19 09:55+0000\n"
 "Last-Translator: Marcel Pol <marcel@timelord.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
@@ -200,9 +200,8 @@ msgid "Later"
 msgstr "Later"
 
 #: src/GuiEvents.cpp src/amule-remote-gui.cpp
-#, fuzzy
 msgid "The connected core does not support deleting complete files from disk."
-msgstr "De verbonden kern ondersteunt Kad opzoekingsdiagnostiek niet."
+msgstr "De verbonden kern ondersteunt verwijderen van volledige bestanden van de schijf niet."
 
 #: src/GuiEvents.cpp src/amule-remote-gui.cpp
 msgid "Delete from disk"
@@ -341,19 +340,15 @@ msgstr "Hoofdapp wordt nu afgesloten..."
 
 #: src/amule.cpp
 msgid "Saving window settings..."
-msgstr ""
+msgstr "Vensterinstellingen worden opgeslagen..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Saving client credits..."
-msgstr ""
-"\n"
-"Aanmaken van client...\n"
+msgstr "Clientcredits worden opgeslagen..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Stopping helper applications..."
-msgstr "Sluit het programma af."
+msgstr "Helperapplicaties worden gestopt..."
 
 #: src/amule.cpp
 #, c-format
@@ -385,19 +380,16 @@ msgid "aMule OnExit: Terminating core."
 msgstr "aMule OnExit: Kern wordt afgesloten."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Saving search results..."
-msgstr "Zoekresultaat"
+msgstr "Zoekresultaten worden opgeslagen..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Saving downloads and shared files..."
-msgstr "Gedeelde bestanden opnieuw laden..."
+msgstr "Downloads en gedeelde bestanden worden opgeslagen..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Flushing download buffers..."
-msgstr "Gedownload bestand wordt gehashed: %s"
+msgstr "Dowloadbuffers worden geflusht..."
 
 #: src/amule.cpp
 msgid "aMule shutdown completed."
@@ -409,7 +401,7 @@ msgstr "Geheugen-foutopsoringsresultaten voor het afsluiten van aMule:"
 
 #: src/amule.cpp
 msgid "Finishing shutdown..."
-msgstr ""
+msgstr "Afsluiten voltooien..."
 
 #: src/amule.cpp
 #, c-format
@@ -725,25 +717,23 @@ msgstr "Toewijzen schijfruimte voor bestand '%s' mislukt: %s"
 
 #: src/amule.cpp
 msgid "Stopping network services..."
-msgstr ""
+msgstr "Netwerkdiensten stoppen..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Saving source seeds..."
-msgstr "Bron Seeds"
+msgstr "Bron seeds worden opgeslagen..."
 
 #: src/amule.cpp
 msgid "Stopping background downloads and workers..."
-msgstr ""
+msgstr "Downloads in de achtergrond en werkers worden gestopt..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Closing connections..."
-msgstr " is aan het verbinden..."
+msgstr "Verbindingen sluiten..."
 
 #: src/amule.cpp
 msgid "Saving known files and statistics..."
-msgstr ""
+msgstr "Bekende bestanden en statistieken worden opgeslagen..."
 
 #: src/amule.cpp
 msgid "ERROR: can't open logfile"
@@ -1325,7 +1315,7 @@ msgstr "Kan map '%s' niet aanmaken voor categorie '%s', map '%s' wordt behouden.
 
 #: src/amule-remote-gui.cpp
 msgid "The core did not confirm deleting the file. Refresh and try again."
-msgstr ""
+msgstr "De kern bevestigde het verwijderen van het bestand niet. Ververs en probeer opnieuw."
 
 #: src/amule-remote-gui.cpp
 #, c-format
@@ -2434,9 +2424,8 @@ msgid "Unauthorized access attempt from %s. Connection closed."
 msgstr "Poging tot ongeautoriseerde toegang van %s. Verbinding gesloten."
 
 #: src/ExternalConn.cpp
-#, fuzzy
 msgid "Invalid partfile command target."
-msgstr "Ongeldige bestandsnaam."
+msgstr "Ongeldig doel van de part-bestand-opdracht."
 
 #: src/ExternalConn.cpp
 #, c-format
@@ -2455,7 +2444,7 @@ msgstr "Annuleren van een voltooide download mislukt: %s"
 
 #: src/ExternalConn.cpp
 msgid "The selected download has changed or is completing. Refresh and try again."
-msgstr ""
+msgstr "De geselecteerde download is veranderd of wordt voltooid. Ververs en probeer opnieuw."
 
 #: src/ExternalConn.cpp
 #, c-format
@@ -2550,9 +2539,8 @@ msgid "Version check is not available on this daemon."
 msgstr "Versiecontrole is niet beschikbaar op deze daemon."
 
 #: src/ExternalConn.cpp
-#, fuzzy
 msgid "Invalid complete-file deletion target."
-msgstr "Ongeldige bestandsnaam."
+msgstr "Ongeldig verwijderdoel voor volledige bestanden."
 
 #: src/ExternalConn.cpp
 msgid "File not found."
@@ -4097,11 +4085,11 @@ msgstr "Sluiten"
 
 #: src/MuleDataViewCtrl.cpp
 msgid "Fit column to contents"
-msgstr ""
+msgstr "Pas kolom aan inhoud aan"
 
 #: src/MuleDataViewCtrl.cpp
 msgid "Fit visible columns to contents"
-msgstr ""
+msgstr "Pas zichtbare kolommen aan inhoud aan"
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -5136,24 +5124,23 @@ msgstr "IPv6"
 
 #: src/muuli_wdr.cpp
 msgid "Address families:"
-msgstr ""
+msgstr "Adresfamilies:"
 
 #: src/muuli_wdr.cpp
 msgid "IPv4 only"
-msgstr ""
+msgstr "Alleen IPv4"
 
 #: src/muuli_wdr.cpp
 msgid "IPv4 and IPv6"
-msgstr ""
+msgstr "IPv4 en IPv6"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Takes effect after restarting aMule."
-msgstr "Uiterlijke veranderingen hebbne effect nadat aMule herstart is."
+msgstr "Heeft effect nadat aMule herstart is."
 
 #: src/muuli_wdr.cpp
 msgid "Advertise my IPv6 address to other peers"
-msgstr ""
+msgstr "Adverteer mijn IPv6-adres naar andere peers"
 
 #: src/muuli_wdr.cpp
 msgid "Remove dead server after"
@@ -5273,15 +5260,15 @@ msgstr "Voeg nieuwe gedeelde bestanden toe met automatische prioriteit"
 
 #: src/muuli_wdr.cpp
 msgid "Verify local data of requested shared files every"
-msgstr ""
+msgstr "Verifiëer lokale gegevens van opgevraagde gedeelde bestanden elke"
 
 #: src/muuli_wdr.cpp
 msgid "Re-read requested complete files in the background and compare them with their stored MD4/AICH hashes, as Verify Local Data does. Corrupt parts stop being shared. Uploads continue during the check."
-msgstr ""
+msgstr "Herlees opgevraagde volledige bestanden in de achtergrond en vergelijk ze met hun opgeslagen MD4/AICH-hashes, zoals Verifiëer Lokale Gegevens dat doet. Beschadigde onderdelen wordne niet meer gedeeld. Uploads gaan door tijdens de controle."
 
 #: src/muuli_wdr.cpp
 msgid "days (0 = off)"
-msgstr ""
+msgstr "dagen (0 = uitgeschakeld)"
 
 #: src/muuli_wdr.cpp
 msgid "Intelligent Corruption Handling (I.C.H.)"
@@ -5565,7 +5552,7 @@ msgstr "Donkere modus"
 
 #: src/muuli_wdr.cpp
 msgid "Appearance changes take effect after restarting aMule."
-msgstr "Uiterlijke veranderingen hebbne effect nadat aMule herstart is."
+msgstr "Uiterlijke veranderingen hebben effect nadat aMule herstart is."
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6892,9 +6879,8 @@ msgid "- External connect port changed.\n"
 msgstr "- Poort voor externe verbinding is veranderd.\n"
 
 #: src/PrefsUnifiedDlg.cpp
-#, fuzzy
 msgid "- Address families changed.\n"
-msgstr "- Lokale adresbinding veranderd.\n"
+msgstr "- Adresfamilies zijn veranderd.\n"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect acceptance changed.\n"
@@ -8118,7 +8104,7 @@ msgstr[1] "Opnieuw media-metadata aan het uitlezen voor %u gedeelde bestanden"
 
 #: src/SharedFileList.cpp
 msgid "The selected file has changed or is not a complete file."
-msgstr ""
+msgstr "Het geselecteerde bestand is veranderd of het is geen volledig bestand."
 
 #: src/SharedFileList.cpp
 #, c-format
@@ -8370,9 +8356,8 @@ msgid "A4AF"
 msgstr "A4AF"
 
 #: src/SplashScreen.cpp
-#, fuzzy
 msgid "Closing aMule"
-msgstr "Toon aMule"
+msgstr "aMule sluiten"
 
 #: src/Statistics.cpp
 #, c-format
@@ -9288,9 +9273,9 @@ msgid "Verify Local Data: %s is empty, so there is nothing to check."
 msgstr "Lokale gegevens verifiëren: %s is leeg dus er is niets om te controleren."
 
 #: src/ThreadTasks.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Verify Local Data: missing MD4 hashes for %s, so it was not checked."
-msgstr "Lokale gegevens verifiëren: kon %s niet lezen, dus het is niet gecontroleerd."
+msgstr "Lokale Gegevens Verifiëren: ontbrekende MD4-hashes voor %s, dus dat was niet gecontroleerd."
 
 #: src/ThreadTasks.cpp
 #, c-format
