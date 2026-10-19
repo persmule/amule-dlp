@@ -5274,6 +5274,18 @@ msgid "Add new shared files with auto priority"
 msgstr "Ajouter les nouveaux fichiers partagés en priorité automatique"
 
 #: src/muuli_wdr.cpp
+msgid "Verify local data of requested shared files every"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Re-read requested complete files in the background and compare them with their stored MD4/AICH hashes, as Verify Local Data does. Corrupt parts stop being shared. Uploads continue during the check."
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "days (0 = off)"
+msgstr ""
+
+#: src/muuli_wdr.cpp
 msgid "Intelligent Corruption Handling (I.C.H.)"
 msgstr "Gestion Intelligente de la Corruption (I.C.H.)"
 
@@ -9275,6 +9287,11 @@ msgstr "Vérification des données locales : %s est supérieur à ce que aMule 
 #, c-format
 msgid "Verify Local Data: %s is empty, so there is nothing to check."
 msgstr "Vérification des données locales : %s est vide, donc il n'y a rien à contrôler."
+
+#: src/ThreadTasks.cpp
+#, fuzzy, c-format
+msgid "Verify Local Data: missing MD4 hashes for %s, so it was not checked."
+msgstr "Vérification des données locales : impossible de lire %s, donc il n'a pas été contrôlé."
 
 #: src/ThreadTasks.cpp
 #, c-format

@@ -5277,6 +5277,18 @@ msgid "Add new shared files with auto priority"
 msgstr "Lisa uued jagatud failid automaatse prioriteediga"
 
 #: src/muuli_wdr.cpp
+msgid "Verify local data of requested shared files every"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Re-read requested complete files in the background and compare them with their stored MD4/AICH hashes, as Verify Local Data does. Corrupt parts stop being shared. Uploads continue during the check."
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "days (0 = off)"
+msgstr ""
+
+#: src/muuli_wdr.cpp
 msgid "Intelligent Corruption Handling (I.C.H.)"
 msgstr "Intelligentne Riknemise Vältimine (I.C.H.)"
 
@@ -9300,6 +9312,11 @@ msgstr ""
 #: src/ThreadTasks.cpp
 #, c-format
 msgid "Verify Local Data: %s is empty, so there is nothing to check."
+msgstr ""
+
+#: src/ThreadTasks.cpp
+#, c-format
+msgid "Verify Local Data: missing MD4 hashes for %s, so it was not checked."
 msgstr ""
 
 #: src/ThreadTasks.cpp

@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-18 19:22+0000\n"
+"PO-Revision-Date: 2026-10-19 02:02+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -870,11 +870,11 @@ msgstr "Сеть Kad нельзя использовать, если порт UD
 
 #: src/amule.cpp
 msgid "Kad network disabled on preferences, not connecting."
-msgstr "Сеть Kad выключена в настройках. Отменяю соединение."
+msgstr "Сеть Kad отключена в настройках. Отменяю соединение."
 
 #: src/amuled.cpp
 msgid "ERROR: aMule daemon cannot be used when external connections are disabled. To enable External Connections, use either a normal aMule, start amuled with the option --ec-config or set the key \"AcceptExternalConnections\" to 1 in the file ~/.aMule/amule.conf"
-msgstr "ОШИБКА: демон aMule не может быть использован когда внешние соединения выключены. Чтобы включить внешние соединения, используйте aMule, или запустите amuled с параметром --ec-config, или установите ключ \"AcceptExternalConnections\" равным 1 в файле ~/.aMule/amule.conf"
+msgstr "ОШИБКА: демон aMule нельзя использовать при отключённых внешних подключениях. Включите их: запустите обычный aMule, запустите amuled с --ec-config или задайте «AcceptExternalConnections» = 1 в ~/.aMule/amule.conf"
 
 #: src/amuled.cpp
 msgid "ERROR: A valid password is required to use external connections, and aMule daemon cannot be used without external connections. To run aMule daemon, you must set the \"ECPassword\" field in the file ~/.aMule/amule.conf with an appropriate value. Execute amuled with the flag --ec-config to set the password. More information can be found at https://amule-org.github.io/docs"
@@ -2634,7 +2634,7 @@ msgstr "Чат недоступен: идентификация или марш�
 
 #: src/ExternalConn.cpp
 msgid "Kad is disabled in preferences."
-msgstr "Kad выключена в настройках."
+msgstr "Kad отключён в настройках."
 
 #: src/ExternalConn.cpp
 msgid "Already connected to eD2k."
@@ -2654,7 +2654,7 @@ msgstr "Подключаюсь к Kad..."
 
 #: src/ExternalConn.cpp
 msgid "All networks are disabled."
-msgstr "Все сети выключены."
+msgstr "Все сети отключены."
 
 #: src/ExternalConn.cpp
 msgid "Disconnected from eD2k."
@@ -5298,6 +5298,18 @@ msgstr "Отдача"
 msgid "Add new shared files with auto priority"
 msgstr "Добавлять новые файлы для публикации с авто приоритетом"
 
+#: src/muuli_wdr.cpp
+msgid "Verify local data of requested shared files every"
+msgstr "Проверять локальные данные запрошенных общих файлов каждые"
+
+#: src/muuli_wdr.cpp
+msgid "Re-read requested complete files in the background and compare them with their stored MD4/AICH hashes, as Verify Local Data does. Corrupt parts stop being shared. Uploads continue during the check."
+msgstr "Повторно читать запрошенные завершённые файлы в фоне и сравнивать их с сохранёнными хешами MD4/AICH, как это делает «Проверка локальных данных». Повреждённые части перестают публиковаться. Во время проверки отдача продолжается."
+
+#: src/muuli_wdr.cpp
+msgid "days (0 = off)"
+msgstr "дней (0 — отключено)"
+
 # слишком уж частая аббривеатура. написать И.О.О. - никто не поймет
 #: src/muuli_wdr.cpp
 msgid "Intelligent Corruption Handling (I.C.H.)"
@@ -5405,7 +5417,7 @@ msgstr "Шаблоны являются регулярными выражени�
 
 #: src/muuli_wdr.cpp
 msgid "When set, the whole field is one regular expression: '|' is alternation, and '*' and '?' take their regular-expression meaning rather than the wildcard one. When unset, it is a list of '|'-separated wildcards."
-msgstr "Если включено, всё поле является одним регулярным выражением: «|» означает альтернативу, а «*» и «?» имеют смысл регулярного выражения, а не подстановочных знаков. Если выключено, это список подстановочных шаблонов, разделённых «|»."
+msgstr "Если включено, всё поле является одним регулярным выражением: «|» означает альтернативу, а «*» и «?» имеют смысл регулярного выражения, а не подстановочных знаков. Если отключено, это список подстановочных шаблонов, разделённых «|»."
 
 #: src/muuli_wdr.cpp
 msgid "Show how many of the files and folders in your shared folders the current pattern would exclude, counted over the last scan."
@@ -6148,7 +6160,7 @@ msgstr "Использовать прокси-сервер"
 
 #: src/muuli_wdr.cpp
 msgid "Enable/disable proxy support"
-msgstr "Включить/выключить поддержку прокси-сервера"
+msgstr "Включить/отключить поддержку прокси"
 
 #: src/muuli_wdr.cpp
 msgid "Proxy type"
@@ -6176,7 +6188,7 @@ msgstr "Включить авторизацию"
 
 #: src/muuli_wdr.cpp
 msgid "Enable/disable username/password authentication"
-msgstr "Включить/выключить использование пароля и логина"
+msgstr "Включить/отключить авторизацию по логину и паролю"
 
 #: src/muuli_wdr.cpp
 msgid "The username to use to connect to the proxy"
@@ -7236,7 +7248,7 @@ msgstr "Обновление соединения с сервером: Откл�
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"
-msgstr "выключена"
+msgstr "отключён"
 
 #: src/PrefsUnifiedDlg.cpp
 #, c-format
@@ -9013,11 +9025,11 @@ msgstr "Включить IP-фильтрацию для клиентов и се
 
 #: src/TextClient.cpp
 msgid "Turn IP filtering off for both clients and servers."
-msgstr "Выключить IP-фильтрацию для клиентов и серверов."
+msgstr "Отключить IP-фильтрацию для клиентов и серверов."
 
 #: src/TextClient.cpp
 msgid "Enable/Disable IP filtering for clients."
-msgstr "Включить/выключить IP-фильтрацию для клиентов."
+msgstr "Включить/отключить IP-фильтрацию для клиентов."
 
 #: src/TextClient.cpp
 msgid "Turn IP filtering on for clients."
@@ -9025,11 +9037,11 @@ msgstr "Включить IP-фильтрацию для клиентов."
 
 #: src/TextClient.cpp
 msgid "Turn IP filtering off for clients."
-msgstr "Выключить IP-фильтрацию для клиентов."
+msgstr "Отключить IP-фильтрацию для клиентов."
 
 #: src/TextClient.cpp
 msgid "Enable/Disable IP filtering for servers."
-msgstr "Включить/выключить IP-фильтрацию для серверов."
+msgstr "Включить/отключить IP-фильтрацию для серверов."
 
 #: src/TextClient.cpp
 msgid "Turn IP filtering on for servers."
@@ -9037,7 +9049,7 @@ msgstr "Включить IP-фильтрацию для серверов."
 
 #: src/TextClient.cpp
 msgid "Turn IP filtering off for servers."
-msgstr "Выключить IP-фильтрацию для серверов."
+msgstr "Отключить IP-фильтрацию для серверов."
 
 #: src/TextClient.cpp
 msgid "Select IP filtering level."
@@ -9345,6 +9357,11 @@ msgstr "Проверка локальных данных: %s больше, че�
 #, c-format
 msgid "Verify Local Data: %s is empty, so there is nothing to check."
 msgstr "Проверка локальных данных: %s пуст, проверять нечего."
+
+#: src/ThreadTasks.cpp
+#, c-format
+msgid "Verify Local Data: missing MD4 hashes for %s, so it was not checked."
+msgstr "Проверка локальных данных: отсутствуют хеши MD4 для %s, поэтому файл не проверялся."
 
 #: src/ThreadTasks.cpp
 #, c-format
