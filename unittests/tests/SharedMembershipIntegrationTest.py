@@ -2,6 +2,7 @@
 # Copyright (c) 2026 aMule Team
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Keep completed rows while their shared role changes on live EC/REST connections."""
+import hashlib
 import os
 from pathlib import Path
 import subprocess
@@ -103,7 +104,7 @@ def run(daemon, api, root):
             subprocess.run([api, '--config-dir='+str(api_dir), '--set-admin-pass=adminpass'],
                            env=env, check=True, stdout=log, stderr=log)
             config = api_dir / 'amuleapi.conf'
-            config.write_text(config.read_text().replace('Password=', 'Password=regression', 1))
+            config.write_text(config.read_text().replace('PasswordMD5=', 'PasswordMD5=' + hashlib.md5(b'regression').hexdigest(), 1))
             server = subprocess.Popen([api, '--config-dir='+str(api_dir), '--host=127.0.0.1',
                 '--port='+str(ec_port), '--http-port='+str(http_port), '--disable-ec-encryption'],
                 env=env, stdout=log, stderr=log)

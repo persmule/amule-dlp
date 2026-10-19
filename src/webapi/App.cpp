@@ -40,6 +40,7 @@
 
 #include <common/Format.h>
 #include <common/MD5Sum.h>
+#include <common/PasswordInput.h>
 
 #include <wx/cmdline.h>
 #include <wx/log.h>
@@ -150,7 +151,7 @@ CamuleapiApp::~CamuleapiApp()
 
 void CamuleapiApp::OnInitCmdLine(wxCmdLineParser &parser)
 {
-	// Pulls in --host / --port / --password / --config-dir / --quiet / --verbose
+	// Pulls in --host / --port / --quiet / --verbose
 	// / --locale. The base appname becomes the executable name in usage text.
 	CaMuleExternalConnector::OnInitCmdLine(parser, "amuleapi");
 
@@ -182,6 +183,17 @@ void CamuleapiApp::OnInitCmdLine(wxCmdLineParser &parser)
 		  "amuleapi-passwords (mode 0600), then exit. An empty <plain> turns guest access off."),
 		wxCMD_LINE_VAL_STRING,
 		wxCMD_LINE_PARAM_OPTIONAL);
+	parser.AddSwitch("",
+		"set-admin-pass-stdin",
+		_("Set the admin password from stdin (hidden and confirmed on a terminal), then exit."));
+	parser.AddSwitch("",
+		"set-guest-pass-stdin",
+		_("Set the guest password from stdin (hidden and confirmed on a terminal), then exit. An "
+		  "empty line disables guest access."));
+	parser.AddSwitch("",
+		"set-ec-pass-stdin",
+		_("Read the EC password from stdin (hidden on a terminal), write PasswordMD5 and remove "
+		  "plaintext Password, then exit."));
 	parser.AddSwitch("", "foreground", _("Stay in the foreground; default."), wxCMD_LINE_PARAM_OPTIONAL);
 	AddLogFileOptions(parser);
 	// No --daemon: operators wanting fork-into-background wrap amuleapi in
@@ -207,8 +219,20 @@ bool CamuleapiApp::OnCmdLineParsed(wxCmdLineParser &parser)
 	if (parser.Found("set-guest-pass", &m_cliSetGuestPass)) {
 		m_cliHasSetGuestPass = true;
 	}
-	// The base class reads --host / --port / --password into m_host / m_port / m_password
-	// before we get here, but offers no "did the user actually pass this?" predicate -- m_host
+	m_cliSetAdminPassStdin = parser.Found("set-admin-pass-stdin");
+	m_cliSetGuestPassStdin = parser.Found("set-guest-pass-stdin");
+	m_cliSetEcPassStdin = parser.Found("set-ec-pass-stdin");
+	const unsigned setters =
+		static_cast<unsigned>(m_cliHasSetAdminPass) + static_cast<unsigned>(m_cliHasSetGuestPass) +
+		static_cast<unsigned>(m_cliSetAdminPassStdin) +
+		static_cast<unsigned>(m_cliSetGuestPassStdin) + static_cast<unsigned>(m_cliSetEcPassStdin);
+	if (setters > 1) {
+		std::cerr << "amuleapi: choose exactly one password setter per invocation\n";
+		std::exit(1);
+	}
+	m_cliHasSetAdminPass = m_cliHasSetAdminPass || m_cliSetAdminPassStdin;
+	m_cliHasSetGuestPass = m_cliHasSetGuestPass || m_cliSetGuestPassStdin;
+	// The base class reads --host / --port but offers no explicit-option predicates. m_host
 	// defaults to "127.0.0.1" unconditionally. Polling the parser directly lets
 	// LoadAmuleapiConfig() tell an explicit --host=127.0.0.1 apart from the base class's
 	// filled-in default.
@@ -233,6 +257,45 @@ bool CamuleapiApp::OnInit()
 	// resolved in OnCmdLineParsed via the core's GetConfigDir(). Always set by now, so there is
 	// no third fallback -- one resolver for both daemons.
 	const wxString config_dir = m_cliConfigDirOverride.IsEmpty() ? m_configDir : m_cliConfigDirOverride;
+
+	// Password input precedes file creation, the log tee thread, and token consumption.
+	// A failed read must not clear a role or change an existing configuration.
+	if (m_cliSetAdminPassStdin || m_cliSetGuestPassStdin || m_cliSetEcPassStdin) {
+		std::string password;
+		std::string error;
+		const char *prompt = m_cliSetEcPassStdin ? "EC password: "
+							 : (m_cliSetAdminPassStdin ? "New admin password: "
+										   : "New guest password: ");
+		if (!mulecommon::ReadPassword(prompt, !m_cliSetEcPassStdin, password, error)) {
+			std::cerr << "amuleapi: " << error << '\n';
+			std::exit(1);
+		}
+		if ((m_cliSetAdminPassStdin || m_cliSetEcPassStdin) && password.empty()) {
+			std::cerr << "amuleapi: admin and EC passwords must not be empty\n";
+			std::exit(1);
+		}
+		const wxString plain = wxString::FromUTF8(password.data(), password.size());
+		if (m_cliSetAdminPassStdin) {
+			m_cliSetAdminPass = plain;
+		} else if (m_cliSetGuestPassStdin) {
+			m_cliSetGuestPass = plain;
+		} else {
+			m_cliSetEcPass = plain;
+		}
+	}
+	// Setup never connects to EC or starts the HTTP server, and must not consume the
+	// core's ephemeral token. Keep its prompts and errors out of the daemon log too.
+	// std::exit propagates setup failures; returning false from wx OnInit can exit zero.
+	if (m_cliHasSetAdminPass || m_cliHasSetGuestPass || m_cliSetEcPassStdin) {
+		if (!m_apiConfig.Load(config_dir)) {
+			std::cerr << "amuleapi: " << m_apiConfig.LastError() << '\n';
+			std::exit(1);
+		}
+		const int rc = m_cliSetEcPassStdin
+				       ? RunSetEcPass()
+				       : (m_cliHasSetAdminPass ? RunSetAdminPass() : RunSetGuestPass());
+		std::exit(rc);
+	}
 
 	// Tee stdout/stderr early, so startup errors and a crash backtrace are captured and
 	// timestamped. Without a log file the tee keeps the console copy only.
@@ -295,16 +358,6 @@ bool CamuleapiApp::OnInit()
 	m_event_bus = std::unique_ptr<webapi::CEventBus>(
 		new webapi::CEventBus(m_apiConfig.StreamingCfg().event_bus_ring_capacity));
 
-	// CLI override hooks. set-*-pass exits immediately after writing.
-	if (m_cliHasSetAdminPass || m_cliHasSetGuestPass) {
-		// Both options run as one-shot CLI flows. Operators script these like `amuleapi
-		// --set-admin-pass=... && systemctl restart amuleapi`, so they MUST see a non-zero
-		// exit code on failure. Returning false from OnInit() would cancel wxApp::OnRun()
-		// but still exit 0, hence std::exit() here.
-		const int rc = m_cliHasSetAdminPass ? RunSetAdminPass() : RunSetGuestPass();
-		std::exit(rc);
-	}
-
 	return true;
 }
 
@@ -312,14 +365,14 @@ bool CamuleapiApp::LoadAmuleapiConfig()
 {
 	const wxString config_dir = m_cliConfigDirOverride.IsEmpty() ? m_configDir : m_cliConfigDirOverride;
 
-	if (!m_apiConfig.Load(config_dir)) {
+	if (!m_apiConfig.Load(config_dir) || !m_apiConfig.ValidateEcPassword()) {
 		Show(CFormat("amuleapi: failed to load config: %s\n") %
 			wxString::FromUTF8(m_apiConfig.LastError().c_str()));
 		return false;
 	}
 
 	// Wire the EC connection params into the base-class fields ConnectAndRun reads. CLI
-	// --host/--port/--password win over amuleapi.conf, decided by the has-flag predicates: the
+	// --host/--port win over amuleapi.conf, decided by the has-flag predicates: the
 	// old "is the field still at its default?" heuristic silently overwrote a literal `amuleapi
 	// --host=127.0.0.1`.
 	if (!m_cliHasEcHost) {
@@ -335,10 +388,9 @@ bool CamuleapiApp::LoadAmuleapiConfig()
 		// UsesConnectorConfigFile), so it is the sole source below the command line.
 		m_ECEncryption = m_apiConfig.EcCfg().encryption;
 	}
-	if (!m_apiConfig.EcCfg().password.empty()) {
-		// amuleapi.conf [EC]/Password is plaintext; the base class expects an MD5-hashed
-		// CMD4Hash, because that is what amuled stores. Hash here so a one-line
-		// amuleapi.conf edit gives the operator a working setup.
+	if (!m_apiConfig.EcCfg().password_md5.empty()) {
+		m_password.Decode(wxString::FromUTF8(m_apiConfig.EcCfg().password_md5.c_str()));
+	} else if (!m_apiConfig.EcCfg().password.empty()) {
 		const wxString plain = wxString::FromUTF8(m_apiConfig.EcCfg().password.c_str());
 		m_password.Decode(MD5Sum(plain).GetHash());
 	}
@@ -395,6 +447,17 @@ int CamuleapiApp::RunSetGuestPass()
 	}
 	Show(digest.empty() ? _("amuleapi: guest access disabled.\n")
 			    : _("amuleapi: guest password updated.\n"));
+	return 0;
+}
+
+int CamuleapiApp::RunSetEcPass()
+{
+	const std::string digest(MD5Sum(m_cliSetEcPass).GetHash().Lower().utf8_str());
+	if (!m_apiConfig.SetEcPasswordMD5(digest)) {
+		std::cerr << "amuleapi: --set-ec-pass-stdin failed: " << m_apiConfig.LastError() << '\n';
+		return 1;
+	}
+	Show("amuleapi: EC PasswordMD5 updated; plaintext Password removed.\n");
 	return 0;
 }
 
@@ -492,7 +555,7 @@ void CamuleapiApp::TextShell(const wxString & /*prompt*/)
 			       "admin/guest password configured - this would expose the "
 			       "REST surface to anyone reachable on that interface. "
 			       "Either bind to 127.0.0.1, or run "
-			       "`amuleapi --set-admin-pass=<plain>` first.\n")) %
+			       "`amuleapi --set-admin-pass-stdin` first.\n")) %
 			wxString::FromUTF8(bind.c_str()));
 		return;
 	}

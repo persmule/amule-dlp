@@ -419,3 +419,65 @@ TEST(AmuleApiConfig, InvalidBasePathFailsLoad)
 	ASSERT_TRUE(!LoadHandWrittenConf("base-bad", "BasePath=/amule;Domain=evil", cfg));
 	ASSERT_TRUE(cfg.LastError().find("BasePath") != std::string::npos);
 }
+
+TEST(AmuleApiConfig, ExplicitEcDigestIsNotHashedAgain)
+{
+	CAmuleApiConfig cfg;
+	ASSERT_TRUE(LoadHandWrittenConf("ec-md5", "[EC]\nPasswordMD5=ABCDEF0123456789ABCDEF0123456789", cfg));
+	ASSERT_TRUE(cfg.ValidateEcPassword());
+	ASSERT_TRUE(cfg.EcCfg().password.empty());
+	ASSERT_EQUALS(std::string("ABCDEF0123456789ABCDEF0123456789"), cfg.EcCfg().password_md5);
+}
+
+TEST(AmuleApiConfig, HexPlaintextRemainsPlaintext)
+{
+	CAmuleApiConfig cfg;
+	ASSERT_TRUE(LoadHandWrittenConf("ec-plain", "[EC]\nPassword=abcdef0123456789abcdef0123456789", cfg));
+	ASSERT_TRUE(cfg.ValidateEcPassword());
+	ASSERT_EQUALS(std::string("abcdef0123456789abcdef0123456789"), cfg.EcCfg().password);
+	ASSERT_TRUE(cfg.EcCfg().password_md5.empty());
+}
+
+TEST(AmuleApiConfig, ConflictingEcSecretsAreRejected)
+{
+	CAmuleApiConfig cfg;
+	ASSERT_TRUE(LoadHandWrittenConf(
+		"ec-conflict", "[EC]\nPassword=plain\nPasswordMD5=abcdef0123456789abcdef0123456789", cfg));
+	ASSERT_FALSE(cfg.ValidateEcPassword());
+	ASSERT_TRUE(cfg.LastError().find("cannot both be nonempty") != std::string::npos);
+}
+
+TEST(AmuleApiConfig, MalformedEcDigestIsRejected)
+{
+	for (const char *digest :
+		{ "short", "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz", "abcdef0123456789abcdef01234567890" }) {
+		CAmuleApiConfig cfg;
+		ASSERT_TRUE(
+			LoadHandWrittenConf("ec-invalid", std::string("[EC]\nPasswordMD5=") + digest, cfg));
+		ASSERT_FALSE(cfg.ValidateEcPassword());
+		ASSERT_TRUE(cfg.LastError().find("32 hexadecimal") != std::string::npos);
+	}
+}
+
+TEST(AmuleApiConfig, EcSetupMigratesPlaintextAndPreservesSettings)
+{
+	CAmuleApiConfig cfg;
+	ASSERT_TRUE(LoadHandWrittenConf("ec-migrate",
+		"[EC]\nPassword=legacy-secret\nHost=example.invalid\nPort=1234\n[Custom]\nKeep=yes",
+		cfg));
+	const std::string digest = "abcdef0123456789abcdef0123456789";
+	ASSERT_FALSE(cfg.SetEcPasswordMD5("invalid"));
+	ASSERT_TRUE(cfg.SetEcPasswordMD5(digest));
+	CAmuleApiConfig loaded;
+	ASSERT_TRUE(loaded.Load(cfg.ConfigDir()));
+	ASSERT_EQUALS(digest, loaded.EcCfg().password_md5);
+	ASSERT_TRUE(loaded.EcCfg().password.empty());
+	ASSERT_EQUALS(std::string("example.invalid"), loaded.EcCfg().host);
+	ASSERT_EQUALS(static_cast<unsigned>(1234), loaded.EcCfg().port);
+	wxFile file(cfg.ConfigDir() + "/amuleapi.conf");
+	wxString text;
+	ASSERT_TRUE(file.ReadAll(&text));
+	ASSERT_TRUE(text.Find("Keep=yes") != wxNOT_FOUND);
+	ASSERT_TRUE(text.Find("legacy-secret") == wxNOT_FOUND);
+	ASSERT_TRUE(text.Find("Password=") == wxNOT_FOUND);
+}

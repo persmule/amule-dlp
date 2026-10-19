@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Run the curl All-search checks against an isolated, offline core/API pair."""
+import hashlib
 import os
 import re
 from pathlib import Path
@@ -41,7 +42,7 @@ def run(daemon_binary, api_binary, checks):
                                env=env, stdout=log, stderr=log)
                 config = api / 'amuleapi.conf'
                 config.write_text(config.read_text().replace(
-                    'Password=', 'Password=regression', 1))
+                    'PasswordMD5=', 'PasswordMD5=' + hashlib.md5(b'regression').hexdigest(), 1))
                 server = subprocess.Popen([api_binary, f'--config-dir={api}',
                                            '--host=127.0.0.1', f'--port={port}',
                                            f'--http-port={http}'],

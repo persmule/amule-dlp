@@ -1946,7 +1946,7 @@ CHttpServer::Response CApiDispatcher::HandleLogin(const CHttpServer::Request &re
 			return ErrorResponse(503,
 				"login_disabled",
 				"amuleapi has no admin/guest password configured; "
-				"set one via `amuleapi --set-admin-pass=<plain>`");
+				"set one via `amuleapi --set-admin-pass-stdin`");
 		}
 		m_rateLimiter.NoteFailure(ip);
 		return ErrorResponse(

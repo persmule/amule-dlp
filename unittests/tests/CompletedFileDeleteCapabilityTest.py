@@ -2,6 +2,7 @@
 # Copyright (c) 2026 aMule Team
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Verify deletion capability gates and acknowledgments with deterministic EC fixtures."""
+import hashlib
 import os
 from pathlib import Path
 import socketserver
@@ -68,7 +69,7 @@ def run(api, mode):
         subprocess.run([api, '--config-dir='+tmp, '--set-admin-pass=adminpass'], env=env,
                        check=True, stdout=subprocess.DEVNULL)
         config = root / 'amuleapi.conf'
-        config.write_text(config.read_text().replace('Password=', 'Password=regression', 1))
+        config.write_text(config.read_text().replace('PasswordMD5=', 'PasswordMD5=' + hashlib.md5(b'regression').hexdigest(), 1))
         with Server(('127.0.0.1', 0), LegacyCore) as core, (root / 'api.log').open('w') as log:
             core.ops = []
             core.mode = mode

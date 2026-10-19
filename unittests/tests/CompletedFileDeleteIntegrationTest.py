@@ -255,7 +255,7 @@ def run(daemon, api):
                     subprocess.run([api, '--config-dir='+str(api_root), f'--set-{role}-pass={role}pass'],
                                    env=env, check=True, stdout=api_log, stderr=api_log)
                 config = api_root / 'amuleapi.conf'
-                config.write_text(config.read_text().replace('Password=', 'Password=regression', 1))
+                config.write_text(config.read_text().replace('PasswordMD5=', 'PasswordMD5=' + hashlib.md5(b'regression').hexdigest(), 1))
                 hp = free_ports(1)[0]
                 base = f'http://127.0.0.1:{hp}/api/v1'
                 api_proc = subprocess.Popen([api, '--config-dir='+str(api_root), '--host=127.0.0.1',

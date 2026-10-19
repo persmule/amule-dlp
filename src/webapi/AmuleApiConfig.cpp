@@ -34,6 +34,7 @@
 #include <wx/tokenzr.h>
 #include <wx/utils.h>
 #include <wx/wfstream.h>
+#include <wx/mstream.h>
 
 #include "../WarningsPush_CryptoPP.h"
 #include <cryptopp/osrng.h>
@@ -167,7 +168,7 @@ bool CAmuleApiConfig::LoadAmuleapiConf(const wxString &path)
 			       "[EC]\n"
 			       "Host=127.0.0.1\n"
 			       "Port=4712\n"
-			       "Password=\n"
+			       "PasswordMD5=\n"
 			       "Encryption=1\n"
 			       "\n"
 			       "[Auth]\n"
@@ -185,7 +186,7 @@ bool CAmuleApiConfig::LoadAmuleapiConf(const wxString &path)
 	if (!wxFileExists(path)) {
 		// First run: write a mode-0600 defaults file. The EC password stays empty and
 		// amuleapi refuses to connect until it is filled in; amuleapi.conf carries
-		// `[EC]/Password=` in cleartext, so owner-only mode matches the jwt-secret and
+		// a reusable EC credential, so owner-only mode matches the jwt-secret and
 		// passwords files. WriteFileAtomic0600 (write-temp, fsync, rename) so a crash mid-
 		// write cannot leave a truncated config the next start would load as partial.
 		if (!WriteFileAtomic0600(path, std::string(defaults))) {
@@ -249,8 +250,13 @@ bool CAmuleApiConfig::LoadAmuleapiConf(const wxString &path)
 	if (cfg.Read("/EC/Port", &n) && n > 0 && n < 65536) {
 		m_ec.port = static_cast<unsigned>(n);
 	}
+	m_ec.password.clear();
+	m_ec.password_md5.clear();
 	if (cfg.Read("/EC/Password", &s)) {
 		m_ec.password = std::string(s.utf8_str());
+	}
+	if (cfg.Read("/EC/PasswordMD5", &s)) {
+		m_ec.password_md5 = std::string(s.utf8_str());
 	}
 	if (cfg.Read("/EC/Encryption", &n)) {
 		m_ec.encryption = (n != 0);
@@ -290,6 +296,51 @@ bool CAmuleApiConfig::LoadAmuleapiConf(const wxString &path)
 		m_streaming.max_concurrent_file_responses = static_cast<unsigned>(n);
 	}
 
+	return true;
+}
+
+bool CAmuleApiConfig::ValidateEcPassword()
+{
+	m_lastError.clear();
+	if (!m_ec.password.empty() && !m_ec.password_md5.empty()) {
+		m_lastError = "[EC]/Password and [EC]/PasswordMD5 cannot both be nonempty; remove one";
+		return false;
+	}
+	std::vector<unsigned char> decoded;
+	if (!m_ec.password_md5.empty() &&
+		(m_ec.password_md5.size() != 32 || !HexDecode(m_ec.password_md5, decoded))) {
+		m_lastError = "[EC]/PasswordMD5 must contain exactly 32 hexadecimal characters";
+		return false;
+	}
+	return true;
+}
+
+bool CAmuleApiConfig::SetEcPasswordMD5(const std::string &digest)
+{
+	std::vector<unsigned char> decoded;
+	if (digest.size() != 32 || !HexDecode(digest, decoded)) {
+		m_lastError = "EC password digest must contain exactly 32 hexadecimal characters";
+		return false;
+	}
+	const wxString path = JoinPath(m_configDir, "amuleapi.conf");
+	wxFileConfig cfg("", "", path, "", wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
+	// Save only through the owner-only atomic writer, never via wxFileConfig's destructor.
+	cfg.DisableAutoSave();
+	cfg.DeleteEntry("/EC/Password");
+	cfg.Write("/EC/PasswordMD5", wxString::FromUTF8(digest.c_str()).Lower());
+	wxMemoryOutputStream output;
+	if (!cfg.Save(output)) {
+		m_lastError = "cannot serialize amuleapi.conf";
+		return false;
+	}
+	std::string body(output.GetSize(), '\0');
+	output.CopyTo(&body[0], body.size());
+	if (!WriteFileAtomic0600(path, body)) {
+		m_lastError = "cannot write amuleapi.conf";
+		return false;
+	}
+	m_ec.password.clear();
+	m_ec.password_md5 = digest;
 	return true;
 }
 
@@ -352,7 +403,7 @@ bool CAmuleApiConfig::LoadPasswords(const wxString &path)
 
 	if (!wxFileExists(path)) {
 		// Auto-create empty so the operator sees the file exists, with the right mode bits.
-		// `amuleapi --set-admin-pass=<plain>` then hashes and writes the admin record;
+		// `amuleapi --set-admin-pass-stdin` then hashes and writes the admin record;
 		// amulegui and the preferences dialog write the same file.
 		std::string err;
 		if (!webcommon::SaveCredentialsFile(dir, m_credentials, err)) {

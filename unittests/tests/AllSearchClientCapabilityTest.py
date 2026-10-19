@@ -2,6 +2,7 @@
 # Copyright (c) 2026 aMule Team
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Verify API and command-line guards against a loopback EC peer without All support."""
+import hashlib
 import json, os, socketserver, struct, subprocess, sys, tempfile, threading, time, urllib.request, zlib
 from pathlib import Path
 from AllSearchIntegrationTest import (C, PortCollision, exact, free_ports,
@@ -43,7 +44,7 @@ def run(api, cmd):
         env = dict(os.environ, HOME=tmp, XDG_CONFIG_HOME=tmp+'/xdg', LC_ALL='C.UTF-8')
         subprocess.run([api, '--config-dir='+tmp, '--set-admin-pass=adminpass'], env=env, check=True, stdout=subprocess.DEVNULL)
         config=cfg/'amuleapi.conf'
-        config.write_text(config.read_text().replace('Password=', 'Password=regression', 1))
+        config.write_text(config.read_text().replace('PasswordMD5=', 'PasswordMD5=' + hashlib.md5(b'regression').hexdigest(), 1))
         with Server(('127.0.0.1', 0), Handler) as legacy:
             thread=threading.Thread(target=legacy.serve_forever, daemon=True); thread.start()
             port=legacy.server_address[1]; hp=free_ports(1)[0]; url=f'http://127.0.0.1:{hp}/api/v1'

@@ -48,7 +48,7 @@ class CECPacket;
 class CHttpServer;
 
 // amuleapi daemon entry. Inherits CaMuleExternalConnector to reuse the EC bring-up machinery
-// (CRemoteConnect, --host / --port / --password, ZLIB negotiation, MD5 password handling). Adds the
+// (CRemoteConnect, --host / --port, ZLIB negotiation, MD5 password handling). Adds the
 // amuleapi-specific CLI options (--bind, --http-port, --config-dir, --set-{admin,guest}-pass),
 // config-file loading via CAmuleApiConfig, and a Boost.Beast HTTP server thread.
 //
@@ -136,10 +136,11 @@ private:
 	// false on any unrecoverable error, having already printed it via Show().
 	bool LoadAmuleapiConfig();
 
-	// CLI-only flows. Both write the requested file under m_amuleapiConfigDir
+	// CLI-only flows. Write the requested file under the selected config directory
 	// with mode 0600 and exit immediately -- no HTTP server, no EC connection.
 	int RunSetAdminPass();
 	int RunSetGuestPass();
+	int RunSetEcPass();
 
 	// TextShell override drives the refresher loop and the HTTP server. Called by
 	// CaMuleExternalConnector::ConnectAndRun once EC is established; overridden so the daemon
@@ -179,7 +180,11 @@ private:
 	bool m_cliHasHttpPort = false;
 	bool m_cliHasSetAdminPass = false;
 	bool m_cliHasSetGuestPass = false;
-	// Did the operator pass --host / --port / --password explicitly?
+	bool m_cliSetAdminPassStdin = false;
+	bool m_cliSetGuestPassStdin = false;
+	bool m_cliSetEcPassStdin = false;
+	wxString m_cliSetEcPass;
+	// Did the operator pass --host / --port explicitly?
 	bool m_cliHasEcHost = false;
 	bool m_cliHasEcPort = false;
 	/// amuleapi owns amuleapi.conf and must not also read remote.conf: two files describing the
@@ -189,7 +194,7 @@ private:
 	bool UsesConnectorConfigFile() const override { return false; }
 	// No -P/--password: it would put the EC secret in argv, where ps exposes it to every local
 	// user. amuleapi gets the credential from the token the core writes when it spawns us, or
-	// from [EC]/Password in amuleapi.conf.
+	// from [EC]/PasswordMD5 (or plaintext Password) in amuleapi.conf.
 	bool UsesEcPasswordOption() const override { return false; }
 
 	// amuleapi keeps its settings in amuleapi.conf and never reads or writes

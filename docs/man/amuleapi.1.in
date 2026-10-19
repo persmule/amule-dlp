@@ -25,6 +25,9 @@ amuleapi \- the aMule REST API + Server\-Sent Events daemon
 
 .B_untranslated amuleapi
 .RB_untranslated [ \-\-help ]
+
+.B_untranslated amuleapi
+.RB_untranslated [ \-\-set\-admin\-pass\-stdin | \-\-set\-guest\-pass\-stdin | \-\-set\-ec\-pass\-stdin ]
 .SH DESCRIPTION
 .B_untranslated amuleapi
 serves a JSON REST API and a live event stream for a running
@@ -69,11 +72,28 @@ Always compress the link to \fBamuled\fR(1). By default amuleapi skips
 compression when amuled's address is on the local network. Use this when
 that address is a VPN tunnel over a slow Internet link.
 .TP
+.B_untranslated [ \-\-set\-admin\-pass\-stdin ]
+Set the admin password from stdin, then exit. Terminal input is hidden and
+confirmed; redirected stdin supplies one UTF-8 line without confirmation.
+An empty admin password is rejected. EOF and input errors leave credentials
+unchanged. No HTTP server or EC connection is started.
+.TP
+.B_untranslated [ \-\-set\-guest\-pass\-stdin ]
+As above for the guest password. An explicitly empty line disables guest access;
+EOF does not. Choose exactly one password setter per invocation.
+.TP
+.B_untranslated [ \-\-set\-ec\-pass\-stdin ]
+Read the existing EC password from stdin (hidden on a terminal, without
+confirmation), write its MD5 digest to [EC]/PasswordMD5 in amuleapi.conf,
+remove the plaintext [EC]/Password key, and exit. Other settings are preserved;
+INI formatting and comments may change. Empty input is rejected.
+.TP
 \fB[ \-\-set\-admin\-pass\fR=\fI<plain>\fR \fB]\fR
 Set the admin password to \fI<plain>\fR, storing it salted and
 stretched in \fIamuleapi\-passwords\fR (mode 0600), then exit. Does
 not start the HTTP server or connect to amuled. A stored password
-cannot be read back, only replaced.
+cannot be read back, only replaced. Prefer the stdin form: literal passwords
+can be exposed through process arguments and shell history.
 .TP
 \fB[ \-\-set\-guest\-pass\fR=\fI<plain>\fR \fB]\fR
 Set the guest password to \fI<plain>\fR, storing it the same way, then
@@ -107,6 +127,12 @@ Print a short usage description.
 Settings file: HTTP address and port, the connection to amuled, login
 rate limits and event\-stream sizing. The QUICKSTART document shipped with
 the source has the full reference.
+.IP
+For standalone use, set the EC password with \fB\-\-set\-ec\-pass\-stdin\fR,
+or copy its MD5 digest from [EC]/Password in remote.conf to [EC]/PasswordMD5
+here. Plaintext [EC]/Password is also supported. Set only one: amuleapi refuses
+to start if both are nonempty or PasswordMD5 is not 32 hexadecimal characters.
+The digest logs in to amuled just like the password, so keep this file private.
 .TP
 \fI~/.aMule/amuleapi\-jwt\-secret\fR
 Key used to sign login tokens. Created on first launch. Deleting it signs
@@ -115,7 +141,7 @@ out everyone.
 \fI~/.aMule/amuleapi\-passwords\fR
 The admin and guest passwords, stored so they cannot be read back, only
 replaced. This is the only place they are kept. Set them with
-\fB\-\-set\-admin\-pass\fR / \fB\-\-set\-guest\-pass\fR, from the REST API, or
+\fB\-\-set\-admin\-pass\-stdin\fR / \fB\-\-set\-guest\-pass\-stdin\fR, from the REST API, or
 from the Remote Controls preferences in \fBamule\fR(1). A change applies at
 the next login and signs out anyone already logged in.
 .TP
@@ -124,9 +150,10 @@ Short\-lived login token, written by \fBamule\fR(1) / \fBamuled\fR(1) when
 they start amuleapi themselves. Created fresh each time, read once and
 deleted straight away, so an auto\-started amuleapi needs no EC password of
 its own. Started by hand, amuleapi finds no token and uses
-\fB[EC]/Password\fR from \fIamuleapi.conf\fR instead. There is no
+\fB[EC]/PasswordMD5\fR (or plaintext \fB[EC]/Password\fR) from \fIamuleapi.conf\fR instead. There is no
 \fB\-\-password\fR option: a password given on the command line is visible
-to every local user through \fBps\fR(1).
+through \fBps\fR(1) for the lifetime of the process, and can persist
+in shell history, service unit files and wrapper scripts.
 .SH REPORTING BUGS
 Please report bugs either on our forum
 (\fIhttps://github.com/amule-org/amule/discussions\fR), or in our

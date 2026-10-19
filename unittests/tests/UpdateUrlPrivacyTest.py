@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Guest URL privacy against disposable core/API processes and a loopback HTTP server."""
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import hashlib
 import json
 import os
 import socket
@@ -89,7 +90,7 @@ def run(daemon_binary, api_binary):
                                env=env, stdout=log, stderr=log)
                 config = api / 'amuleapi.conf'
                 config.write_text(config.read_text().replace(
-                    'Password=', 'Password=regression', 1))
+                    'PasswordMD5=', 'PasswordMD5=' + hashlib.md5(b'regression').hexdigest(), 1))
                 processes.append(subprocess.Popen(
                     [api_binary, f'--config-dir={api}', '--host=127.0.0.1',
                      f'--port={port}', f'--http-port={http}'], env=env, stdout=log, stderr=log))

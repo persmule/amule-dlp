@@ -2996,6 +2996,21 @@ target_include_directories (RC4Test PRIVATE
 target_link_libraries (RC4Test muleunit mulecommon CRYPTOPP::CRYPTOPP)
 add_test (NAME RC4Test COMMAND RC4Test)
 
+# Password setup is offline: no daemon, HTTP listener or public network access.
+if (BUILD_AMULEAPI AND Python3_Interpreter_FOUND)
+	add_test (NAME AmuleApiPasswordInputTest
+		COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/AmuleApiPasswordInputTest.py
+			$<TARGET_FILE:amuleapi>
+	)
+endif ()
+
+if (ENABLE_INTEGRATION_TESTS AND BUILD_DAEMON AND BUILD_AMULEAPI AND Python3_Interpreter_FOUND)
+	add_test (NAME AmuleApiEcPasswordIntegrationTest
+		COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/AmuleApiEcPasswordIntegrationTest.py
+			$<TARGET_FILE:amuled> $<TARGET_FILE:amuleapi>
+	)
+endif ()
+
 # Download diagnostics must never expose URL credentials to log/status readers.
 add_executable (DownloadUrlTest DownloadUrlTest.cpp)
 target_include_directories (DownloadUrlTest PRIVATE ${CMAKE_SOURCE_DIR}/src)

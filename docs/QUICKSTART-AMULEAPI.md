@@ -32,7 +32,7 @@ HttpPort=4713
 ```
 
 ```sh
-amuleapi --set-admin-pass=mySecret123
+amuleapi --set-admin-pass-stdin
 ```
 
 The password command writes its file and exits. It needs no path, because
@@ -44,23 +44,23 @@ An admin password is required before you can bind anything other than
 
 ## Running it yourself
 
-If you start amuleapi by hand, put the EC password in its own config file,
-`amuleapi.conf`:
-
-```ini
-[EC]
-Password=your-ec-password
-```
-
-then just:
+If you start amuleapi by hand, give it amuled's EC password once:
 
 ```sh
-amuleapi
+amuleapi --set-ec-pass-stdin
 ```
 
-There is no `--password` option. A password on the command line is visible
-to every user on the machine through `ps`, and amuleapi has two safer
-routes: the token when aMule starts it, and this file when you don't.
+It asks for the password without echoing it, stores its MD5 digest as
+`[EC]/PasswordMD5` in `amuleapi.conf`, and exits. Then just run `amuleapi`.
+You can also copy the digest from `[EC]/Password` in `remote.conf`, or put the
+plain password in `[EC]/Password` instead. Set only one of the two: amuleapi
+refuses to start if both are nonempty. The digest logs in to amuled just like the
+password, so keep the file private.
+
+There is no `--password` option. A password on the command line stays visible
+through `ps` for as long as amuleapi runs, and ends up in shell history, unit
+files and wrapper scripts. amuleapi uses the token when aMule starts it, and
+`amuleapi.conf` when you start it yourself.
 
 `--host` and `--port` point at amuled (default `127.0.0.1:4712`). amuleapi's
 own HTTP port is separate — `4713` by default, and that is the one REST
@@ -75,14 +75,24 @@ Two roles: **admin** (full control) and **guest** (read-only, off unless you
 give it a password). Set them from the preferences panel, or:
 
 ```sh
-amuleapi --set-admin-pass=mySecret123
-amuleapi --set-guest-pass=readOnlyPass
+amuleapi --set-admin-pass-stdin
+amuleapi --set-guest-pass-stdin
 ```
 
-An empty guest password turns guest access off. Passwords are stored so they
-cannot be read back, only replaced — which is why the preference fields open
-blank, and why leaving one empty keeps the current password. Changes apply at
-the next login, with no restart.
+Each command asks for the new password twice without echoing it. A script can
+pipe it in instead, with no confirmation:
+
+```sh
+printf '%s\n' "$PW" | amuleapi --set-admin-pass-stdin
+```
+
+`--set-admin-pass=<plain>` and `--set-guest-pass=<plain>` also work, but expose
+the password in process arguments and shell history.
+
+An empty guest password turns guest access off; EOF or failed input leaves it
+unchanged. Passwords are stored so they cannot be read back, only replaced.
+That is why the preference fields open blank, and why leaving one empty keeps
+the current password. Changes apply at the next login, with no restart.
 
 Guest is read-only, not a sandbox: it can see the daemon's incoming, temp and
 shared folder paths, this node's user hash, the configured proxy user, and the
@@ -240,7 +250,7 @@ BasePath=                 ; path prefix behind a proxy, e.g. /amule
 [EC]
 Host=127.0.0.1            ; where amuled is
 Port=4712
-Password=                 ; only needed when you start amuleapi yourself
+PasswordMD5=              ; EC digest; set with --set-ec-pass-stdin
 Encryption=1              ; encrypt the link to amuled
 
 [Auth]

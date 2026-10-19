@@ -75,7 +75,8 @@ public:
 	{
 		std::string host = "127.0.0.1";
 		unsigned port = 4712;
-		std::string password; // matches amuled's [ExternalConnect]/Password
+		std::string password;     // plaintext [EC]/Password; never inferred from its shape
+		std::string password_md5; // explicit [EC]/PasswordMD5, sufficient to authenticate
 		// Offer EC transport encryption. On by default for every destination; only
 		// the client knows what it dialed, so the choice lives here, not in amuled.
 		bool encryption = true;
@@ -160,6 +161,12 @@ public:
 	// `md5_hex` empty clears the role -- that is how the guest role is disabled. False with
 	// LastError() set on a malformed digest or write failure.
 	bool SetPassword(webcommon::CredentialRole role, const std::string &md5_hex);
+
+	// Validate before using EC credentials, so setup can repair invalid fields.
+	bool ValidateEcPassword();
+
+	// Atomically replace the EC secret with its digest and remove the plaintext key.
+	bool SetEcPasswordMD5(const std::string &digest);
 
 	// Modification time of amuleapi-passwords, or 0 when there is no file. Used
 	// to reject sessions older than the last password change, whoever made it.
