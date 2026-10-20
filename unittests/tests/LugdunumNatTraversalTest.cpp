@@ -129,6 +129,59 @@ TEST(LugdunumNatTraversal, ParsesLiveIdChangeVectors)
 	ASSERT_EQUALS((std::uint32_t)57428, c.yourPort);
 }
 
+// Active needs both the 24-byte form and the 0x1000 flag; they arrive in the same packet.
+TEST(LugdunumNatTraversal, CallbackIsActiveOnlyWithTheLongFormAndTheFlag)
+{
+	const std::array<std::uint8_t, 24> mazingaB{ { 0x37,
+		0x6b,
+		0xa1,
+		0x00,
+		0xf9,
+		0x17,
+		0x00,
+		0x00,
+		0x88,
+		0x10,
+		0x00,
+		0x00,
+		0x4f,
+		0x75,
+		0x1c,
+		0x71,
+		0x88,
+		0x10,
+		0x00,
+		0x00,
+		0x85,
+		0xdb,
+		0x00,
+		0x00 } };
+	ASSERT_TRUE(IsNatCallbackActive(ParseIdChangeFields(mazingaB.data(), mazingaB.size())));
+
+	const std::array<std::uint8_t, 16> mazingaA{ { 0xa0,
+		0x69,
+		0xa1,
+		0x00,
+		0xf9,
+		0x17,
+		0x00,
+		0x00,
+		0x88,
+		0x10,
+		0x00,
+		0x00,
+		0x4f,
+		0x75,
+		0x1c,
+		0x71 } };
+	ASSERT_FALSE(IsNatCallbackActive(ParseIdChangeFields(mazingaA.data(), mazingaA.size())));
+
+	std::array<std::uint8_t, 24> longFormWithoutFlag = mazingaB;
+	longFormWithoutFlag[5] = 0x07; // flags 0x17F9 -> 0x07F9
+	ASSERT_FALSE(IsNatCallbackActive(
+		ParseIdChangeFields(longFormWithoutFlag.data(), longFormWithoutFlag.size())));
+}
+
 TEST(LugdunumNatTraversal, HandlesIdChangeBoundarySizesAndLeavesExistingFieldsUnchanged)
 {
 	const std::array<std::uint8_t, 24> full{ { 0x37,
@@ -239,4 +292,128 @@ TEST(LugdunumNatTraversal, ParsesForwardedCallbackWithAndWithoutObfuscation)
 	const auto extraResult = ParseForwardedCallback(withExtra.data(), withExtra.size());
 	ASSERT_TRUE(extraResult.ok);
 	ASSERT_TRUE(extraResult.hasObfuscation);
+}
+
+TEST(LugdunumNatTraversal, RequestsCallbackOnlyWhenEveryPreconditionHolds)
+{
+	CallbackRequestFacts facts;
+	facts.ourId = 100;    // LowID
+	facts.sourceId = 200; // LowID
+	facts.sameServer = true;
+	facts.serverCallbackCapable = true;
+	facts.serverCryptLayerUdpEnabled = true;
+	facts.serverKeyUdp = 42;
+	facts.serverSupportsObfuscationUdp = true;
+	facts.settingEnabled = true;
+	ASSERT_TRUE(ShouldRequestLugdunumNatCallback(facts));
+
+	// The runtime setting (amule.conf's LugdunumNatCallback) defaults to off and overrides every
+	// other precondition.
+	CallbackRequestFacts settingOff = facts;
+	settingOff.settingEnabled = false;
+	ASSERT_FALSE(ShouldRequestLugdunumNatCallback(settingOff));
+
+	// Either side being HighID means no callback is needed/possible this way.
+	CallbackRequestFacts highIdSource = facts;
+	highIdSource.sourceId = 20000000;
+	ASSERT_FALSE(ShouldRequestLugdunumNatCallback(highIdSource));
+
+	CallbackRequestFacts highIdUs = facts;
+	highIdUs.ourId = 20000000;
+	ASSERT_FALSE(ShouldRequestLugdunumNatCallback(highIdUs));
+
+	// Different server, or a server that never answered the opt-in: no send.
+	CallbackRequestFacts differentServer = facts;
+	differentServer.sameServer = false;
+	ASSERT_FALSE(ShouldRequestLugdunumNatCallback(differentServer));
+
+	CallbackRequestFacts notCapable = facts;
+	notCapable.serverCallbackCapable = false;
+	ASSERT_FALSE(ShouldRequestLugdunumNatCallback(notCapable));
+
+	// Each server-way crypto precondition is independently required (S5).
+	CallbackRequestFacts noCryptLayer = facts;
+	noCryptLayer.serverCryptLayerUdpEnabled = false;
+	ASSERT_FALSE(ShouldRequestLugdunumNatCallback(noCryptLayer));
+
+	CallbackRequestFacts noServerKey = facts;
+	noServerKey.serverKeyUdp = 0;
+	ASSERT_FALSE(ShouldRequestLugdunumNatCallback(noServerKey));
+
+	CallbackRequestFacts noObfuscation = facts;
+	noObfuscation.serverSupportsObfuscationUdp = false;
+	ASSERT_FALSE(ShouldRequestLugdunumNatCallback(noObfuscation));
+}
+
+TEST(LugdunumNatTraversal, RecognisesServerWayDatagramsOnlyFromACapableCurrentServer)
+{
+	ServerWayDatagramFacts facts;
+	facts.sourceIp = 0x0100007F; // matches
+	facts.serverIp = 0x0100007F;
+	facts.serverCallbackCapable = true;
+	ASSERT_TRUE(IsServerWayDatagramFromOurServer(facts));
+
+	// Source IP alone never authenticates: a capable server's datagram from a different IP is
+	// not even worth a decrypt attempt (S5).
+	ServerWayDatagramFacts differentIp = facts;
+	differentIp.sourceIp = 0x0200007F;
+	ASSERT_FALSE(IsServerWayDatagramFromOurServer(differentIp));
+
+	// A same-IP datagram from a server that never proved itself callback-capable is not routed
+	// here either.
+	ServerWayDatagramFacts notCapable = facts;
+	notCapable.serverCallbackCapable = false;
+	ASSERT_FALSE(IsServerWayDatagramFromOurServer(notCapable));
+}
+
+TEST(LugdunumNatTraversal, SelectsChallengeOverServerKeyOnlyWhenAPingReplyIsPending)
+{
+	// Mirrors CServerUDPSocket::OnPacketReceived (ServerUDPSocket.cpp) and NeoMule's
+	// ClientUDPSocket.cpp: a pending crypt-ping reply's challenge wins.
+	ASSERT_EQUALS((std::uint32_t)777, SelectServerWayKey(true, 777, 42));
+
+	// No reply pending: the established server key is used regardless of a stale challenge.
+	ASSERT_EQUALS((std::uint32_t)42, SelectServerWayKey(false, 777, 42));
+
+	// Reply pending but no real challenge (0): falls back to the server key.
+	ASSERT_EQUALS((std::uint32_t)42, SelectServerWayKey(true, 0, 42));
+}
+
+TEST(LugdunumNatTraversal, KeepsLowIdServerSourcesOnlyFromOurOwnCapableServer)
+{
+	LowIdServerSourceFacts facts;
+	facts.originIsLocalServer = true;
+	facts.sourceServerIsOurCurrentServer = true;
+	facts.weAreLowId = true;
+	facts.serverCallbackCapable = true;
+	facts.settingEnabled = true;
+	ASSERT_TRUE(ShouldKeepLowIdServerSource(facts));
+
+	// The runtime setting (amule.conf's LugdunumNatCallback) defaults to off: with it off, a kept
+	// source could never be answered.
+	LowIdServerSourceFacts settingOff = facts;
+	settingOff.settingEnabled = false;
+	ASSERT_FALSE(ShouldKeepLowIdServerSource(settingOff));
+
+	// A source-exchange or Kad-sourced record is never kept this way, even with identical
+	// server/capability facts: the server only forwards LowID sources it is prepared to call
+	// back, and that promise only covers what it told us directly.
+	LowIdServerSourceFacts notLocalServer = facts;
+	notLocalServer.originIsLocalServer = false;
+	ASSERT_FALSE(ShouldKeepLowIdServerSource(notLocalServer));
+
+	// A remote server's OP_GLOBFOUNDSOURCES reply is not our current server.
+	LowIdServerSourceFacts notOurServer = facts;
+	notOurServer.sourceServerIsOurCurrentServer = false;
+	ASSERT_FALSE(ShouldKeepLowIdServerSource(notOurServer));
+
+	// A HighID client has no reason to special-case a LowID source this way.
+	LowIdServerSourceFacts notLowId = facts;
+	notLowId.weAreLowId = false;
+	ASSERT_FALSE(ShouldKeepLowIdServerSource(notLowId));
+
+	// The server never answered our opt-in: no promise to forward callbacks exists.
+	LowIdServerSourceFacts notCapable = facts;
+	notCapable.serverCallbackCapable = false;
+	ASSERT_FALSE(ShouldKeepLowIdServerSource(notCapable));
 }

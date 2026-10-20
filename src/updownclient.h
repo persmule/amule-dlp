@@ -319,6 +319,12 @@ private:
 	//! How this client is reached: Refuse exactly where CheckContactPreconditions() declines it.
 	EContactRoute ContactRoute() const;
 	SContactFacts ContactFactsFor(const CNetworkAddress &address) const;
+#ifdef ENABLE_NATT_SERVER_COORDINATION
+	//! Sends OP_NAT_CALLBACKREQUEST for this LowID source when the Lugdunum preconditions hold.
+	//! Called from TryToContact's LowID->LowID decline, so at most once per source: a
+	//! DS_LOWTOLOWIP source is not asked again.
+	void TrySendLugdunumNatCallbackRequest() const;
+#endif
 
 public:
 	void ProcessSharedFileList(const uint8_t *pachPacket, uint32 nSize, wxString &pszDirectory);

@@ -160,15 +160,56 @@ and eNode uses that bit for meta search; aMule does not define it.
 `<ID 4><flags 4><server TCP port 4><reported IP 4><obfuscation TCP port 4><your port 4>`.
 For a LowID, "your port" is our TCP port as the server sees it, after any NAT.
 
-aMule implements, only under `ENABLE_NATT_SERVER_COORDINATION`:
+aMule implements, only under `ENABLE_NATT_SERVER_COORDINATION` (**experimental**, off by
+default; default and `ENABLE_IPV6` builds are unaffected) and only when the runtime setting below
+is also on:
 
-- recognising and logging the server's TCP flag (`CServer::SupportsLugdunumNatCallback()`);
-- reading "your port" for the current session (`CServer::GetSeenTcpPort()`, 0 when absent);
-- pure codecs for the three opcodes (`src/LugdunumNatTraversal.h`). The wiki gives the
-  seen UDP port as `[uint16 4]`; it is read as a 2-byte uint16, not yet confirmed by
-  a capture.
+- runtime opt-in: `thePrefs::IsLugdunumNatCallbackEnabled()` (`amule.conf` key
+  `/eMule/LugdunumNatCallback`, default **off**, no widget, no EC tag). It gates the login
+  opt-in, sending `OP_NAT_CALLBACKREQUEST` and keeping LowID sources, so turning on
+  `ENABLE_NATT_SERVER_COORDINATION` alone (e.g. via `ENABLE_ALL_EXPERIMENTAL` in CI or tester
+  builds) does not enrol a build on a live server. Receiving and logging `0xA7`/`0x37` needs no
+  gate: those only arrive after opting in;
+- login opt-in: `CT_SERVER_FLAGS` ORs in `SRVCAP_NATTRAVERSAL` (`ServerConnect.cpp`);
+- callback-active state for the session: `CServer::IsLugdunumNatCallbackActive()`, set only
+  when one `OP_IDCHANGE` both comes in the 24-byte form and carries the `0x1000` TCP flag
+  (`LugdunumNatTraversal::IsNatCallbackActive()`). `CServer::SupportsLugdunumNatCallback()`
+  still reports the flag alone, which proves nothing by itself (see above);
+- keeping LowID sources from a callback-active server: `CPartFile::AddSources()` passes
+  `keepLowIdSource` to `CanAddSource()`, which otherwise drops every LowID source while we are
+  LowID. As in NeoMule (`CanLow2Low()`), an opted-in server sends only LowID sources it can
+  call back, and source records carry no NatT flag of their own
+  (`LugdunumNatTraversal::ShouldKeepLowIdServerSource()`);
+- sending `OP_NAT_CALLBACKREQUEST` (`0xA6`): when we are LowID, the source we want is a LowID
+  on our current, callback-active server, and the server-way UDP crypto preconditions hold
+  (`thePrefs::IsServerCryptLayerUDPEnabled() && GetServerKeyUDP() != 0 &&
+  SupportsObfuscationUDP()`), `BaseClient.cpp` sends one request from the client UDP socket,
+  encrypted "the server way" (`CEncryptedDatagramSocket::EncryptSendServer`), to the server's
+  `GetObfuscationPortUDP()`. It is hooked at the LowID-to-LowID decline in `TryToContact()`, so
+  it is sent at most once per source: a `DS_LOWTOLOWIP` source is not asked again. Requests are
+  not paced across sources; NeoMule does not pace them either (each waits 3 s for a ping first);
+- receiving `0xA7` server-way on the client UDP socket: `ClientUDPSocket.cpp` recognises a
+  same-IP, callback-capable datagram as worth a `DecryptReceivedServer` attempt, picking the
+  base key the same way `CServerUDPSocket::OnPacketReceived` does -- a pending crypt-ping
+  reply's challenge over the established server key -- and routes on an actual decrypt only
+  (never on IP match alone), then logs and stops: no reply, no punch;
+- receiving `0x37` on the server TCP link (`ServerSocket.cpp`): parsed and logged the same way,
+  sharing one handler (`LugdunumNatTraversal::LogForwardedCallback`,
+  `src/LugdunumNatCallbackLog.h`) with the UDP path;
+- pure codecs and decisions for the above (`src/LugdunumNatTraversal.h`). The port width was
+  confirmed against NeoMule's `opcodes.h` (`<IP 4><UDP port 2><requester ID 4>`), so it is read
+  as a 2-byte uint16.
 
-Not implemented: the login opt-in, sending `0xA6` (which must be obfuscated
-"the server way" and leave from the client UDP socket), routing server UDP that
-arrives on the client UDP socket, handling `0xA7`/`0x37`, the NatT-capable
-LowID sources such a server includes in source answers, and any peer tunnel.
+Not implemented: answering a forwarded callback, any hole punch, and any peer tunnel. Until
+then a server may forward our request to a peer that tries to punch to us with no answer, and
+the kept LowID sources cannot be contacted but count toward the per-file source limit. The
+switch must therefore stay off in default and packaged builds, and the runtime setting above
+stays off until that slice lands.
+
+**Live validation** (PR #2002, got3nks): on eMule Sunrise (`17.15 (lugdunum)`), an opted-in
+LowID sharing a file and an opted-in LowID requester on the same server, both behind one public
+IP, completed the opt-in and the server handed the requester a `DS_LOWTOLOWIP` source -- a
+NatT-capable LowID source is only handed to a NatT-capable LowID requester, matching the wiki.
+The requester's `OP_NAT_CALLBACKREQUEST` then reached the sharer: the forwarded callback arrived
+as **`OP_NAT_CALLBACKREQUESTED` (`0x37`) over the TCP link**, not `0xA7` over UDP, confirming
+Lugdunum's NatT relay works end to end up to the unanswered-callback point above.
