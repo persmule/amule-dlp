@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-20 14:05+0000\n"
+"PO-Revision-Date: 2026-10-20 22:06+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -573,13 +573,13 @@ msgstr "amuleapi перезапустится через %u с."
 
 #: src/amule.cpp
 #, c-format
-msgid "External connection: could not bind to '%s', listening on 127.0.0.1 only."
-msgstr "Внешнее подключение: не удалось привязаться к «%s», прослушивание только на 127.0.0.1."
+msgid "Could not bind ports to the specified address: %s"
+msgstr "Невозможно связать порты с указанными адресами: %s"
 
 #: src/amule.cpp
 #, c-format
-msgid "Could not bind ports to the specified address: %s"
-msgstr "Невозможно связать порты с указанными адресами: %s"
+msgid "External connection: could not bind to '%s', listening on 127.0.0.1 only."
+msgstr "Внешнее подключение: не удалось привязаться к «%s», прослушивание только на 127.0.0.1."
 
 #: src/amule.cpp
 #, c-format
@@ -1055,6 +1055,14 @@ msgstr " КиБ/с"
 #, c-format
 msgid "Up: %.1f%s | Down: %.1f%s"
 msgstr "Отд: %.1f%s | Заг: %.1f%s"
+
+#: src/amuleDlg.cpp
+msgid "Transfer speeds are reported by the daemon. Total upload includes control traffic; peer upload speeds include file packets only. Values in parentheses show protocol overhead in KiB/s."
+msgstr ""
+
+#: src/amuleDlg.cpp
+msgid "Live speeds are averaged over the last second. Total upload includes control traffic; peer upload speeds include file packets only. Values in parentheses show protocol overhead in KiB/s."
+msgstr ""
 
 #: src/amuleDlg.cpp
 #, c-format
@@ -5063,9 +5071,8 @@ msgid "Slot Allocation"
 msgstr "Выделение слотов"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Bandwidth calculator..."
-msgstr "Ограничения скорости передачи"
+msgstr "Калькулятор пропускной способности…"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -7260,23 +7267,20 @@ msgid "Server connection refresh interval: Disabled"
 msgstr "Обновление соединения с сервером: Отключено"
 
 #: src/PrefsUnifiedDlg.cpp
-#, fuzzy
 msgid "Bandwidth calculator"
-msgstr "Ограничения скорости передачи"
+msgstr "Калькулятор пропускной способности"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Enter limits in Mbit/s. Zero means unlimited."
-msgstr ""
+msgstr "Введите ограничения в Мбит/с. Ноль означает без ограничений."
 
 #: src/PrefsUnifiedDlg.cpp
-#, fuzzy
 msgid "Download (Mbit/s)"
-msgstr "Загрузки (%i)"
+msgstr "Загрузка (Мбит/с)"
 
 #: src/PrefsUnifiedDlg.cpp
-#, fuzzy
 msgid "Upload (Mbit/s)"
-msgstr "Предел отдачи"
+msgstr "Отдача (Мбит/с)"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

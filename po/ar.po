@@ -574,13 +574,13 @@ msgstr ""
 
 #: src/amule.cpp
 #, c-format
-msgid "External connection: could not bind to '%s', listening on 127.0.0.1 only."
-msgstr "الاتصال الخارجي: تعذر الربط ب %s، الاستماع على 127.0.0.1 فقط."
+msgid "Could not bind ports to the specified address: %s"
+msgstr "تعذّر ربط المنافذ بالعنوان المحدد: %s"
 
 #: src/amule.cpp
 #, c-format
-msgid "Could not bind ports to the specified address: %s"
-msgstr "تعذّر ربط المنافذ بالعنوان المحدد: %s"
+msgid "External connection: could not bind to '%s', listening on 127.0.0.1 only."
+msgstr "الاتصال الخارجي: تعذر الربط ب %s، الاستماع على 127.0.0.1 فقط."
 
 #: src/amule.cpp
 #, c-format
@@ -1054,6 +1054,14 @@ msgstr " KiB/s"
 #, c-format
 msgid "Up: %.1f%s | Down: %.1f%s"
 msgstr "رفع: %.1f%s | تحميل: %.1f%s"
+
+#: src/amuleDlg.cpp
+msgid "Transfer speeds are reported by the daemon. Total upload includes control traffic; peer upload speeds include file packets only. Values in parentheses show protocol overhead in KiB/s."
+msgstr ""
+
+#: src/amuleDlg.cpp
+msgid "Live speeds are averaged over the last second. Total upload includes control traffic; peer upload speeds include file packets only. Values in parentheses show protocol overhead in KiB/s."
+msgstr ""
 
 #: src/amuleDlg.cpp
 #, c-format
