@@ -2214,14 +2214,6 @@ msgstr ""
 "Tagasiside : %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Sisesta selle faili uus nimi:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Faili ümbernimetamine"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2892,6 +2884,14 @@ msgstr ""
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "Sobib"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Sisesta selle faili uus nimi:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Faili ümbernimetamine"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4149,7 +4149,7 @@ msgstr "Vali kõik"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Piiramatu"
 
@@ -5050,6 +5050,11 @@ msgstr "Saatmise limiit"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Määratud pesa"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Ribalaiuse piirid"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6756,7 +6761,7 @@ msgstr "Kasutan vaikimisi porti (%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7227,6 +7232,25 @@ msgstr[1] "Serveri ühenduse värskendamise intervall: %d minutit"
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Serveri ühenduse värskendamise intervall: Ei kasuta"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Ribalaiuse piirid"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Tõmbamised (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Saatmise limiit"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

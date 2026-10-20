@@ -2215,14 +2215,6 @@ msgstr ""
 "משוב מאת: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "הכנס שם חדש עבור קובץ זה"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "שינוי שם לקובץ"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2893,6 +2885,14 @@ msgstr ""
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "בסדר"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "הכנס שם חדש עבור קובץ זה"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "שינוי שם לקובץ"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4149,7 +4149,7 @@ msgstr "בחר הכל"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "ללא הגבלה"
 
@@ -5054,6 +5054,11 @@ msgstr "מגבלת העלאה"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "הקצאת משבצות"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "מגבלות רוחב פס"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6756,7 +6761,7 @@ msgstr "נשתמש במבואה שבברירת מחדך (%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7227,6 +7232,25 @@ msgstr[1] "מרווח רענון חיבור השרת: %d דקות"
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "רענון חיבור לשרת: מנוטרל"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "מגבלות רוחב פס"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "הורדות (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "מגבלת העלאה"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

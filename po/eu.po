@@ -2215,14 +2215,6 @@ msgstr ""
 "Erantzuna hemendik: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Sar izen berri bat fitxategi honentzat:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Fitxategia berrizendatu"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2893,6 +2885,14 @@ msgstr ""
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "Ados"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Sar izen berri bat fitxategi honentzat:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Fitxategia berrizendatu"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4150,7 +4150,7 @@ msgstr "Hautatu dena"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Mugarik gabea"
 
@@ -5053,6 +5053,11 @@ msgstr "Igoera muga"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Ataka ezarpena"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Konexio mugak"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6761,7 +6766,7 @@ msgstr "Lehenetsiriko ataka erabiliko da (%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7232,6 +7237,25 @@ msgstr[1] "Zerbitzari konexio berritze maiztasuna: %d minutu"
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Zerbitzarira konexio berritze maiztasuna: Ezgaiturik"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Konexio mugak"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Deskargak (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Igoera muga"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

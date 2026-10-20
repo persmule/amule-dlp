@@ -2231,14 +2231,6 @@ msgstr ""
 "Відгук від: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Введіть нову назву для цього файлу:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Змінити назву файлу"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2910,6 +2902,14 @@ msgstr ""
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "Гаразд"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Введіть нову назву для цього файлу:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Змінити назву файлу"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4178,7 +4178,7 @@ msgstr "Вибрати всі"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Безмежно"
 
@@ -5082,6 +5082,11 @@ msgstr "Обмеження вивантаження"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Виділення шматків"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Обмеження ширини смуги"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6797,7 +6802,7 @@ msgstr "Буде використовуватися порт за замовчу
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7275,6 +7280,25 @@ msgstr[2] "Інтервал оновлення з'єднання з сервер
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Інтервал оновлення з'єднання з сервером: вимкнено"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Обмеження ширини смуги"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Звантаження (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Обмеження вивантаження"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

@@ -10,7 +10,7 @@
   "common_err_ec_unavailable": "Nessuna connessione al core di aMule ({message})",
   "common_err_amuled_rejected": "aMule ha rifiutato l'operazione: {message}",
   "common_err_kad_more_exhausted": "Questa ricerca non può essere estesa ulteriormente; eseguila di nuovo per ottenere altri risultati.",
-  "common_err_partfile_unsupported": "Verifica Dati Locali non è supportata mentre il file è ancora in download.",
+  "common_err_partfile_unsupported": "Questa operazione non è supportata mentre il file è ancora in download.",
   "common_apierr_Server not added": "Server non aggiunto",
   "common_bulk_partial": "{failed} di {total} non riusciti: {message}",
   "common_yes": "Sì",
@@ -1037,5 +1037,13 @@
   "messages_captcha_passed": "CAPTCHA superato. Il tuo messaggio è stato consegnato.",
   "messages_captcha_retry": "CAPTCHA non superato. Invia un altro messaggio per riprovare.",
   "messages_captcha_exhausted": "CAPTCHA non superato. Non restano altri tentativi.",
-  "messages_captcha_image": "CAPTCHA della chat"
+  "messages_captcha_image": "CAPTCHA della chat",
+  "shared_delete_incomplete": "Questo file è ancora in download. Annullalo dalla sezione Download.",
+  "downloads_confirm_delete_disk": "Eliminare definitivamente “{name}” dal disco?\n\nCartella: {directory}\n\nIl file non sarà più condiviso. L'operazione non può essere annullata.",
+  "downloads_delete_disk": "Elimina dal disco",
+  "downloads_delete_more": "... e altri {n}",
+  "downloads_confirm_delete_selected_one": "Eliminare dal disco il file selezionato? I file completati verranno eliminati definitivamente; i download attivi verranno annullati e rimossi. L'operazione non può essere annullata.",
+  "downloads_confirm_delete_selected_many": "Eliminare dal disco i {n} file selezionati? I file completati verranno eliminati definitivamente; i download attivi verranno annullati e rimossi. L'operazione non può essere annullata.",
+  "downloads_confirm_delete_selected_other": "Eliminare dal disco i {n} file selezionati? I file completati verranno eliminati definitivamente; i download attivi verranno annullati e rimossi. L'operazione non può essere annullata.",
+  "prefs_field_files_shared_file_reverify_days": "Verifica i dati locali dei file condivisi richiesti ogni N giorni (0 = disattivato)"
 }

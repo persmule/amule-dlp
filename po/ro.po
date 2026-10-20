@@ -2221,14 +2221,6 @@ msgstr ""
 "Feedback de la: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Introduceți noul nume pentru acest fișier:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Redenumire fișier"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2901,6 +2893,14 @@ msgstr ""
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "Bine"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Introduceți noul nume pentru acest fișier:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Redenumire fișier"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4168,7 +4168,7 @@ msgstr "Selectează tot"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Nelimitat"
 
@@ -5081,6 +5081,11 @@ msgstr "Limită încărcare"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Alocare slot"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Limite lățime de bandă"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6793,7 +6798,7 @@ msgstr "Va fi folosit portul implicit (%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7270,6 +7275,25 @@ msgstr[2] "Interval reâmprospătare conexiune server: %d de minute"
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Interval reâmprospătare conexiune server: Dezactivat"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Limite lățime de bandă"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Descărcări (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Limită încărcare"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

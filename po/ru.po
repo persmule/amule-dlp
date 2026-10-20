@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-19 02:02+0000\n"
+"PO-Revision-Date: 2026-10-20 14:05+0000\n"
 "Last-Translator: Radist Morse <radist.morse@gmail.com>\n"
 "Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
@@ -224,7 +224,7 @@ msgstr ""
 "\n"
 "Файл: %s\n"
 "\n"
-"Файл будет удалён и больше не публикуется. Это действие необратимо."
+"Файл будет удалён и перестанет быть общим. Это действие необратимо."
 
 #: src/GuiEvents.cpp
 #, c-format
@@ -2233,14 +2233,6 @@ msgstr ""
 "Ответ от: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Введите новое имя файла:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Переименовать файл"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2907,6 +2899,14 @@ msgstr "%.2f КиБ/с"
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "ОК"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Введите новое имя файла:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Переименовать файл"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4127,13 +4127,12 @@ msgid "Fit visible columns to contents"
 msgstr "Подогнать видимые столбцы по содержимому"
 
 #: src/MuleDataViewCtrl.cpp
-#, fuzzy
 msgid "Show all columns (keep widths)"
-msgstr "Показать все комментарии"
+msgstr "Показать все столбцы (сохранить ширину)"
 
 #: src/MuleDataViewCtrl.cpp
 msgid "Restore default columns and widths"
-msgstr ""
+msgstr "Восстановить столбцы и ширину по умолчанию"
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -4162,7 +4161,7 @@ msgstr "Выделить все"
 msgid "KiB/s"
 msgstr "КиБ/с"
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Неограниченно"
 
@@ -4591,7 +4590,7 @@ msgstr "Передача"
 
 #: src/muuli_wdr.cpp
 msgid "Partfilestatus"
-msgstr "Состояние частичных файлов"
+msgstr "Статус частичного файла"
 
 #: src/muuli_wdr.cpp
 msgid "Last seen complete"
@@ -5064,6 +5063,11 @@ msgid "Slot Allocation"
 msgstr "Выделение слотов"
 
 #: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Ограничения скорости передачи"
+
+#: src/muuli_wdr.cpp
 msgid "Ports"
 msgstr "Порты"
 
@@ -5081,7 +5085,7 @@ msgstr "4665"
 
 #: src/muuli_wdr.cpp
 msgid "This UDP port is used for extended eD2k requests and Kad network"
-msgstr "Этот порт UDP используется для дополнительных eD2k запросов и Kad"
+msgstr "Этот порт UDP используется для расширенных запросов eD2k и сети Kad"
 
 #: src/muuli_wdr.cpp
 msgid "UPnP TCP Port (Optional):"
@@ -5615,7 +5619,7 @@ msgstr "Показывать «Быстрый обработчик ссылок 
 
 #: src/muuli_wdr.cpp
 msgid "Show extended info on categories tabs"
-msgstr "Показывать дополнительную информацию на закладках категорий"
+msgstr "Показывать подробную информацию на вкладках категорий"
 
 #: src/muuli_wdr.cpp
 msgid "Show application version on title"
@@ -6778,7 +6782,7 @@ msgstr "Используется порт по умолчанию (%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr "Регулировка включённого ограничения от 1 КиБ/с до пропускной способности канала."
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr "КиБ/с (%.2f МиБ/с)"
@@ -7254,6 +7258,25 @@ msgstr[2] "Период обновления соединения с серве�
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Обновление соединения с сервером: Отключено"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Ограничения скорости передачи"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Загрузки (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Предел отдачи"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"
@@ -8259,7 +8282,7 @@ msgstr "Общ. файлы"
 
 #: src/SharedFilesCtrl.cpp
 msgid "Source Availability"
-msgstr "Доступность у источников"
+msgstr "Доступно у источников"
 
 #: src/SharedFilesCtrl.cpp
 msgid "Directory Path"
@@ -8439,7 +8462,7 @@ msgstr "Переподгрузка общих файлов: просканиро
 
 #: src/SourceListCtrl.cpp
 msgid "Part Status"
-msgstr "Состояние части"
+msgstr "Статус частей"
 
 #: src/SourceListCtrl.cpp
 msgid "Remote File Name"

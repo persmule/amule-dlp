@@ -2206,14 +2206,6 @@ msgstr ""
 "Geri besleme: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Bu dosya için yeni bir isim girin:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Dosya yeniden adlandır"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2879,6 +2871,14 @@ msgstr "%.2f KiB/s"
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "Tamam"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Bu dosya için yeni bir isim girin:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Dosya yeniden adlandır"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4135,7 +4135,7 @@ msgstr "Tümünü Seç"
 msgid "KiB/s"
 msgstr "KiB/s"
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Sınırsız"
 
@@ -5032,6 +5032,11 @@ msgstr "Gönderim sınırı"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Slot Tahsis Boyutu"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Bağlantı sınırları"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6729,7 +6734,7 @@ msgstr "Varsayılan port kullanılacak (%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, fuzzy, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr "%.1f MiB/s"
@@ -7200,6 +7205,25 @@ msgstr[1] "Sunucu bağlantısı yenileme sıklığı: %d dakika"
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Sunucu bağlantısı yenileme döngüsü: Devre dışı"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Bağlantı sınırları"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "İndirmeler (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Gönderim sınırı"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

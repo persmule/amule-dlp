@@ -2228,14 +2228,6 @@ msgstr ""
 "Informacja zwrotna od:  %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Wprowadź nową nazwę dla tego pliku:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Zmień nazwę"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2908,6 +2900,14 @@ msgstr ""
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "OK"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Wprowadź nową nazwę dla tego pliku:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Zmień nazwę"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4175,7 +4175,7 @@ msgstr "Zaznacz wszystko"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Nielimitowane"
 
@@ -5078,6 +5078,11 @@ msgstr "Limit wysyłania"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Przydział slotów"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Limity przepustowości"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6791,7 +6796,7 @@ msgstr "Zostanie użyty domyślny port (%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7267,6 +7272,25 @@ msgstr[2] "Odświeżanie połączeń do serwera co: %d minut"
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Odświeżanie połączeń do serwera co: Wyłączone"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Limity przepustowości"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Pobieranie (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Limit wysyłania"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

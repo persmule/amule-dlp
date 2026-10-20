@@ -2210,14 +2210,6 @@ msgstr ""
 "Feedback van: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Voer een nieuwe naam voor dit bestand in:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Naam wijzigen"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2882,6 +2874,14 @@ msgstr "%.2f KiB/s"
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "OK"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Voer een nieuwe naam voor dit bestand in:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Naam wijzigen"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4126,7 +4126,7 @@ msgstr "Alles selecteren"
 msgid "KiB/s"
 msgstr "KiB/s"
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Onbegrensd"
 
@@ -5021,6 +5021,11 @@ msgstr "Schakel uploadlimiet in"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Slot-toewijzing"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Bandbreedtegrenzen"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6724,7 +6729,7 @@ msgstr "Standaard poort zal worden gebruikt (%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr "Pas de ingeschakelde limiet aan van 1 KiB/s tot aan de kabelcapaciteit."
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr "KiB/s (%.2f MiB/s)"
@@ -7193,6 +7198,25 @@ msgstr[1] "Server-verbinding verversingsinterval: %d minuten"
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Server verbinding verversingstijd: Uitgeschakeld"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Bandbreedtegrenzen"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Downloads (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Uploadgrens"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

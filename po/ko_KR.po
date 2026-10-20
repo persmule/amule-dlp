@@ -2214,14 +2214,6 @@ msgstr ""
 "피드백 발신자: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "새이름 넣으세요:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "파일 이름변경"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2892,6 +2884,14 @@ msgstr ""
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "확인"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "새이름 넣으세요:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "파일 이름변경"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4150,7 +4150,7 @@ msgstr "모두 선택"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "무제한"
 
@@ -5053,6 +5053,11 @@ msgstr "올려주기 제한"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "칸 배분"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "대역폭 제한"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6756,7 +6761,7 @@ msgstr "기본 포트가 사용될 것입니다.(%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7227,6 +7232,25 @@ msgstr[1] "서버 연결 갱신 간격: %d분"
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "서버 연결 갱신 주기: 비활성화"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "대역폭 제한"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "내려받기 (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "올려주기 제한"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

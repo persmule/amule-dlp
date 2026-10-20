@@ -2219,14 +2219,6 @@ msgstr ""
 "Rückmeldung von: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Einen neuen Namen für diese Datei eingeben:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Datei umbenennen"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2897,6 +2889,14 @@ msgstr ""
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "OK"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Einen neuen Namen für diese Datei eingeben:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Datei umbenennen"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4148,7 +4148,7 @@ msgstr "Alles auswählen"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Unbegrenzt"
 
@@ -5062,6 +5062,11 @@ msgstr "Upload-Einstellung"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Slotzuteilung"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Bandbreitenbegrenzungen"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6772,7 +6777,7 @@ msgstr "Standard-Port wird verwendet (%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7255,6 +7260,25 @@ msgstr[1] "Server-Wiederverbindungsintervall: %d Minuten"
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Server-Wiederverbindungsintervall: Aus"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Bandbreitenbegrenzungen"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Downloads (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Upload-Einstellung"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

@@ -2227,14 +2227,6 @@ msgstr ""
 "ملاحظات من: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "أدخل اسمًا جديدًا لهذا الملف:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "إعادة تسمية الملف"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2901,6 +2893,14 @@ msgstr ""
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "موافق"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "أدخل اسمًا جديدًا لهذا الملف:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "إعادة تسمية الملف"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4155,7 +4155,7 @@ msgstr "تحديد الكل"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "بلا حدود"
 
@@ -5071,6 +5071,11 @@ msgstr "حد الرفع"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "تخصيص الفتحات"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "حدود النطاق الترددي"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6765,7 +6770,7 @@ msgstr "سيتم استخدام المنفذ الافتراضي (%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7236,6 +7241,25 @@ msgstr[1] "فترة تحديث الاتصال بالخادم: %d دقائق"
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "فترة تحديث الإتصال بالخادم :معطل"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "حدود النطاق الترددي"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "تحميل (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "حد الرفع"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

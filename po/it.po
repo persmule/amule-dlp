@@ -20,7 +20,7 @@ msgstr ""
 "Project-Id-Version: aMule 2.3.3\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-14 10:18+0000\n"
+"PO-Revision-Date: 2026-10-20 14:05+0000\n"
 "Last-Translator: got3nks <got3nks@users.noreply.github.com>\n"
 "Language-Team: SebastianoPistore.info@protonmail.ch\n"
 "Language: it\n"
@@ -207,9 +207,8 @@ msgid "Later"
 msgstr "Più tardi"
 
 #: src/GuiEvents.cpp src/amule-remote-gui.cpp
-#, fuzzy
 msgid "The connected core does not support deleting complete files from disk."
-msgstr "Il core connesso non supporta la diagnostica delle ricerche Kad."
+msgstr "Il core connesso non supporta l’eliminazione dal disco dei file completi."
 
 #: src/GuiEvents.cpp src/amule-remote-gui.cpp
 msgid "Delete from disk"
@@ -348,19 +347,15 @@ msgstr "Chiusura dell'applicazione..."
 
 #: src/amule.cpp
 msgid "Saving window settings..."
-msgstr ""
+msgstr "Salvataggio delle impostazioni della finestra..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Saving client credits..."
-msgstr ""
-"\n"
-"Creazione del client in corso...\n"
+msgstr "Salvataggio dei crediti dei client..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Stopping helper applications..."
-msgstr "Esce dall'applicazione."
+msgstr "Arresto delle applicazioni di supporto..."
 
 #: src/amule.cpp
 #, c-format
@@ -392,19 +387,16 @@ msgid "aMule OnExit: Terminating core."
 msgstr "aMule in fase di chiusura: Terminazione del core."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Saving search results..."
-msgstr "Risultato della ricerca"
+msgstr "Salvataggio dei risultati della ricerca..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Saving downloads and shared files..."
-msgstr "Ricarica file condivisi in corso..."
+msgstr "Salvataggio dei download e dei file condivisi..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Flushing download buffers..."
-msgstr "Hashing del file scaricato in corso: %s"
+msgstr "Scrittura dei buffer di download..."
 
 #: src/amule.cpp
 msgid "aMule shutdown completed."
@@ -416,7 +408,7 @@ msgstr "Risultati del debug della memoria per la chiusura di aMule:"
 
 #: src/amule.cpp
 msgid "Finishing shutdown..."
-msgstr ""
+msgstr "Completamento dell’arresto..."
 
 #: src/amule.cpp
 #, c-format
@@ -537,7 +529,7 @@ msgstr "Nodi di bootstrap Kad (nodes.dat)"
 #: src/amule.cpp
 #, c-format
 msgid "Not starting %s: it is neither next to aMule nor on PATH."
-msgstr ""
+msgstr "%s non avviato: non si trova né accanto ad aMule né nel PATH."
 
 #: src/amule.cpp
 #, c-format
@@ -560,7 +552,7 @@ msgstr "Impossibile scrivere il token EC di amuleapi in %s; amuleapi userà la p
 
 #: src/amule.cpp
 msgid "An exception occurred while launching amuleapi."
-msgstr ""
+msgstr "Si è verificata un’eccezione durante l’avvio di amuleapi."
 
 #: src/amule.cpp
 #, c-format
@@ -569,21 +561,21 @@ msgstr "amuleapi in esecuzione su pid %d"
 
 #: src/amule.cpp
 msgid "Could not launch amuleapi during automatic restart."
-msgstr ""
+msgstr "Impossibile avviare amuleapi durante il riavvio automatico."
 
 #: src/amule.cpp
 msgid "You requested to run amuleapi on startup, but the amuleapi binary cannot be run. Please install the package containing aMule's REST API server, or build aMule from source with -DBUILD_AMULEAPI=YES and install it."
 msgstr "Hai scelto di lanciare amuleapi all'avvio, ma il programma amuleapi non può essere eseguito. Installa il pacchetto contenente amuleapi, oppure compila aMule dai sorgenti con -DBUILD_AMULEAPI=YES e installalo."
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not remove the amuleapi EC token file: %s"
-msgstr "Impossibile salvare la password di amuleapi: %s"
+msgstr "Impossibile rimuovere il file del token EC di amuleapi: %s"
 
 #: src/amule.cpp
 #, c-format
 msgid "amuleapi will restart in %u seconds."
-msgstr ""
+msgstr "amuleapi verrà riavviato tra %u secondi."
 
 #: src/amule.cpp
 #, c-format
@@ -736,25 +728,23 @@ msgstr "Preallocazione dello spazio su disco per il file '%s' fallita: %s"
 
 #: src/amule.cpp
 msgid "Stopping network services..."
-msgstr ""
+msgstr "Arresto dei servizi di rete..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Saving source seeds..."
-msgstr "Fonti salvate"
+msgstr "Salvataggio dei seed delle fonti..."
 
 #: src/amule.cpp
 msgid "Stopping background downloads and workers..."
-msgstr ""
+msgstr "Arresto dei download e dei processi in background..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Closing connections..."
-msgstr " si sta connettendo..."
+msgstr "Chiusura delle connessioni..."
 
 #: src/amule.cpp
 msgid "Saving known files and statistics..."
-msgstr ""
+msgstr "Salvataggio dei file noti e delle statistiche..."
 
 #: src/amule.cpp
 msgid "ERROR: can't open logfile"
@@ -1336,7 +1326,7 @@ msgstr "Impossibile creare la directory '%s' per la categoria '%s', verrà mante
 
 #: src/amule-remote-gui.cpp
 msgid "The core did not confirm deleting the file. Refresh and try again."
-msgstr ""
+msgstr "Il core non ha confermato l’eliminazione del file. Aggiorna e riprova."
 
 #: src/amule-remote-gui.cpp
 #, c-format
@@ -2231,14 +2221,6 @@ msgstr ""
 "Feedback da: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Inserisci un nuovo nome per questo file:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Rinomina file"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2444,9 +2426,8 @@ msgid "Unauthorized access attempt from %s. Connection closed."
 msgstr "Tentativo di accesso non autorizzato da %s. Connessione terminata."
 
 #: src/ExternalConn.cpp
-#, fuzzy
 msgid "Invalid partfile command target."
-msgstr "Nome file non valido."
+msgstr "Destinazione non valida per il comando sul file parziale."
 
 #: src/ExternalConn.cpp
 #, c-format
@@ -2465,7 +2446,7 @@ msgstr "Impossibile annullare un download completato: %s"
 
 #: src/ExternalConn.cpp
 msgid "The selected download has changed or is completing. Refresh and try again."
-msgstr ""
+msgstr "Il download selezionato è cambiato o è in completamento. Aggiorna e riprova."
 
 #: src/ExternalConn.cpp
 #, c-format
@@ -2560,9 +2541,8 @@ msgid "Version check is not available on this daemon."
 msgstr "Il controllo versione non è disponibile su questo demone."
 
 #: src/ExternalConn.cpp
-#, fuzzy
 msgid "Invalid complete-file deletion target."
-msgstr "Nome file non valido."
+msgstr "Destinazione non valida per l’eliminazione del file completo."
 
 #: src/ExternalConn.cpp
 msgid "File not found."
@@ -2905,6 +2885,14 @@ msgstr "%.2f KiB/s"
 msgid "OK"
 msgstr "OK"
 
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Inserisci un nuovo nome per questo file:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Rinomina file"
+
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
 msgstr "Il comando non indica un eseguibile."
@@ -2941,7 +2929,7 @@ msgstr "Il comando del lettore multimediale ‘%s’ non è stato eseguito: %s"
 #: src/FileLaunch.cpp
 #, c-format
 msgid "The configured video player is unavailable inside aMule's Flatpak sandbox: %s. Programs installed on the host are not directly available here. Completed files can still open with the desktop's default application; previewing an unfinished download needs a player the sandbox can run, such as a self-contained player saved in your home folder."
-msgstr ""
+msgstr "Il lettore video configurato non è disponibile nella sandbox Flatpak di aMule: %s. I programmi installati sul sistema host non sono direttamente disponibili qui. I file completati possono comunque essere aperti con l’applicazione predefinita del desktop; per l’anteprima di un download non completato serve un lettore eseguibile nella sandbox, come un lettore autonomo salvato nella tua cartella home."
 
 #: src/FileLaunch.cpp
 #, c-format
@@ -3299,7 +3287,7 @@ msgstr "Download HTTP cancellato"
 #: src/HTTPDownload.cpp
 #, c-format
 msgid "HTTP download of %s stopped: it is larger than %u MiB."
-msgstr ""
+msgstr "Download HTTP di %s interrotto: è più grande di %u MiB."
 
 #: src/HTTPDownload.cpp
 msgid "The URL to download can't be empty"
@@ -4032,7 +4020,7 @@ msgstr "ATTENZIONE: "
 #: src/MediaProbe.cpp
 #, c-format
 msgid "Media metadata: not using %s, because another user owns it or a folder above it."
-msgstr ""
+msgstr "Metadati multimediali: %s non viene usato perché il file, o una cartella superiore, appartiene a un altro utente."
 
 #: src/MediaProbe.cpp
 msgid "Media metadata: no ffprobe binary found. Install ffmpeg, or set the ffprobe path in preferences; length, bitrate and codec will not be extracted."
@@ -4107,20 +4095,19 @@ msgstr "Chiudi"
 
 #: src/MuleDataViewCtrl.cpp
 msgid "Fit column to contents"
-msgstr ""
+msgstr "Adatta la colonna al contenuto"
 
 #: src/MuleDataViewCtrl.cpp
 msgid "Fit visible columns to contents"
-msgstr ""
+msgstr "Adatta le colonne visibili al contenuto"
 
 #: src/MuleDataViewCtrl.cpp
-#, fuzzy
 msgid "Show all columns (keep widths)"
-msgstr "Mostra tutti i commenti"
+msgstr "Mostra tutte le colonne (mantieni le larghezze)"
 
 #: src/MuleDataViewCtrl.cpp
 msgid "Restore default columns and widths"
-msgstr ""
+msgstr "Ripristina colonne e larghezze predefinite"
 
 #: src/MuleTextCtrl.cpp
 msgid "Cut"
@@ -4149,7 +4136,7 @@ msgstr "Seleziona tutto"
 msgid "KiB/s"
 msgstr "KiB/s"
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Illimitato"
 
@@ -5022,7 +5009,7 @@ msgstr "Riproduttore video"
 
 #: src/muuli_wdr.cpp
 msgid "Line capacities"
-msgstr ""
+msgstr "Capacità della linea"
 
 #: src/muuli_wdr.cpp
 msgid "Upload"
@@ -5033,18 +5020,21 @@ msgid "Bandwidth limits"
 msgstr "Limiti di banda"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Enable download limit"
-msgstr "Limite di scaricamento"
+msgstr "Abilita limite di scaricamento"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Enable upload limit"
-msgstr "Limite di invio"
+msgstr "Abilita limite di invio"
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Allocazione slot"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Limiti di banda"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -5156,23 +5146,23 @@ msgstr "IPv6"
 
 #: src/muuli_wdr.cpp
 msgid "Address families:"
-msgstr ""
+msgstr "Famiglie di indirizzi:"
 
 #: src/muuli_wdr.cpp
 msgid "IPv4 only"
-msgstr ""
+msgstr "Solo IPv4"
 
 #: src/muuli_wdr.cpp
 msgid "IPv4 and IPv6"
-msgstr ""
+msgstr "IPv4 e IPv6"
 
 #: src/muuli_wdr.cpp
 msgid "Takes effect after restarting aMule."
-msgstr ""
+msgstr "Ha effetto dopo il riavvio di aMule."
 
 #: src/muuli_wdr.cpp
 msgid "Advertise my IPv6 address to other peers"
-msgstr ""
+msgstr "Comunica il mio indirizzo IPv6 agli altri peer"
 
 #: src/muuli_wdr.cpp
 msgid "Remove dead server after"
@@ -5292,15 +5282,15 @@ msgstr "Assegna priorità automatica ai nuovi file condivisi"
 
 #: src/muuli_wdr.cpp
 msgid "Verify local data of requested shared files every"
-msgstr ""
+msgstr "Verifica i dati locali dei file condivisi richiesti ogni"
 
 #: src/muuli_wdr.cpp
 msgid "Re-read requested complete files in the background and compare them with their stored MD4/AICH hashes, as Verify Local Data does. Corrupt parts stop being shared. Uploads continue during the check."
-msgstr ""
+msgstr "Rilegge in background i file completi richiesti e li confronta con gli hash MD4/AICH memorizzati, come fa Verifica Dati Locali. Le parti danneggiate non vengono più condivise. Gli upload continuano durante il controllo."
 
 #: src/muuli_wdr.cpp
 msgid "days (0 = off)"
-msgstr ""
+msgstr "giorni (0 = disattivato)"
 
 #: src/muuli_wdr.cpp
 msgid "Intelligent Corruption Handling (I.C.H.)"
@@ -5568,23 +5558,23 @@ msgstr "Disabilita la modalità standby a tempo"
 
 #: src/muuli_wdr.cpp
 msgid "Appearance: "
-msgstr ""
+msgstr "Aspetto: "
 
 #: src/muuli_wdr.cpp
 msgid "Follow system"
-msgstr ""
+msgstr "Segui il sistema"
 
 #: src/muuli_wdr.cpp
 msgid "Light mode"
-msgstr ""
+msgstr "Modalità chiara"
 
 #: src/muuli_wdr.cpp
 msgid "Dark mode"
-msgstr ""
+msgstr "Modalità scura"
 
 #: src/muuli_wdr.cpp
 msgid "Appearance changes take effect after restarting aMule."
-msgstr ""
+msgstr "Le modifiche all’aspetto hanno effetto dopo il riavvio di aMule."
 
 #: src/muuli_wdr.cpp
 msgid "Skin to use: "
@@ -6746,12 +6736,12 @@ msgstr "Sarà usata la porta predefinita (%d)"
 
 #: src/BandwidthLimitSlider.h
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
-msgstr ""
+msgstr "Regola il limite abilitato da 1 KiB/s fino alla capacità della linea."
 
-#: src/BandwidthLimitSlider.h
-#, fuzzy, c-format
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
+#, c-format
 msgid "KiB/s (%.2f MiB/s)"
-msgstr "%.1f MiB/s"
+msgstr "KiB/s (%.2f MiB/s)"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Interface"
@@ -6911,9 +6901,8 @@ msgid "- External connect port changed.\n"
 msgstr "- Porta della connessione esterna modificata. \n"
 
 #: src/PrefsUnifiedDlg.cpp
-#, fuzzy
 msgid "- Address families changed.\n"
-msgstr "- Associazione all'indirizzo locale modificata.\n"
+msgstr "- Famiglie di indirizzi modificate.\n"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "- External connect acceptance changed.\n"
@@ -7220,6 +7209,25 @@ msgid "Server connection refresh interval: Disabled"
 msgstr "Intervallo aggiornamento connessione ai server: disabilitato"
 
 #: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Limiti di banda"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Download (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Limite di invio"
+
+#: src/PrefsUnifiedDlg.cpp
 msgid "disabled"
 msgstr "disattivato"
 
@@ -7365,9 +7373,9 @@ msgid "Only saving the first %u of %u results for search \"%s\"."
 msgstr "Verranno salvati solo i primi %u risultati su %u per la ricerca \"%s\"."
 
 #: src/SearchList.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "IO error while saving %s: %s"
-msgstr "Errore I/O durante la lettura del file %s: %s"
+msgstr "Errore I/O durante il salvataggio di %s: %s"
 
 #: src/SearchList.cpp
 msgid "WARNING: Stored search list corrupted, contains invalid header."
@@ -8138,7 +8146,7 @@ msgstr[1] "Riestrazione dei metadati multimediali per %u file condivisi"
 
 #: src/SharedFileList.cpp
 msgid "The selected file has changed or is not a complete file."
-msgstr ""
+msgstr "Il file selezionato è cambiato o non è un file completo."
 
 #: src/SharedFileList.cpp
 #, c-format
@@ -8390,9 +8398,8 @@ msgid "A4AF"
 msgstr "A4AF"
 
 #: src/SplashScreen.cpp
-#, fuzzy
 msgid "Closing aMule"
-msgstr "Mostra aMule"
+msgstr "Chiusura di aMule"
 
 #: src/Statistics.cpp
 #, c-format
@@ -9307,9 +9314,9 @@ msgid "Verify Local Data: %s is empty, so there is nothing to check."
 msgstr "Verifica Dati Locali: %s è vuoto, quindi non c'è nulla da controllare."
 
 #: src/ThreadTasks.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Verify Local Data: missing MD4 hashes for %s, so it was not checked."
-msgstr "Verifica Dati Locali: impossibile leggere %s, quindi non è stato controllato."
+msgstr "Verifica Dati Locali: mancano gli hash MD4 di %s, quindi non è stato controllato."
 
 #: src/ThreadTasks.cpp
 #, c-format

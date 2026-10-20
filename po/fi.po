@@ -2216,14 +2216,6 @@ msgstr ""
 "Palaute tullut: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Anna uusi nimi tälle tiedostolle:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Tiedoston uudelleennimeäminen"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2894,6 +2886,14 @@ msgstr ""
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "OK"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Anna uusi nimi tälle tiedostolle:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Tiedoston uudelleennimeäminen"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4151,7 +4151,7 @@ msgstr "Valitse kaikki"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Rajoittamaton"
 
@@ -5054,6 +5054,11 @@ msgstr "Lähetysraja"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Paikkavaraus"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Kaistankäytön rajoitukset"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6763,7 +6768,7 @@ msgstr "Käytetään oletusporttia (%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7234,6 +7239,25 @@ msgstr[1] "Palvelinyhteyden päivitysväli: %d minuuttia"
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Palvelinyhteyden päivitysväli: Ei käytössä"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Kaistankäytön rajoitukset"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Lataukset (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Lähetysraja"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

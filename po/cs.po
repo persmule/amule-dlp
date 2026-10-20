@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-16 08:33+0000\n"
+"PO-Revision-Date: 2026-10-20 14:05+0000\n"
 "Last-Translator: David Watzke <david@watzke.cz>\n"
 "Language-Team: cs <cs@li.org>\n"
 "Language: cs\n"
@@ -199,7 +199,7 @@ msgstr "Později"
 
 #: src/GuiEvents.cpp src/amule-remote-gui.cpp
 msgid "The connected core does not support deleting complete files from disk."
-msgstr ""
+msgstr "Připojené jádro nepodporuje smazání kompletních souborů z disku."
 
 #: src/GuiEvents.cpp src/amule-remote-gui.cpp
 msgid "Delete from disk"
@@ -339,19 +339,15 @@ msgstr "Nyní se ukončuje hlavní aplikace..."
 
 #: src/amule.cpp
 msgid "Saving window settings..."
-msgstr ""
+msgstr "Ukládání nastavení okna..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Saving client credits..."
-msgstr ""
-"\n"
-"Vytváření klienta...\n"
+msgstr "Ukládání klientských kreditů..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Stopping helper applications..."
-msgstr "Ukončit aplikaci."
+msgstr "Ukončování pomocných aplikací..."
 
 #: src/amule.cpp
 #, c-format
@@ -383,19 +379,16 @@ msgid "aMule OnExit: Terminating core."
 msgstr "aMule OnExit: Ukončování jádra."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Saving search results..."
-msgstr "Výsledek hledání"
+msgstr "Ukládání výsledků vyhledávání..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Saving downloads and shared files..."
-msgstr "Opětovné načítání sdílených souborů..."
+msgstr "Ukládání stahování a sdílených souborů..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Flushing download buffers..."
-msgstr "Hashování staženého soubor: %s"
+msgstr "Vyčištění mezipamětí stahování..."
 
 #: src/amule.cpp
 msgid "aMule shutdown completed."
@@ -407,12 +400,12 @@ msgstr "Výsledky ladění paměti při ukončení aMule:"
 
 #: src/amule.cpp
 msgid "Finishing shutdown..."
-msgstr ""
+msgstr "Dokončování vypnutí..."
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Binding aMule's peer-to-peer and HTTP traffic to interface: %s"
-msgstr "Veškerý síťový provoz je vázán na rozhraní: %s"
+msgstr "Svazování aMule síťového provozu P2P a HTTP s rozhraním: %s"
 
 #: src/amule.cpp
 #, c-format
@@ -524,7 +517,7 @@ msgstr "Zaváděcí uzly Kad (nodes.dat)"
 #: src/amule.cpp
 #, c-format
 msgid "Not starting %s: it is neither next to aMule nor on PATH."
-msgstr ""
+msgstr "Nespouštím %s: není vedle aMule ani v PATH."
 
 #: src/amule.cpp
 #, c-format
@@ -547,7 +540,7 @@ msgstr "Nebylo možné zapsat token amuleapi EC do %s; amuleapi se tedy vrátí 
 
 #: src/amule.cpp
 msgid "An exception occurred while launching amuleapi."
-msgstr ""
+msgstr "Došlo k výjimce při spuštění amuleapi."
 
 #: src/amule.cpp
 #, c-format
@@ -556,21 +549,21 @@ msgstr "amuleapi běží s PID %d"
 
 #: src/amule.cpp
 msgid "Could not launch amuleapi during automatic restart."
-msgstr ""
+msgstr "Nepodařilo se spustit amuleapi během automatického restartu."
 
 #: src/amule.cpp
 msgid "You requested to run amuleapi on startup, but the amuleapi binary cannot be run. Please install the package containing aMule's REST API server, or build aMule from source with -DBUILD_AMULEAPI=YES and install it."
 msgstr "Požádali jste o spuštění amuleapi po startu, avšak binární soubor amuleapi nelze spustit. Nainstalujte balíček obsahující REST API server aMule, nebo sestavte aMule ze zdrojového kódu pomocí přepínače -DBUILD_AMULEAPI=YES a pak jej nainstalujte."
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not remove the amuleapi EC token file: %s"
-msgstr "Nepodařilo se uložit heslo amuleapi: %s"
+msgstr "Nepodařilo se odebrat soubor amuleapi EC tokenu: %s"
 
 #: src/amule.cpp
 #, c-format
 msgid "amuleapi will restart in %u seconds."
-msgstr ""
+msgstr "amuleapi bude restartováno za %u sekund."
 
 #: src/amule.cpp
 #, c-format
@@ -604,54 +597,54 @@ msgstr ""
 
 #: src/amule.cpp
 msgid "The P2P TCP port conflicts with the External Connections port. No sockets were changed.\n"
-msgstr ""
+msgstr "P2P TCP port je v kolizi s portem externích připojení. Nebyly změněny žádné sockety.\n"
 
 #: src/amule.cpp
 msgid "The P2P TCP port is too high for its associated server UDP port. No sockets were changed.\n"
-msgstr ""
+msgstr "P2P TCP port má příliš vysoké číslo pro s ním spojený UDP port serveru. Nebyly změněny žádné sockety.\n"
 
 #: src/amule.cpp
 msgid "The client UDP port conflicts with the server UDP port (TCP+3). No sockets were changed.\n"
-msgstr ""
+msgstr "Klientský UDP port je v kolizi s UDP portem serveru (TCP+3). Nebyly změněny žádné sockety.\n"
 
 #: src/amule.cpp
 #, c-format
 msgid "Could not rebind the server UDP port %u; no sockets were changed.\n"
-msgstr ""
+msgstr "Nepodařilo se znovu svázat UDP port serveru %u; nebyly změněny žádné sockety.\n"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not rebind the P2P TCP port %u. %s"
-msgstr "CHYBA: Nelze naslouchat na portu TCP."
+msgstr "Nelze znovu svázat P2P TCP port %u. %s"
 
 #: src/amule.cpp
 msgid "The previous listener and server UDP socket remain active.\n"
-msgstr ""
+msgstr "Předchozí naslouchač a UDP socket serveru zůstává aktivní.\n"
 
 #: src/amule.cpp
 msgid "The server UDP socket could not be restored; restart aMule.\n"
-msgstr ""
+msgstr "UDP socket serveru nemohl být obnoven; restartujte aMule.\n"
 
 #: src/amule.cpp
 msgid "The previous P2P listeners remain active.\n"
-msgstr ""
+msgstr "Předchozí P2P naslouchače zůstávají aktivní.\n"
 
 #: src/amule.cpp
 msgid "The previous client UDP socket remains active.\n"
-msgstr ""
+msgstr "Předchozí klientský a UDP socket zůstává aktivní.\n"
 
 #: src/amule.cpp
 msgid "Some previous P2P sockets could not be restored; restart aMule.\n"
-msgstr ""
+msgstr "Některé předchozí P2P sockety nemohly být obnoveny; restartujte aMule.\n"
 
 #: src/amule.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Could not rebind the client UDP port %u. %s"
-msgstr "Nešlo smazat kategorii: %s"
+msgstr "Nepodařilo se znovu svázat klientský UDP port %u. %s"
 
 #: src/amule.cpp
 msgid "P2P listening sockets rebound; established peer connections were kept."
-msgstr ""
+msgstr "Sockety P2P pro naslouchání byly obnoveny; navázaná spojení s peery byla zachována."
 
 #: src/amule.cpp
 msgid "Failed to create OnlineSig File"
@@ -714,7 +707,7 @@ msgstr "Mediální metadata: sondovaný soubor již není znám, výsledek byl z
 #: src/amule.cpp
 #, c-format
 msgid "Verify Local Data: another file named '%s' in your shared folders has the same content as '%s' and may be an intact copy of it."
-msgstr ""
+msgstr "Ověřte místní data: další soubor s názvem '%s' ve sdílené složce má stejný obsah jako '%s' a může být neporušenou kopií."
 
 #: src/amule.cpp
 #, c-format
@@ -723,12 +716,11 @@ msgstr "Předběžné přidělení místa na disku pro soubor '%s' selhalo: %s"
 
 #: src/amule.cpp
 msgid "Stopping network services..."
-msgstr ""
+msgstr "Zastavování síťových služeb..."
 
 #: src/amule.cpp
-#, fuzzy
 msgid "Saving source seeds..."
-msgstr "Uchované zdroje"
+msgstr "Ukládání seedů zdrojů..."
 
 #: src/amule.cpp
 msgid "Stopping background downloads and workers..."
@@ -2229,14 +2221,6 @@ msgstr ""
 "Zpětná vazba od: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Zadejte nový název souboru:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Přejmenování souboru"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2904,6 +2888,14 @@ msgstr "%.2f KiB/s"
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "OK"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Zadejte nový název souboru:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Přejmenování souboru"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4169,7 +4161,7 @@ msgstr "Vybrat vše"
 msgid "KiB/s"
 msgstr "KiB/s"
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Neomezený"
 
@@ -5066,6 +5058,11 @@ msgstr "Limit odesílání"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Přidělování slotů"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Limity šířky pásma"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6764,7 +6761,7 @@ msgstr "Bude použit výchozí port (%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, fuzzy, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr "%.1f MiB/s"
@@ -7242,6 +7239,25 @@ msgstr[2] "Interval obnovování připojení k serveru: %d minut"
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Interval obnovování připojení k serveru: vypnuto"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Limity šířky pásma"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Stahování (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Limit odesílání"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

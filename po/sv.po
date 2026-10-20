@@ -2206,14 +2206,6 @@ msgstr ""
 "Återkoppling från: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Ange nytt namn för den här filen:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Byt namn på fil"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2879,6 +2871,14 @@ msgstr "%.2f KiB/s"
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "OK"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Ange nytt namn för den här filen:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Byt namn på fil"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4135,7 +4135,7 @@ msgstr "Markera alla"
 msgid "KiB/s"
 msgstr "KiB/s"
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Obegränsad"
 
@@ -5032,6 +5032,11 @@ msgstr "Uppladdningsbegränsning"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Spårallokering"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Bandbreddsbegränsningar"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6728,7 +6733,7 @@ msgstr "Standardporten kommer att användas ( %d )"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, fuzzy, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr "%.1f MiB/s"
@@ -7199,6 +7204,25 @@ msgstr[1] "Serveranslutninguppdateringsintervall: %d minuter"
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Serveranslutningsuppdateringsintervall: Inaktiverad"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Bandbreddsbegränsningar"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Hämtningar (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Uppladdningsbegränsning"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

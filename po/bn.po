@@ -2190,14 +2190,6 @@ msgstr ""
 "ফিডব্যাক প্রেরক: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "এই ফাইলের জন্য নতুন নাম দিন:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "ফাইলের নাম পরিবর্তন"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2863,6 +2855,14 @@ msgstr ""
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "ঠিক আছে"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "এই ফাইলের জন্য নতুন নাম দিন:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "ফাইলের নাম পরিবর্তন"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4116,7 +4116,7 @@ msgstr "সব নির্বাচন করুন"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "সীমাহীন"
 
@@ -5013,6 +5013,11 @@ msgstr "আপলোড সীমা"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "স্লট বরাদ্দ"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "ব্যান্ডউইথ সীমা"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6706,7 +6711,7 @@ msgstr "ডিফল্ট পোর্ট ব্যবহার করা হ�
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7177,6 +7182,25 @@ msgstr[1] "সার্ভার সংযোগ রিফ্রেশ ব্য
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "সার্ভার সংযোগ রিফ্রেশ ব্যবধান: নিষ্ক্রিয়"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "ব্যান্ডউইথ সীমা"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "ডাউনলোড (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "আপলোড সীমা"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"
