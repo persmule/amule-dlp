@@ -77,3 +77,23 @@ std::unique_ptr<CECPacket> MakePrefsDiffPacket(const CECPacket &base, const CECP
 	}
 	return diff;
 }
+
+void UpdateNetworkPrefsSnapshot(CECPacket &snapshot, bool ed2kEnabled, bool kadEnabled)
+{
+	if (CECTag *connection = snapshot.GetTagByName(EC_TAG_PREFS_CONNECTIONS)) {
+		CECEmptyTag updated(EC_TAG_PREFS_CONNECTIONS);
+		for (const CECTag &child : *connection) {
+			if (child.GetTagName() != EC_TAG_NETWORK_ED2K &&
+				child.GetTagName() != EC_TAG_NETWORK_KADEMLIA) {
+				updated.AddTag(child);
+			}
+		}
+		if (ed2kEnabled) {
+			updated.AddTag(CECEmptyTag(EC_TAG_NETWORK_ED2K));
+		}
+		if (kadEnabled) {
+			updated.AddTag(CECEmptyTag(EC_TAG_NETWORK_KADEMLIA));
+		}
+		*connection = updated;
+	}
+}

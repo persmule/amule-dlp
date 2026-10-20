@@ -25,6 +25,7 @@
 #include <muleunit/test.h>
 
 #include "ECPrefsDiff.h"
+#include "NetworkPreferences.h"
 
 using namespace muleunit;
 
@@ -165,4 +166,97 @@ TEST(ECPrefsDiff, AmuleApiAdminPasswordHasNoOffState)
 		}
 	}
 	ASSERT_EQUALS(0u, MakePrefsDiffPacket(current, withoutAdmin)->GetTagCount());
+}
+
+TEST(ECPrefsDiff, NetworkPollKeepsReverseToggleWritable)
+{
+	CECPacket base = MakePrefs(100, true, true, true);
+	UpdateNetworkPrefsSnapshot(base, true, false);
+	CECPacket current(base);
+	UpdateNetworkPrefsSnapshot(current, false, true);
+	const auto diff = MakePrefsDiffPacket(base, current);
+	ASSERT_EQUALS(0u, Find(*diff, EC_TAG_PREFS_CONNECTIONS, EC_TAG_NETWORK_ED2K)->GetInt());
+	ASSERT_EQUALS(1u, Find(*diff, EC_TAG_PREFS_CONNECTIONS, EC_TAG_NETWORK_KADEMLIA)->GetInt());
+	ASSERT_TRUE(Find(*diff, EC_TAG_PREFS_CONNECTIONS, EC_TAG_CONN_MAX_UL) == nullptr);
+	ASSERT_TRUE(Find(*diff, EC_TAG_PREFS_MESSAGEFILTER, EC_TAG_MSGFILTER_COMMENT_KEYWORDS) == nullptr);
+}
+
+TEST(ECPrefsDiff, NetworkPollPreservesOtherPendingEdits)
+{
+	CECPacket base = MakePrefs(100, true, true, true);
+	CECPacket current = MakePrefs(200, true, true, true);
+	for (bool ed2k : { false, true }) {
+		for (bool kad : { false, true }) {
+			UpdateNetworkPrefsSnapshot(base, ed2k, kad);
+			UpdateNetworkPrefsSnapshot(current, ed2k, kad);
+			const auto diff = MakePrefsDiffPacket(base, current);
+			ASSERT_EQUALS(
+				200u, Find(*diff, EC_TAG_PREFS_CONNECTIONS, EC_TAG_CONN_MAX_UL)->GetInt());
+			ASSERT_TRUE(Find(*diff, EC_TAG_PREFS_CONNECTIONS, EC_TAG_NETWORK_ED2K) == nullptr);
+			ASSERT_TRUE(
+				Find(*diff, EC_TAG_PREFS_CONNECTIONS, EC_TAG_NETWORK_KADEMLIA) == nullptr);
+		}
+	}
+}
+
+TEST(ECPrefsDiff, RepeatedNetworkPollIsIdempotent)
+{
+	CECPacket base = MakePrefs(100, true, true, true);
+	UpdateNetworkPrefsSnapshot(base, true, true);
+	CECPacket repeated(base);
+	UpdateNetworkPrefsSnapshot(repeated, true, true);
+	ASSERT_EQUALS(0u, MakePrefsDiffPacket(base, repeated)->GetTagCount());
+	UpdateNetworkPrefsSnapshot(repeated, false, false);
+	const auto diff = MakePrefsDiffPacket(base, repeated);
+	ASSERT_EQUALS(0u, Find(*diff, EC_TAG_PREFS_CONNECTIONS, EC_TAG_NETWORK_ED2K)->GetInt());
+	ASSERT_EQUALS(0u, Find(*diff, EC_TAG_PREFS_CONNECTIONS, EC_TAG_NETWORK_KADEMLIA)->GetInt());
+}
+
+TEST(ECPrefsDiff, OpenNetworkCheckboxFollowsRemoteChanges)
+{
+	CNetworkPreferenceEdit edit;
+	edit.Reset(false);
+	bool displayed = edit.Merge(false, true);
+	ASSERT_TRUE(displayed);
+	displayed = edit.Merge(displayed, false);
+	ASSERT_FALSE(displayed);
+}
+
+TEST(ECPrefsDiff, OpenNetworkCheckboxKeepsStagedEdit)
+{
+	CNetworkPreferenceEdit edit;
+	edit.Reset(false);
+	// The user enabled the checkbox, but has not saved it yet.
+	ASSERT_TRUE(edit.Merge(true, false));
+	// An external client subsequently makes the same change.
+	ASSERT_TRUE(edit.Merge(true, true));
+	// The user can still change back, even as a fresh poll arrives.
+	ASSERT_FALSE(edit.Merge(false, true));
+	// Reopening the dialog discards the cancelled edit.
+	edit.Reset(true);
+	ASSERT_FALSE(edit.Merge(true, false));
+}
+
+TEST(ECPrefsDiff, OpenNetworkCheckboxKeepsEditAcrossRemoteRoundTrip)
+{
+	for (const bool initial : { false, true }) {
+		CNetworkPreferenceEdit edit;
+		edit.Reset(initial);
+		bool displayed = edit.Merge(!initial, initial);
+		ASSERT_EQUALS(!initial, displayed);
+		displayed = edit.Merge(displayed, !initial);
+		ASSERT_EQUALS(!initial, displayed);
+		displayed = edit.Merge(displayed, initial);
+		ASSERT_EQUALS(!initial, displayed);
+	}
+}
+
+TEST(ECPrefsDiff, RevertingStagedNetworkEditResumesRemoteUpdates)
+{
+	CNetworkPreferenceEdit edit;
+	edit.Reset(false);
+	ASSERT_TRUE(edit.Merge(true, false));
+	// The user returns to the core's current value before saving.
+	ASSERT_FALSE(edit.Merge(false, false));
+	ASSERT_TRUE(edit.Merge(false, true));
 }

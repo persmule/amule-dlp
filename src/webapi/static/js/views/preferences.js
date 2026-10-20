@@ -100,7 +100,7 @@ const TABS = [
     ] },
     { legendKey: "prefs_group_networks", fields: [
       { key: "kad_enabled", type: "bool" },
-      { key: "ed2k_enabled", type: "bool", readonly: true, labelKey: "prefs_ed2k_readonly" },
+      { key: "ed2k_enabled", type: "bool", labelKey: "prefs_ed2k_readonly" },
       { key: "autoconnect", type: "bool" },
       { key: "reconnect_on_connection_loss", type: "bool" },
     ] },

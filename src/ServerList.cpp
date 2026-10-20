@@ -468,7 +468,7 @@ void CServerList::GetUserFileStatus(uint32 &user, uint32 &file)
 
 CServerList::~CServerList()
 {
-	if (thePrefs::GetNetworkED2K() && IsInitialized()) {
+	if (IsInitialized()) {
 		SaveServerMet();
 	}
 	while (!m_servers.empty()) {

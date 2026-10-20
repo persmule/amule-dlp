@@ -168,6 +168,9 @@ CEC_ConnState_Tag::CEC_ConnState_Tag(EC_DETAIL_LEVEL detail_level)
 		  (Kademlia::CKademlia::IsFirewalled() ? 0x08 : 0x00) |
 		  (Kademlia::CKademlia::IsRunning() ? 0x10 : 0x00)))
 {
+	AddTag(CECTag(EC_TAG_NETWORKS_ENABLED,
+		(uint8)((thePrefs::GetNetworkED2K() ? 0x01 : 0x00) |
+			(thePrefs::GetNetworkKademlia() ? 0x02 : 0x00))));
 	if (theApp->IsConnectedED2K()) {
 		if (theApp->serverconnect->GetCurrentServer()) {
 			if (detail_level == EC_DETAIL_INC_UPDATE) {

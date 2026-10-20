@@ -26,6 +26,8 @@
 #ifndef PREFSUNIFIEDDLG_H
 #define PREFSUNIFIEDDLG_H
 
+#include "NetworkPreferences.h"
+
 #include <wx/bmpbndl.h> // Needed for wxBitmapBundle (m_pageIcons)
 #include <wx/dialog.h>  // Needed for wxDialog
 
@@ -79,8 +81,12 @@ public:
 	bool TransferFromWindow();
 	/// Updates the preference variables from the widgets.
 	bool TransferToWindow();
+	void UpdateNetworkPreferences();
 
 protected:
+	CNetworkPreferenceEdit m_ed2kEdit;
+	CNetworkPreferenceEdit m_kadEdit;
+
 	/// True if the Cfg with this id has changed.
 	bool CfgChanged(int id);
 

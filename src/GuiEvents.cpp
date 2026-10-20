@@ -215,6 +215,15 @@ void ServersURLChanged(wxString NOT_ON_DAEMON(url))
 #endif
 }
 
+void NetworkRearrange()
+{
+#ifndef AMULE_DAEMON
+	if (theApp->amuledlg) {
+		theApp->amuledlg->DoNetworkRearrange();
+	}
+#endif
+}
+
 void ShowGUI()
 {
 #ifndef AMULE_DAEMON

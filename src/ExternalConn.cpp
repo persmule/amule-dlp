@@ -4138,6 +4138,8 @@ CECPacket *CECServerSocket::ProcessRequest2(const CECPacket *request)
 			request->GetTagByNameSafe(EC_TAG_SELECT_PREFS)->GetInt(), request->GetDetailLevel());
 		break;
 	case EC_OP_SET_PREFERENCES: {
+		const bool ed2kWasEnabled = thePrefs::GetNetworkED2K();
+		const bool kadWasEnabled = thePrefs::GetNetworkKademlia();
 		const uint16 oldTcpPort = thePrefs::GetPort();
 		const uint16 oldUdpPort = thePrefs::GetUDPPort();
 		// Keep value snapshots: Apply() mutates both stored preference strings.
@@ -4182,12 +4184,7 @@ CECPacket *CECServerSocket::ProcessRequest2(const CECPacket *request)
 		if (thePrefs::IsFilteringServers()) {
 			theApp->serverlist->FilterServers();
 		}
-		if (!thePrefs::GetNetworkED2K() && theApp->IsConnectedED2K()) {
-			theApp->DisconnectED2K();
-		}
-		if (!thePrefs::GetNetworkKademlia() && theApp->IsConnectedKad()) {
-			theApp->StopKad();
-		}
+		theApp->ApplyNetworkChange(ed2kWasEnabled, kadWasEnabled);
 #ifdef ENABLE_IPV6
 		// Act on an AdvertiseIPv6 change now, not at the next periodic refresh.
 		AdvertisedIPv6ForPeers();

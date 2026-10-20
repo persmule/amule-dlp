@@ -2277,6 +2277,9 @@ PageType CamuleDlg::CaptureLogPage(wxNotebook *notebook, wxWindowID ctrlId)
 
 void CamuleDlg::DoNetworkRearrange()
 {
+	if (m_prefsDialog && m_prefsDialog->IsShown()) {
+		m_prefsDialog->UpdateNetworkPreferences();
+	}
 #if !defined(__WXOSX_COCOA__)
 	// in Mac OS with wxWidgets >= 3.0 and COCOA the following seems to cause problems
 	// (window is not refreshed after changes in network settings)

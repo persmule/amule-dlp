@@ -39,4 +39,7 @@
  */
 std::unique_ptr<CECPacket> MakePrefsDiffPacket(const CECPacket &base, const CECPacket &current);
 
+// Update just the two network presence flags in a preference diff baseline.
+void UpdateNetworkPrefsSnapshot(CECPacket &snapshot, bool ed2kEnabled, bool kadEnabled);
+
 #endif // ECPREFSDIFF_H

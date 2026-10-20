@@ -1624,6 +1624,8 @@ void CPreferencesRem::HandlePacket(const CECPacket *packet)
 
 bool CPreferencesRem::LoadRemote()
 {
+	// Capabilities belong to this connection, not the previously connected core.
+	m_liveNetworkPreferences = false;
 #ifdef GEOIP_GUI
 	// Assume the core has NO GeoIP support until it says otherwise. A 3.1+ core built
 	// with ENABLE_IP2COUNTRY answers with EC_TAG_IP2COUNTRY_SUPPORTED; a pre-3.1 core
@@ -1659,6 +1661,8 @@ class CPrefsRefreshHandler : public CECPacketHandlerBase
 	std::function<void()> m_then;
 
 public:
+	void AbortPendingRequest() override { delete this; }
+
 	explicit CPrefsRefreshHandler(std::function<void()> then)
 	: m_then(std::move(then))
 	{
@@ -1684,13 +1688,66 @@ void CPreferencesRem::RefreshFromRemote(std::function<void()> then)
 void CPreferencesRem::ApplyRefresh(const CECPacket *packet)
 {
 	if (packet->GetOpCode() == EC_OP_SET_PREFERENCES) {
+		const bool ed2kWasEnabled = thePrefs::GetNetworkED2K();
+		const bool kadWasEnabled = thePrefs::GetNetworkKademlia();
 		static_cast<const CEC_Prefs_Packet *>(packet)->Apply();
+		// A refresh requested before our SET can arrive after the dialog committed
+		// its values, just like an older statistics poll. Preserve the pending write
+		// in both the live copy and the diff baseline until its acknowledgement.
+		if (*m_pendingNetworkWrites != 0) {
+			thePrefs::SetNetworkED2K(ed2kWasEnabled);
+			thePrefs::SetNetworkKademlia(kadWasEnabled);
+		}
 		RememberRemoteState();
+		if (theApp->amuledlg && (ed2kWasEnabled != thePrefs::GetNetworkED2K() ||
+						kadWasEnabled != thePrefs::GetNetworkKademlia())) {
+			theApp->amuledlg->DoNetworkRearrange();
+		}
+	}
+}
+
+void CPreferencesRem::UpdateNetworks(bool ed2kEnabled, bool kadEnabled)
+{
+	// A poll sent before our SET can arrive after the dialog has committed its
+	// optimistic copy. EC replies are ordered: resume polling once the SET is acknowledged.
+	if (*m_pendingNetworkWrites != 0) {
+		return;
+	}
+	// Keep the diff baseline in step too: otherwise changing a network back to its
+	// previous value in Preferences would look unchanged and never reach the core.
+	if (m_remoteState) {
+		UpdateNetworkPrefsSnapshot(*m_remoteState, ed2kEnabled, kadEnabled);
+	}
+	if (ed2kEnabled != thePrefs::GetNetworkED2K() || kadEnabled != thePrefs::GetNetworkKademlia()) {
+		thePrefs::SetNetworkED2K(ed2kEnabled);
+		thePrefs::SetNetworkKademlia(kadEnabled);
+		if (theApp->amuledlg) {
+			theApp->amuledlg->DoNetworkRearrange();
+		}
 	}
 }
 
 class CPrefsSetHandler : public CECPacketHandlerBase
 {
+	std::shared_ptr<unsigned> m_pendingNetworkWrites;
+
+public:
+	explicit CPrefsSetHandler(std::shared_ptr<unsigned> pendingNetworkWrites)
+	: m_pendingNetworkWrites(std::move(pendingNetworkWrites))
+	{
+		if (m_pendingNetworkWrites) {
+			++*m_pendingNetworkWrites;
+		}
+	}
+
+	~CPrefsSetHandler() override
+	{
+		if (m_pendingNetworkWrites) {
+			--*m_pendingNetworkWrites;
+		}
+	}
+
+private:
 	void AbortPendingRequest() override { delete this; }
 
 	void HandlePacket(const CECPacket *packet) override
@@ -1722,7 +1779,13 @@ void CPreferencesRem::SendChangesToRemote()
 	if (m_remoteState) {
 		const std::unique_ptr<CECPacket> changes = MakePrefsDiffPacket(*m_remoteState, *current);
 		if (changes->GetTagCount() > 0) {
-			m_conn->SendRequest(new CPrefsSetHandler(), changes.get());
+			const CECTag *connection = changes->GetTagByName(EC_TAG_PREFS_CONNECTIONS);
+			const bool networksChanged =
+				connection && (connection->GetTagByName(EC_TAG_NETWORK_ED2K) ||
+						      connection->GetTagByName(EC_TAG_NETWORK_KADEMLIA));
+			m_conn->SendRequest(
+				new CPrefsSetHandler(networksChanged ? m_pendingNetworkWrites : nullptr),
+				changes.get());
 		}
 	}
 	m_remoteState = std::move(current);
@@ -2007,6 +2070,15 @@ void CServerConnectRem::HandlePacket(const CECPacket *packet)
 		static_cast<const CEC_ConnState_Tag *>(packet->GetTagByName(EC_TAG_CONNSTATE));
 	if (!tag) {
 		return;
+	}
+
+	// The optional tag also identifies cores that support enabling ED2K without a restart.
+	const CECTag *networks = tag->GetTagByName(EC_TAG_NETWORKS_ENABLED);
+	theApp->glob_prefs->SetLiveNetworkPreferencesSupported(networks != nullptr);
+	if (networks) {
+		const bool ed2kEnabled = (networks->GetInt() & 0x01) != 0;
+		const bool kadEnabled = (networks->GetInt() & 0x02) != 0;
+		theApp->glob_prefs->UpdateNetworks(ed2kEnabled, kadEnabled);
 	}
 
 	theApp->m_ConnState = 0;

@@ -146,6 +146,7 @@ void ServerHighlight(CServer *server, bool highlight);
 void ServerRefresh(CServer *server);
 void ServerFreeze();
 void ServerThaw();
+void NetworkRearrange();
 void ServerUpdateED2KInfo();
 void ServerUpdateKadKInfo();
 
@@ -549,6 +550,7 @@ typedef void (wxEvtHandler::*MuleNotifyEventFunction)(CMuleGUIEvent &);
 #define Notify_ServerRefresh(ptr) MuleNotify::DoNotify(&MuleNotify::ServerRefresh, ptr)
 #define Notify_ServerFreeze() MuleNotify::DoNotify(&MuleNotify::ServerFreeze)
 #define Notify_ServerThaw() MuleNotify::DoNotify(&MuleNotify::ServerThaw)
+#define Notify_NetworkRearrange() MuleNotify::DoNotify(&MuleNotify::NetworkRearrange)
 #define Notify_ServerUpdateED2KInfo() MuleNotify::DoNotify(&MuleNotify::ServerUpdateED2KInfo)
 #define Notify_ServerUpdateKadKInfo() MuleNotify::DoNotify(&MuleNotify::ServerUpdateKadKInfo)
 

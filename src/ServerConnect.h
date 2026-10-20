@@ -72,6 +72,7 @@ public:
 	void StopConnectionTry();
 	void CheckForTimeout();
 	bool RebindServerUDPSocket(const amuleIPV4Address &address);
+	void InitServerUDPSocket(amuleIPV4Address &address);
 
 	// safe socket closure and destruction
 	void DestroySocket(CServerSocket *pSck);

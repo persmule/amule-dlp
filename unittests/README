@@ -191,3 +191,41 @@ The existing wxGetApp downcast during CamuleApp construction triggers the UBSan
 vptr check before startup. If encountered, a temporary suppression file containing
 "vptr:wxGetApp" can be passed via UBSAN_OPTIONS=suppressions=<file> alongside the
 options above; keep address and leak checking enabled.
+
+Runtime network preference coverage (Linux, BUILD_DAEMON=ON, BUILD_AMULEAPI=ON,
+ENABLE_INTEGRATION_TESTS=ON):
+
+  ctest --test-dir build -R NetworkPreferencesIntegrationTest --output-on-failure
+
+NetworkPreferencesIntegrationTest starts an isolated offline daemon with both
+networks disabled and seeded server.met/staticservers.dat files. A REST PATCH
+must enable ED2K without restarting, load both lists, create the server UDP
+socket and attempt the configured auto-update once. Repeated network toggles
+must preserve the live list. A second EC client checks all enabled-network
+bitmasks through the connection-state poll, including partial preference writes
+and both networks disabled. It also stops a running, unconnected Kad and a
+loopback ED2K connection and a pending server login (including TCP socket closure),
+and checks that a disabled shutdown saves an initialized server list while a
+disabled restart preserves an uninitialized list. The
+headless ECPrefsDiffTest covers reverse toggles after a remote poll, preserving
+unrelated edits, and merging open-dialog checkboxes without losing staged edits.
+The auto-update has an empty URL list; no public
+network connection is required.
+
+GUI follow-up: with amulegui connected (or EC enabled on the monolithic GUI),
+toggle ED2K and Kad from the Web UI. Check that the Networks page, conditional
+log tabs and toolbar label follow each change within one poll. In amulegui,
+then change each network back in Preferences and verify that the daemon accepts
+it. Reopen Preferences/reconnect to check the full preference refresh path.
+
+With Preferences open on Connection, stage an ED2K checkbox change and change
+Kad through another client. The staged ED2K choice must remain, while the
+unedited Kad checkbox follows the external change. Save and verify both flags.
+While a network edit is staged, change the same flag to the staged value and back
+from another client. The staged checkbox must survive both changes. Cancel and
+reopen Preferences to verify it follows the current core value again.
+Repeat without a staged edit: both checkboxes, the Servers sidebar entry and
+the server UDP label must follow external changes. Finally stage a network
+change and enable API guest access without a password: the rejected save must
+leave the core network flags unchanged. Supply valid settings and retry; the
+staged network change must then apply. Run these checks in both desktop clients.

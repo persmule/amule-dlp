@@ -617,10 +617,9 @@ CServerConnect::CServerConnect(CServerList *in_serverlist, amuleIPV4Address &add
 	m_bTryObfuscated = thePrefs::IsServerCryptLayerTCPRequested();
 	m_hostnameResolvedThisSweep = false;
 
+	serverudpsocket = nullptr;
 	if (thePrefs::GetNetworkED2K()) {
-		serverudpsocket = new CServerUDPSocket(address, thePrefs::GetProxyData());
-	} else {
-		serverudpsocket = NULL;
+		InitServerUDPSocket(address);
 	}
 }
 
@@ -639,6 +638,13 @@ CServer *CServerConnect::GetConnectingServer() const
 		return connectionattemps.begin()->second->cur_server;
 	}
 	return nullptr;
+}
+
+void CServerConnect::InitServerUDPSocket(amuleIPV4Address &address)
+{
+	if (!serverudpsocket) {
+		serverudpsocket = new CServerUDPSocket(address, thePrefs::GetProxyData());
+	}
 }
 
 bool CServerConnect::RebindServerUDPSocket(const amuleIPV4Address &address)

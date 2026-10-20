@@ -284,6 +284,8 @@ EC_TAG_CAN_CHAT_SESSIONS                  0x0027
 EC_TAG_CAN_CHAT_PEER_HASH                 0x0028
 ## Server supports EC_OP_KNOWNFILE_DELETE. Advertised unconditionally in AUTH_OK.
 EC_TAG_CAN_DELETE_COMPLETE                0x002B
+## Optional child of EC_TAG_CONNSTATE: uint8, ED2K = bit 0, Kad = bit 1.
+EC_TAG_NETWORKS_ENABLED                   0x002C
 
 
 EC_TAG_CLIENT_NAME                        0x0100

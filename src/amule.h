@@ -509,6 +509,7 @@ public:
 	void UpdateNotesDat(const wxString &str, bool showDialog = false);
 
 	void DisconnectED2K();
+	void ApplyNetworkChange(bool ed2kWasEnabled, bool kadWasEnabled);
 
 	bool CryptoAvailable() const;
 
