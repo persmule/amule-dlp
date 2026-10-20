@@ -81,7 +81,7 @@ void SharedFilesUpdateItem(CKnownFile *file);
 void SharedFilesBeginBulkUpdate();
 void SharedFilesEndBulkUpdate();
 
-void DownloadCtrlUpdateItem(const void *item);
+void DownloadCtrlUpdateItem(const void *item, bool refreshGUI);
 void SourceCtrlUpdateSource(uint32 source, SourceItemType type);
 void DownloadCtrlAddFile(CPartFile *file);
 void SourceCtrlAddSource(CPartFile *owner, CClientRef source, SourceItemType type);
@@ -501,7 +501,10 @@ typedef void (wxEvtHandler::*MuleNotifyEventFunction)(CMuleGUIEvent &);
 #define Notify_SharedFilesEndBulkUpdate() MuleNotify::DoNotify(&MuleNotify::SharedFilesEndBulkUpdate)
 
 // download ctrl
-#define Notify_DownloadCtrlUpdateItem(ptr) MuleNotify::DoNotify(&MuleNotify::DownloadCtrlUpdateItem, ptr)
+#define Notify_DownloadCtrlUpdateItem(ptr) \
+	MuleNotify::DoNotify(&MuleNotify::DownloadCtrlUpdateItem, ptr, true)
+#define Notify_DownloadCtrlUpdateItemDeferred(ptr) \
+	MuleNotify::DoNotify(&MuleNotify::DownloadCtrlUpdateItem, ptr, false)
 #define Notify_DownloadCtrlAddFile(file) MuleNotify::DoNotify(&MuleNotify::DownloadCtrlAddFile, file)
 #define Notify_DownloadCtrlRemoveFile(file) MuleNotify::DoNotify(&MuleNotify::DownloadCtrlRemoveFile, file)
 #define Notify_DownloadCtrlSort() MuleNotify::DoNotify(&MuleNotify::DownloadCtrlSort)

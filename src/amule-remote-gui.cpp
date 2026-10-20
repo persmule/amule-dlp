@@ -3402,8 +3402,7 @@ void CDownQueueRem::ResetCatParts(int cat)
 void CKnownFilesRem::ProcessItemUpdatePartfile(const CEC_PartFile_Tag *tag, CPartFile *file)
 {
 	// Update status
-	tag->Speed(&file->m_kbpsDown);
-	file->kBpsDown = file->m_kbpsDown / 1024.0;
+	tag->UpdateDownloadRates(file->m_kbpsDown, file->kBpsDown, file->m_hasSmoothedDownloadRateEC);
 
 	tag->SizeXfer(&file->transferred);
 	tag->SizeDone(&file->completedsize);

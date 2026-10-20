@@ -27,6 +27,7 @@
 #define UPDOWNCLIENT_H
 
 #include <atomic>
+#include "DisplayRateCounter.h"
 
 #include "Constants.h"    // Needed for ESourceFrom
 #include "GetTickCount.h" // Needed for GetTickCount64
@@ -384,6 +385,10 @@ public:
 	uint64 GetSessionUp() const { return m_nTransferredUp - m_nCurSessionUp; }
 	void ResetSessionUp();
 	uint32 GetUploadDatarate() const { return m_nUpDatarate; }
+	uint32 GetDisplayUploadDatarate() const
+	{
+		return IsDownloading() ? CDisplayRateCounter::ClampRate(m_displayUploadRate.GetRate()) : 0;
+	}
 
 	uint64 GetUpStartTimeDelay() const { return ::GetTickCount64() - m_dwUploadTime; }
 	uint64 GetWaitStartTime() const;
@@ -466,7 +471,15 @@ public:
 
 	const BitVector &GetPartStatus() const { return m_downPartStatus; }
 	const BitVector &GetUpPartStatus() const { return m_upPartStatus; }
+	// Smoothed rate for pipelining and slow-source decisions.
 	float GetKBpsDown() const { return kBpsDown; }
+	uint32 GetDisplayDownloadRate() const
+	{
+		return GetDownloadState() == DS_DOWNLOADING
+			       ? CDisplayRateCounter::ClampRate(m_displayDownloadRate.GetRate())
+			       : 0;
+	}
+	float GetDisplayKBpsDown() const { return static_cast<float>(GetDisplayDownloadRate()) / 1024.0f; }
 	float CalculateKBpsDown();
 	uint16 GetRemoteQueueRank() const { return m_nRemoteQueueRank; }
 	uint16 GetOldRemoteQueueRank() const { return m_nOldRemoteQueueRank; }
@@ -631,7 +644,7 @@ public:
 
 	/// Per-tick poke from CPartFile::Process. Re-arms this client's socket if it suspended last
 	/// tick because the global CDownloadBandwidthThrottler bucket was empty, and returns the
-	/// client's current observed download speed for the per-file kBpsDown display sum. The
+	/// client's current observed download speed for the per-file smoothed rate sum. The
 	/// download cap (thePrefs::GetMaxDownload()) is enforced globally inside the throttler, not
 	/// per client.
 	float TickDownloadAndMeasure();
@@ -807,6 +820,10 @@ private:
 
 	// Upload data rate computation. Atomic: CUploadDiskIOThread reads the rate.
 	std::atomic<uint32> m_nUpDatarate;
+	void ResetDisplayUploadRate();
+	CDisplayRateCounter m_displayUploadRate;
+	uint64 m_lastDisplayUploadSample = 0;
+	CDisplayRateCounter m_displayDownloadRate;
 	uint32 m_nSumForAvgUpDataRate;
 	std::list<TransferredData> m_AvarageUDR_list;
 
@@ -853,7 +870,7 @@ private:
 	//! Whether this connection has already been counted towards the peer's
 	//! session tally in its credit metadata. See ProcessHelloTypePacket.
 	bool m_metaSessionCounted = false;
-	uint32 m_cSendblock;
+	uint64 m_lastUploadDisplayUpdate;
 	uint8 m_byEmuleVersion;
 	uint8 m_byDataCompVer;
 	bool m_bEmuleProtocol;
@@ -942,7 +959,6 @@ private:
 	wxString m_clientFilename;
 	uint64 m_nTransferredDown;
 	uint16 m_lastDownloadingPart; // last Part that was downloading
-	uint16 m_cShowDR;
 	uint64 m_dwLastBlockReceived;
 	uint16 m_nRemoteQueueRank;
 	uint16 m_nOldRemoteQueueRank;

@@ -131,6 +131,7 @@ public:
 	wxString GetFullIP() const;
 	uint16 GetKadPort() const;
 	float GetKBpsDown() const;
+	float GetDisplayKBpsDown() const;
 	uint32 GetIP() const;
 	uint16 GetLastDownloadingPart() const;
 	uint16 GetNextRequestedPart() const;
@@ -154,6 +155,7 @@ public:
 	uint64 GetTransferredUp() const;
 	uint16 GetUDPPort() const;
 	uint32 GetUploadDatarate() const;
+	uint32 GetDisplayUploadDatarate() const;
 	uint64 GetUploadedTotal() const;
 	const CKnownFile *GetUploadFile() const;
 	uint16 GetUploadQueueWaitingPosition() const;

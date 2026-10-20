@@ -83,6 +83,8 @@ public:
 	uint64 GetSentBytesCompleteFileSinceLastCallAndReset();
 	uint64 GetSentBytesPartFileSinceLastCallAndReset();
 	uint64 GetSentBytesControlPacketSinceLastCallAndReset();
+	// Separate from accounting: a file/session switch can discard its old display bytes.
+	uint64 GetSentFileBytesForDisplayAndReset();
 	uint64 GetSentPayloadSinceLastCallAndReset();
 	uint64 PeekSentPayload(); // Non-resetting peek -- for disk I/O thread buffer check
 	void SetUploadBufferTarget(uint32 payload);
@@ -187,6 +189,7 @@ private:
 	uint64 m_numberOfSentBytesCompleteFile;
 	uint64 m_numberOfSentBytesPartFile;
 	uint64 m_numberOfSentBytesControlPacket;
+	uint64 m_sentFileBytesForDisplay = 0;
 	bool m_currentPackageIsFromPartFile;
 
 	bool m_bAccelerateUpload;

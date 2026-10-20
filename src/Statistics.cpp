@@ -138,6 +138,10 @@ void CStatTreeItemPeakConnections::AddECValues(CECTag *tag) const
 /*----- CStatistics -----*/
 
 // Rate counters
+CDisplayRateCounter CStatistics::s_displayUploadRate;
+CDisplayRateCounter CStatistics::s_displayDownloadRate;
+CDisplayRateCounter CStatistics::s_displayUpOverheadRate;
+CDisplayRateCounter CStatistics::s_displayDownOverheadRate;
 CPreciseRateCounter *CStatistics::s_upOverheadRate;
 CPreciseRateCounter *CStatistics::s_downOverheadRate;
 CStatTreeItemRateCounter *CStatistics::s_uploadrate;
@@ -255,6 +259,10 @@ CStatistics::CStatistics()
 			listHR.push_back(hr);
 	}
 
+	s_displayUploadRate.Reset();
+	s_displayDownloadRate.Reset();
+	s_displayUpOverheadRate.Reset();
+	s_displayDownOverheadRate.Reset();
 	s_upOverheadRate = new CPreciseRateCounter(5000);
 	s_downOverheadRate = new CPreciseRateCounter(5000);
 
@@ -327,6 +335,10 @@ void CStatistics::CalculateRates()
 	s_upOverheadRate->CalculateRate(now);
 	s_downloadrate->CalculateRate(now);
 	s_uploadrate->CalculateRate(now);
+	s_displayUploadRate.CalculateRate(now);
+	s_displayDownloadRate.CalculateRate(now);
+	s_displayUpOverheadRate.CalculateRate(now);
+	s_displayDownOverheadRate.CalculateRate(now);
 }
 
 /* ------------------------------- GRAPHS ---------------------------- */

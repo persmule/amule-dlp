@@ -371,8 +371,8 @@ void CClientsWnd::UpdateAll()
 			entry.uploaded = c->GetUploadedTotal();
 			entry.downloaded = c->GetDownloadedTotal();
 			entry.creditRatio = c->GetCreditRatio();
-			entry.upSpeed = c->GetUploadDatarate();
-			entry.downSpeed = c->GetKBpsDown();
+			entry.upSpeed = c->GetDisplayUploadDatarate();
+			entry.downSpeed = c->GetDisplayKBpsDown();
 			entry.name = c->GetUserName();
 			entry.version = c->GetSoftVerStr();
 			entry.ip = c->GetIP();
@@ -404,8 +404,8 @@ void CClientsWnd::UpdateAll()
 		row.ip = c->GetIP();
 		row.port = c->GetUserPort();
 		row.sourceFrom = static_cast<uint8>(c->GetSourceFrom());
-		row.upSpeed = c->GetUploadDatarate();
-		row.downSpeed = c->GetKBpsDown();
+		row.upSpeed = c->GetDisplayUploadDatarate();
+		row.downSpeed = c->GetDisplayKBpsDown();
 		row.sessionUp = c->GetTransferredUp();
 		row.sessionDown = c->GetTransferredDown();
 		row.totalUp = c->GetUploadedTotal();

@@ -422,11 +422,11 @@ void CKnownFile::VerifyLocalData() const
 // queued clients alike, so queued ones (datarate 0, state != US_UPLOADING) contribute nothing.
 uint32 CKnownFile::GetUploadDatarate() const
 {
-	uint32 total = 0;
+	uint64 total = 0;
 	for (const CClientRef &ref : m_ClientUploadList) {
-		total += ref.GetUploadDatarate();
+		total += ref.GetDisplayUploadDatarate();
 	}
-	return total;
+	return CDisplayRateCounter::ClampRate(total);
 }
 
 void CKnownFile::MaybeScheduleVerification()

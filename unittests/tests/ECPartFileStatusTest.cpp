@@ -116,3 +116,48 @@ TEST(ECPartFileStatus, MissingStoppedTagDefaultsToFalse)
 	ASSERT_EQUALS(_("Waiting"), StatusText(PS_READY, 0, -1));
 	ASSERT_EQUALS(_("Downloading"), StatusText(PS_READY, 2, -1));
 }
+
+TEST(ECPartFileStatus, DownloadRatesKeepSmoothedEstimateAcrossLiveUpdates)
+{
+	uint32 display = 0;
+	float smoothed = 0;
+	bool hasSmoothed = false;
+	CEC_PartFile_Tag full(nullptr, EC_DETAIL_FULL);
+	full.AddTag(CECTag(EC_TAG_PARTFILE_SPEED, uint32(102400)));
+	full.AddTag(CECTag(EC_TAG_PARTFILE_SPEED_SMOOTHED, 25.0));
+	full.UpdateDownloadRates(display, smoothed, hasSmoothed);
+	ASSERT_EQUALS(uint32(102400), display);
+	ASSERT_EQUALS(25.0f, smoothed);
+	ASSERT_TRUE(hasSmoothed);
+
+	// An idle display delta must not replace the still-positive estimate with zero.
+	CEC_PartFile_Tag idle(nullptr, EC_DETAIL_UPDATE);
+	idle.AddTag(CECTag(EC_TAG_PARTFILE_SPEED, uint32(0)));
+	idle.UpdateDownloadRates(display, smoothed, hasSmoothed);
+	ASSERT_EQUALS(uint32(0), display);
+	ASSERT_EQUALS(25.0f, smoothed);
+
+	CEC_PartFile_Tag paused(nullptr, EC_DETAIL_UPDATE);
+	paused.AddTag(CECTag(EC_TAG_PARTFILE_SPEED_SMOOTHED, 0.0));
+	paused.UpdateDownloadRates(display, smoothed, hasSmoothed);
+	ASSERT_EQUALS(0.0f, smoothed);
+}
+
+TEST(ECPartFileStatus, LegacyDownloadRatesStillSupplyTheEstimate)
+{
+	uint32 display = 0;
+	float smoothed = 0;
+	bool hasSmoothed = false;
+	CEC_PartFile_Tag full(nullptr, EC_DETAIL_FULL);
+	full.AddTag(CECTag(EC_TAG_PARTFILE_SPEED, uint32(51200)));
+	full.UpdateDownloadRates(display, smoothed, hasSmoothed);
+	ASSERT_EQUALS(uint32(51200), display);
+	ASSERT_EQUALS(50.0f, smoothed);
+	ASSERT_FALSE(hasSmoothed);
+
+	CEC_PartFile_Tag idle(nullptr, EC_DETAIL_UPDATE);
+	idle.AddTag(CECTag(EC_TAG_PARTFILE_SPEED, uint32(0)));
+	idle.UpdateDownloadRates(display, smoothed, hasSmoothed);
+	ASSERT_EQUALS(0.0f, smoothed);
+	ASSERT_FALSE(hasSmoothed);
+}

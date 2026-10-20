@@ -1472,8 +1472,10 @@ static CECPacket *Get_EC_Response_StatRequest(const CECPacket *request, CLoggerA
 	// EC_DETAIL_INC_UPDATE so the included conn state tag is created the way it is
 	// needed here.
 	case EC_DETAIL_INC_UPDATE:
-		response->AddTag(CECTag(EC_TAG_STATS_UP_OVERHEAD, (uint32)theStats::GetUpOverheadRate()));
-		response->AddTag(CECTag(EC_TAG_STATS_DOWN_OVERHEAD, (uint32)theStats::GetDownOverheadRate()));
+		response->AddTag(CECTag(EC_TAG_STATS_UP_OVERHEAD,
+			CDisplayRateCounter::ClampRate(theStats::GetDisplayUpOverheadRate())));
+		response->AddTag(CECTag(EC_TAG_STATS_DOWN_OVERHEAD,
+			CDisplayRateCounter::ClampRate(theStats::GetDisplayDownOverheadRate())));
 		response->AddTag(CECTag(EC_TAG_STATS_BANNED_COUNT, /*(uint32)*/ theStats::GetBannedCount()));
 		AddLoggerTag(response, LoggerAccess);
 		// Needed only for the remote tray icon context menu
@@ -1505,8 +1507,11 @@ static CECPacket *Get_EC_Response_StatRequest(const CECPacket *request, CLoggerA
 	/* fall through */
 	case EC_DETAIL_WEB:
 	case EC_DETAIL_CMD:
-		response->AddTag(CECTag(EC_TAG_STATS_UL_SPEED, (uint32)theStats::GetUploadRate()));
-		response->AddTag(CECTag(EC_TAG_STATS_DL_SPEED, (uint32)(theStats::GetDownloadRate())));
+		// Live speed fields share the GUI's one-second window; history retains its longer average.
+		response->AddTag(CECTag(EC_TAG_STATS_UL_SPEED,
+			CDisplayRateCounter::ClampRate(theStats::GetDisplayUploadRate())));
+		response->AddTag(CECTag(EC_TAG_STATS_DL_SPEED,
+			CDisplayRateCounter::ClampRate(theStats::GetDisplayDownloadRate())));
 		response->AddTag(
 			CECTag(EC_TAG_STATS_UL_SPEED_LIMIT, (uint32)(thePrefs::GetMaxUpload() * 1024.0)));
 		response->AddTag(

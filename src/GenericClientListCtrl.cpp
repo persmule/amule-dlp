@@ -738,23 +738,25 @@ wxString CGenericClientListCtrl::GetItemColumnText(wxUIntPtr data, unsigned colu
 							      : wxString();
 
 	case ColumnUserSpeedDown:
-		if (notA4AF && client.GetKBpsDown() > 0.001) {
-			if (client.GetKBpsDown() >= 1024) {
-				return CFormat(_("%.1f MiB/s")) % (client.GetKBpsDown() / 1024.0);
+		if (notA4AF && client.GetDisplayKBpsDown() > 0.001) {
+			if (client.GetDisplayKBpsDown() >= 1024) {
+				return CFormat(_("%.1f MiB/s")) % (client.GetDisplayKBpsDown() / 1024.0);
 			}
-			return CFormat(_("%.1f KiB/s")) % client.GetKBpsDown();
+			return CFormat(_("%.1f KiB/s")) % client.GetDisplayKBpsDown();
 		}
 		return wxEmptyString;
 
-	case ColumnUserSpeedUp:
-		// Datarate is in bytes.
-		if (notA4AF && client.GetUploadDatarate() >= 1024) {
-			if (client.GetUploadDatarate() >= 1048576) {
-				return CFormat(_("%.1f MiB/s")) % (client.GetUploadDatarate() / 1048576.0);
+	case ColumnUserSpeedUp: {
+		// Read once: the one-second window can expire while formatting the cell.
+		const uint32 rate = client.GetDisplayUploadDatarate();
+		if (notA4AF && rate >= 1024) {
+			if (rate >= 1048576) {
+				return CFormat(_("%.1f MiB/s")) % (rate / 1048576.0);
 			}
-			return CFormat(_("%.1f KiB/s")) % (client.GetUploadDatarate() / 1024.0);
+			return CFormat(_("%.1f KiB/s")) % (rate / 1024.0);
 		}
 		return wxEmptyString;
+	}
 
 	case ColumnUserVersion:
 		return client.GetClientVerString();
@@ -1012,10 +1014,10 @@ int CGenericClientListCtrl::CompareByCid(
 		return CmpAny(client1.GetTransferredUp(), client2.GetTransferredUp());
 
 	case ColumnUserSpeedDown:
-		return CmpAny(client1.GetKBpsDown(), client2.GetKBpsDown());
+		return CmpAny(client1.GetDisplayKBpsDown(), client2.GetDisplayKBpsDown());
 
 	case ColumnUserSpeedUp:
-		return CmpAny(client1.GetUploadDatarate(), client2.GetUploadDatarate());
+		return CmpAny(client1.GetDisplayUploadDatarate(), client2.GetDisplayUploadDatarate());
 
 	case ColumnUserProgress:
 		return CmpAny(client1.GetAvailablePartCount(), client2.GetAvailablePartCount());

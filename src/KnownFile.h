@@ -315,7 +315,7 @@ public:
 	// Live upload activity for this shared file (issue #466), summarised from
 	// m_ClientUploadList -- the upload-side analogue of the download speed and transferring-
 	// source counts. Core-only: amulegui receives these over EC rather than computing them.
-	uint32 GetUploadDatarate() const;          // sum of per-client upload speed (B/s)
+	uint32 GetUploadDatarate() const;          // sum of per-client one-second display speeds (B/s)
 	uint16 GetTransferringClientCount() const; // clients currently US_UPLOADING
 	void VerifyLocalData() const;
 	// Called on the main thread for valid upload requests; never waits for the check.

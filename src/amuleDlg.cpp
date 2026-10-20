@@ -1424,10 +1424,10 @@ void CamuleDlg::ShowUserCount(const wxString &info)
 
 void CamuleDlg::ShowTransferRate()
 {
-	float kBpsUp = theStats::GetUploadRate() / 1024.0;
-	float kBpsDown = theStats::GetDownloadRate() / 1024.0;
-	float MBpsUp = kBpsUp / 1024.0;
-	float MBpsDown = kBpsDown / 1024.0;
+	const double kBpsUp = static_cast<double>(theStats::GetDisplayUploadRate()) / 1024.0;
+	const double kBpsDown = static_cast<double>(theStats::GetDisplayDownloadRate()) / 1024.0;
+	const double MBpsUp = kBpsUp / 1024.0;
+	const double MBpsDown = kBpsDown / 1024.0;
 	bool showMBpsUp = (MBpsUp >= 1);
 	bool showMBpsDown = (MBpsDown >= 1);
 	wxString buffer;
@@ -1435,9 +1435,10 @@ void CamuleDlg::ShowTransferRate()
 		buffer = CFormat(_("Up: %.1f%s (%.1f) | Down: %.1f%s (%.1f)")) %
 			 (showMBpsUp ? MBpsUp : kBpsUp) %
 			 (showMBpsUp ? _(" MiB/s") : ((kBpsUp > 0) ? _(" KiB/s") : "")) %
-			 (theStats::GetUpOverheadRate() / 1024.0) % (showMBpsDown ? MBpsDown : kBpsDown) %
+			 (static_cast<double>(theStats::GetDisplayUpOverheadRate()) / 1024.0) %
+			 (showMBpsDown ? MBpsDown : kBpsDown) %
 			 (showMBpsDown ? _(" MiB/s") : ((kBpsDown > 0) ? _(" KiB/s") : "")) %
-			 (theStats::GetDownOverheadRate() / 1024.0);
+			 (static_cast<double>(theStats::GetDisplayDownOverheadRate()) / 1024.0);
 	} else {
 		buffer = CFormat(_("Up: %.1f%s | Down: %.1f%s")) % (showMBpsUp ? MBpsUp : kBpsUp) %
 			 (showMBpsUp ? _(" MiB/s") : ((kBpsUp > 0) ? _(" KiB/s") : "")) %
@@ -1450,6 +1451,20 @@ void CamuleDlg::ShowTransferRate()
 	// re-flow the whole content area behind it -- see UpdateStatusLabel().
 	wxStaticText *label = CastChild("speedLabel", wxStaticText);
 	UpdateStatusLabel(label, buffer);
+	if (!label->GetToolTip()) {
+#ifdef CLIENT_GUI
+		// Older daemons still send longer averages in the same compatible speed fields.
+		label->SetToolTip(_(
+			"Transfer speeds are reported by the daemon. Total upload includes control traffic; "
+			"peer upload speeds include file packets only. Values in parentheses show protocol "
+			"overhead in KiB/s."));
+#else
+		label->SetToolTip(_("Live speeds are averaged over the last second. Total upload includes "
+				    "control traffic; "
+				    "peer upload speeds include file packets only. Values in parentheses "
+				    "show protocol overhead in KiB/s."));
+#endif
+	}
 
 	// Show upload/download speed in title
 	if (thePrefs::GetShowRatesOnTitle()) {
@@ -1797,7 +1812,6 @@ void CamuleDlg::OnGUITimer(wxTimerEvent &WXUNUSED(evt))
 
 	if (msCur - msPrev5 > 5000) { // every 5 seconds
 		msPrev5 = msCur;
-		ShowTransferRate();
 		if (thePrefs::ShowCatTabInfos() &&
 			theApp->amuledlg->m_activewnd == theApp->amuledlg->m_transferwnd) {
 			m_transferwnd->UpdateCatTabTitles();
@@ -1819,6 +1833,13 @@ void CamuleDlg::OnGUITimer(wxTimerEvent &WXUNUSED(evt))
 
 	if (msCur - msPrev1 > 1000) { // every second
 		msPrev1 = msCur;
+		// Paint download rows and totals from the same published core snapshots.
+#ifndef CLIENT_GUI
+		if (m_transferwnd && m_transferwnd->downloadlistctrl) {
+			m_transferwnd->downloadlistctrl->RefreshLiveItems();
+		}
+#endif
+		ShowTransferRate();
 
 		// The clients page shows live speeds and transfer totals, so it wants a per-second
 		// refresh -- and no more. This timer fires at 10 Hz, so outside this block the whole

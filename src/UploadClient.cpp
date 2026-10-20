@@ -50,6 +50,17 @@
 //	members of CUpDownClient
 //	which are mainly used for uploading functions
 
+void CUpDownClient::ResetDisplayUploadRate()
+{
+	m_displayUploadRate.Reset();
+	m_lastDisplayUploadSample = GetTickCount64();
+	if (m_socket) {
+		// These bytes may have reached the peer before the core accounted for them.
+		// Leave the accounting counters intact; only the new display window starts empty.
+		m_socket->GetSentFileBytesForDisplayAndReset();
+	}
+}
+
 void CUpDownClient::SetUploadState(uint8 eNewState)
 {
 	if (eNewState != m_nUploadState) {
@@ -72,7 +83,14 @@ void CUpDownClient::SetUploadState(uint8 eNewState)
 		}
 
 		// don't add any final cleanups for US_NONE here
+		const bool changedActivity = m_nUploadState == US_UPLOADING || eNewState == US_UPLOADING;
+		if (changedActivity) {
+			ResetDisplayUploadRate();
+		}
 		m_nUploadState = eNewState;
+		if (changedActivity && m_uploadingfile) {
+			Notify_SharedFilesUpdateItem(m_uploadingfile);
+		}
 		UpdateDisplayedInfo(true);
 	}
 }
@@ -259,7 +277,12 @@ void CUpDownClient::SetUploadFileID(CKnownFile *newreqfile)
 {
 	if (m_uploadingfile == newreqfile) {
 		return;
-	} else if (m_uploadingfile) {
+	}
+	CKnownFile *previousFile = m_uploadingfile;
+	// A peer can change shares without leaving its upload slot. Its recent display
+	// bytes belong to the old share, not to the share it has just requested.
+	ResetDisplayUploadRate();
+	if (m_uploadingfile) {
 		m_uploadingfile->RemoveUploadingClient(this);
 		m_uploadingfile->UpdateUpPartsFrequency(this, false); // Decrement
 		// The decrement side never recomputed, so the count was a high-water mark that only
@@ -284,6 +307,14 @@ void CUpDownClient::SetUploadFileID(CKnownFile *newreqfile)
 		m_upPartStatus.clear();
 		m_nUpCompleteSourcesCount = 0;
 		ClearUploadFileID();
+	}
+	// The periodic sweep visits only current upload files. The old file needs an
+	// explicit refresh when its final peer leaves, including changes to a null file.
+	if (previousFile) {
+		Notify_SharedFilesUpdateItem(previousFile);
+	}
+	if (newreqfile) {
+		Notify_SharedFilesUpdateItem(newreqfile);
 	}
 }
 
@@ -452,6 +483,7 @@ uint32 CUpDownClient::SendBlockData()
 	uint64 sentBytesCompleteFile = 0;
 	uint64 sentBytesPartFile = 0;
 	uint64 sentBytesPayload = 0;
+	uint64 displayBytes = 0;
 
 	if (m_socket) {
 		CEMSocket *s = m_socket;
@@ -460,6 +492,7 @@ uint32 CUpDownClient::SendBlockData()
 		// data to, which also updates the grand totals.
 		sentBytesCompleteFile = s->GetSentBytesCompleteFileSinceLastCallAndReset();
 		sentBytesPartFile = s->GetSentBytesPartFileSinceLastCallAndReset();
+		displayBytes = s->GetSentFileBytesForDisplayAndReset();
 
 		m_nTransferredUp += sentBytesCompleteFile + sentBytesPartFile;
 		credits->AddUploaded(sentBytesCompleteFile + sentBytesPartFile,
@@ -505,9 +538,20 @@ uint32 CUpDownClient::SendBlockData()
 		m_nUpDatarate = 0; //-1;
 	}
 
-	m_cSendblock++;
-	if (m_cSendblock == 30) {
-		m_cSendblock = 0;
+	const uint32 previousRate = GetDisplayUploadDatarate();
+	if (IsDownloading()) {
+		m_displayUploadRate.AddBatch(displayBytes, m_lastDisplayUploadSample, curTick);
+		m_lastDisplayUploadSample = curTick;
+		m_displayUploadRate.CalculateRate(curTick);
+	}
+	if (GetDisplayUploadDatarate() != previousRate && m_uploadingfile) {
+		// Dirty every published change, including expiry between GUI refreshes. Otherwise
+		// a remote poll can retain an intermediate speed after the file becomes idle.
+		m_uploadingfile->MarkECChanged();
+	}
+
+	if (curTick - m_lastUploadDisplayUpdate >= 1000) {
+		m_lastUploadDisplayUpdate = curTick;
 		Notify_SharedCtrlRefreshClient(ECID(), AVAILABLE_SOURCE);
 	}
 

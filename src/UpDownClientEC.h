@@ -99,6 +99,7 @@ public:
 	uint32 GetFullIPNumeric() const { return m_dwUserIP; }
 	uint16 GetKadPort() const { return m_nKadPort; }
 	float GetKBpsDown() const { return m_kBpsDown; }
+	float GetDisplayKBpsDown() const { return m_kBpsDown; }
 	uint32 GetIP() const { return m_dwUserIP; }
 	uint16 GetLastDownloadingPart() const { return m_lastDownloadingPart; }
 	uint16 GetNextRequestedPart() const { return m_nextRequestedPart; }
@@ -122,6 +123,7 @@ public:
 	uint64 GetTransferredDown() const { return m_nTransferredDown; }
 	uint64 GetTransferredUp() const { return m_nTransferredUp; }
 	uint32 GetUploadDatarate() const { return m_nUpDatarate; }
+	uint32 GetDisplayUploadDatarate() const { return m_nUpDatarate; }
 	uint64 GetUploadedTotal() const;
 	const CKnownFile *GetUploadFile() const { return m_uploadingfile; }
 	uint16 GetUploadQueueWaitingPosition() const { return m_waitingPosition; }

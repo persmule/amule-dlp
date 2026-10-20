@@ -499,6 +499,7 @@ void CUpDownClient::SetDownloadState(uint8 byNewState)
 			}
 		}
 		if (byNewState == DS_DOWNLOADING) {
+			m_displayDownloadRate.Reset();
 			msReceivedPrev = GetTickCount64();
 			theStats::AddDownloadingSource();
 		} else if (m_nDownloadState == DS_DOWNLOADING) {
@@ -509,6 +510,7 @@ void CUpDownClient::SetDownloadState(uint8 byNewState)
 			m_nDownloadState = byNewState;
 			ClearDownloadBlockRequests();
 
+			m_displayDownloadRate.Reset();
 			kBpsDown = 0.0;
 			bytesReceivedCycle = 0;
 			msReceivedPrev = 0;
@@ -870,6 +872,7 @@ void CUpDownClient::ProcessBlockPacket(const uint8_t *packet, uint32 size, bool 
 		}
 		theStats::AddDownloadFromSoft(GetClientSoft(), size - header_size);
 		bytesReceivedCycle += size - header_size;
+		m_displayDownloadRate.Add(size - header_size, GetTickCount64());
 
 		credits->AddDownloaded(size - header_size, GetUserAddress(), theApp->CryptoAvailable());
 
@@ -1212,11 +1215,8 @@ float CUpDownClient::CalculateKBpsDown()
 		msReceivedPrev = msCur;
 	}
 
-	m_cShowDR++;
-	if (m_cShowDR == 30) {
-		m_cShowDR = 0;
-		UpdateDisplayedInfo();
-	}
+	m_displayDownloadRate.CalculateRate(msCur);
+	UpdateDisplayedInfo();
 	if (msCur - m_dwLastBlockReceived > DOWNLOADTIMEOUT) {
 		if (!GetSentCancelTransfer()) {
 			CPacket *packet = new CPacket(OP_CANCELTRANSFER, 0, OP_EDONKEYPROT);

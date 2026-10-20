@@ -171,4 +171,15 @@ wxString CEC_StatTree_Node_Tag::GetDisplayString() const
 	}
 	return label.GetString();
 }
+void CEC_PartFile_Tag::UpdateDownloadRates(
+	uint32 &displayRate, float &smoothedRate, bool &hasSmoothedRate) const
+{
+	Speed(&displayRate);
+	if (const CECTag *rate = GetTagByName(EC_TAG_PARTFILE_SPEED_SMOOTHED)) {
+		smoothedRate = static_cast<float>(rate->GetDoubleData());
+		hasSmoothedRate = true;
+	} else if (!hasSmoothedRate) {
+		smoothedRate = static_cast<float>(displayRate) / 1024.0f;
+	}
+}
 // File_checked_for_headers

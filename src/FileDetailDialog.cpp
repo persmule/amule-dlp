@@ -183,7 +183,7 @@ void CFileDetailDialog::UpdateData(bool resetFilename)
 		CastChild(IDC_COMPLSIZE, wxControl)->SetLabel(CastItoXBytes(part->GetCompletedSize()));
 		bufferS = CFormat(_("%.1f%% done")) % part->GetPercentCompleted();
 		CastChild(IDC_PROCCOMPL, wxControl)->SetLabel(bufferS);
-		bufferS = CFormat(_("%.2f KiB/s")) % part->GetKBpsDown();
+		bufferS = CFormat(_("%.2f KiB/s")) % part->GetDisplayKBpsDown();
 		CastChild(IDC_DATARATE, wxControl)->SetLabel(bufferS);
 		bufferS = CFormat("%i") % part->GetSourceCount();
 		CastChild(IDC_SOURCECOUNT, wxControl)->SetLabel(bufferS);

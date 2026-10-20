@@ -168,7 +168,7 @@ void Search_Update_Progress(uint32 NOT_ON_DAEMON(val))
 #endif
 }
 
-void DownloadCtrlUpdateItem(const void *item)
+void DownloadCtrlUpdateItem(const void *item, bool NOT_ON_DAEMON(refreshGUI))
 {
 #ifndef CLIENT_GUI
 	// Notify can fire from PartFile load during early OnInit and from background threads during
@@ -182,7 +182,11 @@ void DownloadCtrlUpdateItem(const void *item)
 #endif
 #ifndef AMULE_DAEMON
 	if (theApp->amuledlg->m_transferwnd && theApp->amuledlg->m_transferwnd->downloadlistctrl) {
-		theApp->amuledlg->m_transferwnd->downloadlistctrl->UpdateItem(item);
+		if (refreshGUI) {
+			theApp->amuledlg->m_transferwnd->downloadlistctrl->UpdateItem(item);
+		} else {
+			theApp->amuledlg->m_transferwnd->downloadlistctrl->DeferUpdateItem(item);
+		}
 	}
 #endif
 }

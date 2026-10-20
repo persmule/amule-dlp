@@ -28,6 +28,7 @@
 #define STATISTICS_H
 
 #include "kademlia/utils/ContactDistribution.h"
+#include "DisplayRateCounter.h"
 #include "Constants.h"    // Needed for StatsGraphType
 #include "StatTree.h"     // Needed for CStatTreeItem* classes
 #include "GetTickCount.h" // Needed for GetTickCount64 in CPreciseRateCounter ctor
@@ -256,29 +257,35 @@ public:
 	{
 		(*s_fileReqUpOverhead) += size;
 		(*s_upOverheadRate) += size;
+		s_displayUpOverheadRate.Add(size, GetTickCount64());
 	}
 	static void AddUpOverheadSourceExchange(uint32 size)
 	{
 		(*s_sourceXchgUpOverhead) += size;
 		(*s_upOverheadRate) += size;
+		s_displayUpOverheadRate.Add(size, GetTickCount64());
 	}
 	static void AddUpOverheadServer(uint32 size)
 	{
 		(*s_serverUpOverhead) += size;
 		(*s_upOverheadRate) += size;
+		s_displayUpOverheadRate.Add(size, GetTickCount64());
 	}
 	static void AddUpOverheadKad(uint32 size)
 	{
 		(*s_kadUpOverhead) += size;
 		(*s_upOverheadRate) += size;
+		s_displayUpOverheadRate.Add(size, GetTickCount64());
 	}
 	static void AddUpOverheadCrypt(uint32_t size) { (*s_cryptUpOverhead) += size; }
 	static void AddUpOverheadOther(uint32 size)
 	{
 		(*s_totalUpOverhead) += size;
 		(*s_upOverheadRate) += size;
+		s_displayUpOverheadRate.Add(size, GetTickCount64());
 	}
 	static double GetUpOverheadRate() { return s_upOverheadRate->GetRate(); }
+	static uint64 GetDisplayUpOverheadRate() { return s_displayUpOverheadRate.GetRate(); }
 	static void AddSuccessfulUpload() { ++(*s_totalSuccUploads); }
 	static void AddFailedUpload() { ++(*s_totalFailedUploads); }
 	static void AddUploadTime(uint32 time) { (*s_totalUploadTime) += time; }
@@ -289,6 +296,8 @@ public:
 	static void RemoveWaitingClient() { --(*s_waitingUploads); }
 	static uint32 GetWaitingUserCount() { return (*s_waitingUploads); }
 	static double GetUploadRate() { return s_uploadrate->GetRate(); }
+	// Display counters use one second; GetUploadRate/GetDownloadRate retain 30 seconds.
+	static uint64 GetDisplayUploadRate() { return s_displayUploadRate.GetRate(); }
 
 	// Download
 	static uint64 GetTotalReceivedBytes() { return s_totalReceived; }
@@ -297,29 +306,35 @@ public:
 	{
 		(*s_fileReqDownOverhead) += size;
 		(*s_downOverheadRate) += size;
+		s_displayDownOverheadRate.Add(size, GetTickCount64());
 	}
 	static void AddDownOverheadSourceExchange(uint32 size)
 	{
 		(*s_sourceXchgDownOverhead) += size;
 		(*s_downOverheadRate) += size;
+		s_displayDownOverheadRate.Add(size, GetTickCount64());
 	}
 	static void AddDownOverheadServer(uint32 size)
 	{
 		(*s_serverDownOverhead) += size;
 		(*s_downOverheadRate) += size;
+		s_displayDownOverheadRate.Add(size, GetTickCount64());
 	}
 	static void AddDownOverheadKad(uint32 size)
 	{
 		(*s_kadDownOverhead) += size;
 		(*s_downOverheadRate) += size;
+		s_displayDownOverheadRate.Add(size, GetTickCount64());
 	}
 	static void AddDownOverheadCrypt(uint32_t size) { (*s_cryptDownOverhead) += size; }
 	static void AddDownOverheadOther(uint32 size)
 	{
 		(*s_totalDownOverhead) += size;
 		(*s_downOverheadRate) += size;
+		s_displayDownOverheadRate.Add(size, GetTickCount64());
 	}
 	static double GetDownOverheadRate() { return s_downOverheadRate->GetRate(); }
+	static uint64 GetDisplayDownOverheadRate() { return s_displayDownOverheadRate.GetRate(); }
 	static void AddFoundSource() { ++(*s_foundSources); }
 	static void RemoveFoundSource() { --(*s_foundSources); }
 	static uint32 GetFoundSources() { return (*s_foundSources); }
@@ -329,6 +344,7 @@ public:
 	static void RemoveDownloadingSource() { --(*s_activeDownloads); }
 	static uint32 GetDownloadingSources() { return (*s_activeDownloads); }
 	static double GetDownloadRate() { return s_downloadrate->GetRate(); }
+	static uint64 GetDisplayDownloadRate() { return s_displayDownloadRate.GetRate(); }
 
 	// Connection
 	static CStatTreeItemTimer *GetServerConnectTimer() { return s_sinceConnected; }
@@ -442,11 +458,12 @@ public:
 
 		(*s_sessionDownload) += bytes;
 		(*s_downloadrate) += bytes;
+		s_displayDownloadRate.Add(bytes, GetTickCount64());
 		s_totalReceived += bytes;
 		s_statsNeedSave = true;
 	}
 
-	static void AddSentBytes(uint32 bytes)
+	static void AddSentBytes(uint32 bytes, uint64 start, uint64 now)
 	{
 		if (!s_sinceFirstTransfer->IsRunning()) {
 			s_sinceFirstTransfer->StartTimer();
@@ -454,6 +471,7 @@ public:
 
 		(*s_sessionUpload) += bytes;
 		(*s_uploadrate) += bytes;
+		s_displayUploadRate.AddBatch(bytes, start, now);
 		s_totalSent += bytes;
 		s_statsNeedSave = true;
 	}
@@ -512,6 +530,10 @@ private:
 	HR hrInit;
 
 	/* Rate/Average counters */
+	static CDisplayRateCounter s_displayUploadRate;
+	static CDisplayRateCounter s_displayDownloadRate;
+	static CDisplayRateCounter s_displayUpOverheadRate;
+	static CDisplayRateCounter s_displayDownOverheadRate;
 	static CPreciseRateCounter *s_upOverheadRate;
 	static CPreciseRateCounter *s_downOverheadRate;
 	static CStatTreeItemRateCounter *s_uploadrate;
@@ -703,11 +725,16 @@ public:
 
 	static uint64 GetTotalSentBytes() { return s_statData[sdTotalSentBytes]; }
 	static double GetUploadRate() { return (double)s_statData[sdUpload]; }
+	// The daemon sends its one-second display rates in the EC speed fields.
+	static uint64 GetDisplayUploadRate() { return s_statData[sdUpload]; }
 	static double GetUpOverheadRate() { return (double)s_statData[sdUpOverhead]; }
+	static uint64 GetDisplayUpOverheadRate() { return s_statData[sdUpOverhead]; }
 
 	static uint64 GetTotalReceivedBytes() { return s_statData[sdTotalReceivedBytes]; }
 	static double GetDownloadRate() { return (double)s_statData[sdDownload]; }
+	static uint64 GetDisplayDownloadRate() { return s_statData[sdDownload]; }
 	static double GetDownOverheadRate() { return (double)s_statData[sdDownOverhead]; }
+	static uint64 GetDisplayDownOverheadRate() { return s_statData[sdDownOverhead]; }
 
 	static uint32 GetWaitingUserCount() { return s_statData[sdWaitingClients]; }
 	static uint32 GetBannedCount() { return s_statData[sdBannedClients]; }

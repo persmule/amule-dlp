@@ -105,6 +105,8 @@ public:
 	/// category, and redrawing if needed. Always a CPartFile*, kept as const void* for source
 	/// compatibility with existing callers (GuiEvents.cpp's DownloadCtrlUpdateItem).
 	void UpdateItem(const void *toupdate);
+	void RefreshLiveItems();
+	void DeferUpdateItem(const void *item);
 
 	uint8 GetCategory() const { return m_category; }
 
@@ -231,6 +233,7 @@ private:
 	//! RebuildVisibleList() walks this to decide what to show; AddFile() uses it to reject
 	//! duplicates.
 	std::set<CPartFile *> m_files;
+	std::set<CPartFile *> m_pendingUpdates;
 
 	//! Pointer to the current menu object, used to avoid multiple menus.
 	wxMenu *m_menu = nullptr;

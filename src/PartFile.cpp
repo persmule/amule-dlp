@@ -1619,7 +1619,7 @@ uint32 CPartFile::Process(uint8 m_icounter)
 	// answer "changed" always and leave this test doing nothing. The cost is that an idle
 	// download's active time reaches a remote GUI only when something real changes; it is
 	// read in one place.
-	const std::array<uint64, 12> ecTickState = { GetStatus(),
+	const std::array<uint64, 13> ecTickState = { GetStatus(),
 		GetSourceCount(),
 		GetNotCurrentSourcesCount(),
 		GetTransferingSrcCount(),
@@ -1628,6 +1628,8 @@ uint32 CPartFile::Process(uint8 m_icounter)
 		GetCompletedSize(),
 		// Quantised exactly as the tag sends it, so a speed wobble too
 		// small to change the wire value doesn't count as a change.
+		(uint64)GetDisplayDownloadRate(),
+		// The remote GUI uses this separate smoothed rate for its remaining-time estimate.
 		(uint64)(GetKBpsDown() * 1024),
 		GetAvailablePartCount(),
 		m_nCompleteSourcesCount,
@@ -1861,12 +1863,14 @@ uint32 CPartFile::Process(uint8 m_icounter)
 	if (m_count >= 30) {
 		m_count = 0;
 		UpdateAutoDownPriority();
-		UpdateDisplayedInfo();
 		if (m_bPercentUpdated == false) {
 			UpdateCompletedInfos();
 		}
 		m_bPercentUpdated = false;
 	}
+
+	PublishDisplayDownloadRate();
+	UpdateDisplayedInfo(false, true);
 
 	// release file handle if unused for some time
 	m_hpartfile.Release();
@@ -2502,8 +2506,9 @@ void CPartFile::CompleteFile(bool bIsHashingDone)
 		wxString("CPartFile::CompleteFile: Hash ") + (bIsHashingDone ? "done" : "not done"));
 
 	if (!bIsHashingDone) {
-		SetStatus(PS_COMPLETING);
 		kBpsDown = 0.0;
+		m_displayDownloadRate = 0;
+		SetStatus(PS_COMPLETING);
 
 		CPath partFile = m_partmetfilename.RemoveExt();
 		CThreadScheduler::AddTask(new CHashingTask(GetFilePath(), partFile, this));
@@ -2908,6 +2913,7 @@ void CPartFile::StopFile(bool bCancel)
 
 	RemoveAllSources(true);
 	kBpsDown = 0.0;
+	m_displayDownloadRate = 0;
 	transferingsrc = 0;
 
 	if (!bCancel) {
@@ -2930,6 +2936,7 @@ void CPartFile::StopPausedFile()
 				StopFile();
 			}
 			kBpsDown = 0.0;
+			m_displayDownloadRate = 0;
 		}
 	}
 	// release file handle if unused for some time
@@ -2983,6 +2990,7 @@ void CPartFile::PauseFile(bool bInsufficient)
 	m_paused = true;
 
 	kBpsDown = 0.0;
+	m_displayDownloadRate = 0;
 	transferingsrc = 0;
 
 	SetStatus(status);
@@ -4106,6 +4114,22 @@ void CPartFile::RemoveDownloadingSource(CUpDownClient *client)
 		m_downloadingSourcesList.begin(), m_downloadingSourcesList.end(), CCLIENTREF(client, ""));
 	if (it != m_downloadingSourcesList.end()) {
 		m_downloadingSourcesList.erase(it);
+		PublishDisplayDownloadRate();
+	}
+}
+
+void CPartFile::PublishDisplayDownloadRate()
+{
+	uint64 rate = 0;
+	for (const CClientRef &ref : m_downloadingSourcesList) {
+		if (const CUpDownClient *client = ref.GetClient()) {
+			rate += client->GetDisplayDownloadRate();
+		}
+	}
+	const uint32 displayRate = CDisplayRateCounter::ClampRate(rate);
+	if (m_displayDownloadRate != displayRate) {
+		m_displayDownloadRate = displayRate;
+		MarkECChanged();
 	}
 }
 
@@ -4515,13 +4539,19 @@ bool CPartFile::DelSource(CUpDownClient *client)
 
 #endif // !CLIENT_GUI
 
-void CPartFile::UpdateDisplayedInfo(bool force)
+void CPartFile::UpdateDisplayedInfo(bool force, bool deferGUI)
 {
 	uint64 curTick = ::GetTickCount64();
 
-	// Wait 1.5s between each redraw
+	// Refresh live speeds once per second
 	if (force || curTick - m_lastRefreshedDLDisplay > MINWAIT_BEFORE_DLDISPLAY_WINDOWUPDATE) {
-		Notify_DownloadCtrlUpdateItem(this);
+		if (deferGUI) {
+			// Periodic GUI rows refresh together with the status bar. Keep EC dirty
+			// notifications on the core schedule, including daemon builds.
+			Notify_DownloadCtrlUpdateItemDeferred(this);
+		} else {
+			Notify_DownloadCtrlUpdateItem(this);
+		}
 		m_lastRefreshedDLDisplay = curTick;
 	}
 }

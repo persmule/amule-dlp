@@ -485,6 +485,9 @@ public:
 		return AssignIfExist(EC_TAG_PARTFILE_SOURCE_COUNT_A4AF, target);
 	}
 	uint32 Speed(uint32 *target = 0) const { return AssignIfExist(EC_TAG_PARTFILE_SPEED, target); }
+	// Preserve a separately supplied smoothed rate across partial display-only updates.
+	// Older daemons supply only SPEED, which was already smoothed before live rates.
+	void UpdateDownloadRates(uint32 &displayRate, float &smoothedRate, bool &hasSmoothedRate) const;
 	uint8 DownPrio(uint8 *target = 0) const { return AssignIfExist(EC_TAG_PARTFILE_PRIO, target); }
 	uint8 FileCat(uint8 *target = 0) const { return AssignIfExist(EC_TAG_PARTFILE_CAT, target); }
 	time_t LastSeenComplete(time_t *target = 0) const

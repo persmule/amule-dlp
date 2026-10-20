@@ -989,6 +989,14 @@ msgid "Up: %.1f%s | Down: %.1f%s"
 msgstr ""
 
 #: src/amuleDlg.cpp
+msgid "Transfer speeds are reported by the daemon. Total upload includes control traffic; peer upload speeds include file packets only. Values in parentheses show protocol overhead in KiB/s."
+msgstr ""
+
+#: src/amuleDlg.cpp
+msgid "Live speeds are averaged over the last second. Total upload includes control traffic; peer upload speeds include file packets only. Values in parentheses show protocol overhead in KiB/s."
+msgstr ""
+
+#: src/amuleDlg.cpp
 #, c-format
 msgid "aMule (%s | Connected)"
 msgstr ""

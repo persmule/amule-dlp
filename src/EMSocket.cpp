@@ -407,6 +407,14 @@ uint64 CEMSocket::GetSentBytesControlPacketSinceLastCallAndReset()
 	return sentBytes;
 }
 
+uint64 CEMSocket::GetSentFileBytesForDisplayAndReset()
+{
+	std::lock_guard<std::mutex> lock(m_sendLocker);
+	const uint64 bytes = m_sentFileBytesForDisplay;
+	m_sentFileBytesForDisplay = 0;
+	return bytes;
+}
+
 uint64 CEMSocket::GetSentPayloadSinceLastCallAndReset()
 {
 	std::lock_guard<std::mutex> lock(m_sendLocker);
@@ -659,6 +667,7 @@ SocketSentBytes CEMSocket::Send(
 					sent += result;
 					if (m_currentPacket_is_controlpacket == false) {
 						sentStandardPacketBytesThisCall += result;
+						m_sentFileBytesForDisplay += result;
 						if (m_currentPackageIsFromPartFile == true) {
 							m_numberOfSentBytesPartFile += result;
 						} else {
