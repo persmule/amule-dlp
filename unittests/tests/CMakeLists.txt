@@ -1589,6 +1589,25 @@ target_link_libraries (TextFileTest
 	muleunit
 )
 
+add_executable (ECFileConfigTest ECFileConfigTest.cpp)
+add_test (NAME ECFileConfigTest COMMAND ECFileConfigTest)
+target_include_directories (ECFileConfigTest PRIVATE
+	${CMAKE_SOURCE_DIR}/src
+	${CMAKE_SOURCE_DIR}/src/include
+)
+target_link_libraries (ECFileConfigTest muleunit mulecommon)
+
+# Offline command-line coverage, including native Windows path forms.
+if (Python3_Interpreter_FOUND)
+	foreach (connector IN ITEMS amulecmd amuleweb)
+		if (TARGET ${connector})
+			add_test (NAME ConnectorConfigPathTest-${connector}
+				COMMAND ${Python3_EXECUTABLE}
+					${CMAKE_CURRENT_SOURCE_DIR}/ConnectorConfigPathTest.py $<TARGET_FILE:${connector}>)
+		endif ()
+	endforeach ()
+endif ()
+
 add_executable (OtherFunctionsTest
 	OtherFunctionsTest.cpp
 	${CMAKE_SOURCE_DIR}/src/OtherFunctions.cpp

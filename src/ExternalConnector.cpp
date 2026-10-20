@@ -431,6 +431,9 @@ void CaMuleExternalConnector::ConnectAndRun(const wxString &ProgName, const wxSt
 {
 	if (m_NeedsConfigSave) {
 		SaveConfigFile();
+		if (!FlushConfigFile()) {
+			exit(1);
+		}
 		return;
 	}
 
@@ -588,7 +591,7 @@ bool CaMuleExternalConnector::OnCmdLineParsed(wxCmdLineParser &parser)
 	// Portable detection is "does <cwd>/config/<probe> exist", so each connector probes for the
 	// file it actually owns rather than for remote.conf regardless.
 	m_configDir = GetConfigDir(PortableProbeFile());
-	m_configFileName = m_configDir + m_configFileName;
+	m_configFileName = FinalizeFilename(m_configFileName, m_configDir);
 
 	wxString aMuleConfigFile;
 	if (UsesConnectorConfigFile() && parser.Found("create-config-from", &aMuleConfigFile)) {
@@ -604,8 +607,7 @@ bool CaMuleExternalConnector::OnCmdLineParsed(wxCmdLineParser &parser)
 		CECFileConfig aMuleConfig(aMuleConfigFile);
 		LoadAmuleConfig(aMuleConfig);
 		SaveConfigFile();
-		m_configFile->Flush();
-		exit(0);
+		exit(FlushConfigFile() ? 0 : 1);
 	}
 
 	if (UsesConnectorConfigFile()) {
@@ -702,9 +704,6 @@ void CaMuleExternalConnector::LoadConfigFile()
 
 void CaMuleExternalConnector::SaveConfigFile()
 {
-	if (!wxFileName::DirExists(m_configDir)) {
-		wxFileName::Mkdir(m_configDir);
-	}
 	if (!m_configFile) {
 		m_configFile = new CECFileConfig(m_configFileName);
 	}
@@ -719,11 +718,25 @@ void CaMuleExternalConnector::SaveConfigFile()
 		m_configFile->Write("/EC/ZLIB", m_ZLIB ? 1l : 0l);
 		m_configFile->Write("/EC/ForceZLIB", m_forceZLIB ? 1l : 0l);
 		m_configFile->Write("/EC/Encryption", m_ECEncryption ? 1l : 0l);
-		// The umask covers a new file; an existing one keeps its mode across the rewrite, and
-		// --create-config-from writes it without loading it first.
-		m_configFile->Flush();
-		RestrictToOwner(CPath(m_configFileName));
 	}
+}
+
+bool CaMuleExternalConnector::FlushConfigFile()
+{
+	// Explicit --config-file paths can be outside m_configDir. Create their parent instead
+	// of an unrelated default directory, and flush after subclasses have written their keys.
+	const wxFileName configFile(m_configFileName);
+	if (!configFile.GetPath().IsEmpty() && !configFile.DirExists() &&
+		!configFile.Mkdir(wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL)) {
+		return false;
+	}
+	if (!m_configFile || !m_configFile->Flush()) {
+		return false;
+	}
+	// The umask covers a new file; an existing one keeps its mode across the rewrite, and
+	// --create-config-from writes it without loading it first.
+	RestrictToOwner(CPath(m_configFileName));
+	return true;
 }
 
 bool CaMuleExternalConnector::OnInit()

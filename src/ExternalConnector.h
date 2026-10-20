@@ -290,6 +290,8 @@ protected:
 	const char *m_appname;
 
 private:
+	bool FlushConfigFile();
+
 	wxString m_configFileName;
 	wxString m_cmdargs;
 	wxString m_lastcmdstr;
