@@ -1553,7 +1553,10 @@ wxSizer *PreferencesConnectionTab( wxWindow *parent, bool call_fit, bool set_siz
     slotRow->Add( new wxStaticText(limitBox, wxID_ANY, _("Slot Allocation")), wxSizerFlags().CenterVertical() );
     slotRow->Add( new wxSpinCtrl(limitBox, IDC_SLOTALLOC, "10", wxDefaultPosition, wxDefaultSize, 0, 1, 100000, 10), wxSizerFlags().CenterVertical().Border(wxLEFT, 5) );
     slotRow->Add( new wxStaticText(limitBox, wxID_ANY, _("KiB/s")), wxSizerFlags().CenterVertical().Border(wxLEFT, 5) );
-    limitSizer->Add( slotRow, wxSizerFlags().Border(wxTOP, 5) );
+    slotRow->AddStretchSpacer();
+    slotRow->Add(new wxButton(limitBox, IDC_BANDWIDTH_CALCULATOR, _("Bandwidth calculator...")),
+        wxSizerFlags().CenterVertical().Border(wxLEFT, 5));
+    limitSizer->Add( slotRow, wxSizerFlags().Expand().Border(wxTOP, 5) );
     item0->Add( limitSizer, wxSizerFlags().Expand() );
     wxStaticBox *item14 = new wxStaticBox( parent, -1, _("Ports") );
     wxStaticBoxSizer *item13 = new wxStaticBoxSizer( item14, wxVERTICAL );

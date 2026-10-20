@@ -66,6 +66,7 @@ env:
     libreadline-dev \
     libupnp-dev \
     libwxgtk3.2-dev \
+    locales \
     pkg-config \
     po4a \
     xvfb \
@@ -188,6 +189,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ${{ env.cmake_ubuntu_deps }}
+          # Exercise grouped numbers and decimal commas in the calculator tests.
+          sudo localedef -i en_US -f UTF-8 en_US.UTF-8
+          sudo localedef -i it_IT -f UTF-8 it_IT.UTF-8
       # It seems to run faster without this, but we have to manually list the
       # dependencies abobe.
       #  run: |
@@ -282,6 +286,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ${{ env.cmake_ubuntu_deps }}
+          # Exercise grouped numbers and decimal commas in the calculator tests.
+          sudo localedef -i en_US -f UTF-8 en_US.UTF-8
+          sudo localedef -i it_IT -f UTF-8 it_IT.UTF-8
       - uses: ./.github/actions/ngtcp2
         with:
           release: ${{ matrix.ngtcp2 }}

@@ -4014,7 +4014,7 @@ msgstr ""
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr ""
 
@@ -4905,6 +4905,10 @@ msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
+msgstr ""
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth calculator..."
 msgstr ""
 
 #: src/muuli_wdr.cpp
@@ -6580,7 +6584,7 @@ msgstr ""
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7021,6 +7025,22 @@ msgstr[1] ""
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Bandwidth calculator"
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Download (Mbit/s)"
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Upload (Mbit/s)"
 msgstr ""
 
 #: src/PrefsUnifiedDlg.cpp

@@ -279,6 +279,7 @@ wxSizer *PreferencesGeneralTab(wxWindow *parent, bool call_fit = TRUE, bool set_
 #define IDC_UPLOAD_LIMIT_ENABLED 10519
 #define IDC_MAXDOWN 10129
 #define IDC_MAXUP 10130
+#define IDC_BANDWIDTH_CALCULATOR 10525
 #define IDC_SLOTALLOC 10131
 #define IDC_PORT 10132
 #define ID_TEXT_CLIENT_UDP_PORT 10133
