@@ -2202,14 +2202,6 @@ msgstr ""
 "Visszajelzés %s-től (%s):\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Írd be az új nevet ennek a fájlnak:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Fájl átnevezés"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2878,6 +2870,14 @@ msgstr ""
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "OK"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Írd be az új nevet ennek a fájlnak:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Fájl átnevezés"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4126,7 +4126,7 @@ msgstr "Mindent kijelöl"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Korlátlan"
 
@@ -5029,6 +5029,11 @@ msgstr "Feltöltési korlát"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Slot kiosztás"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Sávszélesség korlátok"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6732,7 +6737,7 @@ msgstr "Alapértelmezett port lesz használva (%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7196,6 +7201,25 @@ msgstr[0] "Kiszolgáló kapcsolat frissítési gyakorisága: %d perc"
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Kiszolgáló kapcsolat frissítési gyakorisága: Tiltva"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Sávszélesség korlátok"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Letöltések (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Feltöltési korlát"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

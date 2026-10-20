@@ -2211,14 +2211,6 @@ msgstr ""
 "Atsauksme no: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Ievadiet šīs datnes jauno nosaukumu:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Datnes pārdēvēšana"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2886,6 +2878,14 @@ msgstr "%.2f KiB/s"
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "Labi"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Ievadiet šīs datnes jauno nosaukumu:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Datnes pārdēvēšana"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4146,7 +4146,7 @@ msgstr "Atlasīt visas"
 msgid "KiB/s"
 msgstr "KiB/s"
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Bez ierobežojuma"
 
@@ -5059,6 +5059,11 @@ msgstr "↑ Augšupielādes ātruma ierob."
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Katram klientam (vienam savienojumam) izdalītais spraugas"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Datu pārraides ierobežojumi"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6758,7 +6763,7 @@ msgstr "Tiks izmantots noklusējuma ports (%d)"
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, fuzzy, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr "%.1f MiB/s"
@@ -7233,6 +7238,25 @@ msgstr[1] ""
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Servera savienojuma atsvaidzināšanas intervāls: atspējots"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Datu pārraides ierobežojumi"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Lejupielādes (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "↑ Augšupielādes ātruma ierob."
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"

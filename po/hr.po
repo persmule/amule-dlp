@@ -2204,14 +2204,6 @@ msgid ""
 "\n"
 msgstr ""
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr ""
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr ""
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2857,6 +2849,14 @@ msgstr ""
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "OK"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr ""
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr ""
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4108,7 +4108,7 @@ msgstr "Izaberite sve"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "Bezkrajno"
 
@@ -5033,6 +5033,10 @@ msgstr ""
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Alokacija slota"
+
+#: src/muuli_wdr.cpp
+msgid "Bandwidth calculator..."
+msgstr ""
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6741,7 +6745,7 @@ msgstr ""
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7210,6 +7214,24 @@ msgstr[2] ""
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Interval obnavljanja veze servera: onemoguceno"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Bandwidth calculator"
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Downloads (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Prijenos"
 
 #: src/PrefsUnifiedDlg.cpp
 #, fuzzy

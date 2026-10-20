@@ -2212,14 +2212,6 @@ msgstr ""
 "Обратна връзка от: %s (%s)\n"
 "\n"
 
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "Enter new name for this file:"
-msgstr "Въведете ново име за този файл:"
-
-#: src/DownloadListCtrl.cpp src/SharedFilesCtrl.cpp
-msgid "File rename"
-msgstr "Преименуване на файл"
-
 #: src/DownloadListCtrl.cpp src/GenericClientListCtrl.cpp
 #: src/SharedFilesCtrl.cpp
 #, c-format
@@ -2887,6 +2879,14 @@ msgstr ""
 #: src/SharedFilesCtrl.cpp
 msgid "OK"
 msgstr "ОК"
+
+#: src/FileRenameDialog.h
+msgid "Enter new name for this file:"
+msgstr "Въведете ново име за този файл:"
+
+#: src/FileRenameDialog.h
+msgid "File rename"
+msgstr "Преименуване на файл"
 
 #: src/ExternalCommand.cpp
 msgid "The command has no executable."
@@ -4142,7 +4142,7 @@ msgstr "Избиране на всичко"
 msgid "KiB/s"
 msgstr ""
 
-#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h
+#: src/MuleTrayIcon.cpp src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 msgid "Unlimited"
 msgstr "неограничен"
 
@@ -5071,6 +5071,11 @@ msgstr "Ограничение за качване"
 #: src/muuli_wdr.cpp
 msgid "Slot Allocation"
 msgstr "Разпределение на местата"
+
+#: src/muuli_wdr.cpp
+#, fuzzy
+msgid "Bandwidth calculator..."
+msgstr "Ограничения на честотната лента"
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -6765,7 +6770,7 @@ msgstr "Ще бъде използван портът по подразбира�
 msgid "Adjust the enabled limit from 1 KiB/s to line capacity."
 msgstr ""
 
-#: src/BandwidthLimitSlider.h
+#: src/BandwidthLimitSlider.h src/PrefsUnifiedDlg.cpp
 #, c-format
 msgid "KiB/s (%.2f MiB/s)"
 msgstr ""
@@ -7236,6 +7241,25 @@ msgstr[1] "Интервал за обновяване на връзката съ
 #: src/PrefsUnifiedDlg.cpp
 msgid "Server connection refresh interval: Disabled"
 msgstr "Интервал за обновяване на връзката със сървъра: Изключен"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Bandwidth calculator"
+msgstr "Ограничения на честотната лента"
+
+#: src/PrefsUnifiedDlg.cpp
+msgid "Enter limits in Mbit/s. Zero means unlimited."
+msgstr ""
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Download (Mbit/s)"
+msgstr "Файлове за сваляне (%i)"
+
+#: src/PrefsUnifiedDlg.cpp
+#, fuzzy
+msgid "Upload (Mbit/s)"
+msgstr "Ограничение за качване"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"
