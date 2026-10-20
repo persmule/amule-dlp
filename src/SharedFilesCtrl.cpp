@@ -38,6 +38,7 @@
 #include "amuleDlg.h"         // Needed for CamuleDlg
 #include "CommentDialog.h"    // Needed for CCommentDialog
 #include "FileDetailDialog.h" // Needed for CFileDetailDialog
+#include "FileRenameDialog.h" // Needed for AskNewFileName
 #include "PartFile.h"         // Needed for CPartFile
 #include "FileLaunch.h"       // Needed for FileLaunch::Open / Reveal
 #include "SharedFileList.h"   // Needed for CKnownFileMap
@@ -1569,13 +1570,20 @@ void CSharedFilesCtrl::OnRename(wxCommandEvent &WXUNUSED(event))
 		return;
 	}
 	CKnownFile *file = reinterpret_cast<CKnownFile *>(selected.front());
+	const uint32 fileID = file->ECID();
 
-	wxString strNewName = ::wxGetTextFromUser(
-		_("Enter new name for this file:"), _("File rename"), file->GetFileName().GetPrintable());
+	wxString newName;
+	if (!AskNewFileName(this, file->GetFileName(), newName)) {
+		return;
+	}
+	// The modal event loop can remove the file or replace it at the same address.
+	if (!HasItemData(selected.front()) || file->ECID() != fileID) {
+		return;
+	}
 
-	CPath newName = CPath(strNewName);
-	if (newName.IsOk() && (newName != file->GetFileName())) {
-		theApp->sharedfiles->RenameFile(file, newName);
+	CPath newPath(newName);
+	if (newPath.IsOk() && (newPath != file->GetFileName())) {
+		theApp->sharedfiles->RenameFile(file, newPath);
 	}
 }
 

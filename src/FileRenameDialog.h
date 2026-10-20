@@ -1,0 +1,46 @@
+//
+// This file is part of the aMule Project.
+//
+// Copyright (c) 2003-2026 aMule Team ( https://amule-org.github.io )
+//
+// Any parts of this program derived from the xMule, lMule or eMule project,
+// or contributed by third-party developers are copyrighted by their
+// respective authors.
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA
+//
+
+#ifndef FILE_RENAME_DIALOG_H
+#define FILE_RENAME_DIALOG_H
+
+#include <common/Path.h>
+#include <wx/textdlg.h>
+
+// Only update newName when the user accepts; callers must recheck file lifetime afterwards.
+inline bool AskNewFileName(wxWindow *parent, const CPath &current, wxString &newName)
+{
+	wxTextEntryDialog dialog(
+		parent, _("Enter new name for this file:"), _("File rename"), current.GetPrintable());
+	// Keep the height fitted to the controls, but allow widening long filenames.
+	dialog.Fit();
+	dialog.SetSizeHints(dialog.GetSize(), wxSize(wxDefaultCoord, dialog.GetSize().GetHeight()));
+	if (dialog.ShowModal() != wxID_OK) {
+		return false;
+	}
+	newName = dialog.GetValue();
+	return true;
+}
+
+#endif // FILE_RENAME_DIALOG_H

@@ -36,6 +36,7 @@ src/ExternalConn.cpp
 src/ExternalConnector.cpp
 src/FileDetailDialog.cpp
 src/FileDetailListCtrl.cpp
+src/FileRenameDialog.h
 src/ExternalCommand.cpp
 src/FileLaunch.cpp
 src/FirstRunWizard.cpp

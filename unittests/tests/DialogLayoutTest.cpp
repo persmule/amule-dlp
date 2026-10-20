@@ -25,6 +25,7 @@
 #include <wx/wx.h>
 
 #include "DialogLayout.h"
+#include "FileRenameDialog.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -43,6 +44,69 @@ void Check(bool condition, const char *message)
 {
 	if (!condition) {
 		throw std::runtime_error(message);
+	}
+}
+
+// Drive the actual text control and button handlers, including wxWidgets' transfer
+// of edited text on OK. EndModal alone would bypass that part of the dialog.
+void TestFileRenameDialog()
+{
+	for (const wxString &current : { wxString("short.txt"), wxString('W', 300) }) {
+		for (const int buttonID : { wxID_OK, wxID_CANCEL }) {
+			wxString output = "unchanged";
+			bool inspected = false;
+			wxString failure;
+			wxTheApp->CallAfter([&] {
+				wxTextEntryDialog *dialog = nullptr;
+				for (wxWindow *window : wxTopLevelWindows) {
+					if (auto *candidate = dynamic_cast<wxTextEntryDialog *>(window)) {
+						dialog = candidate;
+						break;
+					}
+				}
+				if (!dialog) {
+					throw std::runtime_error("Rename dialog did not open");
+				}
+				// Close the modal loop even if an assertion fails in this callback.
+				try {
+					wxTextCtrl *text = nullptr;
+					for (wxWindow *child : dialog->GetChildren()) {
+						if (auto *candidate = dynamic_cast<wxTextCtrl *>(child)) {
+							text = candidate;
+							break;
+						}
+					}
+					Check(text && text->GetValue() == current,
+						"Rename lost the current filename");
+					const wxSize fitted = dialog->GetSize();
+					Check(dialog->GetMinHeight() == fitted.y &&
+							dialog->GetMaxHeight() == fitted.y,
+						"Rename dialog height is not fixed at its fitted size");
+					Check(dialog->HasFlag(wxRESIZE_BORDER) &&
+							dialog->GetMaxWidth() == wxDefaultCoord,
+						"Rename dialog cannot be widened");
+					dialog->SetSize(wxSize(fitted.x + 100, fitted.y));
+					dialog->Layout();
+					Check(dialog->GetSize().x > fitted.x &&
+							dialog->GetSize().y == fitted.y,
+						"Widening the rename dialog changed its height");
+					text->SetValue("renamed.txt");
+					inspected = true;
+					wxCommandEvent click(wxEVT_BUTTON, buttonID);
+					dialog->GetEventHandler()->ProcessEvent(click);
+				} catch (const std::exception &error) {
+					failure = wxString::FromUTF8(error.what());
+					dialog->EndModal(wxID_CANCEL);
+				}
+			});
+			const bool accepted = AskNewFileName(nullptr, CPath(current), output);
+			Check(failure.empty(), failure.ToUTF8().data());
+			Check(inspected, "Rename dialog was not inspected");
+			Check(accepted == (buttonID == wxID_OK),
+				"Rename acceptance does not match the button");
+			Check(output == (accepted ? "renamed.txt" : "unchanged"),
+				"Rename did not return edited text or modified output on cancellation");
+		}
 	}
 }
 
@@ -325,6 +389,7 @@ int main(int argc, char **argv)
 		result = 1;
 	} else {
 		try {
+			TestFileRenameDialog();
 			TestScrollableContent();
 			TestSmallContent();
 			TestHeightCappedContent();
