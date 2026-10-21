@@ -491,7 +491,8 @@ wxSizer *transferBottomPane( wxWindow *parent, bool call_fit, bool set_sizer )
     wxStaticText *item4 = new wxStaticText( parent, -1, _("File sources:"), wxDefaultPosition, wxDefaultSize, 0 );
     item3->Add( item4, wxSizerFlags().Center() );
 
-    wxStaticText *item5 = new wxStaticText( parent, ID_CLIENTCOUNT, "0", wxDefaultPosition, wxDefaultSize, wxST_NO_AUTORESIZE );
+    // Let the count grow beyond its initial single digit when ShowSourcesCount relayouts the header.
+    wxStaticText *item5 = new wxStaticText( parent, ID_CLIENTCOUNT, "0", wxDefaultPosition, wxDefaultSize, 0 );
     item5->SetForegroundColour( wxSystemSettings::GetColour(wxSYS_COLOUR_HOTLIGHT) );
     item3->Add( item5, wxSizerFlags().CenterVertical().Border(wxLEFT|wxRIGHT, 5) );
     item1->Add( item3, wxSizerFlags().Center().Border(wxLEFT|wxRIGHT, 5) );

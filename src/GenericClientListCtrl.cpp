@@ -499,6 +499,7 @@ void CGenericClientListCtrl::RemoveKnownFile(CKnownFile *file)
 
 	// Strip any per-row state whose m_owner matches. The multimap has to be walked
 	// once because m_ListItems is keyed by client ECID, not by file.
+	int removedItems = 0;
 	for (ListItems::iterator it = m_ListItems.begin(); it != m_ListItems.end(); /* manual ++ */) {
 		ClientCtrlItem_Struct *item = it->second;
 		if (item && item->GetOwner() == file) {
@@ -507,9 +508,14 @@ void CGenericClientListCtrl::RemoveKnownFile(CKnownFile *file)
 			RemoveItemData(reinterpret_cast<wxUIntPtr>(item));
 			delete item;
 			m_ListItems.erase(it++);
+			++removedItems;
 		} else {
 			++it;
 		}
+	}
+
+	if (removedItems != 0) {
+		ShowSourcesCount(-removedItems);
 	}
 }
 
