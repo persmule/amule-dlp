@@ -5,6 +5,7 @@
 import configparser
 import os
 from pathlib import Path
+import socket
 import subprocess
 import sys
 import tempfile
@@ -13,17 +14,15 @@ import tempfile
 PASSWORD = '0123456789abcdef0123456789abcdef'
 
 
-def run(binary, root, *args, expected_error=None, expect_failure=False):
+def run(binary, root, *args, expect_failure=False):
     env = dict(os.environ, HOME=str(root), XDG_CONFIG_HOME=str(root / 'xdg'))
     result = subprocess.run([binary, *args], cwd=root, env=env,
                             stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT, text=True, errors='replace', timeout=15)
     if expect_failure:
         assert result.returncode == 1, (args, result.returncode, result.stdout)
-    elif expected_error is None:
-        assert result.returncode == 0, (args, result.stdout)
     else:
-        assert expected_error in result.stdout, (args, result.stdout)
+        assert result.returncode == 0, (args, result.stdout)
     return result.stdout
 
 
@@ -155,12 +154,39 @@ def main():
                 root = base / 'amule-config-file'
                 root.mkdir()
                 source = root / 'amule.conf'
-                template = 'config-path-test-missing-template'
-                source.write_text(f'[WebServer]\nTemplate={template}\n')
-                # Stop at template validation, before any EC or HTTP connection is opened.
-                for argument in [source.as_posix(), './amule.conf']:
-                    run(binary, root, f'--amule-config-file={argument}',
-                        expected_error=f'Cannot find template: {template}')
+                template = 'config-path-test-template'
+                template_dir = root / 'webserver' / template
+                template_dir.mkdir(parents=True)
+                (template_dir / 'login.php').write_text('')
+                # A missing template can fall back to an installed default. Supply our
+                # own template and verify the selected config via its EC port instead.
+                # Close the mock peer before authentication, so HTTP never starts.
+                with socket.socket() as listener:
+                    listener.bind(('127.0.0.1', 0))
+                    listener.listen()
+                    listener.settimeout(10)
+                    port = listener.getsockname()[1]
+                    source.write_text(f'[ExternalConnect]\nECPort={port}\n'
+                                      f'ECPassword={PASSWORD}\n'
+                                      f'[WebServer]\nTemplate={template}\n')
+                    for argument in [source.as_posix(), './amule.conf']:
+                        env = dict(os.environ, HOME=str(root),
+                                   XDG_CONFIG_HOME=str(root / 'xdg'))
+                        process = subprocess.Popen(
+                            [binary, f'--amule-config-file={argument}'], cwd=root, env=env,
+                            stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT, text=True, errors='replace')
+                        try:
+                            with listener.accept()[0] as peer:
+                                peer.settimeout(5)
+                                assert peer.recv(4096), 'Missing EC authentication request'
+                            output, _ = process.communicate(timeout=5)
+                            assert process.returncode == 1, (argument, process.returncode, output)
+                            assert 'Enter password' not in output, (argument, output)
+                        finally:
+                            if process.poll() is None:
+                                process.kill()
+                            process.communicate()
                 print('amuleweb: amule-config-file passed', flush=True)
 
 
