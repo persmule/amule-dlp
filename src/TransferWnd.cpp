@@ -554,21 +554,21 @@ void CTransferWnd::CentreHeaderOnCategoryBar()
 
 	// A sizer item has one border width for every side it names, so the existing left/right gaps
 	// become spacers and the border is left to shift the control down.
-	std::vector<wxWindow *> controls;
+	// Nested rows (the filter field with its clear button) move with the controls.
+	std::vector<wxSizerItem *> controls;
 	for (wxSizerItem *item : row->GetChildren()) {
-		if (item->IsWindow() && item->GetWindow() != m_dlTab) {
-			controls.push_back(item->GetWindow());
+		if ((item->IsWindow() && item->GetWindow() != m_dlTab) || item->IsSizer()) {
+			controls.push_back(item);
 		}
 	}
-	for (wxWindow *control : controls) {
+	for (wxSizerItem *item : controls) {
 		size_t index = 0;
-		for (wxSizerItem *item : row->GetChildren()) {
-			if (item->GetWindow() == control) {
+		for (wxSizerItem *child : row->GetChildren()) {
+			if (child == item) {
 				break;
 			}
 			++index;
 		}
-		wxSizerItem *item = row->GetItem(control);
 		const int flags = item->GetFlag();
 		const int gap = item->GetBorder();
 		item->SetFlag((flags & ~wxALL) | wxTOP);

@@ -4008,7 +4008,7 @@ msgstr ""
 msgid "Paste"
 msgstr ""
 
-#: src/MuleTextCtrl.cpp src/muuli_wdr.cpp
+#: src/MuleTextCtrl.cpp src/muuli_wdr.cpp src/TextClearButton.h
 #: src/utils/aLinkCreator/src/alcframe.cpp
 msgid "Clear"
 msgstr ""

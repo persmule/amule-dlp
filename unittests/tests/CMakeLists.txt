@@ -25,6 +25,20 @@ add_test (NAME QuicCMakeConfigTest
 
 # Native icon rendering needs wx core and a display (skipped if unavailable).
 if (BUILD_MONOLITHIC OR BUILD_REMOTEGUI)
+	add_executable (TextClearButtonTest
+		TextClearButtonTest.cpp
+		${CMAKE_SOURCE_DIR}/src/CamuleArtProvider.cpp
+		${CMAKE_SOURCE_DIR}/src/icons/icon_data.c
+	)
+	target_include_directories (TextClearButtonTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_link_libraries (TextClearButtonTest PRIVATE wxWidgets::CORE)
+	if (WIN32)
+		target_sources (TextClearButtonTest PRIVATE IconArtworkTest.rc)
+		target_include_directories (TextClearButtonTest PRIVATE ${CMAKE_SOURCE_DIR})
+	endif ()
+	add_test (NAME TextClearButtonTest COMMAND TextClearButtonTest)
+	set_tests_properties (TextClearButtonTest PROPERTIES SKIP_RETURN_CODE 77 LABELS "gui")
+
 	add_executable (IconArtworkTest
 		IconArtworkTest.cpp
 		${CMAKE_SOURCE_DIR}/src/CamuleArtProvider.cpp

@@ -105,6 +105,7 @@ src/Statistics.cpp
 src/StatisticsDlg.cpp
 src/StatTree.cpp
 src/TerminationProcess.cpp
+src/TextClearButton.h
 src/TextClient.cpp
 src/TextClient.h
 src/ThreadTasks.cpp
