@@ -580,13 +580,13 @@ msgstr "amuleapi va redémarrer dans %u secondes."
 
 #: src/amule.cpp
 #, c-format
-msgid "External connection: could not bind to '%s', listening on 127.0.0.1 only."
-msgstr "Connexion externe : impossible de s’attacher à « %s » ; écoute limitée à 127.0.0.1."
+msgid "Could not bind ports to the specified address: %s"
+msgstr "Impossible de lier les ports à l'adresse spécifiée : %s"
 
 #: src/amule.cpp
 #, c-format
-msgid "Could not bind ports to the specified address: %s"
-msgstr "Impossible de lier les ports à l'adresse spécifiée : %s"
+msgid "External connection: could not bind to '%s', listening on 127.0.0.1 only."
+msgstr "Connexion externe : impossible de s’attacher à « %s » ; écoute limitée à 127.0.0.1."
 
 #: src/amule.cpp
 #, c-format
@@ -1060,6 +1060,14 @@ msgstr " Kio/s"
 #, c-format
 msgid "Up: %.1f%s | Down: %.1f%s"
 msgstr "E : %.1f%s | R : %.1f%s"
+
+#: src/amuleDlg.cpp
+msgid "Transfer speeds are reported by the daemon. Total upload includes control traffic; peer upload speeds include file packets only. Values in parentheses show protocol overhead in KiB/s."
+msgstr ""
+
+#: src/amuleDlg.cpp
+msgid "Live speeds are averaged over the last second. Total upload includes control traffic; peer upload speeds include file packets only. Values in parentheses show protocol overhead in KiB/s."
+msgstr ""
 
 #: src/amuleDlg.cpp
 #, c-format

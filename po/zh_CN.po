@@ -569,13 +569,13 @@ msgstr "amuleapi 将在 %u 秒内重启。"
 
 #: src/amule.cpp
 #, c-format
-msgid "External connection: could not bind to '%s', listening on 127.0.0.1 only."
-msgstr "外部连接：无法绑定 '%s'，仅监听 127.0.0.1。"
+msgid "Could not bind ports to the specified address: %s"
+msgstr "无法绑定端口到指定的地址：%s"
 
 #: src/amule.cpp
 #, c-format
-msgid "Could not bind ports to the specified address: %s"
-msgstr "无法绑定端口到指定的地址：%s"
+msgid "External connection: could not bind to '%s', listening on 127.0.0.1 only."
+msgstr "外部连接：无法绑定 '%s'，仅监听 127.0.0.1。"
 
 #: src/amule.cpp
 #, c-format
@@ -1047,6 +1047,14 @@ msgstr " KiB/s"
 #, c-format
 msgid "Up: %.1f%s | Down: %.1f%s"
 msgstr "上传: %.1f%s | 下载: %.1f%s"
+
+#: src/amuleDlg.cpp
+msgid "Transfer speeds are reported by the daemon. Total upload includes control traffic; peer upload speeds include file packets only. Values in parentheses show protocol overhead in KiB/s."
+msgstr ""
+
+#: src/amuleDlg.cpp
+msgid "Live speeds are averaged over the last second. Total upload includes control traffic; peer upload speeds include file packets only. Values in parentheses show protocol overhead in KiB/s."
+msgstr ""
 
 #: src/amuleDlg.cpp
 #, c-format

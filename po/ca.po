@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: aMule\n"
 "Report-Msgid-Bugs-To: https://github.com/amule-org/amule/issues\n"
 "POT-Creation-Date: 2026-10-09 12:39+0000\n"
-"PO-Revision-Date: 2026-10-20 14:05+0000\n"
+"PO-Revision-Date: 2026-10-20 22:06+0000\n"
 "Last-Translator: minterior <minterior@gmail.com>\n"
 "Language-Team: Català\n"
 "Language: ca\n"
@@ -570,13 +570,13 @@ msgstr "amuleapi es reiniciarà d'aquí a %u segons."
 
 #: src/amule.cpp
 #, c-format
-msgid "External connection: could not bind to '%s', listening on 127.0.0.1 only."
-msgstr "Connexió externa: no s'ha pogut vincular a «%s», s'escolta només a 127.0.0.1."
+msgid "Could not bind ports to the specified address: %s"
+msgstr "No s'han pogut vincular els ports a l'adreça especificada: %s"
 
 #: src/amule.cpp
 #, c-format
-msgid "Could not bind ports to the specified address: %s"
-msgstr "No s'han pogut vincular els ports a l'adreça especificada: %s"
+msgid "External connection: could not bind to '%s', listening on 127.0.0.1 only."
+msgstr "Connexió externa: no s'ha pogut vincular a «%s», s'escolta només a 127.0.0.1."
 
 #: src/amule.cpp
 #, c-format
@@ -1048,6 +1048,14 @@ msgstr " KiB/s"
 #, c-format
 msgid "Up: %.1f%s | Down: %.1f%s"
 msgstr "PU: %.1f%s | BA: %.1f%s"
+
+#: src/amuleDlg.cpp
+msgid "Transfer speeds are reported by the daemon. Total upload includes control traffic; peer upload speeds include file packets only. Values in parentheses show protocol overhead in KiB/s."
+msgstr ""
+
+#: src/amuleDlg.cpp
+msgid "Live speeds are averaged over the last second. Total upload includes control traffic; peer upload speeds include file packets only. Values in parentheses show protocol overhead in KiB/s."
+msgstr ""
 
 #: src/amuleDlg.cpp
 #, c-format
@@ -5023,9 +5031,8 @@ msgid "Slot Allocation"
 msgstr "Per posició (slot)"
 
 #: src/muuli_wdr.cpp
-#, fuzzy
 msgid "Bandwidth calculator..."
-msgstr "Límits d'ample de banda"
+msgstr "Calculadora d'ample de banda..."
 
 #: src/muuli_wdr.cpp
 msgid "Ports"
@@ -7200,23 +7207,20 @@ msgid "Server connection refresh interval: Disabled"
 msgstr "Interval de refresc de la connexió amb el servidor: Inhabilitat"
 
 #: src/PrefsUnifiedDlg.cpp
-#, fuzzy
 msgid "Bandwidth calculator"
-msgstr "Límits d'ample de banda"
+msgstr "Calculadora d'ample de banda"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "Enter limits in Mbit/s. Zero means unlimited."
-msgstr ""
+msgstr "Introduïu els límits en Mbit/s. Zero significa sense límit."
 
 #: src/PrefsUnifiedDlg.cpp
-#, fuzzy
 msgid "Download (Mbit/s)"
-msgstr "Baixades (%i)"
+msgstr "Baixada (Mbit/s)"
 
 #: src/PrefsUnifiedDlg.cpp
-#, fuzzy
 msgid "Upload (Mbit/s)"
-msgstr "Límit de pujada"
+msgstr "Pujada (Mbit/s)"
 
 #: src/PrefsUnifiedDlg.cpp
 msgid "disabled"
